@@ -15,14 +15,18 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import android.util.Base64;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -30,7 +34,9 @@ import java.security.NoSuchAlgorithmException;
 /* package */ final class RtspAuthenticationInfo {
 
   /** The supported authentication methods. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({BASIC, DIGEST})
   @interface AuthenticationMechanism {}
 
@@ -48,7 +54,7 @@ import java.security.NoSuchAlgorithmException;
   private static final String ALGORITHM = "MD5";
 
   /** The authentication mechanism. */
-  @AuthenticationMechanism public final int authenticationMechanism;
+  public final @AuthenticationMechanism int authenticationMechanism;
   /** The authentication realm. */
   public final String realm;
   /** The nonce used in digest authentication; empty if using {@link #BASIC} authentication. */

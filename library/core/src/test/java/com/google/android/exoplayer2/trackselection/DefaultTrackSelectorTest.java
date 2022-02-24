@@ -20,6 +20,10 @@ import static com.google.android.exoplayer2.C.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.C.FORMAT_UNSUPPORTED_SUBTYPE;
 import static com.google.android.exoplayer2.C.FORMAT_UNSUPPORTED_TYPE;
 import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
+import static com.google.android.exoplayer2.RendererCapabilities.DECODER_SUPPORT_FALLBACK;
+import static com.google.android.exoplayer2.RendererCapabilities.DECODER_SUPPORT_PRIMARY;
+import static com.google.android.exoplayer2.RendererCapabilities.HARDWARE_ACCELERATION_NOT_SUPPORTED;
+import static com.google.android.exoplayer2.RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
@@ -37,6 +41,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
@@ -248,6 +253,8 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void selectTracks_withEmptyTrackOverrideForDifferentTracks_hasNoEffect()
       throws ExoPlaybackException {
+    TrackGroup videoGroup0 = VIDEO_TRACK_GROUP.copyWithId("0");
+    TrackGroup videoGroup1 = VIDEO_TRACK_GROUP.copyWithId("1");
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
@@ -261,11 +268,16 @@ public final class DefaultTrackSelectorTest {
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES,
-            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
+            new TrackGroupArray(videoGroup0, AUDIO_TRACK_GROUP, videoGroup1),
             periodId,
             TIMELINE);
 
-    assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(
+            new FixedTrackSelection(videoGroup0, /* track= */ 0),
+            new FixedTrackSelection(AUDIO_TRACK_GROUP, /* track= */ 0))
+        .inOrder();
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
@@ -364,17 +376,24 @@ public final class DefaultTrackSelectorTest {
   /** Tests that an override is not applied for a different set of available track groups. */
   @Test
   public void selectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
+    TrackGroup videoGroup0 = VIDEO_TRACK_GROUP.copyWithId("0");
+    TrackGroup videoGroup1 = VIDEO_TRACK_GROUP.copyWithId("1");
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP.copyWithId("2")), null));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES,
-            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
+            new TrackGroupArray(videoGroup0, AUDIO_TRACK_GROUP, videoGroup1),
             periodId,
             TIMELINE);
-    assertSelections(result, TRACK_SELECTIONS);
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(
+            new FixedTrackSelection(videoGroup0, /* track= */ 0),
+            new FixedTrackSelection(AUDIO_TRACK_GROUP, /* track= */ 0))
+        .inOrder();
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
@@ -594,7 +613,7 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that track selector will select audio track with the highest number of matching role
+   * Tests that track selector will select the audio track with the highest number of matching role
    * flags given by {@link Parameters}.
    */
   @Test
@@ -619,6 +638,17 @@ public final class DefaultTrackSelectorTest {
             periodId,
             TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, moreRoleFlags);
+
+    // Also verify that exact match between parameters and tracks is preferred.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPreferredAudioRoleFlags(C.ROLE_FLAG_CAPTION));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, lessRoleFlags);
   }
 
   /**
@@ -1142,16 +1172,30 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that the default track selector will select a forced text track matching the selected
-   * audio language when no text language preferences match.
+   * Tests that the default track selector will select:
+   *
+   * <ul>
+   *   <li>A forced text track with unknown language if the selected audio language is also unknown.
+   *   <li>A forced text track matching the selected audio language.
+   *   <li>A default text track matching the selected audio language when a default text track in
+   *       another language is present.
+   *   <li>A default text track that doesn't match the selected audio language when a default text
+   *       track in the selected audio language is not present (but other text tracks in this
+   *       language are present).
+   * </ul>
    */
   @Test
-  public void selectingForcedTextTrackMatchesAudioLanguage() throws ExoPlaybackException {
-    Format.Builder formatBuilder =
+  public void forcedAndDefaultTextTracksInteractWithSelectedAudioLanguageAsExpected()
+      throws ExoPlaybackException {
+    Format.Builder forcedTextBuilder =
         TEXT_FORMAT.buildUpon().setSelectionFlags(C.SELECTION_FLAG_FORCED);
-    Format forcedEnglish = formatBuilder.setLanguage("eng").build();
-    Format forcedGerman = formatBuilder.setLanguage("deu").build();
-    Format forcedNoLanguage = formatBuilder.setLanguage(C.LANGUAGE_UNDETERMINED).build();
+    Format.Builder defaultTextBuilder =
+        TEXT_FORMAT.buildUpon().setSelectionFlags(C.SELECTION_FLAG_DEFAULT);
+    Format forcedEnglish = forcedTextBuilder.setLanguage("eng").build();
+    Format defaultEnglish = defaultTextBuilder.setLanguage("eng").build();
+    Format forcedGerman = forcedTextBuilder.setLanguage("deu").build();
+    Format defaultGerman = defaultTextBuilder.setLanguage("deu").build();
+    Format forcedNoLanguage = forcedTextBuilder.setLanguage(C.LANGUAGE_UNDETERMINED).build();
 
     Format noLanguageAudio = AUDIO_FORMAT.buildUpon().setLanguage(null).build();
     Format germanAudio = AUDIO_FORMAT.buildUpon().setLanguage("deu").build();
@@ -1184,6 +1228,19 @@ public final class DefaultTrackSelectorTest {
     trackGroups = wrapFormats(germanAudio, forcedEnglish, forcedGerman);
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[1], trackGroups, forcedGerman);
+
+    // The audio declares german. The default german track should be selected (in favour of the
+    // default english track and forced german track).
+    trackGroups =
+        wrapFormats(germanAudio, forcedGerman, defaultGerman, forcedEnglish, defaultEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[1], trackGroups, defaultGerman);
+
+    // The audio declares german. The default english track should be selected because there's no
+    // default german track.
+    trackGroups = wrapFormats(germanAudio, forcedGerman, forcedEnglish, defaultEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[1], trackGroups, defaultEnglish);
   }
 
   /**
@@ -1277,6 +1334,45 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
     assertFixedSelection(result.selections[1], trackGroups, german);
+  }
+
+  /**
+   * Tests that track selector will select the text track with the highest number of matching role
+   * flags given by {@link Parameters}.
+   */
+  @Test
+  public void selectTracks_withPreferredTextRoleFlags_selectPreferredTrack() throws Exception {
+    Format.Builder formatBuilder = TEXT_FORMAT.buildUpon();
+    Format noRoleFlags = formatBuilder.build();
+    Format lessRoleFlags = formatBuilder.setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    Format moreRoleFlags =
+        formatBuilder
+            .setRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY | C.ROLE_FLAG_DUB)
+            .build();
+    TrackGroupArray trackGroups = wrapFormats(noRoleFlags, moreRoleFlags, lessRoleFlags);
+
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, moreRoleFlags);
+
+    // Also verify that exact match between parameters and tracks is preferred.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, lessRoleFlags);
   }
 
   /**
@@ -1533,6 +1629,122 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
+  public void selectTracksWithMultipleAudioTracksWithMixedDecoderSupportLevels() throws Exception {
+    Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
+    Format format0 = formatBuilder.setId("0").setAverageBitrate(200).build();
+    Format format1 = formatBuilder.setId("1").setAverageBitrate(400).build();
+    Format format2 = formatBuilder.setId("2").setAverageBitrate(600).build();
+    Format format3 = formatBuilder.setId("3").setAverageBitrate(800).build();
+    TrackGroupArray trackGroups = singleTrackGroup(format0, format1, format2, format3);
+    @Capabilities int unsupported = RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+    @Capabilities
+    int primaryHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int primarySoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int fallbackHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+    @Capabilities
+    int fallbackSoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+
+    // Select all tracks supported by primary, hardware decoder by default.
+    ImmutableMap<String, Integer> rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            primaryHardware,
+            "1",
+            primaryHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackHardware);
+    RendererCapabilities rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 1, 0);
+
+    // Select all tracks supported by primary, software decoder by default if no primary, hardware
+    // decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            fallbackHardware,
+            "1",
+            fallbackHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), 2);
+
+    // Select all tracks supported by fallback, hardware decoder if no primary decoder is
+    // available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackHardware, "1", unsupported, "2", fallbackSoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 0);
+
+    // Select all tracks supported by fallback, software decoder if no other decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackSoftware, "1", fallbackSoftware, "2", unsupported, "3", fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 1, 0);
+
+    // Select all tracks if mixed decoder support is allowed.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", primaryHardware, "1", unsupported, "2", primarySoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioMixedDecoderSupportAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 2, 0);
+  }
+
+  @Test
   public void selectTracksWithMultipleAudioTracksOverrideReturnsAdaptiveTrackSelection()
       throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
@@ -1683,6 +1895,122 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
+  public void selectTracksWithMultipleVideoTracksWithMixedDecoderSupportLevels() throws Exception {
+    Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
+    Format format0 = formatBuilder.setId("0").setAverageBitrate(200).build();
+    Format format1 = formatBuilder.setId("1").setAverageBitrate(400).build();
+    Format format2 = formatBuilder.setId("2").setAverageBitrate(600).build();
+    Format format3 = formatBuilder.setId("3").setAverageBitrate(800).build();
+    TrackGroupArray trackGroups = singleTrackGroup(format0, format1, format2, format3);
+    @Capabilities int unsupported = RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+    @Capabilities
+    int primaryHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int primarySoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int fallbackHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+    @Capabilities
+    int fallbackSoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+
+    // Select all tracks supported by primary, hardware decoder by default.
+    ImmutableMap<String, Integer> rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            primaryHardware,
+            "1",
+            primaryHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackHardware);
+    RendererCapabilities rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 1, 0);
+
+    // Select all tracks supported by primary, software decoder by default if no primary, hardware
+    // decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            fallbackHardware,
+            "1",
+            fallbackHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), 2);
+
+    // Select all tracks supported by fallback, hardware decoder if no primary decoder is
+    // available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackHardware, "1", unsupported, "2", fallbackSoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 0);
+
+    // Select all tracks supported by fallback, software decoder if no other decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackSoftware, "1", fallbackSoftware, "2", unsupported, "3", fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 1, 0);
+
+    // Select all tracks if mixed decoder support is allowed.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", primaryHardware, "1", unsupported, "2", primarySoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowVideoMixedDecoderSupportAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 2, 0);
+  }
+
+  @Test
   public void selectTracksWithMultipleVideoTracksOverrideReturnsAdaptiveTrackSelection()
       throws Exception {
     Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
@@ -1768,11 +2096,17 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format formatAv1 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_AV1).build();
     Format formatVp9 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_VP9).build();
-    Format formatH264 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
-    TrackGroupArray trackGroups = wrapFormats(formatAv1, formatVp9, formatH264);
+    Format formatH264Low =
+        new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).setAverageBitrate(400).build();
+    Format formatH264High =
+        new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).setAverageBitrate(800).build();
+    // Use an adaptive group to check that MIME type has a higher priority than number of tracks.
+    TrackGroup adaptiveGroup = new TrackGroup(formatH264Low, formatH264High);
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(formatAv1), new TrackGroup(formatVp9), adaptiveGroup);
 
     trackSelector.setParameters(
-        trackSelector.buildUponParameters().setPreferredVideoMimeType(MimeTypes.VIDEO_VP9));
+        defaultParameters.buildUpon().setPreferredVideoMimeType(MimeTypes.VIDEO_VP9));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
@@ -1780,8 +2114,8 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections[0], trackGroups, formatVp9);
 
     trackSelector.setParameters(
-        trackSelector
-            .buildUponParameters()
+        defaultParameters
+            .buildUpon()
             .setPreferredVideoMimeTypes(MimeTypes.VIDEO_VP9, MimeTypes.VIDEO_AV1));
     result =
         trackSelector.selectTracks(
@@ -1790,23 +2124,60 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections[0], trackGroups, formatVp9);
 
     trackSelector.setParameters(
-        trackSelector
-            .buildUponParameters()
+        defaultParameters
+            .buildUpon()
             .setPreferredVideoMimeTypes(MimeTypes.VIDEO_DIVX, MimeTypes.VIDEO_H264));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
-    assertFixedSelection(result.selections[0], trackGroups, formatH264);
+    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
 
-    // Select first in the list if no preference is specified.
-    trackSelector.setParameters(
-        trackSelector.buildUponParameters().setPreferredVideoMimeType(null));
+    // Select default (=most tracks) if no preference is specified.
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredVideoMimeType(null));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
-    assertFixedSelection(result.selections[0], trackGroups, formatAv1);
+    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
+  }
+
+  /**
+   * Tests that track selector will select the video track with the highest number of matching role
+   * flags given by {@link Parameters}.
+   */
+  @Test
+  public void selectTracks_withPreferredVideoRoleFlags_selectPreferredTrack() throws Exception {
+    Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
+    Format noRoleFlagsLow = formatBuilder.setAverageBitrate(4000).build();
+    Format noRoleFlagsHigh = formatBuilder.setAverageBitrate(8000).build();
+    Format lessRoleFlags = formatBuilder.setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    Format moreRoleFlags =
+        formatBuilder
+            .setRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY | C.ROLE_FLAG_DUB)
+            .build();
+    // Use an adaptive group to check that role flags have higher priority than number of tracks.
+    TrackGroup adaptiveNoRoleFlagsGroup = new TrackGroup(noRoleFlagsLow, noRoleFlagsHigh);
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(
+            adaptiveNoRoleFlagsGroup, new TrackGroup(moreRoleFlags), new TrackGroup(lessRoleFlags));
+
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setPreferredVideoRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, moreRoleFlags);
+
+    // Also verify that exact match between parameters and tracks is preferred.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPreferredVideoRoleFlags(C.ROLE_FLAG_CAPTION));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, lessRoleFlags);
   }
 
   @Test
@@ -1985,6 +2356,7 @@ public final class DefaultTrackSelectorTest {
         .setExceedVideoConstraintsIfNecessary(false)
         .setAllowVideoMixedMimeTypeAdaptiveness(true)
         .setAllowVideoNonSeamlessAdaptiveness(false)
+        .setAllowVideoMixedDecoderSupportAdaptiveness(true)
         .setViewportSize(
             /* viewportWidth= */ 8,
             /* viewportHeight= */ 9,
@@ -1999,6 +2371,7 @@ public final class DefaultTrackSelectorTest {
         .setAllowAudioMixedMimeTypeAdaptiveness(true)
         .setAllowAudioMixedSampleRateAdaptiveness(false)
         .setAllowAudioMixedChannelCountAdaptiveness(true)
+        .setAllowAudioMixedDecoderSupportAdaptiveness(false)
         .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3)
         // Text
         .setPreferredTextLanguages("de", "en")
@@ -2041,7 +2414,7 @@ public final class DefaultTrackSelectorTest {
   private static final class FakeRendererCapabilities implements RendererCapabilities {
 
     private final int trackType;
-    @Capabilities private final int supportValue;
+    private final @Capabilities int supportValue;
 
     /**
      * Returns {@link FakeRendererCapabilities} that advertises adaptive support for all tracks of
@@ -2081,16 +2454,14 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
-    @Capabilities
-    public int supportsFormat(Format format) {
+    public @Capabilities int supportsFormat(Format format) {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
           ? supportValue
           : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
-    @AdaptiveSupport
-    public int supportsMixedMimeTypeAdaptation() {
+    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
   }
@@ -2129,16 +2500,14 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
-    @Capabilities
-    public int supportsFormat(Format format) {
+    public @Capabilities int supportsFormat(Format format) {
       return format.id != null && formatToCapability.containsKey(format.id)
           ? formatToCapability.get(format.id)
           : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
-    @AdaptiveSupport
-    public int supportsMixedMimeTypeAdaptation() {
+    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
   }

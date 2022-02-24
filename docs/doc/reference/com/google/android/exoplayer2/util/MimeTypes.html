@@ -648,7 +648,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>static int</code></td>
+<td class="colFirst"><code>static @com.google.android.exoplayer2.C.Encoding int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEncoding(java.lang.String,java.lang.String)">getEncoding</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
@@ -2185,10 +2185,9 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 <ul class="blockList">
 <li class="blockList">
 <h4>getEncoding</h4>
-<pre class="methodSignature"><a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2">@Encoding</a>
-public static&nbsp;int&nbsp;getEncoding&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                              @Nullable
-                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
+<pre class="methodSignature">public static&nbsp;@com.google.android.exoplayer2.C.Encoding int&nbsp;getEncoding&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                                                        @Nullable
+                                                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
 <div class="block">Returns the <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> constant corresponding to the specified audio MIME type and RFC
  6381 codec string, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the corresponding <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> cannot
  be determined.</div>

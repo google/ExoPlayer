@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.extractor.Extractor.RESULT_SEEK;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +46,7 @@ import java.util.List;
   /** Reader states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_SHOULD_CHECK_FOR_SEF,
     STATE_CHECKING_FOR_SEF,
@@ -60,6 +63,7 @@ import java.util.List;
   /** Supported data types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TYPE_SLOW_MOTION_DATA,
     TYPE_SUPER_SLOW_MOTION_DATA,
@@ -93,7 +97,7 @@ import java.util.List;
   private static final Splitter ASTERISK_SPLITTER = Splitter.on('*');
 
   private final List<DataReference> dataReferences;
-  @State private int readerState;
+  private @State int readerState;
   private int tailLength;
 
   public SefReader() {
@@ -106,8 +110,7 @@ import java.util.List;
     readerState = STATE_SHOULD_CHECK_FOR_SEF;
   }
 
-  @Extractor.ReadResult
-  public int read(
+  public @Extractor.ReadResult int read(
       ExtractorInput input,
       PositionHolder seekPosition,
       List<Metadata.Entry> slowMotionMetadataEntries)
@@ -246,8 +249,7 @@ import java.util.List;
     return new SlowMotionData(segments);
   }
 
-  @DataType
-  private static int nameToDataType(String name) throws ParserException {
+  private static @DataType int nameToDataType(String name) throws ParserException {
     switch (name) {
       case "SlowMotion_Data":
         return TYPE_SLOW_MOTION_DATA;
@@ -265,7 +267,7 @@ import java.util.List;
   }
 
   private static final class DataReference {
-    @DataType public final int dataType;
+    public final @DataType int dataType;
     public final long startOffset;
     public final int size;
 

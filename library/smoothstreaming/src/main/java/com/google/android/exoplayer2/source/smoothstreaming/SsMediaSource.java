@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -51,7 +52,6 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestP
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -62,9 +62,9 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /** A SmoothStreaming {@link MediaSource}. */
@@ -76,19 +76,17 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   /** Factory for {@link SsMediaSource}. */
+  @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
   public static final class Factory implements MediaSourceFactory {
 
     private final SsChunkSource.Factory chunkSourceFactory;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-    private boolean usingCustomDrmSessionManagerProvider;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     @Nullable private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
-    private List<StreamKey> streamKeys;
-    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link SsMediaSource}s.
@@ -118,17 +116,6 @@ public final class SsMediaSource extends BaseMediaSource
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
-      streamKeys = Collections.emptyList();
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setTag(@Nullable Object tag) {
-      this.tag = tag;
-      return this;
     }
 
     /**
@@ -195,65 +182,11 @@ public final class SsMediaSource extends BaseMediaSource
     @Override
     public Factory setDrmSessionManagerProvider(
         @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-      if (drmSessionManagerProvider != null) {
-        this.drmSessionManagerProvider = drmSessionManagerProvider;
-        this.usingCustomDrmSessionManagerProvider = true;
-      } else {
-        this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
-        this.usingCustomDrmSessionManagerProvider = false;
-      }
+      this.drmSessionManagerProvider =
+          drmSessionManagerProvider != null
+              ? drmSessionManagerProvider
+              : new DefaultDrmSessionManagerProvider();
       return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      if (drmSessionManager == null) {
-        setDrmSessionManagerProvider(null);
-      } else {
-        setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      if (!usingCustomDrmSessionManagerProvider) {
-        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
-            .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmUserAgent(@Nullable String userAgent) {
-      if (!usingCustomDrmSessionManagerProvider) {
-        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
-      }
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setStreamKeys(List)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public Factory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
-      this.streamKeys = streamKeys != null ? streamKeys : Collections.emptyList();
-      return this;
-    }
-
-    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public SsMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
     }
 
     /**
@@ -280,21 +213,18 @@ public final class SsMediaSource extends BaseMediaSource
     public SsMediaSource createMediaSource(SsManifest manifest, MediaItem mediaItem) {
       Assertions.checkArgument(!manifest.isLive);
       List<StreamKey> streamKeys =
-          mediaItem.localConfiguration != null && !mediaItem.localConfiguration.streamKeys.isEmpty()
+          mediaItem.localConfiguration != null
               ? mediaItem.localConfiguration.streamKeys
-              : this.streamKeys;
+              : ImmutableList.of();
       if (!streamKeys.isEmpty()) {
         manifest = manifest.copy(streamKeys);
       }
       boolean hasUri = mediaItem.localConfiguration != null;
-      boolean hasTag = hasUri && mediaItem.localConfiguration.tag != null;
       mediaItem =
           mediaItem
               .buildUpon()
               .setMimeType(MimeTypes.APPLICATION_SS)
               .setUri(hasUri ? mediaItem.localConfiguration.uri : Uri.EMPTY)
-              .setTag(hasTag ? mediaItem.localConfiguration.tag : tag)
-              .setStreamKeys(streamKeys)
               .build();
       return new SsMediaSource(
           mediaItem,
@@ -322,24 +252,11 @@ public final class SsMediaSource extends BaseMediaSource
       if (manifestParser == null) {
         manifestParser = new SsManifestParser();
       }
-      List<StreamKey> streamKeys =
-          !mediaItem.localConfiguration.streamKeys.isEmpty()
-              ? mediaItem.localConfiguration.streamKeys
-              : this.streamKeys;
+      List<StreamKey> streamKeys = mediaItem.localConfiguration.streamKeys;
       if (!streamKeys.isEmpty()) {
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
 
-      boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
-      boolean needsStreamKeys =
-          mediaItem.localConfiguration.streamKeys.isEmpty() && !streamKeys.isEmpty();
-      if (needsTag && needsStreamKeys) {
-        mediaItem = mediaItem.buildUpon().setTag(tag).setStreamKeys(streamKeys).build();
-      } else if (needsTag) {
-        mediaItem = mediaItem.buildUpon().setTag(tag).build();
-      } else if (needsStreamKeys) {
-        mediaItem = mediaItem.buildUpon().setStreamKeys(streamKeys).build();
-      }
       return new SsMediaSource(
           mediaItem,
           /* manifest= */ null,
@@ -436,6 +353,7 @@ public final class SsMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     drmSessionManager.prepare();
+    drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), getPlayerId());
     if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest();

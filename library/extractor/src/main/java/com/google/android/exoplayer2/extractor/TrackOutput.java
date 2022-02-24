@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 
 /** Receives track level data extracted by an {@link Extractor}. */
@@ -35,7 +38,7 @@ public interface TrackOutput {
   final class CryptoData {
 
     /** The encryption mode used for the sample. */
-    @C.CryptoMode public final int cryptoMode;
+    public final @C.CryptoMode int cryptoMode;
 
     /** The encryption key associated with the sample. Its contents must not be modified. */
     public final byte[] encryptionKey;
@@ -93,6 +96,7 @@ public interface TrackOutput {
   /** Defines the part of the sample data to which a call to {@link #sampleData} corresponds. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({SAMPLE_DATA_PART_MAIN, SAMPLE_DATA_PART_ENCRYPTION, SAMPLE_DATA_PART_SUPPLEMENTAL})
   @interface SampleDataPart {}
 

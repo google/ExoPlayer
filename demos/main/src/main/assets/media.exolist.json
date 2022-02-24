@@ -35,31 +35,31 @@
         "name": "HD (cenc)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "UHD (cenc)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "HD (cbcs)",
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "UHD (cbcs)",
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "Secure -> Clear -> Secure (cenc)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/widevine/tears_enc_clear_enc.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test",
         "drm_session_for_clear_content": true
       }
     ]
@@ -71,25 +71,25 @@
         "name": "HD (cenc, full-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "UHD (cenc, full-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "HD (cenc, sub-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "UHD (cenc, sub-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       }
     ]
   },
@@ -100,13 +100,13 @@
         "name": "HD (cenc)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       },
       {
         "name": "UHD (cenc)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test"
       }
     ]
   },
@@ -237,11 +237,11 @@
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"
       },
       {
-        "name": "Apple master playlist advanced (TS)",
+        "name": "Apple multivariant playlist advanced (TS)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"
       },
       {
-        "name": "Apple master playlist advanced (FMP4)",
+        "name": "Apple multivariant playlist advanced (FMP4)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
       },
       {
@@ -382,6 +382,98 @@
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
             "ad_tag_uri": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostlongpod&cmsid=496&vid=short_tencue&correlator="
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "IMA DAI streams",
+    "samples": [
+      {
+        "name": "HLS VOD: Demo (skippable pre/post), single ads [30 s]",
+        "uri": "ssai://dai.google.com/?contentSourceId=2483977&videoId=ima-vod-skippable-test&format=2&adsId=1"
+      },
+      {
+        "name": "HLS VOD: Tears of Steel (pre/mid/mid/mid/post), single ads [10s]",
+        "uri": "ssai://dai.google.com/?contentSourceId=2528370&videoId=tears-of-steel&format=2&adsId=1"
+      },
+      {
+        "name": "HLS Live: Big Buck Bunny (mid), 3 ads each [10 s]",
+        "uri": "ssai://dai.google.com/?assetKey=sN_IYUG8STe1ZzhIIE_ksA&format=2&adsId=3"
+      },
+      {
+        "name": "DASH VOD: Tears of Steel (11 periods, pre/mid/post), 2/5/2 ads [5/10s]",
+        "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
+      },
+      {
+        "name": "Playlist: No ads - HLS VOD: Demo (skippable pre/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2483977&videoId=ima-vod-skippable-test&format=2&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - HLS VOD: Tears of steel (pre/mid/mid/mid/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2528370&videoId=tears-of-steel&format=2&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - HLS Live: Big Buck Bunny (mid) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?assetKey=sN_IYUG8STe1ZzhIIE_ksA&format=2&adsId=3"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - DASH VOD: Tears of Steel (11 periods, pre/mid/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: Client-side Ads - DASH VOD: Tears of Steel (11 periods, pre/mid/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
+            "ad_tag_uri": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
           }
         ]
       }

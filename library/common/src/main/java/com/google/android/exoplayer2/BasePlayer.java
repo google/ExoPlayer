@@ -382,39 +382,7 @@ public abstract class BasePlayer implements Player {
         : timeline.getWindow(getCurrentMediaItemIndex(), window).getDurationMs();
   }
 
-  /**
-   * Returns the {@link Commands} available in the player.
-   *
-   * @param permanentAvailableCommands The commands permanently available in the player.
-   * @return The available {@link Commands}.
-   */
-  protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
-    return new Commands.Builder()
-        .addAll(permanentAvailableCommands)
-        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
-        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentMediaItemSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousMediaItem() && !isPlayingAd())
-        .addIf(
-            COMMAND_SEEK_TO_PREVIOUS,
-            !getCurrentTimeline().isEmpty()
-                && (hasPreviousMediaItem()
-                    || !isCurrentMediaItemLive()
-                    || isCurrentMediaItemSeekable())
-                && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextMediaItem() && !isPlayingAd())
-        .addIf(
-            COMMAND_SEEK_TO_NEXT,
-            !getCurrentTimeline().isEmpty()
-                && (hasNextMediaItem() || (isCurrentMediaItemLive() && isCurrentMediaItemDynamic()))
-                && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
-        .addIf(COMMAND_SEEK_BACK, isCurrentMediaItemSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_FORWARD, isCurrentMediaItemSeekable() && !isPlayingAd())
-        .build();
-  }
-
-  @RepeatMode
-  private int getRepeatModeForNavigation() {
+  private @RepeatMode int getRepeatModeForNavigation() {
     @RepeatMode int repeatMode = getRepeatMode();
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }

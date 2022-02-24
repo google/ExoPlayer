@@ -29,6 +29,7 @@ import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FOR
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
@@ -37,10 +38,12 @@ import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaFormat;
+import android.media.metrics.LogSessionId;
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -50,6 +53,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -74,6 +78,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -207,6 +212,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     RECONFIGURATION_STATE_NONE,
     RECONFIGURATION_STATE_WRITE_PENDING,
@@ -225,6 +231,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({DRAIN_STATE_NONE, DRAIN_STATE_SIGNAL_END_OF_STREAM, DRAIN_STATE_WAIT_END_OF_STREAM})
   private @interface DrainState {}
   /** The codec is not being drained. */
@@ -236,6 +243,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     DRAIN_ACTION_NONE,
     DRAIN_ACTION_FLUSH,
@@ -254,6 +262,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     ADAPTATION_WORKAROUND_MODE_NEVER,
     ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION,
@@ -316,7 +325,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
   @Nullable private DecoderInitializationException preferredDecoderInitializationException;
   @Nullable private MediaCodecInfo codecInfo;
-  @AdaptationWorkaroundMode private int codecAdaptationWorkaroundMode;
+  private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
   private boolean codecNeedsSosFlushWorkaround;
@@ -338,9 +347,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean bypassSampleBufferPending;
   private boolean bypassDrainAndReinitialize;
   private boolean codecReconfigured;
-  @ReconfigurationState private int codecReconfigurationState;
-  @DrainState private int codecDrainState;
-  @DrainAction private int codecDrainAction;
+  private @ReconfigurationState int codecReconfigurationState;
+  private @DrainState int codecDrainState;
+  private @DrainAction int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
   private boolean codecHasOutputMediaFormat;
@@ -426,14 +435,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  @AdaptiveSupport
-  public final int supportsMixedMimeTypeAdaptation() {
+  public final @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override
-  @Capabilities
-  public final int supportsFormat(Format format) throws ExoPlaybackException {
+  public final @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
     try {
       return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {
@@ -449,9 +456,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return The {@link Capabilities} for this {@link Format}.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
-  @Capabilities
-  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
-      throws DecoderQueryException;
+  protected abstract @Capabilities int supportsFormat(
+      MediaCodecSelector mediaCodecSelector, Format format) throws DecoderQueryException;
 
   /**
    * Returns a list of decoders that can decode media in the specified format, in priority order.
@@ -559,6 +565,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
     return true;
+  }
+
+  /**
+   * Returns whether the renderer needs to re-initialize the codec, possibly as a result of a change
+   * in device capabilities.
+   */
+  protected boolean shouldReinitCodec() {
+    return false;
   }
 
   /**
@@ -973,13 +987,27 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           DecoderInitializationException.NO_SUITABLE_DECODER_ERROR);
     }
 
+    MediaCodecInfo preferredCodecInfo = availableCodecInfos.peekFirst();
     while (codec == null) {
       MediaCodecInfo codecInfo = availableCodecInfos.peekFirst();
       if (!shouldInitCodec(codecInfo)) {
         return;
       }
       try {
-        initCodec(codecInfo, crypto);
+        try {
+          initCodec(codecInfo, crypto);
+        } catch (Exception e) {
+          if (codecInfo == preferredCodecInfo) {
+            // If creating the preferred decoder failed then sleep briefly before retrying.
+            // Workaround for [internal b/191966399].
+            // See also https://github.com/google/ExoPlayer/issues/8696.
+            Log.w(TAG, "Preferred decoder instantiation failed. Sleeping for 50ms then retrying.");
+            Thread.sleep(/* millis= */ 50);
+            initCodec(codecInfo, crypto);
+          } else {
+            throw e;
+          }
+        }
       } catch (Exception e) {
         Log.w(TAG, "Failed to initialize decoder: " + codecInfo, e);
         // This codec failed to initialize, so fall back to the next codec in the list (if any). We
@@ -1057,10 +1085,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
     codecInitializingTimestamp = SystemClock.elapsedRealtime();
-    TraceUtil.beginSection("createCodec:" + codecName);
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
-    codec = codecAdapterFactory.createAdapter(configuration);
+    if (Util.SDK_INT >= 31) {
+      Api31.setLogSessionIdToMediaCodecFormat(configuration, getPlayerId());
+    }
+    try {
+      TraceUtil.beginSection("createCodec:" + codecName);
+      codec = codecAdapterFactory.createAdapter(configuration);
+    } finally {
+      TraceUtil.endSection();
+    }
     codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
     this.codecInfo = codecInfo;
@@ -1094,7 +1129,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
-    onCodecInitialized(codecName, codecInitializedTimestamp, elapsed);
+    onCodecInitialized(codecName, configuration, codecInitializedTimestamp, elapsed);
   }
 
   private boolean shouldContinueRendering(long renderStartTimeMs) {
@@ -1133,6 +1168,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean feedInputBuffer() throws ExoPlaybackException {
     if (codec == null || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM || inputStreamEnded) {
       return false;
+    }
+    if (codecDrainState == DRAIN_STATE_NONE && shouldReinitCodec()) {
+      drainAndReinitializeCodec();
     }
 
     if (inputIndex < 0) {
@@ -1318,7 +1356,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     resetInputBuffer();
     codecReceivedBuffers = true;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    decoderCounters.inputBufferCount++;
+    decoderCounters.queuedInputBufferCount++;
     return true;
   }
 
@@ -1328,12 +1366,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The default implementation is a no-op.
    *
    * @param name The name of the codec that was initialized.
+   * @param configuration The {@link MediaCodecAdapter.Configuration} used to configure the codec.
    * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
    *     finished.
    * @param initializationDurationMs The time taken to initialize the codec in milliseconds.
    */
   protected void onCodecInitialized(
-      String name, long initializedTimestampMs, long initializationDurationMs) {
+      String name,
+      MediaCodecAdapter.Configuration configuration,
+      long initializedTimestampMs,
+      long initializationDurationMs) {
     // Do nothing.
   }
 
@@ -2420,5 +2462,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18
         && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    @DoNotInline
+    public static void setLogSessionIdToMediaCodecFormat(
+        MediaCodecAdapter.Configuration codecConfiguration, PlayerId playerId) {
+      LogSessionId logSessionId = playerId.getLogSessionId();
+      if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
+        codecConfiguration.mediaFormat.setString("log-session-id", logSessionId.getStringId());
+      }
+    }
   }
 }

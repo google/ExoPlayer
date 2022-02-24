@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * A policy that defines how load errors are handled.
@@ -52,6 +54,7 @@ public interface LoadErrorHandlingPolicy {
   /** Fallback type. One of {@link #FALLBACK_TYPE_LOCATION} or {@link #FALLBACK_TYPE_TRACK}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FALLBACK_TYPE_LOCATION, FALLBACK_TYPE_TRACK})
   @interface FallbackType {}
 
@@ -125,7 +128,7 @@ public interface LoadErrorHandlingPolicy {
   /** A selected fallback option. */
   final class FallbackSelection {
     /** The type of fallback. */
-    @FallbackType public final int type;
+    public final @FallbackType int type;
     /** The duration for which the failing resource should be excluded, in milliseconds. */
     public final long exclusionDurationMs;
 

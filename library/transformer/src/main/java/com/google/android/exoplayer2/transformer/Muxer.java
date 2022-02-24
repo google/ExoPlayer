@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.transformer;
 
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -33,6 +35,19 @@ import java.nio.ByteBuffer;
  * finish writing to the output and return any resources to the system.
  */
 /* package */ interface Muxer {
+
+  /** Thrown when a muxing failure occurs. */
+  /* package */ final class MuxerException extends Exception {
+    /**
+     * Creates an instance.
+     *
+     * @param message See {@link #getMessage()}.
+     * @param cause See {@link #getCause()}.
+     */
+    public MuxerException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
 
   /** Factory for muxers. */
   interface Factory {
@@ -69,13 +84,23 @@ import java.nio.ByteBuffer;
      * {@link MimeTypes MIME type}.
      */
     boolean supportsSampleMimeType(@Nullable String sampleMimeType, String containerMimeType);
+
+    /**
+     * Returns the supported sample {@link MimeTypes MIME types} for the given {@link C.TrackType}
+     * and container {@link MimeTypes MIME type}.
+     */
+    ImmutableList<String> getSupportedSampleMimeTypes(
+        @C.TrackType int trackType, String containerMimeType);
   }
 
   /**
    * Adds a track with the specified format, and returns its index (to be passed in subsequent calls
    * to {@link #writeSampleData(int, ByteBuffer, boolean, long)}).
+   *
+   * @param format The {@link Format} of the track.
+   * @throws MuxerException If the muxer encounters a problem while adding the track.
    */
-  int addTrack(Format format);
+  int addTrack(Format format) throws MuxerException;
 
   /**
    * Writes the specified sample.
@@ -84,15 +109,18 @@ import java.nio.ByteBuffer;
    * @param data Buffer containing the sample data to write to the container.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
+   * @throws MuxerException If the muxer fails to write the sample.
    */
-  void writeSampleData(
-      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs);
+  void writeSampleData(int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      throws MuxerException;
 
   /**
    * Releases any resources associated with muxing.
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
+   * @throws MuxerException If the muxer fails to stop or release resources and {@code
+   *     forCancellation} is false.
    */
-  void release(boolean forCancellation);
+  void release(boolean forCancellation) throws MuxerException;
 }

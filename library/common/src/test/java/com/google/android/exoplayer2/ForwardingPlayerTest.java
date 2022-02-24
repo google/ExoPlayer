@@ -107,27 +107,12 @@ public class ForwardingPlayerTest {
   public void forwardingPlayer_overridesAllPlayerMethods() throws Exception {
     // Check with reflection that ForwardingPlayer overrides all Player methods.
     List<Method> methods = getPublicMethods(Player.class);
-    for (int i = 0; i < methods.size(); i++) {
-      Method method = methods.get(i);
+    for (Method method : methods) {
       assertThat(
-              ForwardingPlayer.class.getDeclaredMethod(
-                  method.getName(), method.getParameterTypes()))
-          .isNotNull();
-    }
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Testing backwards compatibility with deprecated type.
-  public void forwardingEventListener_overridesAllEventListenerMethods() throws Exception {
-    // Check with reflection that ForwardingListener overrides all Listener methods.
-    Class<?> forwardingListenerClass = getInnerClass("ForwardingEventListener");
-    List<Method> methods = getPublicMethods(Player.EventListener.class);
-    for (int i = 0; i < methods.size(); i++) {
-      Method method = methods.get(i);
-      assertThat(
-              forwardingListenerClass.getDeclaredMethod(
-                  method.getName(), method.getParameterTypes()))
-          .isNotNull();
+              ForwardingPlayer.class
+                  .getDeclaredMethod(method.getName(), method.getParameterTypes())
+                  .getDeclaringClass())
+          .isEqualTo(ForwardingPlayer.class);
     }
   }
 
@@ -136,10 +121,12 @@ public class ForwardingPlayerTest {
     // Check with reflection that ForwardingListener overrides all Listener methods.
     Class<?> forwardingListenerClass = getInnerClass("ForwardingListener");
     List<Method> methods = getPublicMethods(Player.Listener.class);
-    for (int i = 0; i < methods.size(); i++) {
-      Method method = methods.get(i);
-      assertThat(forwardingListenerClass.getMethod(method.getName(), method.getParameterTypes()))
-          .isNotNull();
+    for (Method method : methods) {
+      assertThat(
+              forwardingListenerClass
+                  .getMethod(method.getName(), method.getParameterTypes())
+                  .getDeclaringClass())
+          .isEqualTo(forwardingListenerClass);
     }
   }
 

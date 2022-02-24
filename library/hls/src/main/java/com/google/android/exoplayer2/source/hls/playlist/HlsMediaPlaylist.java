@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -30,6 +31,7 @@ import com.google.common.collect.Iterables;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -385,6 +387,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
   public @interface PlaylistType {}
 
@@ -393,7 +396,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final int PLAYLIST_TYPE_EVENT = 2;
 
   /** The type of the playlist. See {@link PlaylistType}. */
-  @PlaylistType public final int playlistType;
+  public final @PlaylistType int playlistType;
   /**
    * The start offset in microseconds from the beginning of the playlist, as defined by
    * #EXT-X-START, or {@link C#TIME_UNSET} if undefined. The value is guaranteed to be between 0 and

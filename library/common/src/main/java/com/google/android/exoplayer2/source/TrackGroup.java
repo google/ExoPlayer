@@ -16,8 +16,10 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
+import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
@@ -30,6 +32,7 @@ import com.google.common.collect.Lists;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,6 +43,8 @@ public final class TrackGroup implements Bundleable {
 
   /** The number of tracks in the group. */
   public final int length;
+  /** An identifier for the track group. */
+  public final String id;
 
   private final Format[] formats;
 
@@ -47,15 +52,37 @@ public final class TrackGroup implements Bundleable {
   private int hashCode;
 
   /**
-   * Constructs an instance {@code TrackGroup} containing the provided {@code formats}.
+   * Constructs a track group containing the provided {@code formats}.
    *
-   * @param formats Non empty array of format.
+   * @param formats The list of {@link Format Formats}. Must not be empty.
    */
   public TrackGroup(Format... formats) {
+    this(/* id= */ "", formats);
+  }
+
+  /**
+   * Constructs a track group with the provided {@code id} and {@code formats}.
+   *
+   * @param id The identifier of the track group. May be an empty string.
+   * @param formats The list of {@link Format Formats}. Must not be empty.
+   */
+  public TrackGroup(String id, Format... formats) {
     checkArgument(formats.length > 0);
+    this.id = id;
     this.formats = formats;
     this.length = formats.length;
     verifyCorrectness();
+  }
+
+  /**
+   * Returns a copy of this track group with the specified {@code id}.
+   *
+   * @param id The identifier for the copy of the track group.
+   * @return The copied track group.
+   */
+  @CheckResult
+  public TrackGroup copyWithId(String id) {
+    return new TrackGroup(id, formats);
   }
 
   /**
@@ -90,6 +117,7 @@ public final class TrackGroup implements Bundleable {
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
+      result = 31 * result + id.hashCode();
       result = 31 * result + Arrays.hashCode(formats);
       hashCode = result;
     }
@@ -105,25 +133,26 @@ public final class TrackGroup implements Bundleable {
       return false;
     }
     TrackGroup other = (TrackGroup) obj;
-    return length == other.length && Arrays.equals(formats, other.formats);
+    return length == other.length && id.equals(other.id) && Arrays.equals(formats, other.formats);
   }
 
   // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    FIELD_FORMATS,
-  })
+  @Target(TYPE_USE)
+  @IntDef({FIELD_FORMATS, FIELD_ID})
   private @interface FieldNumber {}
 
   private static final int FIELD_FORMATS = 0;
+  private static final int FIELD_ID = 1;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
         keyForField(FIELD_FORMATS), BundleableUtil.toBundleArrayList(Lists.newArrayList(formats)));
+    bundle.putString(keyForField(FIELD_ID), id);
     return bundle;
   }
 
@@ -135,7 +164,8 @@ public final class TrackGroup implements Bundleable {
                 Format.CREATOR,
                 bundle.getParcelableArrayList(keyForField(FIELD_FORMATS)),
                 ImmutableList.of());
-        return new TrackGroup(formats.toArray(new Format[0]));
+        String id = bundle.getString(keyForField(FIELD_ID), /* defaultValue= */ "");
+        return new TrackGroup(id, formats.toArray(new Format[0]));
       };
 
   private static String keyForField(@FieldNumber int field) {
@@ -174,8 +204,7 @@ public final class TrackGroup implements Bundleable {
     return language == null || language.equals(C.LANGUAGE_UNDETERMINED) ? "" : language;
   }
 
-  @C.RoleFlags
-  private static int normalizeRoleFlags(@C.RoleFlags int roleFlags) {
+  private static @C.RoleFlags int normalizeRoleFlags(@C.RoleFlags int roleFlags) {
     // Treat trick-play and non-trick-play formats as compatible.
     return roleFlags | C.ROLE_FLAG_TRICK_PLAY;
   }

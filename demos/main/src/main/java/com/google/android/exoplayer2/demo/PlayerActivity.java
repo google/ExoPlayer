@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -40,11 +38,12 @@ import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
+import com.google.android.exoplayer2.ext.ima.ImaServerSideAdInsertionMediaSource;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
@@ -57,6 +56,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -65,6 +65,7 @@ public class PlayerActivity extends AppCompatActivity
   // Saved instance state keys.
 
   private static final String KEY_TRACK_SELECTION_PARAMETERS = "track_selection_parameters";
+  private static final String KEY_SERVER_SIDE_ADS_LOADER_STATE = "server_side_ads_loader_state";
   private static final String KEY_ITEM_INDEX = "item_index";
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
@@ -88,7 +89,10 @@ public class PlayerActivity extends AppCompatActivity
 
   // For ad playback only.
 
-  private AdsLoader adsLoader;
+  @Nullable private AdsLoader clientSideAdsLoader;
+  @Nullable private ImaServerSideAdInsertionMediaSource.AdsLoader serverSideAdsLoader;
+  private ImaServerSideAdInsertionMediaSource.AdsLoader.@MonotonicNonNull State
+      serverSideAdsLoaderState;
 
   // Activity lifecycle.
 
@@ -116,6 +120,12 @@ public class PlayerActivity extends AppCompatActivity
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
+      Bundle adsLoaderStateBundle = savedInstanceState.getBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE);
+      if (adsLoaderStateBundle != null) {
+        serverSideAdsLoaderState =
+            ImaServerSideAdInsertionMediaSource.AdsLoader.State.CREATOR.fromBundle(
+                adsLoaderStateBundle);
+      }
     } else {
       trackSelectionParameters =
           new DefaultTrackSelector.ParametersBuilder(/* context= */ this).build();
@@ -127,7 +137,7 @@ public class PlayerActivity extends AppCompatActivity
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     releasePlayer();
-    releaseAdsLoader();
+    releaseClientSideAdsLoader();
     clearStartPosition();
     setIntent(intent);
   }
@@ -179,7 +189,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onDestroy() {
     super.onDestroy();
-    releaseAdsLoader();
+    releaseClientSideAdsLoader();
   }
 
   @Override
@@ -208,6 +218,9 @@ public class PlayerActivity extends AppCompatActivity
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
     outState.putInt(KEY_ITEM_INDEX, startItemIndex);
     outState.putLong(KEY_POSITION, startPosition);
+    if (serverSideAdsLoaderState != null) {
+      outState.putBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE, serverSideAdsLoaderState.toBundle());
+    }
   }
 
   // Activity input
@@ -234,7 +247,7 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  // PlayerControlView.VisibilityListener implementation
+  // StyledPlayerControlView.VisibilityListener implementation
 
   @Override
   public void onVisibilityChange(int visibility) {
@@ -261,17 +274,13 @@ public class PlayerActivity extends AppCompatActivity
           intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
       RenderersFactory renderersFactory =
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
-      MediaSourceFactory mediaSourceFactory =
-          new DefaultMediaSourceFactory(dataSourceFactory)
-              .setAdsLoaderProvider(this::getAdsLoader)
-              .setAdViewProvider(playerView);
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
       lastSeenTracksInfo = TracksInfo.EMPTY;
       player =
           new ExoPlayer.Builder(/* context= */ this)
               .setRenderersFactory(renderersFactory)
-              .setMediaSourceFactory(mediaSourceFactory)
+              .setMediaSourceFactory(createMediaSourceFactory())
               .setTrackSelector(trackSelector)
               .build();
       player.setTrackSelectionParameters(trackSelectionParameters);
@@ -280,6 +289,7 @@ public class PlayerActivity extends AppCompatActivity
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
+      serverSideAdsLoader.setPlayer(player);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
@@ -293,6 +303,22 @@ public class PlayerActivity extends AppCompatActivity
     return true;
   }
 
+  private MediaSource.Factory createMediaSourceFactory() {
+    ImaServerSideAdInsertionMediaSource.AdsLoader.Builder serverSideAdLoaderBuilder =
+        new ImaServerSideAdInsertionMediaSource.AdsLoader.Builder(/* context= */ this, playerView);
+    if (serverSideAdsLoaderState != null) {
+      serverSideAdLoaderBuilder.setAdsLoaderState(serverSideAdsLoaderState);
+    }
+    serverSideAdsLoader = serverSideAdLoaderBuilder.build();
+    ImaServerSideAdInsertionMediaSource.Factory imaServerSideAdInsertionMediaSourceFactory =
+        new ImaServerSideAdInsertionMediaSource.Factory(
+            serverSideAdsLoader, new DefaultMediaSourceFactory(dataSourceFactory));
+    return new DefaultMediaSourceFactory(dataSourceFactory)
+        .setAdsLoaderProvider(this::getClientSideAdsLoader)
+        .setAdViewProvider(playerView)
+        .setServerSideAdInsertionMediaSourceFactory(imaServerSideAdInsertionMediaSourceFactory);
+  }
+
   private List<MediaItem> createMediaItems(Intent intent) {
     String action = intent.getAction();
     boolean actionIsListView = IntentUtil.ACTION_VIEW_LIST.equals(action);
@@ -304,7 +330,6 @@ public class PlayerActivity extends AppCompatActivity
 
     List<MediaItem> mediaItems =
         createMediaItems(intent, DemoUtil.getDownloadTracker(/* context= */ this));
-    boolean hasAds = false;
     for (int i = 0; i < mediaItems.size(); i++) {
       MediaItem mediaItem = mediaItems.get(i);
 
@@ -318,8 +343,7 @@ public class PlayerActivity extends AppCompatActivity
         return Collections.emptyList();
       }
 
-      MediaItem.DrmConfiguration drmConfiguration =
-          checkNotNull(mediaItem.localConfiguration).drmConfiguration;
+      MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
       if (drmConfiguration != null) {
         if (Util.SDK_INT < 18) {
           showToast(R.string.error_drm_unsupported_before_api_18);
@@ -331,43 +355,44 @@ public class PlayerActivity extends AppCompatActivity
           return Collections.emptyList();
         }
       }
-      hasAds |= mediaItem.localConfiguration.adsConfiguration != null;
-    }
-    if (!hasAds) {
-      releaseAdsLoader();
     }
     return mediaItems;
   }
 
-  private AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
+  private AdsLoader getClientSideAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-    if (adsLoader == null) {
-      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
+    if (clientSideAdsLoader == null) {
+      clientSideAdsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
     }
-    adsLoader.setPlayer(player);
-    return adsLoader;
+    clientSideAdsLoader.setPlayer(player);
+    return clientSideAdsLoader;
   }
 
   protected void releasePlayer() {
     if (player != null) {
       updateTrackSelectorParameters();
       updateStartPosition();
+      serverSideAdsLoaderState = serverSideAdsLoader.release();
+      serverSideAdsLoader = null;
       debugViewHelper.stop();
       debugViewHelper = null;
       player.release();
       player = null;
+      playerView.setPlayer(/* player= */ null);
       mediaItems = Collections.emptyList();
     }
-    if (adsLoader != null) {
-      adsLoader.setPlayer(null);
+    if (clientSideAdsLoader != null) {
+      clientSideAdsLoader.setPlayer(null);
+    } else {
+      playerView.getAdViewGroup().removeAllViews();
     }
   }
 
-  private void releaseAdsLoader() {
-    if (adsLoader != null) {
-      adsLoader.release();
-      adsLoader = null;
-      playerView.getOverlayFrameLayout().removeAllViews();
+  private void releaseClientSideAdsLoader() {
+    if (clientSideAdsLoader != null) {
+      clientSideAdsLoader.release();
+      clientSideAdsLoader = null;
+      playerView.getAdViewGroup().removeAllViews();
     }
   }
 
@@ -441,10 +466,12 @@ public class PlayerActivity extends AppCompatActivity
       if (tracksInfo == lastSeenTracksInfo) {
         return;
       }
-      if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)) {
+      if (!tracksInfo.isTypeSupportedOrEmpty(
+          C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_video);
       }
-      if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)) {
+      if (!tracksInfo.isTypeSupportedOrEmpty(
+          C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_audio);
       }
       lastSeenTracksInfo = tracksInfo;
@@ -488,7 +515,7 @@ public class PlayerActivity extends AppCompatActivity
     for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
       @Nullable
       DownloadRequest downloadRequest =
-          downloadTracker.getDownloadRequest(checkNotNull(item.localConfiguration).uri);
+          downloadTracker.getDownloadRequest(item.localConfiguration.uri);
       if (downloadRequest != null) {
         MediaItem.Builder builder = item.buildUpon();
         builder

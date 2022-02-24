@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash;
 
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import android.util.SparseArray;
@@ -25,6 +26,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -59,6 +61,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
@@ -96,6 +99,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       trackEmsgHandlerBySampleStream;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
+  private final PlayerId playerId;
 
   @Nullable private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -120,7 +124,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      PlayerEmsgCallback playerEmsgCallback) {
+      PlayerEmsgCallback playerEmsgCallback,
+      PlayerId playerId) {
     this.id = id;
     this.manifest = manifest;
     this.baseUrlExclusionList = baseUrlExclusionList;
@@ -135,6 +140,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    this.playerId = playerId;
     playerEmsgHandler = new PlayerEmsgHandler(manifest, playerEmsgCallback, allocator);
     sampleStreams = newSampleStreamArray(0);
     eventSampleStreams = new EventSampleStream[0];
@@ -671,13 +677,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
+      String trackGroupId =
+          firstAdaptationSet.id != AdaptationSet.ID_UNSET
+              ? Integer.toString(firstAdaptationSet.id)
+              : ("unset:" + i);
       int primaryTrackGroupIndex = trackGroupCount++;
       int eventMessageTrackGroupIndex =
           primaryGroupHasEventMessageTrackFlags[i] ? trackGroupCount++ : C.INDEX_UNSET;
       int closedCaptionTrackGroupIndex =
           primaryGroupClosedCaptionTrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
 
-      trackGroups[primaryTrackGroupIndex] = new TrackGroup(formats);
+      trackGroups[primaryTrackGroupIndex] = new TrackGroup(trackGroupId, formats);
       trackGroupInfos[primaryTrackGroupIndex] =
           TrackGroupInfo.primaryTrack(
               firstAdaptationSet.type,
@@ -686,18 +696,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               eventMessageTrackGroupIndex,
               closedCaptionTrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
+        String eventMessageTrackGroupId = trackGroupId + ":emsg";
         Format format =
             new Format.Builder()
-                .setId(firstAdaptationSet.id + ":emsg")
+                .setId(eventMessageTrackGroupId)
                 .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
                 .build();
-        trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(format);
+        trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(eventMessageTrackGroupId, format);
         trackGroupInfos[eventMessageTrackGroupIndex] =
             TrackGroupInfo.embeddedEmsgTrack(adaptationSetIndices, primaryTrackGroupIndex);
       }
       if (closedCaptionTrackGroupIndex != C.INDEX_UNSET) {
+        String closedCaptionTrackGroupId = trackGroupId + ":cc";
         trackGroups[closedCaptionTrackGroupIndex] =
-            new TrackGroup(primaryGroupClosedCaptionTrackFormats[i]);
+            new TrackGroup(closedCaptionTrackGroupId, primaryGroupClosedCaptionTrackFormats[i]);
         trackGroupInfos[closedCaptionTrackGroupIndex] =
             TrackGroupInfo.embeddedClosedCaptionTrack(adaptationSetIndices, primaryTrackGroupIndex);
       }
@@ -717,7 +729,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setId(eventStream.id())
               .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
               .build();
-      trackGroups[existingTrackGroupCount] = new TrackGroup(format);
+      String uniqueTrackGroupId = eventStream.id() + ":" + i;
+      trackGroups[existingTrackGroupCount] = new TrackGroup(uniqueTrackGroupId, format);
       trackGroupInfos[existingTrackGroupCount++] = TrackGroupInfo.mpdEventTrack(i);
     }
   }
@@ -777,7 +790,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             enableEventMessageTrack,
             embeddedClosedCaptionTrackFormats,
             trackPlayerEmsgHandler,
-            transferListener);
+            transferListener,
+            playerId);
     ChunkSampleStream<DashChunkSource> stream =
         new ChunkSampleStream<>(
             trackGroupInfo.trackType,
@@ -899,6 +913,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({CATEGORY_PRIMARY, CATEGORY_EMBEDDED, CATEGORY_MANIFEST_EVENTS})
     public @interface TrackGroupCategory {}
 
@@ -922,7 +937,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     public final int[] adaptationSetIndices;
     public final @C.TrackType int trackType;
-    @TrackGroupCategory public final int trackGroupCategory;
+    public final @TrackGroupCategory int trackGroupCategory;
 
     public final int eventStreamGroupIndex;
     public final int primaryTrackGroupIndex;

@@ -231,7 +231,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_OVERRIDE_CAPTION_DESCRIPTORS">FLAG_OVERRIDE_CAPTION_DESCRIPTORS</a></span></code></th>
 <td class="colLast">
-<div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="#%3Cinit%3E(int,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
+<div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
  of any closed captions service descriptors.</div>
 </td>
 </tr>
@@ -257,11 +257,11 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int)">DefaultTsPayloadReaderFactory</a></span>&#8203;(int&nbsp;flags)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">DefaultTsPayloadReaderFactory</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.util.List)">DefaultTsPayloadReaderFactory</a></span>&#8203;(int&nbsp;flags,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)">DefaultTsPayloadReaderFactory</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -407,7 +407,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_OVERRIDE_CAPTION_DESCRIPTORS</h4>
 <pre>public static final&nbsp;int FLAG_OVERRIDE_CAPTION_DESCRIPTORS</pre>
-<div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="#%3Cinit%3E(int,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
+<div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
  of any closed captions service descriptors. If this flag is disabled, <code>
  closedCaptionFormats</code> will be ignored if the PMT contains closed captions service descriptors.</div>
 <dl>
@@ -450,14 +450,13 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <pre>public&nbsp;DefaultTsPayloadReaderFactory()</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(int)">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultTsPayloadReaderFactory</h4>
-<pre>public&nbsp;DefaultTsPayloadReaderFactory&#8203;(<a href="DefaultTsPayloadReaderFactory.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
-                                     int&nbsp;flags)</pre>
+<pre>public&nbsp;DefaultTsPayloadReaderFactory&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - A combination of <code>FLAG_*</code> values that control the behavior of the created
@@ -465,14 +464,13 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(int,java.util.List)">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultTsPayloadReaderFactory</h4>
-<pre>public&nbsp;DefaultTsPayloadReaderFactory&#8203;(<a href="DefaultTsPayloadReaderFactory.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
-                                     int&nbsp;flags,
+<pre>public&nbsp;DefaultTsPayloadReaderFactory&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags,
                                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

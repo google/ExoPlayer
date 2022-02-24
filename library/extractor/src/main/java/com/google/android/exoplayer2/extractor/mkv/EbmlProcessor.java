@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Defines EBML element IDs/types and processes events. */
 public interface EbmlProcessor {
@@ -33,6 +36,7 @@ public interface EbmlProcessor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     ELEMENT_TYPE_UNKNOWN,
     ELEMENT_TYPE_MASTER,

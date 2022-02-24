@@ -24,10 +24,11 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -36,7 +37,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -100,79 +100,6 @@ public final class DashMediaSourceTest {
     }
   }
 
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nullMediaItemTag_setsMediaItemTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nonNullMediaItemTag_doesNotOverrideMediaItemTag() {
-    Object factoryTag = new Object();
-    Object mediaItemTag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(mediaItemTag).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(factoryTag);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_emptyMediaItemStreamKeys_setsMediaItemStreamKeys() {
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(ImmutableList.of(streamKey));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_withMediaItemStreamKeys_doesNotOverrideMediaItemStreamKeys() {
-    StreamKey mediaItemStreamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri("http://www.google.com")
-            .setStreamKeys(ImmutableList.of(mediaItemStreamKey))
-            .build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(
-                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
-  }
-
   @Test
   public void replaceManifestUri_doesNotChangeMediaItem() {
     DashMediaSource.Factory factory = new DashMediaSource.Factory(new FileDataSource.Factory());
@@ -202,47 +129,6 @@ public final class DashMediaSourceTest {
   }
 
   @Test
-  public void factorySetLivePresentationDelayMs_withMediaLiveTargetOffset_usesMediaOffset() {
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri(Uri.EMPTY)
-            .setLiveConfiguration(
-                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2L).build())
-            .build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setLivePresentationDelayMs(1234L, /* overridesManifest= */ true);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(2L);
-  }
-
-  @Test
-  public void factorySetLivePresentationDelayMs_overridingManifest_mixedIntoMediaItem() {
-    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setLivePresentationDelayMs(2000L, /* overridesManifest= */ true);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(2000L);
-  }
-
-  @Test
-  public void factorySetLivePresentationDelayMs_notOverridingManifest_unsetInMediaItem() {
-    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setLivePresentationDelayMs(2000L, /* overridesManifest= */ false);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(C.TIME_UNSET);
-  }
-
-  @Test
   public void factorySetFallbackTargetLiveOffsetMs_doesNotChangeMediaItem() {
     DashMediaSource.Factory factory =
         new DashMediaSource.Factory(new FileDataSource.Factory())
@@ -255,7 +141,7 @@ public final class DashMediaSourceTest {
   }
 
   @Test
-  public void prepare_withoutLiveConfiguration_withoutMediaItemLiveProperties_usesDefaultFallback()
+  public void prepare_withoutLiveConfiguration_withoutMediaItemLiveConfiguration_usesUnitSpeed()
       throws InterruptedException {
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
@@ -269,18 +155,71 @@ public final class DashMediaSourceTest {
         .isEqualTo(DashMediaSource.DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS);
     assertThat(liveConfiguration.minOffsetMs).isEqualTo(0L);
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
-    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
-    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(1f);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(1f);
   }
 
   @Test
-  public void prepare_withoutLiveConfiguration_withoutMediaItemLiveProperties_usesFallback()
+  public void prepare_withoutLiveConfiguration_withOnlyMediaItemTargetOffset_usesUnitSpeed()
       throws InterruptedException {
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
                 () -> createSampleMpdDataSource(SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION))
+            .createMediaSource(
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new LiveConfiguration.Builder().setTargetOffsetMs(10_000L).build())
+                    .build());
+
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
+
+    assertThat(liveConfiguration.targetOffsetMs).isEqualTo(10_000L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(0L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(1f);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(1f);
+  }
+
+  @Test
+  public void prepare_withoutLiveConfiguration_withMediaItemSpeedLimits_usesDefaultFallbackValues()
+      throws InterruptedException {
+    DashMediaSource mediaSource =
+        new DashMediaSource.Factory(
+                () -> createSampleMpdDataSource(SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION))
+            .createMediaSource(
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new LiveConfiguration.Builder().setMinPlaybackSpeed(0.95f).build())
+                    .build());
+
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
+
+    assertThat(liveConfiguration.targetOffsetMs)
+        .isEqualTo(DashMediaSource.DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(0L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(0.95f);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+  }
+
+  @Test
+  public void
+      prepare_withoutLiveConfiguration_withoutMediaItemTargetOffset_usesDefinedFallbackTargetOffset()
+          throws InterruptedException {
+    DashMediaSource mediaSource =
+        new DashMediaSource.Factory(
+                () -> createSampleMpdDataSource(SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION))
             .setFallbackTargetLiveOffsetMs(1234L)
-            .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
+            .createMediaSource(
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new LiveConfiguration.Builder().setMinPlaybackSpeed(0.95f).build())
+                    .build());
 
     MediaItem.LiveConfiguration liveConfiguration =
         prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
@@ -288,7 +227,7 @@ public final class DashMediaSourceTest {
     assertThat(liveConfiguration.targetOffsetMs).isEqualTo(1234L);
     assertThat(liveConfiguration.minOffsetMs).isEqualTo(0L);
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
-    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(0.95f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
 
@@ -328,7 +267,12 @@ public final class DashMediaSourceTest {
                     createSampleMpdDataSource(
                         SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS))
             .setFallbackTargetLiveOffsetMs(1234L)
-            .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
+            .createMediaSource(
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new LiveConfiguration.Builder().setMaxPlaybackSpeed(1.05f).build())
+                    .build());
 
     MediaItem.LiveConfiguration liveConfiguration =
         prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
@@ -337,7 +281,7 @@ public final class DashMediaSourceTest {
     assertThat(liveConfiguration.minOffsetMs).isEqualTo(500L);
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
-    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(1.05f);
   }
 
   @Test
@@ -352,7 +296,7 @@ public final class DashMediaSourceTest {
                     .setTargetOffsetMs(876L)
                     .setMinPlaybackSpeed(23f)
                     .setMaxPlaybackSpeed(42f)
-                    .setMinOffsetMs(200L)
+                    .setMinOffsetMs(600L)
                     .setMaxOffsetMs(999L)
                     .build())
             .build();
@@ -368,7 +312,7 @@ public final class DashMediaSourceTest {
         prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
     assertThat(liveConfiguration.targetOffsetMs).isEqualTo(876L);
-    assertThat(liveConfiguration.minOffsetMs).isEqualTo(200L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(600L);
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
@@ -422,6 +366,33 @@ public final class DashMediaSourceTest {
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
+  }
+
+  @Test
+  public void
+      prepare_withMinMaxOffsetOverridesOutsideOfLiveWindow_adjustsOverridesToBeWithinWindow()
+          throws Exception {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setMinOffsetMs(0L)
+                    .setMaxOffsetMs(1_000_000_000L)
+                    .build())
+            .build();
+    DashMediaSource mediaSource =
+        new DashMediaSource.Factory(
+                () ->
+                    createSampleMpdDataSource(
+                        SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS))
+            .createMediaSource(mediaItem);
+
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
+
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(500L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
   }
 
   @Test
@@ -484,7 +455,7 @@ public final class DashMediaSourceTest {
             countDownLatch.countDown();
           }
         };
-    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
+    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     while (!countDownLatch.await(/* timeout= */ 10, MILLISECONDS)) {
       ShadowLooper.idleMainLooper();
     }

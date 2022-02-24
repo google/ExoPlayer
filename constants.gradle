@@ -13,8 +13,8 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.16.1'
-    releaseVersionCode = 2016001
+    releaseVersion = '2.17.0'
+    releaseVersionCode = 2_017_000
     minSdkVersion = 16
     appTargetSdkVersion = 29
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
@@ -25,7 +25,7 @@ project.ext {
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
     // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
-    guavaVersion = '27.1-android'
+    guavaVersion = '31.0.1-android'
     mockitoVersion = '3.12.4'
     robolectricVersion = '4.6.1'
     // Keep this in sync with Google's internal Checker Framework version.
@@ -37,6 +37,7 @@ project.ext {
     androidxAnnotationVersion = '1.3.0'
     androidxAppCompatVersion = '1.3.1'
     androidxCollectionVersion = '1.1.0'
+    androidxConstraintLayoutVersion = '2.0.4'
     androidxCoreVersion = '1.7.0'
     androidxFuturesVersion = '1.1.0'
     androidxMediaVersion = '1.4.3'

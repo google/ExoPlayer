@@ -78,7 +78,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 @SuppressLint("Override") // TODO: Remove once the SDK becomes stable.
 public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsumer {
 
-  private static final String TAG = "OutputConsumerAdapterV30";
+  private static final String TAG = "OConsumerAdapterV30";
 
   private static final Pair<MediaParser.SeekPoint, MediaParser.SeekPoint> SEEK_POINT_PAIR_START =
       Pair.create(MediaParser.SeekPoint.START, MediaParser.SeekPoint.START);
@@ -538,8 +538,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
     return new DrmInitData(schemeType, schemeDatas);
   }
 
-  @SelectionFlags
-  private static int getSelectionFlags(MediaFormat mediaFormat) {
+  private static @SelectionFlags int getSelectionFlags(MediaFormat mediaFormat) {
     int selectionFlags = 0;
     selectionFlags |=
         getFlag(

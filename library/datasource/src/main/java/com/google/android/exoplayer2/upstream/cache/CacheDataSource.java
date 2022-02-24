@@ -18,6 +18,11 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -41,6 +46,7 @@ import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +70,7 @@ public final class CacheDataSource implements DataSource {
     @Nullable private DataSource.Factory upstreamDataSourceFactory;
     @Nullable private PriorityTaskManager upstreamPriorityTaskManager;
     private int upstreamPriority;
-    @CacheDataSource.Flags private int flags;
+    private @CacheDataSource.Flags int flags;
     @Nullable private CacheDataSource.EventListener eventListener;
 
     public Factory() {
@@ -328,6 +334,7 @@ public final class CacheDataSource implements DataSource {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -359,8 +366,11 @@ public final class CacheDataSource implements DataSource {
    * Reasons the cache may be ignored. One of {@link #CACHE_IGNORED_REASON_ERROR} or {@link
    * #CACHE_IGNORED_REASON_UNSET_LENGTH}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
   public @interface CacheIgnoredReason {}
 

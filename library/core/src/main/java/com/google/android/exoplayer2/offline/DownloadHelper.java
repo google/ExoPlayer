@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -831,8 +832,6 @@ public final class DownloadHelper {
    * Runs the track selection for a given period index with the current parameters. The selected
    * tracks will be added to {@link #trackSelectionsByPeriodAndRenderer}.
    */
-  // Intentional reference comparison of track group instances.
-  @SuppressWarnings("ReferenceEquality")
   @RequiresNonNull({
     "trackGroupArrays",
     "trackSelectionsByPeriodAndRenderer",
@@ -857,7 +856,7 @@ public final class DownloadHelper {
         boolean mergedWithExistingSelection = false;
         for (int j = 0; j < existingSelectionList.size(); j++) {
           ExoTrackSelection existingSelection = existingSelectionList.get(j);
-          if (existingSelection.getTrackGroup() == newSelection.getTrackGroup()) {
+          if (existingSelection.getTrackGroup().equals(newSelection.getTrackGroup())) {
             // Merge with existing selection.
             scratchSet.clear();
             for (int k = 0; k < existingSelection.length(); k++) {
@@ -892,7 +891,8 @@ public final class DownloadHelper {
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
     return new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY)
-        .setDrmSessionManager(drmSessionManager)
+        .setDrmSessionManagerProvider(
+            drmSessionManager != null ? unusedMediaItem -> drmSessionManager : null)
         .createMediaSource(mediaItem);
   }
 
@@ -955,7 +955,8 @@ public final class DownloadHelper {
     public boolean handleMessage(Message msg) {
       switch (msg.what) {
         case MESSAGE_PREPARE_SOURCE:
-          mediaSource.prepareSource(/* caller= */ this, /* mediaTransferListener= */ null);
+          mediaSource.prepareSource(
+              /* caller= */ this, /* mediaTransferListener= */ null, PlayerId.UNSET);
           mediaSourceHandler.sendEmptyMessage(MESSAGE_CHECK_FOR_FAILURE);
           return true;
         case MESSAGE_CHECK_FOR_FAILURE:
@@ -1096,8 +1097,7 @@ public final class DownloadHelper {
     }
 
     @Override
-    @C.SelectionReason
-    public int getSelectionReason() {
+    public @C.SelectionReason int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }
 

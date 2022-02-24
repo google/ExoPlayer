@@ -149,11 +149,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createProgressiveMediaExtractor(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,boolean,java.util.List,com.google.android.exoplayer2.extractor.TrackOutput)">createProgressiveMediaExtractor</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createProgressiveMediaExtractor(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,boolean,java.util.List,com.google.android.exoplayer2.extractor.TrackOutput,com.google.android.exoplayer2.analytics.PlayerId)">createProgressiveMediaExtractor</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                                <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;representationFormat,
                                boolean&nbsp;enableEventMessageTrack,
                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
-                               <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;playerEmsgTrackOutput)</code></th>
+                               <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;playerEmsgTrackOutput,
+                               <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
 <div class="block">Returns a new <a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> instance.</div>
 </td>
@@ -175,7 +176,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createProgressiveMediaExtractor(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,boolean,java.util.List,com.google.android.exoplayer2.extractor.TrackOutput)">
+<a id="createProgressiveMediaExtractor(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,boolean,java.util.List,com.google.android.exoplayer2.extractor.TrackOutput,com.google.android.exoplayer2.analytics.PlayerId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -187,7 +188,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                                                boolean&nbsp;enableEventMessageTrack,
                                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                                                @Nullable
-                                               <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;playerEmsgTrackOutput)</pre>
+                                               <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;playerEmsgTrackOutput,
+                                               <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
 <div class="block">Returns a new <a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -195,6 +197,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>representationFormat</code> - The format of the representation to extract from.</dd>
 <dd><code>enableEventMessageTrack</code> - Whether to enable the event message track.</dd>
 <dd><code>closedCaptionFormats</code> - The <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of the Closed-Caption tracks.</dd>
+<dd><code>playerEmsgTrackOutput</code> - The <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for extracted EMSG messages, or null.</dd>
+<dd><code>playerId</code> - The <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this chunk extractor.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A new <a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> instance, or null if not applicable.</dd>
 </dl>

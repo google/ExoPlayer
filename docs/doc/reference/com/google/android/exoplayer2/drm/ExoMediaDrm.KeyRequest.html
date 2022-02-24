@@ -254,9 +254,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,java.lang.String,int)">KeyRequest</a></span>&#8203;(byte[]&nbsp;data,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,java.lang.String,@com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest.RequestTypeint)">KeyRequest</a></span>&#8203;(byte[]&nbsp;data,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseServerUrl,
-          int&nbsp;requestType)</code></th>
+          @com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest.RequestType int&nbsp;requestType)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance.</div>
 </td>
@@ -294,7 +294,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest.RequestType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRequestType()">getRequestType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the type of the request, or <a href="#REQUEST_TYPE_UNKNOWN"><code>REQUEST_TYPE_UNKNOWN</code></a> if the underlying key
@@ -438,7 +438,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(byte[],java.lang.String,int)">
+<a id="&lt;init&gt;(byte[],java.lang.String,@com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest.RequestTypeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -446,8 +446,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>KeyRequest</h4>
 <pre>public&nbsp;KeyRequest&#8203;(byte[]&nbsp;data,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseServerUrl,
-                  <a href="ExoMediaDrm.KeyRequest.RequestType.html" title="annotation in com.google.android.exoplayer2.drm">@RequestType</a>
-                  int&nbsp;requestType)</pre>
+                  @com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest.RequestType int&nbsp;requestType)</pre>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -493,8 +492,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getRequestType</h4>
-<pre class="methodSignature"><a href="ExoMediaDrm.KeyRequest.RequestType.html" title="annotation in com.google.android.exoplayer2.drm">@RequestType</a>
-public&nbsp;int&nbsp;getRequestType()</pre>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest.RequestType int&nbsp;getRequestType()</pre>
 <div class="block">Returns the type of the request, or <a href="#REQUEST_TYPE_UNKNOWN"><code>REQUEST_TYPE_UNKNOWN</code></a> if the underlying key
  request does not specify a type. Note that when using a platform <a href="https://developer.android.com/reference/android/media/MediaDrm.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm</code></a> instance,
  key requests only specify a type on API levels 23 and above.</div>

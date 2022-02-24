@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import android.util.SparseArray;
@@ -58,6 +59,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -85,6 +87,7 @@ public class MatroskaExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {FLAG_DISABLE_SEEK_FOR_CUES})
@@ -138,6 +141,7 @@ public class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_PCM_FLOAT = "A_PCM/FLOAT/IEEE";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
   private static final String CODEC_ID_ASS = "S_TEXT/ASS";
+  private static final String CODEC_ID_VTT = "S_TEXT/WEBVTT";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
   private static final String CODEC_ID_PGS = "S_HDMV/PGS";
   private static final String CODEC_ID_DVBSUB = "S_DVBSUB";
@@ -323,6 +327,32 @@ public class MatroskaExtractor implements Extractor {
   /** The format of an SSA timecode. */
   private static final String SSA_TIMECODE_FORMAT = "%01d:%02d:%02d:%02d";
 
+  /**
+   * A template for the prefix that must be added to each VTT sample.
+   *
+   * <p>The display time of each subtitle is passed as {@code timeUs} to {@link
+   * TrackOutput#sampleMetadata}. The start and end timecodes in this template are relative to
+   * {@code timeUs}. Hence the start timecode is always zero. The 12 byte end timecode starting at
+   * {@link #VTT_PREFIX_END_TIMECODE_OFFSET} is set to a placeholder value, and must be replaced
+   * with the duration of the subtitle.
+   *
+   * <p>Equivalent to the UTF-8 string: "WEBVTT\n\n00:00:00.000 --> 00:00:00.000\n".
+   */
+  private static final byte[] VTT_PREFIX =
+      new byte[] {
+        87, 69, 66, 86, 84, 84, 10, 10, 48, 48, 58, 48, 48, 58, 48, 48, 46, 48, 48, 48, 32, 45, 45,
+        62, 32, 48, 48, 58, 48, 48, 58, 48, 48, 46, 48, 48, 48, 10
+      };
+  /** The byte offset of the end timecode in {@link #VTT_PREFIX}. */
+  private static final int VTT_PREFIX_END_TIMECODE_OFFSET = 25;
+  /**
+   * The value by which to divide a time in microseconds to convert it to the unit of the last value
+   * in a VTT timecode (milliseconds).
+   */
+  private static final long VTT_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
+  /** The format of a VTT timecode. */
+  private static final String VTT_TIMECODE_FORMAT = "%02d:%02d:%02d.%03d";
+
   /** The length in bytes of a WAVEFORMATEX structure. */
   private static final int WAVE_FORMAT_SIZE = 18;
   /** Format tag indicating a WAVEFORMATEXTENSIBLE structure. */
@@ -399,7 +429,7 @@ public class MatroskaExtractor implements Extractor {
   private int[] blockSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
-  @C.BufferFlags private int blockFlags;
+  private @C.BufferFlags int blockFlags;
   private int blockAdditionalId;
   private boolean blockHasReferenceBlock;
 
@@ -499,8 +529,7 @@ public class MatroskaExtractor implements Extractor {
    * @see EbmlProcessor#getElementType(int)
    */
   @CallSuper
-  @EbmlProcessor.ElementType
-  protected int getElementType(int id) {
+  protected @EbmlProcessor.ElementType int getElementType(int id) {
     switch (id) {
       case ID_EBML:
       case ID_SEGMENT:
@@ -1325,7 +1354,12 @@ public class MatroskaExtractor implements Extractor {
     }
   }
 
-  private Track getCurrentTrack(int currentElementId) throws ParserException {
+  /**
+   * Returns the track corresponding to the current TrackEntry element.
+   *
+   * @throws ParserException if the element id is not in a TrackEntry.
+   */
+  protected Track getCurrentTrack(int currentElementId) throws ParserException {
     assertInTrackEntry(currentElementId);
     return currentTrack;
   }
@@ -1337,7 +1371,9 @@ public class MatroskaExtractor implements Extractor {
       track.trueHdSampleRechunker.sampleMetadata(
           track.output, timeUs, flags, size, offset, track.cryptoData);
     } else {
-      if (CODEC_ID_SUBRIP.equals(track.codecId) || CODEC_ID_ASS.equals(track.codecId)) {
+      if (CODEC_ID_SUBRIP.equals(track.codecId)
+          || CODEC_ID_ASS.equals(track.codecId)
+          || CODEC_ID_VTT.equals(track.codecId)) {
         if (blockSampleCount > 1) {
           Log.w(TAG, "Skipping subtitle sample in laced block.");
         } else if (blockDurationUs == C.TIME_UNSET) {
@@ -1409,6 +1445,9 @@ public class MatroskaExtractor implements Extractor {
       return finishWriteSampleData();
     } else if (CODEC_ID_ASS.equals(track.codecId)) {
       writeSubtitleSampleData(input, SSA_PREFIX, size);
+      return finishWriteSampleData();
+    } else if (CODEC_ID_VTT.equals(track.codecId)) {
+      writeSubtitleSampleData(input, VTT_PREFIX, size);
       return finishWriteSampleData();
     }
 
@@ -1636,7 +1675,8 @@ public class MatroskaExtractor implements Extractor {
    * <p>See documentation on {@link #SSA_DIALOGUE_FORMAT} and {@link #SUBRIP_PREFIX} for why we use
    * the duration as the end timecode.
    *
-   * @param codecId The subtitle codec; must be {@link #CODEC_ID_SUBRIP} or {@link #CODEC_ID_ASS}.
+   * @param codecId The subtitle codec; must be {@link #CODEC_ID_SUBRIP}, {@link #CODEC_ID_ASS} or
+   *     {@link #CODEC_ID_VTT}.
    * @param durationUs The duration of the sample, in microseconds.
    * @param subtitleData The subtitle sample in which to overwrite the end timecode (output
    *     parameter).
@@ -1656,6 +1696,12 @@ public class MatroskaExtractor implements Extractor {
             formatSubtitleTimecode(
                 durationUs, SSA_TIMECODE_FORMAT, SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR);
         endTimecodeOffset = SSA_PREFIX_END_TIMECODE_OFFSET;
+        break;
+      case CODEC_ID_VTT:
+        endTimecode =
+            formatSubtitleTimecode(
+                durationUs, VTT_TIMECODE_FORMAT, VTT_TIMECODE_LAST_VALUE_SCALING_FACTOR);
+        endTimecodeOffset = VTT_PREFIX_END_TIMECODE_OFFSET;
         break;
       default:
         throw new IllegalArgumentException();
@@ -1825,6 +1871,7 @@ public class MatroskaExtractor implements Extractor {
       case CODEC_ID_PCM_FLOAT:
       case CODEC_ID_SUBRIP:
       case CODEC_ID_ASS:
+      case CODEC_ID_VTT:
       case CODEC_ID_VOBSUB:
       case CODEC_ID_PGS:
       case CODEC_ID_DVBSUB:
@@ -1858,8 +1905,7 @@ public class MatroskaExtractor implements Extractor {
   private final class InnerEbmlProcessor implements EbmlProcessor {
 
     @Override
-    @ElementType
-    public int getElementType(int id) {
+    public @ElementType int getElementType(int id) {
       return MatroskaExtractor.this.getElementType(id);
     }
 
@@ -1900,7 +1946,8 @@ public class MatroskaExtractor implements Extractor {
     }
   }
 
-  private static final class Track {
+  /** Holds data corresponding to a single track. */
+  protected static final class Track {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
     private static final int MAX_CHROMATICITY = 50_000; // Defined in CTA-861.3.
@@ -1930,16 +1977,16 @@ public class MatroskaExtractor implements Extractor {
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
-    @C.Projection public int projectionType = Format.NO_VALUE;
+    public @C.Projection int projectionType = Format.NO_VALUE;
     public float projectionPoseYaw = 0f;
     public float projectionPosePitch = 0f;
     public float projectionPoseRoll = 0f;
     public byte @MonotonicNonNull [] projectionData = null;
-    @C.StereoMode public int stereoMode = Format.NO_VALUE;
+    public @C.StereoMode int stereoMode = Format.NO_VALUE;
     public boolean hasColorInfo = false;
-    @C.ColorSpace public int colorSpace = Format.NO_VALUE;
-    @C.ColorTransfer public int colorTransfer = Format.NO_VALUE;
-    @C.ColorRange public int colorRange = Format.NO_VALUE;
+    public @C.ColorSpace int colorSpace = Format.NO_VALUE;
+    public @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
+    public @C.ColorRange int colorRange = Format.NO_VALUE;
     public int maxContentLuminance = DEFAULT_MAX_CLL;
     public int maxFrameAverageLuminance = DEFAULT_MAX_FALL;
     public float primaryRChromaticityX = Format.NO_VALUE;
@@ -2151,6 +2198,9 @@ public class MatroskaExtractor implements Extractor {
           mimeType = MimeTypes.TEXT_SSA;
           initializationData = ImmutableList.of(SSA_DIALOGUE_FORMAT, getCodecPrivate(codecId));
           break;
+        case CODEC_ID_VTT:
+          mimeType = MimeTypes.TEXT_VTT;
+          break;
         case CODEC_ID_VOBSUB:
           mimeType = MimeTypes.APPLICATION_VOBSUB;
           initializationData = ImmutableList.of(getCodecPrivate(codecId));
@@ -2239,6 +2289,7 @@ public class MatroskaExtractor implements Extractor {
             .setColorInfo(colorInfo);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)
           || MimeTypes.TEXT_SSA.equals(mimeType)
+          || MimeTypes.TEXT_VTT.equals(mimeType)
           || MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)
           || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)) {

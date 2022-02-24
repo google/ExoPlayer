@@ -121,8 +121,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Known Subinterfaces:</dt>
+<dd><code><a href="../analytics/AnalyticsCollector.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code></dd>
+</dl>
+<dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code>, <code><a href="../source/ads/ServerSideInsertedAdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">ServerSideInsertedAdsMediaSource</a></code></dd>
+<dd><code><a href="../analytics/DefaultAnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">DefaultAnalyticsCollector</a></code>, <code><a href="../source/ads/ServerSideAdInsertionMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">ServerSideAdInsertionMediaSource</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">DrmSessionEventListener</span></pre>
@@ -202,15 +206,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                     <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)"><code>onDrmSessionAcquired(int, MediaPeriodId, int)</code></a> instead.</div>
+<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)"><code>onDrmSessionAcquired(int, MediaPeriodId, int)</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)">onDrmSessionAcquired</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">onDrmSessionAcquired</a></span>&#8203;(int&nbsp;windowIndex,
                     <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                    int&nbsp;state)</code></th>
+                    @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</code></th>
 <td class="colLast">
 <div class="block">Called each time a drm session is acquired.</div>
 </td>
@@ -260,11 +264,11 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(int&nbsp;windowIndex,
                                   @Nullable
                                   <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)"><code>onDrmSessionAcquired(int, MediaPeriodId, int)</code></a> instead.</div>
+<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)"><code>onDrmSessionAcquired(int, MediaPeriodId, int)</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a id="onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)">
+<a id="onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -274,7 +278,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(int&nbsp;windowIndex,
                                   @Nullable
                                   <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                   <a href="DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
-                                  int&nbsp;state)</pre>
+                                  @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</pre>
 <div class="block">Called each time a drm session is acquired.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

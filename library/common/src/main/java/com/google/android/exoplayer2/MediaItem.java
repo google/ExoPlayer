@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1182,6 +1184,7 @@ public final class MediaItem implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_TARGET_OFFSET_MS,
       FIELD_MIN_OFFSET_MS,
@@ -1238,6 +1241,7 @@ public final class MediaItem implements Bundleable {
       private @C.SelectionFlags int selectionFlags;
       private @C.RoleFlags int roleFlags;
       @Nullable private String label;
+      @Nullable private String id;
 
       /**
        * Constructs an instance.
@@ -1255,6 +1259,7 @@ public final class MediaItem implements Bundleable {
         this.selectionFlags = subtitleConfiguration.selectionFlags;
         this.roleFlags = subtitleConfiguration.roleFlags;
         this.label = subtitleConfiguration.label;
+        this.id = subtitleConfiguration.id;
       }
 
       /** Sets the {@link Uri} to the subtitle file. */
@@ -1293,6 +1298,12 @@ public final class MediaItem implements Bundleable {
         return this;
       }
 
+      /** Sets the optional ID for this subtitle track. */
+      public Builder setId(@Nullable String id) {
+        this.id = id;
+        return this;
+      }
+
       /** Creates a {@link SubtitleConfiguration} from the values of this builder. */
       public SubtitleConfiguration build() {
         return new SubtitleConfiguration(this);
@@ -1315,20 +1326,27 @@ public final class MediaItem implements Bundleable {
     public final @C.RoleFlags int roleFlags;
     /** The label. */
     @Nullable public final String label;
+    /**
+     * The ID of the subtitles. This will be propagated to the {@link Format#id} of the subtitle
+     * track created from this configuration.
+     */
+    @Nullable public final String id;
 
     private SubtitleConfiguration(
         Uri uri,
         String mimeType,
         @Nullable String language,
-        @C.SelectionFlags int selectionFlags,
-        @C.RoleFlags int roleFlags,
-        @Nullable String label) {
+        int selectionFlags,
+        int roleFlags,
+        @Nullable String label,
+        @Nullable String id) {
       this.uri = uri;
       this.mimeType = mimeType;
       this.language = language;
       this.selectionFlags = selectionFlags;
       this.roleFlags = roleFlags;
       this.label = label;
+      this.id = id;
     }
 
     private SubtitleConfiguration(Builder builder) {
@@ -1338,6 +1356,7 @@ public final class MediaItem implements Bundleable {
       this.selectionFlags = builder.selectionFlags;
       this.roleFlags = builder.roleFlags;
       this.label = builder.label;
+      this.id = builder.id;
     }
 
     /** Returns a {@link Builder} initialized with the values of this instance. */
@@ -1361,7 +1380,8 @@ public final class MediaItem implements Bundleable {
           && Util.areEqual(language, other.language)
           && selectionFlags == other.selectionFlags
           && roleFlags == other.roleFlags
-          && Util.areEqual(label, other.label);
+          && Util.areEqual(label, other.label)
+          && Util.areEqual(id, other.id);
     }
 
     @Override
@@ -1372,6 +1392,7 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
       result = 31 * result + (label == null ? 0 : label.hashCode());
+      result = 31 * result + (id == null ? 0 : id.hashCode());
       return result;
     }
   }
@@ -1402,7 +1423,7 @@ public final class MediaItem implements Bundleable {
         @C.SelectionFlags int selectionFlags,
         @C.RoleFlags int roleFlags,
         @Nullable String label) {
-      super(uri, mimeType, language, selectionFlags, roleFlags, label);
+      super(uri, mimeType, language, selectionFlags, roleFlags, label, /* id= */ null);
     }
 
     private Subtitle(Builder builder) {
@@ -1572,6 +1593,7 @@ public final class MediaItem implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_START_POSITION_MS,
       FIELD_END_POSITION_MS,
@@ -1717,6 +1739,7 @@ public final class MediaItem implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_MEDIA_ID,
     FIELD_LIVE_CONFIGURATION,
@@ -1782,7 +1805,7 @@ public final class MediaItem implements Bundleable {
     return new MediaItem(
         mediaId,
         clippingConfiguration,
-        /* playbackProperties= */ null,
+        /* localConfiguration= */ null,
         liveConfiguration,
         mediaMetadata);
   }

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.wav;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import androidx.annotation.IntDef;
@@ -37,7 +38,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -63,7 +63,7 @@ public final class WavExtractor implements Extractor {
   /** Parser state. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef({
     STATE_READING_FILE_TYPE,
     STATE_READING_RF64_SAMPLE_DATA_SIZE,
@@ -120,8 +120,8 @@ public final class WavExtractor implements Extractor {
   }
 
   @Override
-  @ReadResult
-  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException {
     assertInitialized();
     switch (state) {
       case STATE_READING_FILE_TYPE:
@@ -225,8 +225,7 @@ public final class WavExtractor implements Extractor {
     state = STATE_READING_SAMPLE_DATA;
   }
 
-  @ReadResult
-  private int readSampleData(ExtractorInput input) throws IOException {
+  private @ReadResult int readSampleData(ExtractorInput input) throws IOException {
     Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
     long bytesLeft = dataEndPosition - input.getPosition();
     return Assertions.checkNotNull(outputWriter).sampleData(input, bytesLeft)
@@ -367,7 +366,7 @@ public final class WavExtractor implements Extractor {
         int size = pendingFrames * bytesPerFrame;
         int offset = pendingOutputBytes - size;
         trackOutput.sampleMetadata(
-            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* encryptionData= */ null);
+            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* cryptoData= */ null);
         outputFrameCount += pendingFrames;
         pendingOutputBytes = offset;
       }
@@ -546,7 +545,7 @@ public final class WavExtractor implements Extractor {
       int size = numOutputFramesToBytes(sampleFrames);
       int offset = pendingOutputBytes - size;
       trackOutput.sampleMetadata(
-          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* encryptionData= */ null);
+          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* cryptoData= */ null);
       outputFrameCount += sampleFrames;
       pendingOutputBytes -= size;
     }

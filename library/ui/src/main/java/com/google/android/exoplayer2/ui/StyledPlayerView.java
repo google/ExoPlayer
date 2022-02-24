@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ui;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -65,6 +66,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -75,8 +77,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * during playback, and displays playback controls using a {@link StyledPlayerControlView}.
  *
  * <p>A StyledPlayerView can be customized by setting attributes (or calling corresponding methods),
- * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
- * file.
+ * or overriding drawables.
  *
  * <h2>Attributes</h2>
  *
@@ -175,81 +176,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * The drawables used by {@link StyledPlayerControlView} (with its default layout file) can be
  * overridden by drawables with the same names defined in your application. See the {@link
  * StyledPlayerControlView} documentation for a list of drawables that can be overridden.
- *
- * <h2>Overriding the layout file</h2>
- *
- * To customize the layout of StyledPlayerView throughout your app, or just for certain
- * configurations, you can define {@code exo_styled_player_view.xml} layout files in your
- * application {@code res/layout*} directories. These layouts will override the one provided by the
- * library, and will be inflated for use by StyledPlayerView. The view identifies and binds its
- * children by looking for the following ids:
- *
- * <ul>
- *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
- *       or album art of the media being played, and the configured {@code resize_mode}. The video
- *       surface view is inflated into this frame as its first child.
- *       <ul>
- *         <li>Type: {@link AspectRatioFrameLayout}
- *       </ul>
- *   <li><b>{@code exo_shutter}</b> - A view that's made visible when video should be hidden. This
- *       view is typically an opaque view that covers the video surface, thereby obscuring it when
- *       visible. Obscuring the surface in this way also helps to prevent flicker at the start of
- *       playback when {@code surface_type="surface_view"}.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_buffering}</b> - A view that's made visible when the player is buffering.
- *       This view typically displays a buffering spinner or animation.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_subtitles}</b> - Displays subtitles.
- *       <ul>
- *         <li>Type: {@link SubtitleView}
- *       </ul>
- *   <li><b>{@code exo_artwork}</b> - Displays album art.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *       </ul>
- *   <li><b>{@code exo_error_message}</b> - Displays an error message to the user if playback fails.
- *       <ul>
- *         <li>Type: {@link TextView}
- *       </ul>
- *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
- *       {@link StyledPlayerControlView}. Ignored if an {@code exo_controller} view exists.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_controller}</b> - An already inflated {@link StyledPlayerControlView}. Allows
- *       use of a custom extension of {@link StyledPlayerControlView}. {@link
- *       StyledPlayerControlView} and {@link DefaultTimeBar} attributes set on the StyledPlayerView
- *       will not be automatically propagated through to this instance. If a view exists with this
- *       id, any {@code exo_controller_placeholder} view will be ignored.
- *       <ul>
- *         <li>Type: {@link StyledPlayerControlView}
- *       </ul>
- *   <li><b>{@code exo_ad_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
- *       is used to show ad UI (if applicable).
- *       <ul>
- *         <li>Type: {@link FrameLayout}
- *       </ul>
- *   <li><b>{@code exo_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
- *       the app can access via {@link #getOverlayFrameLayout()}, provided for convenience.
- *       <ul>
- *         <li>Type: {@link FrameLayout}
- *       </ul>
- * </ul>
- *
- * <p>All child views are optional and so can be omitted if not required, however where defined they
- * must be of the expected type.
- *
- * <h2>Specifying a custom layout file</h2>
- *
- * Defining your own {@code exo_styled_player_view.xml} is useful to customize the layout of
- * StyledPlayerView throughout your application. It's also possible to customize the layout for a
- * single instance in a layout file. This is achieved by setting the {@code player_layout_id}
- * attribute on a StyledPlayerView. This will cause the specified layout to be inflated instead of
- * {@code exo_styled_player_view.xml} for only the instance on which the attribute is set.
  */
 public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
@@ -259,6 +185,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
   /** The buffering view is never shown. */
@@ -498,7 +425,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     if (customController != null) {
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
-      // Propagate attrs as playbackAttrs so that PlayerControlView's custom attributes are
+      // Propagate attrs as playbackAttrs so that StyledPlayerControlView's custom attributes are
       // transferred, but standard attributes (e.g. background) are not.
       this.controller = new StyledPlayerControlView(context, null, 0, attrs);
       controller.setId(R.id.exo_controller);

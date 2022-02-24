@@ -12,20 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
-
 android {
+
+    defaultConfig {
+        minSdkVersion 21
+        // The following argument makes the Android Test Orchestrator run its
+        // "pm clear" command after each test invocation. This command ensures
+        // that the app's state is completely cleared between tests.
+        testInstrumentationRunnerArguments clearPackageData: 'true'
+        multiDexEnabled true
+    }
+
     buildTypes {
         debug {
             testCoverageEnabled = true
         }
     }
 
-    sourceSets.test.assets.srcDir '../../testdata/src/test/assets/'
+    sourceSets {
+        androidTest.assets.srcDir '../test_data/src/test/assets/' //copybara:media3-only
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
 }
 
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
+    compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
@@ -33,6 +47,11 @@ dependencies {
     testImplementation project(modulePrefix + 'testutils')
     testImplementation project(modulePrefix + 'testdata')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation 'junit:junit:' + junitVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation project(modulePrefix + 'testutils')
 }
 
 ext {

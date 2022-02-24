@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
@@ -26,11 +28,13 @@ import android.os.PersistableBundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,6 +229,7 @@ public interface ExoMediaDrm {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       REQUEST_TYPE_UNKNOWN,
       REQUEST_TYPE_INITIAL,
@@ -260,7 +265,7 @@ public interface ExoMediaDrm {
 
     private final byte[] data;
     private final String licenseServerUrl;
-    @RequestType private final int requestType;
+    private final @RequestType int requestType;
 
     /**
      * Creates an instance with {@link #REQUEST_TYPE_UNKNOWN}.
@@ -300,8 +305,7 @@ public interface ExoMediaDrm {
      * request does not specify a type. Note that when using a platform {@link MediaDrm} instance,
      * key requests only specify a type on API levels 23 and above.
      */
-    @RequestType
-    public int getRequestType() {
+    public @RequestType int getRequestType() {
       return requestType;
     }
   }
@@ -394,6 +398,14 @@ public interface ExoMediaDrm {
    * @param sessionId The ID of the session to close.
    */
   void closeSession(byte[] sessionId);
+
+  /**
+   * Sets the {@link PlayerId} of the player using a session.
+   *
+   * @param sessionId The ID of the session.
+   * @param playerId The {@link PlayerId} of the player using the session.
+   */
+  default void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {}
 
   /**
    * Generates a key request.

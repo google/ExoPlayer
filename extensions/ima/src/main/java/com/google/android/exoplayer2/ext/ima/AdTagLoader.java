@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.ext.ima.ImaUtil.getImaLooper;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.net.Uri;
@@ -69,6 +70,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +110,7 @@ import java.util.Map;
   /** The state of ad playback. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({IMA_AD_STATE_NONE, IMA_AD_STATE_PLAYING, IMA_AD_STATE_PAUSED})
   private @interface ImaAdState {}
 
@@ -159,7 +162,7 @@ import java.util.Map;
   /** Whether IMA has sent an ad event to pause content since the last resume content event. */
   private boolean imaPausedContent;
   /** The current ad playback state. */
-  @ImaAdState private int imaAdState;
+  private @ImaAdState int imaAdState;
   /** The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
   @Nullable private AdMediaInfo imaAdMediaInfo;
   /** The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */

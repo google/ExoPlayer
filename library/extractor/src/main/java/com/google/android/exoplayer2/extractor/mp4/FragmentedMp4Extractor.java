@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.android.exoplayer2.util.Util.nullSafeArrayCopy;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import android.util.SparseArray;
@@ -56,6 +57,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +80,7 @@ public class FragmentedMp4Extractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -127,7 +130,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
   // Workarounds.
-  @Flags private final int flags;
+  private final @Flags int flags;
   @Nullable private final Track sideloadedTrack;
 
   // Sideloaded data.
@@ -1684,8 +1687,7 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     /** Returns the {@link C.BufferFlags} corresponding to the current sample. */
-    @C.BufferFlags
-    public int getCurrentSampleFlags() {
+    public @C.BufferFlags int getCurrentSampleFlags() {
       int flags =
           !currentlyInFragment
               ? moovSampleTable.flags[currentSampleIndex]

@@ -278,6 +278,7 @@ public class MediaItemTest {
                 .setSelectionFlags(C.SELECTION_FLAG_FORCED)
                 .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
                 .setLabel("label")
+                .setId("id")
                 .build());
 
     MediaItem mediaItem =
@@ -619,6 +620,7 @@ public class MediaItemTest {
                         .setSelectionFlags(C.SELECTION_FLAG_FORCED)
                         .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
                         .setLabel("label")
+                        .setId("id")
                         .build()))
             .setTag(new Object())
             .build();
@@ -675,6 +677,7 @@ public class MediaItemTest {
                         .setSelectionFlags(C.SELECTION_FLAG_FORCED)
                         .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
                         .setLabel("label")
+                        .setId("id")
                         .build()))
             .setTag(new Object())
             .build();

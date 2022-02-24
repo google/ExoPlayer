@@ -56,11 +56,11 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Rating userRating;
     @Nullable private Rating overallRating;
     @Nullable private byte[] artworkData;
-    @Nullable @PictureType private Integer artworkDataType;
+    @Nullable private @PictureType Integer artworkDataType;
     @Nullable private Uri artworkUri;
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
-    @Nullable @FolderType private Integer folderType;
+    @Nullable private @FolderType Integer folderType;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer recordingYear;
     @Nullable private Integer recordingMonth;
@@ -516,6 +516,8 @@ public final class MediaMetadata implements Bundleable {
    * href="https://www.bluetooth.com/specifications/specs/a-v-remote-control-profile-1-6-2/">Bluetooth
    * AVRCP 1.6.2</a>).
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -554,6 +556,8 @@ public final class MediaMetadata implements Bundleable {
    * <p>Values sourced from the ID3 v2.4 specification (See section 4.14 of
    * https://id3.org/id3v2.4.0-frames).
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -824,6 +828,7 @@ public final class MediaMetadata implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TITLE,
     FIELD_ARTIST,

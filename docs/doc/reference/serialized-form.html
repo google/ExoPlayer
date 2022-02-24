@@ -127,7 +127,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockList">
 <h4>rendererFormatSupport</h4>
-<pre>int rendererFormatSupport</pre>
+<pre>@com.google.android.exoplayer2.C.FormatSupport int rendererFormatSupport</pre>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the level of <a href="com/google/android/exoplayer2/C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> of the
  renderer for <a href="com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>ExoPlaybackException.rendererFormat</code></a>. If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>ExoPlaybackException.rendererFormat</code></a> is null, this is <a href="com/google/android/exoplayer2/C.html#FORMAT_HANDLED"><code>C.FORMAT_HANDLED</code></a>.</div>
 </li>
@@ -143,7 +143,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockListLast">
 <h4>type</h4>
-<pre>int type</pre>
+<pre>@com.google.android.exoplayer2.ExoPlaybackException.Type int type</pre>
 <div class="block">The <a href="com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </li>
 </ul>
@@ -160,7 +160,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockListLast">
 <h4>timeoutOperation</h4>
-<pre>int timeoutOperation</pre>
+<pre>@com.google.android.exoplayer2.ExoTimeoutException.TimeoutOperation int timeoutOperation</pre>
 <div class="block">The operation on the ExoPlayer playback thread that timed out.</div>
 </li>
 </ul>
@@ -496,7 +496,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockListLast">
 <h4>reason</h4>
-<pre>int reason</pre>
+<pre>@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int reason</pre>
 <div class="block">Either <a href="com/google/android/exoplayer2/drm/UnsupportedDrmException.html#REASON_UNSUPPORTED_SCHEME"><code>UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME</code></a> or <a href="com/google/android/exoplayer2/drm/UnsupportedDrmException.html#REASON_INSTANTIATION_ERROR"><code>UnsupportedDrmException.REASON_INSTANTIATION_ERROR</code></a>.</div>
 </li>
 </ul>
@@ -734,7 +734,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockListLast">
 <h4>reason</h4>
-<pre>int reason</pre>
+<pre>@com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException.Reason int reason</pre>
 <div class="block">The reason clipping failed.</div>
 </li>
 </ul>
@@ -751,7 +751,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockListLast">
 <h4>reason</h4>
-<pre>int reason</pre>
+<pre>@com.google.android.exoplayer2.source.MergingMediaSource.IllegalMergeException.Reason int reason</pre>
 <div class="block">The reason the merge failed.</div>
 </li>
 </ul>
@@ -792,7 +792,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockListLast">
 <h4>type</h4>
-<pre>int type</pre>
+<pre>@com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException.Type int type</pre>
 <div class="block">The <a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.Type.html" title="annotation in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException.Type</code></a> of the ad load exception.</div>
 </li>
 </ul>
@@ -922,6 +922,40 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockList">
 <section role="region">
+<h2 title="Package">Package&nbsp;com.google.android.exoplayer2.transformer</h2>
+<ul class="blockList">
+<li class="blockList"><a id="com.google.android.exoplayer2.transformer.Muxer.MuxerException">
+<!--   -->
+</a>
+<h3>Class com.google.android.exoplayer2.transformer.Muxer.MuxerException extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a id="com.google.android.exoplayer2.transformer.TransformationException">
+<!--   -->
+</a>
+<h3>Class <a href="com/google/android/exoplayer2/transformer/TransformationException.html" title="class in com.google.android.exoplayer2.transformer">com.google.android.exoplayer2.transformer.TransformationException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList">
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockList">
+<h4>errorCode</h4>
+<pre>@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int errorCode</pre>
+<div class="block">An error code which identifies the cause of the transformation failure.</div>
+</li>
+<li class="blockListLast">
+<h4>timestampMs</h4>
+<pre>long timestampMs</pre>
+<div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+<li class="blockList">
+<section role="region">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.upstream</h2>
 <ul class="blockList">
 <li class="blockList"><a id="com.google.android.exoplayer2.upstream.AssetDataSource.AssetDataSourceException">
@@ -977,7 +1011,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockListLast">
 <h4>type</h4>
-<pre>int type</pre>
+<pre>@com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException.Type int type</pre>
 </li>
 </ul>
 </li>
@@ -1079,11 +1113,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Class <a href="com/google/android/exoplayer2/util/GlUtil.GlException.html" title="class in com.google.android.exoplayer2.util">com.google.android.exoplayer2.util.GlUtil.GlException</a> extends <a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a> implements Serializable</h3>
-</li>
-<li class="blockList"><a id="com.google.android.exoplayer2.util.GlUtil.UnsupportedEglVersionException">
-<!--   -->
-</a>
-<h3>Class <a href="com/google/android/exoplayer2/util/GlUtil.UnsupportedEglVersionException.html" title="class in com.google.android.exoplayer2.util">com.google.android.exoplayer2.util.GlUtil.UnsupportedEglVersionException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a> implements Serializable</h3>
 </li>
 <li class="blockList"><a id="com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException">
 <!--   -->

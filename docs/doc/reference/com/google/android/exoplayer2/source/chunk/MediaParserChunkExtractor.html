@@ -198,9 +198,10 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,java.util.List)">MediaParserChunkExtractor</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.analytics.PlayerId)">MediaParserChunkExtractor</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                          <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat,
-                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</code></th>
+                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
+                         <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance.</div>
 </td>
@@ -304,7 +305,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,java.util.List)">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.analytics.PlayerId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -312,7 +313,8 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <h4>MediaParserChunkExtractor</h4>
 <pre>public&nbsp;MediaParserChunkExtractor&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                                  <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat,
-                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</pre>
+                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
+                                 <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -320,6 +322,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <dd><code>manifestFormat</code> - The chunks <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> as obtained from the manifest.</dd>
 <dd><code>closedCaptionFormats</code> - A list containing the <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of the closed-caption
      tracks in the chunks.</dd>
+<dd><code>playerId</code> - The <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player this chunk extractor is used for.</dd>
 </dl>
 </li>
 </ul>

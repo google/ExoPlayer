@@ -28,6 +28,7 @@ import java.util.List;
 /* package */ final class RtspTestUtils {
 
   private static final String TEST_BASE_URI = "rtsp://localhost:%d/test";
+  private static final String TEST_BASE_URI_WITH_USER_INFO = "rtsp://%s:%s@localhost:%d/test";
   private static final String RTP_TIME_FORMAT = "url=rtsp://localhost/test/%s;seq=%d;rtptime=%d";
 
   /** RTSP error Method Not Allowed (RFC2326 Section 7.1.1). */
@@ -68,6 +69,14 @@ import java.util.List;
   /** Returns the test RTSP {@link Uri}. */
   public static Uri getTestUri(int serverRtspPortNumber) {
     return Uri.parse(Util.formatInvariant(TEST_BASE_URI, serverRtspPortNumber));
+  }
+
+  /** Returns the test RTSP {@link Uri} with user info. */
+  public static Uri getTestUriWithUserInfo(
+      String username, String password, int serverRtspPortNumber) {
+    return Uri.parse(
+        Util.formatInvariant(
+            TEST_BASE_URI_WITH_USER_INFO, username, password, serverRtspPortNumber));
   }
 
   public static String getRtpInfoForDumps(List<RtpPacketStreamDump> rtpPacketStreamDumps) {

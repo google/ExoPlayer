@@ -185,11 +185,11 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">HlsPlaylistParser</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Creates an instance where media playlists are parsed without inheriting attributes from a
- master playlist.</div>
+ multivariant playlist.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">HlsPlaylistParser</a></span>&#8203;(<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">HlsPlaylistParser</a></span>&#8203;(<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;multivariantPlaylist,
                  <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance where parsed media playlists inherit attributes from the given master
@@ -254,23 +254,24 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <h4>HlsPlaylistParser</h4>
 <pre>public&nbsp;HlsPlaylistParser()</pre>
 <div class="block">Creates an instance where media playlists are parsed without inheriting attributes from a
- master playlist.</div>
+ multivariant playlist.</div>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>HlsPlaylistParser</h4>
-<pre>public&nbsp;HlsPlaylistParser&#8203;(<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
+<pre>public&nbsp;HlsPlaylistParser&#8203;(<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;multivariantPlaylist,
                          @Nullable
                          <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</pre>
 <div class="block">Creates an instance where parsed media playlists inherit attributes from the given master
  playlist.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>masterPlaylist</code> - The master playlist from which media playlists will inherit attributes.</dd>
+<dd><code>multivariantPlaylist</code> - The multivariant playlist from which media playlists will inherit
+     attributes.</dd>
 <dd><code>previousMediaPlaylist</code> - The previous media playlist from which the new media playlist may
      inherit skipped segments.</dd>
 </dl>

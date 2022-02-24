@@ -14,10 +14,10 @@ Components common to all `ExoPlayer` implementations are:
 
 * `MediaSource` instances that define media to be played, load the media, and
   from which the loaded media can be read. `MediaSource` instances are created
-  from `MediaItem`s by a `MediaSourceFactory` inside the player. They can also
+  from `MediaItem`s by a `MediaSource.Factory` inside the player. They can also
   be passed directly to the player using the [media source based playlist API].
-* A `MediaSourceFactory` that converts `MediaItem`s to `MediaSource`s. The
-  `MediaSourceFactory` is injected when the player is created.
+* A `MediaSource.Factory` that converts `MediaItem`s to `MediaSource`s. The
+  `MediaSource.Factory` is injected when the player is created.
 * `Renderer`s that render individual components of the media. `Renderer`s are
   injected when the player is created.
 * A `TrackSelector` that selects tracks provided by the `MediaSource` to be
@@ -245,9 +245,9 @@ required. Some use cases for custom implementations are:
   appropriate if you wish to obtain media samples to feed to renderers in a
   custom way, or if you wish to implement custom `MediaSource` compositing
   behavior.
-* `MediaSourceFactory` &ndash; Implementing a custom `MediaSourceFactory` allows
-  an application to customize the way in which `MediaSource`s are created from
-  `MediaItem`s.
+* `MediaSource.Factory` &ndash; Implementing a custom `MediaSource.Factory`
+  allows an application to customize the way in which `MediaSource`s are created
+  from `MediaItem`s.
 * `DataSource` &ndash; ExoPlayer’s upstream package already contains a number of
   `DataSource` implementations for different use cases. You may want to
   implement you own `DataSource` class to load data in another way, such as over

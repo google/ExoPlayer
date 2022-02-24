@@ -70,19 +70,571 @@ import java.util.List;
  */
 public interface Player {
 
+  /** A set of {@link Event events}. */
+  final class Events {
+
+    private final FlagSet flags;
+
+    /**
+     * Creates an instance.
+     *
+     * @param flags The {@link FlagSet} containing the {@link Event events}.
+     */
+    public Events(FlagSet flags) {
+      this.flags = flags;
+    }
+
+    /**
+     * Returns whether the given {@link Event} occurred.
+     *
+     * @param event The {@link Event}.
+     * @return Whether the {@link Event} occurred.
+     */
+    public boolean contains(@Event int event) {
+      return flags.contains(event);
+    }
+
+    /**
+     * Returns whether any of the given {@link Event events} occurred.
+     *
+     * @param events The {@link Event events}.
+     * @return Whether any of the {@link Event events} occurred.
+     */
+    public boolean containsAny(@Event int... events) {
+      return flags.containsAny(events);
+    }
+
+    /** Returns the number of events in the set. */
+    public int size() {
+      return flags.size();
+    }
+
+    /**
+     * Returns the {@link Event} at the given index.
+     *
+     * <p>Although index-based access is possible, it doesn't imply a particular order of these
+     * events.
+     *
+     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
+     * @return The {@link Event} at the given index.
+     * @throws IndexOutOfBoundsException If index is outside the allowed range.
+     */
+    public @Event int get(int index) {
+      return flags.get(index);
+    }
+
+    @Override
+    public int hashCode() {
+      return flags.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Events)) {
+        return false;
+      }
+      Events other = (Events) obj;
+      return flags.equals(other.flags);
+    }
+  }
+
+  /** Position info describing a playback position involved in a discontinuity. */
+  final class PositionInfo implements Bundleable {
+
+    /**
+     * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
+     */
+    @Nullable public final Object windowUid;
+    /** @deprecated Use {@link #mediaItemIndex} instead. */
+    @Deprecated public final int windowIndex;
+    /** The media item index. */
+    public final int mediaItemIndex;
+    /** The media item, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}. */
+    @Nullable public final MediaItem mediaItem;
+    /**
+     * The UID of the period, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
+     */
+    @Nullable public final Object periodUid;
+    /** The period index. */
+    public final int periodIndex;
+    /** The playback position, in milliseconds. */
+    public final long positionMs;
+    /**
+     * The content position, in milliseconds.
+     *
+     * <p>If {@link #adGroupIndex} is {@link C#INDEX_UNSET}, this is the same as {@link
+     * #positionMs}.
+     */
+    public final long contentPositionMs;
+    /**
+     * The ad group index if the playback position is within an ad, {@link C#INDEX_UNSET} otherwise.
+     */
+    public final int adGroupIndex;
+    /**
+     * The index of the ad within the ad group if the playback position is within an ad, {@link
+     * C#INDEX_UNSET} otherwise.
+     */
+    public final int adIndexInAdGroup;
+
+    /**
+     * @deprecated Use {@link #PositionInfo(Object, int, MediaItem, Object, int, long, long, int,
+     *     int)} instead.
+     */
+    @Deprecated
+    public PositionInfo(
+        @Nullable Object windowUid,
+        int mediaItemIndex,
+        @Nullable Object periodUid,
+        int periodIndex,
+        long positionMs,
+        long contentPositionMs,
+        int adGroupIndex,
+        int adIndexInAdGroup) {
+      this(
+          windowUid,
+          mediaItemIndex,
+          MediaItem.EMPTY,
+          periodUid,
+          periodIndex,
+          positionMs,
+          contentPositionMs,
+          adGroupIndex,
+          adIndexInAdGroup);
+    }
+
+    /** Creates an instance. */
+    public PositionInfo(
+        @Nullable Object windowUid,
+        int mediaItemIndex,
+        @Nullable MediaItem mediaItem,
+        @Nullable Object periodUid,
+        int periodIndex,
+        long positionMs,
+        long contentPositionMs,
+        int adGroupIndex,
+        int adIndexInAdGroup) {
+      this.windowUid = windowUid;
+      this.windowIndex = mediaItemIndex;
+      this.mediaItemIndex = mediaItemIndex;
+      this.mediaItem = mediaItem;
+      this.periodUid = periodUid;
+      this.periodIndex = periodIndex;
+      this.positionMs = positionMs;
+      this.contentPositionMs = contentPositionMs;
+      this.adGroupIndex = adGroupIndex;
+      this.adIndexInAdGroup = adIndexInAdGroup;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      PositionInfo that = (PositionInfo) o;
+      return mediaItemIndex == that.mediaItemIndex
+          && periodIndex == that.periodIndex
+          && positionMs == that.positionMs
+          && contentPositionMs == that.contentPositionMs
+          && adGroupIndex == that.adGroupIndex
+          && adIndexInAdGroup == that.adIndexInAdGroup
+          && Objects.equal(windowUid, that.windowUid)
+          && Objects.equal(periodUid, that.periodUid)
+          && Objects.equal(mediaItem, that.mediaItem);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(
+          windowUid,
+          mediaItemIndex,
+          mediaItem,
+          periodUid,
+          periodIndex,
+          positionMs,
+          contentPositionMs,
+          adGroupIndex,
+          adIndexInAdGroup);
+    }
+
+    // Bundleable implementation.
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({
+      FIELD_MEDIA_ITEM_INDEX,
+      FIELD_MEDIA_ITEM,
+      FIELD_PERIOD_INDEX,
+      FIELD_POSITION_MS,
+      FIELD_CONTENT_POSITION_MS,
+      FIELD_AD_GROUP_INDEX,
+      FIELD_AD_INDEX_IN_AD_GROUP
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_MEDIA_ITEM_INDEX = 0;
+    private static final int FIELD_MEDIA_ITEM = 1;
+    private static final int FIELD_PERIOD_INDEX = 2;
+    private static final int FIELD_POSITION_MS = 3;
+    private static final int FIELD_CONTENT_POSITION_MS = 4;
+    private static final int FIELD_AD_GROUP_INDEX = 5;
+    private static final int FIELD_AD_INDEX_IN_AD_GROUP = 6;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #windowUid} and {@link #periodUid} fields. The {@link #windowUid} and
+     * {@link #periodUid} of an instance restored by {@link #CREATOR} will always be {@code null}.
+     */
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
+      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
+      bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
+      bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
+      bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
+      bundle.putInt(keyForField(FIELD_AD_GROUP_INDEX), adGroupIndex);
+      bundle.putInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), adIndexInAdGroup);
+      return bundle;
+    }
+
+    /** Object that can restore {@link PositionInfo} from a {@link Bundle}. */
+    public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
+
+    private static PositionInfo fromBundle(Bundle bundle) {
+      int mediaItemIndex =
+          bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      @Nullable
+      MediaItem mediaItem =
+          BundleableUtil.fromNullableBundle(
+              MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
+      int periodIndex =
+          bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      long positionMs =
+          bundle.getLong(keyForField(FIELD_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
+      long contentPositionMs =
+          bundle.getLong(keyForField(FIELD_CONTENT_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
+      int adGroupIndex =
+          bundle.getInt(keyForField(FIELD_AD_GROUP_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      int adIndexInAdGroup =
+          bundle.getInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), /* defaultValue= */ C.INDEX_UNSET);
+      return new PositionInfo(
+          /* windowUid= */ null,
+          mediaItemIndex,
+          mediaItem,
+          /* periodUid= */ null,
+          periodIndex,
+          positionMs,
+          contentPositionMs,
+          adGroupIndex,
+          adIndexInAdGroup);
+    }
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
+  }
+
   /**
-   * Listener of changes in player state.
+   * A set of {@link Command commands}.
+   *
+   * <p>Instances are immutable.
+   */
+  final class Commands implements Bundleable {
+
+    /** A builder for {@link Commands} instances. */
+    public static final class Builder {
+
+      private static final @Command int[] SUPPORTED_COMMANDS = {
+        COMMAND_PLAY_PAUSE,
+        COMMAND_PREPARE,
+        COMMAND_STOP,
+        COMMAND_SEEK_TO_DEFAULT_POSITION,
+        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+        COMMAND_SEEK_TO_PREVIOUS,
+        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_NEXT,
+        COMMAND_SEEK_TO_MEDIA_ITEM,
+        COMMAND_SEEK_BACK,
+        COMMAND_SEEK_FORWARD,
+        COMMAND_SET_SPEED_AND_PITCH,
+        COMMAND_SET_SHUFFLE_MODE,
+        COMMAND_SET_REPEAT_MODE,
+        COMMAND_GET_CURRENT_MEDIA_ITEM,
+        COMMAND_GET_TIMELINE,
+        COMMAND_GET_MEDIA_ITEMS_METADATA,
+        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_GET_AUDIO_ATTRIBUTES,
+        COMMAND_GET_VOLUME,
+        COMMAND_GET_DEVICE_VOLUME,
+        COMMAND_SET_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_SET_VIDEO_SURFACE,
+        COMMAND_GET_TEXT,
+        COMMAND_SET_TRACK_SELECTION_PARAMETERS,
+        COMMAND_GET_TRACK_INFOS,
+      };
+
+      private final FlagSet.Builder flagsBuilder;
+
+      /** Creates a builder. */
+      public Builder() {
+        flagsBuilder = new FlagSet.Builder();
+      }
+
+      private Builder(Commands commands) {
+        flagsBuilder = new FlagSet.Builder();
+        flagsBuilder.addAll(commands.flags);
+      }
+
+      /**
+       * Adds a {@link Command}.
+       *
+       * @param command A {@link Command}.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder add(@Command int command) {
+        flagsBuilder.add(command);
+        return this;
+      }
+
+      /**
+       * Adds a {@link Command} if the provided condition is true. Does nothing otherwise.
+       *
+       * @param command A {@link Command}.
+       * @param condition A condition.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addIf(@Command int command, boolean condition) {
+        flagsBuilder.addIf(command, condition);
+        return this;
+      }
+
+      /**
+       * Adds {@link Command commands}.
+       *
+       * @param commands The {@link Command commands} to add.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAll(@Command int... commands) {
+        flagsBuilder.addAll(commands);
+        return this;
+      }
+
+      /**
+       * Adds {@link Commands}.
+       *
+       * @param commands The set of {@link Command commands} to add.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAll(Commands commands) {
+        flagsBuilder.addAll(commands.flags);
+        return this;
+      }
+
+      /**
+       * Adds all existing {@link Command commands}.
+       *
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAllCommands() {
+        flagsBuilder.addAll(SUPPORTED_COMMANDS);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command}.
+       *
+       * @param command A {@link Command}.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder remove(@Command int command) {
+        flagsBuilder.remove(command);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command} if the provided condition is true. Does nothing otherwise.
+       *
+       * @param command A {@link Command}.
+       * @param condition A condition.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeIf(@Command int command, boolean condition) {
+        flagsBuilder.removeIf(command, condition);
+        return this;
+      }
+
+      /**
+       * Removes {@link Command commands}.
+       *
+       * @param commands The {@link Command commands} to remove.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeAll(@Command int... commands) {
+        flagsBuilder.removeAll(commands);
+        return this;
+      }
+
+      /**
+       * Builds a {@link Commands} instance.
+       *
+       * @throws IllegalStateException If this method has already been called.
+       */
+      public Commands build() {
+        return new Commands(flagsBuilder.build());
+      }
+    }
+
+    /** An empty set of commands. */
+    public static final Commands EMPTY = new Builder().build();
+
+    private final FlagSet flags;
+
+    private Commands(FlagSet flags) {
+      this.flags = flags;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
+    }
+
+    /** Returns whether the set of commands contains the specified {@link Command}. */
+    public boolean contains(@Command int command) {
+      return flags.contains(command);
+    }
+
+    /** Returns the number of commands in this set. */
+    public int size() {
+      return flags.size();
+    }
+
+    /**
+     * Returns the {@link Command} at the given index.
+     *
+     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
+     * @return The {@link Command} at the given index.
+     * @throws IndexOutOfBoundsException If index is outside the allowed range.
+     */
+    public @Command int get(int index) {
+      return flags.get(index);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Commands)) {
+        return false;
+      }
+      Commands commands = (Commands) obj;
+      return flags.equals(commands.flags);
+    }
+
+    @Override
+    public int hashCode() {
+      return flags.hashCode();
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({FIELD_COMMANDS})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_COMMANDS = 0;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      ArrayList<Integer> commandsBundle = new ArrayList<>();
+      for (int i = 0; i < flags.size(); i++) {
+        commandsBundle.add(flags.get(i));
+      }
+      bundle.putIntegerArrayList(keyForField(FIELD_COMMANDS), commandsBundle);
+      return bundle;
+    }
+
+    /** Object that can restore {@link Commands} from a {@link Bundle}. */
+    public static final Creator<Commands> CREATOR = Commands::fromBundle;
+
+    private static Commands fromBundle(Bundle bundle) {
+      @Nullable
+      ArrayList<Integer> commands = bundle.getIntegerArrayList(keyForField(FIELD_COMMANDS));
+      if (commands == null) {
+        return Commands.EMPTY;
+      }
+      Builder builder = new Builder();
+      for (int i = 0; i < commands.size(); i++) {
+        builder.add(commands.get(i));
+      }
+      return builder.build();
+    }
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
+  }
+
+  /**
+   * Listener of all changes in the Player.
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
-   *
-   * <p>Listeners can choose to implement individual events (e.g. {@link
-   * #onIsPlayingChanged(boolean)}) or {@link #onEvents(Player, Events)}, which is called after one
-   * or more events occurred together.
-   *
-   * @deprecated Use {@link Player.Listener}.
    */
-  @Deprecated
-  interface EventListener {
+  interface Listener {
+
+    /**
+     * Called when one or more player states changed.
+     *
+     * <p>State changes and events that happen within one {@link Looper} message queue iteration are
+     * reported together and only after all individual callbacks were triggered.
+     *
+     * <p>Only state changes represented by {@link Event events} are reported through this method.
+     *
+     * <p>Listeners should prefer this method over individual callbacks in the following cases:
+     *
+     * <ul>
+     *   <li>They intend to trigger the same logic for multiple events (e.g. when updating a UI for
+     *       both {@link #onPlaybackStateChanged(int)} and {@link #onPlayWhenReadyChanged(boolean,
+     *       int)}).
+     *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
+     *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
+     *   <li>They intend to use multiple state values together or in combination with {@link Player}
+     *       getter methods. For example using {@link #getCurrentMediaItemIndex()} with the {@code
+     *       timeline} provided in {@link #onTimelineChanged(Timeline, int)} is only safe from
+     *       within this method.
+     *   <li>They are interested in events that logically happened together (e.g {@link
+     *       #onPlaybackStateChanged(int)} to {@link #STATE_BUFFERING} because of {@link
+     *       #onMediaItemTransition(MediaItem, int)}).
+     * </ul>
+     *
+     * @param player The {@link Player} whose state changed. Use the getters to obtain the latest
+     *     states.
+     * @param events The {@link Events} that happened in this iteration, indicating which player
+     *     states changed.
+     */
+    default void onEvents(Player player, Events events) {}
 
     /**
      * Called when the timeline has been refreshed.
@@ -161,7 +713,12 @@ public interface Player {
      */
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
-    /** Called when the playlist {@link MediaMetadata} changes. */
+    /**
+     * Called when the playlist {@link MediaMetadata} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     */
     default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
@@ -373,628 +930,10 @@ public interface Player {
     default void onSeekProcessed() {}
 
     /**
-     * Called when one or more player states changed.
-     *
-     * <p>State changes and events that happen within one {@link Looper} message queue iteration are
-     * reported together and only after all individual callbacks were triggered.
-     *
-     * <p>Only state changes represented by {@link Event events} are reported through this method.
-     *
-     * <p>Listeners should prefer this method over individual callbacks in the following cases:
-     *
-     * <ul>
-     *   <li>They intend to trigger the same logic for multiple events (e.g. when updating a UI for
-     *       both {@link #onPlaybackStateChanged(int)} and {@link #onPlayWhenReadyChanged(boolean,
-     *       int)}).
-     *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
-     *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
-     *   <li>They intend to use multiple state values together or in combination with {@link Player}
-     *       getter methods. For example using {@link #getCurrentMediaItemIndex()} with the {@code
-     *       timeline} provided in {@link #onTimelineChanged(Timeline, int)} is only safe from
-     *       within this method.
-     *   <li>They are interested in events that logically happened together (e.g {@link
-     *       #onPlaybackStateChanged(int)} to {@link #STATE_BUFFERING} because of {@link
-     *       #onMediaItemTransition(MediaItem, int)}).
-     * </ul>
-     *
-     * @param player The {@link Player} whose state changed. Use the getters to obtain the latest
-     *     states.
-     * @param events The {@link Events} that happened in this iteration, indicating which player
-     *     states changed.
-     */
-    default void onEvents(Player player, Events events) {}
-  }
-
-  /** A set of {@link Event events}. */
-  final class Events {
-
-    private final FlagSet flags;
-
-    /**
-     * Creates an instance.
-     *
-     * @param flags The {@link FlagSet} containing the {@link Event events}.
-     */
-    public Events(FlagSet flags) {
-      this.flags = flags;
-    }
-
-    /**
-     * Returns whether the given {@link Event} occurred.
-     *
-     * @param event The {@link Event}.
-     * @return Whether the {@link Event} occurred.
-     */
-    public boolean contains(@Event int event) {
-      return flags.contains(event);
-    }
-
-    /**
-     * Returns whether any of the given {@link Event events} occurred.
-     *
-     * @param events The {@link Event events}.
-     * @return Whether any of the {@link Event events} occurred.
-     */
-    public boolean containsAny(@Event int... events) {
-      return flags.containsAny(events);
-    }
-
-    /** Returns the number of events in the set. */
-    public int size() {
-      return flags.size();
-    }
-
-    /**
-     * Returns the {@link Event} at the given index.
-     *
-     * <p>Although index-based access is possible, it doesn't imply a particular order of these
-     * events.
-     *
-     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
-     * @return The {@link Event} at the given index.
-     * @throws IndexOutOfBoundsException If index is outside the allowed range.
-     */
-    public @Event int get(int index) {
-      return flags.get(index);
-    }
-
-    @Override
-    public int hashCode() {
-      return flags.hashCode();
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Events)) {
-        return false;
-      }
-      Events other = (Events) obj;
-      return flags.equals(other.flags);
-    }
-  }
-
-  /** Position info describing a playback position involved in a discontinuity. */
-  final class PositionInfo implements Bundleable {
-
-    /**
-     * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
-     */
-    @Nullable public final Object windowUid;
-    /** @deprecated Use {@link #mediaItemIndex} instead. */
-    @Deprecated public final int windowIndex;
-    /** The media item index. */
-    public final int mediaItemIndex;
-    /** The media item, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}. */
-    @Nullable public final MediaItem mediaItem;
-    /**
-     * The UID of the period, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
-     */
-    @Nullable public final Object periodUid;
-    /** The period index. */
-    public final int periodIndex;
-    /** The playback position, in milliseconds. */
-    public final long positionMs;
-    /**
-     * The content position, in milliseconds.
-     *
-     * <p>If {@link #adGroupIndex} is {@link C#INDEX_UNSET}, this is the same as {@link
-     * #positionMs}.
-     */
-    public final long contentPositionMs;
-    /**
-     * The ad group index if the playback position is within an ad, {@link C#INDEX_UNSET} otherwise.
-     */
-    public final int adGroupIndex;
-    /**
-     * The index of the ad within the ad group if the playback position is within an ad, {@link
-     * C#INDEX_UNSET} otherwise.
-     */
-    public final int adIndexInAdGroup;
-
-    /**
-     * @deprecated Use {@link #PositionInfo(Object, int, MediaItem, Object, int, long, long, int,
-     *     int)} instead.
-     */
-    @Deprecated
-    public PositionInfo(
-        @Nullable Object windowUid,
-        int mediaItemIndex,
-        @Nullable Object periodUid,
-        int periodIndex,
-        long positionMs,
-        long contentPositionMs,
-        int adGroupIndex,
-        int adIndexInAdGroup) {
-      this(
-          windowUid,
-          mediaItemIndex,
-          MediaItem.EMPTY,
-          periodUid,
-          periodIndex,
-          positionMs,
-          contentPositionMs,
-          adGroupIndex,
-          adIndexInAdGroup);
-    }
-
-    /** Creates an instance. */
-    public PositionInfo(
-        @Nullable Object windowUid,
-        int mediaItemIndex,
-        @Nullable MediaItem mediaItem,
-        @Nullable Object periodUid,
-        int periodIndex,
-        long positionMs,
-        long contentPositionMs,
-        int adGroupIndex,
-        int adIndexInAdGroup) {
-      this.windowUid = windowUid;
-      this.windowIndex = mediaItemIndex;
-      this.mediaItemIndex = mediaItemIndex;
-      this.mediaItem = mediaItem;
-      this.periodUid = periodUid;
-      this.periodIndex = periodIndex;
-      this.positionMs = positionMs;
-      this.contentPositionMs = contentPositionMs;
-      this.adGroupIndex = adGroupIndex;
-      this.adIndexInAdGroup = adIndexInAdGroup;
-    }
-
-    @Override
-    public boolean equals(@Nullable Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      PositionInfo that = (PositionInfo) o;
-      return mediaItemIndex == that.mediaItemIndex
-          && periodIndex == that.periodIndex
-          && positionMs == that.positionMs
-          && contentPositionMs == that.contentPositionMs
-          && adGroupIndex == that.adGroupIndex
-          && adIndexInAdGroup == that.adIndexInAdGroup
-          && Objects.equal(windowUid, that.windowUid)
-          && Objects.equal(periodUid, that.periodUid)
-          && Objects.equal(mediaItem, that.mediaItem);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(
-          windowUid,
-          mediaItemIndex,
-          mediaItem,
-          periodUid,
-          periodIndex,
-          positionMs,
-          contentPositionMs,
-          adGroupIndex,
-          adIndexInAdGroup);
-    }
-
-    // Bundleable implementation.
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({
-      FIELD_MEDIA_ITEM_INDEX,
-      FIELD_MEDIA_ITEM,
-      FIELD_PERIOD_INDEX,
-      FIELD_POSITION_MS,
-      FIELD_CONTENT_POSITION_MS,
-      FIELD_AD_GROUP_INDEX,
-      FIELD_AD_INDEX_IN_AD_GROUP
-    })
-    private @interface FieldNumber {}
-
-    private static final int FIELD_MEDIA_ITEM_INDEX = 0;
-    private static final int FIELD_MEDIA_ITEM = 1;
-    private static final int FIELD_PERIOD_INDEX = 2;
-    private static final int FIELD_POSITION_MS = 3;
-    private static final int FIELD_CONTENT_POSITION_MS = 4;
-    private static final int FIELD_AD_GROUP_INDEX = 5;
-    private static final int FIELD_AD_INDEX_IN_AD_GROUP = 6;
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>It omits the {@link #windowUid} and {@link #periodUid} fields. The {@link #windowUid} and
-     * {@link #periodUid} of an instance restored by {@link #CREATOR} will always be {@code null}.
-     */
-    @Override
-    public Bundle toBundle() {
-      Bundle bundle = new Bundle();
-      bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
-      bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
-      bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
-      bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
-      bundle.putInt(keyForField(FIELD_AD_GROUP_INDEX), adGroupIndex);
-      bundle.putInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), adIndexInAdGroup);
-      return bundle;
-    }
-
-    /** Object that can restore {@link PositionInfo} from a {@link Bundle}. */
-    public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
-
-    private static PositionInfo fromBundle(Bundle bundle) {
-      int mediaItemIndex =
-          bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
-      @Nullable
-      MediaItem mediaItem =
-          BundleableUtil.fromNullableBundle(
-              MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
-      int periodIndex =
-          bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
-      long positionMs =
-          bundle.getLong(keyForField(FIELD_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
-      long contentPositionMs =
-          bundle.getLong(keyForField(FIELD_CONTENT_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
-      int adGroupIndex =
-          bundle.getInt(keyForField(FIELD_AD_GROUP_INDEX), /* defaultValue= */ C.INDEX_UNSET);
-      int adIndexInAdGroup =
-          bundle.getInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), /* defaultValue= */ C.INDEX_UNSET);
-      return new PositionInfo(
-          /* windowUid= */ null,
-          mediaItemIndex,
-          mediaItem,
-          /* periodUid= */ null,
-          periodIndex,
-          positionMs,
-          contentPositionMs,
-          adGroupIndex,
-          adIndexInAdGroup);
-    }
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
-  }
-
-  /**
-   * A set of {@link Command commands}.
-   *
-   * <p>Instances are immutable.
-   */
-  final class Commands implements Bundleable {
-
-    /** A builder for {@link Commands} instances. */
-    public static final class Builder {
-
-      @Command
-      private static final int[] SUPPORTED_COMMANDS = {
-        COMMAND_PLAY_PAUSE,
-        COMMAND_PREPARE,
-        COMMAND_STOP,
-        COMMAND_SEEK_TO_DEFAULT_POSITION,
-        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
-        COMMAND_SEEK_TO_PREVIOUS,
-        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-        COMMAND_SEEK_TO_NEXT,
-        COMMAND_SEEK_TO_MEDIA_ITEM,
-        COMMAND_SEEK_BACK,
-        COMMAND_SEEK_FORWARD,
-        COMMAND_SET_SPEED_AND_PITCH,
-        COMMAND_SET_SHUFFLE_MODE,
-        COMMAND_SET_REPEAT_MODE,
-        COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_GET_TIMELINE,
-        COMMAND_GET_MEDIA_ITEMS_METADATA,
-        COMMAND_SET_MEDIA_ITEMS_METADATA,
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        COMMAND_GET_AUDIO_ATTRIBUTES,
-        COMMAND_GET_VOLUME,
-        COMMAND_GET_DEVICE_VOLUME,
-        COMMAND_SET_VOLUME,
-        COMMAND_SET_DEVICE_VOLUME,
-        COMMAND_ADJUST_DEVICE_VOLUME,
-        COMMAND_SET_VIDEO_SURFACE,
-        COMMAND_GET_TEXT,
-        COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-        COMMAND_GET_TRACK_INFOS,
-      };
-
-      private final FlagSet.Builder flagsBuilder;
-
-      /** Creates a builder. */
-      public Builder() {
-        flagsBuilder = new FlagSet.Builder();
-      }
-
-      private Builder(Commands commands) {
-        flagsBuilder = new FlagSet.Builder();
-        flagsBuilder.addAll(commands.flags);
-      }
-
-      /**
-       * Adds a {@link Command}.
-       *
-       * @param command A {@link Command}.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder add(@Command int command) {
-        flagsBuilder.add(command);
-        return this;
-      }
-
-      /**
-       * Adds a {@link Command} if the provided condition is true. Does nothing otherwise.
-       *
-       * @param command A {@link Command}.
-       * @param condition A condition.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder addIf(@Command int command, boolean condition) {
-        flagsBuilder.addIf(command, condition);
-        return this;
-      }
-
-      /**
-       * Adds {@link Command commands}.
-       *
-       * @param commands The {@link Command commands} to add.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder addAll(@Command int... commands) {
-        flagsBuilder.addAll(commands);
-        return this;
-      }
-
-      /**
-       * Adds {@link Commands}.
-       *
-       * @param commands The set of {@link Command commands} to add.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder addAll(Commands commands) {
-        flagsBuilder.addAll(commands.flags);
-        return this;
-      }
-
-      /**
-       * Adds all existing {@link Command commands}.
-       *
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder addAllCommands() {
-        flagsBuilder.addAll(SUPPORTED_COMMANDS);
-        return this;
-      }
-
-      /**
-       * Removes a {@link Command}.
-       *
-       * @param command A {@link Command}.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder remove(@Command int command) {
-        flagsBuilder.remove(command);
-        return this;
-      }
-
-      /**
-       * Removes a {@link Command} if the provided condition is true. Does nothing otherwise.
-       *
-       * @param command A {@link Command}.
-       * @param condition A condition.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder removeIf(@Command int command, boolean condition) {
-        flagsBuilder.removeIf(command, condition);
-        return this;
-      }
-
-      /**
-       * Removes {@link Command commands}.
-       *
-       * @param commands The {@link Command commands} to remove.
-       * @return This builder.
-       * @throws IllegalStateException If {@link #build()} has already been called.
-       */
-      public Builder removeAll(@Command int... commands) {
-        flagsBuilder.removeAll(commands);
-        return this;
-      }
-
-      /**
-       * Builds a {@link Commands} instance.
-       *
-       * @throws IllegalStateException If this method has already been called.
-       */
-      public Commands build() {
-        return new Commands(flagsBuilder.build());
-      }
-    }
-
-    /** An empty set of commands. */
-    public static final Commands EMPTY = new Builder().build();
-
-    private final FlagSet flags;
-
-    private Commands(FlagSet flags) {
-      this.flags = flags;
-    }
-
-    /** Returns a {@link Builder} initialized with the values of this instance. */
-    public Builder buildUpon() {
-      return new Builder(this);
-    }
-
-    /** Returns whether the set of commands contains the specified {@link Command}. */
-    public boolean contains(@Command int command) {
-      return flags.contains(command);
-    }
-
-    /** Returns the number of commands in this set. */
-    public int size() {
-      return flags.size();
-    }
-
-    /**
-     * Returns the {@link Command} at the given index.
-     *
-     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
-     * @return The {@link Command} at the given index.
-     * @throws IndexOutOfBoundsException If index is outside the allowed range.
-     */
-    public @Command int get(int index) {
-      return flags.get(index);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Commands)) {
-        return false;
-      }
-      Commands commands = (Commands) obj;
-      return flags.equals(commands.flags);
-    }
-
-    @Override
-    public int hashCode() {
-      return flags.hashCode();
-    }
-
-    // Bundleable implementation.
-
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FIELD_COMMANDS})
-    private @interface FieldNumber {}
-
-    private static final int FIELD_COMMANDS = 0;
-
-    @Override
-    public Bundle toBundle() {
-      Bundle bundle = new Bundle();
-      ArrayList<Integer> commandsBundle = new ArrayList<>();
-      for (int i = 0; i < flags.size(); i++) {
-        commandsBundle.add(flags.get(i));
-      }
-      bundle.putIntegerArrayList(keyForField(FIELD_COMMANDS), commandsBundle);
-      return bundle;
-    }
-
-    /** Object that can restore {@link Commands} from a {@link Bundle}. */
-    public static final Creator<Commands> CREATOR = Commands::fromBundle;
-
-    private static Commands fromBundle(Bundle bundle) {
-      @Nullable
-      ArrayList<Integer> commands = bundle.getIntegerArrayList(keyForField(FIELD_COMMANDS));
-      if (commands == null) {
-        return Commands.EMPTY;
-      }
-      Builder builder = new Builder();
-      for (int i = 0; i < commands.size(); i++) {
-        builder.add(commands.get(i));
-      }
-      return builder.build();
-    }
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
-  }
-
-  /**
-   * Listener of all changes in the Player.
-   *
-   * <p>All methods have no-op default implementations to allow selective overrides.
-   */
-  interface Listener extends EventListener {
-
-    @Override
-    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
-
-    @Override
-    default void onMediaItemTransition(
-        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
-
-    @Override
-    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
-
-    @Override
-    default void onIsLoadingChanged(boolean isLoading) {}
-
-    @Override
-    default void onAvailableCommandsChanged(Commands availableCommands) {}
-
-    @Override
-    default void onPlaybackStateChanged(@State int playbackState) {}
-
-    @Override
-    default void onPlayWhenReadyChanged(
-        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {}
-
-    @Override
-    default void onPlaybackSuppressionReasonChanged(
-        @PlaybackSuppressionReason int playbackSuppressionReason) {}
-
-    @Override
-    default void onIsPlayingChanged(boolean isPlaying) {}
-
-    @Override
-    default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
-
-    @Override
-    default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
-
-    @Override
-    default void onPlayerError(PlaybackException error) {}
-
-    @Override
-    default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
-
-    @Override
-    default void onPositionDiscontinuity(
-        PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {}
-
-    @Override
-    default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
-
-    @Override
-    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
-
-    @Override
-    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
-
-    /**
      * Called when the audio session ID changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param audioSessionId The audio session ID.
      */
@@ -1003,12 +942,18 @@ public interface Player {
     /**
      * Called when the audio attributes change.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param audioAttributes The audio attributes.
      */
     default void onAudioAttributesChanged(AudioAttributes audioAttributes) {}
 
     /**
      * Called when the volume changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param volume The new volume, with 0 being silence and 1 being unity gain.
      */
@@ -1017,21 +962,39 @@ public interface Player {
     /**
      * Called when skipping silences is enabled or disabled in the audio stream.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
      */
     default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
 
-    /** Called when the device information changes. */
+    /**
+     * Called when the device information changes
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param deviceInfo The new {@link DeviceInfo}.
+     */
     default void onDeviceInfoChanged(DeviceInfo deviceInfo) {}
 
-    /** Called when the device volume or mute state changes. */
+    /**
+     * Called when the device volume or mute state changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param volume The new device volume, with 0 being silence and 1 being unity gain.
+     * @param muted Whether the device is muted.
+     */
     default void onDeviceVolumeChanged(int volume, boolean muted) {}
-
-    @Override
-    default void onEvents(Player player, Events events) {}
 
     /**
      * Called each time there's a change in the size of the video being rendered.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param videoSize The new size of the video.
      */
@@ -1040,6 +1003,9 @@ public interface Player {
     /**
      * Called each time there's a change in the size of the surface onto which the video is being
      * rendered.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
      *     the video is not rendered onto a surface.
@@ -1051,6 +1017,9 @@ public interface Player {
     /**
      * Called when a frame is rendered for the first time since setting the surface, or since the
      * renderer was reset, or since the stream being rendered was changed.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      */
     default void onRenderedFirstFrame() {}
 
@@ -1060,6 +1029,9 @@ public interface Player {
      * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
      * displayed, the {@link Cue} nearer the end of the list should be shown on top.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param cues The {@link Cue Cues}. May be empty.
      */
     default void onCues(List<Cue> cues) {}
@@ -1067,21 +1039,20 @@ public interface Player {
     /**
      * Called when there is metadata associated with the current playback time.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param metadata The metadata.
      */
     default void onMetadata(Metadata metadata) {}
-
-    @Override
-    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
-
-    @Override
-    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
   }
 
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
    * {@link #STATE_ENDED}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1114,6 +1085,8 @@ public interface Player {
    * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE} or {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1141,6 +1114,8 @@ public interface Player {
    * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
    * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1158,6 +1133,8 @@ public interface Player {
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
    * #REPEAT_MODE_ALL}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1190,6 +1167,8 @@ public interface Player {
    * #DISCONTINUITY_REASON_SKIP}, {@link #DISCONTINUITY_REASON_REMOVE} or {@link
    * #DISCONTINUITY_REASON_INTERNAL}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1229,6 +1208,8 @@ public interface Player {
    * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED} or {@link
    * #TIMELINE_CHANGE_REASON_SOURCE_UPDATE}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1250,6 +1231,8 @@ public interface Player {
    * #MEDIA_ITEM_TRANSITION_REASON_AUTO}, {@link #MEDIA_ITEM_TRANSITION_REASON_SEEK} or {@link
    * #MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1283,6 +1266,8 @@ public interface Player {
    *
    * <p>One of the {@link Player}{@code .EVENT_*} values.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1307,6 +1292,17 @@ public interface Player {
     EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
     EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+    EVENT_AUDIO_ATTRIBUTES_CHANGED,
+    EVENT_AUDIO_SESSION_ID,
+    EVENT_VOLUME_CHANGED,
+    EVENT_SKIP_SILENCE_ENABLED_CHANGED,
+    EVENT_SURFACE_SIZE_CHANGED,
+    EVENT_VIDEO_SIZE_CHANGED,
+    EVENT_RENDERED_FIRST_FRAME,
+    EVENT_CUES,
+    EVENT_METADATA,
+    EVENT_DEVICE_INFO_CHANGED,
+    EVENT_DEVICE_VOLUME_CHANGED
   })
   @interface Event {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1352,6 +1348,31 @@ public interface Player {
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 18;
   /** {@link #getTrackSelectionParameters()} changed. */
   int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = 19;
+  /** {@link #getAudioAttributes()} changed. */
+  int EVENT_AUDIO_ATTRIBUTES_CHANGED = 20;
+  /** The audio session id was set. */
+  int EVENT_AUDIO_SESSION_ID = 21;
+  /** {@link #getVolume()} changed. */
+  int EVENT_VOLUME_CHANGED = 22;
+  /** Skipping silences in the audio stream is enabled or disabled. */
+  int EVENT_SKIP_SILENCE_ENABLED_CHANGED = 23;
+  /** The size of the surface onto which the video is being rendered changed. */
+  int EVENT_SURFACE_SIZE_CHANGED = 24;
+  /** {@link #getVideoSize()} changed. */
+  int EVENT_VIDEO_SIZE_CHANGED = 25;
+  /**
+   * A frame is rendered for the first time since setting the surface, or since the renderer was
+   * reset, or since the stream being rendered was changed.
+   */
+  int EVENT_RENDERED_FIRST_FRAME = 26;
+  /** {@link #getCurrentCues()} changed. */
+  int EVENT_CUES = 27;
+  /** Metadata associated with the current playback time changed. */
+  int EVENT_METADATA = 28;
+  /** {@link #getDeviceInfo()} changed. */
+  int EVENT_DEVICE_INFO_CHANGED = 29;
+  /** {@link #getDeviceVolume()} changed. */
+  int EVENT_DEVICE_VOLUME_CHANGED = 30;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
@@ -1369,6 +1390,8 @@ public interface Player {
    * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
    * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACK_INFOS}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})

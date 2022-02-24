@@ -18,6 +18,11 @@ package com.google.android.exoplayer2.source.ads;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +37,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -62,7 +68,7 @@ public final class AdPlaybackState implements Bundleable {
     /** The URI of each ad in the ad group. */
     public final @NullableType Uri[] uris;
     /** The state of each ad in the ad group. */
-    @AdState public final int[] states;
+    public final @AdState int[] states;
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
     /**
@@ -300,6 +306,28 @@ public final class AdPlaybackState implements Bundleable {
           timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
+    /**
+     * Returns an instance with all ads in final states (played, skipped, error) reset to either
+     * available or unavailable, which allows to play them again.
+     */
+    @CheckResult
+    public AdGroup withAllAdsReset() {
+      if (count == C.LENGTH_UNSET) {
+        return this;
+      }
+      int count = this.states.length;
+      @AdState int[] states = Arrays.copyOf(this.states, count);
+      for (int i = 0; i < count; i++) {
+        if (states[i] == AD_STATE_PLAYED
+            || states[i] == AD_STATE_SKIPPED
+            || states[i] == AD_STATE_ERROR) {
+          states[i] = uris[i] == null ? AD_STATE_UNAVAILABLE : AD_STATE_AVAILABLE;
+        }
+      }
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
+    }
+
     @CheckResult
     private static @AdState int[] copyStatesWithSpaceForAdCount(@AdState int[] states, int count) {
       int oldStateCount = states.length;
@@ -322,6 +350,7 @@ public final class AdPlaybackState implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_TIME_US,
       FIELD_COUNT,
@@ -393,8 +422,11 @@ public final class AdPlaybackState implements Bundleable {
    * #AD_STATE_AVAILABLE}, {@link #AD_STATE_SKIPPED}, {@link #AD_STATE_PLAYED} or {@link
    * #AD_STATE_ERROR}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     AD_STATE_UNAVAILABLE,
     AD_STATE_AVAILABLE,
@@ -783,6 +815,19 @@ public final class AdPlaybackState implements Bundleable {
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
+  /**
+   * Returns an instance with all ads in the specified ad group reset from final states (played,
+   * skipped, error) to either available or unavailable, which allows to play them again.
+   */
+  @CheckResult
+  public AdPlaybackState withResetAdGroup(@IntRange(from = 0) int adGroupIndex) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adjustedIndex] = adGroups[adjustedIndex].withAllAdsReset();
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
@@ -879,6 +924,7 @@ public final class AdPlaybackState implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_AD_GROUPS,
     FIELD_AD_RESUME_POSITION_US,

@@ -31,7 +31,6 @@ public final class DefaultAllocator implements Allocator {
   private final boolean trimOnReset;
   private final int individualAllocationSize;
   @Nullable private final byte[] initialAllocationBlock;
-  private final Allocation[] singleAllocationReleaseHolder;
 
   private int targetBufferSize;
   private int allocatedCount;
@@ -76,7 +75,6 @@ public final class DefaultAllocator implements Allocator {
     } else {
       initialAllocationBlock = null;
     }
-    singleAllocationReleaseHolder = new Allocation[1];
   }
 
   public synchronized void reset() {
@@ -102,28 +100,31 @@ public final class DefaultAllocator implements Allocator {
       availableAllocations[availableCount] = null;
     } else {
       allocation = new Allocation(new byte[individualAllocationSize], 0);
+      if (allocatedCount > availableAllocations.length) {
+        // Make availableAllocations be large enough to contain all allocations made by this
+        // allocator so that release() does not need to grow the availableAllocations array. See
+        // [Internal ref: b/209801945].
+        availableAllocations = Arrays.copyOf(availableAllocations, availableAllocations.length * 2);
+      }
     }
     return allocation;
   }
 
   @Override
   public synchronized void release(Allocation allocation) {
-    singleAllocationReleaseHolder[0] = allocation;
-    release(singleAllocationReleaseHolder);
+    availableAllocations[availableCount++] = allocation;
+    allocatedCount--;
+    // Wake up threads waiting for the allocated size to drop.
+    notifyAll();
   }
 
   @Override
-  public synchronized void release(Allocation[] allocations) {
-    if (availableCount + allocations.length >= availableAllocations.length) {
-      availableAllocations =
-          Arrays.copyOf(
-              availableAllocations,
-              max(availableAllocations.length * 2, availableCount + allocations.length));
+  public synchronized void release(@Nullable AllocationNode allocationNode) {
+    while (allocationNode != null) {
+      availableAllocations[availableCount++] = allocationNode.getAllocation();
+      allocatedCount--;
+      allocationNode = allocationNode.next();
     }
-    for (Allocation allocation : allocations) {
-      availableAllocations[availableCount++] = allocation;
-    }
-    allocatedCount -= allocations.length;
     // Wake up threads waiting for the allocated size to drop.
     notifyAll();
   }

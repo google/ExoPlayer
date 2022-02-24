@@ -6,7 +6,7 @@ title: Retrieving metadata
 
 The metadata of the media can be retrieved during playback in multiple ways. The
 most straightforward is to listen for the
-`Player.EventListener#onMediaMetadataChanged` event; this will provide a
+`Player.Listener#onMediaMetadataChanged` event; this will provide a
 [`MediaMetadata`][] object for use, which has fields such as `title` and
 `albumArtist`. Alternatively, calling `Player#getMediaMetadata` returns the same
 object.
@@ -85,6 +85,6 @@ for (int i = 0; i < trackGroups.length; i++) {
 {: .language-java}
 
 [`MediaMetadata`]: {{ site.exo_sdk }}/MediaMetadata.html
-[`Metadata.Entry`]: {{ site.exo_sdk}}/metadata/Metadata.Entry.html
+[`Metadata.Entry`]: {{ site.exo_sdk }}/metadata/Metadata.Entry.html
 [`MetadataRetriever`]: {{ site.exo_sdk }}/MetadataRetriever.html
 [`MotionPhotoMetadata`]: {{ site.exo_sdk }}/metadata/mp4/MotionPhotoMetadata.html

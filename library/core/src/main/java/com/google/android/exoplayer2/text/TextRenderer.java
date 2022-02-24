@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -36,6 +37,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,6 +54,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     REPLACEMENT_STATE_NONE,
     REPLACEMENT_STATE_SIGNAL_END_OF_STREAM,
@@ -83,7 +86,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeyFrame;
-  @ReplacementState private int decoderReplacementState;
+  private @ReplacementState int decoderReplacementState;
   @Nullable private Format streamFormat;
   @Nullable private SubtitleDecoder decoder;
   @Nullable private SubtitleInputBuffer nextInputBuffer;
@@ -130,8 +133,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
-  @Capabilities
-  public int supportsFormat(Format format) {
+  public @Capabilities int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
           format.cryptoType == C.CRYPTO_TYPE_NONE ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_DRM);

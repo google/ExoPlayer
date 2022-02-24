@@ -27,6 +27,8 @@ import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.SurfaceTexture;
+import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,7 +41,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -106,8 +110,8 @@ public class MediaCodecVideoRendererTest {
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1) {
           @Override
-          @Capabilities
-          protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format) {
+          protected @Capabilities int supportsFormat(
+              MediaCodecSelector mediaCodecSelector, Format format) {
             return RendererCapabilities.create(C.FORMAT_HANDLED);
           }
 
@@ -505,5 +509,104 @@ public class MediaCodecVideoRendererTest {
     shadowLooper.idle();
     verify(eventListener, times(2))
         .onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
+  }
+
+  @Test
+  public void supportsFormat_withDolbyVisionMedia_returnsTrueWhenFallbackToH265orH264Allowed()
+      throws Exception {
+    // Create Dolby media formats that could fall back to H265 or H264.
+    Format formatDvheDtrFallbackToH265 =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+            .setCodecs("dvhe.04.01")
+            .build();
+    Format formatDvheStFallbackToH265 =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+            .setCodecs("dvhe.08.01")
+            .build();
+    Format formatDvavSeFallbackToH264 =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+            .setCodecs("dvav.09.01")
+            .build();
+    Format formatNoFallbackPossible =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+            .setCodecs("dvav.01.01")
+            .build();
+    // Only provide H264 and H265 decoders with codec profiles needed for fallback.
+    MediaCodecSelector mediaCodecSelector =
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
+          switch (mimeType) {
+            case MimeTypes.VIDEO_H264:
+              CodecCapabilities capabilitiesH264 = new CodecCapabilities();
+              capabilitiesH264.profileLevels =
+                  new CodecProfileLevel[] {new CodecProfileLevel(), new CodecProfileLevel()};
+              capabilitiesH264.profileLevels[0].profile = CodecProfileLevel.AVCProfileBaseline;
+              capabilitiesH264.profileLevels[0].level = CodecProfileLevel.AVCLevel42;
+              capabilitiesH264.profileLevels[1].profile = CodecProfileLevel.AVCProfileHigh;
+              capabilitiesH264.profileLevels[1].level = CodecProfileLevel.AVCLevel42;
+              return ImmutableList.of(
+                  MediaCodecInfo.newInstance(
+                      /* name= */ "h264-codec",
+                      /* mimeType= */ mimeType,
+                      /* codecMimeType= */ mimeType,
+                      /* capabilities= */ capabilitiesH264,
+                      /* hardwareAccelerated= */ false,
+                      /* softwareOnly= */ true,
+                      /* vendor= */ false,
+                      /* forceDisableAdaptive= */ false,
+                      /* forceSecure= */ false));
+            case MimeTypes.VIDEO_H265:
+              CodecCapabilities capabilitiesH265 = new CodecCapabilities();
+              capabilitiesH265.profileLevels =
+                  new CodecProfileLevel[] {new CodecProfileLevel(), new CodecProfileLevel()};
+              capabilitiesH265.profileLevels[0].profile = CodecProfileLevel.HEVCProfileMain;
+              capabilitiesH265.profileLevels[0].level = CodecProfileLevel.HEVCMainTierLevel41;
+              capabilitiesH265.profileLevels[1].profile = CodecProfileLevel.HEVCProfileMain10;
+              capabilitiesH265.profileLevels[1].level = CodecProfileLevel.HEVCHighTierLevel51;
+              return ImmutableList.of(
+                  MediaCodecInfo.newInstance(
+                      /* name= */ "h265-codec",
+                      /* mimeType= */ mimeType,
+                      /* codecMimeType= */ mimeType,
+                      /* capabilities= */ capabilitiesH265,
+                      /* hardwareAccelerated= */ false,
+                      /* softwareOnly= */ true,
+                      /* vendor= */ false,
+                      /* forceDisableAdaptive= */ false,
+                      /* forceSecure= */ false));
+            default:
+              return ImmutableList.of();
+          }
+        };
+    MediaCodecVideoRenderer renderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1);
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    @Capabilities
+    int capabilitiesDvheDtrFallbackToH265 = renderer.supportsFormat(formatDvheDtrFallbackToH265);
+    @Capabilities
+    int capabilitiesDvheStFallbackToH265 = renderer.supportsFormat(formatDvheStFallbackToH265);
+    @Capabilities
+    int capabilitiesDvavSeFallbackToH264 = renderer.supportsFormat(formatDvavSeFallbackToH264);
+    @Capabilities
+    int capabilitiesNoFallbackPossible = renderer.supportsFormat(formatNoFallbackPossible);
+
+    assertThat(RendererCapabilities.getFormatSupport(capabilitiesDvheDtrFallbackToH265))
+        .isEqualTo(C.FORMAT_HANDLED);
+    assertThat(RendererCapabilities.getFormatSupport(capabilitiesDvheStFallbackToH265))
+        .isEqualTo(C.FORMAT_HANDLED);
+    assertThat(RendererCapabilities.getFormatSupport(capabilitiesDvavSeFallbackToH264))
+        .isEqualTo(C.FORMAT_HANDLED);
+    assertThat(RendererCapabilities.getFormatSupport(capabilitiesNoFallbackPossible))
+        .isEqualTo(C.FORMAT_UNSUPPORTED_SUBTYPE);
   }
 }

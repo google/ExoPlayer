@@ -227,7 +227,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.extractor.mp4.Track.Transformation int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleTransformation">sampleTransformation</a></span></code></th>
 <td class="colLast">
 <div class="block">One of <code>TRANSFORMATION_*</code>.</div>
@@ -279,13 +279,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,@com.google.android.exoplayer2.C.TrackTypeint,long,long,long,com.google.android.exoplayer2.Format,int,com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox%5B%5D,int,long%5B%5D,long%5B%5D)">Track</a></span>&#8203;(int&nbsp;id,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,@com.google.android.exoplayer2.C.TrackTypeint,long,long,long,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.extractor.mp4.Track.Transformationint,com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox%5B%5D,int,long%5B%5D,long%5B%5D)">Track</a></span>&#8203;(int&nbsp;id,
      @com.google.android.exoplayer2.C.TrackType int&nbsp;type,
      long&nbsp;timescale,
      long&nbsp;movieTimescale,
      long&nbsp;durationUs,
      <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-     int&nbsp;sampleTransformation,
+     @com.google.android.exoplayer2.extractor.mp4.Track.Transformation int&nbsp;sampleTransformation,
      <a href="TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;sampleDescriptionEncryptionBoxes,
      int&nbsp;nalUnitLengthFieldLength,
      long[]&nbsp;editListDurations,
@@ -440,8 +440,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleTransformation</h4>
-<pre><a href="Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Transformation</a>
-public final&nbsp;int sampleTransformation</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.extractor.mp4.Track.Transformation int sampleTransformation</pre>
 <div class="block">One of <code>TRANSFORMATION_*</code>. Defines the transformation to apply before outputting each
  sample.</div>
 </li>
@@ -489,7 +488,7 @@ public final&nbsp;long[] editListMediaTimes</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,@com.google.android.exoplayer2.C.TrackTypeint,long,long,long,com.google.android.exoplayer2.Format,int,com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox[],int,long[],long[])">
+<a id="&lt;init&gt;(int,@com.google.android.exoplayer2.C.TrackTypeint,long,long,long,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.extractor.mp4.Track.Transformationint,com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox[],int,long[],long[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -501,8 +500,7 @@ public final&nbsp;long[] editListMediaTimes</pre>
              long&nbsp;movieTimescale,
              long&nbsp;durationUs,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-             <a href="Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Transformation</a>
-             int&nbsp;sampleTransformation,
+             @com.google.android.exoplayer2.extractor.mp4.Track.Transformation int&nbsp;sampleTransformation,
              @Nullable
              <a href="TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;sampleDescriptionEncryptionBoxes,
              int&nbsp;nalUnitLengthFieldLength,

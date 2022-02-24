@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":9,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":9,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -364,13 +364,21 @@ implements <a href="ExoMediaDrm.html" title="interface in com.google.android.exo
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayerIdForSession(byte%5B%5D,com.google.android.exoplayer2.analytics.PlayerId)">setPlayerIdForSession</a></span>&#8203;(byte[]&nbsp;sessionId,
+                     <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using a session.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyByteArray(java.lang.String,byte%5B%5D)">setPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                     byte[]&nbsp;value)</code></th>
 <td class="colLast">
 <div class="block">Sets the value of a byte array property.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyString(java.lang.String,java.lang.String)">setPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
@@ -567,6 +575,25 @@ public&nbsp;void&nbsp;setOnExpirationUpdateListener&#8203;(@Nullable
 <dd><code><a href="ExoMediaDrm.html#closeSession(byte%5B%5D)">closeSession</a></code>&nbsp;in interface&nbsp;<code><a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sessionId</code> - The ID of the session to close.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlayerIdForSession(byte[],com.google.android.exoplayer2.analytics.PlayerId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayerIdForSession</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setPlayerIdForSession&#8203;(byte[]&nbsp;sessionId,
+                                  <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoMediaDrm.html#setPlayerIdForSession(byte%5B%5D,com.google.android.exoplayer2.analytics.PlayerId)">ExoMediaDrm</a></code></span></div>
+<div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using a session.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="ExoMediaDrm.html#setPlayerIdForSession(byte%5B%5D,com.google.android.exoplayer2.analytics.PlayerId)">setPlayerIdForSession</a></code>&nbsp;in interface&nbsp;<code><a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sessionId</code> - The ID of the session.</dd>
+<dd><code>playerId</code> - The <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using the session.</dd>
 </dl>
 </li>
 </ul>

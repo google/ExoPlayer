@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -46,6 +47,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +76,7 @@ public final class WebvttCueParser {
    */
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TEXT_ALIGNMENT_START,
     TEXT_ALIGNMENT_CENTER,
@@ -401,8 +404,7 @@ public final class WebvttCueParser {
     }
   }
 
-  @Cue.AnchorType
-  private static int parseLineAnchor(String s) {
+  private static @Cue.AnchorType int parseLineAnchor(String s) {
     switch (s) {
       case "start":
         return Cue.ANCHOR_TYPE_START;
@@ -426,8 +428,7 @@ public final class WebvttCueParser {
     builder.position = WebvttParserUtil.parsePercentage(s);
   }
 
-  @Cue.AnchorType
-  private static int parsePositionAnchor(String s) {
+  private static @Cue.AnchorType int parsePositionAnchor(String s) {
     switch (s) {
       case "line-left":
       case "start":
@@ -444,8 +445,7 @@ public final class WebvttCueParser {
     }
   }
 
-  @Cue.VerticalType
-  private static int parseVerticalAttribute(String s) {
+  private static @Cue.VerticalType int parseVerticalAttribute(String s) {
     switch (s) {
       case "rl":
         return Cue.VERTICAL_TYPE_RL;
@@ -457,8 +457,7 @@ public final class WebvttCueParser {
     }
   }
 
-  @TextAlignment
-  private static int parseTextAlignment(String s) {
+  private static @TextAlignment int parseTextAlignment(String s) {
     switch (s) {
       case "start":
         return TEXT_ALIGNMENT_START;
@@ -606,8 +605,7 @@ public final class WebvttCueParser {
     }
   }
 
-  @TextAnnotation.Position
-  private static int getRubyPosition(
+  private static @TextAnnotation.Position int getRubyPosition(
       List<WebvttCssStyle> styles, @Nullable String cueId, StartTag startTag) {
     List<StyleMatch> styleMatches = getApplicableStyles(styles, cueId, startTag);
     for (int i = 0; i < styleMatches.size(); i++) {
@@ -619,8 +617,7 @@ public final class WebvttCueParser {
     return TextAnnotation.POSITION_UNKNOWN;
   }
 
-  @TextAnnotation.Position
-  private static int firstKnownRubyPosition(
+  private static @TextAnnotation.Position int firstKnownRubyPosition(
       @TextAnnotation.Position int position1,
       @TextAnnotation.Position int position2,
       @TextAnnotation.Position int position3) {
@@ -765,16 +762,16 @@ public final class WebvttCueParser {
     public long startTimeUs;
     public long endTimeUs;
     public @MonotonicNonNull CharSequence text;
-    @TextAlignment public int textAlignment;
+    public @TextAlignment int textAlignment;
     public float line;
     // Equivalent to WebVTT's snap-to-lines flag:
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag
-    @Cue.LineType public int lineType;
-    @Cue.AnchorType public int lineAnchor;
+    public @Cue.LineType int lineType;
+    public @Cue.AnchorType int lineAnchor;
     public float position;
-    @Cue.AnchorType public int positionAnchor;
+    public @Cue.AnchorType int positionAnchor;
     public float size;
-    @Cue.VerticalType public int verticalType;
+    public @Cue.VerticalType int verticalType;
 
     public WebvttCueInfoBuilder() {
       startTimeUs = 0;
@@ -856,8 +853,7 @@ public final class WebvttCueParser {
     }
 
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-position-alignment
-    @Cue.AnchorType
-    private static int derivePositionAnchor(@TextAlignment int textAlignment) {
+    private static @Cue.AnchorType int derivePositionAnchor(@TextAlignment int textAlignment) {
       switch (textAlignment) {
         case TEXT_ALIGNMENT_LEFT:
         case TEXT_ALIGNMENT_START:

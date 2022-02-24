@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
@@ -55,9 +56,8 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -129,7 +129,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCodecSelector mediaCodecSelector,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener) {
-    this(context, mediaCodecSelector, eventHandler, eventListener, (AudioCapabilities) null);
+    this(
+        context,
+        mediaCodecSelector,
+        eventHandler,
+        eventListener,
+        AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES);
   }
 
   /**
@@ -138,8 +143,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param audioCapabilities The audio capabilities for playback on this device. Use {@link
+   *     AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES} if default capabilities (no encoded audio
+   *     passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
    *     output.
    */
@@ -148,14 +154,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCodecSelector mediaCodecSelector,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
-      @Nullable AudioCapabilities audioCapabilities,
+      AudioCapabilities audioCapabilities,
       AudioProcessor... audioProcessors) {
     this(
         context,
         mediaCodecSelector,
         eventHandler,
         eventListener,
-        new DefaultAudioSink(audioCapabilities, audioProcessors));
+        new DefaultAudioSink.Builder()
+            .setAudioCapabilities( // For backward compatibility, null == default.
+                firstNonNull(audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
+            .setAudioProcessors(audioProcessors)
+            .build());
   }
 
   /**
@@ -239,7 +249,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         mediaCodecSelector,
         enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 44100);
-    this.context = context.getApplicationContext();
+    context = context.getApplicationContext();
+    this.context = context;
     this.audioSink = audioSink;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
@@ -264,8 +275,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  @Capabilities
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  protected @Capabilities int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
@@ -292,54 +302,107 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     List<MediaCodecInfo> decoderInfos =
-        getDecoderInfos(mediaCodecSelector, format, /* requiresSecureDecoder= */ false);
+        getDecoderInfos(mediaCodecSelector, format, /* requiresSecureDecoder= */ false, audioSink);
     if (decoderInfos.isEmpty()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     if (!supportsFormatDrm) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
-    // Check capabilities for the first decoder in the list, which takes priority.
+    // Check whether the first decoder supports the format. This is the preferred decoder for the
+    // format's MIME type, according to the MediaCodecSelector.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean isFormatSupported = decoderInfo.isFormatSupported(format);
+    boolean isPreferredDecoder = true;
+    if (!isFormatSupported) {
+      // Check whether any of the other decoders support the format.
+      for (int i = 1; i < decoderInfos.size(); i++) {
+        MediaCodecInfo otherDecoderInfo = decoderInfos.get(i);
+        if (otherDecoderInfo.isFormatSupported(format)) {
+          decoderInfo = otherDecoderInfo;
+          isFormatSupported = true;
+          isPreferredDecoder = false;
+          break;
+        }
+      }
+    }
+    @C.FormatSupport
+    int formatSupport = isFormatSupported ? C.FORMAT_HANDLED : C.FORMAT_EXCEEDS_CAPABILITIES;
     @AdaptiveSupport
     int adaptiveSupport =
         isFormatSupported && decoderInfo.isSeamlessAdaptationSupported(format)
             ? ADAPTIVE_SEAMLESS
             : ADAPTIVE_NOT_SEAMLESS;
-    @C.FormatSupport
-    int formatSupport = isFormatSupported ? C.FORMAT_HANDLED : C.FORMAT_EXCEEDS_CAPABILITIES;
-    return RendererCapabilities.create(formatSupport, adaptiveSupport, tunnelingSupport);
+    @HardwareAccelerationSupport
+    int hardwareAccelerationSupport =
+        decoderInfo.hardwareAccelerated
+            ? HARDWARE_ACCELERATION_SUPPORTED
+            : HARDWARE_ACCELERATION_NOT_SUPPORTED;
+    @DecoderSupport
+    int decoderSupport = isPreferredDecoder ? DECODER_SUPPORT_PRIMARY : DECODER_SUPPORT_FALLBACK;
+    return RendererCapabilities.create(
+        formatSupport,
+        adaptiveSupport,
+        tunnelingSupport,
+        hardwareAccelerationSupport,
+        decoderSupport);
   }
 
   @Override
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
+    return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
+        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, audioSink), format);
+  }
+
+  /**
+   * Returns a list of decoders that can decode media in the specified format, in the priority order
+   * specified by the {@link MediaCodecSelector}. Note that since the {@link MediaCodecSelector}
+   * only has access to {@link Format#sampleMimeType}, the list is not ordered to account for
+   * whether each decoder supports the details of the format (e.g., taking into account the format's
+   * profile, level, channel count and so on). {@link
+   * MediaCodecUtil#getDecoderInfosSortedByFormatSupport} can be used to further sort the list into
+   * an order where decoders that fully support the format come first.
+   *
+   * @param mediaCodecSelector The decoder selector.
+   * @param format The {@link Format} for which a decoder is required.
+   * @param requiresSecureDecoder Whether a secure decoder is required.
+   * @param audioSink The {@link AudioSink} to which audio will be output.
+   * @return A list of {@link MediaCodecInfo}s corresponding to decoders. May be empty.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
+   */
+  private static List<MediaCodecInfo> getDecoderInfos(
+      MediaCodecSelector mediaCodecSelector,
+      Format format,
+      boolean requiresSecureDecoder,
+      AudioSink audioSink)
+      throws DecoderQueryException {
     @Nullable String mimeType = format.sampleMimeType;
     if (mimeType == null) {
-      return Collections.emptyList();
+      return ImmutableList.of();
     }
     if (audioSink.supportsFormat(format)) {
       // The format is supported directly, so a codec is only needed for decryption.
       @Nullable MediaCodecInfo codecInfo = MediaCodecUtil.getDecryptOnlyDecoderInfo();
       if (codecInfo != null) {
-        return Collections.singletonList(codecInfo);
+        return ImmutableList.of(codecInfo);
       }
     }
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
             mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
-      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
-      List<MediaCodecInfo> decoderInfosWithEac3 = new ArrayList<>(decoderInfos);
-      decoderInfosWithEac3.addAll(
-          mediaCodecSelector.getDecoderInfos(
-              MimeTypes.AUDIO_E_AC3, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false));
-      decoderInfos = decoderInfosWithEac3;
+    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
+    if (alternativeMimeType == null) {
+      return ImmutableList.copyOf(decoderInfos);
     }
-    return Collections.unmodifiableList(decoderInfos);
+    List<MediaCodecInfo> alternativeDecoderInfos =
+        mediaCodecSelector.getDecoderInfos(
+            alternativeMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    return ImmutableList.<MediaCodecInfo>builder()
+        .addAll(decoderInfos)
+        .addAll(alternativeDecoderInfos)
+        .build();
   }
 
   @Override
@@ -407,7 +470,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onCodecInitialized(
-      String name, long initializedTimestampMs, long initializationDurationMs) {
+      String name,
+      MediaCodecAdapter.Configuration configuration,
+      long initializedTimestampMs,
+      long initializationDurationMs) {
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
   }
 
@@ -452,10 +518,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       } else {
         // If the format is anything other than PCM then we assume that the audio decoder will
         // output 16-bit PCM.
-        pcmEncoding =
-            MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
-                ? format.pcmEncoding
-                : C.ENCODING_PCM_16BIT;
+        pcmEncoding = C.ENCODING_PCM_16BIT;
       }
       audioSinkInputFormat =
           new Format.Builder()
@@ -500,6 +563,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     } else {
       audioSink.disableTunneling();
     }
+    audioSink.setPlayerId(getPlayerId());
   }
 
   @Override
@@ -787,6 +851,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY) {
       mediaFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, AudioFormat.ENCODING_PCM_FLOAT);
     }
+    if (Util.SDK_INT >= 32) {
+      // TODO[b/190759307] Use MediaFormat.KEY_MAX_OUTPUT_CHANNEL_COUNT once the
+      //  compile SDK target is set to 32.
+      mediaFormat.setInteger("max-output-channel-count", 99);
+    }
+
     return mediaFormat;
   }
 

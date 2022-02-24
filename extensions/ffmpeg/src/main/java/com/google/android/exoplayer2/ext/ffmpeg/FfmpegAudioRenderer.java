@@ -64,7 +64,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
     this(
         eventHandler,
         eventListener,
-        new DefaultAudioSink(/* audioCapabilities= */ null, audioProcessors));
+        new DefaultAudioSink.Builder().setAudioProcessors(audioProcessors).build());
   }
 
   /**
@@ -88,8 +88,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
   }
 
   @Override
-  @C.FormatSupport
-  protected int supportsFormatInternal(Format format) {
+  protected @C.FormatSupport int supportsFormatInternal(Format format) {
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
       return C.FORMAT_UNSUPPORTED_TYPE;
@@ -105,8 +104,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
   }
 
   @Override
-  @AdaptiveSupport
-  public final int supportsMixedMimeTypeAdaptation() {
+  public final @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 

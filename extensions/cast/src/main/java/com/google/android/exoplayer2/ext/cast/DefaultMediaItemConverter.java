@@ -20,9 +20,11 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
+import com.google.android.gms.common.images.WebImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
@@ -34,6 +36,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   private static final String KEY_MEDIA_ITEM = "mediaItem";
   private static final String KEY_PLAYER_CONFIG = "exoPlayerConfig";
+  private static final String KEY_MEDIA_ID = "mediaId";
   private static final String KEY_URI = "uri";
   private static final String KEY_TITLE = "title";
   private static final String KEY_MIME_TYPE = "mimeType";
@@ -44,10 +47,43 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   @Override
   public MediaItem toMediaItem(MediaQueueItem mediaQueueItem) {
-    // `item` came from `toMediaQueueItem()` so the custom JSON data must be set.
-    MediaInfo mediaInfo = mediaQueueItem.getMedia();
+    @Nullable MediaInfo mediaInfo = mediaQueueItem.getMedia();
     Assertions.checkNotNull(mediaInfo);
-    return getMediaItem(Assertions.checkNotNull(mediaInfo.getCustomData()));
+    com.google.android.exoplayer2.MediaMetadata.Builder metadataBuilder =
+        new com.google.android.exoplayer2.MediaMetadata.Builder();
+    @Nullable MediaMetadata metadata = mediaInfo.getMetadata();
+    if (metadata != null) {
+      if (metadata.containsKey(MediaMetadata.KEY_TITLE)) {
+        metadataBuilder.setTitle(metadata.getString(MediaMetadata.KEY_TITLE));
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_SUBTITLE)) {
+        metadataBuilder.setSubtitle(metadata.getString(MediaMetadata.KEY_SUBTITLE));
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_ARTIST)) {
+        metadataBuilder.setArtist(metadata.getString(MediaMetadata.KEY_ARTIST));
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_ALBUM_ARTIST)) {
+        metadataBuilder.setAlbumArtist(metadata.getString(MediaMetadata.KEY_ALBUM_ARTIST));
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_ALBUM_TITLE)) {
+        metadataBuilder.setArtist(metadata.getString(MediaMetadata.KEY_ALBUM_TITLE));
+      }
+      if (!metadata.getImages().isEmpty()) {
+        metadataBuilder.setArtworkUri(metadata.getImages().get(0).getUrl());
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_COMPOSER)) {
+        metadataBuilder.setComposer(metadata.getString(MediaMetadata.KEY_COMPOSER));
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_DISC_NUMBER)) {
+        metadataBuilder.setDiscNumber(metadata.getInt(MediaMetadata.KEY_DISC_NUMBER));
+      }
+      if (metadata.containsKey(MediaMetadata.KEY_TRACK_NUMBER)) {
+        metadataBuilder.setTrackNumber(metadata.getInt(MediaMetadata.KEY_TRACK_NUMBER));
+      }
+    }
+    // `mediaQueueItem` came from `toMediaQueueItem()` so the custom JSON data must be set.
+    return getMediaItem(
+        Assertions.checkNotNull(mediaInfo.getCustomData()), metadataBuilder.build());
   }
 
   @Override
@@ -56,10 +92,41 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     if (mediaItem.localConfiguration.mimeType == null) {
       throw new IllegalArgumentException("The item must specify its mimeType");
     }
-    MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+    MediaMetadata metadata =
+        new MediaMetadata(
+            MimeTypes.isAudio(mediaItem.localConfiguration.mimeType)
+                ? MediaMetadata.MEDIA_TYPE_MUSIC_TRACK
+                : MediaMetadata.MEDIA_TYPE_MOVIE);
     if (mediaItem.mediaMetadata.title != null) {
       metadata.putString(MediaMetadata.KEY_TITLE, mediaItem.mediaMetadata.title.toString());
     }
+    if (mediaItem.mediaMetadata.subtitle != null) {
+      metadata.putString(MediaMetadata.KEY_SUBTITLE, mediaItem.mediaMetadata.subtitle.toString());
+    }
+    if (mediaItem.mediaMetadata.artist != null) {
+      metadata.putString(MediaMetadata.KEY_ARTIST, mediaItem.mediaMetadata.artist.toString());
+    }
+    if (mediaItem.mediaMetadata.albumArtist != null) {
+      metadata.putString(
+          MediaMetadata.KEY_ALBUM_ARTIST, mediaItem.mediaMetadata.albumArtist.toString());
+    }
+    if (mediaItem.mediaMetadata.albumTitle != null) {
+      metadata.putString(
+          MediaMetadata.KEY_ALBUM_TITLE, mediaItem.mediaMetadata.albumTitle.toString());
+    }
+    if (mediaItem.mediaMetadata.artworkUri != null) {
+      metadata.addImage(new WebImage(mediaItem.mediaMetadata.artworkUri));
+    }
+    if (mediaItem.mediaMetadata.composer != null) {
+      metadata.putString(MediaMetadata.KEY_COMPOSER, mediaItem.mediaMetadata.composer.toString());
+    }
+    if (mediaItem.mediaMetadata.discNumber != null) {
+      metadata.putInt(MediaMetadata.KEY_DISC_NUMBER, mediaItem.mediaMetadata.discNumber);
+    }
+    if (mediaItem.mediaMetadata.trackNumber != null) {
+      metadata.putInt(MediaMetadata.KEY_TRACK_NUMBER, mediaItem.mediaMetadata.trackNumber);
+    }
+
     MediaInfo mediaInfo =
         new MediaInfo.Builder(mediaItem.localConfiguration.uri.toString())
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
@@ -72,18 +139,15 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   // Deserialization.
 
-  private static MediaItem getMediaItem(JSONObject customData) {
+  private static MediaItem getMediaItem(
+      JSONObject customData, com.google.android.exoplayer2.MediaMetadata mediaMetadata) {
     try {
       JSONObject mediaItemJson = customData.getJSONObject(KEY_MEDIA_ITEM);
-      MediaItem.Builder builder = new MediaItem.Builder();
-      builder.setUri(Uri.parse(mediaItemJson.getString(KEY_URI)));
-      if (mediaItemJson.has(KEY_TITLE)) {
-        com.google.android.exoplayer2.MediaMetadata mediaMetadata =
-            new com.google.android.exoplayer2.MediaMetadata.Builder()
-                .setTitle(mediaItemJson.getString(KEY_TITLE))
-                .build();
-        builder.setMediaMetadata(mediaMetadata);
-      }
+      MediaItem.Builder builder =
+          new MediaItem.Builder()
+              .setUri(Uri.parse(mediaItemJson.getString(KEY_URI)))
+              .setMediaId(mediaItemJson.getString(KEY_MEDIA_ID))
+              .setMediaMetadata(mediaMetadata);
       if (mediaItemJson.has(KEY_MIME_TYPE)) {
         builder.setMimeType(mediaItemJson.getString(KEY_MIME_TYPE));
       }
@@ -130,6 +194,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   private static JSONObject getMediaItemJson(MediaItem mediaItem) throws JSONException {
     Assertions.checkNotNull(mediaItem.localConfiguration);
     JSONObject json = new JSONObject();
+    json.put(KEY_MEDIA_ID, mediaItem.mediaId);
     json.put(KEY_TITLE, mediaItem.mediaMetadata.title);
     json.put(KEY_URI, mediaItem.localConfiguration.uri.toString());
     json.put(KEY_MIME_TYPE, mediaItem.localConfiguration.mimeType);

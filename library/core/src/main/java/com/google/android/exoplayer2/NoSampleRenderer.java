@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -45,7 +46,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void setIndex(int index) {
+  public final void init(int index, PlayerId playerId) {
     this.index = index;
   }
 
@@ -165,14 +166,12 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // RendererCapabilities implementation.
 
   @Override
-  @Capabilities
-  public int supportsFormat(Format format) throws ExoPlaybackException {
+  public @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
     return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
-  @AdaptiveSupport
-  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 

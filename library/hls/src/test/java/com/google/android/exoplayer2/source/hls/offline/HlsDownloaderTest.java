@@ -17,10 +17,6 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.ENC_MEDIA_PLAYLIST_DATA;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.ENC_MEDIA_PLAYLIST_URI;
-import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_MEDIA_PLAYLIST_1_INDEX;
-import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_MEDIA_PLAYLIST_2_INDEX;
-import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_PLAYLIST_DATA;
-import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_PLAYLIST_URI;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_0_DIR;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_0_URI;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_1_DIR;
@@ -30,6 +26,10 @@ import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestDa
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_3_DIR;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_3_URI;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_DATA;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MULTIVARIANT_MEDIA_PLAYLIST_1_INDEX;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MULTIVARIANT_MEDIA_PLAYLIST_2_INDEX;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MULTIVARIANT_PLAYLIST_DATA;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MULTIVARIANT_PLAYLIST_URI;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist;
 import com.google.android.exoplayer2.testutil.CacheAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -83,7 +83,7 @@ public class HlsDownloaderTest {
     progressListener = new ProgressListener();
     fakeDataSet =
         new FakeDataSet()
-            .setData(MASTER_PLAYLIST_URI, MASTER_PLAYLIST_DATA)
+            .setData(MULTIVARIANT_PLAYLIST_URI, MULTIVARIANT_PLAYLIST_DATA)
             .setData(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_DATA)
             .setRandomData(MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts", 10)
             .setRandomData(MEDIA_PLAYLIST_1_DIR + "fileSequence1.ts", 11)
@@ -122,7 +122,7 @@ public class HlsDownloaderTest {
   @Test
   public void counterMethods() throws Exception {
     HlsDownloader downloader =
-        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
+        getHlsDownloader(MULTIVARIANT_PLAYLIST_URI, getKeys(MULTIVARIANT_MEDIA_PLAYLIST_1_INDEX));
     downloader.download(progressListener);
 
     progressListener.assertBytesDownloaded(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
@@ -131,14 +131,14 @@ public class HlsDownloaderTest {
   @Test
   public void downloadRepresentation() throws Exception {
     HlsDownloader downloader =
-        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
+        getHlsDownloader(MULTIVARIANT_PLAYLIST_URI, getKeys(MULTIVARIANT_MEDIA_PLAYLIST_1_INDEX));
     downloader.download(progressListener);
 
     assertCachedData(
         cache,
         new CacheAsserts.RequestSet(fakeDataSet)
             .subset(
-                MASTER_PLAYLIST_URI,
+                MULTIVARIANT_PLAYLIST_URI,
                 MEDIA_PLAYLIST_1_URI,
                 MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts",
                 MEDIA_PLAYLIST_1_DIR + "fileSequence1.ts",
@@ -149,8 +149,8 @@ public class HlsDownloaderTest {
   public void downloadMultipleRepresentations() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(
-            MASTER_PLAYLIST_URI,
-            getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
+            MULTIVARIANT_PLAYLIST_URI,
+            getKeys(MULTIVARIANT_MEDIA_PLAYLIST_1_INDEX, MULTIVARIANT_MEDIA_PLAYLIST_2_INDEX));
     downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
@@ -169,7 +169,7 @@ public class HlsDownloaderTest {
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence1.ts", 14)
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence2.ts", 15);
 
-    HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys());
+    HlsDownloader downloader = getHlsDownloader(MULTIVARIANT_PLAYLIST_URI, getKeys());
     downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
@@ -179,8 +179,8 @@ public class HlsDownloaderTest {
   public void remove() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(
-            MASTER_PLAYLIST_URI,
-            getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
+            MULTIVARIANT_PLAYLIST_URI,
+            getKeys(MULTIVARIANT_MEDIA_PLAYLIST_1_INDEX, MULTIVARIANT_MEDIA_PLAYLIST_2_INDEX));
     downloader.download(progressListener);
     downloader.remove();
 
@@ -231,7 +231,7 @@ public class HlsDownloaderTest {
   private static ArrayList<StreamKey> getKeys(int... variantIndices) {
     ArrayList<StreamKey> streamKeys = new ArrayList<>();
     for (int variantIndex : variantIndices) {
-      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
+      streamKeys.add(new StreamKey(HlsMultivariantPlaylist.GROUP_INDEX_VARIANT, variantIndex));
     }
     return streamKeys;
   }

@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.Format;
 public final class MediaLoadData {
 
   /** The {@link DataType data type}. */
-  @DataType public final int dataType;
+  public final @DataType int dataType;
   /**
    * One of the {@link TrackType track types}, which is a media track type if the data corresponds
    * to media of a specific type, or {@link C#TRACK_TYPE_UNKNOWN} otherwise.
@@ -41,7 +41,7 @@ public final class MediaLoadData {
    * One of the {@link SelectionReason selection reasons} if the data belongs to a track. {@link
    * C#SELECTION_REASON_UNKNOWN} otherwise.
    */
-  public final int trackSelectionReason;
+  public final @C.SelectionReason int trackSelectionReason;
   /**
    * Optional data associated with the selection of the track to which the data belongs. Null if the
    * data does not belong to a track.

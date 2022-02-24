@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.MediaCodec;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Renders media read from a {@link SampleStream}.
@@ -85,6 +88,7 @@ public interface Renderer extends PlayerMessage.Target {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -103,8 +107,9 @@ public interface Renderer extends PlayerMessage.Target {
   public @interface MessageType {}
   /**
    * The type of a message that can be passed to a video renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload is normally a {@link Surface}, however
-   * some video renderers may accept other outputs (e.g., {@link VideoDecoderOutputBufferRenderer}).
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload is normally a {@link
+   * Surface}, however some video renderers may accept other outputs (e.g., {@link
+   * VideoDecoderOutputBufferRenderer}).
    *
    * <p>If the receiving renderer does not support the payload type as an output, then it will clear
    * any existing output that it has.
@@ -112,15 +117,15 @@ public interface Renderer extends PlayerMessage.Target {
   int MSG_SET_VIDEO_OUTPUT = 1;
   /**
    * A type of a message that can be passed to an audio renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Float} with 0 being
-   * silence and 1 being unity gain.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link Float}
+   * with 0 being silence and 1 being unity gain.
    */
   int MSG_SET_VOLUME = 2;
   /**
    * A type of a message that can be passed to an audio renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AudioAttributes}
-   * instance that will configure the underlying audio track. If not set, the default audio
-   * attributes will be used. They are suitable for general media playback.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
+   * AudioAttributes} instance that will configure the underlying audio track. If not set, the
+   * default audio attributes will be used. They are suitable for general media playback.
    *
    * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
    * the audio track is recreated. A new audio session id will also be generated.
@@ -139,8 +144,8 @@ public interface Renderer extends PlayerMessage.Target {
   int MSG_SET_AUDIO_ATTRIBUTES = 3;
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video renderer via
-   * {@link ExoPlayer#createMessage(Target)}. The message payload should be one of the integer
-   * scaling modes in {@link C.VideoScalingMode}.
+   * {@link ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be one of the
+   * integer scaling modes in {@link C.VideoScalingMode}.
    *
    * <p>Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
    * owned by a {@link android.view.SurfaceView}.
@@ -148,45 +153,46 @@ public interface Renderer extends PlayerMessage.Target {
   int MSG_SET_SCALING_MODE = 4;
   /**
    * The type of a message that can be passed to a video renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be one of the integer strategy
-   * constants in {@link C.VideoChangeFrameRateStrategy}.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be one of the
+   * integer strategy constants in {@link C.VideoChangeFrameRateStrategy}.
    */
   int MSG_SET_CHANGE_FRAME_RATE_STRATEGY = 5;
   /**
    * A type of a message that can be passed to an audio renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AuxEffectInfo}
-   * instance representing an auxiliary audio effect for the underlying audio track.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
+   * AuxEffectInfo} instance representing an auxiliary audio effect for the underlying audio track.
    */
   int MSG_SET_AUX_EFFECT_INFO = 6;
   /**
    * The type of a message that can be passed to a video renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link
    * VideoFrameMetadataListener} instance, or null.
    */
   int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 7;
   /**
    * The type of a message that can be passed to a camera motion renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link CameraMotionListener}
-   * instance, or null.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link
+   * CameraMotionListener} instance, or null.
    */
   int MSG_SET_CAMERA_MOTION_LISTENER = 8;
   /**
    * The type of a message that can be passed to an audio renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Boolean} instance
-   * telling whether to enable or disable skipping silences in the audio stream.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link Boolean}
+   * instance telling whether to enable or disable skipping silences in the audio stream.
    */
   int MSG_SET_SKIP_SILENCE_ENABLED = 9;
   /**
    * The type of a message that can be passed to audio and video renderers via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link Integer} instance
-   * representing the audio session ID that will be attached to the underlying audio track. Video
-   * renderers that support tunneling will use the audio session ID when tunneling is enabled.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
+   * Integer} instance representing the audio session ID that will be attached to the underlying
+   * audio track. Video renderers that support tunneling will use the audio session ID when
+   * tunneling is enabled.
    */
   int MSG_SET_AUDIO_SESSION_ID = 10;
   /**
    * The type of a message that can be passed to a {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
-   * component.
+   * ExoPlayer#createMessage(PlayerMessage.Target)}, to inform the renderer that it can schedule
+   * waking up another component.
    *
    * <p>The message payload must be a {@link WakeupListener} instance.
    */
@@ -203,6 +209,7 @@ public interface Renderer extends PlayerMessage.Target {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
   @interface State {}
   /**
@@ -248,11 +255,12 @@ public interface Renderer extends PlayerMessage.Target {
   RendererCapabilities getCapabilities();
 
   /**
-   * Sets the index of this renderer within the player.
+   * Initializes the renderer for playback with a player.
    *
-   * @param index The renderer index.
+   * @param index The renderer index within the player.
+   * @param playerId The {@link PlayerId} of the player.
    */
-  void setIndex(int index);
+  void init(int index, PlayerId playerId);
 
   /**
    * If the renderer advances its own playback position then this method returns a corresponding

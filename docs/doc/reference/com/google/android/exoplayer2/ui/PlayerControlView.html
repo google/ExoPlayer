@@ -192,7 +192,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        mode toggle options are enabled. Valid values are: <code>none</code>, <code>one</code>, <code>all</code>,
        or <code>one|all</code>.
        <ul>
-         <li>Corresponding method: <a href="#setRepeatToggleModes(int)"><code>setRepeatToggleModes(int)</code></a>
+         <li>Corresponding method: <a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)"><code>setRepeatToggleModes(int)</code></a>
          <li>Default: <a href="#DEFAULT_REPEAT_TOGGLE_MODES"><code>DEFAULT_REPEAT_TOGGLE_MODES</code></a>
        </ul>
    <li><b><code>show_shuffle_button</code></b> - Whether the shuffle button is shown.
@@ -398,7 +398,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
+<td class="colFirst"><code>static @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_REPEAT_TOGGLE_MODES">DEFAULT_REPEAT_TOGGLE_MODES</a></span></code></th>
 <td class="colLast">
 <div class="block">The default repeat toggle modes.</div>
@@ -529,7 +529,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRepeatToggleModes()">getRepeatToggleModes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns which repeat toggle modes are enabled.</div>
@@ -612,7 +612,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(int)">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">setRepeatToggleModes</a></span>&#8203;(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
@@ -767,7 +767,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>DEFAULT_REPEAT_TOGGLE_MODES</h4>
 <pre><a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
+public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <div class="block">The default repeat toggle modes.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1074,7 +1074,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getRepeatToggleModes</h4>
 <pre class="methodSignature"><a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
+public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;getRepeatToggleModes()</pre>
 <div class="block">Returns which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1082,14 +1082,14 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 </dl>
 </li>
 </ul>
-<a id="setRepeatToggleModes(int)">
+<a id="setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatToggleModes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRepeatToggleModes&#8203;(<a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-                                 int&nbsp;repeatToggleModes)</pre>
+                                 @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</pre>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

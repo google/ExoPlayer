@@ -16,12 +16,15 @@
 
 package com.google.android.exoplayer2.mediacodec;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.PersistableBundle;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -35,6 +38,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 
 /**
@@ -108,8 +112,7 @@ import java.nio.ByteBuffer;
             configuration.mediaFormat,
             configuration.surface,
             configuration.crypto,
-            configuration.flags,
-            configuration.createInputSurface);
+            configuration.flags);
         return codecAdapter;
       } catch (Exception e) {
         if (codecAdapter != null) {
@@ -124,6 +127,7 @@ import java.nio.ByteBuffer;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({STATE_CREATED, STATE_INITIALIZED, STATE_SHUT_DOWN})
   private @interface State {}
 
@@ -137,8 +141,7 @@ import java.nio.ByteBuffer;
   private final boolean synchronizeCodecInteractionsWithQueueing;
   private final boolean enableImmediateCodecStartAfterFlush;
   private boolean codecReleased;
-  @State private int state;
-  @Nullable private Surface inputSurface;
+  private @State int state;
 
   private AsynchronousMediaCodecAdapter(
       MediaCodec codec,
@@ -158,15 +161,11 @@ import java.nio.ByteBuffer;
       @Nullable MediaFormat mediaFormat,
       @Nullable Surface surface,
       @Nullable MediaCrypto crypto,
-      int flags,
-      boolean createInputSurface) {
+      int flags) {
     asynchronousMediaCodecCallback.initialize(codec);
     TraceUtil.beginSection("configureCodec");
     codec.configure(mediaFormat, surface, crypto, flags);
     TraceUtil.endSection();
-    if (createInputSurface) {
-      inputSurface = codec.createInputSurface();
-    }
     bufferEnqueuer.start();
     TraceUtil.beginSection("startCodec");
     codec.start();
@@ -224,12 +223,6 @@ import java.nio.ByteBuffer;
 
   @Override
   @Nullable
-  public Surface getInputSurface() {
-    return inputSurface;
-  }
-
-  @Override
-  @Nullable
   public ByteBuffer getOutputBuffer(int index) {
     return codec.getOutputBuffer(index);
   }
@@ -262,9 +255,6 @@ import java.nio.ByteBuffer;
       }
       state = STATE_SHUT_DOWN;
     } finally {
-      if (inputSurface != null) {
-        inputSurface.release();
-      }
       if (!codecReleased) {
         codec.release();
         codecReleased = true;
@@ -301,9 +291,10 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public void signalEndOfInputStream() {
+  @RequiresApi(26)
+  public PersistableBundle getMetrics() {
     maybeBlockOnQueueing();
-    codec.signalEndOfInputStream();
+    return codec.getMetrics();
   }
 
   @VisibleForTesting

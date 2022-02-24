@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -70,6 +71,7 @@ import java.util.Set;
 
   private static final String TAG = "MediaSourceList";
 
+  private final PlayerId playerId;
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
@@ -89,15 +91,18 @@ import java.util.Set;
    *
    * @param listener The {@link MediaSourceListInfoRefreshListener} to be informed of timeline
    *     changes.
-   * @param analyticsCollector An optional {@link AnalyticsCollector} to be registered for media
-   *     source events.
+   * @param analyticsCollector An {@link AnalyticsCollector} to be registered for media source
+   *     events.
    * @param analyticsCollectorHandler The {@link Handler} to call {@link AnalyticsCollector} methods
    *     on.
+   * @param playerId The {@link PlayerId} of the player using this list.
    */
   public MediaSourceList(
       MediaSourceListInfoRefreshListener listener,
-      @Nullable AnalyticsCollector analyticsCollector,
-      Handler analyticsCollectorHandler) {
+      AnalyticsCollector analyticsCollector,
+      Handler analyticsCollectorHandler,
+      PlayerId playerId) {
+    this.playerId = playerId;
     mediaSourceListInfoListener = listener;
     shuffleOrder = new DefaultShuffleOrder(0);
     mediaSourceByMediaPeriod = new IdentityHashMap<>();
@@ -107,10 +112,8 @@ import java.util.Set;
     drmEventDispatcher = new DrmSessionEventListener.EventDispatcher();
     childSources = new HashMap<>();
     enabledMediaSourceHolders = new HashSet<>();
-    if (analyticsCollector != null) {
-      mediaSourceEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
-      drmEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
-    }
+    mediaSourceEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
+    drmEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
   }
 
   /**
@@ -440,7 +443,7 @@ import java.util.Set;
     childSources.put(holder, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Util.createHandlerForCurrentOrMainLooper(), eventListener);
     mediaSource.addDrmEventListener(Util.createHandlerForCurrentOrMainLooper(), eventListener);
-    mediaSource.prepareSource(caller, mediaTransferListener);
+    mediaSource.prepareSource(caller, mediaTransferListener, playerId);
   }
 
   private void maybeReleaseChildSource(MediaSourceHolder mediaSourceHolder) {

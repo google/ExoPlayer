@@ -218,8 +218,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static @com.google.android.exoplayer2.PlaybackException.ErrorCode int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeForMediaDrmException(java.lang.Exception,int)">getErrorCodeForMediaDrmException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception,
-                                int&nbsp;errorSource)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeForMediaDrmException(java.lang.Exception,@com.google.android.exoplayer2.drm.DrmUtil.ErrorSourceint)">getErrorCodeForMediaDrmException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception,
+                                @com.google.android.exoplayer2.drm.DrmUtil.ErrorSource int&nbsp;errorSource)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a> that corresponds to the given DRM-related
  exception.</div>
@@ -301,7 +301,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getErrorCodeForMediaDrmException(java.lang.Exception,int)">
+<a id="getErrorCodeForMediaDrmException(java.lang.Exception,@com.google.android.exoplayer2.drm.DrmUtil.ErrorSourceint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -310,7 +310,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature"><a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
 public static&nbsp;@com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;getErrorCodeForMediaDrmException&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception,
                                                                                                               <a href="DrmUtil.ErrorSource.html" title="annotation in com.google.android.exoplayer2.drm">@ErrorSource</a>
-                                                                                                              int&nbsp;errorSource)</pre>
+                                                                                                              @com.google.android.exoplayer2.drm.DrmUtil.ErrorSource int&nbsp;errorSource)</pre>
 <div class="block">Returns the <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a> that corresponds to the given DRM-related
  exception.</div>
 <dl>

@@ -15,12 +15,16 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.UnknownHostException;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -33,8 +37,9 @@ public final class Log {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({LOG_LEVEL_ALL, LOG_LEVEL_INFO, LOG_LEVEL_WARNING, LOG_LEVEL_ERROR, LOG_LEVEL_OFF})
-  @interface LogLevel {}
+  public @interface LogLevel {}
   /** Log level to log all messages. */
   public static final int LOG_LEVEL_ALL = 0;
   /** Log level to only log informative, warning and error messages. */
@@ -78,7 +83,7 @@ public final class Log {
 
   /** @see android.util.Log#d(String, String) */
   @Pure
-  public static void d(String tag, String message) {
+  public static void d(@Size(max = 23) String tag, String message) {
     if (logLevel == LOG_LEVEL_ALL) {
       android.util.Log.d(tag, message);
     }
@@ -86,13 +91,13 @@ public final class Log {
 
   /** @see android.util.Log#d(String, String, Throwable) */
   @Pure
-  public static void d(String tag, String message, @Nullable Throwable throwable) {
+  public static void d(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     d(tag, appendThrowableString(message, throwable));
   }
 
   /** @see android.util.Log#i(String, String) */
   @Pure
-  public static void i(String tag, String message) {
+  public static void i(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_INFO) {
       android.util.Log.i(tag, message);
     }
@@ -100,13 +105,13 @@ public final class Log {
 
   /** @see android.util.Log#i(String, String, Throwable) */
   @Pure
-  public static void i(String tag, String message, @Nullable Throwable throwable) {
+  public static void i(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     i(tag, appendThrowableString(message, throwable));
   }
 
   /** @see android.util.Log#w(String, String) */
   @Pure
-  public static void w(String tag, String message) {
+  public static void w(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_WARNING) {
       android.util.Log.w(tag, message);
     }
@@ -114,13 +119,13 @@ public final class Log {
 
   /** @see android.util.Log#w(String, String, Throwable) */
   @Pure
-  public static void w(String tag, String message, @Nullable Throwable throwable) {
+  public static void w(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     w(tag, appendThrowableString(message, throwable));
   }
 
   /** @see android.util.Log#e(String, String) */
   @Pure
-  public static void e(String tag, String message) {
+  public static void e(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_ERROR) {
       android.util.Log.e(tag, message);
     }
@@ -128,7 +133,7 @@ public final class Log {
 
   /** @see android.util.Log#e(String, String, Throwable) */
   @Pure
-  public static void e(String tag, String message, @Nullable Throwable throwable) {
+  public static void e(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     e(tag, appendThrowableString(message, throwable));
   }
 

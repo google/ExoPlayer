@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 
 /**
@@ -51,6 +53,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   /** Trimming states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_NOISY,
     STATE_MAYBE_SILENT,
@@ -83,7 +86,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    */
   private byte[] paddingBuffer;
 
-  @State private int state;
+  private @State int state;
   private int maybeSilenceBufferSize;
   private int paddingSize;
   private boolean hasOutputNoise;

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MPD
+		type="dynamic"
+		suggestedPresentationDelay="PT2S"
+		availabilityStartTime="2020-01-01T00:00:00Z"
+		minimumUpdatePeriod="PT4M"
+		timeShiftBufferDepth="PT8.0S">
+	<Location>https://example2.com/absolute/redirect.mpd</Location>
+	<Period start="PT0.0S">
+		<AdaptationSet contentType="video">
+			<Representation id="0" mimeType="video/mp4">
+				<SegmentTemplate
+						timescale="1000000"
+						duration="2000000"
+						availabilityTimeOffset="2"
+						startNumber="1">
+				</SegmentTemplate>
+			</Representation>
+		</AdaptationSet>
+	</Period>
+</MPD>

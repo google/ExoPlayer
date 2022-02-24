@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="app_name" translatable="false">Transformer Demo</string>
+  <string name="configuration" translatable="false">Configuration</string>
+  <string name="choose_file_title" translatable="false">Choose file</string>
+  <string name="remove_audio" translatable="false">Remove audio</string>
+  <string name="remove_video" translatable="false">Remove video</string>
+  <string name="flatten_for_slow_motion" translatable="false">Flatten for slow motion</string>
+  <string name="audio_mime" translatable="false">Output audio MIME type</string>
+  <string name="video_mime" translatable="false">Output video MIME type</string>
+  <string name="resolution_height" translatable="false">Output video resolution</string>
+  <string name="translate" translatable="false">Translate video</string>
+  <string name="scale" translatable="false">Scale video</string>
+  <string name="rotate" translatable="false">Rotate video (degrees)</string>
+  <string name="transform" translatable="false">Transform</string>
+  <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
+  <string name="debug_preview" translatable="false">Debug preview:</string>
+  <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
+  <string name="transformation_started" translatable="false">Transformation started</string>
+  <string name="transformation_timer" translatable="false">Transformation started %d seconds ago.</string>
+  <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
+  <string name="transformation_error" translatable="false">Transformation error</string>
+</resources>

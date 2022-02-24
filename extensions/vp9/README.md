@@ -125,20 +125,20 @@ gets from the libvpx decoder:
 
 *   GL rendering using GL shader for color space conversion
 
-    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
-        enable this option by setting `surface_type` of view to be
+    *   If you are using `ExoPlayer` with `StyledPlayerView`, enable this option
+        by setting the `surface_type` of the view to be
         `video_decoder_gl_surface_view`.
     *   Otherwise, enable this option by sending `LibvpxVideoRenderer` a message
-        of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an
-        instance of `VideoDecoderOutputBufferRenderer` as its object.
+        of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an instance of
+        `VideoDecoderOutputBufferRenderer` as its object.
         `VideoDecoderGLSurfaceView` is the concrete
         `VideoDecoderOutputBufferRenderer` implementation used by
-        `(Styled)PlayerView`.
+        `StyledPlayerView`.
 
 *   Native rendering using `ANativeWindow`
 
-    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
-        this option is enabled by default.
+    *   If you are using `ExoPlayer` with `StyledPlayerView`, this option is
+        enabled by default.
     *   Otherwise, enable this option by sending `LibvpxVideoRenderer` a message
         of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an instance of
         `SurfaceView` as its object.

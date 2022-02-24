@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":42,"i6":42,"i7":10,"i8":42,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -130,13 +130,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dd><code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code>, <code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">DefaultMediaSourceFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></pre>
-<div class="block">The default <a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> implementation.
+<div class="block">The default <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> implementation.
 
  <p>This implementation delegates calls to <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>createMediaSource(MediaItem)</code></a> to the following
  factories:
@@ -161,7 +161,7 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
  <h2>Ad support for media items with ad tag URIs</h2>
 
  <p>To support media items with <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads
- configuration</code></a>, <a href="#setAdsLoaderProvider(com.google.android.exoplayer2.source.DefaultMediaSourceFactory.AdsLoaderProvider)"><code>setAdsLoaderProvider(com.google.android.exoplayer2.source.DefaultMediaSourceFactory.AdsLoaderProvider)</code></a> and <a href="#setAdViewProvider(com.google.android.exoplayer2.ui.AdViewProvider)"><code>setAdViewProvider(com.google.android.exoplayer2.ui.AdViewProvider)</code></a> need to be called to
+ configuration</code></a>, <a href="#setAdsLoaderProvider(com.google.android.exoplayer2.source.ads.AdsLoader.Provider)"><code>setAdsLoaderProvider(com.google.android.exoplayer2.source.ads.AdsLoader.Provider)</code></a> and <a href="#setAdViewProvider(com.google.android.exoplayer2.ui.AdViewProvider)"><code>setAdViewProvider(com.google.android.exoplayer2.ui.AdViewProvider)</code></a> need to be called to
  configure the factory with the required providers.</div>
 </li>
 </ul>
@@ -187,7 +187,9 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source">DefaultMediaSourceFactory.AdsLoaderProvider</a></span></code></th>
 <td class="colLast">
-<div class="block">Provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items that have <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ad tag URIs</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.Provider</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -262,7 +264,7 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -293,9 +295,9 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdsLoaderProvider(com.google.android.exoplayer2.source.DefaultMediaSourceFactory.AdsLoaderProvider)">setAdsLoaderProvider</a></span>&#8203;(<a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source">DefaultMediaSourceFactory.AdsLoaderProvider</a>&nbsp;adsLoaderProvider)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdsLoaderProvider(com.google.android.exoplayer2.source.ads.AdsLoader.Provider)">setAdsLoaderProvider</a></span>&#8203;(<a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a>&nbsp;adsLoaderProvider)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory.AdsLoaderProvider</code></a> that provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items
+<div class="block">Sets the <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.Provider</code></a> that provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items
  that have <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads configurations</code></a>.</div>
 </td>
 </tr>
@@ -308,82 +310,60 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></span>&#8203;(<a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">setDrmSessionManager</a></span>&#8203;(<a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></span>&#8203;(<a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManagerProvider</code></a> used to obtain a <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
  <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUserAgent(java.lang.String)">setDrmUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxOffsetMs(long)">setLiveMaxOffsetMs</a></span>&#8203;(long&nbsp;liveMaxOffsetMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the maximum offset from the live edge for live streams, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxSpeed(float)">setLiveMaxSpeed</a></span>&#8203;(float&nbsp;maxSpeed)</code></th>
 <td class="colLast">
 <div class="block">Sets the maximum playback speed for live streams.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinOffsetMs(long)">setLiveMinOffsetMs</a></span>&#8203;(long&nbsp;liveMinOffsetMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the minimum offset from the live edge for live streams, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinSpeed(float)">setLiveMinSpeed</a></span>&#8203;(float&nbsp;minSpeed)</code></th>
 <td class="colLast">
 <div class="block">Sets the minimum playback speed for live streams.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveTargetOffsetMs(long)">setLiveTargetOffsetMs</a></span>&#8203;(long&nbsp;liveTargetOffsetMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the target live offset for live streams, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Sets an optional <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStreamKeys(java.util.List)">setStreamKeys</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setServerSideAdInsertionMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)">setServerSideAdInsertionMediaSourceFactory</a></span>&#8203;(<a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;serverSideAdInsertionMediaSourceFactory)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../MediaItem.Builder.html#setStreamKeys(java.util.List)"><code>MediaItem.Builder.setStreamKeys(List)</code></a> and <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>createMediaSource(MediaItem)</code></a> instead.</div>
-</div>
+<div class="block">Sets the <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> used to handle <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instances containing a
+ <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> identified as resolving to content with server side ad insertion (SSAI).</div>
 </td>
 </tr>
 </table>
@@ -393,13 +373,6 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceFactory">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></h3>
-<code><a href="MediaSourceFactory.html#createMediaSource(android.net.Uri)">createMediaSource</a></code></li>
 </ul>
 </li>
 </ul>
@@ -512,15 +485,15 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </dl>
 </li>
 </ul>
-<a id="setAdsLoaderProvider(com.google.android.exoplayer2.source.DefaultMediaSourceFactory.AdsLoaderProvider)">
+<a id="setAdsLoaderProvider(com.google.android.exoplayer2.source.ads.AdsLoader.Provider)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdsLoaderProvider</h4>
 <pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setAdsLoaderProvider&#8203;(@Nullable
-                                                      <a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source">DefaultMediaSourceFactory.AdsLoaderProvider</a>&nbsp;adsLoaderProvider)</pre>
-<div class="block">Sets the <a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory.AdsLoaderProvider</code></a> that provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items
+                                                      <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a>&nbsp;adsLoaderProvider)</pre>
+<div class="block">Sets the <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.Provider</code></a> that provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items
  that have <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads configurations</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -542,6 +515,27 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adViewProvider</code> - A provider for <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setServerSideAdInsertionMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setServerSideAdInsertionMediaSourceFactory</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setServerSideAdInsertionMediaSourceFactory&#8203;(@Nullable
+                                                                            <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;serverSideAdInsertionMediaSourceFactory)</pre>
+<div class="block">Sets the <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> used to handle <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instances containing a
+ <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> identified as resolving to content with server side ad insertion (SSAI).
+
+ <p>SSAI URIs are those with a <a href="https://developer.android.com/reference/android/net/Uri.html#getScheme()" title="class or interface in android.net" class="externalLink"><code>scheme</code></a> of <a href="../C.html#SSAI_SCHEME" target="_top"><code>C.SSAI_SCHEME</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>serverSideAdInsertionMediaSourceFactory</code> - The <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> for SSAI
+     content, or <code>null</code> to remove a previously set <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -628,88 +622,6 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </dl>
 </li>
 </ul>
-<a id="setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDrmHttpDataSourceFactory</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDrmHttpDataSourceFactory&#8203;(@Nullable
-                                                             <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">MediaSourceFactory</a></code></span></div>
-<div class="block">Sets the <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> to be used for creating <a href="../drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> to execute key and provisioning requests over HTTP.
-
- <p>Calls to this method are ignored if either a <a href="MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)"><code>DrmSessionManager provider</code></a> or <a href="MediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)"><code>concrete DrmSessionManager</code></a> are provided.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This factory, for convenience.</dd>
-</dl>
-</li>
-</ul>
-<a id="setDrmUserAgent(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDrmUserAgent</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDrmUserAgent&#8203;(@Nullable
-                                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#setDrmUserAgent(java.lang.String)">MediaSourceFactory</a></code></span></div>
-<div class="block">Sets the optional user agent to be used for DRM requests.
-
- <p>Calls to this method are ignored if any of the following are provided:
-
- <ul>
-   <li>A <a href="MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)"><code>DrmSessionManager
-       provider</code></a>.
-   <li>A <a href="MediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)"><code>concrete DrmSessionManager</code></a>.
-   <li>A <a href="MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)"><code>DRM
-       HttpDataSource.Factory</code></a>.
- </ul></div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#setDrmUserAgent(java.lang.String)">setDrmUserAgent</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userAgent</code> - The user agent to be used for DRM requests, or <code>null</code> to use the
-     default.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This factory, for convenience.</dd>
-</dl>
-</li>
-</ul>
-<a id="setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDrmSessionManager</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDrmSessionManager&#8203;(@Nullable
-                                                      <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">MediaSourceFactory</a></code></span></div>
-<div class="block">Sets the <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for all media items regardless of their <a href="../MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.DrmConfiguration</code></a>.
-
- <p>Calling this with a non-null <code>drmSessionManager</code> is equivalent to calling <code>
- setDrmSessionManagerProvider(unusedMediaItem -&gt; drmSessionManager)</code>.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">setDrmSessionManager</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmSessionManager</code> - The <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>, or <code>null</code> to use the <a href="../drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This factory, for convenience.</dd>
-</dl>
-</li>
-</ul>
 <a id="setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">
 <!--   -->
 </a>
@@ -718,21 +630,14 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <h4>setDrmSessionManagerProvider</h4>
 <pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDrmSessionManagerProvider&#8203;(@Nullable
                                                               <a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">MediaSourceFactory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets the <a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManagerProvider</code></a> used to obtain a <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
  <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
 
- <p>If not set, <a href="../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a> is used.
-
- <p>If set, calls to the following (deprecated) methods are ignored:
-
- <ul>
-   <li><a href="MediaSourceFactory.html#setDrmUserAgent(java.lang.String)"><code>MediaSourceFactory.setDrmUserAgent(String)</code></a>
-   <li><a href="MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)"><code>MediaSourceFactory.setDrmHttpDataSourceFactory(HttpDataSource.Factory)</code></a>
- </ul></div>
+ <p>If not set, <a href="../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a> is used.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dd><code><a href="MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -746,34 +651,16 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <h4>setLoadErrorHandlingPolicy</h4>
 <pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(@Nullable
                                                             <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">MediaSourceFactory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets an optional <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dd><code><a href="MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadErrorHandlingPolicy</code> - A <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>, or <code>null</code> to use the
      <a href="../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
-</dl>
-</li>
-</ul>
-<a id="setStreamKeys(java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setStreamKeys</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setStreamKeys&#8203;(@Nullable
-                                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../MediaItem.Builder.html#setStreamKeys(java.util.List)"><code>MediaItem.Builder.setStreamKeys(List)</code></a> and <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>createMediaSource(MediaItem)</code></a> instead.</div>
-</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#setStreamKeys(java.util.List)">setStreamKeys</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -784,12 +671,12 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <li class="blockList">
 <h4>getSupportedTypes</h4>
 <pre class="methodSignature">public&nbsp;int[]&nbsp;getSupportedTypes()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#getSupportedTypes()">MediaSourceFactory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#getSupportedTypes()">MediaSource.Factory</a></code></span></div>
 <div class="block">Returns the <a href="../C.ContentType.html" title="annotation in com.google.android.exoplayer2"><code>content types</code></a> supported by media sources created by this
  factory.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#getSupportedTypes()">getSupportedTypes</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dd><code><a href="MediaSource.Factory.html#getSupportedTypes()">getSupportedTypes</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -800,11 +687,11 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <li class="blockList">
 <h4>createMediaSource</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;createMediaSource&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSourceFactory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)">MediaSourceFactory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)">MediaSource.Factory</a></code></span></div>
 <div class="block">Creates a new <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> with the specified <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSourceFactory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dd><code><a href="MediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItem</code> - The media item to play.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

@@ -23,13 +23,13 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -48,7 +48,7 @@ public final class MetadataRetriever {
   /**
    * Retrieves the {@link TrackGroupArray} corresponding to a {@link MediaItem}.
    *
-   * <p>This is equivalent to using {@link #retrieveMetadata(MediaSourceFactory, MediaItem)} with a
+   * <p>This is equivalent to using {@link #retrieveMetadata(MediaSource.Factory, MediaItem)} with a
    * {@link DefaultMediaSourceFactory} and a {@link DefaultExtractorsFactory} with {@link
    * Mp4Extractor#FLAG_READ_MOTION_PHOTO_METADATA} and {@link Mp4Extractor#FLAG_READ_SEF_DATA} set.
    *
@@ -66,13 +66,13 @@ public final class MetadataRetriever {
    *
    * <p>This method is thread-safe.
    *
-   * @param mediaSourceFactory mediaSourceFactory The {@link MediaSourceFactory} to use to read the
+   * @param mediaSourceFactory mediaSourceFactory The {@link MediaSource.Factory} to use to read the
    *     data.
    * @param mediaItem The {@link MediaItem} whose metadata should be retrieved.
    * @return A {@link ListenableFuture} of the result.
    */
   public static ListenableFuture<TrackGroupArray> retrieveMetadata(
-      MediaSourceFactory mediaSourceFactory, MediaItem mediaItem) {
+      MediaSource.Factory mediaSourceFactory, MediaItem mediaItem) {
     return retrieveMetadata(mediaSourceFactory, mediaItem, Clock.DEFAULT);
   }
 
@@ -83,13 +83,13 @@ public final class MetadataRetriever {
         new DefaultExtractorsFactory()
             .setMp4ExtractorFlags(
                 Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA | Mp4Extractor.FLAG_READ_SEF_DATA);
-    MediaSourceFactory mediaSourceFactory =
+    MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(context, extractorsFactory);
     return retrieveMetadata(mediaSourceFactory, mediaItem, clock);
   }
 
   private static ListenableFuture<TrackGroupArray> retrieveMetadata(
-      MediaSourceFactory mediaSourceFactory, MediaItem mediaItem, Clock clock) {
+      MediaSource.Factory mediaSourceFactory, MediaItem mediaItem, Clock clock) {
     // Recreate thread and handler every time this method is called so that it can be used
     // concurrently.
     return new MetadataRetrieverInternal(mediaSourceFactory, clock).retrieveMetadata(mediaItem);
@@ -102,12 +102,12 @@ public final class MetadataRetriever {
     private static final int MESSAGE_CONTINUE_LOADING = 2;
     private static final int MESSAGE_RELEASE = 3;
 
-    private final MediaSourceFactory mediaSourceFactory;
+    private final MediaSource.Factory mediaSourceFactory;
     private final HandlerThread mediaSourceThread;
     private final HandlerWrapper mediaSourceHandler;
     private final SettableFuture<TrackGroupArray> trackGroupsFuture;
 
-    public MetadataRetrieverInternal(MediaSourceFactory mediaSourceFactory, Clock clock) {
+    public MetadataRetrieverInternal(MediaSource.Factory mediaSourceFactory, Clock clock) {
       this.mediaSourceFactory = mediaSourceFactory;
       mediaSourceThread = new HandlerThread("ExoPlayer:MetadataRetriever");
       mediaSourceThread.start();
@@ -140,7 +140,8 @@ public final class MetadataRetriever {
           case MESSAGE_PREPARE_SOURCE:
             MediaItem mediaItem = (MediaItem) msg.obj;
             mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
-            mediaSource.prepareSource(mediaSourceCaller, /* mediaTransferListener= */ null);
+            mediaSource.prepareSource(
+                mediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
             mediaSourceHandler.sendEmptyMessage(MESSAGE_CHECK_FOR_FAILURE);
             return true;
           case MESSAGE_CHECK_FOR_FAILURE:

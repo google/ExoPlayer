@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">സബ്‌ടൈറ്റിലുകൾ പ്രവർത്തനരഹിതമാക്കുക</string>
   <string name="exo_controls_cc_disabled_description">സബ്‌ടൈറ്റിലുകൾ പ്രവർത്തനക്ഷമമാക്കുക</string>
   <string name="exo_controls_playback_speed">വേഗത</string>
-  <string name="exo_controls_playback_speed_normal">സാധാരണം</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>സാധാരണ വേഗത്തിൽ</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">വീഡിയോ</string>
   <string name="exo_track_selection_title_audio">ഓഡിയോ</string>
   <string name="exo_track_selection_title_text">ടെക്‌സ്റ്റ്</string>

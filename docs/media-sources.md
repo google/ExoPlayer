@@ -6,7 +6,7 @@ redirect_from:
 
 In ExoPlayer every piece of media is represented by a `MediaItem`. However
 internally, the player needs `MediaSource` instances to play the content. The
-player creates these from media items using a `MediaSourceFactory`.
+player creates these from media items using a `MediaSource.Factory`.
 
 By default the player uses a `DefaultMediaSourceFactory`, which can create
 instances of the following content `MediaSource` implementations:
@@ -27,13 +27,13 @@ customization.
 
 ## Customizing media source creation ##
 
-When building the player, a `MediaSourceFactory` can be injected. For example, if
-an app wants to insert ads and use a `CacheDataSource.Factory` to support
+When building the player, a `MediaSource.Factory` can be injected. For example,
+if an app wants to insert ads and use a `CacheDataSource.Factory` to support
 caching, an instance of `DefaultMediaSourceFactory` can be configured to match
 these requirements and injected during player construction:
 
 ~~~
-MediaSourceFactory mediaSourceFactory =
+MediaSource.Factory mediaSourceFactory =
     new DefaultMediaSourceFactory(cacheDataSourceFactory)
         .setAdsLoaderProvider(adsLoaderProvider)
         .setAdViewProvider(playerView);
@@ -44,10 +44,10 @@ ExoPlayer player = new ExoPlayer.Builder(context)
 {: .language-java}
 
 The
-[`DefaultMediaSourceFactory` JavaDoc]({{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html)
+[`DefaultMediaSourceFactory` JavaDoc]({{ site.exo_sdk }}/source/DefaultMediaSourceFactory.html)
 describes the available options in more detail.
 
-It's also possible to inject a custom `MediaSourceFactory` implementation, for
+It's also possible to inject a custom `MediaSource.Factory` implementation, for
 example to support creation of a custom media source type. The factory's
 `createMediaSource(MediaItem)` will be called to create a media source for each
 media item that is
@@ -57,7 +57,7 @@ media item that is
 
 The [`ExoPlayer`] interface defines additional playlist methods that accept
 media sources rather than media items. This makes it possible to bypass the
-player's internal `MediaSourceFactory` and pass media source instances to the
+player's internal `MediaSource.Factory` and pass media source instances to the
 player directly:
 
 ~~~
@@ -79,4 +79,4 @@ exoPlayer.play();
 [HLS]: {{ site.baseurl }}/hls.html
 [RTSP]: {{ site.baseurl }}/rtsp.html
 [regular media files]: {{ site.baseurl }}/progressive.html
-[`ExoPlayer`]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/ExoPlayer.html
+[`ExoPlayer`]: {{ site.exo_sdk }}/ExoPlayer.html

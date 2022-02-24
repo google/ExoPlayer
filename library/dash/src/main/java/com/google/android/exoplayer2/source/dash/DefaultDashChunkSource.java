@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
@@ -110,7 +111,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
-        @Nullable TransferListener transferListener) {
+        @Nullable TransferListener transferListener,
+        PlayerId playerId) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
@@ -129,7 +131,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
           maxSegmentsPerLoad,
           enableEventMessageTrack,
           closedCaptionFormats,
-          playerEmsgHandler);
+          playerEmsgHandler,
+          playerId);
     }
   }
 
@@ -171,6 +174,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param closedCaptionFormats The {@link Format Formats} of closed caption tracks to be output.
    * @param playerTrackEmsgHandler The {@link PlayerTrackEmsgHandler} instance to handle emsg
    *     messages targeting the player. Maybe null if this is not necessary.
+   * @param playerId The {@link PlayerId} of the player using this chunk source.
    */
   public DefaultDashChunkSource(
       ChunkExtractor.Factory chunkExtractorFactory,
@@ -186,7 +190,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int maxSegmentsPerLoad,
       boolean enableEventMessageTrack,
       List<Format> closedCaptionFormats,
-      @Nullable PlayerTrackEmsgHandler playerTrackEmsgHandler) {
+      @Nullable PlayerTrackEmsgHandler playerTrackEmsgHandler,
+      PlayerId playerId) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.baseUrlExclusionList = baseUrlExclusionList;
@@ -212,12 +217,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
               periodDurationUs,
               representation,
               selectedBaseUrl != null ? selectedBaseUrl : representation.baseUrls.get(0),
-              BundledChunkExtractor.FACTORY.createProgressiveMediaExtractor(
+              chunkExtractorFactory.createProgressiveMediaExtractor(
                   trackType,
                   representation.format,
                   enableEventMessageTrack,
                   closedCaptionFormats,
-                  playerTrackEmsgHandler),
+                  playerTrackEmsgHandler,
+                  playerId),
               /* segmentNumShift= */ 0,
               representation.getIndex());
     }

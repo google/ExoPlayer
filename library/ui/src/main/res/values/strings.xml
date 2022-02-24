@@ -14,71 +14,80 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <!-- Description for a media player view to indicate that tapping on the view shows the playback controls. [CHAR LIMIT=50] -->
+  <!-- Accessibility description for a media player view to indicate that tapping on the view shows the playback controls. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_show">Show player controls</string>
-  <!-- Description for a media player view to indicate that tapping on the view hides the playback controls [CHAR LIMIT=50] -->
+  <!-- Accessibility description for a media player view to indicate that tapping on the view hides the playback controls [CHAR LIMIT=NONE] -->
   <string name="exo_controls_hide">Hide player controls</string>
-  <!-- Description for a media player seek bar, which indicates the playback progress. [CHAR_LIMIT=55] -->
+  <!-- Accessibility description for a media player seek bar, which indicates the playback progress. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_seek_bar_description">Playback progress</string>
-  <!-- Description for a settings button. [CHAR_LIMIT=30] -->
+  <!-- Accessibility description for a settings button. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_settings_description">Settings</string>
-  <!-- Description for a settings button that hides a list of additional settings. [CHAR_LIMIT=55] -->
+  <!-- Accessibility description for a settings button that hides a list of additional settings. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_overflow_hide_description">Hide additional settings</string>
-  <!-- Description for a settings button that expands a list of additional settings. [CHAR_LIMIT=55] -->
+  <!-- Accessibility description for a settings button that expands a list of additional settings. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_overflow_show_description">Show additional settings</string>
-  <!-- Description for a media control button that enters fullscreen playback. [CHAR_LIMIT=40] -->
+  <!-- Accessibility description for a media control button that enters fullscreen playback. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_fullscreen_enter_description">Enter fullscreen</string>
-  <!-- Description for a media control button that exits fullscreen playback. [CHAR_LIMIT=40] -->
+  <!-- Accessibility description for a media control button that exits fullscreen playback. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_fullscreen_exit_description">Exit fullscreen</string>
-  <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes the previous track to be played. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_previous_description">Previous</string>
-  <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes the next track to be played. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_next_description">Next</string>
-  <!-- Description for a media control button that causes playback to be paused. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes playback to be paused. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_pause_description">Pause</string>
-  <!-- Description for a media control button that causes playback to be started. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes playback to be started. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_play_description">Play</string>
-  <!-- Description for a media control button that causes playback to be stopped. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes playback to be stopped. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_stop_description">Stop</string>
-  <!-- Description for a media control button that causes playback to be rewound. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes playback to be rewound. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_rewind_description">Rewind</string>
-  <!-- Description for a media control button that causes playback to be rewound a specified number of seconds. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes playback to be rewound a specified number of seconds. [CHAR LIMIT=NONE] -->
   <plurals name="exo_controls_rewind_by_amount_description">
     <item quantity="one">Rewind <xliff:g id="rewind_amount" example="1">%d</xliff:g> second</item>
     <item quantity="other">Rewind <xliff:g id="rewind_amount" example="30">%d</xliff:g> seconds</item>
   </plurals>
-  <!-- Description for a media control button that causes playback to be fast-forwarded. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a media control button that causes playback to be fast-forwarded. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_fastforward_description">Fast forward</string>
-  <!-- Description for a media control button that causes playback to be fast-forwarded a specified number of seconds. [CHAR_LIMIT=55] -->
+  <!-- Accessibility description for a media control button that causes playback to be fast-forwarded a specified number of seconds. [CHAR_LIMIT=NONE] -->
   <plurals name="exo_controls_fastforward_by_amount_description">
     <item quantity="one">Fast forward <xliff:g id="fastforward_amount" example="1">%d</xliff:g> second</item>
     <item quantity="other">Fast forward <xliff:g id="fastforward_amount" example="30">%d</xliff:g> seconds</item>
   </plurals>
-  <!-- Description for a button that controls the repeat mode of a media playback. In this mode media is not repeated. [CHAR LIMIT=30] -->
-  <string name="exo_controls_repeat_off_description">Repeat none</string>
-  <!-- Description for a button that controls the repeat mode of a media playback. In this mode the current piece of media is repeated. [CHAR LIMIT=30] -->
-  <string name="exo_controls_repeat_one_description">Repeat one</string>
-  <!-- Description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. [CHAR LIMIT=30] -->
-  <string name="exo_controls_repeat_all_description">Repeat all</string>
-  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is on. [CHAR LIMIT=40] -->
-  <string name="exo_controls_shuffle_on_description">Shuffle on</string>
-  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=40] -->
-  <string name="exo_controls_shuffle_off_description">Shuffle off</string>
-  <!-- Description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=30] -->
+  <!-- Accessibility description for a button that controls the repeat mode of a media playback. In this mode media is not repeated. If the user clicks the button, the repeat mode changes to the next available mode. [CHAR LIMIT=NONE] -->
+  <string name="exo_controls_repeat_off_description">Current mode: Repeat none. Toggle repeat mode.</string>
+  <!-- Accessibility description for a button that controls the repeat mode of a media playback. In this mode the current piece of media is repeated. If the user clicks the button, the repeat mode changes to the next available mode. [CHAR LIMIT=NONE] -->
+  <string name="exo_controls_repeat_one_description">Current mode: Repeat one. Toggle repeat mode.</string>
+  <!-- Accessibility description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. If the user clicks the button, the repeat mode changes to the next available mode. [CHAR LIMIT=NONE] -->
+  <string name="exo_controls_repeat_all_description">Current mode: Repeat all. Toggle repeat mode.</string>
+  <!-- Accessibility description for a button that controls the shuffle mode of media playback. In this mode shuffle is on. If the user clicks the button, shuffle mode will be turned off. [CHAR LIMIT=NONE] -->
+  <string name="exo_controls_shuffle_on_description">Disable shuffle mode</string>
+  <!-- Accessibility description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. If the user clicks the button, shuffle mode will be turned on. [CHAR LIMIT=NONE] -->
+  <string name="exo_controls_shuffle_off_description">Enable shuffle mode</string>
+  <!-- Accessibility description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=NONE] -->
   <string name="exo_controls_vr_description">VR mode</string>
-  <!-- Description for a closed captions (subtitles) button, when subtitles are enabled. If the user clicks the button, closed captions will be disabled. [CHAR_LIMIT=55] -->
+  <!-- Accessibility description for a closed captions (subtitles) button, when subtitles are enabled. If the user clicks the button, closed captions will be disabled. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_cc_enabled_description">Disable subtitles</string>
-  <!-- Description for a closed captions (subtitles) button, when subtitles are disabled. If the user clicks the button, closed captions will be enabled. [CHAR_LIMIT=55] -->
+  <!-- Accessibility description for a closed captions (subtitles) button, when subtitles are disabled. If the user clicks the button, closed captions will be enabled. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_cc_disabled_description">Enable subtitles</string>
-  <!-- The title of a playback speed selection option. It is shown with the current playback speed. If a user clicks it, the list of possible playback speeds will be shown. [CHAR_LIMIT=32] -->
+  <!-- Accessibility description for a playback speed selection button. The button is shown with the current playback speed. If a user clicks it, the list of possible playback speeds will be shown. [CHAR_LIMIT=NONE] -->
   <string name="exo_controls_playback_speed">Speed</string>
-  <!-- Shown to indicate that the current playback speed is normal (i.e., 1.0x). [CHAR_LIMIT=16] -->
-  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <!-- LINT.IfChange(playback_speeds) -->
+  <!-- Different media playback speeds from one quarter normal speed ("0.25x") to double normal speed ("2x"). The fourth item ("Normal") corresponds to normal playback speed. [CHAR_LIMIT=16] -->
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>Normal</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
+  <!-- LINT.ThenChange(../../java/com/google/android/exoplayer2/ui/StyledPlayerControlView.java:playback_speeds) -->
   <!-- Shown to indicate a custom playback speed. [CHAR_LIMIT=16] -->
   <string translatable="false" name="exo_controls_custom_playback_speed"><xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x</string>
   <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
   <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
-
   <!-- The title of a track selection view for video tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_title_video">Video</string>
   <!-- The title of a track selection view for audio tracks. [CHAR LIMIT=20] -->
@@ -89,27 +98,27 @@
   <string name="exo_track_selection_none">None</string>
   <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that the automatic or default track should be selected. Examples: If there are multiple audio tracks in different languages, the automatic selection would normally be the track in the user's native language. If there are multiple video tracks at different qualities, the automatic selection would normally be the highest quality track that can be played without buffering over the current network. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_auto">Auto</string>
-  <!-- Name of a media track about which nothing is known. [CHAR LIMIT=20] -->
+  <!-- Name of a media track about which nothing is known. Shown in a list view that allows the user to choose between multiple media tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_unknown">Unknown</string>
   <!-- Resolution of a video track. [CHAR LIMIT=20] -->
   <string name="exo_track_resolution"><xliff:g id="width" example="1024">%1$d</xliff:g> × <xliff:g id="height" example="768">%2$d</xliff:g></string>
-  <!-- Describes an audio track with one channel. [CHAR LIMIT=20] -->
+  <!-- Describes an audio track with one channel. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_mono">Mono</string>
-  <!-- Describes an audio track with two channels. [CHAR LIMIT=20] -->
+  <!-- Describes an audio track with two channels. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_stereo">Stereo</string>
-  <!-- Describes a surround sound audio track. [CHAR LIMIT=40] -->
+  <!-- Describes a surround sound audio track. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_surround">Surround sound</string>
-  <!-- Describes a 5.1 surround sound (https://en.wikipedia.org/wiki/5.1_surround_sound) audio track. [CHAR LIMIT=40] -->
+  <!-- Describes a 5.1 surround sound (https://en.wikipedia.org/wiki/5.1_surround_sound) audio track. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
-  <!-- Describes a 7.1 (https://en.wikipedia.org/wiki/7.1_surround_sound) audio track. [CHAR LIMIT=40] -->
+  <!-- Describes a 7.1 (https://en.wikipedia.org/wiki/7.1_surround_sound) audio track. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
-  <!-- Describes an alternate track, e.g. a video recorded from a different viewpoint. [CHAR LIMIT=40] -->
+  <!-- Describes an alternate media track, e.g. a video recorded from a different viewpoint. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_role_alternate">Alternate</string>
-  <!-- Describes a supplementary track. [CHAR LIMIT=40] -->
+  <!-- Describes a supplementary track. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_role_supplementary">Supplementary</string>
-  <!-- Describes a track containing commentary. [CHAR LIMIT=40] -->
+  <!-- Describes a track containing commentary. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_role_commentary">Commentary</string>
-  <!-- Describes a track with closed captions. [CHAR LIMIT=40] -->
+  <!-- Describes a track with closed captions. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=40] -->
   <string name="exo_track_role_closed_captions">CC</string>
   <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>

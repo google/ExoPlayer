@@ -15,22 +15,26 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
+import java.lang.annotation.Target;
 import java.util.List;
 
 /** An immutable array of {@link TrackGroup}s. */
 public final class TrackGroupArray implements Bundleable {
+
+  private static final String TAG = "TrackGroupArray";
 
   /** The empty array. */
   public static final TrackGroupArray EMPTY = new TrackGroupArray();
@@ -38,15 +42,20 @@ public final class TrackGroupArray implements Bundleable {
   /** The number of groups in the array. Greater than or equal to zero. */
   public final int length;
 
-  private final TrackGroup[] trackGroups;
+  private final ImmutableList<TrackGroup> trackGroups;
 
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /** Construct a {@code TrackGroupArray} from an array of (possibly empty) trackGroups. */
+  /**
+   * Construct a {@code TrackGroupArray} from an array of {@link TrackGroup TrackGroups}.
+   *
+   * <p>The groups must not contain duplicates.
+   */
   public TrackGroupArray(TrackGroup... trackGroups) {
-    this.trackGroups = trackGroups;
+    this.trackGroups = ImmutableList.copyOf(trackGroups);
     this.length = trackGroups.length;
+    verifyCorrectness();
   }
 
   /**
@@ -56,7 +65,7 @@ public final class TrackGroupArray implements Bundleable {
    * @return The group.
    */
   public TrackGroup get(int index) {
-    return trackGroups[index];
+    return trackGroups.get(index);
   }
 
   /**
@@ -65,16 +74,9 @@ public final class TrackGroupArray implements Bundleable {
    * @param group The group.
    * @return The index of the group, or {@link C#INDEX_UNSET} if no such group exists.
    */
-  @SuppressWarnings("ReferenceEquality")
   public int indexOf(TrackGroup group) {
-    for (int i = 0; i < length; i++) {
-      // Suppressed reference equality warning because this is looking for the index of a specific
-      // TrackGroup object, not the index of a potential equal TrackGroup.
-      if (trackGroups[i] == group) {
-        return i;
-      }
-    }
-    return C.INDEX_UNSET;
+    int index = trackGroups.indexOf(group);
+    return index >= 0 ? index : C.INDEX_UNSET;
   }
 
   /** Returns whether this track group array is empty. */
@@ -85,7 +87,7 @@ public final class TrackGroupArray implements Bundleable {
   @Override
   public int hashCode() {
     if (hashCode == 0) {
-      hashCode = Arrays.hashCode(trackGroups);
+      hashCode = trackGroups.hashCode();
     }
     return hashCode;
   }
@@ -99,13 +101,14 @@ public final class TrackGroupArray implements Bundleable {
       return false;
     }
     TrackGroupArray other = (TrackGroupArray) obj;
-    return length == other.length && Arrays.equals(trackGroups, other.trackGroups);
+    return length == other.length && trackGroups.equals(other.trackGroups);
   }
 
   // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TRACK_GROUPS,
   })
@@ -117,8 +120,7 @@ public final class TrackGroupArray implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
-        keyForField(FIELD_TRACK_GROUPS),
-        BundleableUtil.toBundleArrayList(Lists.newArrayList(trackGroups)));
+        keyForField(FIELD_TRACK_GROUPS), BundleableUtil.toBundleArrayList(trackGroups));
     return bundle;
   }
 
@@ -132,6 +134,20 @@ public final class TrackGroupArray implements Bundleable {
                 /* defaultValue= */ ImmutableList.of());
         return new TrackGroupArray(trackGroups.toArray(new TrackGroup[0]));
       };
+
+  private void verifyCorrectness() {
+    for (int i = 0; i < trackGroups.size(); i++) {
+      for (int j = i + 1; j < trackGroups.size(); j++) {
+        if (trackGroups.get(i).equals(trackGroups.get(j))) {
+          Log.e(
+              TAG,
+              "",
+              new IllegalArgumentException(
+                  "Multiple identical TrackGroups added to one TrackGroupArray."));
+        }
+      }
+    }
+  }
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);

@@ -20,6 +20,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -54,13 +55,7 @@ public interface MediaCodecAdapter {
         Format format,
         @Nullable MediaCrypto crypto) {
       return new Configuration(
-          codecInfo,
-          mediaFormat,
-          format,
-          /* surface= */ null,
-          crypto,
-          /* flags= */ 0,
-          /* createInputSurface= */ false);
+          codecInfo, mediaFormat, format, /* surface= */ null, crypto, /* flags= */ 0);
     }
 
     /**
@@ -79,55 +74,7 @@ public interface MediaCodecAdapter {
         Format format,
         @Nullable Surface surface,
         @Nullable MediaCrypto crypto) {
-      return new Configuration(
-          codecInfo,
-          mediaFormat,
-          format,
-          surface,
-          crypto,
-          /* flags= */ 0,
-          /* createInputSurface= */ false);
-    }
-
-    /**
-     * Creates a configuration for audio encoding.
-     *
-     * @param codecInfo See {@link #codecInfo}.
-     * @param mediaFormat See {@link #mediaFormat}.
-     * @param format See {@link #format}.
-     * @return The created instance.
-     */
-    public static Configuration createForAudioEncoding(
-        MediaCodecInfo codecInfo, MediaFormat mediaFormat, Format format) {
-      return new Configuration(
-          codecInfo,
-          mediaFormat,
-          format,
-          /* surface= */ null,
-          /* crypto= */ null,
-          MediaCodec.CONFIGURE_FLAG_ENCODE,
-          /* createInputSurface= */ false);
-    }
-
-    /**
-     * Creates a configuration for video encoding.
-     *
-     * @param codecInfo See {@link #codecInfo}.
-     * @param mediaFormat See {@link #mediaFormat}.
-     * @param format See {@link #format}.
-     * @return The created instance.
-     */
-    @RequiresApi(18)
-    public static Configuration createForVideoEncoding(
-        MediaCodecInfo codecInfo, MediaFormat mediaFormat, Format format) {
-      return new Configuration(
-          codecInfo,
-          mediaFormat,
-          format,
-          /* surface= */ null,
-          /* crypto= */ null,
-          MediaCodec.CONFIGURE_FLAG_ENCODE,
-          /* createInputSurface= */ true);
+      return new Configuration(codecInfo, mediaFormat, format, surface, crypto, /* flags= */ 0);
     }
 
     /** Information about the {@link MediaCodec} being configured. */
@@ -144,17 +91,8 @@ public interface MediaCodecAdapter {
     @Nullable public final Surface surface;
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
     @Nullable public final MediaCrypto crypto;
-    /**
-     * Specify CONFIGURE_FLAG_ENCODE to configure the component as an encoder.
-     *
-     * @see MediaCodec#configure
-     */
+    /** See {@link MediaCodec#configure}. */
     public final int flags;
-    /**
-     * Whether to request a {@link Surface} and use it as to the input to an encoder. This can only
-     * be set to {@code true} on API 18+.
-     */
-    public final boolean createInputSurface;
 
     private Configuration(
         MediaCodecInfo codecInfo,
@@ -162,15 +100,13 @@ public interface MediaCodecAdapter {
         Format format,
         @Nullable Surface surface,
         @Nullable MediaCrypto crypto,
-        int flags,
-        boolean createInputSurface) {
+        int flags) {
       this.codecInfo = codecInfo;
       this.mediaFormat = mediaFormat;
       this.format = format;
       this.surface = surface;
       this.crypto = crypto;
       this.flags = flags;
-      this.createInputSurface = createInputSurface;
     }
   }
 
@@ -227,14 +163,6 @@ public interface MediaCodecAdapter {
    */
   @Nullable
   ByteBuffer getInputBuffer(int index);
-
-  /**
-   * Returns the input {@link Surface}, or null if the input is not a surface.
-   *
-   * @see MediaCodec#createInputSurface()
-   */
-  @Nullable
-  Surface getInputSurface();
 
   /**
    * Returns a read-only ByteBuffer for a dequeued output buffer index.
@@ -329,11 +257,10 @@ public interface MediaCodecAdapter {
   boolean needsReconfiguration();
 
   /**
-   * Signals the encoder of end-of-stream on input. The call can only be used when the encoder
-   * receives its input from a {@link Surface surface}.
+   * Returns metrics data about the current codec instance.
    *
-   * @see MediaCodec#signalEndOfInputStream()
+   * @see MediaCodec#getMetrics()
    */
-  @RequiresApi(18)
-  void signalEndOfInputStream();
+  @RequiresApi(26)
+  PersistableBundle getMetrics();
 }

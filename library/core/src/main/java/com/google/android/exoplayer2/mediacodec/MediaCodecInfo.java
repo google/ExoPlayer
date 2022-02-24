@@ -241,7 +241,11 @@ public final class MediaCodecInfo {
    * @throws MediaCodecUtil.DecoderQueryException Thrown if an error occurs while querying decoders.
    */
   public boolean isFormatSupported(Format format) throws MediaCodecUtil.DecoderQueryException {
-    if (!isCodecSupported(format)) {
+    if (!isSampleMimeTypeSupported(format)) {
+      return false;
+    }
+
+    if (!isCodecProfileAndLevelSupported(format)) {
       return false;
     }
 
@@ -268,24 +272,14 @@ public final class MediaCodecInfo {
     }
   }
 
-  /**
-   * Whether the decoder supports the codec of the given {@code format}. If there is insufficient
-   * information to decide, returns true.
-   *
-   * @param format The input media format.
-   * @return True if the codec of the given {@code format} is supported by the decoder.
-   */
-  public boolean isCodecSupported(Format format) {
-    if (format.codecs == null || mimeType == null) {
+  private boolean isSampleMimeTypeSupported(Format format) {
+    return mimeType.equals(format.sampleMimeType)
+        || mimeType.equals(MediaCodecUtil.getAlternativeCodecMimeType(format));
+  }
+
+  private boolean isCodecProfileAndLevelSupported(Format format) {
+    if (format.codecs == null) {
       return true;
-    }
-    String codecMimeType = MimeTypes.getMediaMimeType(format.codecs);
-    if (codecMimeType == null) {
-      return true;
-    }
-    if (!mimeType.equals(codecMimeType)) {
-      logNoSupport("codec.mime " + format.codecs + ", " + codecMimeType);
-      return false;
     }
     Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
     if (codecProfileAndLevel == null) {
@@ -294,6 +288,19 @@ public final class MediaCodecInfo {
     }
     int profile = codecProfileAndLevel.first;
     int level = codecProfileAndLevel.second;
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      // If this codec is H264 or H265, we only support the Dolby Vision base layer and need to map
+      // the Dolby Vision profile to the corresponding base layer profile. Also assume all levels of
+      // this base layer profile are supported.
+      if (MimeTypes.VIDEO_H264.equals(mimeType)) {
+        profile = CodecProfileLevel.AVCProfileHigh;
+        level = 0;
+      } else if (MimeTypes.VIDEO_H265.equals(mimeType)) {
+        profile = CodecProfileLevel.HEVCProfileMain10;
+        level = 0;
+      }
+    }
+
     if (!isVideo && profile != CodecProfileLevel.AACObjectXHE) {
       // Some devices/builds underreport audio capabilities, so assume support except for xHE-AAC
       // which may not be widely supported. See https://github.com/google/ExoPlayer/issues/5145.

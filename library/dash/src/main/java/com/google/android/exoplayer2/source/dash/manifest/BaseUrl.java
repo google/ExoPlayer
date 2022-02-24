@@ -21,10 +21,12 @@ import com.google.common.base.Objects;
 /** A base URL, as defined by ISO 23009-1, 2nd edition, 5.6. and ETSI TS 103 285 V1.2.1, 10.8.2.1 */
 public final class BaseUrl {
 
-  /** The default priority. */
-  public static final int DEFAULT_PRIORITY = 1;
   /** The default weight. */
   public static final int DEFAULT_WEIGHT = 1;
+  /** The default priority. */
+  public static final int DEFAULT_DVB_PRIORITY = 1;
+  /** Constant representing an unset priority in a manifest that does not declare a DVB profile. */
+  public static final int PRIORITY_UNSET = Integer.MIN_VALUE;
 
   /** The URL. */
   public final String url;
@@ -36,11 +38,11 @@ public final class BaseUrl {
   public final int weight;
 
   /**
-   * Creates an instance with {@link #DEFAULT_PRIORITY default priority}, {@link #DEFAULT_WEIGHT
+   * Creates an instance with {@link #PRIORITY_UNSET an unset priority}, {@link #DEFAULT_WEIGHT
    * default weight} and using the URL as the service location.
    */
   public BaseUrl(String url) {
-    this(url, /* serviceLocation= */ url, DEFAULT_PRIORITY, DEFAULT_WEIGHT);
+    this(url, /* serviceLocation= */ url, PRIORITY_UNSET, DEFAULT_WEIGHT);
   }
 
   /** Creates an instance. */

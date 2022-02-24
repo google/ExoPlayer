@@ -111,8 +111,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source">DefaultMediaSourceFactory.AdsLoaderProvider</a></th>
-<td class="colLast">
-<div class="block">Provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items that have <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ad tag URIs</code></a>.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.Provider</code></a> instead.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -140,60 +140,66 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></th>
-<td class="colLast">
-<div class="block">A caller of media sources, which will be notified of source events.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></th>
-<td class="colLast">
-<div class="block">Interface for callbacks to be notified of <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> events.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></th>
+<th class="colFirst" scope="row"><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></th>
 <td class="colLast">
 <div class="block">Factory for creating <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSources</code></a> from <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></th>
+<td class="colLast">
+<div class="block">A caller of media sources, which will be notified of source events.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></th>
+<td class="colLast">
+<div class="block">Interface for callbacks to be notified of <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> events.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor</a></th>
 <td class="colLast">
 <div class="block">Extracts the contents of a container file from a progressive media stream.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor.Factory</a></th>
 <td class="colLast">
 <div class="block">Creates <a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source"><code>ProgressiveMediaExtractor</code></a> instances.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a></th>
 <td class="colLast">
 <div class="block">A listener for changes to the upstream format.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></th>
 <td class="colLast">
 <div class="block">A stream of media samples (and associated format information).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></th>
 <td class="colLast">
 <div class="block">A loader that can proceed in approximate synchronization with other loaders.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;T extends <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>&gt;</th>
 <td class="colLast">
 <div class="block">A callback to be notified of <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a> events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a></th>
 <td class="colLast">
 <div class="block">Shuffled order of indices.</div>
@@ -264,7 +270,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></th>
 <td class="colLast">
-<div class="block">The default <a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> implementation.</div>
+<div class="block">The default <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> implementation.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -481,13 +487,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a></th>
 <td class="colLast">
-<div class="block">Return values of <a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>.</div>
+<div class="block">Return values of <a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, @com.google.android.exoplayer2.source.SampleStream.ReadFlags int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="SampleStream.ReadFlags.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadFlags</a></th>
 <td class="colLast">
-<div class="block">Flags that can be specified when calling <a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>.</div>
+<div class="block">Flags that can be specified when calling <a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, @com.google.android.exoplayer2.source.SampleStream.ReadFlags int)</code></a>.</div>
 </td>
 </tr>
 </tbody>

@@ -131,8 +131,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  <p>The playlist tracker is responsible for exposing the seeking window, which is defined by the
  segments that one of the playlists exposes. This playlist is called primary and needs to be
  periodically refreshed in the case of live streams. Note that the primary playlist is one of the
- media playlists while the master playlist is an optional kind of playlist defined by the HLS
- specification (RFC 8216).
+ media playlists while the multivariant playlist is an optional kind of playlist defined by the
+ HLS specification (RFC 8216).
 
  <p>Playlist loads might encounter errors. The tracker may choose to exclude them to ensure a
  primary playlist is always available.</div>
@@ -233,10 +233,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMasterPlaylist()">getMasterPlaylist</a></span>()</code></th>
+<td class="colFirst"><code><a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMultivariantPlaylist()">getMultivariantPlaylist</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the master playlist.</div>
+<div class="block">Returns the multivariant playlist.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -274,8 +274,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPrimaryPlaylistRefreshError()">maybeThrowPrimaryPlaylistRefreshError</a></span>()</code></th>
 <td class="colLast">
-<div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
- method throws the underlying error.</div>
+<div class="block">If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
+ this method throws the underlying error.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -340,8 +340,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  call.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initialPlaylistUri</code> - Uri of the HLS stream. Can point to a media playlist or a master
-     playlist.</dd>
+<dd><code>initialPlaylistUri</code> - Uri of the HLS stream. Can point to a media playlist or a
+     multivariant playlist.</dd>
 <dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
 <dd><code>primaryPlaylistListener</code> - A callback for the primary playlist change events.</dd>
 </dl>
@@ -387,21 +387,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="getMasterPlaylist()">
+<a id="getMultivariantPlaylist()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getMasterPlaylist</h4>
+<h4>getMultivariantPlaylist</h4>
 <pre class="methodSignature">@Nullable
-<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;getMasterPlaylist()</pre>
-<div class="block">Returns the master playlist.
+<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;getMultivariantPlaylist()</pre>
+<div class="block">Returns the multivariant playlist.
 
- <p>If the uri passed to <a href="#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> points to a media playlist, an <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>
- with a single variant for said media playlist is returned.</div>
+ <p>If the uri passed to <a href="#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> points to a media playlist, an <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMultivariantPlaylist</code></a> with a single variant for said media playlist is returned.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The master playlist. Null if the initial playlist has yet to be loaded.</dd>
+<dd>The multivariant playlist. Null if the initial playlist has yet to be loaded.</dd>
 </dl>
 </li>
 </ul>
@@ -463,8 +462,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>maybeThrowPrimaryPlaylistRefreshError</h4>
 <pre class="methodSignature">void&nbsp;maybeThrowPrimaryPlaylistRefreshError()
                                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
- method throws the underlying error. Otherwise, does nothing.</div>
+<div class="block">If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
+ this method throws the underlying error. Otherwise, does nothing.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - The underlying error.</dd>

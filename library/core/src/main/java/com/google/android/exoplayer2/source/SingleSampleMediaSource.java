@@ -170,6 +170,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
             .setSelectionFlags(subtitleConfiguration.selectionFlags)
             .setRoleFlags(subtitleConfiguration.roleFlags)
             .setLabel(subtitleConfiguration.label)
+            .setId(subtitleConfiguration.id)
             .build();
     dataSpec =
         new DataSpec.Builder()

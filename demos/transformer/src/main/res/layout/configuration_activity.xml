@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".ConfigurationActivity">
+
+  <TextView
+    android:id="@+id/configuration_text_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/configuration"
+    android:textSize="24sp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+  <Button
+    android:id="@+id/choose_file_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/choose_file_title"
+    app:layout_constraintTop_toBottomOf="@+id/configuration_text_view"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+  <TextView
+    android:id="@+id/chosen_file_text_view"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp"
+    android:textSize="12sp"
+    android:gravity="center"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/choose_file_button" />
+  <androidx.core.widget.NestedScrollView
+    android:layout_width="fill_parent"
+    android:layout_height="0dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/chosen_file_text_view"
+    app:layout_constraintBottom_toTopOf="@+id/transform_button">
+    <TableLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:stretchColumns="1"
+      android:layout_marginTop="32dp"
+      android:measureWithLargestChild="true"
+      android:paddingLeft="24dp"
+      android:paddingRight="12dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintBottom_toBottomOf="parent">
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:text="@string/remove_audio" />
+        <CheckBox
+          android:id="@+id/remove_audio_checkbox"
+          android:layout_gravity="right"/>
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:text="@string/remove_video"/>
+        <CheckBox
+          android:id="@+id/remove_video_checkbox"
+          android:layout_gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:text="@string/flatten_for_slow_motion"/>
+        <CheckBox
+          android:id="@+id/flatten_for_slow_motion_checkbox"
+          android:layout_gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/audio_mime_text_view"
+          android:text="@string/audio_mime"/>
+        <Spinner
+          android:id="@+id/audio_mime_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/video_mime_text_view"
+          android:text="@string/video_mime"/>
+        <Spinner
+          android:id="@+id/video_mime_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/resolution_height_text_view"
+          android:text="@string/resolution_height"/>
+        <Spinner
+          android:id="@+id/resolution_height_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/translate"
+          android:text="@string/translate"/>
+        <Spinner
+          android:id="@+id/translate_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/scale"
+          android:text="@string/scale"/>
+        <Spinner
+          android:id="@+id/scale_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/rotate"
+          android:text="@string/rotate"/>
+        <Spinner
+          android:id="@+id/rotate_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/hdr_editing"
+          android:text="@string/hdr_editing" />
+        <CheckBox
+          android:id="@+id/hdr_editing_checkbox"
+          android:layout_gravity="right" />
+      </TableRow>
+    </TableLayout>
+  </androidx.core.widget.NestedScrollView>
+  <Button
+    android:id="@+id/transform_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="28dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/transform"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

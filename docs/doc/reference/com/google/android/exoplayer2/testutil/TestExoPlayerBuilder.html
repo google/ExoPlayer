@@ -131,7 +131,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">TestExoPlayerBuilder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A builder of <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> instances for testing.</div>
+<div class="block">A builder of <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instances for testing.</div>
 </li>
 </ul>
 </div>
@@ -174,10 +174,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
+<td class="colFirst"><code><a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Builds an <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> using the provided values or their defaults.</div>
+<div class="block">Builds an <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> using the provided values or their defaults.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -210,10 +210,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></td>
+<td class="colFirst"><code><a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaSourceFactory()">getMediaSourceFactory</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> that will be used by the player, or null if no <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> has been set yet and no default is available.</div>
+<div class="block">Returns the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> that will be used by the player, or null if no <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> has been set yet and no default is available.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -290,9 +290,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSourceFactory)">setMediaSourceFactory</a></span>&#8203;(<a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)">setMediaSourceFactory</a></span>&#8203;(<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> to be used by the player.</div>
+<div class="block">Sets the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> to be used by the player.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
@@ -606,21 +606,21 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Looper.h
 <li class="blockList">
 <h4>getMediaSourceFactory</h4>
 <pre class="methodSignature">@Nullable
-public&nbsp;<a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;getMediaSourceFactory()</pre>
-<div class="block">Returns the <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> that will be used by the player, or null if no <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> has been set yet and no default is available.</div>
+public&nbsp;<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;getMediaSourceFactory()</pre>
+<div class="block">Returns the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> that will be used by the player, or null if no <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> has been set yet and no default is available.</div>
 </li>
 </ul>
-<a id="setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSourceFactory)">
+<a id="setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</pre>
-<div class="block">Sets the <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> to be used by the player.</div>
+<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</pre>
+<div class="block">Sets the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> to be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaSourceFactory</code> - The <a href="../source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> to be used by the player.</dd>
+<dd><code>mediaSourceFactory</code> - The <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> to be used by the player.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -684,8 +684,8 @@ public&nbsp;<a href="../source/MediaSourceFactory.html" title="interface in com.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre class="methodSignature">public&nbsp;<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;build()</pre>
-<div class="block">Builds an <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> using the provided values or their defaults.</div>
+<pre class="methodSignature">public&nbsp;<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;build()</pre>
+<div class="block">Builds an <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> using the provided values or their defaults.</div>
 </li>
 </ul>
 </li>

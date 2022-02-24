@@ -217,7 +217,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)">DefaultDashChunkSource</a></span>&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.analytics.PlayerId)">DefaultDashChunkSource</a></span>&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
                       <a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                       <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
                       <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
@@ -230,7 +230,8 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                       int&nbsp;maxSegmentsPerLoad,
                       boolean&nbsp;enableEventMessageTrack,
                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
-                      <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler)</code></th>
+                      <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler,
+                      <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -287,10 +288,10 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,int,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">newInitializationChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">newInitializationChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
                       <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                       <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-                      int&nbsp;trackSelectionReason,
+                      @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</code></th>
@@ -298,11 +299,11 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,int,long,long)">newMediaChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long)">newMediaChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
              <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-             int&nbsp;trackSelectionReason,
+             @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
              long&nbsp;firstSegmentNum,
              int&nbsp;maxSegmentCount,
@@ -403,7 +404,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.analytics.PlayerId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -423,7 +424,8 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                               boolean&nbsp;enableEventMessageTrack,
                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                               @Nullable
-                              <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler)</pre>
+                              <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler,
+                              <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunkExtractorFactory</code> - Creates <a href="../chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> instances to use for extracting
@@ -446,6 +448,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <dd><code>closedCaptionFormats</code> - The <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of closed caption tracks to be output.</dd>
 <dd><code>playerTrackEmsgHandler</code> - The <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash"><code>PlayerEmsgHandler.PlayerTrackEmsgHandler</code></a> instance to handle emsg
      messages targeting the player. Maybe null if this is not necessary.</dd>
+<dd><code>playerId</code> - The <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this chunk source.</dd>
 </dl>
 </li>
 </ul>
@@ -679,7 +682,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </dl>
 </li>
 </ul>
-<a id="newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,int,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">
+<a id="newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -688,8 +691,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <pre class="methodSignature">protected&nbsp;<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;newInitializationChunk&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
                                        <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                                        <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-                                       <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
-                                       int&nbsp;trackSelectionReason,
+                                       @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
                                        @Nullable
                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                                        @Nullable
@@ -698,7 +700,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                                        <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
 </li>
 </ul>
-<a id="newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,int,long,long)">
+<a id="newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -708,8 +710,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                               <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                               @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                               <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-                              <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
-                              int&nbsp;trackSelectionReason,
+                              @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
                               <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                               long&nbsp;firstSegmentNum,
                               int&nbsp;maxSegmentCount,

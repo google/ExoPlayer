@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.extractor.FlacMetadataReader.FlacStreamMeta
 import com.google.android.exoplayer2.extractor.flac.FlacConstants;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
-import com.google.android.exoplayer2.metadata.flac.VorbisComment;
+import com.google.android.exoplayer2.metadata.vorbis.VorbisComment;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;

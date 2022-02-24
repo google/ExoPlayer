@@ -116,6 +116,21 @@ public final class ListenerSet<T extends @NonNull Object> {
    */
   @CheckResult
   public ListenerSet<T> copy(Looper looper, IterationFinishedEvent<T> iterationFinishedEvent) {
+    return copy(looper, clock, iterationFinishedEvent);
+  }
+
+  /**
+   * Copies the listener set.
+   *
+   * @param looper The new {@link Looper} for the copied listener set.
+   * @param clock The new {@link Clock} for the copied listener set.
+   * @param iterationFinishedEvent The new {@link IterationFinishedEvent} sent when all other events
+   *     sent during one {@link Looper} message queue iteration were handled by the listeners.
+   * @return The copied listener set.
+   */
+  @CheckResult
+  public ListenerSet<T> copy(
+      Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
     return new ListenerSet<>(listeners, looper, clock, iterationFinishedEvent);
   }
 
@@ -148,6 +163,11 @@ public final class ListenerSet<T extends @NonNull Object> {
         listeners.remove(listenerHolder);
       }
     }
+  }
+
+  /** Removes all listeners from the set. */
+  public void clear() {
+    listeners.clear();
   }
 
   /** Returns the number of added listeners. */

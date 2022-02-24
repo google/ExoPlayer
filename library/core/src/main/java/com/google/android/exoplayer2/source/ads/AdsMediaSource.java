@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.ads;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -35,7 +36,6 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,6 +73,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({TYPE_AD, TYPE_AD_GROUP, TYPE_ALL_ADS, TYPE_UNEXPECTED})
     public @interface Type {}
     /** Type for when an ad failed to load. The ad will be skipped. */
@@ -127,7 +129,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       new MediaPeriodId(/* periodUid= */ new Object());
 
   private final MediaSource contentMediaSource;
-  private final MediaSourceFactory adMediaSourceFactory;
+  private final MediaSource.Factory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final AdViewProvider adViewProvider;
   private final DataSpec adTagDataSpec;
@@ -159,7 +161,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       MediaSource contentMediaSource,
       DataSpec adTagDataSpec,
       Object adsId,
-      MediaSourceFactory adMediaSourceFactory,
+      MediaSource.Factory adMediaSourceFactory,
       AdsLoader adsLoader,
       AdViewProvider adViewProvider) {
     this.contentMediaSource = contentMediaSource;

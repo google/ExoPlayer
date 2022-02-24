@@ -255,7 +255,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static int</code></td>
+<td class="colFirst"><code>static @com.google.android.exoplayer2.C.PcmEncoding int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPcmEncodingForType(int,int)">getPcmEncodingForType</a></span>&#8203;(int&nbsp;type,
                      int&nbsp;bitsPerSample)</code></th>
 <td class="colLast">
@@ -264,7 +264,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeForPcmEncoding(int)">getTypeForPcmEncoding</a></span>&#8203;(int&nbsp;pcmEncoding)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeForPcmEncoding(@com.google.android.exoplayer2.C.PcmEncodingint)">getTypeForPcmEncoding</a></span>&#8203;(@com.google.android.exoplayer2.C.PcmEncoding int&nbsp;pcmEncoding)</code></th>
 <td class="colLast">
 <div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
 </td>
@@ -471,14 +471,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getTypeForPcmEncoding(int)">
+<a id="getTypeForPcmEncoding(@com.google.android.exoplayer2.C.PcmEncodingint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTypeForPcmEncoding</h4>
-<pre class="methodSignature">public static&nbsp;int&nbsp;getTypeForPcmEncoding&#8203;(<a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
-                                        int&nbsp;pcmEncoding)</pre>
+<pre class="methodSignature">public static&nbsp;int&nbsp;getTypeForPcmEncoding&#8203;(@com.google.android.exoplayer2.C.PcmEncoding int&nbsp;pcmEncoding)</pre>
 <div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -497,9 +496,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getPcmEncodingForType</h4>
-<pre class="methodSignature"><a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
-public static&nbsp;int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
-                                        int&nbsp;bitsPerSample)</pre>
+<pre class="methodSignature">public static&nbsp;@com.google.android.exoplayer2.C.PcmEncoding int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
+                                                                                     int&nbsp;bitsPerSample)</pre>
 <div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
 </li>
 </ul>

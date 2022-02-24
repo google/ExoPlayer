@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -30,7 +31,7 @@ public final class DeviceInfo implements Bundleable {
   /** Types of playback. One of {@link #PLAYBACK_TYPE_LOCAL} or {@link #PLAYBACK_TYPE_REMOTE}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef({
     PLAYBACK_TYPE_LOCAL,
     PLAYBACK_TYPE_REMOTE,
@@ -86,6 +87,7 @@ public final class DeviceInfo implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_PLAYBACK_TYPE, FIELD_MIN_VOLUME, FIELD_MAX_VOLUME})
   private @interface FieldNumber {}
 

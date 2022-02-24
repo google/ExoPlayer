@@ -28,7 +28,8 @@ public final class DefaultHlsPlaylistParserFactory implements HlsPlaylistParserF
 
   @Override
   public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
-      HlsMasterPlaylist masterPlaylist, @Nullable HlsMediaPlaylist previousMediaPlaylist) {
-    return new HlsPlaylistParser(masterPlaylist, previousMediaPlaylist);
+      HlsMultivariantPlaylist multivariantPlaylist,
+      @Nullable HlsMediaPlaylist previousMediaPlaylist) {
+    return new HlsPlaylistParser(multivariantPlaylist, previousMediaPlaylist);
   }
 }

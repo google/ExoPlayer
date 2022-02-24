@@ -44,9 +44,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DefaultHlsPlaylistTrackerTest {
 
-  private static final String SAMPLE_M3U8_LIVE_MASTER = "media/m3u8/live_low_latency_master";
-  private static final String SAMPLE_M3U8_LIVE_MASTER_MEDIA_URI_WITH_PARAM =
-      "media/m3u8/live_low_latency_master_media_uri_with_param";
+  private static final String SAMPLE_M3U8_LIVE_MULTIVARIANT =
+      "media/m3u8/live_low_latency_multivariant";
+  private static final String SAMPLE_M3U8_LIVE_MULTIVARIANT_MEDIA_URI_WITH_PARAM =
+      "media/m3u8/live_low_latency_multivariant_media_uri_with_param";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL =
       "media/m3u8/live_low_latency_media_can_skip_until";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_FULL_RELOAD_AFTER_ERROR =
@@ -110,15 +111,15 @@ public class DefaultHlsPlaylistTrackerTest {
       throws IOException, TimeoutException, InterruptedException {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
-            new String[] {"master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8"},
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            new String[] {"multivariant.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8"},
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP_NEXT));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -141,16 +142,16 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=YES"
+              "/multivariant.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=YES"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -175,12 +176,12 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8",
+              "/multivariant.m3u8",
               "/media0/playlist.m3u8",
               "/media0/playlist.m3u8?_HLS_skip=YES",
               "/media0/playlist.m3u8"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED_MEDIA_SEQUENCE_NO_OVERLAPPING),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_FULL_RELOAD_AFTER_ERROR));
@@ -188,7 +189,7 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -206,16 +207,16 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=v2"
+              "/multivariant.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=v2"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_DATERANGES),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -230,18 +231,18 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8",
+              "/multivariant.m3u8",
               "/media0/playlist.m3u8?param1=1&param2=2",
               "/media0/playlist.m3u8?param1=1&param2=2&_HLS_skip=YES"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER_MEDIA_URI_WITH_PARAM),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT_MEDIA_URI_WITH_PARAM),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -257,16 +258,16 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_msn=14"
+              "/multivariant.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_msn=14"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_NEXT));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -281,18 +282,18 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8",
+              "/multivariant.m3u8",
               "/media0/playlist.m3u8",
               "/media0/playlist.m3u8?_HLS_msn=14&_HLS_part=1"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_NEXT));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -310,18 +311,18 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8",
+              "/multivariant.m3u8",
               "/media0/playlist.m3u8",
               "/media0/playlist.m3u8?_HLS_msn=14&_HLS_part=0"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_NEXT));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -339,11 +340,11 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8",
+              "/multivariant.m3u8",
               "/media0/playlist.m3u8",
               "/media0/playlist.m3u8?_HLS_msn=14&_HLS_part=0"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(
                 SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_PRELOAD),
             getMockResponse(
@@ -352,7 +353,7 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
     assertRequestUrlsCalled(httpUrls);
@@ -370,13 +371,13 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8",
+              "/multivariant.m3u8",
               "/media0/playlist.m3u8",
               "/media0/playlist.m3u8?_HLS_msn=16&_HLS_skip=YES",
               "/media0/playlist.m3u8",
               "/media0/playlist.m3u8?_HLS_msn=17&_HLS_skip=YES"
             },
-            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MULTIVARIANT),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD),
             new MockResponse().setResponseCode(400),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD_NEXT),
@@ -385,7 +386,7 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
             /* dataSourceFactory= */ new DefaultHttpDataSource.Factory(),
-            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            Uri.parse(mockWebServer.url("/multivariant.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 3);
 
     assertRequestUrlsCalled(httpUrls);
@@ -415,7 +416,9 @@ public class DefaultHlsPlaylistTrackerTest {
   }
 
   private static List<HlsMediaPlaylist> runPlaylistTrackerAndCollectMediaPlaylists(
-      DataSource.Factory dataSourceFactory, Uri masterPlaylistUri, int awaitedMediaPlaylistCount)
+      DataSource.Factory dataSourceFactory,
+      Uri multivariantPlaylistUri,
+      int awaitedMediaPlaylistCount)
       throws TimeoutException {
 
     DefaultHlsPlaylistTracker defaultHlsPlaylistTracker =
@@ -427,7 +430,7 @@ public class DefaultHlsPlaylistTrackerTest {
     List<HlsMediaPlaylist> mediaPlaylists = new ArrayList<>();
     AtomicInteger playlistCounter = new AtomicInteger();
     defaultHlsPlaylistTracker.start(
-        masterPlaylistUri,
+        multivariantPlaylistUri,
         new MediaSourceEventListener.EventDispatcher(),
         mediaPlaylist -> {
           mediaPlaylists.add(mediaPlaylist);

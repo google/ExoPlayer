@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.graphics.Typeface;
 import android.text.Layout;
 import androidx.annotation.IntDef;
@@ -23,6 +25,7 @@ import com.google.android.exoplayer2.text.span.TextAnnotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Style object of a <code>TtmlNode</code> */
 /* package */ final class TtmlStyle {
@@ -32,6 +35,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC, STYLE_BOLD_ITALIC})
@@ -44,6 +48,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
   public @interface FontSizeUnit {}
 
@@ -53,6 +58,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({UNSPECIFIED, OFF, ON})
   private @interface OptionalBoolean {}
 
@@ -61,6 +67,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({UNSPECIFIED, RUBY_TYPE_CONTAINER, RUBY_TYPE_BASE, RUBY_TYPE_TEXT, RUBY_TYPE_DELIMITER})
   public @interface RubyType {}
 
@@ -74,18 +81,18 @@ import java.lang.annotation.RetentionPolicy;
   private boolean hasFontColor;
   private int backgroundColor;
   private boolean hasBackgroundColor;
-  @OptionalBoolean private int linethrough;
-  @OptionalBoolean private int underline;
-  @OptionalBoolean private int bold;
-  @OptionalBoolean private int italic;
-  @FontSizeUnit private int fontSizeUnit;
+  private @OptionalBoolean int linethrough;
+  private @OptionalBoolean int underline;
+  private @OptionalBoolean int bold;
+  private @OptionalBoolean int italic;
+  private @FontSizeUnit int fontSizeUnit;
   private float fontSize;
   @Nullable private String id;
-  @RubyType private int rubyType;
-  @TextAnnotation.Position private int rubyPosition;
+  private @RubyType int rubyType;
+  private @TextAnnotation.Position int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
   @Nullable private Layout.Alignment multiRowAlign;
-  @OptionalBoolean private int textCombine;
+  private @OptionalBoolean int textCombine;
   @Nullable private TextEmphasis textEmphasis;
   private float shearPercentage;
 
@@ -107,8 +114,7 @@ import java.lang.annotation.RetentionPolicy;
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
-  @StyleFlags
-  public int getStyle() {
+  public @StyleFlags int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
@@ -285,8 +291,7 @@ import java.lang.annotation.RetentionPolicy;
     return this;
   }
 
-  @RubyType
-  public int getRubyType() {
+  public @RubyType int getRubyType() {
     return rubyType;
   }
 
@@ -295,8 +300,7 @@ import java.lang.annotation.RetentionPolicy;
     return this;
   }
 
-  @TextAnnotation.Position
-  public int getRubyPosition() {
+  public @TextAnnotation.Position int getRubyPosition() {
     return rubyPosition;
   }
 
@@ -350,8 +354,7 @@ import java.lang.annotation.RetentionPolicy;
     return this;
   }
 
-  @FontSizeUnit
-  public int getFontSizeUnit() {
+  public @FontSizeUnit int getFontSizeUnit() {
     return fontSizeUnit;
   }
 

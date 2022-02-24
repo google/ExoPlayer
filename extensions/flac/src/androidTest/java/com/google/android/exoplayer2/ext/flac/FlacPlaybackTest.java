@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
@@ -67,9 +66,7 @@ public class FlacPlaybackTest {
   }
 
   private static void playAndAssertAudioSinkInput(String fileName) throws Exception {
-    CapturingAudioSink audioSink =
-        new CapturingAudioSink(
-            new DefaultAudioSink(/* audioCapabilities= */ null, new AudioProcessor[0]));
+    CapturingAudioSink audioSink = new CapturingAudioSink(new DefaultAudioSink.Builder().build());
 
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(

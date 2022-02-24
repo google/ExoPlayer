@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
+var data = {"i0":18,"i1":18,"i2":18,"i3":50};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -141,7 +141,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -149,17 +149,37 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem)">onTransformationCompleted</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFallbackApplied(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">onFallbackApplied</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
+                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</code></th>
 <td class="colLast">
-<div class="block">Called when the transformation is completed.</div>
+<div class="block">Called when fallback to an alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> is necessary to comply
+ with muxer or device constraints.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem)">onTransformationCompleted</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem)</code></th>
+<td class="colLast">
+<div class="block">Called when the transformation is completed successfully.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)">onTransformationError</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                     <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</code></th>
+<td class="colLast">
+<div class="block">Called if an exception occurs during the transformation.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,java.lang.Exception)">onTransformationError</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
                      <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception)</code></th>
 <td class="colLast">
-<div class="block">Called if an error occurs during the transformation.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)"><code>onTransformationError(MediaItem, TransformationException)</code></a>.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -186,7 +206,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>onTransformationCompleted</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onTransformationCompleted&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem)</pre>
-<div class="block">Called when the transformation is completed.</div>
+<div class="block">Called when the transformation is completed successfully.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the transformation is completed.</dd>
@@ -196,16 +216,50 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="onTransformationError(com.google.android.exoplayer2.MediaItem,java.lang.Exception)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransformationError</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                                   <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)"><code>onTransformationError(MediaItem, TransformationException)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)">
+<!--   -->
+</a>
+<ul class="blockList">
 <li class="blockList">
 <h4>onTransformationError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
-                                   <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception)</pre>
-<div class="block">Called if an error occurs during the transformation.</div>
+                                   <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</pre>
+<div class="block">Called if an exception occurs during the transformation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the error occurs.</dd>
-<dd><code>exception</code> - The exception describing the error.</dd>
+<dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the exception occurs.</dd>
+<dd><code>exception</code> - The <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationException</code></a> describing the exception.</dd>
+</dl>
+</li>
+</ul>
+<a id="onFallbackApplied(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onFallbackApplied</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onFallbackApplied&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                               <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
+                               <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</pre>
+<div class="block">Called when fallback to an alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> is necessary to comply
+ with muxer or device constraints.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the transformation is requested.</dd>
+<dd><code>originalTransformationRequest</code> - The unsupported <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> used when
+     building <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a>.</dd>
+<dd><code>fallbackTransformationRequest</code> - The alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a>.</dd>
 </dl>
 </li>
 </ul>

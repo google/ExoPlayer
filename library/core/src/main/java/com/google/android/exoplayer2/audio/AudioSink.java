@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.AudioTrack;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -24,9 +26,11 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 
 /**
@@ -255,6 +259,7 @@ public interface AudioSink {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     SINK_FORMAT_SUPPORTED_DIRECTLY,
     SINK_FORMAT_SUPPORTED_WITH_TRANSCODING,
@@ -280,6 +285,13 @@ public interface AudioSink {
    * @param listener The listener for sink events, which should be the audio renderer.
    */
   void setListener(Listener listener);
+
+  /**
+   * Sets the {@link PlayerId} of the player using this audio sink.
+   *
+   * @param playerId The {@link PlayerId}, or null to clear a previously set id.
+   */
+  default void setPlayerId(@Nullable PlayerId playerId) {}
 
   /**
    * Returns whether the sink supports a given {@link Format}.
@@ -395,6 +407,13 @@ public interface AudioSink {
    * @param audioAttributes The attributes for audio playback.
    */
   void setAudioAttributes(AudioAttributes audioAttributes);
+
+  /**
+   * Returns the audio attributes used for audio playback, or {@code null} if the sink does not use
+   * audio attributes.
+   */
+  @Nullable
+  AudioAttributes getAudioAttributes();
 
   /** Sets the audio session id. */
   void setAudioSessionId(int audioSessionId);

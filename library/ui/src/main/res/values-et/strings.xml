@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Keela subtiitrid</string>
   <string name="exo_controls_cc_disabled_description">Luba subtiitrid</string>
   <string name="exo_controls_playback_speed">Kiirus</string>
-  <string name="exo_controls_playback_speed_normal">Tavaline</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25-kordne</item>
+    <item>0,5-kordne</item>
+    <item>0,75-kordne</item>
+    <item>Tavaline</item>
+    <item>1,25-kordne</item>
+    <item>1,5-kordne</item>
+    <item>2-kordne</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Heli</string>
   <string name="exo_track_selection_title_text">Tekst</string>

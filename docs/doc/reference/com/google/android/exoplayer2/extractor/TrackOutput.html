@@ -231,16 +231,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
           int&nbsp;length,
           boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
-<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,int)"><code>sampleData(input, length,
+<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)"><code>sampleData(input, length,
  allowEndOfInput, SAMPLE_DATA_PART_MAIN)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,int)">sampleData</a></span>&#8203;(<a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)">sampleData</a></span>&#8203;(<a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
           int&nbsp;length,
           boolean&nbsp;allowEndOfInput,
-          int&nbsp;sampleDataPart)</code></th>
+          @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)</code></th>
 <td class="colLast">
 <div class="block">Called to write sample data to the output.</div>
 </td>
@@ -250,23 +250,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int)">sampleData</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
           int&nbsp;length)</code></th>
 <td class="colLast">
-<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)"><code>sampleData(ParsableByteArray, int, int)</code></a> sampleData(data, length,
+<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)"><code>sampleData(ParsableByteArray, int, int)</code></a> sampleData(data, length,
  SAMPLE_DATA_PART_MAIN)}.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)">sampleData</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)">sampleData</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
           int&nbsp;length,
-          int&nbsp;sampleDataPart)</code></th>
+          @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)</code></th>
 <td class="colLast">
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleMetadata(long,int,int,int,com.google.android.exoplayer2.extractor.TrackOutput.CryptoData)">sampleMetadata</a></span>&#8203;(long&nbsp;timeUs,
-              int&nbsp;flags,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleMetadata(long,@com.google.android.exoplayer2.C.BufferFlagsint,int,int,com.google.android.exoplayer2.extractor.TrackOutput.CryptoData)">sampleMetadata</a></span>&#8203;(long&nbsp;timeUs,
+              @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags,
               int&nbsp;size,
               int&nbsp;offset,
               <a href="TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</code></th>
@@ -398,7 +398,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                        int&nbsp;length,
                        boolean&nbsp;allowEndOfInput)
                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,int)"><code>sampleData(input, length,
+<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)"><code>sampleData(input, length,
  allowEndOfInput, SAMPLE_DATA_PART_MAIN)</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -414,11 +414,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>sampleData</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;sampleData&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                         int&nbsp;length)</pre>
-<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)"><code>sampleData(ParsableByteArray, int, int)</code></a> sampleData(data, length,
+<div class="block">Equivalent to <a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)"><code>sampleData(ParsableByteArray, int, int)</code></a> sampleData(data, length,
  SAMPLE_DATA_PART_MAIN)}.</div>
 </li>
 </ul>
-<a id="sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,int)">
+<a id="sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -427,8 +427,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">int&nbsp;sampleData&#8203;(<a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
                int&nbsp;length,
                boolean&nbsp;allowEndOfInput,
-               <a href="TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@SampleDataPart</a>
-               int&nbsp;sampleDataPart)
+               @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)
         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
@@ -446,7 +445,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)">
+<a id="sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -454,8 +453,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>sampleData</h4>
 <pre class="methodSignature">void&nbsp;sampleData&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                 int&nbsp;length,
-                <a href="TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@SampleDataPart</a>
-                int&nbsp;sampleDataPart)</pre>
+                @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)</pre>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -465,15 +463,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="sampleMetadata(long,int,int,int,com.google.android.exoplayer2.extractor.TrackOutput.CryptoData)">
+<a id="sampleMetadata(long,@com.google.android.exoplayer2.C.BufferFlagsint,int,int,com.google.android.exoplayer2.extractor.TrackOutput.CryptoData)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>sampleMetadata</h4>
 <pre class="methodSignature">void&nbsp;sampleMetadata&#8203;(long&nbsp;timeUs,
-                    <a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                    int&nbsp;flags,
+                    @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags,
                     int&nbsp;size,
                     int&nbsp;offset,
                     @Nullable

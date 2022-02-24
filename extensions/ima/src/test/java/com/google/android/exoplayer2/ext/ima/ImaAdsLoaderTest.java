@@ -56,7 +56,6 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -276,30 +275,7 @@ public final class ImaAdsLoaderTest {
     ExoPlaybackException anException =
         ExoPlaybackException.createForSource(
             new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
-    imaAdsLoader.onPlayerErrorChanged(anException);
-    imaAdsLoader.onPlayerError(anException);
-    imaAdsLoader.onPositionDiscontinuity(
-        new Player.PositionInfo(
-            /* windowUid= */ new Object(),
-            /* windowIndex= */ 0,
-            /* mediaItem= */ MediaItem.fromUri("http://google.com/0"),
-            /* periodUid= */ new Object(),
-            /* periodIndex= */ 0,
-            /* positionMs= */ 10_000,
-            /* contentPositionMs= */ 0,
-            /* adGroupIndex= */ -1,
-            /* adIndexInAdGroup= */ -1),
-        new Player.PositionInfo(
-            /* windowUid= */ new Object(),
-            /* windowIndex= */ 1,
-            /* mediaItem= */ MediaItem.fromUri("http://google.com/1"),
-            /* periodUid= */ new Object(),
-            /* periodIndex= */ 0,
-            /* positionMs= */ 20_000,
-            /* contentPositionMs= */ 0,
-            /* adGroupIndex= */ -1,
-            /* adIndexInAdGroup= */ -1),
-        Player.DISCONTINUITY_REASON_SEEK);
+    fakePlayer.setPlayerError(anException);
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
     imaAdsLoader.handlePrepareError(
         adsMediaSource, /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());
@@ -1389,7 +1365,9 @@ public final class ImaAdsLoaderTest {
   }
 
   private AdPlaybackState getAdPlaybackState(int periodIndex) {
-    return timelineWindowDefinitions[periodIndex].adPlaybackState;
+    int adPlaybackStateCount = timelineWindowDefinitions[periodIndex].adPlaybackStates.size();
+    return timelineWindowDefinitions[periodIndex].adPlaybackStates.get(
+        periodIndex % adPlaybackStateCount);
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
@@ -1432,7 +1410,11 @@ public final class ImaAdsLoaderTest {
       adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
 
       TimelineWindowDefinition timelineWindowDefinition = timelineWindowDefinitions[periodIndex];
-      assertThat(adPlaybackState.adsId).isEqualTo(timelineWindowDefinition.adPlaybackState.adsId);
+      assertThat(adPlaybackState.adsId)
+          .isEqualTo(
+              timelineWindowDefinition.adPlaybackStates.get(
+                      periodIndex % timelineWindowDefinition.adPlaybackStates.size())
+                  .adsId);
       timelineWindowDefinitions[periodIndex] =
           new TimelineWindowDefinition(
               timelineWindowDefinition.periodCount,

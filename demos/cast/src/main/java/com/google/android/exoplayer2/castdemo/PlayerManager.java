@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.gms.cast.framework.CastContext;
@@ -67,7 +66,7 @@ import java.util.ArrayList;
    *
    * @param context A {@link Context}.
    * @param listener A {@link Listener} for queue position changes.
-   * @param playerView The {@link PlayerView} for playback.
+   * @param playerView The {@link StyledPlayerView} for playback.
    * @param castContext The {@link CastContext}.
    */
   public PlayerManager(
@@ -224,10 +223,12 @@ import java.util.ArrayList;
     if (currentPlayer != localPlayer || tracksInfo == lastSeenTrackGroupInfo) {
       return;
     }
-    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)) {
+    if (!tracksInfo.isTypeSupportedOrEmpty(
+        C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
     }
-    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)) {
+    if (!tracksInfo.isTypeSupportedOrEmpty(
+        C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
     }
     lastSeenTrackGroupInfo = tracksInfo;

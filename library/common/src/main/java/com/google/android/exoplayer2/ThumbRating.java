@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -24,6 +25,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** A rating expressed as "thumbs up" or "thumbs down". */
 public final class ThumbRating extends Rating {
@@ -73,10 +75,11 @@ public final class ThumbRating extends Rating {
 
   // Bundleable implementation.
 
-  @RatingType private static final int TYPE = RATING_TYPE_THUMB;
+  private static final @RatingType int TYPE = RATING_TYPE_THUMB;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_RATING_TYPE, FIELD_RATED, FIELD_IS_THUMBS_UP})
   private @interface FieldNumber {}
 
@@ -97,7 +100,7 @@ public final class ThumbRating extends Rating {
 
   private static ThumbRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     boolean rated = bundle.getBoolean(keyForField(FIELD_RATED), /* defaultValue= */ false);
     return rated

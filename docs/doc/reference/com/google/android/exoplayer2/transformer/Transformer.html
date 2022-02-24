@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":42,"i8":10,"i9":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>@RequiresApi(18)
-public final class <span class="typeNameLabel">Transformer</span>
+<pre>public final class <span class="typeNameLabel">Transformer</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">A transformer to transform media inputs.
 
@@ -172,12 +171,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Transformer.DebugViewProvider.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.DebugViewProvider</a></span></code></th>
+<td class="colLast">
+<div class="block">Provider for views to show diagnostic information during transformation, for debugging.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a></span></code></th>
 <td class="colLast">
 <div class="block">A listener for the transformation events.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer">Transformer.ProgressState</a></span></code></th>
 <td class="colLast">
@@ -243,27 +249,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">addListener</a></span>&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block">Adds a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the transformation events.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer.Builder</code></a> initialized with the values of this instance.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancel()">cancel</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Cancels the transformation that is currently in progress, if any.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getApplicationLooper()">getApplicationLooper</a></span>()</code></th>
 <td class="colLast">
@@ -271,22 +284,38 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  transformer and on which transformer events are received.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.transformer.Transformer.ProgressState int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProgress(com.google.android.exoplayer2.transformer.ProgressHolder)">getProgress</a></span>&#8203;(<a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a>&nbsp;progressHolder)</code></th>
 <td class="colLast">
 <div class="block">Returns the current <a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer"><code>Transformer.ProgressState</code></a> and updates <code>progressHolder</code> with the current
  progress if it is <a href="#PROGRESS_STATE_AVAILABLE"><code>available</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAllListeners()">removeAllListeners</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Removes all <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>listeners</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">removeListener</a></span>&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block">Removes a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">setListener</a></span>&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the transformation events.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>addListener(Listener)</code></a>, <a href="#removeListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>removeListener(Listener)</code></a> or <a href="#removeAllListeners()"><code>removeAllListeners()</code></a> instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startTransformation(com.google.android.exoplayer2.MediaItem,android.os.ParcelFileDescriptor)">startTransformation</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                    <a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;parcelFileDescriptor)</code></th>
@@ -294,7 +323,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Starts an asynchronous operation to transform the given <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startTransformation(com.google.android.exoplayer2.MediaItem,java.lang.String)">startTransformation</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;path)</code></th>
@@ -409,11 +438,54 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setListener</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setListener&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</pre>
-<div class="block">Sets the <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the transformation events.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setListener&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>addListener(Listener)</code></a>, <a href="#removeListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>removeListener(Listener)</code></a> or <a href="#removeAllListeners()"><code>removeAllListeners()</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addListener&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</pre>
+<div class="block">Adds a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the transformation events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - A <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called from the wrong thread.</dd>
+</dl>
+</li>
+</ul>
+<a id="removeListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;removeListener&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</pre>
+<div class="block">Removes a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - A <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called from the wrong thread.</dd>
+</dl>
+</li>
+</ul>
+<a id="removeAllListeners()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAllListeners</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;removeAllListeners()</pre>
+<div class="block">Removes all <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>listeners</code></a>.</div>
+<dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called from the wrong thread.</dd>
 </dl>
@@ -430,18 +502,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Starts an asynchronous operation to transform the given <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
 
- <p>The transformation state is notified through the <a href="Transformer.Builder.html#setListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>listener</code></a>.
+ <p>The transformation state is notified through the <a href="Transformer.Builder.html#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>listener</code></a>.
 
  <p>Concurrent transformations on the same Transformer object are not allowed.
 
- <p>The output can contain at most one video track and one audio track. Other track types are
- ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media sources</code></a>, the highest bitrate video and
- audio streams are selected.</div>
+ <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
+ track types are ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media sources</code></a>, the highest
+ bitrate video and audio streams are selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to transform. The supported sample formats depend on the
-     <code>Muxer</code> and on the output container format. For the <code>FrameworkMuxer</code>, they are
-     described in <a href="https://developer.android.com/reference/android/media/MediaMuxer.html#addTrack(android.media.MediaFormat)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaMuxer.addTrack(MediaFormat)</code></a>.</dd>
+<dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to transform.</dd>
 <dd><code>path</code> - The path to the output file.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the path is invalid.</dd>
@@ -463,18 +533,16 @@ public&nbsp;void&nbsp;startTransformation&#8203;(<a href="../MediaItem.html" tit
                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Starts an asynchronous operation to transform the given <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
 
- <p>The transformation state is notified through the <a href="Transformer.Builder.html#setListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>listener</code></a>.
+ <p>The transformation state is notified through the <a href="Transformer.Builder.html#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>listener</code></a>.
 
  <p>Concurrent transformations on the same Transformer object are not allowed.
 
- <p>The output can contain at most one video track and one audio track. Other track types are
- ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media sources</code></a>, the highest bitrate video and
- audio streams are selected.</div>
+ <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
+ track types are ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media sources</code></a>, the highest
+ bitrate video and audio streams are selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to transform. The supported sample formats depend on the
-     <code>Muxer</code> and on the output container format. For the <code>FrameworkMuxer</code>, they are
-     described in <a href="https://developer.android.com/reference/android/media/MediaMuxer.html#addTrack(android.media.MediaFormat)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaMuxer.addTrack(MediaFormat)</code></a>.</dd>
+<dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to transform.</dd>
 <dd><code>parcelFileDescriptor</code> - A readable and writable <a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top"><code>ParcelFileDescriptor</code></a> of the output.
      The file referenced by this ParcelFileDescriptor should not be used before the
      transformation is completed. It is the responsibility of the caller to close the
@@ -504,8 +572,7 @@ public&nbsp;void&nbsp;startTransformation&#8203;(<a href="../MediaItem.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>getProgress</h4>
-<pre class="methodSignature"><a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer">@ProgressState</a>
-public&nbsp;int&nbsp;getProgress&#8203;(<a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a>&nbsp;progressHolder)</pre>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.transformer.Transformer.ProgressState int&nbsp;getProgress&#8203;(<a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a>&nbsp;progressHolder)</pre>
 <div class="block">Returns the current <a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer"><code>Transformer.ProgressState</code></a> and updates <code>progressHolder</code> with the current
  progress if it is <a href="#PROGRESS_STATE_AVAILABLE"><code>available</code></a>.
 

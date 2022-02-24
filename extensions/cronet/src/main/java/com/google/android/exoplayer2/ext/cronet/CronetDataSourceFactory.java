@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static org.chromium.net.UrlRequest.Builder.REQUEST_PRIORITY_MEDIUM;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -344,10 +346,15 @@ public final class CronetDataSourceFactory extends BaseFactory {
         new CronetDataSource(
             cronetEngine,
             executor,
+            REQUEST_PRIORITY_MEDIUM,
             connectTimeoutMs,
             readTimeoutMs,
             resetTimeoutOnRedirects,
-            defaultRequestProperties);
+            /* handleSetCookieRequests= */ false,
+            /* userAgent= */ null,
+            defaultRequestProperties,
+            /* contentTypePredicate= */ null,
+            /* keepPostFor302Redirects */ false);
     if (transferListener != null) {
       dataSource.addTransferListener(transferListener);
     }

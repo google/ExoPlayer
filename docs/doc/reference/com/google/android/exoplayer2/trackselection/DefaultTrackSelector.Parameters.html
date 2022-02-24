@@ -199,23 +199,37 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowAudioMixedDecoderSupportAdaptiveness">allowAudioMixedDecoderSupportAdaptiveness</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether to allow adaptive audio selections with mixed levels of <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.DecoderSupport</code></a> and <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.HardwareAccelerationSupport</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowAudioMixedMimeTypeAdaptiveness">allowAudioMixedMimeTypeAdaptiveness</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to allow adaptive audio selections containing mixed MIME types.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowAudioMixedSampleRateAdaptiveness">allowAudioMixedSampleRateAdaptiveness</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to allow adaptive audio selections containing mixed sample rates.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowMultipleAdaptiveSelections">allowMultipleAdaptiveSelections</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether multiple adaptive selections with more than one track are allowed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowVideoMixedDecoderSupportAdaptiveness">allowVideoMixedDecoderSupportAdaptiveness</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether to allow adaptive video selections with mixed levels of <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.DecoderSupport</code></a> and <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.HardwareAccelerationSupport</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -297,7 +311,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></h3>
-<code><a href="TrackSelectionParameters.html#disabledTrackTypes">disabledTrackTypes</a>, <a href="TrackSelectionParameters.html#forceHighestSupportedBitrate">forceHighestSupportedBitrate</a>, <a href="TrackSelectionParameters.html#forceLowestBitrate">forceLowestBitrate</a>, <a href="TrackSelectionParameters.html#maxAudioBitrate">maxAudioBitrate</a>, <a href="TrackSelectionParameters.html#maxAudioChannelCount">maxAudioChannelCount</a>, <a href="TrackSelectionParameters.html#maxVideoBitrate">maxVideoBitrate</a>, <a href="TrackSelectionParameters.html#maxVideoFrameRate">maxVideoFrameRate</a>, <a href="TrackSelectionParameters.html#maxVideoHeight">maxVideoHeight</a>, <a href="TrackSelectionParameters.html#maxVideoWidth">maxVideoWidth</a>, <a href="TrackSelectionParameters.html#minVideoBitrate">minVideoBitrate</a>, <a href="TrackSelectionParameters.html#minVideoFrameRate">minVideoFrameRate</a>, <a href="TrackSelectionParameters.html#minVideoHeight">minVideoHeight</a>, <a href="TrackSelectionParameters.html#minVideoWidth">minVideoWidth</a>, <a href="TrackSelectionParameters.html#preferredAudioLanguages">preferredAudioLanguages</a>, <a href="TrackSelectionParameters.html#preferredAudioMimeTypes">preferredAudioMimeTypes</a>, <a href="TrackSelectionParameters.html#preferredAudioRoleFlags">preferredAudioRoleFlags</a>, <a href="TrackSelectionParameters.html#preferredTextLanguages">preferredTextLanguages</a>, <a href="TrackSelectionParameters.html#preferredTextRoleFlags">preferredTextRoleFlags</a>, <a href="TrackSelectionParameters.html#preferredVideoMimeTypes">preferredVideoMimeTypes</a>, <a href="TrackSelectionParameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a>, <a href="TrackSelectionParameters.html#trackSelectionOverrides">trackSelectionOverrides</a>, <a href="TrackSelectionParameters.html#viewportHeight">viewportHeight</a>, <a href="TrackSelectionParameters.html#viewportOrientationMayChange">viewportOrientationMayChange</a>, <a href="TrackSelectionParameters.html#viewportWidth">viewportWidth</a></code></li>
+<code><a href="TrackSelectionParameters.html#disabledTrackTypes">disabledTrackTypes</a>, <a href="TrackSelectionParameters.html#forceHighestSupportedBitrate">forceHighestSupportedBitrate</a>, <a href="TrackSelectionParameters.html#forceLowestBitrate">forceLowestBitrate</a>, <a href="TrackSelectionParameters.html#maxAudioBitrate">maxAudioBitrate</a>, <a href="TrackSelectionParameters.html#maxAudioChannelCount">maxAudioChannelCount</a>, <a href="TrackSelectionParameters.html#maxVideoBitrate">maxVideoBitrate</a>, <a href="TrackSelectionParameters.html#maxVideoFrameRate">maxVideoFrameRate</a>, <a href="TrackSelectionParameters.html#maxVideoHeight">maxVideoHeight</a>, <a href="TrackSelectionParameters.html#maxVideoWidth">maxVideoWidth</a>, <a href="TrackSelectionParameters.html#minVideoBitrate">minVideoBitrate</a>, <a href="TrackSelectionParameters.html#minVideoFrameRate">minVideoFrameRate</a>, <a href="TrackSelectionParameters.html#minVideoHeight">minVideoHeight</a>, <a href="TrackSelectionParameters.html#minVideoWidth">minVideoWidth</a>, <a href="TrackSelectionParameters.html#preferredAudioLanguages">preferredAudioLanguages</a>, <a href="TrackSelectionParameters.html#preferredAudioMimeTypes">preferredAudioMimeTypes</a>, <a href="TrackSelectionParameters.html#preferredAudioRoleFlags">preferredAudioRoleFlags</a>, <a href="TrackSelectionParameters.html#preferredTextLanguages">preferredTextLanguages</a>, <a href="TrackSelectionParameters.html#preferredTextRoleFlags">preferredTextRoleFlags</a>, <a href="TrackSelectionParameters.html#preferredVideoMimeTypes">preferredVideoMimeTypes</a>, <a href="TrackSelectionParameters.html#preferredVideoRoleFlags">preferredVideoRoleFlags</a>, <a href="TrackSelectionParameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a>, <a href="TrackSelectionParameters.html#trackSelectionOverrides">trackSelectionOverrides</a>, <a href="TrackSelectionParameters.html#viewportHeight">viewportHeight</a>, <a href="TrackSelectionParameters.html#viewportOrientationMayChange">viewportOrientationMayChange</a>, <a href="TrackSelectionParameters.html#viewportWidth">viewportWidth</a></code></li>
 </ul>
 </li>
 </ul>
@@ -476,6 +490,16 @@ public final&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int disabledTe
  The default value is <code>true</code>.</div>
 </li>
 </ul>
+<a id="allowVideoMixedDecoderSupportAdaptiveness">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowVideoMixedDecoderSupportAdaptiveness</h4>
+<pre>public final&nbsp;boolean allowVideoMixedDecoderSupportAdaptiveness</pre>
+<div class="block">Whether to allow adaptive video selections with mixed levels of <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.DecoderSupport</code></a> and <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.HardwareAccelerationSupport</code></a>.</div>
+</li>
+</ul>
 <a id="exceedAudioConstraintsIfNecessary">
 <!--   -->
 </a>
@@ -519,6 +543,16 @@ public final&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int disabledTe
 <div class="block">Whether to allow adaptive audio selections containing mixed channel counts. Adaptations
  between different channel counts may not be completely seamless. The default value is <code>
  false</code>.</div>
+</li>
+</ul>
+<a id="allowAudioMixedDecoderSupportAdaptiveness">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowAudioMixedDecoderSupportAdaptiveness</h4>
+<pre>public final&nbsp;boolean allowAudioMixedDecoderSupportAdaptiveness</pre>
+<div class="block">Whether to allow adaptive audio selections with mixed levels of <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.DecoderSupport</code></a> and <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.HardwareAccelerationSupport</code></a>.</div>
 </li>
 </ul>
 <a id="exceedRendererCapabilitiesIfNecessary">

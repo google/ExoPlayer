@@ -20,30 +20,32 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.BundleableUtil.fromBundleNullableList;
 import static com.google.android.exoplayer2.util.BundleableUtil.fromNullableBundle;
 import static com.google.android.exoplayer2.util.BundleableUtil.toBundleArrayList;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Booleans;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
-/** Immutable information ({@link TrackGroupInfo}) about tracks. */
+/** Information about groups of tracks. */
 public final class TracksInfo implements Bundleable {
   /**
-   * Information about tracks in a {@link TrackGroup}: their {@link C.TrackType}, if their format is
-   * supported by the player and if they are selected for playback.
+   * Information about a single group of tracks, including the underlying {@link TrackGroup}, the
+   * {@link C.TrackType type} of tracks it contains, and the level to which each track is supported
+   * by the player.
    */
   public static final class TrackGroupInfo implements Bundleable {
     private final TrackGroup trackGroup;
-    @C.FormatSupport private final int[] trackSupport;
+    private final @C.FormatSupport int[] trackSupport;
     private final @C.TrackType int trackType;
     private final boolean[] trackSelected;
 
@@ -74,35 +76,68 @@ public final class TracksInfo implements Bundleable {
     }
 
     /**
-     * Returns the level of support for a track in a {@link TrackGroup}.
+     * Returns the level of support for a specified track.
      *
      * @param trackIndex The index of the track in the {@link TrackGroup}.
      * @return The {@link C.FormatSupport} of the track.
      */
-    @C.FormatSupport
-    public int getTrackSupport(int trackIndex) {
+    public @C.FormatSupport int getTrackSupport(int trackIndex) {
       return trackSupport[trackIndex];
     }
 
     /**
-     * Returns if a track in a {@link TrackGroup} is supported for playback.
+     * Returns whether a specified track is supported for playback, without exceeding the advertised
+     * capabilities of the device. Equivalent to {@code isTrackSupported(trackIndex, false)}.
      *
      * @param trackIndex The index of the track in the {@link TrackGroup}.
      * @return True if the track's format can be played, false otherwise.
      */
     public boolean isTrackSupported(int trackIndex) {
-      return trackSupport[trackIndex] == C.FORMAT_HANDLED;
+      return isTrackSupported(trackIndex, /* allowExceedsCapabilities= */ false);
     }
 
-    /** Returns if at least one track in a {@link TrackGroup} is selected for playback. */
+    /**
+     * Returns whether a specified track is supported for playback.
+     *
+     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @param allowExceedsCapabilities Whether to consider the track as supported if it has a
+     *     supported {@link Format#sampleMimeType MIME type}, but otherwise exceeds the advertised
+     *     capabilities of the device. For example, a video track for which there's a corresponding
+     *     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
+     *     Such tracks may be playable in some cases.
+     * @return True if the track's format can be played, false otherwise.
+     */
+    public boolean isTrackSupported(int trackIndex, boolean allowExceedsCapabilities) {
+      return trackSupport[trackIndex] == C.FORMAT_HANDLED
+          || (allowExceedsCapabilities
+              && trackSupport[trackIndex] == C.FORMAT_EXCEEDS_CAPABILITIES);
+    }
+
+    /** Returns whether at least one track in the group is selected for playback. */
     public boolean isSelected() {
       return Booleans.contains(trackSelected, true);
     }
 
-    /** Returns if at least one track in a {@link TrackGroup} is supported. */
+    /**
+     * Returns whether at least one track in the group is supported for playback, without exceeding
+     * the advertised capabilities of the device. Equivalent to {@code isSupported(false)}.
+     */
     public boolean isSupported() {
+      return isSupported(/* allowExceedsCapabilities= */ false);
+    }
+
+    /**
+     * Returns whether at least one track in the group is supported for playback.
+     *
+     * @param allowExceedsCapabilities Whether to consider a track as supported if it has a
+     *     supported {@link Format#sampleMimeType MIME type}, but otherwise exceeds the advertised
+     *     capabilities of the device. For example, a video track for which there's a corresponding
+     *     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
+     *     Such tracks may be playable in some cases.
+     */
+    public boolean isSupported(boolean allowExceedsCapabilities) {
       for (int i = 0; i < trackSupport.length; i++) {
-        if (isTrackSupported(i)) {
+        if (isTrackSupported(i, allowExceedsCapabilities)) {
           return true;
         }
       }
@@ -110,27 +145,24 @@ public final class TracksInfo implements Bundleable {
     }
 
     /**
-     * Returns if a track in a {@link TrackGroup} is selected for playback.
+     * Returns whether a specified track is selected for playback.
      *
-     * <p>Multiple tracks of a track group may be selected. This is common in adaptive streaming,
-     * where multiple tracks of different quality are selected and the player switches between them
-     * depending on the network and the {@link TrackSelectionParameters}.
+     * <p>Note that multiple tracks in the group may be selected. This is common in adaptive
+     * streaming, where tracks of different qualities are selected and the player switches between
+     * them during playback (e.g., based on the available network bandwidth).
      *
-     * <p>While this class doesn't provide which selected track is currently playing, some player
-     * implementations have ways of getting such information. For example ExoPlayer provides this
-     * information in {@code ExoTrackSelection.getSelectedFormat}.
+     * <p>This class doesn't provide a way to determine which of the selected tracks is currently
+     * playing, however some player implementations have ways of getting such information. For
+     * example, ExoPlayer provides this information via {@code ExoTrackSelection.getSelectedFormat}.
      *
      * @param trackIndex The index of the track in the {@link TrackGroup}.
-     * @return true if the track is selected, false otherwise.
+     * @return True if the track is selected, false otherwise.
      */
     public boolean isTrackSelected(int trackIndex) {
       return trackSelected[trackIndex];
     }
 
-    /**
-     * Returns the {@link C.TrackType} of the tracks in the {@link TrackGroup}. Tracks in a group
-     * are all of the same type.
-     */
+    /** Returns the {@link C.TrackType} of the group. */
     public @C.TrackType int getTrackType() {
       return trackType;
     }
@@ -162,6 +194,7 @@ public final class TracksInfo implements Bundleable {
     // Bundleable implementation.
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_TRACK_GROUP,
       FIELD_TRACK_SUPPORT,
@@ -192,8 +225,7 @@ public final class TracksInfo implements Bundleable {
               fromNullableBundle(
                   TrackGroup.CREATOR, bundle.getBundle(keyForField(FIELD_TRACK_GROUP)));
           checkNotNull(trackGroup); // Can't create a trackGroup info without a trackGroup
-          @C.FormatSupport
-          final int[] trackSupport =
+          final @C.FormatSupport int[] trackSupport =
               MoreObjects.firstNonNull(
                   bundle.getIntArray(keyForField(FIELD_TRACK_SUPPORT)), new int[trackGroup.length]);
           @C.TrackType
@@ -212,25 +244,49 @@ public final class TracksInfo implements Bundleable {
 
   private final ImmutableList<TrackGroupInfo> trackGroupInfos;
 
-  /** An empty {@code TrackInfo} containing no {@link TrackGroupInfo}. */
+  /** An {@code TrackInfo} that contains no tracks. */
   public static final TracksInfo EMPTY = new TracksInfo(ImmutableList.of());
 
-  /** Constructs {@code TracksInfo} from the provided {@link TrackGroupInfo}. */
+  /**
+   * Constructs an instance.
+   *
+   * @param trackGroupInfos The {@link TrackGroupInfo TrackGroupInfos} describing the groups of
+   *     tracks.
+   */
   public TracksInfo(List<TrackGroupInfo> trackGroupInfos) {
     this.trackGroupInfos = ImmutableList.copyOf(trackGroupInfos);
   }
 
-  /** Returns the {@link TrackGroupInfo TrackGroupInfos}, describing each {@link TrackGroup}. */
+  /** Returns the {@link TrackGroupInfo TrackGroupInfos} describing the groups of tracks. */
   public ImmutableList<TrackGroupInfo> getTrackGroupInfos() {
     return trackGroupInfos;
   }
 
-  /** Returns if there is at least one track of type {@code trackType} but none are supported. */
+  /**
+   * Returns true if at least one track of type {@code trackType} is {@link
+   * TrackGroupInfo#isTrackSupported(int) supported} or if there are no tracks of this type.
+   */
   public boolean isTypeSupportedOrEmpty(@C.TrackType int trackType) {
+    return isTypeSupportedOrEmpty(trackType, /* allowExceedsCapabilities= */ false);
+  }
+
+  /**
+   * Returns true if at least one track of type {@code trackType} is {@link
+   * TrackGroupInfo#isTrackSupported(int, boolean) supported} or if there are no tracks of this
+   * type.
+   *
+   * @param allowExceedsCapabilities Whether to consider the track as supported if it has a
+   *     supported {@link Format#sampleMimeType MIME type}, but otherwise exceeds the advertised
+   *     capabilities of the device. For example, a video track for which there's a corresponding
+   *     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
+   *     Such tracks may be playable in some cases.
+   */
+  public boolean isTypeSupportedOrEmpty(
+      @C.TrackType int trackType, boolean allowExceedsCapabilities) {
     boolean supported = true;
     for (int i = 0; i < trackGroupInfos.size(); i++) {
       if (trackGroupInfos.get(i).trackType == trackType) {
-        if (trackGroupInfos.get(i).isSupported()) {
+        if (trackGroupInfos.get(i).isSupported(allowExceedsCapabilities)) {
           return true;
         } else {
           supported = false;
@@ -240,7 +296,7 @@ public final class TracksInfo implements Bundleable {
     return supported;
   }
 
-  /** Returns if at least one track of the type {@code trackType} is selected for playback. */
+  /** Returns true if at least one track of the type {@code trackType} is selected for playback. */
   public boolean isTypeSelected(@C.TrackType int trackType) {
     for (int i = 0; i < trackGroupInfos.size(); i++) {
       TrackGroupInfo trackGroupInfo = trackGroupInfos.get(i);
@@ -271,6 +327,7 @@ public final class TracksInfo implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TRACK_GROUP_INFOS,
   })

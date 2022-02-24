@@ -24,7 +24,7 @@
     <enum name="zoom" value="4"/>
   </attr>
 
-  <!-- Must be kept in sync with PlayerView -->
+  <!-- Must be kept in sync with PlayerView and StyledPlayerView -->
   <attr name="surface_type" format="enum">
     <enum name="none" value="0"/>
     <enum name="surface_view" value="1"/>
@@ -91,42 +91,6 @@
   <attr name="ad_marker_color" format="color"/>
   <attr name="played_ad_marker_color" format="color"/>
 
-  <declare-styleable name="PlayerView">
-    <attr name="use_artwork"/>
-    <attr name="shutter_background_color"/>
-    <attr name="default_artwork"/>
-    <attr name="use_controller"/>
-    <attr name="hide_on_touch"/>
-    <attr name="hide_during_ads"/>
-    <attr name="auto_show"/>
-    <attr name="show_buffering"/>
-    <attr name="keep_content_on_player_reset"/>
-    <attr name="player_layout_id"/>
-    <attr name="surface_type"/>
-    <!-- AspectRatioFrameLayout attributes -->
-    <attr name="resize_mode"/>
-    <!-- PlayerControlView attributes -->
-    <attr name="show_timeout"/>
-    <attr name="repeat_toggle_modes"/>
-    <attr name="show_shuffle_button"/>
-    <attr name="time_bar_min_update_interval"/>
-    <attr name="controller_layout_id"/>
-    <!-- DefaultTimeBar attributes -->
-    <attr name="bar_height"/>
-    <attr name="touch_target_height"/>
-    <attr name="ad_marker_width"/>
-    <attr name="scrubber_enabled_size"/>
-    <attr name="scrubber_disabled_size"/>
-    <attr name="scrubber_dragged_size"/>
-    <attr name="scrubber_drawable"/>
-    <attr name="played_color"/>
-    <attr name="scrubber_color"/>
-    <attr name="buffered_color" />
-    <attr name="unplayed_color"/>
-    <attr name="ad_marker_color"/>
-    <attr name="played_ad_marker_color"/>
-  </declare-styleable>
-
   <declare-styleable name="StyledPlayerView">
     <attr name="use_artwork"/>
     <attr name="shutter_background_color"/>
@@ -141,7 +105,7 @@
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
     <attr name="resize_mode"/>
-    <!-- PlayerControlView attributes -->
+    <!-- StyledPlayerControlView attributes -->
     <attr name="show_timeout"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_shuffle_button"/>

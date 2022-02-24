@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CH
 import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -58,6 +59,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -343,7 +345,9 @@ public class PlayerNotificationManager {
      *
      * @param context The {@link Context}.
      * @param notificationId The id of the notification to be posted. Must be greater than 0.
-     * @param channelId The id of the notification channel.
+     * @param channelId The id of the notification channel of an existing notification channel or of
+     *     the channel that should be automatically created. In the latter case, {@link
+     *     #setChannelNameResourceId(int)} needs to be called as well.
      */
     public Builder(Context context, @IntRange(from = 1) int notificationId, String channelId) {
       checkArgument(notificationId > 0);
@@ -635,6 +639,7 @@ public class PlayerNotificationManager {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     NotificationCompat.VISIBILITY_PRIVATE,
     NotificationCompat.VISIBILITY_PUBLIC,
@@ -650,6 +655,7 @@ public class PlayerNotificationManager {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     NotificationCompat.PRIORITY_DEFAULT,
     NotificationCompat.PRIORITY_MAX,
@@ -1476,6 +1482,7 @@ public class PlayerNotificationManager {
     return actions;
   }
 
+  @SuppressWarnings("UnspecifiedImmutableFlag") // Warning is spurious.
   private static PendingIntent createBroadcastIntent(
       String action, Context context, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());

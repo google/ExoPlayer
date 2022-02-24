@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.video.spherical;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
 import android.opengl.GLES11Ext;
@@ -46,33 +45,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   // Basic vertex & fragment shaders to render a mesh with 3D position & 2D texture data.
-  private static final String[] VERTEX_SHADER_CODE =
-      new String[] {
-        "uniform mat4 uMvpMatrix;",
-        "uniform mat3 uTexMatrix;",
-        "attribute vec4 aPosition;",
-        "attribute vec2 aTexCoords;",
-        "varying vec2 vTexCoords;",
-
-        // Standard transformation.
-        "void main() {",
-        "  gl_Position = uMvpMatrix * aPosition;",
-        "  vTexCoords = (uTexMatrix * vec3(aTexCoords, 1)).xy;",
-        "}"
-      };
-  private static final String[] FRAGMENT_SHADER_CODE =
-      new String[] {
-        // This is required since the texture data is GL_TEXTURE_EXTERNAL_OES.
-        "#extension GL_OES_EGL_image_external : require",
-        "precision mediump float;",
-
-        // Standard texture rendering shader.
-        "uniform samplerExternalOES uTexture;",
-        "varying vec2 vTexCoords;",
-        "void main() {",
-        "  gl_FragColor = texture2D(uTexture, vTexCoords);",
-        "}"
-      };
+  private static final String VERTEX_SHADER =
+      "uniform mat4 uMvpMatrix;\n"
+          + "uniform mat3 uTexMatrix;\n"
+          + "attribute vec4 aPosition;\n"
+          + "attribute vec2 aTexCoords;\n"
+          + "varying vec2 vTexCoords;\n"
+          + "// Standard transformation.\n"
+          + "void main() {\n"
+          + "  gl_Position = uMvpMatrix * aPosition;\n"
+          + "  vTexCoords = (uTexMatrix * vec3(aTexCoords, 1)).xy;\n"
+          + "}\n";
+  private static final String FRAGMENT_SHADER =
+      "// This is required since the texture data is GL_TEXTURE_EXTERNAL_OES.\n"
+          + "#extension GL_OES_EGL_image_external : require\n"
+          + "precision mediump float;\n"
+          + "// Standard texture rendering shader.\n"
+          + "uniform samplerExternalOES uTexture;\n"
+          + "varying vec2 vTexCoords;\n"
+          + "void main() {\n"
+          + "  gl_FragColor = texture2D(uTexture, vTexCoords);\n"
+          + "}\n";
 
   // Texture transform matrices.
   private static final float[] TEX_MATRIX_WHOLE = {
@@ -120,12 +113,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Initializes of the GL components. */
-  /* package */ void init() {
-    program = new GlUtil.Program(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+  public void init() {
+    program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
     mvpMatrixHandle = program.getUniformLocation("uMvpMatrix");
     uTexMatrixHandle = program.getUniformLocation("uTexMatrix");
-    positionHandle = program.getAttribLocation("aPosition");
-    texCoordsHandle = program.getAttribLocation("aTexCoords");
+    positionHandle = program.getAttributeArrayLocationAndEnable("aPosition");
+    texCoordsHandle = program.getAttributeArrayLocationAndEnable("aTexCoords");
     textureHandle = program.getUniformLocation("uTexture");
   }
 
@@ -138,20 +131,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param rightEye Whether the right eye view should be drawn. If {@code false}, the left eye view
    *     is drawn.
    */
-  /* package */ void draw(int textureId, float[] mvpMatrix, boolean rightEye) {
+  public void draw(int textureId, float[] mvpMatrix, boolean rightEye) {
     MeshData meshData = rightEye ? rightMeshData : leftMeshData;
     if (meshData == null) {
       return;
     }
 
     // Configure shader.
-    checkNotNull(program).use();
-    checkGlError();
-
-    GLES20.glEnableVertexAttribArray(positionHandle);
-    GLES20.glEnableVertexAttribArray(texCoordsHandle);
-    checkGlError();
-
     float[] texMatrix;
     if (stereoMode == C.STEREO_MODE_TOP_BOTTOM) {
       texMatrix = rightEye ? TEX_MATRIX_BOTTOM : TEX_MATRIX_TOP;
@@ -162,6 +148,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     GLES20.glUniformMatrix3fv(uTexMatrixHandle, 1, false, texMatrix, 0);
 
+    // TODO(b/205002913): Update to use GlUtil.Uniform.bind().
     GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
     GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
     GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);
@@ -189,15 +176,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkGlError();
 
     // Render.
-    GLES20.glDrawArrays(meshData.drawMode, 0, meshData.vertexCount);
+    GLES20.glDrawArrays(meshData.drawMode, /* first= */ 0, meshData.vertexCount);
     checkGlError();
-
-    GLES20.glDisableVertexAttribArray(positionHandle);
-    GLES20.glDisableVertexAttribArray(texCoordsHandle);
   }
 
   /** Cleans up GL resources. */
-  /* package */ void shutdown() {
+  public void shutdown() {
     if (program != null) {
       program.delete();
     }

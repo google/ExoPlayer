@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.isRtspSt
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -42,6 +43,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -339,6 +341,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({STATE_READING_FIRST_LINE, STATE_READING_HEADER, STATE_READING_BODY})
     @interface ReadingState {}
 
@@ -348,7 +351,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final List<String> messageLines;
 
-    @ReadingState private int state;
+    private @ReadingState int state;
     private long messageBodyLength;
 
     /** Creates a new instance. */

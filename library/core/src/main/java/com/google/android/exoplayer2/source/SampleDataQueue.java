@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.source.SampleQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -65,7 +66,7 @@ import java.util.Arrays;
   /** Clears all sample data. */
   public void reset() {
     clearAllocationNodes(firstAllocationNode);
-    firstAllocationNode = new AllocationNode(0, allocationLength);
+    firstAllocationNode.reset(/* startPosition= */ 0, allocationLength);
     readAllocationNode = firstAllocationNode;
     writeAllocationNode = firstAllocationNode;
     totalBytesWritten = 0;
@@ -79,6 +80,7 @@ import java.util.Arrays;
    *     discarded, or 0 if the queue is now empty.
    */
   public void discardUpstreamSampleBytes(long totalBytesWritten) {
+    Assertions.checkArgument(totalBytesWritten <= this.totalBytesWritten);
     this.totalBytesWritten = totalBytesWritten;
     if (this.totalBytesWritten == 0
         || this.totalBytesWritten == firstAllocationNode.startPosition) {
@@ -92,8 +94,8 @@ import java.util.Arrays;
       while (this.totalBytesWritten > lastNodeToKeep.endPosition) {
         lastNodeToKeep = lastNodeToKeep.next;
       }
-      // Discard all subsequent nodes.
-      AllocationNode firstNodeToDiscard = lastNodeToKeep.next;
+      // Discard all subsequent nodes. lastNodeToKeep is initialized, therefore next cannot be null.
+      AllocationNode firstNodeToDiscard = Assertions.checkNotNull(lastNodeToKeep.next);
       clearAllocationNodes(firstNodeToDiscard);
       // Reset the successor of the last node to be an uninitialized node.
       lastNodeToKeep.next = new AllocationNode(lastNodeToKeep.endPosition, allocationLength);
@@ -207,23 +209,14 @@ import java.util.Arrays;
    * @param fromNode The node from which to clear.
    */
   private void clearAllocationNodes(AllocationNode fromNode) {
-    if (!fromNode.wasInitialized) {
+    if (fromNode.allocation == null) {
       return;
     }
     // Bulk release allocations for performance (it's significantly faster when using
     // DefaultAllocator because the allocator's lock only needs to be acquired and released once)
     // [Internal: See b/29542039].
-    int allocationCount =
-        (writeAllocationNode.wasInitialized ? 1 : 0)
-            + ((int) (writeAllocationNode.startPosition - fromNode.startPosition)
-                / allocationLength);
-    Allocation[] allocationsToRelease = new Allocation[allocationCount];
-    AllocationNode currentNode = fromNode;
-    for (int i = 0; i < allocationsToRelease.length; i++) {
-      allocationsToRelease[i] = currentNode.allocation;
-      currentNode = currentNode.clear();
-    }
-    allocator.release(allocationsToRelease);
+    allocator.release(fromNode);
+    fromNode.clear();
   }
 
   /**
@@ -235,7 +228,7 @@ import java.util.Arrays;
    *     {@code length}.
    */
   private int preAppend(int length) {
-    if (!writeAllocationNode.wasInitialized) {
+    if (writeAllocationNode.allocation == null) {
       writeAllocationNode.initialize(
           allocator.allocate(),
           new AllocationNode(writeAllocationNode.endPosition, allocationLength));
@@ -466,19 +459,19 @@ import java.util.Arrays;
   }
 
   /** A node in a linked list of {@link Allocation}s held by the output. */
-  private static final class AllocationNode {
+  private static final class AllocationNode implements Allocator.AllocationNode {
 
     /** The absolute position of the start of the data (inclusive). */
-    public final long startPosition;
+    public long startPosition;
     /** The absolute position of the end of the data (exclusive). */
-    public final long endPosition;
-    /** Whether the node has been initialized. Remains true after {@link #clear()}. */
-    public boolean wasInitialized;
-    /** The {@link Allocation}, or {@code null} if the node is not initialized. */
+    public long endPosition;
+    /**
+     * The {@link Allocation}, or {@code null} if the node is not {@link #initialize initialized}.
+     */
     @Nullable public Allocation allocation;
     /**
-     * The next {@link AllocationNode} in the list, or {@code null} if the node has not been
-     * initialized. Remains set after {@link #clear()}.
+     * The next {@link AllocationNode} in the list, or {@code null} if the node is not {@link
+     * #initialize initialized}.
      */
     @Nullable public AllocationNode next;
 
@@ -488,6 +481,17 @@ import java.util.Arrays;
      *     initialized.
      */
     public AllocationNode(long startPosition, int allocationLength) {
+      reset(startPosition, allocationLength);
+    }
+
+    /**
+     * Sets the {@link #startPosition} and the {@link Allocation} length.
+     *
+     * <p>Must only be called for uninitialized instances, where {@link #allocation} is {@code
+     * null}.
+     */
+    public void reset(long startPosition, int allocationLength) {
+      Assertions.checkState(allocation == null);
       this.startPosition = startPosition;
       this.endPosition = startPosition + allocationLength;
     }
@@ -501,7 +505,6 @@ import java.util.Arrays;
     public void initialize(Allocation allocation, AllocationNode next) {
       this.allocation = allocation;
       this.next = next;
-      wasInitialized = true;
     }
 
     /**
@@ -525,6 +528,23 @@ import java.util.Arrays;
       AllocationNode temp = next;
       next = null;
       return temp;
+    }
+
+    // AllocationChainNode implementation.
+
+    @Override
+    public Allocation getAllocation() {
+      return Assertions.checkNotNull(allocation);
+    }
+
+    @Override
+    @Nullable
+    public Allocator.AllocationNode next() {
+      if (next == null || next.allocation == null) {
+        return null;
+      } else {
+        return next;
+      }
     }
   }
 }

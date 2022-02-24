@@ -20,8 +20,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -74,16 +74,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public Clock getClock() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addListener(Player.EventListener listener) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void removeListener(Player.EventListener listener) {
     throw new UnsupportedOperationException();
   }
 
@@ -292,6 +282,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   }
 
   @Override
+  public Renderer getRenderer(int index) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   @Nullable
   public TrackSelector getTrackSelector() {
     throw new UnsupportedOperationException();
@@ -354,12 +349,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Deprecated
-  @Override
-  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     throw new UnsupportedOperationException();
   }
 

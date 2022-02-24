@@ -15,47 +15,6 @@
 -->
 <resources>
 
-  <style name="ExoMediaButton">
-    <item name="android:background">?android:attr/selectableItemBackground</item>
-    <item name="android:layout_width">@dimen/exo_media_button_width</item>
-    <item name="android:layout_height">@dimen/exo_media_button_height</item>
-  </style>
-
-  <style name="ExoMediaButton.Previous">
-    <item name="android:src">@drawable/exo_controls_previous</item>
-    <item name="android:contentDescription">@string/exo_controls_previous_description</item>
-  </style>
-
-  <style name="ExoMediaButton.Next">
-    <item name="android:src">@drawable/exo_controls_next</item>
-    <item name="android:contentDescription">@string/exo_controls_next_description</item>
-  </style>
-
-  <style name="ExoMediaButton.FastForward">
-    <item name="android:src">@drawable/exo_controls_fastforward</item>
-    <item name="android:contentDescription">@string/exo_controls_fastforward_description</item>
-  </style>
-
-  <style name="ExoMediaButton.Rewind">
-    <item name="android:src">@drawable/exo_controls_rewind</item>
-    <item name="android:contentDescription">@string/exo_controls_rewind_description</item>
-  </style>
-
-  <style name="ExoMediaButton.Play">
-    <item name="android:src">@drawable/exo_controls_play</item>
-    <item name="android:contentDescription">@string/exo_controls_play_description</item>
-  </style>
-
-  <style name="ExoMediaButton.Pause">
-    <item name="android:src">@drawable/exo_controls_pause</item>
-    <item name="android:contentDescription">@string/exo_controls_pause_description</item>
-  </style>
-
-  <style name="ExoMediaButton.VR">
-    <item name="android:src">@drawable/exo_controls_vr</item>
-    <item name="android:contentDescription">@string/exo_controls_vr_description</item>
-  </style>
-
   <style name="ExoStyledControls"/>
 
   <style name="ExoStyledControls.Button">
@@ -92,9 +51,11 @@
     <item name="android:foreground">@drawable/exo_styled_controls_fastforward</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
-    <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">@dimen/exo_icon_text_size</item>
+    <item name="android:textColor">@color/exo_white</item>
     <!-- Needed for https://github.com/google/ExoPlayer/issues/7898 -->
-    <item name="backgroundTint">@android:color/white</item>
+    <item name="backgroundTint">@color/exo_white</item>
     <item name="android:insetBottom">0dp</item>
   </style>
 
@@ -102,16 +63,12 @@
     <item name="android:foreground">@drawable/exo_styled_controls_rewind</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
-    <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
-    <!-- Needed for https://github.com/google/ExoPlayer/issues/7898 -->
-    <item name="backgroundTint">@android:color/white</item>
-    <item name="android:insetBottom">0dp</item>
-  </style>
-
-  <style name="ExoStyledControls.ButtonText">
     <item name="android:textStyle">bold</item>
     <item name="android:textSize">@dimen/exo_icon_text_size</item>
     <item name="android:textColor">@color/exo_white</item>
+    <!-- Needed for https://github.com/google/ExoPlayer/issues/7898 -->
+    <item name="backgroundTint">@color/exo_white</item>
+    <item name="android:insetBottom">0dp</item>
   </style>
 
   <style name="ExoStyledControls.TimeText">

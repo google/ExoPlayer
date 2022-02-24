@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -26,6 +28,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An abstract base class suitable for most {@link Renderer} implementations. */
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
@@ -35,6 +38,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Nullable private RendererConfiguration configuration;
   private int index;
+  private @MonotonicNonNull PlayerId playerId;
   private int state;
   @Nullable private SampleStream stream;
   @Nullable private Format[] streamFormats;
@@ -65,8 +69,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void setIndex(int index) {
+  public final void init(int index, PlayerId playerId) {
     this.index = index;
+    this.playerId = playerId;
   }
 
   @Override
@@ -94,10 +99,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
-    lastResetPositionUs = positionUs;
     onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, startPositionUs, offsetUs);
-    onPositionReset(positionUs, joining);
+    resetPosition(positionUs, joining);
   }
 
   @Override
@@ -154,10 +158,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
+    resetPosition(positionUs, /* joining= */ false);
+  }
+
+  private void resetPosition(long positionUs, boolean joining) throws ExoPlaybackException {
     streamIsFinal = false;
     lastResetPositionUs = positionUs;
     readingPositionUs = positionUs;
-    onPositionReset(positionUs, false);
+    onPositionReset(positionUs, joining);
   }
 
   @Override
@@ -188,8 +196,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // RendererCapabilities implementation.
 
   @Override
-  @AdaptiveSupport
-  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
@@ -328,9 +335,22 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return Assertions.checkNotNull(configuration);
   }
 
-  /** Returns the index of the renderer within the player. */
+  /**
+   * Returns the index of the renderer within the player.
+   *
+   * <p>Must only be used after the renderer has been initialized by the player.
+   */
   protected final int getIndex() {
     return index;
+  }
+
+  /**
+   * Returns the {@link PlayerId} of the player using this renderer.
+   *
+   * <p>Must only be used after the renderer has been initialized by the player.
+   */
+  protected final PlayerId getPlayerId() {
+    return checkNotNull(playerId);
   }
 
   /**
@@ -399,8 +419,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
    *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
-  @ReadDataResult
-  protected final int readSource(
+  protected final @ReadDataResult int readSource(
       FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
     @ReadDataResult
     int result = Assertions.checkNotNull(stream).readData(formatHolder, buffer, readFlags);

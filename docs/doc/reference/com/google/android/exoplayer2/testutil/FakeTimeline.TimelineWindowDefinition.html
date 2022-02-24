@@ -157,8 +157,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adPlaybackState">adPlaybackState</a></span></code></th>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adPlaybackStates">adPlaybackStates</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -285,10 +285,29 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                         <a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
                         <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
 <td class="colLast">
-<div class="block">Creates a window definition with ad groups and a custom media item.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.Object,boolean,boolean,boolean,boolean,long,long,long,java.util.List,com.google.android.exoplayer2.MediaItem)"><code>TimelineWindowDefinition(int, Object, boolean, boolean, boolean,
+     boolean, long, long, long, List, MediaItem)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.Object,boolean,boolean,boolean,boolean,long,long,long,java.util.List,com.google.android.exoplayer2.MediaItem)">TimelineWindowDefinition</a></span>&#8203;(int&nbsp;periodCount,
+                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
+                        boolean&nbsp;isSeekable,
+                        boolean&nbsp;isDynamic,
+                        boolean&nbsp;isLive,
+                        boolean&nbsp;isPlaceholder,
+                        long&nbsp;durationUs,
+                        long&nbsp;defaultPositionUs,
+                        long&nbsp;windowOffsetInFirstPeriodUs,
+                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;&nbsp;adPlaybackStates,
+                        <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
+<td class="colLast">
+<div class="block">Creates a window definition with ad groups and a custom media item.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.Object,boolean,boolean,long)">TimelineWindowDefinition</a></span>&#8203;(int&nbsp;periodCount,
                         <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
                         boolean&nbsp;isSeekable,
@@ -298,7 +317,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Creates a window definition.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.Object,boolean,boolean,long,com.google.android.exoplayer2.source.ads.AdPlaybackState)">TimelineWindowDefinition</a></span>&#8203;(int&nbsp;periodCount,
                         <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
                         boolean&nbsp;isSeekable,
@@ -476,13 +495,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public final&nbsp;long windowOffsetInFirstPeriodUs</pre>
 </li>
 </ul>
-<a id="adPlaybackState">
+<a id="adPlaybackStates">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>adPlaybackState</h4>
-<pre>public final&nbsp;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a> adPlaybackState</pre>
+<h4>adPlaybackStates</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt; adPlaybackStates</pre>
 </li>
 </ul>
 </li>
@@ -615,6 +634,30 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="&lt;init&gt;(int,java.lang.Object,boolean,boolean,boolean,boolean,long,long,long,com.google.android.exoplayer2.source.ads.AdPlaybackState,com.google.android.exoplayer2.MediaItem)">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TimelineWindowDefinition</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;TimelineWindowDefinition&#8203;(int&nbsp;periodCount,
+                                <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
+                                boolean&nbsp;isSeekable,
+                                boolean&nbsp;isDynamic,
+                                boolean&nbsp;isLive,
+                                boolean&nbsp;isPlaceholder,
+                                long&nbsp;durationUs,
+                                long&nbsp;defaultPositionUs,
+                                long&nbsp;windowOffsetInFirstPeriodUs,
+                                <a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
+                                <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.Object,boolean,boolean,boolean,boolean,long,long,long,java.util.List,com.google.android.exoplayer2.MediaItem)"><code>TimelineWindowDefinition(int, Object, boolean, boolean, boolean,
+     boolean, long, long, long, List, MediaItem)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(int,java.lang.Object,boolean,boolean,boolean,boolean,long,long,long,java.util.List,com.google.android.exoplayer2.MediaItem)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>TimelineWindowDefinition</h4>
@@ -627,7 +670,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                 long&nbsp;durationUs,
                                 long&nbsp;defaultPositionUs,
                                 long&nbsp;windowOffsetInFirstPeriodUs,
-                                <a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
+                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;&nbsp;adPlaybackStates,
                                 <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block">Creates a window definition with ad groups and a custom media item.</div>
 <dl>
@@ -643,7 +686,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>defaultPositionUs</code> - The default position of the window in microseconds.</dd>
 <dd><code>windowOffsetInFirstPeriodUs</code> - The offset of the window in the first period, in
      microseconds.</dd>
-<dd><code>adPlaybackState</code> - The ad playback state.</dd>
+<dd><code>adPlaybackStates</code> - The ad playback states for the periods.</dd>
 <dd><code>mediaItem</code> - The media item to include in the timeline.</dd>
 </dl>
 </li>

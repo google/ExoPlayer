@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.amr;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -60,6 +63,7 @@ public final class AmrExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING, FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS})
@@ -317,7 +321,7 @@ public final class AmrExtractor implements Extractor {
         C.BUFFER_FLAG_KEY_FRAME,
         currentSampleSize,
         /* offset= */ 0,
-        /* encryptionData= */ null);
+        /* cryptoData= */ null);
     currentSampleTimeUs += SAMPLE_TIME_PER_FRAME_US;
     return RESULT_CONTINUE;
   }

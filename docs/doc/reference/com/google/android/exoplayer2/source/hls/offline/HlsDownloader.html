@@ -150,14 +150,14 @@ extends <a href="../../../offline/SegmentDownloader.html" title="class in com.go
      new CacheDataSource.Factory()
          .setCache(cache)
          .setUpstreamDataSourceFactory(new DefaultHttpDataSource.Factory());
- // Create a downloader for the first variant in a master playlist.
+ // Create a downloader for the first variant in a multivariant playlist.
  HlsDownloader hlsDownloader =
      new HlsDownloader(
          new MediaItem.Builder()
              .setUri(playlistUri)
              .setStreamKeys(
                  Collections.singletonList(
-                     new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)))
+                     new StreamKey(HlsMultivariantPlaylist.GROUP_INDEX_VARIANT, 0)))
              .build(),
          Collections.singletonList();
  // Perform the download.

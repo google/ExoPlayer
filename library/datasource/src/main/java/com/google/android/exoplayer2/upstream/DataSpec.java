@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -24,6 +26,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,13 +47,13 @@ public final class DataSpec {
 
     @Nullable private Uri uri;
     private long uriPositionOffset;
-    @HttpMethod private int httpMethod;
+    private @HttpMethod int httpMethod;
     @Nullable private byte[] httpBody;
     private Map<String, String> httpRequestHeaders;
     private long position;
     private long length;
     @Nullable private String key;
-    @Flags private int flags;
+    private @Flags int flags;
     @Nullable private Object customData;
 
     /** Creates a new instance with default values. */
@@ -232,6 +235,7 @@ public final class DataSpec {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -274,6 +278,7 @@ public final class DataSpec {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_HEAD})
   public @interface HttpMethod {}
   /** HTTP GET method. */
@@ -323,7 +328,7 @@ public final class DataSpec {
    * The HTTP method to use when requesting the data. This value will be ignored by non-HTTP {@link
    * DataSource} implementations.
    */
-  @HttpMethod public final int httpMethod;
+  public final @HttpMethod int httpMethod;
 
   /**
    * The HTTP request body, null otherwise. If the body is non-null, then {@code httpBody.length}
@@ -375,7 +380,7 @@ public final class DataSpec {
   @Nullable public final String key;
 
   /** Request {@link Flags flags}. */
-  @Flags public final int flags;
+  public final @Flags int flags;
 
   /**
    * Application specific data.

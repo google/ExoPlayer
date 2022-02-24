@@ -24,8 +24,10 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.VorbisUtil;
 import com.google.android.exoplayer2.extractor.VorbisUtil.Mode;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,6 +113,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     codecInitializationData.add(idHeader.data);
     codecInitializationData.add(vorbisSetup.setupHeaderData);
 
+    @Nullable
+    Metadata metadata =
+        VorbisUtil.parseVorbisComments(ImmutableList.copyOf(vorbisSetup.commentHeader.comments));
+
     setupData.format =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.AUDIO_VORBIS)
@@ -119,6 +125,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
             .setChannelCount(idHeader.channels)
             .setSampleRate(idHeader.sampleRate)
             .setInitializationData(codecInitializationData)
+            .setMetadata(metadata)
             .build();
     return true;
   }

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -140,8 +140,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public static final class <span class="typeNameLabel">TracksInfo.TrackGroupInfo</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
-<div class="block">Information about tracks in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>: their <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a>, if their format is
- supported by the player and if they are selected for playback.</div>
+<div class="block">Information about a single group of tracks, including the underlying <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, the
+ <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of tracks it contains, and the level to which each track is supported
+ by the player.</div>
 </li>
 </ul>
 </div>
@@ -204,8 +205,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int%5B%5D,@com.google.android.exoplayer2.C.TrackTypeint,boolean%5B%5D)">TrackGroupInfo</a></span>&#8203;(<a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;trackGroup,
-              int[]&nbsp;trackSupport,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,@com.google.android.exoplayer2.C.FormatSupportint%5B%5D,@com.google.android.exoplayer2.C.TrackTypeint,boolean%5B%5D)">TrackGroupInfo</a></span>&#8203;(<a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;trackGroup,
+              @com.google.android.exoplayer2.C.FormatSupport int[]&nbsp;trackSupport,
               @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
               boolean[]&nbsp;tracksSelected)</code></th>
 <td class="colLast">
@@ -243,17 +244,17 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.FormatSupport int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackSupport(int)">getTrackSupport</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
-<div class="block">Returns the level of support for a track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">Returns the level of support for a specified track.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType()">getTrackType</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the tracks in the <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">Returns the <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the group.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -265,31 +266,48 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSelected()">isSelected</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns if at least one track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is selected for playback.</div>
+<div class="block">Returns whether at least one track in the group is selected for playback.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSupported()">isSupported</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns if at least one track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is supported.</div>
+<div class="block">Returns whether at least one track in the group is supported for playback, without exceeding
+ the advertised capabilities of the device.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSelected(int)">isTrackSelected</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSupported(boolean)">isSupported</a></span>&#8203;(boolean&nbsp;allowExceedsCapabilities)</code></th>
 <td class="colLast">
-<div class="block">Returns if a track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is selected for playback.</div>
+<div class="block">Returns whether at least one track in the group is supported for playback.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSupported(int)">isTrackSupported</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSelected(int)">isTrackSelected</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
-<div class="block">Returns if a track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is supported for playback.</div>
+<div class="block">Returns whether a specified track is selected for playback.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSupported(int)">isTrackSupported</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns whether a specified track is supported for playback, without exceeding the advertised
+ capabilities of the device.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackSupported(int,boolean)">isTrackSupported</a></span>&#8203;(int&nbsp;trackIndex,
+                boolean&nbsp;allowExceedsCapabilities)</code></th>
+<td class="colLast">
+<div class="block">Returns whether a specified track is supported for playback.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -340,7 +358,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int[],@com.google.android.exoplayer2.C.TrackTypeint,boolean[])">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,@com.google.android.exoplayer2.C.FormatSupportint[],@com.google.android.exoplayer2.C.TrackTypeint,boolean[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -348,7 +366,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <h4>TrackGroupInfo</h4>
 <pre>public&nbsp;TrackGroupInfo&#8203;(<a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;trackGroup,
                       <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@FormatSupport</a>
-                      int[]&nbsp;trackSupport,
+                      @com.google.android.exoplayer2.C.FormatSupport int[]&nbsp;trackSupport,
                       @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                       boolean[]&nbsp;tracksSelected)</pre>
 <div class="block">Constructs a TrackGroupInfo.</div>
@@ -388,8 +406,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getTrackSupport</h4>
 <pre class="methodSignature"><a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@FormatSupport</a>
-public&nbsp;int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
-<div class="block">Returns the level of support for a track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+public&nbsp;@com.google.android.exoplayer2.C.FormatSupport int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
+<div class="block">Returns the level of support for a specified track.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackIndex</code> - The index of the track in the <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
@@ -405,10 +423,33 @@ public&nbsp;int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
 <li class="blockList">
 <h4>isTrackSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isTrackSupported&#8203;(int&nbsp;trackIndex)</pre>
-<div class="block">Returns if a track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is supported for playback.</div>
+<div class="block">Returns whether a specified track is supported for playback, without exceeding the advertised
+ capabilities of the device. Equivalent to <code>isTrackSupported(trackIndex, false)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackIndex</code> - The index of the track in the <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the track's format can be played, false otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a id="isTrackSupported(int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isTrackSupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isTrackSupported&#8203;(int&nbsp;trackIndex,
+                                boolean&nbsp;allowExceedsCapabilities)</pre>
+<div class="block">Returns whether a specified track is supported for playback.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackIndex</code> - The index of the track in the <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
+<dd><code>allowExceedsCapabilities</code> - Whether to consider the track as supported if it has a
+     supported <a href="Format.html#sampleMimeType"><code>MIME type</code></a>, but otherwise exceeds the advertised
+     capabilities of the device. For example, a video track for which there's a corresponding
+     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
+     Such tracks may be playable in some cases.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the track's format can be played, false otherwise.</dd>
 </dl>
@@ -421,7 +462,7 @@ public&nbsp;int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
 <li class="blockList">
 <h4>isSelected</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isSelected()</pre>
-<div class="block">Returns if at least one track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is selected for playback.</div>
+<div class="block">Returns whether at least one track in the group is selected for playback.</div>
 </li>
 </ul>
 <a id="isSupported()">
@@ -431,7 +472,26 @@ public&nbsp;int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
 <li class="blockList">
 <h4>isSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isSupported()</pre>
-<div class="block">Returns if at least one track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is supported.</div>
+<div class="block">Returns whether at least one track in the group is supported for playback, without exceeding
+ the advertised capabilities of the device. Equivalent to <code>isSupported(false)</code>.</div>
+</li>
+</ul>
+<a id="isSupported(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isSupported&#8203;(boolean&nbsp;allowExceedsCapabilities)</pre>
+<div class="block">Returns whether at least one track in the group is supported for playback.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowExceedsCapabilities</code> - Whether to consider a track as supported if it has a
+     supported <a href="Format.html#sampleMimeType"><code>MIME type</code></a>, but otherwise exceeds the advertised
+     capabilities of the device. For example, a video track for which there's a corresponding
+     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
+     Such tracks may be playable in some cases.</dd>
+</dl>
 </li>
 </ul>
 <a id="isTrackSelected(int)">
@@ -441,20 +501,20 @@ public&nbsp;int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
 <li class="blockList">
 <h4>isTrackSelected</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isTrackSelected&#8203;(int&nbsp;trackIndex)</pre>
-<div class="block">Returns if a track in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is selected for playback.
+<div class="block">Returns whether a specified track is selected for playback.
 
- <p>Multiple tracks of a track group may be selected. This is common in adaptive streaming,
- where multiple tracks of different quality are selected and the player switches between them
- depending on the network and the <a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.
+ <p>Note that multiple tracks in the group may be selected. This is common in adaptive
+ streaming, where tracks of different qualities are selected and the player switches between
+ them during playback (e.g., based on the available network bandwidth).
 
- <p>While this class doesn't provide which selected track is currently playing, some player
- implementations have ways of getting such information. For example ExoPlayer provides this
- information in <code>ExoTrackSelection.getSelectedFormat</code>.</div>
+ <p>This class doesn't provide a way to determine which of the selected tracks is currently
+ playing, however some player implementations have ways of getting such information. For
+ example, ExoPlayer provides this information via <code>ExoTrackSelection.getSelectedFormat</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackIndex</code> - The index of the track in the <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>true if the track is selected, false otherwise.</dd>
+<dd>True if the track is selected, false otherwise.</dd>
 </dl>
 </li>
 </ul>
@@ -465,8 +525,7 @@ public&nbsp;int&nbsp;getTrackSupport&#8203;(int&nbsp;trackIndex)</pre>
 <li class="blockList">
 <h4>getTrackType</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;getTrackType()</pre>
-<div class="block">Returns the <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the tracks in the <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Tracks in a group
- are all of the same type.</div>
+<div class="block">Returns the <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the group.</div>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -63,6 +66,7 @@ public final class Mp3Extractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -136,7 +140,7 @@ public final class Mp3Extractor implements Extractor {
   private static final int SEEK_HEADER_VBRI = 0x56425249;
   private static final int SEEK_HEADER_UNSET = 0;
 
-  @Flags private final int flags;
+  private final @Flags int flags;
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioUtil.Header synchronizedHeader;

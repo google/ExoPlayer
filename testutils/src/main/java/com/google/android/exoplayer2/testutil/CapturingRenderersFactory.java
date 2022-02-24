@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.util.SparseArray;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -31,7 +32,6 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
@@ -94,7 +94,9 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
           /* enableDecoderFallback= */ false,
           eventHandler,
           audioRendererEventListener,
-          new DefaultAudioSink(AudioCapabilities.getCapabilities(context), new AudioProcessor[0])),
+          new DefaultAudioSink.Builder()
+              .setAudioCapabilities(AudioCapabilities.getCapabilities(context))
+              .build()),
       new TextRenderer(textRendererOutput, eventHandler.getLooper()),
       new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper())
     };
@@ -195,12 +197,6 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
     @Nullable
     @Override
-    public Surface getInputSurface() {
-      return delegate.getInputSurface();
-    }
-
-    @Nullable
-    @Override
     public ByteBuffer getOutputBuffer(int index) {
       return delegate.getOutputBuffer(index);
     }
@@ -268,10 +264,10 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
       delegate.setVideoScalingMode(scalingMode);
     }
 
-    @RequiresApi(18)
+    @RequiresApi(26)
     @Override
-    public void signalEndOfInputStream() {
-      delegate.signalEndOfInputStream();
+    public PersistableBundle getMetrics() {
+      return delegate.getMetrics();
     }
 
     // Dumpable implementation

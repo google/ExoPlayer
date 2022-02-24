@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -412,6 +415,7 @@ public abstract class Timeline implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_MEDIA_ITEM,
       FIELD_PRESENTATION_START_TIME_MS,
@@ -816,6 +820,21 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
+     * Returns the state of the ad at index {@code adIndexInAdGroup} in the ad group at {@code
+     * adGroupIndex}, or {@link AdPlaybackState#AD_STATE_UNAVAILABLE} if not yet known.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The state of the ad, or {@link AdPlaybackState#AD_STATE_UNAVAILABLE} if not yet
+     *     known.
+     */
+    public int getAdState(int adGroupIndex, int adIndexInAdGroup) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+      return adGroup.count != C.LENGTH_UNSET
+          ? adGroup.states[adIndexInAdGroup]
+          : AD_STATE_UNAVAILABLE;
+    }
+
+    /**
      * Returns the position offset in the first unplayed ad at which to begin playback, in
      * microseconds.
      */
@@ -880,6 +899,7 @@ public abstract class Timeline implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_WINDOW_INDEX,
       FIELD_DURATION_US,
@@ -1174,13 +1194,13 @@ public abstract class Timeline implements Bundleable {
   }
 
   /**
-   * Calls {@link #getPeriodPosition(Window, Period, int, long, long)} with a zero default position
+   * Calls {@link #getPeriodPositionUs(Window, Period, int, long)} with a zero default position
    * projection.
    */
   public final Pair<Object, Long> getPeriodPositionUs(
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return Assertions.checkNotNull(
-        getPeriodPosition(
+        getPeriodPositionUs(
             window, period, windowIndex, windowPositionUs, /* defaultPositionProjectionUs= */ 0));
   }
 
@@ -1335,6 +1355,7 @@ public abstract class Timeline implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_WINDOWS,
     FIELD_PERIODS,

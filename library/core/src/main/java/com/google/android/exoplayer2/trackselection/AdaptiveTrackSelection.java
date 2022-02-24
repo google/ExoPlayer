@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -313,7 +314,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
   private float playbackSpeed;
   private int selectedIndex;
-  private int reason;
+  private @C.SelectionReason int reason;
   private long lastBufferEvaluationMs;
   @Nullable private MediaChunk lastBufferEvaluationMediaChunk;
 
@@ -446,7 +447,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     }
 
     int previousSelectedIndex = selectedIndex;
-    int previousReason = reason;
+    @C.SelectionReason int previousReason = reason;
     int formatIndexOfPreviousChunk =
         queue.isEmpty() ? C.INDEX_UNSET : indexOf(Iterables.getLast(queue).trackFormat);
     if (formatIndexOfPreviousChunk != C.INDEX_UNSET) {
@@ -458,8 +459,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       // Revert back to the previous selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(previousSelectedIndex);
       Format selectedFormat = getFormat(newSelectedIndex);
+      long minDurationForQualityIncreaseUs =
+          minDurationForQualityIncreaseUs(availableDurationUs, chunkDurationUs);
       if (selectedFormat.bitrate > currentFormat.bitrate
-          && bufferedDurationUs < minDurationForQualityIncreaseUs(availableDurationUs)) {
+          && bufferedDurationUs < minDurationForQualityIncreaseUs) {
         // The selected track is a higher quality, but we have insufficient buffer to safely switch
         // up. Defer switching up for now.
         newSelectedIndex = previousSelectedIndex;
@@ -482,7 +485,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public int getSelectionReason() {
+  public @C.SelectionReason int getSelectionReason() {
     return reason;
   }
 
@@ -599,13 +602,22 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     return lowestBitrateAllowedIndex;
   }
 
-  private long minDurationForQualityIncreaseUs(long availableDurationUs) {
-    boolean isAvailableDurationTooShort =
-        availableDurationUs != C.TIME_UNSET
-            && availableDurationUs <= minDurationForQualityIncreaseUs;
-    return isAvailableDurationTooShort
-        ? (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease)
-        : minDurationForQualityIncreaseUs;
+  private long minDurationForQualityIncreaseUs(long availableDurationUs, long chunkDurationUs) {
+    if (availableDurationUs == C.TIME_UNSET) {
+      // We are not in a live stream. Use the configured value.
+      return minDurationForQualityIncreaseUs;
+    }
+    if (chunkDurationUs != C.TIME_UNSET) {
+      // We are currently selecting a new live chunk. Even under perfect conditions, the buffered
+      // duration can't include the last chunk duration yet because we are still selecting a track
+      // for this or a previous chunk. Hence, we subtract one chunk duration from the total
+      // available live duration to ensure we only compare the buffered duration against what is
+      // actually achievable.
+      availableDurationUs -= chunkDurationUs;
+    }
+    long adjustedMinDurationForQualityIncreaseUs =
+        (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease);
+    return min(adjustedMinDurationForQualityIncreaseUs, minDurationForQualityIncreaseUs);
   }
 
   /**

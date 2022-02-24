@@ -43,7 +43,7 @@ public interface AudioProcessor {
     /** The number of interleaved channels. */
     public final int channelCount;
     /** The type of linear PCM encoding. */
-    @C.PcmEncoding public final int encoding;
+    public final @C.PcmEncoding int encoding;
     /** The number of bytes used to represent one audio frame. */
     public final int bytesPerFrame;
 
@@ -102,13 +102,14 @@ public interface AudioProcessor {
   boolean isActive();
 
   /**
-   * Queues audio data between the position and limit of the input {@code buffer} for processing.
-   * {@code buffer} must be a direct byte buffer with native byte order. Its contents are treated as
-   * read-only. Its position will be advanced by the number of bytes consumed (which may be zero).
-   * The caller retains ownership of the provided buffer. Calling this method invalidates any
-   * previous buffer returned by {@link #getOutput()}.
+   * Queues audio data between the position and limit of the {@code inputBuffer} for processing.
+   * After calling this method, processed output may be available via {@link #getOutput()}. Calling
+   * {@code queueInput(ByteBuffer)} again invalidates any pending output.
    *
-   * @param inputBuffer The input buffer to process.
+   * @param inputBuffer The input buffer to process. It must be a direct byte buffer with native
+   *     byte order. Its contents are treated as read-only. Its position will be advanced by the
+   *     number of bytes consumed (which may be zero). The caller retains ownership of the provided
+   *     buffer.
    */
   void queueInput(ByteBuffer inputBuffer);
 

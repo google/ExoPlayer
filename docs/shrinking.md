@@ -104,11 +104,11 @@ ExoPlayer player =
 ~~~
 {: .language-java}
 
-## Custom `MediaSource` instantiation ##
+## Custom MediaSource instantiation ##
 
-If your app is using a custom `MediaSourceFactory` and you want
+If your app is using a custom `MediaSource.Factory` and you want
 `DefaultMediaSourceFactory` to be removed by code stripping, you should pass
-your `MediaSourceFactory` directly to the `ExoPlayer.Builder` constructor.
+your `MediaSource.Factory` directly to the `ExoPlayer.Builder` constructor.
 
 ~~~
 ExoPlayer player =
@@ -117,13 +117,13 @@ ExoPlayer player =
 {: .language-java}
 
 If your app is using `MediaSource`s directly instead of `MediaItem`s you should
-pass `MediaSourceFactory.UNSUPPORTED` to the `ExoPlayer.Builder` constructor, to
-ensure `DefaultMediaSourceFactory` and `DefaultExtractorsFactory` can be
+pass `MediaSource.Factory.UNSUPPORTED` to the `ExoPlayer.Builder` constructor,
+to ensure `DefaultMediaSourceFactory` and `DefaultExtractorsFactory` can be
 stripped by code shrinking.
 
 ~~~
 ExoPlayer player =
-    new ExoPlayer.Builder(context, MediaSourceFactory.UNSUPPORTED).build();
+    new ExoPlayer.Builder(context, MediaSource.Factory.UNSUPPORTED).build();
 ProgressiveMediaSource mediaSource =
     new ProgressiveMediaSource.Factory(
             dataSourceFactory, customExtractorsFactory)

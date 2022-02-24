@@ -46,7 +46,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.ui.AdViewProvider;
@@ -71,14 +71,15 @@ import java.util.Set;
  * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
  * {@link #release()}.
  *
- * <p>See https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
- * information on compatible ad tag formats. Pass the ad tag URI when setting media item playback
- * properties (if using the media item API) or as a {@link DataSpec} when constructing the {@link
- * AdsMediaSource} (if using media sources directly). For the latter case, please note that this
- * implementation delegates loading of the data spec to the IMA SDK, so range and headers
- * specifications will be ignored in ad tag URIs. Literal ads responses can be encoded as data
- * scheme data specs, for example, by constructing the data spec using a URI generated via {@link
- * Util#getDataUriForString(String, String)}.
+ * <p>See <a
+ * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility">IMA's
+ * Support and compatibility page</a> for information on compatible ad tag formats. Pass the ad tag
+ * URI when setting media item playback properties (if using the media item API) or as a {@link
+ * DataSpec} when constructing the {@link AdsMediaSource} (if using media sources directly). For the
+ * latter case, please note that this implementation delegates loading of the data spec to the IMA
+ * SDK, so range and headers specifications will be ignored in ad tag URIs. Literal ads responses
+ * can be encoded as data scheme data specs, for example, by constructing the data spec using a URI
+ * generated via {@link Util#getDataUriForString(String, String)}.
  *
  * <p>The IMA SDK can report obstructions to the ad view for accurate viewability measurement. This
  * means that any overlay views that obstruct the ad overlay but are essential for playback need to
@@ -86,7 +87,7 @@ import java.util.Set;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-public final class ImaAdsLoader implements Player.Listener, AdsLoader {
+public final class ImaAdsLoader implements AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -222,7 +223,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
 
     /**
      * Sets the MIME types to prioritize for linear ad media. If not specified, MIME types supported
-     * by the {@link MediaSourceFactory adMediaSourceFactory} used to construct the {@link
+     * by the {@link MediaSource.Factory adMediaSourceFactory} used to construct the {@link
      * AdsMediaSource} will be used.
      *
      * @param adMediaMimeTypes The MIME types to prioritize for linear ad media. May contain {@link
@@ -386,6 +387,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
   private final ImaUtil.Configuration configuration;
   private final Context context;
   private final ImaUtil.ImaFactory imaFactory;
+  private final PlayerListenerImpl playerListener;
   private final HashMap<Object, AdTagLoader> adTagLoaderByAdsId;
   private final HashMap<AdsMediaSource, AdTagLoader> adTagLoaderByAdsMediaSource;
   private final Timeline.Period period;
@@ -402,6 +404,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     this.context = context.getApplicationContext();
     this.configuration = configuration;
     this.imaFactory = imaFactory;
+    playerListener = new PlayerListenerImpl();
     supportedMimeTypes = ImmutableList.of();
     adTagLoaderByAdsId = new HashMap<>();
     adTagLoaderByAdsMediaSource = new HashMap<>();
@@ -532,7 +535,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
       if (player == null) {
         return;
       }
-      player.addListener(this);
+      player.addListener(playerListener);
     }
 
     @Nullable AdTagLoader adTagLoader = adTagLoaderByAdsId.get(adsId);
@@ -554,7 +557,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     }
 
     if (player != null && adTagLoaderByAdsMediaSource.isEmpty()) {
-      player.removeListener(this);
+      player.removeListener(playerListener);
       player = null;
     }
   }
@@ -562,7 +565,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
   @Override
   public void release() {
     if (player != null) {
-      player.removeListener(this);
+      player.removeListener(playerListener);
       player = null;
       maybeUpdateCurrentAdTagLoader();
     }
@@ -600,37 +603,6 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     }
     checkNotNull(adTagLoaderByAdsMediaSource.get(adsMediaSource))
         .handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
-  }
-
-  // Player.Listener implementation.
-
-  @Override
-  public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-    if (timeline.isEmpty()) {
-      // The player is being reset or contains no media.
-      return;
-    }
-    maybeUpdateCurrentAdTagLoader();
-    maybePreloadNextPeriodAds();
-  }
-
-  @Override
-  public void onPositionDiscontinuity(
-      Player.PositionInfo oldPosition,
-      Player.PositionInfo newPosition,
-      @Player.DiscontinuityReason int reason) {
-    maybeUpdateCurrentAdTagLoader();
-    maybePreloadNextPeriodAds();
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    maybePreloadNextPeriodAds();
-  }
-
-  @Override
-  public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-    maybePreloadNextPeriodAds();
   }
 
   // Internal methods.
@@ -672,7 +644,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
   }
 
   private void maybePreloadNextPeriodAds() {
-    @Nullable Player player = this.player;
+    @Nullable Player player = ImaAdsLoader.this.player;
     if (player == null) {
       return;
     }
@@ -700,10 +672,42 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
       return;
     }
     long periodPositionUs =
-        timeline.getPeriodPosition(
+        timeline.getPeriodPositionUs(
                 window, period, period.windowIndex, /* windowPositionUs= */ C.TIME_UNSET)
             .second;
     nextAdTagLoader.maybePreloadAds(Util.usToMs(periodPositionUs), Util.usToMs(period.durationUs));
+  }
+
+  private final class PlayerListenerImpl implements Player.Listener {
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
+      if (timeline.isEmpty()) {
+        // The player is being reset or contains no media.
+        return;
+      }
+      maybeUpdateCurrentAdTagLoader();
+      maybePreloadNextPeriodAds();
+    }
+
+    @Override
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @Player.DiscontinuityReason int reason) {
+      maybeUpdateCurrentAdTagLoader();
+      maybePreloadNextPeriodAds();
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      maybePreloadNextPeriodAds();
+    }
+
+    @Override
+    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
+      maybePreloadNextPeriodAds();
+    }
   }
 
   /**

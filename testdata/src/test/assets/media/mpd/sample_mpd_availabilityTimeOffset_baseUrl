@@ -3,7 +3,7 @@
   xmlns="urn:mpeg:DASH:schema:MPD:2011"
   xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
   xmlns:dvb="urn:dvb:dash:dash-extensions:2014-1"
-  profiles="urn:mpeg:dash:profile:isoff-main:2011"
+  profiles="urn:mpeg:dash:profile:isoff-main:2011,urn:dvb:dash:profile:dvb-dash:2014"
   type="dynamic"
   availabilityStartTime="2016-10-14T17:00:17">
   <BaseURL>http://video.com/baseUrl</BaseURL>

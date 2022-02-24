@@ -235,7 +235,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.extractor.Extractor.ReadResult int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">read</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
     <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)</code></th>
 <td class="colLast">
@@ -416,10 +416,9 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <ul class="blockListLast">
 <li class="blockList">
 <h4>read</h4>
-<pre class="methodSignature"><a href="../Extractor.ReadResult.html" title="annotation in com.google.android.exoplayer2.extractor">@ReadResult</a>
-public&nbsp;int&nbsp;read&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-                <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)
-         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.extractor.Extractor.ReadResult int&nbsp;read&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                                                                              <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)
+                                                                       throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">Extractor</a></code></span></div>
 <div class="block">Extracts data read from a provided <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="../Extractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)"><code>Extractor.init(ExtractorOutput)</code></a>.
 

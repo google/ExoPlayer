@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,7 @@ import java.util.regex.Pattern;
 
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TextEmphasisSpan.MARK_SHAPE_NONE,
     TextEmphasisSpan.MARK_SHAPE_CIRCLE,
@@ -58,6 +61,7 @@ import java.util.regex.Pattern;
 
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TextAnnotation.POSITION_UNKNOWN,
     TextAnnotation.POSITION_BEFORE,
@@ -93,13 +97,13 @@ import java.util.regex.Pattern;
           TtmlNode.ANNOTATION_POSITION_OUTSIDE);
 
   /** The text emphasis mark shape. */
-  @MarkShape public final int markShape;
+  public final @MarkShape int markShape;
 
   /** The fill style of the text emphasis mark. */
-  @TextEmphasisSpan.MarkFill public final int markFill;
+  public final @TextEmphasisSpan.MarkFill int markFill;
 
   /** The position of the text emphasis relative to the base text. */
-  @Position public final int position;
+  public final @Position int position;
 
   private TextEmphasis(
       @MarkShape int markShape,

@@ -29,10 +29,10 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Part;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.RenditionReport;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Variant;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -72,7 +72,7 @@ public final class DefaultHlsPlaylistTracker
   @Nullable private Loader initialPlaylistLoader;
   @Nullable private Handler playlistRefreshHandler;
   @Nullable private PrimaryPlaylistListener primaryPlaylistListener;
-  @Nullable private HlsMasterPlaylist masterPlaylist;
+  @Nullable private HlsMultivariantPlaylist multivariantPlaylist;
   @Nullable private Uri primaryMediaPlaylistUrl;
   @Nullable private HlsMediaPlaylist primaryMediaPlaylistSnapshot;
   private boolean isLive;
@@ -131,30 +131,33 @@ public final class DefaultHlsPlaylistTracker
     this.playlistRefreshHandler = Util.createHandlerForCurrentLooper();
     this.eventDispatcher = eventDispatcher;
     this.primaryPlaylistListener = primaryPlaylistListener;
-    ParsingLoadable<HlsPlaylist> masterPlaylistLoadable =
+    ParsingLoadable<HlsPlaylist> multivariantPlaylistLoadable =
         new ParsingLoadable<>(
             dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
             initialPlaylistUri,
             C.DATA_TYPE_MANIFEST,
             playlistParserFactory.createPlaylistParser());
     Assertions.checkState(initialPlaylistLoader == null);
-    initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MasterPlaylist");
+    initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MultivariantPlaylist");
     long elapsedRealtime =
         initialPlaylistLoader.startLoading(
-            masterPlaylistLoadable,
+            multivariantPlaylistLoadable,
             this,
-            loadErrorHandlingPolicy.getMinimumLoadableRetryCount(masterPlaylistLoadable.type));
+            loadErrorHandlingPolicy.getMinimumLoadableRetryCount(
+                multivariantPlaylistLoadable.type));
     eventDispatcher.loadStarted(
         new LoadEventInfo(
-            masterPlaylistLoadable.loadTaskId, masterPlaylistLoadable.dataSpec, elapsedRealtime),
-        masterPlaylistLoadable.type);
+            multivariantPlaylistLoadable.loadTaskId,
+            multivariantPlaylistLoadable.dataSpec,
+            elapsedRealtime),
+        multivariantPlaylistLoadable.type);
   }
 
   @Override
   public void stop() {
     primaryMediaPlaylistUrl = null;
     primaryMediaPlaylistSnapshot = null;
-    masterPlaylist = null;
+    multivariantPlaylist = null;
     initialStartTimeUs = C.TIME_UNSET;
     initialPlaylistLoader.release();
     initialPlaylistLoader = null;
@@ -179,8 +182,8 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   @Nullable
-  public HlsMasterPlaylist getMasterPlaylist() {
-    return masterPlaylist;
+  public HlsMultivariantPlaylist getMultivariantPlaylist() {
+    return multivariantPlaylist;
   }
 
   @Override
@@ -243,18 +246,19 @@ public final class DefaultHlsPlaylistTracker
   public void onLoadCompleted(
       ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
     HlsPlaylist result = loadable.getResult();
-    HlsMasterPlaylist masterPlaylist;
+    HlsMultivariantPlaylist multivariantPlaylist;
     boolean isMediaPlaylist = result instanceof HlsMediaPlaylist;
     if (isMediaPlaylist) {
-      masterPlaylist = HlsMasterPlaylist.createSingleVariantMasterPlaylist(result.baseUri);
-    } else /* result instanceof HlsMasterPlaylist */ {
-      masterPlaylist = (HlsMasterPlaylist) result;
+      multivariantPlaylist =
+          HlsMultivariantPlaylist.createSingleVariantMultivariantPlaylist(result.baseUri);
+    } else /* result instanceof HlsMultivariantPlaylist */ {
+      multivariantPlaylist = (HlsMultivariantPlaylist) result;
     }
-    this.masterPlaylist = masterPlaylist;
-    primaryMediaPlaylistUrl = masterPlaylist.variants.get(0).url;
+    this.multivariantPlaylist = multivariantPlaylist;
+    primaryMediaPlaylistUrl = multivariantPlaylist.variants.get(0).url;
     // Add a temporary playlist listener for loading the first primary playlist.
     listeners.add(new FirstPrimaryMediaPlaylistListener());
-    createBundles(masterPlaylist.mediaPlaylistUrls);
+    createBundles(multivariantPlaylist.mediaPlaylistUrls);
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -327,7 +331,7 @@ public final class DefaultHlsPlaylistTracker
   // Internal methods.
 
   private boolean maybeSelectNewPrimaryUrl() {
-    List<Variant> variants = masterPlaylist.variants;
+    List<Variant> variants = multivariantPlaylist.variants;
     int variantsSize = variants.size();
     long currentTimeMs = SystemClock.elapsedRealtime();
     for (int i = 0; i < variantsSize; i++) {
@@ -382,9 +386,12 @@ public final class DefaultHlsPlaylistTracker
     return newPrimaryPlaylistUri;
   }
 
-  /** Returns whether any of the variants in the master playlist have the specified playlist URL. */
+  /**
+   * Returns whether any of the variants in the multivariant playlist have the specified playlist
+   * URL.
+   */
   private boolean isVariantUrl(Uri playlistUrl) {
-    List<Variant> variants = masterPlaylist.variants;
+    List<Variant> variants = multivariantPlaylist.variants;
     for (int i = 0; i < variants.size(); i++) {
       if (playlistUrl.equals(variants.get(i).url)) {
         return true;
@@ -687,7 +694,7 @@ public final class DefaultHlsPlaylistTracker
 
     private void loadPlaylistImmediately(Uri playlistRequestUri) {
       ParsingLoadable.Parser<HlsPlaylist> mediaPlaylistParser =
-          playlistParserFactory.createPlaylistParser(masterPlaylist, playlistSnapshot);
+          playlistParserFactory.createPlaylistParser(multivariantPlaylist, playlistSnapshot);
       ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable =
           new ParsingLoadable<>(
               mediaPlaylistDataSource,
@@ -823,7 +830,7 @@ public final class DefaultHlsPlaylistTracker
       if (primaryMediaPlaylistSnapshot == null) {
         long nowMs = SystemClock.elapsedRealtime();
         int variantExclusionCounter = 0;
-        List<Variant> variants = castNonNull(masterPlaylist).variants;
+        List<Variant> variants = castNonNull(multivariantPlaylist).variants;
         for (int i = 0; i < variants.size(); i++) {
           @Nullable
           MediaPlaylistBundle mediaPlaylistBundle = playlistBundles.get(variants.get(i).url);
@@ -835,7 +842,7 @@ public final class DefaultHlsPlaylistTracker
             new LoadErrorHandlingPolicy.FallbackOptions(
                 /* numberOfLocations= */ 1,
                 /* numberOfExcludedLocations= */ 0,
-                /* numberOfTracks= */ masterPlaylist.variants.size(),
+                /* numberOfTracks= */ multivariantPlaylist.variants.size(),
                 /* numberOfExcludedTracks= */ variantExclusionCounter);
         @Nullable
         LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =

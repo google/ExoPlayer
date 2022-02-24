@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -31,8 +32,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -311,7 +314,9 @@ public final class H263Reader implements ElementaryStreamReader {
 
     private static final byte[] START_CODE = new byte[] {0, 0, 1};
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       STATE_SKIP_TO_VISUAL_OBJECT_SEQUENCE_START,
       STATE_EXPECT_VISUAL_OBJECT_START,
@@ -328,7 +333,7 @@ public final class H263Reader implements ElementaryStreamReader {
     private static final int STATE_WAIT_FOR_VOP_START = 4;
 
     private boolean isFilling;
-    @State private int state;
+    private @State int state;
 
     public int length;
     public int volStartPosition;
@@ -473,7 +478,7 @@ public final class H263Reader implements ElementaryStreamReader {
         int size = (int) (position - samplePosition);
         @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
         output.sampleMetadata(
-            sampleTimeUs, flags, size, bytesWrittenPastPosition, /* encryptionData= */ null);
+            sampleTimeUs, flags, size, bytesWrittenPastPosition, /* cryptoData= */ null);
       }
       // Start a new sample, unless this is a 'group of video object plane' in which case we
       // include the data at the start of a 'video object plane' coming next.

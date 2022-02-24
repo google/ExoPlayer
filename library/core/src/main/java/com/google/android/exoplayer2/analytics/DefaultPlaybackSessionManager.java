@@ -177,7 +177,8 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
     Iterator<SessionDescriptor> iterator = sessions.values().iterator();
     while (iterator.hasNext()) {
       SessionDescriptor session = iterator.next();
-      if (!session.tryResolvingToNewTimeline(previousTimeline, currentTimeline)) {
+      if (!session.tryResolvingToNewTimeline(previousTimeline, currentTimeline)
+          || session.isFinishedAtEventTime(eventTime)) {
         iterator.remove();
         if (session.isCreated) {
           if (session.sessionId.equals(currentSessionId)) {

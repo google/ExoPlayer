@@ -160,8 +160,7 @@ public class FakeRenderer extends BaseRenderer {
   }
 
   @Override
-  @Capabilities
-  public int supportsFormat(Format format) throws ExoPlaybackException {
+  public @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
     int trackType = MimeTypes.getTrackType(format.sampleMimeType);
     return trackType != C.TRACK_TYPE_UNKNOWN && trackType == getTrackType()
         ? RendererCapabilities.create(C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)

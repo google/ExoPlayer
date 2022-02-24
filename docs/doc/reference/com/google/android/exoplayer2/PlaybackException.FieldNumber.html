@@ -115,9 +115,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre><a href="https://developer.android.com/reference/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">@Documented</a>
 <a href="https://developer.android.com/reference/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="externalLink">@Retention</a>(<a href="https://developer.android.com/reference/java/lang/annotation/RetentionPolicy.html?is-external=true#SOURCE" title="class or interface in java.lang.annotation" class="externalLink" target="_top">SOURCE</a>)
+<a href="https://developer.android.com/reference/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="externalLink">@Target</a>(<a href="https://developer.android.com/reference/java/lang/annotation/ElementType.html?is-external=true#TYPE_USE" title="class or interface in java.lang.annotation" class="externalLink" target="_top">TYPE_USE</a>)
 protected static @interface <span class="memberNameLabel">PlaybackException.FieldNumber</span></pre>
 <div class="block">Identifiers for fields in a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> which represents a playback exception. Subclasses
- may use <a href="PlaybackException.html#FIELD_CUSTOM_ID_BASE"><code>PlaybackException.FIELD_CUSTOM_ID_BASE</code></a> to generate more keys using <a href="PlaybackException.html#keyForField(int)"><code>PlaybackException.keyForField(int)</code></a>.
+ may use <a href="PlaybackException.html#FIELD_CUSTOM_ID_BASE"><code>PlaybackException.FIELD_CUSTOM_ID_BASE</code></a> to generate more keys using <a href="PlaybackException.html#keyForField(@com.google.android.exoplayer2.PlaybackException.FieldNumberint)"><code>PlaybackException.keyForField(int)</code></a>.
 
  <p>Note: Changes to the Bundleable implementation must be backwards compatible, so as to avoid
  breaking communication across different Bundleable implementation versions.</div>

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
@@ -31,8 +32,12 @@ public interface ProgressiveMediaExtractor {
   /** Creates {@link ProgressiveMediaExtractor} instances. */
   interface Factory {
 
-    /** Returns a new {@link ProgressiveMediaExtractor} instance. */
-    ProgressiveMediaExtractor createProgressiveMediaExtractor();
+    /**
+     * Returns a new {@link ProgressiveMediaExtractor} instance.
+     *
+     * @param playerId The {@link PlayerId} of the player this extractor is used for.
+     */
+    ProgressiveMediaExtractor createProgressiveMediaExtractor(PlayerId playerId);
   }
 
   /**

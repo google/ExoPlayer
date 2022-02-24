@@ -95,10 +95,13 @@ public final class MappingTrackSelectorTest {
   @Test
   public void selectTracks_multipleVideoAndAudioTracks_mappedToSameRenderer()
       throws ExoPlaybackException {
+    TrackGroup videoGroup0 = VIDEO_TRACK_GROUP.copyWithId("0");
+    TrackGroup videoGroup1 = VIDEO_TRACK_GROUP.copyWithId("1");
+    TrackGroup audioGroup0 = AUDIO_TRACK_GROUP.copyWithId("0");
+    TrackGroup audioGroup1 = AUDIO_TRACK_GROUP.copyWithId("1");
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
     TrackGroupArray trackGroups =
-        new TrackGroupArray(
-            VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP);
+        new TrackGroupArray(videoGroup0, audioGroup0, audioGroup1, videoGroup1);
     RendererCapabilities[] rendererCapabilities =
         new RendererCapabilities[] {
           VIDEO_CAPABILITIES, AUDIO_CAPABILITIES, VIDEO_CAPABILITIES, AUDIO_CAPABILITIES
@@ -106,16 +109,18 @@ public final class MappingTrackSelectorTest {
 
     trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
 
-    trackSelector.assertMappedTrackGroups(0, VIDEO_TRACK_GROUP, VIDEO_TRACK_GROUP);
-    trackSelector.assertMappedTrackGroups(1, AUDIO_TRACK_GROUP, AUDIO_TRACK_GROUP);
+    trackSelector.assertMappedTrackGroups(0, videoGroup0, videoGroup1);
+    trackSelector.assertMappedTrackGroups(1, audioGroup0, audioGroup1);
   }
 
   @Test
   public void selectTracks_multipleMetadataTracks_mappedToDifferentRenderers()
       throws ExoPlaybackException {
+    TrackGroup metadataGroup0 = METADATA_TRACK_GROUP.copyWithId("0");
+    TrackGroup metadataGroup1 = METADATA_TRACK_GROUP.copyWithId("1");
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
     TrackGroupArray trackGroups =
-        new TrackGroupArray(VIDEO_TRACK_GROUP, METADATA_TRACK_GROUP, METADATA_TRACK_GROUP);
+        new TrackGroupArray(VIDEO_TRACK_GROUP, metadataGroup0, metadataGroup1);
     RendererCapabilities[] rendererCapabilities =
         new RendererCapabilities[] {
           VIDEO_CAPABILITIES, METADATA_CAPABILITIES, METADATA_CAPABILITIES
@@ -124,8 +129,8 @@ public final class MappingTrackSelectorTest {
     trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
 
     trackSelector.assertMappedTrackGroups(0, VIDEO_TRACK_GROUP);
-    trackSelector.assertMappedTrackGroups(1, METADATA_TRACK_GROUP);
-    trackSelector.assertMappedTrackGroups(2, METADATA_TRACK_GROUP);
+    trackSelector.assertMappedTrackGroups(1, metadataGroup0);
+    trackSelector.assertMappedTrackGroups(2, metadataGroup1);
   }
 
   private static TrackGroup buildTrackGroup(String sampleMimeType) {
@@ -140,10 +145,10 @@ public final class MappingTrackSelectorTest {
             new int[] {C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO},
             new TrackGroupArray[] {
               new TrackGroupArray(
-                  new TrackGroup(new Format.Builder().build()),
-                  new TrackGroup(new Format.Builder().build())),
+                  new TrackGroup("0", new Format.Builder().build()),
+                  new TrackGroup("1", new Format.Builder().build())),
               new TrackGroupArray(
-                  new TrackGroup(new Format.Builder().build(), new Format.Builder().build()))
+                  new TrackGroup("2", new Format.Builder().build(), new Format.Builder().build()))
             },
             new int[] {
               RendererCapabilities.ADAPTIVE_SEAMLESS, RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
@@ -239,8 +244,7 @@ public final class MappingTrackSelectorTest {
     }
 
     @Override
-    @Capabilities
-    public int supportsFormat(Format format) throws ExoPlaybackException {
+    public @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
           ? RendererCapabilities.create(
               C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
@@ -248,8 +252,7 @@ public final class MappingTrackSelectorTest {
     }
 
     @Override
-    @AdaptiveSupport
-    public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
       return ADAPTIVE_SEAMLESS;
     }
   }

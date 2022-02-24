@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -23,6 +25,7 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Utility methods for handling AAC audio streams. */
 public final class AacUtil {
@@ -157,6 +160,7 @@ public final class AacUtil {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     AUDIO_OBJECT_TYPE_AAC_LC,
     AUDIO_OBJECT_TYPE_AAC_SBR,

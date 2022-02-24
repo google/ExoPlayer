@@ -51,9 +51,9 @@ methods, as listed below and shown in the following figure.
   `Timeline`. The current `Timeline.Window` can be retrieved from the `Timeline`
   using `Player.getCurrentWindowIndex` and `Timeline.getWindow`. Within the
   `Window`:
-  * `Window.liveConfiguration` contains the target live offset and and live
-    offset adjustment parameters. These values are based on information in the
-    media and any app-provided overrides set in `MediaItem.liveConfiguration`.
+  * `Window.liveConfiguration` contains the target live offset and live offset
+    adjustment parameters. These values are based on information in the media
+    and any app-provided overrides set in `MediaItem.liveConfiguration`.
   * `Window.windowStartTimeMs` is the time since the Unix Epoch at which the
     live window starts.
   * `Window.getCurrentUnixTimeMs` is the time since the Unix Epoch of the

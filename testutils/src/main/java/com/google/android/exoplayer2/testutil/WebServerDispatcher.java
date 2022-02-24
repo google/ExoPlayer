@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import androidx.annotation.IntDef;
@@ -33,6 +34,7 @@ import com.google.common.collect.Maps;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -66,6 +68,7 @@ public class WebServerDispatcher extends Dispatcher {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({GZIP_SUPPORT_DISABLED, GZIP_SUPPORT_ENABLED, GZIP_SUPPORT_FORCED})
     private @interface GzipSupport {}
 
@@ -94,7 +97,7 @@ public class WebServerDispatcher extends Dispatcher {
       private byte @MonotonicNonNull [] data;
       private boolean supportsRangeRequests;
       private boolean resolvesToUnknownLength;
-      @GzipSupport private int gzipSupport;
+      private @GzipSupport int gzipSupport;
 
       /** Constructs an instance. */
       public Builder() {
@@ -182,7 +185,7 @@ public class WebServerDispatcher extends Dispatcher {
     private final byte[] data;
     private final boolean supportsRangeRequests;
     private final boolean resolvesToUnknownLength;
-    @GzipSupport private final int gzipSupport;
+    private final @GzipSupport int gzipSupport;
 
     private Resource(
         String path,
@@ -218,8 +221,7 @@ public class WebServerDispatcher extends Dispatcher {
     }
 
     /** Returns the level of gzip support the server should provide for this resource. */
-    @GzipSupport
-    public int getGzipSupport() {
+    public @GzipSupport int getGzipSupport() {
       return gzipSupport;
     }
 
@@ -404,7 +406,7 @@ public class WebServerDispatcher extends Dispatcher {
       @Nullable String qvalue = matcher.group(2);
       parsedEncodings.put(contentCoding, qvalue == null ? -1f : Float.parseFloat(qvalue));
     }
-    return parsedEncodings.build();
+    return parsedEncodings.buildOrThrow();
   }
 
   /**
@@ -430,7 +432,7 @@ public class WebServerDispatcher extends Dispatcher {
           ImmutableMap.<String, Float>builder()
               .putAll(acceptEncodingHeader)
               .put("identity", -1f)
-              .build();
+              .buildOrThrow();
     }
     float asteriskQvalue = acceptEncodingHeader.getOrDefault("*", 0f);
     @Nullable String preferredContentCoding = null;

@@ -1,0 +1,518 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>TransformationRequest.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="TransformationRequest.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
+<h2 title="Class TransformationRequest.Builder" class="title">Class TransformationRequest.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.transformer.TransformationRequest.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">TransformationRequest.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">A builder for <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> instances.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance with default values.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Builds a <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> instance.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimental_setEnableHdrEditing(boolean)">experimental_setEnableHdrEditing</a></span>&#8203;(boolean&nbsp;enableHdrEditing)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
+ signal.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioMimeType(java.lang.String)">setAudioMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioMimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets the audio MIME type of the output.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlattenForSlowMotion(boolean)">setFlattenForSlowMotion</a></span>&#8203;(boolean&nbsp;flattenForSlowMotion)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the input should be flattened for media containing slow motion markers.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResolution(int)">setResolution</a></span>&#8203;(int&nbsp;outputHeight)</code></th>
+<td class="colLast">
+<div class="block">Sets the output resolution using the output height.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransformationMatrix(android.graphics.Matrix)">setTransformationMatrix</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;transformationMatrix)</code></th>
+<td class="colLast">
+<div class="block">Sets the transformation matrix.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoMimeType(java.lang.String)">setVideoMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoMimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets the video MIME type of the output.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder()</pre>
+<div class="block">Creates a new instance with default values.
+
+ <p>Use <a href="TransformationRequest.html#buildUpon()"><code>TransformationRequest.buildUpon()</code></a> to obtain a builder representing an existing
+ <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setTransformationMatrix(android.graphics.Matrix)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTransformationMatrix</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setTransformationMatrix&#8203;(<a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;transformationMatrix)</pre>
+<div class="block">Sets the transformation matrix. The default value is to apply no change.
+
+ <p>This can be used to perform operations supported by <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a>, like scaling and
+ rotating the video.
+
+ <p>The video dimensions will be on the x axis, from -aspectRatio to aspectRatio, and on the y
+ axis, from -1 to 1.
+
+ <p>For now, resolution will not be affected by this method.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>transformationMatrix</code> - The transformation to apply to video frames.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setFlattenForSlowMotion(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFlattenForSlowMotion</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setFlattenForSlowMotion&#8203;(boolean&nbsp;flattenForSlowMotion)</pre>
+<div class="block">Sets whether the input should be flattened for media containing slow motion markers. The
+ transformed output is obtained by removing the slow motion metadata and by actually slowing
+ down the parts of the video and audio streams defined in this metadata. The default value for
+ <code>flattenForSlowMotion</code> is <code>false</code>.
+
+ <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. The
+ transformation has no effect if the input does not contain this metadata type.
+
+ <p>For SEF slow motion media, the following assumptions are made on the input:
+
+ <ul>
+   <li>The input container format is (unfragmented) MP4.
+   <li>The input contains an AVC video elementary stream with temporal SVC.
+   <li>The recording frame rate of the video is 120 or 240 fps.
+ </ul>
+
+ <p>If specifying a <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> using <a href="Transformer.Builder.html#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)"><code>Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)</code></a>, make sure that <a href="../extractor/mp4/Mp4Extractor.html#FLAG_READ_SEF_DATA"><code>Mp4Extractor.FLAG_READ_SEF_DATA</code></a> is set on the <a href="../extractor/mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> used. Otherwise, the slow
+ motion metadata will be ignored and the input won't be flattened.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>flattenForSlowMotion</code> - Whether to flatten for slow motion.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setResolution(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setResolution</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setResolution&#8203;(int&nbsp;outputHeight)</pre>
+<div class="block">Sets the output resolution using the output height. The default value <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
+ corresponds to using the same height as the input. Output width will scale to preserve the
+ input video's aspect ratio.
+
+ <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
+ supported, to ensure compatibility on different devices.
+
+ <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>outputHeight</code> - The output height in pixels.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>outputHeight</code> is not supported.</dd>
+</dl>
+</li>
+</ul>
+<a id="setVideoMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setVideoMimeType&#8203;(@Nullable
+                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoMimeType)</pre>
+<div class="block">Sets the video MIME type of the output. The default value is <code>null</code> which corresponds
+ to using the same MIME type as the input. Supported MIME types are:
+
+ <ul>
+   <li><a href="../util/MimeTypes.html#VIDEO_H263"><code>MimeTypes.VIDEO_H263</code></a>
+   <li><a href="../util/MimeTypes.html#VIDEO_H264"><code>MimeTypes.VIDEO_H264</code></a>
+   <li><a href="../util/MimeTypes.html#VIDEO_H265"><code>MimeTypes.VIDEO_H265</code></a> from API level 24
+   <li><a href="../util/MimeTypes.html#VIDEO_MP4V"><code>MimeTypes.VIDEO_MP4V</code></a>
+ </ul></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>videoMimeType</code> - The MIME type of the video samples in the output.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>videoMimeType</code> is non-null but not a video
+     <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util"><code>MIME type</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAudioMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setAudioMimeType&#8203;(@Nullable
+                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioMimeType)</pre>
+<div class="block">Sets the audio MIME type of the output. The default value is <code>null</code> which corresponds
+ to using the same MIME type as the input. Supported MIME types are:
+
+ <ul>
+   <li><a href="../util/MimeTypes.html#AUDIO_AAC"><code>MimeTypes.AUDIO_AAC</code></a>
+   <li><a href="../util/MimeTypes.html#AUDIO_AMR_NB"><code>MimeTypes.AUDIO_AMR_NB</code></a>
+   <li><a href="../util/MimeTypes.html#AUDIO_AMR_WB"><code>MimeTypes.AUDIO_AMR_WB</code></a>
+ </ul></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioMimeType</code> - The MIME type of the audio samples in the output.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>audioMimeType</code> is non-null but not an audio
+     <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util"><code>MIME type</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="experimental_setEnableHdrEditing(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>experimental_setEnableHdrEditing</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;experimental_setEnableHdrEditing&#8203;(boolean&nbsp;enableHdrEditing)</pre>
+<div class="block">Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
+ signal.
+
+ <p>This method is experimental, and will be renamed or removed in a future release. The HDR
+ editing feature is under development and is intended for developing/testing HDR processing
+ and encoding support.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>enableHdrEditing</code> - Whether to attempt to process any input video stream as a high
+     dynamic range (HDR) signal.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="build()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;build()</pre>
+<div class="block">Builds a <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> instance.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

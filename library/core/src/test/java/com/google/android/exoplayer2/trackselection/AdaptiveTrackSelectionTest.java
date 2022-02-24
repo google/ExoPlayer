@@ -164,6 +164,44 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
+  public void updateSelectedTrack_liveStream_switchesUpWhenBufferedFractionToLiveEdgeReached() {
+    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
+    Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
+    TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
+    // The second measurement onward returns 2000L, which prompts the track selection to switch up
+    // if possible.
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 2000L);
+    AdaptiveTrackSelection adaptiveTrackSelection =
+        prepareAdaptiveTrackSelectionWithBufferedFractionToLiveEdgeForQualiyIncrease(
+            trackGroup,
+            /* bufferedFractionToLiveEdgeForQualityIncrease= */ 0.75f,
+            /* minDurationForQualityIncreaseMs= */ 5000);
+
+    // Not buffered close to live edge yet.
+    adaptiveTrackSelection.updateSelectedTrack(
+        /* playbackPositionUs= */ 0,
+        /* bufferedDurationUs= */ 1_600_000,
+        /* availableDurationUs= */ 5_600_000,
+        /* queue= */ ImmutableList.of(),
+        createMediaChunkIterators(trackGroup, /* chunkDurationUs= */ 2_000_000));
+
+    assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format2);
+
+    // Buffered all possible chunks (except for newly added chunk of 2 seconds).
+    // Intentionally choose a situation where availableDurationUs > minDurationForQualityIncreaseMs
+    // to ensure the live calculation is used regardless.
+    adaptiveTrackSelection.updateSelectedTrack(
+        /* playbackPositionUs= */ 0,
+        /* bufferedDurationUs= */ 3_600_000,
+        /* availableDurationUs= */ 5_600_000,
+        /* queue= */ ImmutableList.of(),
+        createMediaChunkIterators(trackGroup, /* chunkDurationUs= */ 2_000_000));
+
+    assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format3);
+  }
+
+  @Test
   public void updateSelectedTrackDoNotSwitchDownIfBufferedEnough() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
@@ -727,6 +765,28 @@ public final class AdaptiveTrackSelectionTest {
             maxHeightToDiscard,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
+            /* adaptationCheckpoints= */ ImmutableList.of(),
+            fakeClock));
+  }
+
+  private AdaptiveTrackSelection
+      prepareAdaptiveTrackSelectionWithBufferedFractionToLiveEdgeForQualiyIncrease(
+          TrackGroup trackGroup,
+          float bufferedFractionToLiveEdgeForQualityIncrease,
+          long minDurationForQualityIncreaseMs) {
+    return prepareTrackSelection(
+        new AdaptiveTrackSelection(
+            trackGroup,
+            selectedAllTracksInGroup(trackGroup),
+            TrackSelection.TYPE_UNSET,
+            mockBandwidthMeter,
+            minDurationForQualityIncreaseMs,
+            AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
+            AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD,
+            /* bandwidthFraction= */ 1.0f,
+            bufferedFractionToLiveEdgeForQualityIncrease,
             /* adaptationCheckpoints= */ ImmutableList.of(),
             fakeClock));
   }

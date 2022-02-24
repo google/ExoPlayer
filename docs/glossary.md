@@ -90,7 +90,7 @@ For more information, see the
 
 A file that defines the structure and location of media in
 [adaptive streaming](#adaptive-streaming) protocols. Examples include
-[DASH](#dash) [MPD](#mpd) files, [HLS](#hls) master playlist files and
+[DASH](#dash) [MPD](#mpd) files, [HLS](#hls) multivariant playlist files and
 [Smooth Streaming](#smooth-streaming) manifest files. Not to be confused with an
 AndroidManifest XML file.
 
@@ -128,7 +128,7 @@ containing the same content at different bitrates.
 An Android API for playing audio.
 
 For more information, see the
-[Javadoc](https://developer.android.com/reference/android/media/AudioTrack).
+[Javadoc]({{ site.android_sdk }}/android/media/AudioTrack).
 
 ###### CDM
 
@@ -137,7 +137,7 @@ decrypting [DRM](#drm) protected content. CDMs are accessed via Android’s
 [`MediaDrm`](#mediadrm) API.
 
 For more information, see the
-[Javadoc](https://developer.android.com/reference/android/media/MediaDrm).
+[Javadoc]({{ site.android_sdk }}/android/media/MediaDrm).
 
 ###### IMA
 
@@ -153,14 +153,14 @@ An Android API for accessing media [codecs](#codec) (i.e. encoder and decoder
 components) in the platform.
 
 For more information, see the
-[Javadoc](https://developer.android.com/reference/android/media/MediaCodec).
+[Javadoc]({{ site.android_sdk }}/android/media/MediaCodec).
 
 ###### MediaDrm
 
 An Android API for accessing [CDMs](#cdm) in the platform.
 
 For more information, see the
-[Javadoc](https://developer.android.com/reference/android/media/MediaDrm).
+[Javadoc]({{ site.android_sdk }}/android/media/MediaDrm).
 
 ###### Audio offload
 
@@ -181,7 +181,7 @@ For more information, see the
 
 ###### Surface
 
-See the [Javadoc](https://developer.android.com/reference/android/view/Surface)
+See the [Javadoc]({{ site.android_sdk }}/android/view/Surface)
 and the
 [Android graphics documentation](https://source.android.com/devices/graphics/arch-sh).
 
@@ -212,14 +212,14 @@ transfers. In [adaptive streaming](#adaptive-streaming), bandwidth estimates can
 be used to select between different bitrate [tracks](#track) during playback.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/BandwidthMeter.html).
+[Javadoc]({{ site.exo_sdk }}/upstream/BandwidthMeter.html).
 
 ###### DataSource
 
 Component for requesting data (e.g. over HTTP, from a local file, etc).
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html).
+[Javadoc]({{ site.exo_sdk }}/upstream/DataSource.html).
 
 ###### Extractor
 
@@ -228,7 +228,7 @@ Component that parses a media [container](#container) format, outputting
 belonging to each track suitable for consumption by a decoder.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/extractor/Extractor.html).
+[Javadoc]({{ site.exo_sdk }}/extractor/Extractor.html).
 
 ###### LoadControl
 
@@ -236,7 +236,7 @@ Component that decides when to start and stop loading, and when to start
 playback.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/LoadControl.html).
+[Javadoc]({{ site.exo_sdk }}/LoadControl.html).
 
 ###### MediaSource
 
@@ -245,7 +245,7 @@ Provides high-level information about the structure of media (as a
 (corresponding to periods of the `Timeline`) for playback.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/MediaSource.html).
+[Javadoc]({{ site.exo_sdk }}/source/MediaSource.html).
 
 ###### MediaPeriod
 
@@ -257,7 +257,7 @@ media are loaded and when loading starts and stops are made by the
 respectively.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/MediaPeriod.html).
+[Javadoc]({{ site.exo_sdk }}/source/MediaPeriod.html).
 
 ###### Renderer
 
@@ -266,7 +266,7 @@ and [`AudioTrack`](#audiotrack) are the standard Android platform components to
 which video and audio data are rendered.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Renderer.html).
+[Javadoc]({{ site.exo_sdk }}/Renderer.html).
 
 ###### Timeline
 
@@ -275,7 +275,7 @@ through to complex compositions of media such as playlists and streams with
 inserted ads.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Timeline.html).
+[Javadoc]({{ site.exo_sdk }}/Timeline.html).
 
 ###### TrackGroup
 
@@ -284,7 +284,7 @@ content, normally at different bitrates for
 [adaptive streaming](#adaptive-streaming).
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/TrackGroup.html).
+[Javadoc]({{ site.exo_sdk }}/source/TrackGroup.html).
 
 ###### TrackSelection
 
@@ -295,7 +295,7 @@ responsible for selecting the appropriate track whenever a new media chunk
 starts being loaded.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/trackselection/TrackSelection.html).
+[Javadoc]({{ site.exo_sdk }}/trackselection/TrackSelection.html).
 
 ###### TrackSelector
 
@@ -305,4 +305,4 @@ player’s [`Renderers`](#renderer), a `TrackSelector` will generate a
 [`TrackSelection`](#trackselection) for each `Renderer`.
 
 For more information, see the component
-[Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/trackselection/TrackSelector.html).
+[Javadoc]({{ site.exo_sdk }}/trackselection/TrackSelector.html).

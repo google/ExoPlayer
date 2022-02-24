@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -24,6 +26,7 @@ import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** A {@link FrameLayout} that resizes itself to match a specified aspect ratio. */
 public final class AspectRatioFrameLayout extends FrameLayout {
@@ -51,6 +54,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     RESIZE_MODE_FIT,
     RESIZE_MODE_FIXED_WIDTH,

@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Zima manukuu</string>
   <string name="exo_controls_cc_disabled_description">Washa manukuu</string>
   <string name="exo_controls_playback_speed">Kasi</string>
-  <string name="exo_controls_playback_speed_normal">Kawaida</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>Ya kawaida</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Sauti</string>
   <string name="exo_track_selection_title_text">Maandishi</string>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:DASH:schema:MPD:2011"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
+  xmlns:dvb="urn:dvb:dash:dash-extensions:2014-1"
+  profiles="urn:mpeg:dash:profile:isoff-main:2011,urn:dvb:dash:profile:dvb-dash:2014"
+  type="dynamic"
+  availabilityStartTime="2016-10-14T17:00:17">
+  <Period start="PT0.000S">
+    <BaseURL>//anotherhost.com/some/url/1/</BaseURL>
+    <BaseURL>//anotherhost.com/some/url/2/</BaseURL>
+    <AdaptationSet contentType="audio">
+      <SegmentTemplate/>
+      <Representation/>
+    </AdaptationSet>
+  </Period>
+</MPD>

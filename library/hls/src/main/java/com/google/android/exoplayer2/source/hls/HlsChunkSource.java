@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -26,6 +27,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
@@ -48,8 +51,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +92,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Chunk publication state. One of {@link #CHUNK_PUBLICATION_STATE_PRELOAD}, {@link
    * #CHUNK_PUBLICATION_STATE_PUBLISHED}, {@link #CHUNK_PUBLICATION_STATE_REMOVED}.
    */
+  @Documented
+  @Target(TYPE_USE)
   @IntDef({
     CHUNK_PUBLICATION_STATE_PRELOAD,
     CHUNK_PUBLICATION_STATE_PUBLISHED,
@@ -122,6 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final TrackGroup trackGroup;
   @Nullable private final List<Format> muxedCaptionFormats;
   private final FullSegmentEncryptionKeyCache keyCache;
+  private final PlayerId playerId;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
@@ -151,7 +159,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@link HlsChunkSource}s are used for a single playback, they should all share the same
    *     provider.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *     information is available in the master playlist.
+   *     information is available in the multivariant playlist.
    */
   public HlsChunkSource(
       HlsExtractorFactory extractorFactory,
@@ -161,13 +169,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
-      @Nullable List<Format> muxedCaptionFormats) {
+      @Nullable List<Format> muxedCaptionFormats,
+      PlayerId playerId) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
+    this.playerId = playerId;
     keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
@@ -238,6 +248,54 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
+   * Adjusts a seek position given the specified {@link SeekParameters}.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    int selectedIndex = trackSelection.getSelectedIndex();
+    @Nullable
+    HlsMediaPlaylist mediaPlaylist =
+        selectedIndex < playlistUrls.length && selectedIndex != C.INDEX_UNSET
+            ? playlistTracker.getPlaylistSnapshot(
+                playlistUrls[trackSelection.getSelectedIndexInTrackGroup()],
+                /* isForPlayback= */ true)
+            : null;
+
+    if (mediaPlaylist == null
+        || mediaPlaylist.segments.isEmpty()
+        || !mediaPlaylist.hasIndependentSegments) {
+      return positionUs;
+    }
+
+    // Segments start with sync samples (i.e., EXT-X-INDEPENDENT-SEGMENTS is set) and the playlist
+    // is non-empty, so we can use segment start times as sync points. Note that in the rare case
+    // that (a) an adaptive quality switch occurs between the adjustment and the seek being
+    // performed, and (b) segment start times are not aligned across variants, it's possible that
+    // the adjusted position may not be at a sync point when it was intended to be. However, this is
+    // very much an edge case, and getting it wrong is worth it for getting the vast majority of
+    // cases right whilst keeping the implementation relatively simple.
+    long startOfPlaylistInPeriodUs =
+        mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+    long relativePositionUs = positionUs - startOfPlaylistInPeriodUs;
+    int segmentIndex =
+        Util.binarySearchFloor(
+            mediaPlaylist.segments,
+            relativePositionUs,
+            /* inclusive= */ true,
+            /* stayInBounds= */ true);
+    long firstSyncUs = mediaPlaylist.segments.get(segmentIndex).relativeStartTimeUs;
+    long secondSyncUs = firstSyncUs;
+    if (segmentIndex != mediaPlaylist.segments.size() - 1) {
+      secondSyncUs = mediaPlaylist.segments.get(segmentIndex + 1).relativeStartTimeUs;
+    }
+    return seekParameters.resolveSeekPositionUs(relativePositionUs, firstSyncUs, secondSyncUs)
+        + startOfPlaylistInPeriodUs;
+  }
+
+  /**
    * Returns the publication state of the given chunk.
    *
    * @param mediaChunk The media chunk for which to evaluate the publication state.
@@ -245,8 +303,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     has been {@link #CHUNK_PUBLICATION_STATE_REMOVED removed} or is definitely {@link
    *     #CHUNK_PUBLICATION_STATE_PUBLISHED published}.
    */
-  @ChunkPublicationState
-  public int getChunkPublicationState(HlsMediaChunk mediaChunk) {
+  public @ChunkPublicationState int getChunkPublicationState(HlsMediaChunk mediaChunk) {
     if (mediaChunk.partIndex == C.INDEX_UNSET) {
       // Chunks based on full segments can't be removed and are always published.
       return CHUNK_PUBLICATION_STATE_PUBLISHED;
@@ -453,7 +510,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
-            shouldSpliceIn);
+            shouldSpliceIn,
+            playerId);
   }
 
   @Nullable
@@ -823,8 +881,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public InitializationTrackSelection(TrackGroup group, int[] tracks) {
       super(group, tracks);
-      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the master
-      // playlist.
+      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the
+      // multivariant playlist.
       selectedIndex = indexOf(group.getFormat(tracks[0]));
     }
 
@@ -856,7 +914,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public int getSelectionReason() {
+    public @C.SelectionReason int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }
 

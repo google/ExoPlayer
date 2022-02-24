@@ -17,26 +17,24 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
 
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,79 +44,6 @@ import org.junit.runner.RunWith;
 /** Unit test for {@link HlsMediaSource}. */
 @RunWith(AndroidJUnit4.class)
 public class HlsMediaSourceTest {
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nullMediaItemTag_setsMediaItemTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(tag);
-
-    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(hlsMediaItem.localConfiguration).isNotNull();
-    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nonNullMediaItemTag_doesNotOverrideMediaItemTag() {
-    Object factoryTag = new Object();
-    Object mediaItemTag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(mediaItemTag).build();
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(factoryTag);
-
-    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(hlsMediaItem.localConfiguration).isNotNull();
-    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_emptyMediaItemStreamKeys_setsMediaItemStreamKeys() {
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class))
-            .setStreamKeys(Collections.singletonList(streamKey));
-
-    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(hlsMediaItem.localConfiguration).isNotNull();
-    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(hlsMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_withMediaItemStreamKeys_doesNotOverrideMediaItemStreamKeys() {
-    StreamKey mediaItemStreamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri("http://www.google.com")
-            .setStreamKeys(Collections.singletonList(mediaItemStreamKey))
-            .build();
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class))
-            .setStreamKeys(
-                Collections.singletonList(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
-
-    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(hlsMediaItem.localConfiguration).isNotNull();
-    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(hlsMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
-  }
 
   @Test
   public void loadLivePlaylist_noTargetLiveOffsetDefined_fallbackToThreeTargetDuration()
@@ -153,6 +78,8 @@ public class HlsMediaSourceTest {
     // The target live offset is picked from target duration (3 * 4 = 12 seconds) and then expressed
     // in relation to the live edge (12 + 1 seconds).
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(13000);
+    assertThat(window.liveConfiguration.minPlaybackSpeed).isEqualTo(1f);
+    assertThat(window.liveConfiguration.maxPlaybackSpeed).isEqualTo(1f);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -176,7 +103,7 @@ public class HlsMediaSourceTest {
             + "#EXTINF:4.00000,\n"
             + "fileSequence3.ts\n"
             + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12";
-    // The playlist finishes 1 second before the the current time, therefore there's a live edge
+    // The playlist finishes 1 second before the current time, therefore there's a live edge
     // offset of 1 second.
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
@@ -189,6 +116,8 @@ public class HlsMediaSourceTest {
     // The target live offset is picked from hold back and then expressed in relation to the live
     // edge (+1 seconds).
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(13000);
+    assertThat(window.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(window.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -215,7 +144,7 @@ public class HlsMediaSourceTest {
             + "#EXTINF:4.00000,\n"
             + "fileSequence3.ts\n"
             + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3";
-    // The playlist finishes 1 second before the the current time.
+    // The playlist finishes 1 second before the current time.
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem = MediaItem.fromUri(playlistUri);
@@ -227,6 +156,8 @@ public class HlsMediaSourceTest {
     // The target live offset is picked from hold back and then expressed in relation to the live
     // edge (+1 seconds).
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(13000);
+    assertThat(window.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(window.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -258,6 +189,8 @@ public class HlsMediaSourceTest {
     // The target live offset is picked from part hold back and then expressed in relation to the
     // live edge (+1 seconds).
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(4000);
+    assertThat(window.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(window.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(window.defaultPositionUs).isEqualTo(0);
   }
 
@@ -471,7 +404,7 @@ public class HlsMediaSourceTest {
             + "#EXTINF:4.00000,\n"
             + "fileSequence0.ts\n"
             + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3";
-    // The playlist finishes 1 second before the the current time. This should not affect the target
+    // The playlist finishes 1 second before the current time. This should not affect the target
     // live offset set in the media item.
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:05.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
@@ -487,6 +420,76 @@ public class HlsMediaSourceTest {
 
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is picked from the media item and not adjusted.
+    assertThat(window.liveConfiguration).isEqualTo(mediaItem.liveConfiguration);
+    assertThat(window.defaultPositionUs).isEqualTo(0);
+  }
+
+  @Test
+  public void loadLivePlaylist_noHoldBackInPlaylistAndNoPlaybackSpeedInMediaItem_usesUnitSpeed()
+      throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has no hold back defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts";
+    // The playlist finishes 1 second before the current time. This should not affect the target
+    // live offset set in the media item.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:05.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(1000).build())
+            .build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    assertThat(window.liveConfiguration.minPlaybackSpeed).isEqualTo(1f);
+    assertThat(window.liveConfiguration.maxPlaybackSpeed).isEqualTo(1f);
+    assertThat(window.defaultPositionUs).isEqualTo(0);
+  }
+
+  @Test
+  public void
+      loadLivePlaylist_noHoldBackInPlaylistAndPlaybackSpeedInMediaItem_usesMediaItemConfiguration()
+          throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has no hold back defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts";
+    // The playlist finishes 1 second before the current time. This should not affect the target
+    // live offset set in the media item.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:05.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(1000)
+                    .setMinPlaybackSpeed(0.94f)
+                    .setMaxPlaybackSpeed(1.02f)
+                    .build())
+            .build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     assertThat(window.liveConfiguration).isEqualTo(mediaItem.liveConfiguration);
     assertThat(window.defaultPositionUs).isEqualTo(0);
   }
@@ -752,7 +755,7 @@ public class HlsMediaSourceTest {
     List<Timeline> timelines = new ArrayList<>();
     MediaSource.MediaSourceCaller mediaSourceCaller = (source, timeline) -> timelines.add(timeline);
 
-    mediaSource.prepareSource(mediaSourceCaller, null);
+    mediaSource.prepareSource(mediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     runMainLooperUntil(() -> timelines.size() == 1);
     mediaSource.onPrimaryPlaylistRefreshed(secondPlaylist);
     runMainLooperUntil(() -> timelines.size() == 2);
@@ -785,7 +788,9 @@ public class HlsMediaSourceTest {
       throws TimeoutException {
     AtomicReference<Timeline> receivedTimeline = new AtomicReference<>();
     mediaSource.prepareSource(
-        (source, timeline) -> receivedTimeline.set(timeline), /* mediaTransferListener= */ null);
+        (source, timeline) -> receivedTimeline.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
     runMainLooperUntil(() -> receivedTimeline.get() != null);
     return receivedTimeline.get();
   }

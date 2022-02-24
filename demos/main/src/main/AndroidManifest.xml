@@ -76,6 +76,7 @@
         <data android:scheme="content"/>
         <data android:scheme="asset"/>
         <data android:scheme="file"/>
+        <data android:scheme="ssai"/>
       </intent-filter>
       <intent-filter>
         <action android:name="com.google.android.exoplayer.demo.action.VIEW_LIST"/>

@@ -22,12 +22,12 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.analytics.AnalyticsCollector;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -35,8 +35,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A builder of {@link SimpleExoPlayer} instances for testing. */
-@SuppressWarnings("deprecation") // Returning deprecated type for backwards compatibility.
+/** A builder of {@link ExoPlayer} instances for testing. */
 public class TestExoPlayerBuilder {
 
   private final Context context;
@@ -46,7 +45,7 @@ public class TestExoPlayerBuilder {
   private BandwidthMeter bandwidthMeter;
   @Nullable private Renderer[] renderers;
   @Nullable private RenderersFactory renderersFactory;
-  @Nullable private MediaSourceFactory mediaSourceFactory;
+  @Nullable private MediaSource.Factory mediaSourceFactory;
   private boolean useLazyPreparation;
   private @MonotonicNonNull Looper looper;
   private long seekBackIncrementMs;
@@ -222,21 +221,21 @@ public class TestExoPlayerBuilder {
   }
 
   /**
-   * Returns the {@link MediaSourceFactory} that will be used by the player, or null if no {@link
-   * MediaSourceFactory} has been set yet and no default is available.
+   * Returns the {@link MediaSource.Factory} that will be used by the player, or null if no {@link
+   * MediaSource.Factory} has been set yet and no default is available.
    */
   @Nullable
-  public MediaSourceFactory getMediaSourceFactory() {
+  public MediaSource.Factory getMediaSourceFactory() {
     return mediaSourceFactory;
   }
 
   /**
-   * Sets the {@link MediaSourceFactory} to be used by the player.
+   * Sets the {@link MediaSource.Factory} to be used by the player.
    *
-   * @param mediaSourceFactory The {@link MediaSourceFactory} to be used by the player.
+   * @param mediaSourceFactory The {@link MediaSource.Factory} to be used by the player.
    * @return This builder.
    */
-  public TestExoPlayerBuilder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+  public TestExoPlayerBuilder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
     this.mediaSourceFactory = mediaSourceFactory;
     return this;
   }
@@ -273,8 +272,8 @@ public class TestExoPlayerBuilder {
     return seekForwardIncrementMs;
   }
 
-  /** Builds an {@link SimpleExoPlayer} using the provided values or their defaults. */
-  public SimpleExoPlayer build() {
+  /** Builds an {@link ExoPlayer} using the provided values or their defaults. */
+  public ExoPlayer build() {
     Assertions.checkNotNull(
         looper, "TestExoPlayer builder run on a thread without Looper and no Looper specified.");
     // Do not update renderersFactory and renderers here, otherwise their getters may
@@ -295,12 +294,12 @@ public class TestExoPlayerBuilder {
                   };
     }
 
-    SimpleExoPlayer.Builder builder =
-        new SimpleExoPlayer.Builder(context, playerRenderersFactory)
+    ExoPlayer.Builder builder =
+        new ExoPlayer.Builder(context, playerRenderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)
-            .setAnalyticsCollector(new AnalyticsCollector(clock))
+            .setAnalyticsCollector(new DefaultAnalyticsCollector(clock))
             .setClock(clock)
             .setUseLazyPreparation(useLazyPreparation)
             .setLooper(looper)

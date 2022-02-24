@@ -16,6 +16,15 @@
 package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -63,6 +72,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.Commands;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
@@ -1131,6 +1142,18 @@ public final class Util {
   }
 
   /**
+   * Converts a time in seconds to the corresponding time in microseconds.
+   *
+   * @param timeSec The time in seconds.
+   * @return The corresponding time in microseconds.
+   */
+  public static long secToUs(double timeSec) {
+    return BigDecimal.valueOf(timeSec)
+        .multiply(BigDecimal.valueOf(C.MICROS_PER_SECOND))
+        .longValue();
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to decode.
@@ -1535,8 +1558,7 @@ public final class Util {
    *     C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and {@link C#ENCODING_PCM_32BIT}. If
    *     the bit depth is unsupported then {@link C#ENCODING_INVALID} is returned.
    */
-  @C.PcmEncoding
-  public static int getPcmEncoding(int bitDepth) {
+  public static @C.PcmEncoding int getPcmEncoding(int bitDepth) {
     switch (bitDepth) {
       case 8:
         return C.ENCODING_PCM_8BIT;
@@ -1646,8 +1668,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.AudioUsage} corresponding to the specified {@link C.StreamType}. */
-  @C.AudioUsage
-  public static int getAudioUsageForStreamType(@C.StreamType int streamType) {
+  public static @C.AudioUsage int getAudioUsageForStreamType(@C.StreamType int streamType) {
     switch (streamType) {
       case C.STREAM_TYPE_ALARM:
         return C.USAGE_ALARM;
@@ -1668,8 +1689,8 @@ public final class Util {
   }
 
   /** Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}. */
-  @C.AudioContentType
-  public static int getAudioContentTypeForStreamType(@C.StreamType int streamType) {
+  public static @C.AudioContentType int getAudioContentTypeForStreamType(
+      @C.StreamType int streamType) {
     switch (streamType) {
       case C.STREAM_TYPE_ALARM:
       case C.STREAM_TYPE_DTMF:
@@ -1686,8 +1707,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.StreamType} corresponding to the specified {@link C.AudioUsage}. */
-  @C.StreamType
-  public static int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
+  public static @C.StreamType int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
     switch (usage) {
       case C.USAGE_MEDIA:
       case C.USAGE_GAME:
@@ -1737,7 +1757,8 @@ public final class Util {
    *     "clearkey"}.
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
-  public static @Nullable UUID getDrmUuid(String drmScheme) {
+  @Nullable
+  public static UUID getDrmUuid(String drmScheme) {
     switch (Ascii.toLowerCase(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
@@ -1759,8 +1780,8 @@ public final class Util {
    * MediaDrm.ErrorCodes} value. Returns {@link PlaybackException#ERROR_CODE_DRM_SYSTEM_ERROR} if
    * the provided error code isn't recognised.
    */
-  @PlaybackException.ErrorCode
-  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
+  public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmErrorCode(
+      int mediaDrmErrorCode) {
     switch (mediaDrmErrorCode) {
       case MediaDrm.ErrorCodes.ERROR_PROVISIONING_CONFIG:
       case MediaDrm.ErrorCodes.ERROR_PROVISIONING_PARSE:
@@ -1796,8 +1817,7 @@ public final class Util {
    * @param overrideExtension If not null, used to infer the type.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentType(Uri uri, @Nullable String overrideExtension) {
+  public static @ContentType int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
         : inferContentType("." + overrideExtension);
@@ -1809,8 +1829,7 @@ public final class Util {
    * @param uri The {@link Uri}.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentType(Uri uri) {
+  public static @ContentType int inferContentType(Uri uri) {
     @Nullable String scheme = uri.getScheme();
     if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
       return C.TYPE_RTSP;
@@ -1826,8 +1845,7 @@ public final class Util {
    * @param fileName Name of the file. It can include the path of the file.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentType(String fileName) {
+  public static @ContentType int inferContentType(String fileName) {
     fileName = Ascii.toLowerCase(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
@@ -1856,8 +1874,8 @@ public final class Util {
    * @param mimeType If MIME type, or {@code null}.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentTypeForUriAndMimeType(Uri uri, @Nullable String mimeType) {
+  public static @ContentType int inferContentTypeForUriAndMimeType(
+      Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
       return Util.inferContentType(uri);
     }
@@ -2007,7 +2025,8 @@ public final class Util {
    * @return The original value of the file name before it was escaped, or null if the escaped
    *     fileName seems invalid.
    */
-  public static @Nullable String unescapeFileName(String fileName) {
+  @Nullable
+  public static String unescapeFileName(String fileName) {
     int length = fileName.length();
     int percentCharacterCount = 0;
     for (int i = 0; i < length; i++) {
@@ -2382,6 +2401,8 @@ public final class Util {
         return "camera motion";
       case C.TRACK_TYPE_NONE:
         return "none";
+      case C.TRACK_TYPE_UNKNOWN:
+        return "unknown";
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
     }
@@ -2475,6 +2496,57 @@ public final class Util {
       default:
         throw new IllegalStateException();
     }
+  }
+
+  /**
+   * Returns the {@link Commands} available in the {@link Player}.
+   *
+   * @param player The {@link Player}.
+   * @param permanentAvailableCommands The commands permanently available in the player.
+   * @return The available {@link Commands}.
+   */
+  public static Commands getAvailableCommands(Player player, Commands permanentAvailableCommands) {
+    boolean isPlayingAd = player.isPlayingAd();
+    boolean isCurrentMediaItemSeekable = player.isCurrentMediaItemSeekable();
+    boolean hasPreviousMediaItem = player.hasPreviousMediaItem();
+    boolean hasNextMediaItem = player.hasNextMediaItem();
+    boolean isCurrentMediaItemLive = player.isCurrentMediaItemLive();
+    boolean isCurrentMediaItemDynamic = player.isCurrentMediaItemDynamic();
+    boolean isTimelineEmpty = player.getCurrentTimeline().isEmpty();
+    return new Commands.Builder()
+        .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd)
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentMediaItemSeekable && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousMediaItem && !isPlayingAd)
+        .addIf(
+            COMMAND_SEEK_TO_PREVIOUS,
+            !isTimelineEmpty
+                && (hasPreviousMediaItem || !isCurrentMediaItemLive || isCurrentMediaItemSeekable)
+                && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextMediaItem && !isPlayingAd)
+        .addIf(
+            COMMAND_SEEK_TO_NEXT,
+            !isTimelineEmpty
+                && (hasNextMediaItem || (isCurrentMediaItemLive && isCurrentMediaItemDynamic))
+                && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd)
+        .addIf(COMMAND_SEEK_BACK, isCurrentMediaItemSeekable && !isPlayingAd)
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentMediaItemSeekable && !isPlayingAd)
+        .build();
+  }
+
+  /**
+   * Returns the sum of all summands of the given array.
+   *
+   * @param summands The summands to calculate the sum from.
+   * @return The sum of all summands.
+   */
+  public static long sum(long... summands) {
+    long sum = 0;
+    for (long summand : summands) {
+      sum += summand;
+    }
+    return sum;
   }
 
   @Nullable

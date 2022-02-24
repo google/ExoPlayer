@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
   private static final String DRM_SCHEME_EXTRA = "drm_scheme";
   private static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
 
-  @Nullable private PlayerView playerView;
+  @Nullable private StyledPlayerView playerView;
   @Nullable private VideoProcessingGLSurfaceView videoProcessingGLSurfaceView;
 
   @Nullable private ExoPlayer player;
@@ -161,12 +161,12 @@ public final class MainActivity extends Activity {
     if (type == C.TYPE_DASH) {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
-              .setDrmSessionManager(drmSessionManager)
+              .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
     } else if (type == C.TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
-              .setDrmSessionManager(drmSessionManager)
+              .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
     } else {
       throw new IllegalStateException();

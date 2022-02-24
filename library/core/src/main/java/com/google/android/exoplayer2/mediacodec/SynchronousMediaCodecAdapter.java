@@ -23,8 +23,8 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.view.Surface;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
  */
-public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
+public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
 
   /** A factory for {@link SynchronousMediaCodecAdapter} instances. */
   public static class Factory implements MediaCodecAdapter.Factory {
@@ -45,7 +45,6 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
     @Override
     public MediaCodecAdapter createAdapter(Configuration configuration) throws IOException {
       @Nullable MediaCodec codec = null;
-      @Nullable Surface inputSurface = null;
       try {
         codec = createCodec(configuration);
         TraceUtil.beginSection("configureCodec");
@@ -55,24 +54,11 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
             configuration.crypto,
             configuration.flags);
         TraceUtil.endSection();
-
-        if (configuration.createInputSurface) {
-          if (Util.SDK_INT >= 18) {
-            inputSurface = Api18.createCodecInputSurface(codec);
-          } else {
-            throw new IllegalStateException(
-                "Encoding from a surface is only supported on API 18 and up.");
-          }
-        }
-
         TraceUtil.beginSection("startCodec");
         codec.start();
         TraceUtil.endSection();
-        return new SynchronousMediaCodecAdapter(codec, inputSurface);
+        return new SynchronousMediaCodecAdapter(codec);
       } catch (IOException | RuntimeException e) {
-        if (inputSurface != null) {
-          inputSurface.release();
-        }
         if (codec != null) {
           codec.release();
         }
@@ -92,13 +78,11 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   }
 
   private final MediaCodec codec;
-  @Nullable private final Surface inputSurface;
   @Nullable private ByteBuffer[] inputByteBuffers;
   @Nullable private ByteBuffer[] outputByteBuffers;
 
-  private SynchronousMediaCodecAdapter(MediaCodec mediaCodec, @Nullable Surface inputSurface) {
+  private SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
     this.codec = mediaCodec;
-    this.inputSurface = inputSurface;
     if (Util.SDK_INT < 21) {
       inputByteBuffers = codec.getInputBuffers();
       outputByteBuffers = codec.getOutputBuffers();
@@ -145,12 +129,6 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
 
   @Override
   @Nullable
-  public Surface getInputSurface() {
-    return inputSurface;
-  }
-
-  @Override
-  @Nullable
   public ByteBuffer getOutputBuffer(int index) {
     if (Util.SDK_INT >= 21) {
       return codec.getOutputBuffer(index);
@@ -192,16 +170,7 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   public void release() {
     inputByteBuffers = null;
     outputByteBuffers = null;
-    if (inputSurface != null) {
-      inputSurface.release();
-    }
     codec.release();
-  }
-
-  @Override
-  @RequiresApi(18)
-  public void signalEndOfInputStream() {
-    Api18.signalEndOfInputStream(codec);
   }
 
   @Override
@@ -231,16 +200,9 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
     codec.setVideoScalingMode(scalingMode);
   }
 
-  @RequiresApi(18)
-  private static final class Api18 {
-    @DoNotInline
-    public static Surface createCodecInputSurface(MediaCodec codec) {
-      return codec.createInputSurface();
-    }
-
-    @DoNotInline
-    public static void signalEndOfInputStream(MediaCodec codec) {
-      codec.signalEndOfInputStream();
-    }
+  @Override
+  @RequiresApi(26)
+  public PersistableBundle getMetrics() {
+    return codec.getMetrics();
   }
 }

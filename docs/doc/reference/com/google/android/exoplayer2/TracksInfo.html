@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -136,7 +136,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">TracksInfo</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
-<div class="block">Immutable information (<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TracksInfo.TrackGroupInfo</code></a>) about tracks.</div>
+<div class="block">Information about groups of tracks.</div>
 </li>
 </ul>
 </div>
@@ -161,8 +161,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2">TracksInfo.TrackGroupInfo</a></span></code></th>
 <td class="colLast">
-<div class="block">Information about tracks in a <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>: their <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a>, if their format is
- supported by the player and if they are selected for playback.</div>
+<div class="block">Information about a single group of tracks, including the underlying <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, the
+ <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of tracks it contains, and the level to which each track is supported
+ by the player.</div>
 </td>
 </tr>
 </table>
@@ -201,7 +202,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
-<div class="block">An empty <code>TrackInfo</code> containing no <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TracksInfo.TrackGroupInfo</code></a>.</div>
+<div class="block">An <code>TrackInfo</code> that contains no tracks.</div>
 </td>
 </tr>
 </table>
@@ -224,7 +225,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.List)">TracksInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2" target="_top">TracksInfo.TrackGroupInfo</a>&gt;&nbsp;trackGroupInfos)</code></th>
 <td class="colLast">
-<div class="block">Constructs <code>TracksInfo</code> from the provided <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TracksInfo.TrackGroupInfo</code></a>.</div>
+<div class="block">Constructs an instance.</div>
 </td>
 </tr>
 </table>
@@ -251,10 +252,10 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2">TracksInfo.TrackGroupInfo</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2">TracksInfo.TrackGroupInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackGroupInfos()">getTrackGroupInfos</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TrackGroupInfos</code></a>, describing each <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">Returns the <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TrackGroupInfos</code></a> describing the groups of tracks.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -266,17 +267,26 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTypeSelected(@com.google.android.exoplayer2.C.TrackTypeint)">isTypeSelected</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</code></th>
 <td class="colLast">
-<div class="block">Returns if at least one track of the type <code>trackType</code> is selected for playback.</div>
+<div class="block">Returns true if at least one track of the type <code>trackType</code> is selected for playback.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTypeSupportedOrEmpty(@com.google.android.exoplayer2.C.TrackTypeint)">isTypeSupportedOrEmpty</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</code></th>
 <td class="colLast">
-<div class="block">Returns if there is at least one track of type <code>trackType</code> but none are supported.</div>
+<div class="block">Returns true if at least one track of type <code>trackType</code> is <a href="TracksInfo.TrackGroupInfo.html#isTrackSupported(int)"><code>supported</code></a> or if there are no tracks of this type.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTypeSupportedOrEmpty(@com.google.android.exoplayer2.C.TrackTypeint,boolean)">isTypeSupportedOrEmpty</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
+                      boolean&nbsp;allowExceedsCapabilities)</code></th>
+<td class="colLast">
+<div class="block">Returns true if at least one track of type <code>trackType</code> is <a href="TracksInfo.TrackGroupInfo.html#isTrackSupported(int,boolean)"><code>supported</code></a> or if there are no tracks of this
+ type.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -314,7 +324,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>EMPTY</h4>
 <pre>public static final&nbsp;<a href="TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a> EMPTY</pre>
-<div class="block">An empty <code>TrackInfo</code> containing no <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TracksInfo.TrackGroupInfo</code></a>.</div>
+<div class="block">An <code>TrackInfo</code> that contains no tracks.</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -344,7 +354,12 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>TracksInfo</h4>
 <pre>public&nbsp;TracksInfo&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2" target="_top">TracksInfo.TrackGroupInfo</a>&gt;&nbsp;trackGroupInfos)</pre>
-<div class="block">Constructs <code>TracksInfo</code> from the provided <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TracksInfo.TrackGroupInfo</code></a>.</div>
+<div class="block">Constructs an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackGroupInfos</code> - The <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TrackGroupInfos</code></a> describing the groups of
+     tracks.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -363,8 +378,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackGroupInfos</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2">TracksInfo.TrackGroupInfo</a>&gt;&nbsp;getTrackGroupInfos()</pre>
-<div class="block">Returns the <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TrackGroupInfos</code></a>, describing each <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2">TracksInfo.TrackGroupInfo</a>&gt;&nbsp;getTrackGroupInfos()</pre>
+<div class="block">Returns the <a href="TracksInfo.TrackGroupInfo.html" title="class in com.google.android.exoplayer2"><code>TrackGroupInfos</code></a> describing the groups of tracks.</div>
 </li>
 </ul>
 <a id="isTypeSupportedOrEmpty(@com.google.android.exoplayer2.C.TrackTypeint)">
@@ -374,7 +389,27 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>isTypeSupportedOrEmpty</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isTypeSupportedOrEmpty&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
-<div class="block">Returns if there is at least one track of type <code>trackType</code> but none are supported.</div>
+<div class="block">Returns true if at least one track of type <code>trackType</code> is <a href="TracksInfo.TrackGroupInfo.html#isTrackSupported(int)"><code>supported</code></a> or if there are no tracks of this type.</div>
+</li>
+</ul>
+<a id="isTypeSupportedOrEmpty(@com.google.android.exoplayer2.C.TrackTypeint,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isTypeSupportedOrEmpty</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isTypeSupportedOrEmpty&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
+                                      boolean&nbsp;allowExceedsCapabilities)</pre>
+<div class="block">Returns true if at least one track of type <code>trackType</code> is <a href="TracksInfo.TrackGroupInfo.html#isTrackSupported(int,boolean)"><code>supported</code></a> or if there are no tracks of this
+ type.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowExceedsCapabilities</code> - Whether to consider the track as supported if it has a
+     supported <a href="Format.html#sampleMimeType"><code>MIME type</code></a>, but otherwise exceeds the advertised
+     capabilities of the device. For example, a video track for which there's a corresponding
+     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
+     Such tracks may be playable in some cases.</dd>
+</dl>
 </li>
 </ul>
 <a id="isTypeSelected(@com.google.android.exoplayer2.C.TrackTypeint)">
@@ -384,7 +419,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>isTypeSelected</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isTypeSelected&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
-<div class="block">Returns if at least one track of the type <code>trackType</code> is selected for playback.</div>
+<div class="block">Returns true if at least one track of the type <code>trackType</code> is selected for playback.</div>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">

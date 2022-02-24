@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -22,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Encapsulates information describing an MP4 track. */
 public final class Track {
@@ -32,6 +35,7 @@ public final class Track {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({TRANSFORMATION_NONE, TRANSFORMATION_CEA608_CDAT})
   public @interface Transformation {}
   /** A no-op sample transformation. */
@@ -63,7 +67,7 @@ public final class Track {
    * One of {@code TRANSFORMATION_*}. Defines the transformation to apply before outputting each
    * sample.
    */
-  @Transformation public final int sampleTransformation;
+  public final @Transformation int sampleTransformation;
 
   /** Durations of edit list segments in the movie timescale. Null if there is no edit list. */
   @Nullable public final long[] editListDurations;

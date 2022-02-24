@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull SeekMap seekMap;
   private long durationUs;
   private boolean isLive;
-  @DataType private int dataType;
+  private @DataType int dataType;
 
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;
@@ -717,11 +717,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     SampleQueue trackOutput =
-        SampleQueue.createWithDrm(
-            allocator,
-            /* playbackLooper= */ handler.getLooper(),
-            drmSessionManager,
-            drmEventDispatcher);
+        SampleQueue.createWithDrm(allocator, drmSessionManager, drmEventDispatcher);
     trackOutput.setUpstreamFormatChangeListener(this);
     @NullableType
     TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);
@@ -785,7 +781,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
       trackFormat = trackFormat.copyWithCryptoType(drmSessionManager.getCryptoType(trackFormat));
-      trackArray[i] = new TrackGroup(trackFormat);
+      trackArray[i] = new TrackGroup(/* id= */ Integer.toString(i), trackFormat);
     }
     trackState = new TrackState(new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
     prepared = true;
@@ -1073,7 +1069,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       TrackOutput icyTrackOutput = Assertions.checkNotNull(this.icyTrackOutput);
       icyTrackOutput.sampleData(metadata, length);
       icyTrackOutput.sampleMetadata(
-          timeUs, C.BUFFER_FLAG_KEY_FRAME, length, /* offset= */ 0, /* encryptionData= */ null);
+          timeUs, C.BUFFER_FLAG_KEY_FRAME, length, /* offset= */ 0, /* cryptoData= */ null);
       seenIcyMetadata = true;
     }
 

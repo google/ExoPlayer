@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.ForwardingTimeline;
@@ -36,11 +35,11 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import javax.net.SocketFactory;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
@@ -59,22 +58,22 @@ public final class RtspMediaSource extends BaseMediaSource {
    *
    * <ul>
    *   <li>{@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)}
-   *   <li>{@link #setDrmSessionManager(DrmSessionManager)}
-   *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}
-   *   <li>{@link #setDrmUserAgent(String)}
    *   <li>{@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)}
    * </ul>
    */
+  @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
   public static final class Factory implements MediaSourceFactory {
 
     private long timeoutMs;
     private String userAgent;
+    private SocketFactory socketFactory;
     private boolean forceUseRtpTcp;
     private boolean debugLoggingEnabled;
 
     public Factory() {
       timeoutMs = DEFAULT_TIMEOUT_MS;
       userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
+      socketFactory = SocketFactory.getDefault();
     }
 
     /**
@@ -101,6 +100,18 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     public Factory setUserAgent(String userAgent) {
       this.userAgent = userAgent;
+      return this;
+    }
+
+    /**
+     * Sets a socket factory for {@link RtspClient}'s connection, the default value is {@link
+     * SocketFactory#getDefault()}.
+     *
+     * @param socketFactory A socket factory.
+     * @return This Factory, for convenience.
+     */
+    public Factory setSocketFactory(SocketFactory socketFactory) {
+      this.socketFactory = socketFactory;
       return this;
     }
 
@@ -140,40 +151,6 @@ public final class RtspMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmUserAgent(@Nullable String userAgent) {
-      return this;
-    }
-
     /** Does nothing. {@link RtspMediaSource} does not support error handling policies. */
     @Override
     public Factory setLoadErrorHandlingPolicy(
@@ -203,6 +180,7 @@ public final class RtspMediaSource extends BaseMediaSource {
               ? new TransferRtpDataChannelFactory(timeoutMs)
               : new UdpDataSourceRtpDataChannelFactory(timeoutMs),
           userAgent,
+          socketFactory,
           debugLoggingEnabled);
     }
   }
@@ -226,6 +204,7 @@ public final class RtspMediaSource extends BaseMediaSource {
   private final RtpDataChannel.Factory rtpDataChannelFactory;
   private final String userAgent;
   private final Uri uri;
+  private final SocketFactory socketFactory;
   private final boolean debugLoggingEnabled;
 
   private long timelineDurationUs;
@@ -238,11 +217,13 @@ public final class RtspMediaSource extends BaseMediaSource {
       MediaItem mediaItem,
       RtpDataChannel.Factory rtpDataChannelFactory,
       String userAgent,
+      SocketFactory socketFactory,
       boolean debugLoggingEnabled) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
     this.uri = checkNotNull(this.mediaItem.localConfiguration).uri;
+    this.socketFactory = socketFactory;
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;
@@ -274,14 +255,24 @@ public final class RtspMediaSource extends BaseMediaSource {
         allocator,
         rtpDataChannelFactory,
         uri,
-        /* listener= */ timing -> {
-          timelineDurationUs = Util.msToUs(timing.getDurationMs());
-          timelineIsSeekable = !timing.isLive();
-          timelineIsLive = timing.isLive();
-          timelineIsPlaceholder = false;
-          notifySourceInfoRefreshed();
+        new RtspMediaPeriod.Listener() {
+          @Override
+          public void onSourceInfoRefreshed(RtspSessionTiming timing) {
+            timelineDurationUs = Util.msToUs(timing.getDurationMs());
+            timelineIsSeekable = !timing.isLive();
+            timelineIsLive = timing.isLive();
+            timelineIsPlaceholder = false;
+            notifySourceInfoRefreshed();
+          }
+
+          @Override
+          public void onSeekingUnsupported() {
+            timelineIsSeekable = false;
+            notifySourceInfoRefreshed();
+          }
         },
         userAgent,
+        socketFactory,
         debugLoggingEnabled);
   }
 

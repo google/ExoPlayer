@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.FloatRange;
@@ -25,6 +26,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** A rating expressed as a percentage. */
 public final class PercentageRating extends Rating {
@@ -74,10 +76,11 @@ public final class PercentageRating extends Rating {
 
   // Bundleable implementation.
 
-  @RatingType private static final int TYPE = RATING_TYPE_PERCENTAGE;
+  private static final @RatingType int TYPE = RATING_TYPE_PERCENTAGE;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_RATING_TYPE, FIELD_PERCENT})
   private @interface FieldNumber {}
 
@@ -96,7 +99,7 @@ public final class PercentageRating extends Rating {
 
   private static PercentageRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     float percent = bundle.getFloat(keyForField(FIELD_PERCENT), /* defaultValue= */ RATING_UNSET);
     return percent == RATING_UNSET ? new PercentageRating() : new PercentageRating(percent);

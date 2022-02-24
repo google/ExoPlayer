@@ -170,6 +170,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Listener for ads loader events.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a></span></code></th>
+<td class="colLast">
+<div class="block">Provides <a href="AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items that have <a href="../../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ad tag URIs</code></a>.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -223,7 +230,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSupportedContentTypes(int...)">setSupportedContentTypes</a></span>&#8203;(int...&nbsp;contentTypes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSupportedContentTypes(@com.google.android.exoplayer2.C.ContentTypeint...)">setSupportedContentTypes</a></span>&#8203;(@com.google.android.exoplayer2.C.ContentType int...&nbsp;contentTypes)</code></th>
 <td class="colLast">
 <div class="block">Sets the supported content types for ad media.</div>
 </td>
@@ -297,14 +304,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  no longer needed.</div>
 </li>
 </ul>
-<a id="setSupportedContentTypes(int...)">
+<a id="setSupportedContentTypes(@com.google.android.exoplayer2.C.ContentTypeint...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setSupportedContentTypes</h4>
 <pre class="methodSignature">void&nbsp;setSupportedContentTypes&#8203;(<a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2">@ContentType</a>
-                              int...&nbsp;contentTypes)</pre>
+                              @com.google.android.exoplayer2.C.ContentType int...&nbsp;contentTypes)</pre>
 <div class="block">Sets the supported content types for ad media. Must be called before the first call to <a href="#start(com.google.android.exoplayer2.source.ads.AdsMediaSource,com.google.android.exoplayer2.upstream.DataSpec,java.lang.Object,com.google.android.exoplayer2.ui.AdViewProvider,com.google.android.exoplayer2.source.ads.AdsLoader.EventListener)"><code>start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)</code></a>. Subsequent calls may
  be ignored. Called on the main thread by <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 <dl>

@@ -29,6 +29,7 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
@@ -125,6 +126,9 @@ public final class C {
   /** The name of the sans-serif font family. */
   public static final String SANS_SERIF_NAME = "sans-serif";
 
+  /** The {@link Uri#getScheme() URI scheme} used for content with server side ad insertion. */
+  public static final String SSAI_SCHEME = "ssai";
+
   /**
    * Types of crypto implementation. May be one of {@link #CRYPTO_TYPE_NONE}, {@link
    * #CRYPTO_TYPE_UNSUPPORTED} or {@link #CRYPTO_TYPE_FRAMEWORK}. May also be an app-defined value
@@ -159,6 +163,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
   /** @see MediaCodec#CRYPTO_MODE_UNENCRYPTED */
@@ -184,6 +189,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     ENCODING_INVALID,
@@ -218,6 +224,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     ENCODING_INVALID,
@@ -272,15 +279,32 @@ public final class C {
   /** @see AudioFormat#ENCODING_DOLBY_TRUEHD */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
 
+  /** Represents the behavior affecting whether spatialization will be used. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({SPATIALIZATION_BEHAVIOR_AUTO, SPATIALIZATION_BEHAVIOR_NEVER})
+  public @interface SpatializationBehavior {}
+
+  // TODO[b/190759307]: Update constant values and javadoc to use SDK once compile SDK target is set
+  //  to 32.
+  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO */
+  public static final int SPATIALIZATION_BEHAVIOR_AUTO = 0;
+  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER */
+  public static final int SPATIALIZATION_BEHAVIOR_NEVER = 1;
+
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
    * #STREAM_TYPE_DTMF}, {@link #STREAM_TYPE_MUSIC}, {@link #STREAM_TYPE_NOTIFICATION}, {@link
    * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM}, {@link #STREAM_TYPE_VOICE_CALL} or {@link
    * #STREAM_TYPE_DEFAULT}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @SuppressLint("UniqueConstants") // Intentional duplication to set STREAM_TYPE_DEFAULT.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     STREAM_TYPE_ALARM,
     STREAM_TYPE_DTMF,
@@ -314,6 +338,8 @@ public final class C {
    * #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link #CONTENT_TYPE_SPEECH} or
    * {@link #CONTENT_TYPE_UNKNOWN}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -343,6 +369,8 @@ public final class C {
    * <p>Note that {@code FLAG_HW_AV_SYNC} is not available because the player takes care of setting
    * the flag when tunneling is enabled via a track selector.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -364,6 +392,8 @@ public final class C {
    * #USAGE_NOTIFICATION_RINGTONE}, {@link #USAGE_UNKNOWN}, {@link #USAGE_VOICE_COMMUNICATION} or
    * {@link #USAGE_VOICE_COMMUNICATION_SIGNALLING}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -433,6 +463,8 @@ public final class C {
    * Capture policies for audio attributes. One of {@link #ALLOW_CAPTURE_BY_ALL}, {@link
    * #ALLOW_CAPTURE_BY_NONE} or {@link #ALLOW_CAPTURE_BY_SYSTEM}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -446,60 +478,13 @@ public final class C {
   public static final int ALLOW_CAPTURE_BY_SYSTEM = AudioAttributes.ALLOW_CAPTURE_BY_SYSTEM;
 
   /**
-   * Audio focus types. One of {@link #AUDIOFOCUS_NONE}, {@link #AUDIOFOCUS_GAIN}, {@link
-   * #AUDIOFOCUS_GAIN_TRANSIENT}, {@link #AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} or {@link
-   * #AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    AUDIOFOCUS_NONE,
-    AUDIOFOCUS_GAIN,
-    AUDIOFOCUS_GAIN_TRANSIENT,
-    AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
-    AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
-  })
-  public @interface AudioFocusGain {}
-  /** @see AudioManager#AUDIOFOCUS_NONE */
-  public static final int AUDIOFOCUS_NONE = AudioManager.AUDIOFOCUS_NONE;
-  /** @see AudioManager#AUDIOFOCUS_GAIN */
-  public static final int AUDIOFOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT */
-  public static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK */
-  public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
-      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
-  public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
-      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
-
-  /**
-   * Playback offload mode. One of {@link #PLAYBACK_OFFLOAD_NOT_SUPPORTED},{@link
-   * #PLAYBACK_OFFLOAD_SUPPORTED} or {@link #PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED}.
-   */
-  @IntDef({
-    PLAYBACK_OFFLOAD_NOT_SUPPORTED,
-    PLAYBACK_OFFLOAD_SUPPORTED,
-    PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED
-  })
-  @Retention(RetentionPolicy.SOURCE)
-  public @interface AudioManagerOffloadMode {}
-  /** See AudioManager#PLAYBACK_OFFLOAD_NOT_SUPPORTED */
-  public static final int PLAYBACK_OFFLOAD_NOT_SUPPORTED =
-      AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
-  /** See AudioManager#PLAYBACK_OFFLOAD_SUPPORTED */
-  public static final int PLAYBACK_OFFLOAD_SUPPORTED = AudioManager.PLAYBACK_OFFLOAD_SUPPORTED;
-  /** See AudioManager#PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED */
-  public static final int PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED =
-      AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
-
-  /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
    * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
    * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -530,6 +515,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(value = {VIDEO_OUTPUT_MODE_NONE, VIDEO_OUTPUT_MODE_YUV, VIDEO_OUTPUT_MODE_SURFACE_YUV})
   public @interface VideoOutputMode {}
   /** Video decoder output mode is not set. */
@@ -544,9 +530,12 @@ public final class C {
    * #VIDEO_SCALING_MODE_SCALE_TO_FIT}, {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING} or
    * {@link #VIDEO_SCALING_MODE_DEFAULT}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @SuppressLint("UniqueConstants") // Intentional duplication to set VIDEO_SCALING_MODE_DEFAULT.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     VIDEO_SCALING_MODE_SCALE_TO_FIT,
     VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING,
@@ -563,8 +552,11 @@ public final class C {
   public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
   /** Strategies for calling {@link Surface#setFrameRate}. */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF, VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS})
   public @interface VideoChangeFrameRateStrategy {}
   /**
@@ -583,6 +575,8 @@ public final class C {
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
    * #SELECTION_FLAG_FORCED} and {@link #SELECTION_FLAG_AUTOSELECT}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -590,6 +584,7 @@ public final class C {
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
   public @interface SelectionFlags {}
+  // LINT.IfChange(selection_flags)
   /** Indicates that the track should be selected if user preferences do not state otherwise. */
   public static final int SELECTION_FLAG_DEFAULT = 1;
   /**
@@ -615,8 +610,11 @@ public final class C {
    * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
    * #TYPE_HLS}, {@link #TYPE_RTSP} or {@link #TYPE_OTHER}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
   public @interface ContentType {}
   /** Value returned by {@link Util#inferContentType(String)} for DASH manifests. */
@@ -655,6 +653,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -748,6 +747,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -846,6 +846,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     STEREO_MODE_MONO,
@@ -872,6 +873,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
   /** @see MediaFormat#COLOR_STANDARD_BT709 */
@@ -887,6 +889,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
   public @interface ColorTransfer {}
   /** @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO */
@@ -902,6 +905,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
   /** @see MediaFormat#COLOR_RANGE_LIMITED */
@@ -912,6 +916,7 @@ public final class C {
   /** Video projection types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     PROJECTION_RECTANGULAR,
@@ -949,8 +954,11 @@ public final class C {
    * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_5G_SA}, {@link #NETWORK_TYPE_5G_NSA}, {@link
    * #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link #NETWORK_TYPE_ETHERNET} or {@link #NETWORK_TYPE_OTHER}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     NETWORK_TYPE_UNKNOWN,
     NETWORK_TYPE_OFFLINE,
@@ -995,6 +1003,8 @@ public final class C {
    * Mode specifying whether the player should hold a WakeLock and a WifiLock. One of {@link
    * #WAKE_MODE_NONE}, {@link #WAKE_MODE_LOCAL} or {@link #WAKE_MODE_NETWORK}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1032,6 +1042,8 @@ public final class C {
    * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG}, {@link #ROLE_FLAG_EASY_TO_READ} and {@link
    * #ROLE_FLAG_TRICK_PLAY}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -1055,6 +1067,7 @@ public final class C {
         ROLE_FLAG_TRICK_PLAY
       })
   public @interface RoleFlags {}
+  // LINT.IfChange(role_flags)
   /** Indicates a main track. */
   public static final int ROLE_FLAG_MAIN = 1;
   /**
@@ -1106,8 +1119,11 @@ public final class C {
    * #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM}, {@link
    * #FORMAT_UNSUPPORTED_SUBTYPE} or {@link #FORMAT_UNSUPPORTED_TYPE}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     FORMAT_HANDLED,
     FORMAT_EXCEEDS_CAPABILITIES,
@@ -1199,8 +1215,8 @@ public final class C {
       replacement = "Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode)",
       imports = {"com.google.android.exoplayer2.util.Util"})
   @Deprecated
-  @PlaybackException.ErrorCode
-  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
+  public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmErrorCode(
+      int mediaDrmErrorCode) {
     return Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode);
   }
 }

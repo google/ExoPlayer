@@ -32,11 +32,11 @@ import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry.VariantInfo;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Part;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.RenditionReport;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Rendition;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Variant;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -223,28 +223,30 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_VARIABLE_REFERENCE =
       Pattern.compile("\\{\\$([a-zA-Z0-9\\-_]+)\\}");
 
-  private final HlsMasterPlaylist masterPlaylist;
+  private final HlsMultivariantPlaylist multivariantPlaylist;
   @Nullable private final HlsMediaPlaylist previousMediaPlaylist;
 
   /**
    * Creates an instance where media playlists are parsed without inheriting attributes from a
-   * master playlist.
+   * multivariant playlist.
    */
   public HlsPlaylistParser() {
-    this(HlsMasterPlaylist.EMPTY, /* previousMediaPlaylist= */ null);
+    this(HlsMultivariantPlaylist.EMPTY, /* previousMediaPlaylist= */ null);
   }
 
   /**
    * Creates an instance where parsed media playlists inherit attributes from the given master
    * playlist.
    *
-   * @param masterPlaylist The master playlist from which media playlists will inherit attributes.
+   * @param multivariantPlaylist The multivariant playlist from which media playlists will inherit
+   *     attributes.
    * @param previousMediaPlaylist The previous media playlist from which the new media playlist may
    *     inherit skipped segments.
    */
   public HlsPlaylistParser(
-      HlsMasterPlaylist masterPlaylist, @Nullable HlsMediaPlaylist previousMediaPlaylist) {
-    this.masterPlaylist = masterPlaylist;
+      HlsMultivariantPlaylist multivariantPlaylist,
+      @Nullable HlsMediaPlaylist previousMediaPlaylist) {
+    this.multivariantPlaylist = multivariantPlaylist;
     this.previousMediaPlaylist = previousMediaPlaylist;
   }
 
@@ -264,7 +266,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           // Do nothing.
         } else if (line.startsWith(TAG_STREAM_INF)) {
           extraLines.add(line);
-          return parseMasterPlaylist(new LineIterator(extraLines, reader), uri.toString());
+          return parseMultivariantPlaylist(new LineIterator(extraLines, reader), uri.toString());
         } else if (line.startsWith(TAG_TARGET_DURATION)
             || line.startsWith(TAG_MEDIA_SEQUENCE)
             || line.startsWith(TAG_MEDIA_DURATION)
@@ -275,7 +277,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             || line.equals(TAG_ENDLIST)) {
           extraLines.add(line);
           return parseMediaPlaylist(
-              masterPlaylist,
+              multivariantPlaylist,
               previousMediaPlaylist,
               new LineIterator(extraLines, reader),
               uri.toString());
@@ -319,8 +321,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return c;
   }
 
-  private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
-      throws IOException {
+  private static HlsMultivariantPlaylist parseMultivariantPlaylist(
+      LineIterator iterator, String baseUri) throws IOException {
     HashMap<Uri, ArrayList<VariantInfo>> urlToVariantInfos = new HashMap<>();
     HashMap<String, String> variableDefinitions = new HashMap<>();
     ArrayList<Variant> variants = new ArrayList<>();
@@ -578,7 +580,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       muxedCaptionFormats = Collections.emptyList();
     }
 
-    return new HlsMasterPlaylist(
+    return new HlsMultivariantPlaylist(
         baseUri,
         tags,
         deduplicatedVariants,
@@ -627,7 +629,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(
-      HlsMasterPlaylist masterPlaylist,
+      HlsMultivariantPlaylist multivariantPlaylist,
       @Nullable HlsMediaPlaylist previousMediaPlaylist,
       LineIterator iterator,
       String baseUri)
@@ -638,7 +640,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int version = 1; // Default version == 1.
     long targetDurationUs = C.TIME_UNSET;
     long partTargetDurationUs = C.TIME_UNSET;
-    boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
+    boolean hasIndependentSegmentsTag = multivariantPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
     @Nullable Segment initializationSegment = null;
     HashMap<String, String> variableDefinitions = new HashMap<>();
@@ -748,11 +750,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_DEFINE)) {
         String importName = parseOptionalStringAttr(line, REGEX_IMPORT, variableDefinitions);
         if (importName != null) {
-          String value = masterPlaylist.variableDefinitions.get(importName);
+          String value = multivariantPlaylist.variableDefinitions.get(importName);
           if (value != null) {
             variableDefinitions.put(importName, value);
           } else {
-            // The master playlist does not declare the imported variable. Ignore.
+            // The multivariant playlist does not declare the imported variable. Ignore.
           }
         } else {
           variableDefinitions.put(
@@ -1083,8 +1085,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return Long.toHexString(segmentMediaSequence);
   }
 
-  @C.SelectionFlags
-  private static int parseSelectionFlags(String line) {
+  private static @C.SelectionFlags int parseSelectionFlags(String line) {
     int flags = 0;
     if (parseOptionalBooleanAttribute(line, REGEX_DEFAULT, false)) {
       flags |= C.SELECTION_FLAG_DEFAULT;
@@ -1098,8 +1099,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return flags;
   }
 
-  @C.RoleFlags
-  private static int parseRoleFlags(String line, Map<String, String> variableDefinitions) {
+  private static @C.RoleFlags int parseRoleFlags(
+      String line, Map<String, String> variableDefinitions) {
     String concatenatedCharacteristics =
         parseOptionalStringAttr(line, REGEX_CHARACTERISTICS, variableDefinitions);
     if (TextUtils.isEmpty(concatenatedCharacteristics)) {

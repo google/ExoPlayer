@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -64,6 +65,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -249,7 +251,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * a layout file. This is achieved by setting the {@code player_layout_id} attribute on a
  * PlayerView. This will cause the specified layout to be inflated instead of {@code
  * exo_player_view.xml} for only the instance on which the attribute is set.
+ *
+ * @deprecated Use {@link StyledPlayerView} instead.
  */
+@Deprecated
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
   /**
@@ -258,6 +263,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
   /** The buffering view is never shown. */
@@ -443,8 +449,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           break;
       }
       surfaceView.setLayoutParams(params);
-      // We don't want surfaceView to be clickable separately to the PlayerView itself, but we do
-      // want to register as an OnClickListener so that surfaceView implementations can propagate
+      // We don't want surfaceView to be clickable separately to the PlayerView itself, but we
+      // do want to register as an OnClickListener so that surfaceView implementations can propagate
       // click events up to the PlayerView by calling their own performClick method.
       surfaceView.setOnClickListener(componentListener);
       surfaceView.setClickable(false);

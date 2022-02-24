@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.media2;
 
 import static com.google.android.exoplayer2.util.Util.postOrRun;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.Handler;
@@ -32,6 +33,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -103,6 +105,7 @@ import java.util.concurrent.Callable;
   /** List of session commands whose result would be set after the command is finished. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       value = {
         COMMAND_CODE_PLAYER_SET_AUDIO_ATTRIBUTES,
@@ -129,6 +132,7 @@ import java.util.concurrent.Callable;
   /** Command whose result would be set later via listener after the command is finished. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       value = {COMMAND_CODE_PLAYER_PREPARE, COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_PAUSE})
   public @interface AsyncCommandCode {}

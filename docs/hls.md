@@ -30,8 +30,8 @@ If your URI doesn't end with `.m3u8`, you can pass `MimeTypes.APPLICATION_M3U8`
 to `setMimeType` of `MediaItem.Builder` to explicitly indicate the type of the
 content.
 
-The URI of the media item may point to either a media playlist or a master
-playlist. If the URI points to a master playlist that declares multiple
+The URI of the media item may point to either a media playlist or a multivariant
+playlist. If the URI points to a multivariant playlist that declares multiple
 `#EXT-X-STREAM-INF` tags then ExoPlayer will automatically adapt between
 variants, taking into account both available bandwidth and device capabilities.
 
@@ -86,22 +86,28 @@ player.addListener(
 ExoPlayer provides multiple ways for you to tailor playback experience to your
 app's needs. See the [Customization page][] for examples.
 
-### Enabling faster start-up times ###
+### Disabling chunkless preparation ###
 
-You can improve HLS start up times noticeably by enabling chunkless preparation.
-When you enable chunkless preparation and `#EXT-X-STREAM-INF` tags contain the
-`CODECS` attribute, ExoPlayer will avoid downloading media segments as part of
-preparation. The following snippet shows how to enable chunkless preparation.
+By default, ExoPlayer will use chunkless preparation. This means that ExoPlayer
+will only use the information in the multivariant playlist to prepare the
+stream, which works if the `#EXT-X-STREAM-INF` tags contain the `CODECS`
+attribute.
 
+You may need to disable this feature if your media segments contain muxed
+closed-caption tracks that are not declared in the multivariant playlist with a
+`#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS` tag. Otherwise, these closed-caption tracks
+won't be detected and played. You can disable chunkless preparation in the
+`HlsMediaSource.Factory` as shown in the following snippet. Note that this
+will increase start up time as ExoPlayer needs to download a media segment to
+discover these additional tracks and it is preferable to declare the
+closed-caption tracks in the multivariant playlist instead.
 ~~~
 HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)
-        .setAllowChunklessPreparation(true)
+        .setAllowChunklessPreparation(false)
         .createMediaSource(MediaItem.fromUri(hlsUri));
 ~~~
 {: .language-java}
-
-You can find more details in our [Medium post about chunkless preparation][].
 
 ## Creating high quality HLS content ##
 
@@ -114,7 +120,7 @@ ExoPlayer][] for a full explanation. The main points are:
   segments.
 * Use the `#EXT-X-INDEPENDENT-SEGMENTS` tag.
 * Prefer demuxed streams, as opposed to files that include both video and audio.
-* Include all information you can in the Master Playlist.
+* Include all information you can in the Multivariant Playlist.
 
 The following guidelines apply specifically for live streams:
 
@@ -124,8 +130,5 @@ The following guidelines apply specifically for live streams:
 
 [HlsMediaSource]: {{ site.exo_sdk }}/source/hls/HlsMediaSource.html
 [HTTP Live Streaming]: https://tools.ietf.org/html/rfc8216
-[PlayerView]: {{ site.exo_sdk }}/ui/PlayerView.html
-[UI components]: {{ site.baseurl }}/ui-components.html
 [Customization page]: {{ site.baseurl }}/customization.html
-[Medium post about chunkless preparation]: https://medium.com/google-exoplayer/faster-hls-preparation-f6611aa15ea6
 [Medium post about HLS playback in ExoPlayer]: https://medium.com/google-exoplayer/hls-playback-in-exoplayer-a33959a47be7

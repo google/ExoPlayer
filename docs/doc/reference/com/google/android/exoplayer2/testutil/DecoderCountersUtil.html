@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -175,13 +175,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertTotalBufferCount(java.lang.String,com.google.android.exoplayer2.decoder.DecoderCounters)">assertTotalBufferCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                      <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
+<td class="colLast">
+<div class="block">Asserts that the input and output values in <code>counters</code> are self-consistent.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertTotalBufferCount(java.lang.String,com.google.android.exoplayer2.decoder.DecoderCounters,int,int)">assertTotalBufferCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                       <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters,
                       int&nbsp;minCount,
                       int&nbsp;maxCount)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertVideoFrameProcessingOffsetSampleCount(java.lang.String,com.google.android.exoplayer2.decoder.DecoderCounters,int,int)">assertVideoFrameProcessingOffsetSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                            <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters,
@@ -189,7 +197,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                            int&nbsp;maxCount)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalBufferCount(com.google.android.exoplayer2.decoder.DecoderCounters)">getTotalBufferCount</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
@@ -245,6 +253,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertSkippedOutputBufferCount&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                                   <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters,
                                                   int&nbsp;expected)</pre>
+</li>
+</ul>
+<a id="assertTotalBufferCount(java.lang.String,com.google.android.exoplayer2.decoder.DecoderCounters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertTotalBufferCount</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;assertTotalBufferCount&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                          <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="block">Asserts that the input and output values in <code>counters</code> are self-consistent.</div>
 </li>
 </ul>
 <a id="assertTotalBufferCount(java.lang.String,com.google.android.exoplayer2.decoder.DecoderCounters,int,int)">

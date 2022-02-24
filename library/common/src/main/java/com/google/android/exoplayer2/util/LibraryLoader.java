@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.util;
 import java.util.Arrays;
 
 /** Configurable loader for native libraries. */
-public final class LibraryLoader {
+public abstract class LibraryLoader {
 
   private static final String TAG = "LibraryLoader";
 
@@ -48,7 +48,7 @@ public final class LibraryLoader {
     loadAttempted = true;
     try {
       for (String lib : nativeLibraries) {
-        System.loadLibrary(lib);
+        loadLibrary(lib);
       }
       isAvailable = true;
     } catch (UnsatisfiedLinkError exception) {
@@ -58,4 +58,17 @@ public final class LibraryLoader {
     }
     return isAvailable;
   }
+
+  /**
+   * Should be implemented to call {@code System.loadLibrary(name)}.
+   *
+   * <p>It's necessary for each subclass to implement this method because {@link
+   * System#loadLibrary(String)} uses reflection to obtain the calling class, which is then used to
+   * obtain the class loader to use when loading the native library. If this class were to implement
+   * the method directly, and if a subclass were to have a different class loader, then loading of
+   * the native library would fail.
+   *
+   * @param name The name of the library to load.
+   */
+  protected abstract void loadLibrary(String name);
 }

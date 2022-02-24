@@ -327,7 +327,9 @@ public final class Cea708Decoder extends CeaDecoder {
     // 8.10.4 for more details.
     boolean cuesNeedUpdate = false;
 
-    while (serviceBlockPacket.bitsLeft() > 0) {
+    int blockEndBitPosition = serviceBlockPacket.getPosition() + (blockSize * 8);
+    while (serviceBlockPacket.bitsLeft() > 0
+        && serviceBlockPacket.getPosition() < blockEndBitPosition) {
       int command = serviceBlockPacket.readBits(8);
       if (command != COMMAND_EXT1) {
         if (command <= GROUP_C0_END) {
@@ -1413,7 +1415,7 @@ public final class Cea708Decoder extends CeaDecoder {
      * @param size See {@link Cue#size}.
      * @param windowColorSet See {@link Cue#windowColorSet}.
      * @param windowColor See {@link Cue#windowColor}.
-     * @param priority See (@link #priority}.
+     * @param priority See {@link #priority}.
      */
     public Cea708CueInfo(
         CharSequence text,

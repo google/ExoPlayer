@@ -79,7 +79,7 @@ import java.util.ArrayList;
    */
   private static class DebugMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
-    private static final String TAG = "DebugMediaCodecVideoRenderer";
+    private static final String TAG = "DMCodecVideoRenderer";
     private static final int ARRAY_SIZE = 1000;
 
     private final long[] timestampsList;
@@ -149,14 +149,18 @@ import java.util.ArrayList;
 
     @Override
     protected void onCodecInitialized(
-        String name, long initializedTimestampMs, long initializationDurationMs) {
+        String name,
+        MediaCodecAdapter.Configuration configuration,
+        long initializedTimestampMs,
+        long initializationDurationMs) {
       // If the codec was initialized whilst the renderer is started, default behavior is to
       // render the first frame (i.e. the keyframe before the current position), then drop frames up
       // to the current playback position. For test runs that place a maximum limit on the number of
       // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
-      super.onCodecInitialized(name, initializedTimestampMs, initializationDurationMs);
+      super.onCodecInitialized(
+          name, configuration, initializedTimestampMs, initializationDurationMs);
     }
 
     @Override

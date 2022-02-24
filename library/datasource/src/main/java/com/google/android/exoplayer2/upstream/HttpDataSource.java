@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -27,6 +29,7 @@ import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -188,6 +191,7 @@ public interface HttpDataSource extends DataSource {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
     public @interface Type {}
 
@@ -227,7 +231,7 @@ public interface HttpDataSource extends DataSource {
     /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;
 
-    @Type public final int type;
+    public final @Type int type;
 
     /**
      * @deprecated Use {@link #HttpDataSourceException(DataSpec, int, int)
@@ -343,8 +347,8 @@ public interface HttpDataSource extends DataSource {
       this.type = type;
     }
 
-    @PlaybackException.ErrorCode
-    private static int assignErrorCode(@PlaybackException.ErrorCode int errorCode, @Type int type) {
+    private static @PlaybackException.ErrorCode int assignErrorCode(
+        @PlaybackException.ErrorCode int errorCode, @Type int type) {
       return errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED && type == TYPE_OPEN
           ? PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
           : errorCode;

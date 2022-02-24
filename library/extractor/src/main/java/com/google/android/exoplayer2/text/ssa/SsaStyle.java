@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.ssa;
 
 import static com.google.android.exoplayer2.text.ssa.SsaDecoder.STYLE_LINE_PREFIX;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -35,6 +36,7 @@ import com.google.common.base.Ascii;
 import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +63,7 @@ import java.util.regex.Pattern;
    *   <li>{@link #SSA_ALIGNMENT_TOP_RIGHT}
    * </ul>
    */
+  @Target(TYPE_USE)
   @IntDef({
     SSA_ALIGNMENT_UNKNOWN,
     SSA_ALIGNMENT_BOTTOM_LEFT,
@@ -90,7 +93,7 @@ import java.util.regex.Pattern;
   public static final int SSA_ALIGNMENT_TOP_RIGHT = 9;
 
   public final String name;
-  @SsaAlignment public final int alignment;
+  public final @SsaAlignment int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
   public final float fontSize;
   public final boolean bold;
@@ -155,8 +158,7 @@ import java.util.regex.Pattern;
     }
   }
 
-  @SsaAlignment
-  private static int parseAlignment(String alignmentStr) {
+  private static @SsaAlignment int parseAlignment(String alignmentStr) {
     try {
       @SsaAlignment int alignment = Integer.parseInt(alignmentStr.trim());
       if (isValidAlignment(alignment)) {
@@ -370,7 +372,7 @@ import java.util.regex.Pattern;
     /** Matches "\anx" and returns x in group 1 */
     private static final Pattern ALIGNMENT_OVERRIDE_PATTERN = Pattern.compile("\\\\an(\\d+)");
 
-    @SsaAlignment public final int alignment;
+    public final @SsaAlignment int alignment;
     @Nullable public final PointF position;
 
     private Overrides(@SsaAlignment int alignment, @Nullable PointF position) {
@@ -448,8 +450,7 @@ import java.util.regex.Pattern;
           Float.parseFloat(Assertions.checkNotNull(y).trim()));
     }
 
-    @SsaAlignment
-    private static int parseAlignmentOverride(String braceContents) {
+    private static @SsaAlignment int parseAlignmentOverride(String braceContents) {
       Matcher matcher = ALIGNMENT_OVERRIDE_PATTERN.matcher(braceContents);
       return matcher.find()
           ? parseAlignment(Assertions.checkNotNull(matcher.group(1)))

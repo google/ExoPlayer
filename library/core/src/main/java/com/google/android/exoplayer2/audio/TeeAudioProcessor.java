@@ -125,7 +125,7 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
 
     private int sampleRateHz;
     private int channelCount;
-    @C.PcmEncoding private int encoding;
+    private @C.PcmEncoding int encoding;
     @Nullable private RandomAccessFile randomAccessFile;
     private int counter;
     private int bytesWritten;

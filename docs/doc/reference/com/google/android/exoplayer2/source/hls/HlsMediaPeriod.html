@@ -174,7 +174,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint,boolean)">HlsMediaPeriod</a></span>&#8203;(<a href="HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint,boolean,com.google.android.exoplayer2.analytics.PlayerId)">HlsMediaPeriod</a></span>&#8203;(<a href="HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
               <a href="playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker,
               <a href="HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
               <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
@@ -186,7 +186,8 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
               <a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
               boolean&nbsp;allowChunklessPreparation,
               @com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType,
-              boolean&nbsp;useSessionKeys)</code></th>
+              boolean&nbsp;useSessionKeys,
+              <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
 <div class="block">Creates an HLS media period.</div>
 </td>
@@ -384,7 +385,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint,boolean)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint,boolean,com.google.android.exoplayer2.analytics.PlayerId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -403,7 +404,8 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
                       <a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
                       boolean&nbsp;allowChunklessPreparation,
                       @com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType,
-                      boolean&nbsp;useSessionKeys)</pre>
+                      boolean&nbsp;useSessionKeys,
+                      <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
 <div class="block">Creates an HLS media period.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -802,7 +804,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 <div class="block">Called when the wrapper has been prepared.
 
  <p>Note: This method will be called on a later handler loop than the one on which either
- <a href="#prepareWithMasterPlaylistInfo(com.google.android.exoplayer2.source.TrackGroup%5B%5D,int,int...)"><code>prepareWithMasterPlaylistInfo(com.google.android.exoplayer2.source.TrackGroup[], int, int...)</code></a> or <a href="#continuePreparing()"><code>continuePreparing()</code></a> are invoked.</div>
+ <a href="#prepareWithMultivariantPlaylistInfo(com.google.android.exoplayer2.source.TrackGroup%5B%5D,int,int...)"><code>prepareWithMultivariantPlaylistInfo(com.google.android.exoplayer2.source.TrackGroup[], int, int...)</code></a> or <a href="#continuePreparing()"><code>continuePreparing()</code></a> are invoked.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>onPrepared</code>&nbsp;in interface&nbsp;<code>com.google.android.exoplayer2.source.hls.HlsSampleStreamWrapper.Callback</code></dd>

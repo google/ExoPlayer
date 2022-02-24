@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9};
+var data = {"i0":9,"i1":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,41 +164,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createInputSurface">createInputSurface</a></span></code></th>
-<td class="colLast">
-<div class="block">Whether to request a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> and use it as to the input to an encoder.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#crypto">crypto</a></span></code></th>
 <td class="colLast">
 <div class="block">For DRM protected playbacks, a <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCrypto</code></a> to use for decryption.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flags">flags</a></span></code></th>
 <td class="colLast">
-<div class="block">Specify CONFIGURE_FLAG_ENCODE to configure the component as an encoder.</div>
+<div class="block">See <a href="https://developer.android.com/reference/android/media/MediaCodec.html#configure(android.media.MediaFormat,android.view.Surface,android.media.MediaCrypto,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.configure(android.media.MediaFormat, android.view.Surface, android.media.MediaCrypto, int)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which the codec is being configured.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaFormat">mediaFormat</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> for which the codec is being configured.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#surface">surface</a></span></code></th>
 <td class="colLast">
@@ -235,15 +228,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForAudioEncoding(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,android.media.MediaFormat,com.google.android.exoplayer2.Format)">createForAudioEncoding</a></span>&#8203;(<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
-                      <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
-                      <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
-<td class="colLast">
-<div class="block">Creates a configuration for audio encoding.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>static <a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForVideoDecoding(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,android.media.MediaFormat,com.google.android.exoplayer2.Format,android.view.Surface,android.media.MediaCrypto)">createForVideoDecoding</a></span>&#8203;(<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                       <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
@@ -251,15 +235,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                       <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto)</code></th>
 <td class="colLast">
 <div class="block">Creates a configuration for video decoding.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>static <a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForVideoEncoding(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,android.media.MediaFormat,com.google.android.exoplayer2.Format)">createForVideoEncoding</a></span>&#8203;(<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
-                      <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
-                      <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
-<td class="colLast">
-<div class="block">Creates a configuration for video encoding.</div>
 </td>
 </tr>
 </table>
@@ -343,26 +318,11 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <a id="flags">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>flags</h4>
 <pre>public final&nbsp;int flags</pre>
-<div class="block">Specify CONFIGURE_FLAG_ENCODE to configure the component as an encoder.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#configure(android.media.MediaFormat,android.view.Surface,android.media.MediaCrypto,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.configure(android.media.MediaFormat, android.view.Surface, android.media.MediaCrypto, int)</code></a></dd>
-</dl>
-</li>
-</ul>
-<a id="createInputSurface">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>createInputSurface</h4>
-<pre>public final&nbsp;boolean createInputSurface</pre>
-<div class="block">Whether to request a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> and use it as to the input to an encoder. This can only
- be set to <code>true</code> on API 18+.</div>
+<div class="block">See <a href="https://developer.android.com/reference/android/media/MediaCodec.html#configure(android.media.MediaFormat,android.view.Surface,android.media.MediaCrypto,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.configure(android.media.MediaFormat, android.view.Surface, android.media.MediaCrypto, int)</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -401,7 +361,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <a id="createForVideoDecoding(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,android.media.MediaFormat,com.google.android.exoplayer2.Format,android.view.Surface,android.media.MediaCrypto)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>createForVideoDecoding</h4>
 <pre class="methodSignature">public static&nbsp;<a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;createForVideoDecoding&#8203;(<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
@@ -419,47 +379,6 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <dd><code>format</code> - See <a href="#format"><code>format</code></a>.</dd>
 <dd><code>surface</code> - See <a href="#surface"><code>surface</code></a>.</dd>
 <dd><code>crypto</code> - See <a href="#crypto"><code>crypto</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The created instance.</dd>
-</dl>
-</li>
-</ul>
-<a id="createForAudioEncoding(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,android.media.MediaFormat,com.google.android.exoplayer2.Format)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createForAudioEncoding</h4>
-<pre class="methodSignature">public static&nbsp;<a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;createForAudioEncoding&#8203;(<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
-                                                                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
-                                                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block">Creates a configuration for audio encoding.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>codecInfo</code> - See <a href="#codecInfo"><code>codecInfo</code></a>.</dd>
-<dd><code>mediaFormat</code> - See <a href="#mediaFormat"><code>mediaFormat</code></a>.</dd>
-<dd><code>format</code> - See <a href="#format"><code>format</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The created instance.</dd>
-</dl>
-</li>
-</ul>
-<a id="createForVideoEncoding(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,android.media.MediaFormat,com.google.android.exoplayer2.Format)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>createForVideoEncoding</h4>
-<pre class="methodSignature">@RequiresApi(18)
-public static&nbsp;<a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;createForVideoEncoding&#8203;(<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
-                                                                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
-                                                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block">Creates a configuration for video encoding.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>codecInfo</code> - See <a href="#codecInfo"><code>codecInfo</code></a>.</dd>
-<dd><code>mediaFormat</code> - See <a href="#mediaFormat"><code>mediaFormat</code></a>.</dd>
-<dd><code>format</code> - See <a href="#format"><code>format</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created instance.</dd>
 </dl>

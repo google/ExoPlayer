@@ -31,6 +31,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
@@ -133,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final HashMap<String, String> keyRequestParameters;
   private final CopyOnWriteMultiset<DrmSessionEventListener.EventDispatcher> eventDispatchers;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+  private final PlayerId playerId;
 
   /* package */ final MediaDrmCallback callback;
   /* package */ final UUID uuid;
@@ -182,7 +184,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       HashMap<String, String> keyRequestParameters,
       MediaDrmCallback callback,
       Looper playbackLooper,
-      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      PlayerId playerId) {
     if (mode == DefaultDrmSessionManager.MODE_QUERY
         || mode == DefaultDrmSessionManager.MODE_RELEASE) {
       Assertions.checkNotNull(offlineLicenseKeySetId);
@@ -204,6 +207,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.callback = callback;
     this.eventDispatchers = new CopyOnWriteMultiset<>();
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    this.playerId = playerId;
     state = STATE_OPENING;
     responseHandler = new ResponseHandler(playbackLooper);
   }
@@ -250,8 +254,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // DrmSession implementation.
 
   @Override
-  @DrmSession.State
-  public final int getState() {
+  public final @DrmSession.State int getState() {
     return state;
   }
 
@@ -370,6 +373,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     try {
       sessionId = mediaDrm.openSession();
+      mediaDrm.setPlayerIdForSession(sessionId, playerId);
       cryptoConfig = mediaDrm.createCryptoConfig(sessionId);
       state = STATE_OPENED;
       // Capture state into a local so a consistent value is seen by the lambda.

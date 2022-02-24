@@ -56,8 +56,9 @@ public final class TransformerTestRunner {
    * @throws IllegalStateException If the method is not called from the main thread, or if the
    *     transformation completes without error.
    */
-  public static Exception runUntilError(Transformer transformer) throws TimeoutException {
-    @Nullable Exception exception = runUntilListenerCalled(transformer);
+  public static TransformationException runUntilError(Transformer transformer)
+      throws TimeoutException {
+    @Nullable TransformationException exception = runUntilListenerCalled(transformer);
     if (exception == null) {
       throw new IllegalStateException("The transformation completed without error.");
     }
@@ -65,9 +66,10 @@ public final class TransformerTestRunner {
   }
 
   @Nullable
-  private static Exception runUntilListenerCalled(Transformer transformer) throws TimeoutException {
+  private static TransformationException runUntilListenerCalled(Transformer transformer)
+      throws TimeoutException {
     TransformationResult transformationResult = new TransformationResult();
-    Transformer.Listener listener =
+    transformer.addListener(
         new Transformer.Listener() {
           @Override
           public void onTransformationCompleted(MediaItem inputMediaItem) {
@@ -75,11 +77,11 @@ public final class TransformerTestRunner {
           }
 
           @Override
-          public void onTransformationError(MediaItem inputMediaItem, Exception exception) {
+          public void onTransformationError(
+              MediaItem inputMediaItem, TransformationException exception) {
             transformationResult.exception = exception;
           }
-        };
-    transformer.setListener(listener);
+        });
     runLooperUntil(
         transformer.getApplicationLooper(),
         () -> transformationResult.isCompleted || transformationResult.exception != null);
@@ -88,6 +90,6 @@ public final class TransformerTestRunner {
 
   private static class TransformationResult {
     public boolean isCompleted;
-    @Nullable public Exception exception;
+    @Nullable public TransformationException exception;
   }
 }

@@ -24,7 +24,6 @@ dependencies {
     api project(modulePrefix + 'library-hls')
     api project(modulePrefix + 'library-rtsp')
     api project(modulePrefix + 'library-smoothstreaming')
-    api project(modulePrefix + 'library-transformer')
     api project(modulePrefix + 'library-ui')
 }
 

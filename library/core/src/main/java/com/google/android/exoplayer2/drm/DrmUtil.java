@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmResetException;
@@ -28,13 +34,17 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** DRM-related utility methods. */
 public final class DrmUtil {
 
   /** Identifies the operation which caused a DRM-related error. */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       value = {
         ERROR_SOURCE_EXO_MEDIA_DRM,
@@ -60,8 +70,7 @@ public final class DrmUtil {
    * @return The {@link PlaybackException.ErrorCode} that corresponds to the given DRM-related
    *     exception.
    */
-  @PlaybackException.ErrorCode
-  public static int getErrorCodeForMediaDrmException(
+  public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmException(
       Exception exception, @ErrorSource int errorSource) {
     if (Util.SDK_INT >= 21 && Api21.isMediaDrmStateException(exception)) {
       return Api21.mediaDrmStateExceptionToErrorCode(exception);
@@ -116,8 +125,8 @@ public final class DrmUtil {
     }
 
     @DoNotInline
-    @PlaybackException.ErrorCode
-    public static int mediaDrmStateExceptionToErrorCode(Throwable throwable) {
+    public static @PlaybackException.ErrorCode int mediaDrmStateExceptionToErrorCode(
+        Throwable throwable) {
       @Nullable
       String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
       int drmErrorCode = Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);

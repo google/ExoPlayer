@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+
+  <declare-styleable name="PlayerView">
+    <attr name="use_artwork"/>
+    <attr name="shutter_background_color"/>
+    <attr name="default_artwork"/>
+    <attr name="use_controller"/>
+    <attr name="hide_on_touch"/>
+    <attr name="hide_during_ads"/>
+    <attr name="auto_show"/>
+    <attr name="show_buffering"/>
+    <attr name="keep_content_on_player_reset"/>
+    <attr name="player_layout_id"/>
+    <attr name="surface_type"/>
+    <!-- AspectRatioFrameLayout attributes -->
+    <attr name="resize_mode"/>
+    <!-- PlayerControlView attributes -->
+    <attr name="show_timeout"/>
+    <attr name="repeat_toggle_modes"/>
+    <attr name="show_shuffle_button"/>
+    <attr name="time_bar_min_update_interval"/>
+    <attr name="controller_layout_id"/>
+    <!-- DefaultTimeBar attributes -->
+    <attr name="bar_height"/>
+    <attr name="touch_target_height"/>
+    <attr name="ad_marker_width"/>
+    <attr name="scrubber_enabled_size"/>
+    <attr name="scrubber_disabled_size"/>
+    <attr name="scrubber_dragged_size"/>
+    <attr name="scrubber_drawable"/>
+    <attr name="played_color"/>
+    <attr name="scrubber_color"/>
+    <attr name="buffered_color" />
+    <attr name="unplayed_color"/>
+    <attr name="ad_marker_color"/>
+    <attr name="played_ad_marker_color"/>
+  </declare-styleable>
+
+</resources>

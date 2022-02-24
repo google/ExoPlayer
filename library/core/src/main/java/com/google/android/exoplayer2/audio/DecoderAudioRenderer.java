@@ -19,7 +19,9 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -92,6 +94,7 @@ public abstract class DecoderAudioRenderer<
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @java.lang.annotation.Target(TYPE_USE)
   @IntDef({
     REINITIALIZATION_STATE_NONE,
     REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
@@ -131,7 +134,7 @@ public abstract class DecoderAudioRenderer<
   @Nullable private DrmSession decoderDrmSession;
   @Nullable private DrmSession sourceDrmSession;
 
-  @ReinitializationState private int decoderReinitializationState;
+  private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
   private boolean audioTrackNeedsConfigure;
 
@@ -162,16 +165,24 @@ public abstract class DecoderAudioRenderer<
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param audioCapabilities The audio capabilities for playback on this device. Use {@link
+   *     AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES} if default capabilities (no encoded audio
+   *     passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public DecoderAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
-      @Nullable AudioCapabilities audioCapabilities,
+      AudioCapabilities audioCapabilities,
       AudioProcessor... audioProcessors) {
-    this(eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors));
+    this(
+        eventHandler,
+        eventListener,
+        new DefaultAudioSink.Builder()
+            .setAudioCapabilities( // For backward compatibility, null == default.
+                firstNonNull(audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
+            .setAudioProcessors(audioProcessors)
+            .build());
   }
 
   /**
@@ -213,8 +224,7 @@ public abstract class DecoderAudioRenderer<
   }
 
   @Override
-  @Capabilities
-  public final int supportsFormat(Format format) {
+  public final @Capabilities int supportsFormat(Format format) {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
@@ -233,8 +243,7 @@ public abstract class DecoderAudioRenderer<
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
    * @return The {@link C.FormatSupport} for this {@link Format}.
    */
-  @C.FormatSupport
-  protected abstract int supportsFormatInternal(Format format);
+  protected abstract @C.FormatSupport int supportsFormatInternal(Format format);
 
   /**
    * Returns whether the renderer's {@link AudioSink} supports a given {@link Format}.
@@ -251,8 +260,7 @@ public abstract class DecoderAudioRenderer<
    *
    * @see AudioSink#getFormatSupport(Format) (Format)
    */
-  @SinkFormatSupport
-  protected final int getSinkFormatSupport(Format format) {
+  protected final @SinkFormatSupport int getSinkFormatSupport(Format format) {
     return audioSink.getFormatSupport(format);
   }
 
@@ -463,7 +471,7 @@ public abstract class DecoderAudioRenderer<
         onQueueInputBuffer(inputBuffer);
         decoder.queueInputBuffer(inputBuffer);
         decoderReceivedBuffers = true;
-        decoderCounters.inputBufferCount++;
+        decoderCounters.queuedInputBufferCount++;
         inputBuffer = null;
         return true;
       default:
@@ -530,6 +538,7 @@ public abstract class DecoderAudioRenderer<
     } else {
       audioSink.disableTunneling();
     }
+    audioSink.setPlayerId(getPlayerId());
   }
 
   @Override

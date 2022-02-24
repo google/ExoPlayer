@@ -22,11 +22,11 @@ import static com.google.android.exoplayer2.util.Util.minValue;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 
 /**
@@ -34,7 +34,6 @@ import java.nio.ByteBuffer;
  *
  * <p>This wrapper can contain at most one video track and one audio track.
  */
-@RequiresApi(18)
 /* package */ final class MuxerWrapper {
 
   /**
@@ -87,6 +86,14 @@ import java.nio.ByteBuffer;
   }
 
   /**
+   * Returns the supported {@link MimeTypes MIME types} for the given {@link C.TrackType track
+   * type}.
+   */
+  public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+    return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+  }
+
+  /**
    * Adds a track format to the muxer.
    *
    * <p>The tracks must all be {@link #registerTrack() registered} before any format is added and
@@ -96,8 +103,10 @@ import java.nio.ByteBuffer;
    * @param format The {@link Format} to be added.
    * @throws IllegalStateException If the format is unsupported or if there is already a track
    *     format of the same type (audio or video).
+   * @throws Muxer.MuxerException If the underlying muxer encounters a problem while adding the
+   *     track.
    */
-  public void addTrackFormat(Format format) {
+  public void addTrackFormat(Format format) throws Muxer.MuxerException {
     checkState(trackCount > 0, "All tracks should be registered before the formats are added.");
     checkState(trackFormatCount < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
@@ -122,7 +131,7 @@ import java.nio.ByteBuffer;
    * Attempts to write a sample to the muxer.
    *
    * @param trackType The {@link C.TrackType track type} of the sample.
-   * @param data The sample to write, or {@code null} if the sample is empty.
+   * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
@@ -131,12 +140,11 @@ import java.nio.ByteBuffer;
    *     good interleaving.
    * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
    *     track of the given track type.
+   * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
    */
   public boolean writeSample(
-      @C.TrackType int trackType,
-      @Nullable ByteBuffer data,
-      boolean isKeyFrame,
-      long presentationTimeUs) {
+      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      throws Muxer.MuxerException {
     int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
     checkState(
         trackIndex != C.INDEX_UNSET,
@@ -144,8 +152,6 @@ import java.nio.ByteBuffer;
 
     if (!canWriteSampleOfType(trackType)) {
       return false;
-    } else if (data == null) {
-      return true;
     }
 
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
@@ -172,8 +178,10 @@ import java.nio.ByteBuffer;
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
+   * @throws Muxer.MuxerException If the underlying muxer fails to stop and to release resources and
+   *     {@code forCancellation} is false.
    */
-  public void release(boolean forCancellation) {
+  public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
     muxer.release(forCancellation);
   }

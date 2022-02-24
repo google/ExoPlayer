@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertWithMessage;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import androidx.annotation.IntDef;
@@ -28,6 +29,7 @@ import java.io.PrintWriter;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Helper class to enable assertions based on golden-data dump files.
@@ -51,6 +53,7 @@ public class DumpFileAsserts {
   /** Possible actions to take with the dumps passed to {@link #assertOutput}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {COMPARE_WITH_EXISTING, WRITE_TO_LOCAL, WRITE_TO_DEVICE})
@@ -67,7 +70,7 @@ public class DumpFileAsserts {
   /** Write output to folder {@code /storage/emulated/0/Android/data} of device. */
   private static final int WRITE_TO_DEVICE = 1 << 1;
 
-  @DumpFilesAction private static final int DUMP_FILE_ACTION = COMPARE_WITH_EXISTING;
+  private static final @DumpFilesAction int DUMP_FILE_ACTION = COMPARE_WITH_EXISTING;
 
   private DumpFileAsserts() {}
 

@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -222,7 +223,7 @@ public class TimelineTest {
                 /* durationUs= */ 2,
                 /* defaultPositionUs= */ 22,
                 /* windowOffsetInFirstPeriodUs= */ 222,
-                AdPlaybackState.NONE,
+                ImmutableList.of(AdPlaybackState.NONE),
                 new MediaItem.Builder().setMediaId("mediaId2").build()),
             new TimelineWindowDefinition(
                 /* periodCount= */ 3,
@@ -234,7 +235,7 @@ public class TimelineTest {
                 /* durationUs= */ 3,
                 /* defaultPositionUs= */ 33,
                 /* windowOffsetInFirstPeriodUs= */ 333,
-                AdPlaybackState.NONE,
+                ImmutableList.of(AdPlaybackState.NONE),
                 new MediaItem.Builder().setMediaId("mediaId3").build()));
 
     Timeline restoredTimeline = Timeline.CREATOR.fromBundle(timeline.toBundle());

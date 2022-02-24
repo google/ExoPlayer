@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,13 +52,14 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     /** The reason the merge failed. One of {@link #REASON_PERIOD_COUNT_MISMATCH}. */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
     /** The sources have different period counts. */
     public static final int REASON_PERIOD_COUNT_MISMATCH = 0;
 
     /** The reason the merge failed. */
-    @Reason public final int reason;
+    public final @Reason int reason;
 
     /** @param reason The reason the merge failed. */
     public IllegalMergeException(@Reason int reason) {

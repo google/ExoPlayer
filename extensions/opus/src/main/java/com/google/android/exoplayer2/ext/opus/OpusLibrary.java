@@ -27,8 +27,15 @@ public final class OpusLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.opus");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("opusV2JNI");
-  @C.CryptoType private static int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("opusV2JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
+
+  private static @C.CryptoType int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private OpusLibrary() {}
 

@@ -155,8 +155,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
  during playback, and displays playback controls using a <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a>.
 
  <p>A StyledPlayerView can be customized by setting attributes (or calling corresponding methods),
- overriding drawables, overriding the view's layout file, or by specifying a custom view layout
- file.
+ or overriding drawables.
 
  <h2>Attributes</h2>
 
@@ -200,14 +199,14 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
    <li><b><code>show_buffering</code></b> - Whether the buffering spinner is displayed when the player
        is buffering. Valid values are <code>never</code>, <code>when_playing</code> and <code>always</code>.
        <ul>
-         <li>Corresponding method: <a href="#setShowBuffering(int)"><code>setShowBuffering(int)</code></a>
+         <li>Corresponding method: <a href="#setShowBuffering(@com.google.android.exoplayer2.ui.StyledPlayerView.ShowBufferingint)"><code>setShowBuffering(int)</code></a>
          <li>Default: <code>never</code>
        </ul>
    <li><b><code>resize_mode</code></b> - Controls how video and album art is resized within the view.
        Valid values are <code>fit</code>, <code>fixed_width</code>, <code>fixed_height</code>, <code>fill</code> and
        <code>zoom</code>.
        <ul>
-         <li>Corresponding method: <a href="#setResizeMode(int)"><code>setResizeMode(int)</code></a>
+         <li>Corresponding method: <a href="#setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)"><code>setResizeMode(int)</code></a>
          <li>Default: <code>fit</code>
        </ul>
    <li><b><code>surface_type</code></b> - The type of surface view used for video playbacks. Valid
@@ -252,81 +251,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
  <h2>Overriding drawables</h2>
 
  The drawables used by <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a> (with its default layout file) can be
- overridden by drawables with the same names defined in your application. See the <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a> documentation for a list of drawables that can be overridden.
-
- <h2>Overriding the layout file</h2>
-
- To customize the layout of StyledPlayerView throughout your app, or just for certain
- configurations, you can define <code>exo_styled_player_view.xml</code> layout files in your
- application <code>res/layout*</code> directories. These layouts will override the one provided by the
- library, and will be inflated for use by StyledPlayerView. The view identifies and binds its
- children by looking for the following ids:
-
- <ul>
-   <li><b><code>exo_content_frame</code></b> - A frame whose aspect ratio is resized based on the video
-       or album art of the media being played, and the configured <code>resize_mode</code>. The video
-       surface view is inflated into this frame as its first child.
-       <ul>
-         <li>Type: <a href="AspectRatioFrameLayout.html" title="class in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout</code></a>
-       </ul>
-   <li><b><code>exo_shutter</code></b> - A view that's made visible when video should be hidden. This
-       view is typically an opaque view that covers the video surface, thereby obscuring it when
-       visible. Obscuring the surface in this way also helps to prevent flicker at the start of
-       playback when <code>surface_type="surface_view"</code>.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_buffering</code></b> - A view that's made visible when the player is buffering.
-       This view typically displays a buffering spinner or animation.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_subtitles</code></b> - Displays subtitles.
-       <ul>
-         <li>Type: <a href="SubtitleView.html" title="class in com.google.android.exoplayer2.ui"><code>SubtitleView</code></a>
-       </ul>
-   <li><b><code>exo_artwork</code></b> - Displays album art.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-       </ul>
-   <li><b><code>exo_error_message</code></b> - Displays an error message to the user if playback fails.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>TextView</code></a>
-       </ul>
-   <li><b><code>exo_controller_placeholder</code></b> - A placeholder that's replaced with the inflated
-       <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a>. Ignored if an <code>exo_controller</code> view exists.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_controller</code></b> - An already inflated <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a>. Allows
-       use of a custom extension of <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a>. <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a> and <a href="DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> attributes set on the StyledPlayerView
-       will not be automatically propagated through to this instance. If a view exists with this
-       id, any <code>exo_controller_placeholder</code> view will be ignored.
-       <ul>
-         <li>Type: <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a>
-       </ul>
-   <li><b><code>exo_ad_overlay</code></b> - A <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a> positioned on top of the player which
-       is used to show ad UI (if applicable).
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a>
-       </ul>
-   <li><b><code>exo_overlay</code></b> - A <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a> positioned on top of the player which
-       the app can access via <a href="#getOverlayFrameLayout()"><code>getOverlayFrameLayout()</code></a>, provided for convenience.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a>
-       </ul>
- </ul>
-
- <p>All child views are optional and so can be omitted if not required, however where defined they
- must be of the expected type.
-
- <h2>Specifying a custom layout file</h2>
-
- Defining your own <code>exo_styled_player_view.xml</code> is useful to customize the layout of
- StyledPlayerView throughout your application. It's also possible to customize the layout for a
- single instance in a layout file. This is achieved by setting the <code>player_layout_id</code>
- attribute on a StyledPlayerView. This will cause the specified layout to be inflated instead of
- <code>exo_styled_player_view.xml</code> for only the instance on which the attribute is set.</div>
+ overridden by drawables with the same names defined in your application. See the <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a> documentation for a list of drawables that can be overridden.</div>
 </li>
 </ul>
 </div>
@@ -553,7 +478,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResizeMode()">getResizeMode</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
@@ -738,21 +663,21 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 </tr>
 <tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(int)">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">setRepeatToggleModes</a></span>&#8203;(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
 <tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResizeMode(int)">setResizeMode</a></span>&#8203;(int&nbsp;resizeMode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)">setResizeMode</a></span>&#8203;(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;resizeMode)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowBuffering(int)">setShowBuffering</a></span>&#8203;(int&nbsp;showBuffering)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowBuffering(@com.google.android.exoplayer2.ui.StyledPlayerView.ShowBufferingint)">setShowBuffering</a></span>&#8203;(@com.google.android.exoplayer2.ui.StyledPlayerView.ShowBuffering int&nbsp;showBuffering)</code></th>
 <td class="colLast">
 <div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state.</div>
 </td>
@@ -1069,14 +994,13 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 </dl>
 </li>
 </ul>
-<a id="setResizeMode(int)">
+<a id="setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setResizeMode</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setResizeMode&#8203;(<a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui">@ResizeMode</a>
-                          int&nbsp;resizeMode)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setResizeMode&#8203;(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;resizeMode)</pre>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1090,8 +1014,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>getResizeMode</h4>
-<pre class="methodSignature"><a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui">@ResizeMode</a>
-public&nbsp;int&nbsp;getResizeMode()</pre>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;getResizeMode()</pre>
 <div class="block">Returns the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </li>
 </ul>
@@ -1213,14 +1136,13 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 </dl>
 </li>
 </ul>
-<a id="setShowBuffering(int)">
+<a id="setShowBuffering(@com.google.android.exoplayer2.ui.StyledPlayerView.ShowBufferingint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setShowBuffering</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setShowBuffering&#8203;(<a href="StyledPlayerView.ShowBuffering.html" title="annotation in com.google.android.exoplayer2.ui">@ShowBuffering</a>
-                             int&nbsp;showBuffering)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setShowBuffering&#8203;(@com.google.android.exoplayer2.ui.StyledPlayerView.ShowBuffering int&nbsp;showBuffering)</pre>
 <div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state. The
  buffering spinner is not displayed by default.</div>
 <dl>
@@ -1510,14 +1432,14 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 </dl>
 </li>
 </ul>
-<a id="setRepeatToggleModes(int)">
+<a id="setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatToggleModes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRepeatToggleModes&#8203;(<a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-                                 int&nbsp;repeatToggleModes)</pre>
+                                 @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</pre>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

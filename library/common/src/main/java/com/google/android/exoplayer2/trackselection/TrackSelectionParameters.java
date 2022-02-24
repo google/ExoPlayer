@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.BundleableUtil.fromNullableBundle;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -36,6 +37,7 @@ import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Locale;
 import java.util.Set;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -80,6 +82,7 @@ public class TrackSelectionParameters implements Bundleable {
     private int viewportHeight;
     private boolean viewportOrientationMayChange;
     private ImmutableList<String> preferredVideoMimeTypes;
+    private @C.RoleFlags int preferredVideoRoleFlags;
     // Audio
     private ImmutableList<String> preferredAudioLanguages;
     private @C.RoleFlags int preferredAudioRoleFlags;
@@ -111,6 +114,7 @@ public class TrackSelectionParameters implements Bundleable {
       viewportHeight = Integer.MAX_VALUE;
       viewportOrientationMayChange = true;
       preferredVideoMimeTypes = ImmutableList.of();
+      preferredVideoRoleFlags = 0;
       // Audio
       preferredAudioLanguages = ImmutableList.of();
       preferredAudioRoleFlags = 0;
@@ -183,6 +187,10 @@ public class TrackSelectionParameters implements Bundleable {
               firstNonNull(
                   bundle.getStringArray(keyForField(FIELD_PREFERRED_VIDEO_MIMETYPES)),
                   new String[0]));
+      preferredVideoRoleFlags =
+          bundle.getInt(
+              keyForField(FIELD_PREFERRED_VIDEO_ROLE_FLAGS),
+              DEFAULT_WITHOUT_CONTEXT.preferredVideoRoleFlags);
       // Audio
       String[] preferredAudioLanguages1 =
           firstNonNull(
@@ -261,6 +269,7 @@ public class TrackSelectionParameters implements Bundleable {
       viewportHeight = parameters.viewportHeight;
       viewportOrientationMayChange = parameters.viewportOrientationMayChange;
       preferredVideoMimeTypes = parameters.preferredVideoMimeTypes;
+      preferredVideoRoleFlags = parameters.preferredVideoRoleFlags;
       // Audio
       preferredAudioLanguages = parameters.preferredAudioLanguages;
       preferredAudioRoleFlags = parameters.preferredAudioRoleFlags;
@@ -438,6 +447,17 @@ public class TrackSelectionParameters implements Bundleable {
      */
     public Builder setPreferredVideoMimeTypes(String... mimeTypes) {
       preferredVideoMimeTypes = ImmutableList.copyOf(mimeTypes);
+      return this;
+    }
+
+    /**
+     * Sets the preferred {@link C.RoleFlags} for video tracks.
+     *
+     * @param preferredVideoRoleFlags Preferred video role flags.
+     * @return This builder.
+     */
+    public Builder setPreferredVideoRoleFlags(@C.RoleFlags int preferredVideoRoleFlags) {
+      this.preferredVideoRoleFlags = preferredVideoRoleFlags;
       return this;
     }
 
@@ -770,6 +790,11 @@ public class TrackSelectionParameters implements Bundleable {
    * no preference. The default is an empty list.
    */
   public final ImmutableList<String> preferredVideoMimeTypes;
+  /**
+   * The preferred {@link C.RoleFlags} for video tracks. {@code 0} selects the default track if
+   * there is one, or the first track if there's no default. The default value is {@code 0}.
+   */
+  public final @C.RoleFlags int preferredVideoRoleFlags;
   // Audio
   /**
    * The preferred languages for audio and forced text tracks as IETF BCP 47 conformant tags in
@@ -853,6 +878,7 @@ public class TrackSelectionParameters implements Bundleable {
     this.viewportHeight = builder.viewportHeight;
     this.viewportOrientationMayChange = builder.viewportOrientationMayChange;
     this.preferredVideoMimeTypes = builder.preferredVideoMimeTypes;
+    this.preferredVideoRoleFlags = builder.preferredVideoRoleFlags;
     // Audio
     this.preferredAudioLanguages = builder.preferredAudioLanguages;
     this.preferredAudioRoleFlags = builder.preferredAudioRoleFlags;
@@ -898,6 +924,7 @@ public class TrackSelectionParameters implements Bundleable {
         && viewportWidth == other.viewportWidth
         && viewportHeight == other.viewportHeight
         && preferredVideoMimeTypes.equals(other.preferredVideoMimeTypes)
+        && preferredVideoRoleFlags == other.preferredVideoRoleFlags
         // Audio
         && preferredAudioLanguages.equals(other.preferredAudioLanguages)
         && preferredAudioRoleFlags == other.preferredAudioRoleFlags
@@ -930,6 +957,7 @@ public class TrackSelectionParameters implements Bundleable {
     result = 31 * result + viewportWidth;
     result = 31 * result + viewportHeight;
     result = 31 * result + preferredVideoMimeTypes.hashCode();
+    result = 31 * result + preferredVideoRoleFlags;
     // Audio
     result = 31 * result + preferredAudioLanguages.hashCode();
     result = 31 * result + preferredAudioRoleFlags;
@@ -952,6 +980,7 @@ public class TrackSelectionParameters implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_PREFERRED_AUDIO_LANGUAGES,
     FIELD_PREFERRED_AUDIO_ROLE_FLAGS,
@@ -978,6 +1007,7 @@ public class TrackSelectionParameters implements Bundleable {
     FIELD_SELECTION_OVERRIDE_KEYS,
     FIELD_SELECTION_OVERRIDE_VALUES,
     FIELD_DISABLED_TRACK_TYPE,
+    FIELD_PREFERRED_VIDEO_ROLE_FLAGS
   })
   private @interface FieldNumber {}
 
@@ -1006,6 +1036,7 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_SELECTION_OVERRIDE_KEYS = 23;
   private static final int FIELD_SELECTION_OVERRIDE_VALUES = 24;
   private static final int FIELD_DISABLED_TRACK_TYPE = 25;
+  private static final int FIELD_PREFERRED_VIDEO_ROLE_FLAGS = 26;
 
   @Override
   public Bundle toBundle() {
@@ -1027,6 +1058,7 @@ public class TrackSelectionParameters implements Bundleable {
     bundle.putStringArray(
         keyForField(FIELD_PREFERRED_VIDEO_MIMETYPES),
         preferredVideoMimeTypes.toArray(new String[0]));
+    bundle.putInt(keyForField(FIELD_PREFERRED_VIDEO_ROLE_FLAGS), preferredVideoRoleFlags);
     // Audio
     bundle.putStringArray(
         keyForField(FIELD_PREFERRED_AUDIO_LANGUAGES),

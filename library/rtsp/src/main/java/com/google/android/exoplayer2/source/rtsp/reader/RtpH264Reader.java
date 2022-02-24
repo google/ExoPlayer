@@ -58,7 +58,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final RtpPayloadFormat payloadFormat;
 
   private @MonotonicNonNull TrackOutput trackOutput;
-  @C.BufferFlags private int bufferFlags;
+  private @C.BufferFlags int bufferFlags;
 
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
@@ -117,11 +117,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
       long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
       trackOutput.sampleMetadata(
-          timeUs,
-          bufferFlags,
-          fragmentedSampleSizeBytes,
-          /* offset= */ 0,
-          /* encryptionData= */ null);
+          timeUs, bufferFlags, fragmentedSampleSizeBytes, /* offset= */ 0, /* cryptoData= */ null);
       fragmentedSampleSizeBytes = 0;
     }
 
@@ -259,7 +255,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       fuScratchBuffer.setPosition(1);
     } else {
       // Check that this packet is in the sequence of the previous packet.
-      int expectedSequenceNumber = (previousSequenceNumber + 1) % RtpPacket.MAX_SEQUENCE_NUMBER;
+      int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
       if (packetSequenceNumber != expectedSequenceNumber) {
         Log.w(
             TAG,
@@ -300,8 +296,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 
-  @C.BufferFlags
-  private static int getBufferFlagsFromNalType(int nalType) {
+  private static @C.BufferFlags int getBufferFlagsFromNalType(int nalType) {
     return nalType == NAL_UNIT_TYPE_IDR ? C.BUFFER_FLAG_KEY_FRAME : 0;
   }
 }

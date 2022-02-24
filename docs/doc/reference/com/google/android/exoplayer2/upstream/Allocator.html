@@ -86,7 +86,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -133,6 +133,31 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a></span></code></th>
+<td class="colLast">
+<div class="block">A node in a chain of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -177,16 +202,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">release</a></span>&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>[]&nbsp;allocations)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">release</a></span>&#8203;(<a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a>&nbsp;allocationNode)</code></th>
 <td class="colLast">
-<div class="block">Releases an array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s back to the allocator.</div>
+<div class="block">Releases all <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a> in the chain starting at the given <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator.AllocationNode</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trim()">trim</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -237,18 +262,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="release(com.google.android.exoplayer2.upstream.Allocation[])">
+<a id="release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre class="methodSignature">void&nbsp;release&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>[]&nbsp;allocations)</pre>
-<div class="block">Releases an array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s back to the allocator.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>allocations</code> - The array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s being released.</dd>
-</dl>
+<pre class="methodSignature">void&nbsp;release&#8203;(<a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a>&nbsp;allocationNode)</pre>
+<div class="block">Releases all <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a> in the chain starting at the given <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator.AllocationNode</code></a>.
+
+ <p>Implementations must not make memory allocations.</div>
 </li>
 </ul>
 <a id="trim()">
@@ -258,7 +281,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>trim</h4>
 <pre class="methodSignature">void&nbsp;trim()</pre>
-<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
 </li>
 </ul>
 <a id="getTotalBytesAllocated()">
@@ -332,7 +355,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import androidx.annotation.IntDef;
@@ -53,6 +54,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -99,6 +102,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   /** Parser states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_READING_ATOM_HEADER,
     STATE_READING_ATOM_PAYLOAD,
@@ -115,6 +119,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   /** Supported file types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FILE_TYPE_MP4, FILE_TYPE_QUICKTIME, FILE_TYPE_HEIC})
   private @interface FileType {}
 
@@ -134,7 +139,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private static final long MAXIMUM_READ_AHEAD_BYTES_STREAM = 10 * 1024 * 1024;
 
-  @Flags private final int flags;
+  private final @Flags int flags;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -146,7 +151,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final SefReader sefReader;
   private final List<Metadata.Entry> slowMotionMetadataEntries;
 
-  @State private int parserState;
+  private @State int parserState;
   private int atomType;
   private long atomSize;
   private int atomHeaderBytesRead;
@@ -164,7 +169,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private long @MonotonicNonNull [][] accumulatedSampleSizes;
   private int firstVideoTrackIndex;
   private long durationUs;
-  @FileType private int fileType;
+  private @FileType int fileType;
   @Nullable private MotionPhotoMetadata motionPhotoMetadata;
 
   /** Creates a new extractor for unfragmented MP4 streams. */
@@ -431,8 +436,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return seekRequired && parserState != STATE_READING_SAMPLE;
   }
 
-  @ReadResult
-  private int readSefData(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+  private @ReadResult int readSefData(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException {
     @ReadResult int result = sefReader.read(input, seekPosition, slowMotionMetadataEntries);
     if (result == RESULT_SEEK && seekPosition.position == 0) {
       enterReadingAtomHeaderState();
@@ -854,8 +859,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * @param atomData The ftyp atom data.
    * @return The {@link FileType}.
    */
-  @FileType
-  private static int processFtypAtom(ParsableByteArray atomData) {
+  private static @FileType int processFtypAtom(ParsableByteArray atomData) {
     atomData.setPosition(Atom.HEADER_SIZE);
     int majorBrand = atomData.readInt();
     @FileType int fileType = brandToFileType(majorBrand);
@@ -872,8 +876,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return FILE_TYPE_MP4;
   }
 
-  @FileType
-  private static int brandToFileType(int brand) {
+  private static @FileType int brandToFileType(int brand) {
     switch (brand) {
       case BRAND_QUICKTIME:
         return FILE_TYPE_QUICKTIME;
