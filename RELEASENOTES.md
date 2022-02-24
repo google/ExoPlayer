@@ -6,7 +6,10 @@
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
 *   Extractors:
-    *   Opus DiscardPadding in Matroska files.
+    *   Matroska: Parse `DiscardPadding` for Opus tracks.
+    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
+        order for streams containing both v0 and v1 emsg atoms
+        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36))
