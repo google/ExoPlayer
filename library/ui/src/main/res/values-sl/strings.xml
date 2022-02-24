@@ -57,6 +57,7 @@
     <item>Običajna</item>
     <item>1,25-kratna</item>
     <item>1,5-kratna</item>
+    <item>1,75-kratna</item>
     <item>2-kratna</item>
   </string-array>
   <string name="exo_track_selection_title_video">Videoposnetki</string>

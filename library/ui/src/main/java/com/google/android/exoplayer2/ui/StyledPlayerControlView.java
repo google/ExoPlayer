@@ -241,7 +241,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private static final int MAX_UPDATE_INTERVAL_MS = 1_000;
   // LINT.IfChange(playback_speeds)
   private static final float[] PLAYBACK_SPEEDS =
-      new float[] {0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f};
+      new float[] {0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f};
 
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;

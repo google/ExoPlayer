@@ -53,6 +53,7 @@
     <item>Normal</item>
     <item>x 1,25</item>
     <item>x 1,5</item>
+    <item>x 1,75</item>
     <item>x 2</item>
   </string-array>
   <string name="exo_track_selection_title_video">Vídeo</string>

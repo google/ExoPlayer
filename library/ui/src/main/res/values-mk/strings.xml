@@ -53,6 +53,7 @@
     <item>Нормално</item>
     <item>1,25 пати</item>
     <item>1,5 пати</item>
+    <item>1,75 пати</item>
     <item>2 пати</item>
   </string-array>
   <string name="exo_track_selection_title_video">Видео</string>

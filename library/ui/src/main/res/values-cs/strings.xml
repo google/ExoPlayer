@@ -57,6 +57,7 @@
     <item>Normální</item>
     <item>1,25×</item>
     <item>1,5×</item>
+    <item>1,75×</item>
     <item>2×</item>
   </string-array>
   <string name="exo_track_selection_title_video">Videa</string>

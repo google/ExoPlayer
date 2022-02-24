@@ -81,6 +81,7 @@
     <item>Normal</item>
     <item>1.25x</item>
     <item>1.5x</item>
+    <item>1.75x</item>
     <item>2x</item>
   </string-array>
   <!-- LINT.ThenChange(../../java/com/google/android/exoplayer2/ui/StyledPlayerControlView.java:playback_speeds) -->

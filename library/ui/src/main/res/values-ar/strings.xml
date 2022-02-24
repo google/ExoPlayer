@@ -61,6 +61,7 @@
     <item>عادية</item>
     <item>أسرع بـ 1.25 مرة</item>
     <item>أسرع بـ 1.5 مرة</item>
+    <item>أسرع بـ 1.75 مرة</item>
     <item>أسرع بمرتين</item>
   </string-array>
   <string name="exo_track_selection_title_video">فيديو</string>
