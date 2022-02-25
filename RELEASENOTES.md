@@ -153,10 +153,6 @@
     *   Fix potential NPE in `Transformer.getProgress` when releasing the muxer
         throws.
     *   Add a demo app for applying transformations.
-    *   The transformer module is no longer included by depending on
-        `com.google.android.exoplayer:exoplayer`. To continue using transformer,
-        add an additional dependency on
-        `com.google.android.exoplayer:exoplayer-transformer`.
 *   MediaSession extension:
     *   By default, `MediaSessionConnector` now clears the playlist on stop.
         Apps that want the playlist to be retained can call
