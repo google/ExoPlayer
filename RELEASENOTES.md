@@ -63,11 +63,11 @@
         under sufficient network bandwidth even if playback is very close to the
         live edge ([#9784](https://github.com/google/ExoPlayer/issues/9784)).
 *   Video:
-    *  Fix decoder fallback logic for Dolby Vision
-        to use a compatible H264/H265 decoder if needed.
+    *   Fix decoder fallback logic for Dolby Vision to use a compatible
+        H264/H265 decoder if needed.
 *   Audio:
-    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC)
-        to use a compatible E-AC3 decoder if needed.
+    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) to use a
+        compatible E-AC3 decoder if needed.
     *   Change `AudioCapabilities` APIs to require passing explicitly
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
     *   Allow customization of the `AudioTrack` buffer size calculation by
@@ -120,7 +120,8 @@
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
     *   Stop interpreting the `main` track role as `C.SELECTION_FLAG_DEFAULT`.
-    *   Fix base URL exclusion logic for manifests that do not declare the DVB namespace ([#9856](https://github.com/google/ExoPlayer/issues/9856)).
+    *   Fix base URL exclusion logic for manifests that do not declare the DVB
+        namespace ([#9856](https://github.com/google/ExoPlayer/issues/9856)).
     *   Support relative `MPD.Location` URLs
         ([#9939](https://github.com/google/ExoPlayer/issues/9939)).
 *   HLS:
@@ -133,8 +134,6 @@
         `HlsMediaSource.Factory.setAllowChunklessPreparation(false)`.
     *   Support key-frame accurate seeking in HLS
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
-    *   Correctly populate `Format.label` for audio only HLS streams
-        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
 *   RTSP:
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
@@ -159,7 +158,9 @@
         add an additional dependency on
         `com.google.android.exoplayer:exoplayer-transformer`.
 *   MediaSession extension:
-    *   By default, `MediaSessionConnector` now clears the playlist on stop. Apps that want the playlist to be retained can call `setClearMediaItemsOnStop(false)` on the connector.
+    *   By default, `MediaSessionConnector` now clears the playlist on stop.
+        Apps that want the playlist to be retained can call
+        `setClearMediaItemsOnStop(false)` on the connector.
 *   Cast extension:
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
         correctly ([#9792](https://github.com/google/ExoPlayer/issues/9792)).
