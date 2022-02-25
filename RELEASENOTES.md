@@ -2,6 +2,16 @@
 
 ### dev-v2 (not yet released)
 
+*   Core library:
+    *   Enable support for Android platform diagnostics via
+        `MediaMetricsManager`. ExoPlayer will forward playback events and
+        performance data to the platform, which helps to provide system
+        performance and debugging information on the device. This data may also
+        be collected by Google
+        [if sharing usage and diagnostics data is enabled](https://support.google.com/accounts/answer/6078260)
+        by the user of the device. Apps can opt-out of contributing to platform
+        diagnostics for ExoPlayer with
+        `ExoPlayer.Builder.setUsePlatformDiagnostics(false)`.
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
