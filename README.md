@@ -96,13 +96,11 @@ Cloning the repository and depending on the modules locally is required when
 using some libraries. It's also a suitable approach if you want to make local
 changes, or if you want to use the main branch.
 
-First, clone the repository into a local directory and checkout the desired
-branch:
+First, clone the repository into a local directory:
 
 ```sh
 git clone https://github.com/androidx/media.git
 cd media
-git checkout main
 ```
 
 Next, add the following to your project's `settings.gradle` file, replacing
