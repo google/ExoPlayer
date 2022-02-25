@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.media.Image;
+import androidx.annotation.Nullable;
 import androidx.media3.common.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -92,12 +93,20 @@ public class BitmapTestUtil {
   }
 
   /**
-   * Returns the sum of the absolute differences between the expected and actual bitmaps, calculated
-   * using the maximum difference across all color channels for each pixel, then divided by the
-   * total number of pixels in the image. The bitmap resolutions must match and they must use
-   * configuration {@link Bitmap.Config#ARGB_8888}.
+   * Returns the average difference between the expected and actual bitmaps, calculated using the
+   * maximum difference across all color channels for each pixel, then divided by the total number
+   * of pixels in the image. The bitmap resolutions must match and they must use configuration
+   * {@link Bitmap.Config#ARGB_8888}.
+   *
+   * @param expected The expected {@link Bitmap}.
+   * @param actual The actual {@link Bitmap} produced by the test.
+   * @param testId The name of the test that produced the {@link Bitmap}, or {@code null} if the
+   *     differences bitmap should not be saved to cache.
+   * @return The average of the maximum absolute pixel-wise differences between the expected and
+   *     actual bitmaps.
    */
-  public static float getAveragePixelAbsoluteDifferenceArgb8888(Bitmap expected, Bitmap actual) {
+  public static float getAveragePixelAbsoluteDifferenceArgb8888(
+      Bitmap expected, Bitmap actual, @Nullable String testId) {
     int width = actual.getWidth();
     int height = actual.getHeight();
     assertThat(width).isEqualTo(expected.getWidth());
@@ -107,7 +116,7 @@ public class BitmapTestUtil {
     // Debug-only image diff without alpha. To use, set a breakpoint right before the method return
     // to view the difference between the expected and actual bitmaps. A passing test should show
     // an image that is completely black (color == 0).
-    Bitmap debugDiff = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    Bitmap differencesBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         int actualColor = actual.getPixel(x, y);
@@ -117,7 +126,7 @@ public class BitmapTestUtil {
         int redDifference = abs(Color.red(actualColor) - Color.red(expectedColor));
         int blueDifference = abs(Color.blue(actualColor) - Color.blue(expectedColor));
         int greenDifference = abs(Color.green(actualColor) - Color.green(expectedColor));
-        debugDiff.setPixel(x, y, Color.rgb(redDifference, blueDifference, greenDifference));
+        differencesBitmap.setPixel(x, y, Color.rgb(redDifference, blueDifference, greenDifference));
 
         int maximumAbsoluteDifference = 0;
         maximumAbsoluteDifference = max(maximumAbsoluteDifference, alphaDifference);
@@ -128,23 +137,34 @@ public class BitmapTestUtil {
         sumMaximumAbsoluteDifferences += maximumAbsoluteDifference;
       }
     }
+    if (testId != null) {
+      try {
+        saveTestBitmapToCacheDirectory(
+            testId, "diff", differencesBitmap, /* throwOnFailure= */ false);
+      } catch (IOException impossible) {
+        throw new IllegalStateException(impossible);
+      }
+    }
     return (float) sumMaximumAbsoluteDifferences / (width * height);
   }
 
   /**
    * Saves the {@link Bitmap} to the {@link Context#getCacheDir() cache directory} as a PNG.
    *
-   * <p>File name will be {@code <testId>_output.png}. If {@code throwOnFailure} is {@code false},
-   * any {@link IOException} will be caught and logged.
+   * <p>File name will be {@code <testId>_<bitmapLabel>.png}. If {@code throwOnFailure} is {@code
+   * false}, any {@link IOException} will be caught and logged.
    *
    * @param testId Name of the test that produced the {@link Bitmap}.
+   * @param bitmapLabel Label to identify the bitmap.
    * @param bitmap The {@link Bitmap} to save.
    * @param throwOnFailure Whether to throw an exception if the bitmap can't be saved.
    * @throws IOException If the bitmap can't be saved and {@code throwOnFailure} is {@code true}.
    */
   public static void saveTestBitmapToCacheDirectory(
-      String testId, Bitmap bitmap, boolean throwOnFailure) throws IOException {
-    File file = new File(getApplicationContext().getExternalCacheDir(), testId + "_output.png");
+      String testId, String bitmapLabel, Bitmap bitmap, boolean throwOnFailure) throws IOException {
+    File file =
+        new File(
+            getApplicationContext().getExternalCacheDir(), testId + "_" + bitmapLabel + ".png");
     try (FileOutputStream outputStream = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, outputStream);
     } catch (IOException e) {
