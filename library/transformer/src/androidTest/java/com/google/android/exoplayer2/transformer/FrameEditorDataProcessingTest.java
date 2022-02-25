@@ -87,25 +87,28 @@ public final class FrameEditorDataProcessingTest {
 
   @Test
   public void processData_noEdits_producesExpectedOutput() throws Exception {
+    final String testId = "processData_noEdits";
     Matrix identityMatrix = new Matrix();
     setUpAndPrepareFirstFrame(identityMatrix);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
     checkNotNull(frameEditor).processData();
-    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap editedBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editedImage);
-    editedImage.close();
+    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
+    editorOutputImage.close();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
     BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        "processData_noEdits", editedBitmap, /* throwOnFailure= */ false);
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
   public void processData_translateRight_producesExpectedOutput() throws Exception {
+    final String testId = "processData_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     setUpAndPrepareFirstFrame(translateRightMatrix);
@@ -113,20 +116,22 @@ public final class FrameEditorDataProcessingTest {
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     checkNotNull(frameEditor).processData();
-    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap editedBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editedImage);
-    editedImage.close();
+    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
+    editorOutputImage.close();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
     BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        "processData_translateRight", editedBitmap, /* throwOnFailure= */ false);
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
   public void processData_scaleNarrow_producesExpectedOutput() throws Exception {
+    final String testId = "processData_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     setUpAndPrepareFirstFrame(scaleNarrowMatrix);
@@ -134,20 +139,22 @@ public final class FrameEditorDataProcessingTest {
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     checkNotNull(frameEditor).processData();
-    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap editedBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editedImage);
-    editedImage.close();
+    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
+    editorOutputImage.close();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
     BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        "processData_scaleNarrow", editedBitmap, /* throwOnFailure= */ false);
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
   public void processData_rotate90_producesExpectedOutput() throws Exception {
+    final String testId = "processData_rotate90";
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
@@ -157,15 +164,16 @@ public final class FrameEditorDataProcessingTest {
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     checkNotNull(frameEditor).processData();
-    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap editedBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editedImage);
-    editedImage.close();
+    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
+    editorOutputImage.close();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
     BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        "processData_rotate90", editedBitmap, /* throwOnFailure= */ false);
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
