@@ -104,11 +104,7 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * MediaSource for IMA server side inserted ad streams.
- *
- * <p>TODO(bachinger) add code snippet from PlayerActivity
- */
+/** MediaSource for IMA server side inserted ad streams. */
 public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
 
   /**
@@ -117,8 +113,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
    *
    * <p>Apps can use the {@link ImaServerSideAdInsertionMediaSource.Factory} to customized the
    * {@link DefaultMediaSourceFactory} that is used to build a player:
-   *
-   * <p>TODO(bachinger) add code snippet from PlayerActivity
    */
   public static final class Factory implements MediaSource.Factory {
 
@@ -459,6 +453,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @Nullable private IOException loadError;
   private @MonotonicNonNull Timeline contentTimeline;
   private AdPlaybackState adPlaybackState;
+  private int firstSeenAdIndexInAdGroup;
 
   private ImaServerSideAdInsertionMediaSource(
       MediaItem mediaItem,
@@ -696,18 +691,21 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     return adPlaybackState;
   }
 
-  private static AdPlaybackState addLiveAdBreak(
+  private AdPlaybackState addLiveAdBreak(
       Ad ad, long currentPeriodPositionUs, AdPlaybackState adPlaybackState) {
     AdPodInfo adPodInfo = ad.getAdPodInfo();
     long adDurationUs = secToUs(ad.getDuration());
     int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
-
     // TODO(b/208398934) Support seeking backwards.
     if (adIndexInAdGroup == 0 || adPlaybackState.adGroupCount == 1) {
+      firstSeenAdIndexInAdGroup = adIndexInAdGroup;
+      // Adjust count and ad index in case we joined the live stream within an ad group.
+      int adCount = adPodInfo.getTotalAds() - firstSeenAdIndexInAdGroup;
+      adIndexInAdGroup -= firstSeenAdIndexInAdGroup;
       // First ad of group. Create a new group with all ads.
       long[] adDurationsUs =
           updateAdDurationAndPropagate(
-              new long[adPodInfo.getTotalAds()],
+              new long[adCount],
               adIndexInAdGroup,
               adDurationUs,
               secToUs(adPodInfo.getMaxDuration()));
@@ -719,6 +717,11 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               /* adDurationsUs...= */ adDurationsUs);
     } else {
       int adGroupIndex = adPlaybackState.adGroupCount - 2;
+      adIndexInAdGroup -= firstSeenAdIndexInAdGroup;
+      if (adPodInfo.getTotalAds() == adPodInfo.getAdPosition()) {
+        // Reset the ad index whe we are at the last ad in the group.
+        firstSeenAdIndexInAdGroup = 0;
+      }
       adPlaybackState =
           updateAdDurationInAdGroup(adGroupIndex, adIndexInAdGroup, adDurationUs, adPlaybackState);
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
@@ -855,7 +858,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
             long positionInWindowUs =
                 timeline.getPeriod(player.getCurrentPeriodIndex(), new Timeline.Period())
                     .positionInWindowUs;
-            long currentPeriodPosition = msToUs(player.getCurrentPosition()) - positionInWindowUs;
+            long currentPeriodPosition = msToUs(player.getContentPosition()) - positionInWindowUs;
             newAdPlaybackState =
                 addLiveAdBreak(
                     event.getAd(),
