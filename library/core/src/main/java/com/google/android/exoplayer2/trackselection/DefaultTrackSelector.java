@@ -622,8 +622,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
+    @Deprecated
+    @SuppressWarnings("deprecation")
     public ParametersBuilder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
       super.setDisabledTrackTypes(disabledTrackTypes);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder setTrackTypeDisabled(@C.TrackType int trackType, boolean disabled) {
+      super.setTrackTypeDisabled(trackType, disabled);
       return this;
     }
 

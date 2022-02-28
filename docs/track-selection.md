@@ -134,21 +134,21 @@ player.setTrackSelectionParameters(
 
 ### Disabling track types or groups
 
-Track types, like video, audio or text, can be disabled completely by using
-`TrackSelectionParameters.Builder.setDisabledTrackTypes`. This will apply
-unconditionally and will also affect other playlist items.
+Track types, like video, audio or text, can be disabled completely using
+`TrackSelectionParameters.Builder.setTrackTypeDisabled`. A disabled track type
+will be disabled for all media items:
 
 ~~~
 player.setTrackSelectionParameters(
     player.getTrackSelectionParameters()
         .buildUpon()
-        .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_VIDEO))
+        .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, /* disabled= */ true)
         .build());
 ~~~
 {: .language-java}
 
 Alternatively, it's possible to prevent the selection of tracks from a specific
-`TrackGroup` only by specifying an empty override for that group:
+`TrackGroup` by specifying an empty override for that group:
 
 ~~~
 player.setTrackSelectionParameters(
