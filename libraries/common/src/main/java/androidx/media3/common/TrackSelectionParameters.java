@@ -38,6 +38,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -99,7 +100,7 @@ public class TrackSelectionParameters implements Bundleable {
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
     private HashMap<TrackGroup, TrackSelectionOverride> overrides;
-    private ImmutableSet<@C.TrackType Integer> disabledTrackTypes;
+    private HashSet<@C.TrackType Integer> disabledTrackTypes;
 
     /**
      * @deprecated {@link Context} constraints will not be set using this constructor. Use {@link
@@ -132,7 +133,7 @@ public class TrackSelectionParameters implements Bundleable {
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
       overrides = new HashMap<>();
-      disabledTrackTypes = ImmutableSet.of();
+      disabledTrackTypes = new HashSet<>();
     }
 
     /**
@@ -239,21 +240,22 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
-      overrides = new HashMap<>();
       List<TrackSelectionOverride> overrideList =
           fromBundleNullableList(
               TrackSelectionOverride.CREATOR,
               bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDES)),
               ImmutableList.of());
+      overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);
         overrides.put(override.trackGroup, override);
       }
-      disabledTrackTypes =
-          ImmutableSet.copyOf(
-              Ints.asList(
-                  firstNonNull(
-                      bundle.getIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE)), new int[0])));
+      int[] disabledTrackTypeArray =
+          firstNonNull(bundle.getIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE)), new int[0]);
+      disabledTrackTypes = new HashSet<>();
+      for (@C.TrackType int disabledTrackType : disabledTrackTypeArray) {
+        disabledTrackTypes.add(disabledTrackType);
+      }
     }
 
     /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
@@ -293,7 +295,7 @@ public class TrackSelectionParameters implements Bundleable {
       // General
       forceLowestBitrate = parameters.forceLowestBitrate;
       forceHighestSupportedBitrate = parameters.forceHighestSupportedBitrate;
-      disabledTrackTypes = parameters.disabledTrackTypes;
+      disabledTrackTypes = new HashSet<>(parameters.disabledTrackTypes);
       overrides = new HashMap<>(parameters.overrides);
     }
 
@@ -695,13 +697,34 @@ public class TrackSelectionParameters implements Bundleable {
 
     /**
      * Sets the disabled track types, preventing all tracks of those types from being selected for
-     * playback.
+     * playback. Any previously disabled track types are cleared.
      *
      * @param disabledTrackTypes The track types to disable.
      * @return This builder.
+     * @deprecated Use {@link #setTrackTypeDisabled(int, boolean)}.
      */
+    @Deprecated
+    @UnstableApi
     public Builder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
-      this.disabledTrackTypes = ImmutableSet.copyOf(disabledTrackTypes);
+      this.disabledTrackTypes.clear();
+      this.disabledTrackTypes.addAll(disabledTrackTypes);
+      return this;
+    }
+
+    /**
+     * Sets whether a track type is disabled. If disabled, no tracks of the specified type will be
+     * selected for playback.
+     *
+     * @param trackType The track type.
+     * @param disabled Whether the track type should be disabled.
+     * @return This builder.
+     */
+    public Builder setTrackTypeDisabled(@C.TrackType int trackType, boolean disabled) {
+      if (disabled) {
+        disabledTrackTypes.add(trackType);
+      } else {
+        disabledTrackTypes.remove(trackType);
+      }
       return this;
     }
 
@@ -936,7 +959,7 @@ public class TrackSelectionParameters implements Bundleable {
     this.forceLowestBitrate = builder.forceLowestBitrate;
     this.forceHighestSupportedBitrate = builder.forceHighestSupportedBitrate;
     this.overrides = ImmutableMap.copyOf(builder.overrides);
-    this.disabledTrackTypes = builder.disabledTrackTypes;
+    this.disabledTrackTypes = ImmutableSet.copyOf(builder.disabledTrackTypes);
   }
 
   /** Creates a new {@link Builder}, copying the initial values from this instance. */

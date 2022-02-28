@@ -392,7 +392,9 @@ public final class DefaultTrackSelectorTest {
   public void selectVideoAudioTracks_withDisabledAudioType_onlyVideoIsSelected()
       throws ExoPlaybackException {
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO)));
+        defaultParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -407,11 +409,12 @@ public final class DefaultTrackSelectorTest {
 
   /** Tests that a disabled track type can be enabled again. */
   @Test
+  @SuppressWarnings("deprecation")
   public void selectTracks_withClearedDisabledTrackType_selectsAll() throws ExoPlaybackException {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
             .setDisabledTrackTypes(ImmutableSet.of()));
 
     TrackSelectorResult result =
@@ -426,7 +429,9 @@ public final class DefaultTrackSelectorTest {
   public void selectTracks_withDisabledNoneTracksAndNoSampleRenderer_disablesNoSampleRenderer()
       throws ExoPlaybackException {
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_NONE)));
+        defaultParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_NONE, /* disabled= */ true));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(

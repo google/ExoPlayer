@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -109,7 +108,8 @@ public final class TrackSelectionParametersTest {
                         new Format.Builder().setId(4).build(),
                         new Format.Builder().setId(5).build()),
                     /* trackIndices= */ ImmutableList.of(1)))
-            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT))
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
+            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, /* disabled= */ true)
             .build();
 
     // Video
