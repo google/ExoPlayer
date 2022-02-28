@@ -15,7 +15,7 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.transformer.AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
@@ -47,7 +47,7 @@ public class SetTransformationMatrixTransformationTest {
         context,
         /* testId= */ "setTransformationMatrixTransform",
         transformer,
-        REMOTE_MP4_10_SECONDS_URI_STRING,
+        MP4_REMOTE_10_SECONDS_URI_STRING,
         /* timeoutSeconds= */ 120,
         /* calculateSsim= */ false);
   }
