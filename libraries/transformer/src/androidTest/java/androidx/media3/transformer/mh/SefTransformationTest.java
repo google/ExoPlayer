@@ -53,6 +53,7 @@ public class SefTransformationTest {
         /* testId = */ "sefTransform",
         transformer,
         SEF_ASSET_URI_STRING,
-        /* timeoutSeconds= */ 120);
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
   }
 }

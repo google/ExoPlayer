@@ -59,7 +59,8 @@ public class TransformerEndToEndTest {
         /* testId= */ "videoTranscoding_completesWithConsistentFrameCount",
         transformer,
         VP9_VIDEO_URI_STRING,
-        /* timeoutSeconds= */ 120);
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
 
     FrameCountingMuxer frameCountingMuxer =
         checkNotNull(muxerFactory.getLastFrameCountingMuxerCreated());
@@ -92,7 +93,8 @@ public class TransformerEndToEndTest {
         /* testId= */ "videoEditing_completesWithConsistentFrameCount",
         transformer,
         AVC_VIDEO_URI_STRING,
-        /* timeoutSeconds= */ 120);
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
 
     FrameCountingMuxer frameCountingMuxer =
         checkNotNull(muxerFactory.getLastFrameCountingMuxerCreated());

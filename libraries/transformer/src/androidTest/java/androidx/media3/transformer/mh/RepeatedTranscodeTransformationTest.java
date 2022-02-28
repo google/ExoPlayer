@@ -62,7 +62,8 @@ public final class RepeatedTranscodeTransformationTest {
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
               transformer,
               AndroidTestUtil.REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING,
-              /* timeoutSeconds= */ 120);
+              /* timeoutSeconds= */ 120,
+              /* calculateSsim= */ false);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -96,7 +97,8 @@ public final class RepeatedTranscodeTransformationTest {
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
               transformer,
               AndroidTestUtil.REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING,
-              /* timeoutSeconds= */ 120);
+              /* timeoutSeconds= */ 120,
+              /* calculateSsim= */ false);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -125,7 +127,8 @@ public final class RepeatedTranscodeTransformationTest {
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
               transformer,
               AndroidTestUtil.REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING,
-              /* timeoutSeconds= */ 120);
+              /* timeoutSeconds= */ 120,
+              /* calculateSsim= */ false);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 

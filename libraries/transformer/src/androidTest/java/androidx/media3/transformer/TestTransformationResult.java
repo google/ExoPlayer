@@ -17,11 +17,22 @@ package androidx.media3.transformer;
 
 /** A test only class for holding additional details alongside a {@link TransformationResult}. */
 public class TestTransformationResult {
+  /** Represents an unset or unknown SSIM score. */
+  public static final double SSIM_UNSET = -1.0d;
+
   public final TransformationResult transformationResult;
   public final String filePath;
+  /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
+  public final double ssim;
 
   public TestTransformationResult(TransformationResult transformationResult, String filePath) {
+    this(transformationResult, filePath, /* ssim= */ SSIM_UNSET);
+  }
+
+  public TestTransformationResult(
+      TransformationResult transformationResult, String filePath, double ssim) {
     this.transformationResult = transformationResult;
     this.filePath = filePath;
+    this.ssim = ssim;
   }
 }

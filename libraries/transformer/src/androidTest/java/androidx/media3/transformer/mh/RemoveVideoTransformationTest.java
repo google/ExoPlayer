@@ -37,6 +37,7 @@ public class RemoveVideoTransformationTest {
         /* testId= */ "removeVideoTransform",
         transformer,
         MP4_ASSET_URI_STRING,
-        /* timeoutSeconds= */ 120);
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
   }
 }
