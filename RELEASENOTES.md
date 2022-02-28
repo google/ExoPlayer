@@ -34,6 +34,9 @@
 
 ### 2.17.0 (2022-02-24)
 
+This release corresponds to the
+[AndroidX media3 1.0.0-alpha02 release](https://github.com/androidx/media/releases/tag/1.0.0-alpha02).
+
 *   Core library:
     *   Sleep and retry when creating a `MediaCodec` instance fails. This works
         around an issue that occurs on some devices when switching a surface
