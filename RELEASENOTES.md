@@ -2,6 +2,9 @@
 
 ### 1.0.0-alpha02 (2022-03-09)
 
+This release corresponds to the
+[ExoPlayer 2.17.0 release](https://github.com/google/ExoPlayer/releases/tag/r2.17.0).
+
 *   Core Library:
     *   Add protected method `DefaultRenderersFactory.getCodecAdapterFactory()`
         so that subclasses of `DefaultRenderersFactory` that override
