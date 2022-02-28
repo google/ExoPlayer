@@ -40,6 +40,7 @@ public class TransformationTest {
         /* testId= */ "transform",
         transformer,
         MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
-        /* timeoutSeconds= */ 120);
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
   }
 }

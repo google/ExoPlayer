@@ -82,18 +82,17 @@ public final class SsimHelper {
   /**
    * Returns the mean SSIM score between the expected and the actual video.
    *
+   * <p>The method compares every {@link #DEFAULT_COMPARISON_INTERVAL n-th} frame from both videos.
+   *
    * @param context The {@link Context}.
    * @param expectedVideoPath The path to the expected video file, must be in {@link
    *     Context#getAssets() Assets}.
    * @param actualVideoPath The path to the actual video file.
-   * @param comparisonInterval The number of frames between the frames selected for comparison by
-   *     SSIM.
    * @throws IOException When unable to open the provided video paths.
    */
-  public static double calculate(
-      Context context, String expectedVideoPath, String actualVideoPath, int comparisonInterval)
+  public static double calculate(Context context, String expectedVideoPath, String actualVideoPath)
       throws IOException, InterruptedException {
-    return new SsimHelper(context, expectedVideoPath, actualVideoPath, comparisonInterval)
+    return new SsimHelper(context, expectedVideoPath, actualVideoPath, DEFAULT_COMPARISON_INTERVAL)
         .startCalculation();
   }
 

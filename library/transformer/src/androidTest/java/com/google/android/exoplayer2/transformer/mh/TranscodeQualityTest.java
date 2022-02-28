@@ -23,7 +23,6 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
-import com.google.android.exoplayer2.transformer.SsimHelper;
 import com.google.android.exoplayer2.transformer.TestTransformationResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
@@ -52,14 +51,9 @@ public final class TranscodeQualityTest {
             /* testId= */ "singleTranscode_ssim",
             transformer,
             AndroidTestUtil.MP4_ASSET_URI_STRING,
-            /* timeoutSeconds= */ 120);
+            /* timeoutSeconds= */ 120,
+            /* calculateSsim= */ true);
 
-    assertThat(
-            SsimHelper.calculate(
-                context,
-                AndroidTestUtil.MP4_ASSET_URI_STRING,
-                result.filePath,
-                SsimHelper.DEFAULT_COMPARISON_INTERVAL))
-        .isGreaterThan(0.95);
+    assertThat(result.ssim).isGreaterThan(0.95);
   }
 }

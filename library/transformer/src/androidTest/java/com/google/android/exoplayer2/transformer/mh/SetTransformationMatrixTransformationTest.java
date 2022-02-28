@@ -48,6 +48,7 @@ public class SetTransformationMatrixTransformationTest {
         /* testId= */ "setTransformationMatrixTransform",
         transformer,
         REMOTE_MP4_10_SECONDS_URI_STRING,
-        /* timeoutSeconds= */ 120);
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
   }
 }

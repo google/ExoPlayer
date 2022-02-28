@@ -58,19 +58,32 @@ public final class AndroidTestUtil {
    * @param transformer The {@link Transformer} that performs the transformation.
    * @param uriString The uri (as a {@link String}) that will be transformed.
    * @param timeoutSeconds The transformer timeout. An exception is thrown if this is exceeded.
+   * @param calculateSsim Whether to include SSIM in the {@link TestTransformationResult}. The
+   *     calculation involves decoding and comparing both the input and the output video.
+   *     Consequently this calculation is not cost-free. Requires the input and output video to be
+   *     the same size.
    * @return The {@link TestTransformationResult}.
    * @throws Exception The cause of the transformation not completing.
    */
   public static TestTransformationResult runTransformer(
-      Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
+      Context context,
+      String testId,
+      Transformer transformer,
+      String uriString,
+      int timeoutSeconds,
+      boolean calculateSsim)
       throws Exception {
     JSONObject resultJson = new JSONObject();
     try {
       TestTransformationResult testTransformationResult =
-          runTransformerInternal(context, testId, transformer, uriString, timeoutSeconds);
+          runTransformerInternal(
+              context, testId, transformer, uriString, timeoutSeconds, calculateSsim);
       resultJson.put(
           "transformationResult",
           getTransformationResultJson(testTransformationResult.transformationResult));
+      if (testTransformationResult.ssim != TestTransformationResult.SSIM_UNSET) {
+        resultJson.put("ssim", testTransformationResult.ssim);
+      }
       return testTransformationResult;
     } catch (Exception e) {
       resultJson.put("exception", getExceptionJson(e));
@@ -81,7 +94,12 @@ public final class AndroidTestUtil {
   }
 
   private static TestTransformationResult runTransformerInternal(
-      Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
+      Context context,
+      String testId,
+      Transformer transformer,
+      String uriString,
+      int timeoutSeconds,
+      boolean calculateSsim)
       throws Exception {
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
         new AtomicReference<>();
@@ -150,7 +168,15 @@ public final class AndroidTestUtil {
             .setFileSizeBytes(outputVideoFile.length())
             .build();
 
-    return new TestTransformationResult(transformationResult, outputVideoFile.getPath());
+    if (calculateSsim) {
+      return new TestTransformationResult(
+          transformationResult,
+          outputVideoFile.getPath(),
+          SsimHelper.calculate(
+              context, /* expectedVideoPath= */ uriString, outputVideoFile.getPath()));
+    } else {
+      return new TestTransformationResult(transformationResult, outputVideoFile.getPath());
+    }
   }
 
   private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
