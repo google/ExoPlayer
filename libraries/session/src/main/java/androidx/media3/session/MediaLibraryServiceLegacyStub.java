@@ -198,7 +198,7 @@ import java.util.concurrent.atomic.AtomicReference;
             try {
               int page = options.getInt(EXTRA_PAGE);
               int pageSize = options.getInt(EXTRA_PAGE_SIZE);
-              if (page > 0 && pageSize > 0) {
+              if (page >= 0 && pageSize > 0) {
                 // Requesting the list of children through pagination.
                 @Nullable
                 LibraryParams params =
@@ -223,7 +223,7 @@ import java.util.concurrent.atomic.AtomicReference;
                   parentId,
                   /* page= */ 0,
                   /* pageSize= */ Integer.MAX_VALUE,
-                  /* extras= */ null);
+                  /* params= */ null);
           sendLibraryResultWithMediaItemsWhenReady(result, future);
         });
   }
