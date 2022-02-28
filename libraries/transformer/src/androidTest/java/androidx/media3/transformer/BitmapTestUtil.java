@@ -86,7 +86,7 @@ public class BitmapTestUtil {
         int g = buffer.get(offset + 1) & 0xFF;
         int b = buffer.get(offset + 2) & 0xFF;
         int a = buffer.get(offset + 3) & 0xFF;
-        colors[y * width + x] = (a << 24) + (r << 16) + (g << 8) + b;
+        colors[y * width + x] = Color.argb(a, r, g, b);
       }
     }
     return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
