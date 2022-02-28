@@ -42,12 +42,16 @@ public final class AndroidTestUtil {
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING =
       "asset:///media/mp4/sample_with_increasing_timestamps.mp4";
-  public static final String SEF_ASSET_URI_STRING = "asset:///media/mp4/sample_sef_slow_motion.mp4";
-  public static final String REMOTE_MP4_10_SECONDS_URI_STRING =
+  public static final String MP4_ASSET_SEF_URI_STRING =
+      "asset:///media/mp4/sample_sef_slow_motion.mp4";
+  public static final String MP4_REMOTE_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
-  /** Test clip transcoded from {@link #REMOTE_MP4_10_SECONDS_URI_STRING} with H264 and MP3. */
-  public static final String REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING =
+  /** Test clip transcoded from {@link #MP4_REMOTE_10_SECONDS_URI_STRING} with H264 and MP3. */
+  public static final String MP4_REMOTE_H264_MP3_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/%20android-screens-10s-h264-mp3.mp4";
+
+  public static final String MP4_REMOTE_4K60_PORTRAIT_URI_STRING =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4";
 
   /**
    * Transforms the {@code uriString} with the {@link Transformer}, saving a summary of the

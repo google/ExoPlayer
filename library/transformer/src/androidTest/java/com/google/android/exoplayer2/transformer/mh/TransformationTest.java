@@ -15,17 +15,23 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test. */
+/** {@link Transformer} instrumentation tests. */
 @RunWith(AndroidJUnit4.class)
 public class TransformationTest {
 
@@ -33,13 +39,85 @@ public class TransformationTest {
 
   @Test
   public void transform() throws Exception {
+    final String testId = TAG + "_transform";
+
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     runTransformer(
         context,
-        /* testId= */ "transform",
+        testId,
         transformer,
         MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
+  }
+
+  @Test
+  public void transform4K60() throws Exception {
+    final String testId = TAG + "_transform4K60";
+
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer = new Transformer.Builder(context).build();
+    runTransformer(
+        context,
+        testId,
+        transformer,
+        MP4_REMOTE_4K60_PORTRAIT_URI_STRING,
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
+  }
+
+  @Test
+  public void transformNoAudio() throws Exception {
+    final String testId = TAG + "_transformNoAudio";
+
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
+    runTransformer(
+        context,
+        testId,
+        transformer,
+        MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
+  }
+
+  @Test
+  public void transformNoVideo() throws Exception {
+    final String testId = TAG + "_transformNoVideo";
+
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer = new Transformer.Builder(context).setRemoveVideo(true).build();
+    runTransformer(
+        context,
+        testId,
+        transformer,
+        MP4_ASSET_URI_STRING,
+        /* timeoutSeconds= */ 120,
+        /* calculateSsim= */ false);
+  }
+
+  @Test
+  public void transformSef() throws Exception {
+    final String testId = TAG + "_transformSef";
+
+    if (Util.SDK_INT < 25) {
+      // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
+      Log.i(testId, "Skipping on this API version due to lack of muxing support");
+      return;
+    }
+
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
+            .build();
+    runTransformer(
+        context,
+        testId,
+        transformer,
+        MP4_ASSET_SEF_URI_STRING,
         /* timeoutSeconds= */ 120,
         /* calculateSsim= */ false);
   }
