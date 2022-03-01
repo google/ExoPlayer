@@ -376,9 +376,10 @@ public final class GlUtil {
   }
 
   /* package */ static void throwGlException(String errorMsg) {
-    Log.e(TAG, errorMsg);
     if (glAssertionsEnabled) {
       throw new GlException(errorMsg);
+    } else {
+      Log.e(TAG, errorMsg);
     }
   }
 
