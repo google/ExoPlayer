@@ -302,7 +302,7 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
+            .setOverrideForType(new TrackSelectionOverride(videoGroupH264, /* trackIndex= */ 0))
             .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -319,7 +319,7 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
+            .setOverrideForType(new TrackSelectionOverride(videoGroupAv1, /* trackIndex= */ 0))
             .build());
     result =
         trackSelector.selectTracks(
@@ -350,7 +350,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
+            .setOverrideForType(
+                new TrackSelectionOverride(audioGroupUnsupported, /* trackIndex= */ 0))
             .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
