@@ -295,8 +295,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void release() {
     externalCopyFrameProcessor.release();
     transformationFrameProcessor.release();
-    GlUtil.deleteTexture(inputExternalTexId);
-    GlUtil.deleteTexture(intermediateTexId);
     GlUtil.destroyEglContext(eglDisplay, eglContext);
     inputSurfaceTexture.release();
     inputSurface.release();
