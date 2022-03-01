@@ -24,6 +24,8 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import androidx.annotation.IntDef;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /** Thrown when the requested DRM scheme is not supported. */
@@ -35,8 +37,9 @@ public final class UnsupportedDrmException extends Exception {
    * #REASON_INSTANTIATION_ERROR}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
-  // with Kotlin usages from before TYPE_USE was added.  @Retention(RetentionPolicy.SOURCE)
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
+  @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({REASON_UNSUPPORTED_SCHEME, REASON_INSTANTIATION_ERROR})
   public @interface Reason {}
