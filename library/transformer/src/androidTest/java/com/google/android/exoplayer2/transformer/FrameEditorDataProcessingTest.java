@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
+import static com.google.android.exoplayer2.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
@@ -47,26 +48,17 @@ import org.junit.runner.RunWith;
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
- * #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output bitmaps.
+ * BitmapTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
+ * bitmaps.
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
+  // TODO(b/214975934): Once FrameEditor is converted to a FrameProcessorChain, replace these tests
+  //  with a test for a few example combinations of GlFrameProcessors rather than testing all use
+  //  cases of TransformationFrameProcessor.
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
-  /**
-   * Maximum allowed average pixel difference between the expected and actual edited images for the
-   * test to pass. The value is chosen so that differences in decoder behavior across emulator
-   * versions shouldn't affect whether the test passes, but substantial distortions introduced by
-   * changes in the behavior of the frame editor will cause the test to fail.
-   *
-   * <p>To run this test on physical devices, please use a value of 5f, rather than 0.1f. This
-   * higher value will ignore some very small errors, but will allow for some differences caused by
-   * graphics implementations to be ignored. When the difference is close to the threshold, manually
-   * inspect expected/actual bitmaps to confirm failure, as it's possible this is caused by a
-   * difference in the codec or graphics implementation as opposed to a FrameEditor issue.
-   */
-  private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.1f;
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
   /** Time to wait for the frame editor's input to be populated by the decoder, in milliseconds. */

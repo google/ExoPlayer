@@ -24,9 +24,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
+import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,6 +55,19 @@ public class BitmapTestUtil {
       "media/bitmap/sample_mp4_first_frame_scale_narrow.png";
   public static final String ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame_rotate90.png";
+  /**
+   * Maximum allowed average pixel difference between the expected and actual edited images for the
+   * test to pass. The value is chosen so that differences in decoder behavior across emulator
+   * versions don't affect whether the test passes for most emulators, but substantial distortions
+   * introduced by changes in the behavior of the frame editor will cause the test to fail.
+   *
+   * <p>To run this test on physical devices, please use a value of 5f, rather than 0.1f. This
+   * higher value will ignore some very small errors, but will allow for some differences caused by
+   * graphics implementations to be ignored. When the difference is close to the threshold, manually
+   * inspect expected/actual bitmaps to confirm failure, as it's possible this is caused by a
+   * difference in the codec or graphics implementation as opposed to a FrameEditor issue.
+   */
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.1f;
 
   /**
    * Reads a bitmap from the specified asset location.
@@ -174,6 +191,57 @@ public class BitmapTestUtil {
         Log.e(TAG, "Could not write Bitmap to file path: " + file.getAbsolutePath(), e);
       }
     }
+  }
+
+  /**
+   * Creates a bitmap with the values of the current OpenGL framebuffer.
+   *
+   * <p>This method may block until any previously called OpenGL commands are complete.
+   *
+   * @param width The width of the pixel rectangle to read.
+   * @param height The height of the pixel rectangle to read.
+   * @return A {@link Bitmap} with the framebuffer's values.
+   */
+  public static Bitmap createArgb8888BitmapFromCurrentGlFramebuffer(int width, int height) {
+    ByteBuffer rgba8888Buffer = ByteBuffer.allocateDirect(width * height * 4);
+    GLES20.glReadPixels(
+        0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, rgba8888Buffer);
+    GlUtil.checkGlError();
+    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    // According to https://www.khronos.org/opengl/wiki/Pixel_Transfer#Endian_issues,
+    // the colors will have the order RGBA in client memory. This is what the bitmap expects:
+    // https://developer.android.com/reference/android/graphics/Bitmap.Config#ARGB_8888.
+    bitmap.copyPixelsFromBuffer(rgba8888Buffer);
+    // Flip the bitmap as its positive y-axis points down while OpenGL's positive y-axis points up.
+    return flipBitmapVertically(bitmap);
+  }
+
+  /**
+   * Creates a {@link GLES20#GL_TEXTURE_2D 2-dimensional OpenGL texture} with the bitmap's contents.
+   *
+   * @param bitmap A {@link Bitmap}.
+   * @return The identifier of the newly created texture.
+   */
+  public static int createGlTextureFromBitmap(Bitmap bitmap) {
+    int texId = GlUtil.createTexture(bitmap.getWidth(), bitmap.getHeight());
+    // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
+    // while OpenGL's positive y-axis points up.
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, flipBitmapVertically(bitmap), 0);
+    GlUtil.checkGlError();
+    return texId;
+  }
+
+  private static Bitmap flipBitmapVertically(Bitmap bitmap) {
+    Matrix flip = new Matrix();
+    flip.postScale(1f, -1f);
+    return Bitmap.createBitmap(
+        bitmap,
+        /* x= */ 0,
+        /* y= */ 0,
+        bitmap.getWidth(),
+        bitmap.getHeight(),
+        flip,
+        /* filter= */ true);
   }
 
   private BitmapTestUtil() {}
