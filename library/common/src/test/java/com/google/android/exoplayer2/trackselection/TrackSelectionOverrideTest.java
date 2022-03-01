@@ -31,12 +31,12 @@ import org.junit.runner.RunWith;
 public final class TrackSelectionOverrideTest {
 
   @Test
-  public void newTrackSelectionOverride_withJustTrackGroup_selectsAllTracks() {
+  public void newTrackSelectionOverride_withOneTrack_selectsOneTrack() {
     TrackSelectionOverride trackSelectionOverride =
-        new TrackSelectionOverride(newTrackGroupWithIds(1, 2));
+        new TrackSelectionOverride(newTrackGroupWithIds(1, 2), /* trackIndex= */ 1);
 
     assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
-    assertThat(trackSelectionOverride.trackIndices).containsExactly(0, 1).inOrder();
+    assertThat(trackSelectionOverride.trackIndices).containsExactly(1).inOrder();
   }
 
   @Test

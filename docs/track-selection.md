@@ -113,24 +113,26 @@ specifying specific tracks directly:
 
 ### Selecting specific tracks
 
-It's possible to specify specific tracks in `TrackSelectionParameters` that
-should be selected for the current set of tracks. Note that a change in the
-available tracks, for example when changing items in a playlist, will also
-invalidate such a track override.
-
-The simplest way to specify track overrides is to specify the `TrackGroup` that
-should be selected for its track type. For example, you can specify an audio
-track group to select this audio group and prevent any other audio track groups
-from being selected:
+It's possible to specify in `TrackSelectionParameters` which of the currently
+available tracks should be selected. First, the player's currently available
+tracks should be queried using `Player.getTracksInfo`. Second, having identified
+which tracks to select, they can be set on `TrackSelectionParameters` using
+`TrackSelectionOverrides`. For example, to select the first track from a
+specific `audioTrackGroup`:
 
 ~~~
 player.setTrackSelectionParameters(
     player.getTrackSelectionParameters()
         .buildUpon()
-        .setOverrideForType(new TrackSelectionOverride(audioTrackGroup))
+        .setOverrideForType(
+            new TrackSelectionOverride(audioTrackGroup, /* trackIndex= */ 0))
         .build());
 ~~~
 {: .language-java}
+
+Note that a `TrackSelectionOverride` will only apply to media items that contain
+the `TrackGroup` specified in the override. Hence an override may not apply to
+a subsequent media item if that item contains different tracks.
 
 ### Disabling track types or groups
 

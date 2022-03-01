@@ -62,14 +62,14 @@ public final class TrackSelectionOverride implements Bundleable {
   private static final int FIELD_TRACK_GROUP = 0;
   private static final int FIELD_TRACKS = 1;
 
-  /** Constructs an instance to force all tracks in {@code trackGroup} to be selected. */
-  public TrackSelectionOverride(TrackGroup trackGroup) {
-    this.trackGroup = trackGroup;
-    ImmutableList.Builder<Integer> builder = new ImmutableList.Builder<>();
-    for (int i = 0; i < trackGroup.length; i++) {
-      builder.add(i);
-    }
-    this.trackIndices = builder.build();
+  /**
+   * Constructs an instance to force {@code trackIndex} in {@code trackGroup} to be selected.
+   *
+   * @param trackGroup The {@link TrackGroup} for which to override the track selection.
+   * @param trackIndex The index of the track in the {@link TrackGroup} to select.
+   */
+  public TrackSelectionOverride(TrackGroup trackGroup, int trackIndex) {
+    this(trackGroup, ImmutableList.of(trackIndex));
   }
 
   /**
@@ -123,13 +123,9 @@ public final class TrackSelectionOverride implements Bundleable {
   /** Object that can restore {@code TrackSelectionOverride} from a {@link Bundle}. */
   public static final Creator<TrackSelectionOverride> CREATOR =
       bundle -> {
-        @Nullable Bundle trackGroupBundle = bundle.getBundle(keyForField(FIELD_TRACK_GROUP));
-        checkNotNull(trackGroupBundle); // Mandatory as there are no reasonable defaults.
+        Bundle trackGroupBundle = checkNotNull(bundle.getBundle(keyForField(FIELD_TRACK_GROUP)));
         TrackGroup trackGroup = TrackGroup.CREATOR.fromBundle(trackGroupBundle);
-        @Nullable int[] tracks = bundle.getIntArray(keyForField(FIELD_TRACKS));
-        if (tracks == null) {
-          return new TrackSelectionOverride(trackGroup);
-        }
+        int[] tracks = checkNotNull(bundle.getIntArray(keyForField(FIELD_TRACKS)));
         return new TrackSelectionOverride(trackGroup, Ints.asList(tracks));
       };
 
