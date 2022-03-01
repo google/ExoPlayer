@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
@@ -47,7 +47,7 @@ public class SetTransformationMatrixTransformationTest {
         context,
         /* testId= */ "setTransformationMatrixTransform",
         transformer,
-        MP4_REMOTE_10_SECONDS_URI_STRING,
+        MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
         /* timeoutSeconds= */ 120,
         /* calculateSsim= */ false);
   }
