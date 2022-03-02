@@ -321,11 +321,7 @@ public abstract class MediaSessionService extends Service {
       return START_STICKY;
     }
 
-    DefaultActionFactory actionFactory;
-    synchronized (lock) {
-      actionFactory = checkStateNotNull(this.actionFactory);
-    }
-
+    DefaultActionFactory actionFactory = getActionFactory();
     @Nullable Uri uri = intent.getData();
     @Nullable MediaSession session = uri != null ? MediaSession.getSession(uri) : null;
     if (actionFactory.isMediaAction(intent)) {
@@ -396,12 +392,20 @@ public abstract class MediaSessionService extends Service {
         if (mediaNotificationProvider == null) {
           mediaNotificationProvider = new DefaultMediaNotificationProvider(getApplicationContext());
         }
-        actionFactory = new DefaultActionFactory(/* service= */ this);
         mediaNotificationManager =
             new MediaNotificationManager(
-                /* mediaSessionService= */ this, mediaNotificationProvider, actionFactory);
+                /* mediaSessionService= */ this, mediaNotificationProvider, getActionFactory());
       }
       return mediaNotificationManager;
+    }
+  }
+
+  private DefaultActionFactory getActionFactory() {
+    synchronized (lock) {
+      if (actionFactory == null) {
+        actionFactory = new DefaultActionFactory(/* service= */ this);
+      }
+      return actionFactory;
     }
   }
 
@@ -469,7 +473,7 @@ public abstract class MediaSessionService extends Service {
                         remoteUserInfo,
                         /* controllerVersion= */ request.version,
                         isTrusted,
-                        /* controllerCb= */ null,
+                        /* cb= */ null,
                         request.connectionHints);
 
                 @Nullable MediaSession session;
