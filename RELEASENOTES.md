@@ -20,6 +20,12 @@
     *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
         order for streams containing both v0 and v1 emsg atoms
         ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
+*   Text:
+    *   Fix the interaction of `SingleSampleMediaSource.Factory.setTrackId` and
+        `MediaItem.SubtitleConfiguration.Builder.setId` to prioritise the
+        `SubtitleConfiguration` field and fall back to the `Factory` value if
+        it's not set
+        ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
