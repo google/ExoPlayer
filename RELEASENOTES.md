@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+*   Audio:
+    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
+        HLS.
 *   Extractors:
     *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
         order for streams containing both v0 and v1 emsg atoms
