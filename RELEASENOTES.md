@@ -15,6 +15,9 @@
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
+*   Audio:
+    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
+        HLS.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
     *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
