@@ -31,6 +31,11 @@
         instead. You can also continue to use `ExoPlayer.getCurrentTrackGroups`
         and `ExoPlayer.getCurrentTrackSelections`, although these methods remain
         deprecated.
+    *   Remove `DownloadHelper`
+        `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT` and
+        `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
+        `getDefaultTrackSelectorParameters(Context)` instead when possible, and
+        `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
 
 ### 2.17.0 (2022-02-24)
 

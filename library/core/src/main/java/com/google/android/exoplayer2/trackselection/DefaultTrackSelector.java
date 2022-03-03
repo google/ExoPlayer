@@ -1516,13 +1516,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * @param parameters Initial {@link Parameters}.
+   * @param parameters Initial {@link TrackSelectionParameters}.
    * @param trackSelectionFactory A factory for {@link ExoTrackSelection}s.
    */
   public DefaultTrackSelector(
-      Parameters parameters, ExoTrackSelection.Factory trackSelectionFactory) {
+      TrackSelectionParameters parameters, ExoTrackSelection.Factory trackSelectionFactory) {
     this.trackSelectionFactory = trackSelectionFactory;
-    parametersReference = new AtomicReference<>(parameters);
+    parametersReference =
+        new AtomicReference<>(
+            parameters instanceof Parameters
+                ? (Parameters) parameters
+                : Parameters.DEFAULT_WITHOUT_CONTEXT.buildUpon().set(parameters).build());
   }
 
   @Override
