@@ -21,7 +21,7 @@ This release corresponds to the
         from a secure codec to another codec
         ([#8696](https://github.com/google/ExoPlayer/issues/8696)).
     *   Add `MediaCodecAdapter.getMetrics()` to allow users obtain metrics data
-        from `MediaCodec`.
+        from `MediaCodec`
         ([#9766](https://github.com/google/ExoPlayer/issues/9766)).
     *   Fix Maven dependency resolution
         ([#8353](https://github.com/google/ExoPlayer/issues/8353)).
@@ -74,9 +74,9 @@ This release corresponds to the
     *   Change `AudioCapabilities` APIs to require passing explicitly
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
     *   Allow customization of the `AudioTrack` buffer size calculation by
-        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`.
+        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`
         ([#8891](https://github.com/google/ExoPlayer/issues/8891)).
-    *   Retry `AudioTrack` creation if the requested buffer size was > 1MB.
+    *   Retry `AudioTrack` creation if the requested buffer size was > 1MB
         ([#9712](https://github.com/google/ExoPlayer/issues/9712)).
 *   Extractors:
     *   WAV: Add support for RF64 streams
@@ -178,38 +178,38 @@ This release corresponds to the
         ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
 *   Remove deprecated symbols:
     *   Remove `Player.EventLister`. Use `Player.Listener` instead.
-    *   Remove `MediaSourceFactory#setDrmSessionManager`,
-        `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
-        `MediaSourceFactory#setDrmUserAgent`. Use
-        `MediaSourceFactory#setDrmSessionManagerProvider` instead.
-    *   Remove `MediaSourceFactory#setStreamKeys`. Use
-        `MediaItem.Builder#setStreamKeys` instead.
-    *   Remove `MediaSourceFactory#createMediaSource(Uri)`. Use
-        `MediaSourceFactory#createMediaSource(MediaItem)` instead.
+    *   Remove `MediaSourceFactory.setDrmSessionManager`,
+        `MediaSourceFactory.setDrmHttpDataSourceFactory`, and
+        `MediaSourceFactory.setDrmUserAgent`. Use
+        `MediaSourceFactory.setDrmSessionManagerProvider` instead.
+    *   Remove `MediaSourceFactory.setStreamKeys`. Use
+        `MediaItem.Builder.setStreamKeys` instead.
+    *   Remove `MediaSourceFactory.createMediaSource(Uri)`. Use
+        `MediaSourceFactory.createMediaSource(MediaItem)` instead.
     *   Remove `setTag` from `DashMediaSource`, `HlsMediaSource` and
-        `SsMediaSource`. Use `MediaItem.Builder#setTag` instead.
-    *   Remove `DashMediaSource#setLivePresentationDelayMs(long, boolean)`. Use
-        `MediaItem.Builder#setLiveConfiguration` and
-        `MediaItem.LiveConfiguration.Builder#setTargetOffsetMs` to override the
-        manifest, or `DashMediaSource#setFallbackTargetLiveOffsetMs` to provide
+        `SsMediaSource`. Use `MediaItem.Builder.setTag` instead.
+    *   Remove `DashMediaSource.setLivePresentationDelayMs(long, boolean)`. Use
+        `MediaItem.Builder.setLiveConfiguration` and
+        `MediaItem.LiveConfiguration.Builder.setTargetOffsetMs` to override the
+        manifest, or `DashMediaSource.setFallbackTargetLiveOffsetMs` to provide
         a fallback value.
     *   Remove `(Simple)ExoPlayer.setThrowsWhenUsingWrongThread`. Opting out of
         the thread enforcement is no longer possible.
     *   Remove `ActionFile` and `ActionFileUpgradeUtil`. Use ExoPlayer 2.16.1 or
         before to use `ActionFileUpgradeUtil` to merge legacy action files into
         `DefaultDownloadIndex`.
-    *   Remove `ProgressiveMediaSource#setExtractorsFactory`. Use
+    *   Remove `ProgressiveMediaSource.setExtractorsFactory`. Use
         `ProgressiveMediaSource.Factory(DataSource.Factory, ExtractorsFactory)`
         constructor instead.
-    *   Remove `ProgressiveMediaSource.Factory#setTag` and, and
-        `ProgressiveMediaSource.Factory#setCustomCacheKey`. Use
-        `MediaItem.Builder#setTag` and `MediaItem.Builder#setCustomCacheKey`
+    *   Remove `ProgressiveMediaSource.Factory.setTag` and
+        `ProgressiveMediaSource.Factory.setCustomCacheKey`. Use
+        `MediaItem.Builder.setTag` and `MediaItem.Builder.setCustomCacheKey`
         instead.
     *   Remove `DefaultRenderersFactory(Context, @ExtensionRendererMode int)`
         and `DefaultRenderersFactory(Context, @ExtensionRendererMode int, long)`
         constructors. Use the `DefaultRenderersFactory(Context)` constructor,
-        `DefaultRenderersFactory#setExtensionRendererMode`, and
-        `DefaultRenderersFactory#setAllowedVideoJoiningTimeMs` instead.
+        `DefaultRenderersFactory.setExtensionRendererMode`, and
+        `DefaultRenderersFactory.setAllowedVideoJoiningTimeMs` instead.
     *   Remove all public `CronetDataSource` constructors. Use
         `CronetDataSource.Factory` instead.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
