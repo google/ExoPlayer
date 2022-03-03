@@ -37,6 +37,7 @@ import java.util.Map;
 public final class RtpPayloadFormat {
 
   private static final String RTP_MEDIA_AC3 = "AC3";
+  private static final String RTP_MEDIA_OPUS = "OPUS";
   private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
@@ -45,6 +46,7 @@ public final class RtpPayloadFormat {
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
+      case RTP_MEDIA_OPUS:
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_GENERIC:
@@ -71,6 +73,8 @@ public final class RtpPayloadFormat {
         return MimeTypes.VIDEO_H265;
       case RTP_MEDIA_MPEG4_GENERIC:
         return MimeTypes.AUDIO_AAC;
+      case RTP_MEDIA_OPUS:
+        return MimeTypes.AUDIO_OPUS;
       default:
         throw new IllegalArgumentException(mediaType);
     }

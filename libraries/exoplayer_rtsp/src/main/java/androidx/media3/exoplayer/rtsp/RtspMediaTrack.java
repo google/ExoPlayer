@@ -121,6 +121,14 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(!fmtpParameters.isEmpty());
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
         break;
+      case MimeTypes.AUDIO_OPUS:
+        // RFC7587 Section 7
+        checkArgument(channelCount == 2, "Invalid channel count");
+        // RFC7587 Section 6.1
+        // the RTP timestamp is incremented with a 48000 Hz clock rate
+        // for all modes of Opus and all sampling rates.
+        checkArgument(clockRate == 48000, "Invalid sampling rate");
+        break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
