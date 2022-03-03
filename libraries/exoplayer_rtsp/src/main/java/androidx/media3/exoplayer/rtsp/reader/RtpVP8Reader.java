@@ -97,11 +97,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         data.setPosition(currPosition);
 
         if (width != payloadFormat.format.width || height != payloadFormat.format.height) {
-          Format.Builder formatBuilder = new Format.Builder();
-          if (payloadFormat.format.bitrate > 0) {
-            formatBuilder.setAverageBitrate(payloadFormat.format.bitrate);
-          }
-          formatBuilder.setSampleMimeType(payloadFormat.format.sampleMimeType);
+          Format trackFormat = payloadFormat.format;
+          Format.Builder formatBuilder = trackFormat.buildUpon();
           formatBuilder.setWidth(width).setHeight(height);
           trackOutput.format(formatBuilder.build());
         }
