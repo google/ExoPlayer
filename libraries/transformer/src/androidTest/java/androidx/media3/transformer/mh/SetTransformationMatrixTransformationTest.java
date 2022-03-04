@@ -16,12 +16,12 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
-import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import android.graphics.Matrix;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
+import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
@@ -43,12 +43,10 @@ public class SetTransformationMatrixTransformationTest {
                     .build())
             .build();
 
-    runTransformer(
-        context,
-        /* testId= */ "setTransformationMatrixTransform",
-        transformer,
-        MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(
+            /* testId= */ "setTransformationMatrixTransform",
+            MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 }

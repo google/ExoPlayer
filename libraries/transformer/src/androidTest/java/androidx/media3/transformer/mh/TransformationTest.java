@@ -19,13 +19,13 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRI
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
-import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
+import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
@@ -43,13 +43,10 @@ public class TransformationTest {
 
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
-    runTransformer(
-        context,
-        testId,
-        transformer,
-        MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 
   @Test
@@ -58,13 +55,10 @@ public class TransformationTest {
 
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
-    runTransformer(
-        context,
-        testId,
-        transformer,
-        MP4_REMOTE_4K60_PORTRAIT_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
   }
 
   @Test
@@ -73,13 +67,10 @@ public class TransformationTest {
 
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
-    runTransformer(
-        context,
-        testId,
-        transformer,
-        MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 
   @Test
@@ -88,13 +79,10 @@ public class TransformationTest {
 
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveVideo(true).build();
-    runTransformer(
-        context,
-        testId,
-        transformer,
-        MP4_ASSET_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_ASSET_URI_STRING);
   }
 
   @Test
@@ -113,12 +101,9 @@ public class TransformationTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
-    runTransformer(
-        context,
-        testId,
-        transformer,
-        MP4_ASSET_SEF_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_ASSET_SEF_URI_STRING);
   }
 }
