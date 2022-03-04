@@ -28,6 +28,8 @@ import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static androidx.media3.common.Player.COMMAND_STOP;
+import static androidx.media3.common.Player.STATE_ENDED;
+import static androidx.media3.common.Player.STATE_IDLE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
@@ -231,7 +233,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     } else {
       dispatchSessionTaskWithPlayerCommand(
           COMMAND_PLAY_PAUSE,
-          (controller) -> sessionImpl.getPlayerWrapper().play(),
+          (controller) -> {
+            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+            @Player.State int playbackState = playerWrapper.getPlaybackState();
+            if (playbackState == STATE_IDLE) {
+              playerWrapper.prepare();
+            } else if (playbackState == STATE_ENDED) {
+              playerWrapper.seekTo(
+                  playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+            }
+            playerWrapper.play();
+          },
           remoteUserInfo);
     }
   }
@@ -285,7 +297,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   public void onPlay() {
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
-        controller -> sessionImpl.getPlayerWrapper().play(),
+        controller -> {
+          PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+          @Player.State int playbackState = playerWrapper.getPlaybackState();
+          if (playbackState == Player.STATE_IDLE) {
+            playerWrapper.prepare();
+          } else if (playbackState == Player.STATE_ENDED) {
+            playerWrapper.seekTo(
+                playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+          }
+          playerWrapper.play();
+        },
         sessionCompat.getCurrentControllerInfo());
   }
 
@@ -321,7 +343,15 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           if (sessionImpl.onSetMediaUriOnHandler(
                   controller, mediaUri, extras == null ? Bundle.EMPTY : extras)
               == RESULT_SUCCESS) {
-            sessionImpl.getPlayerWrapper().play();
+            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+            @Player.State int playbackState = playerWrapper.getPlaybackState();
+            if (playbackState == Player.STATE_IDLE) {
+              playerWrapper.prepare();
+            } else if (playbackState == STATE_ENDED) {
+              playerWrapper.seekTo(
+                  playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
+            }
+            playerWrapper.play();
           }
         });
   }
