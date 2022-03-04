@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -602,8 +603,9 @@ public final class DownloadHelper {
    */
   public void replaceTrackSelections(
       int periodIndex, TrackSelectionParameters trackSelectionParameters) {
+    assertPreparedWithMedia();
     clearTrackSelections(periodIndex);
-    addTrackSelection(periodIndex, trackSelectionParameters);
+    addTrackSelectionInternal(periodIndex, trackSelectionParameters);
   }
 
   /**
@@ -617,8 +619,7 @@ public final class DownloadHelper {
   public void addTrackSelection(
       int periodIndex, TrackSelectionParameters trackSelectionParameters) {
     assertPreparedWithMedia();
-    trackSelector.setParameters(trackSelectionParameters);
-    runTrackSelection(periodIndex);
+    addTrackSelectionInternal(periodIndex, trackSelectionParameters);
   }
 
   /**
@@ -649,7 +650,7 @@ public final class DownloadHelper {
       TrackSelectionParameters parameters =
           parametersBuilder.setPreferredAudioLanguage(language).build();
       for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
-        addTrackSelection(periodIndex, parameters);
+        addTrackSelectionInternal(periodIndex, parameters);
       }
     }
   }
@@ -686,7 +687,7 @@ public final class DownloadHelper {
       TrackSelectionParameters parameters =
           parametersBuilder.setPreferredTextLanguage(language).build();
       for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
-        addTrackSelection(periodIndex, parameters);
+        addTrackSelectionInternal(periodIndex, parameters);
       }
     }
   }
@@ -713,12 +714,12 @@ public final class DownloadHelper {
       builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ i != rendererIndex);
     }
     if (overrides.isEmpty()) {
-      addTrackSelection(periodIndex, builder.build());
+      addTrackSelectionInternal(periodIndex, builder.build());
     } else {
       TrackGroupArray trackGroupArray = mappedTrackInfos[periodIndex].getTrackGroups(rendererIndex);
       for (int i = 0; i < overrides.size(); i++) {
         builder.setSelectionOverride(rendererIndex, trackGroupArray, overrides.get(i));
-        addTrackSelection(periodIndex, builder.build());
+        addTrackSelectionInternal(periodIndex, builder.build());
       }
     }
   }
@@ -770,8 +771,28 @@ public final class DownloadHelper {
     return requestBuilder.setStreamKeys(streamKeys).build();
   }
 
-  // Initialization of array of Lists.
-  @SuppressWarnings("unchecked")
+  @RequiresNonNull({
+    "trackGroupArrays",
+    "trackSelectionsByPeriodAndRenderer",
+    "mediaPreparer",
+    "mediaPreparer.timeline"
+  })
+  private void addTrackSelectionInternal(
+      int periodIndex, TrackSelectionParameters trackSelectionParameters) {
+    trackSelector.setParameters(trackSelectionParameters);
+    runTrackSelection(periodIndex);
+    // TrackSelectionParameters can contain multiple overrides for each track type. The track
+    // selector will only use one of them (because it's designed for playback), but for downloads we
+    // want to use all of them. Run selection again with each override being the only one of its
+    // type, to ensure that all of the desired tracks are included.
+    for (TrackSelectionOverride override : trackSelectionParameters.overrides.values()) {
+      trackSelector.setParameters(
+          trackSelectionParameters.buildUpon().setOverrideForType(override).build());
+      runTrackSelection(periodIndex);
+    }
+  }
+
+  @SuppressWarnings("unchecked") // Initialization of array of Lists.
   private void onMediaPrepared() {
     checkNotNull(mediaPreparer);
     checkNotNull(mediaPreparer.mediaPeriods);
