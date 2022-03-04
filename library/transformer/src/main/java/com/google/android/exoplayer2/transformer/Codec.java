@@ -104,6 +104,11 @@ public interface Codec {
      */
     Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
         throws TransformationException;
+
+    /** Returns whether the video needs to be encoded because of encoder specific configuration. */
+    default boolean videoNeedsEncoding() {
+      return false;
+    }
   }
 
   /**

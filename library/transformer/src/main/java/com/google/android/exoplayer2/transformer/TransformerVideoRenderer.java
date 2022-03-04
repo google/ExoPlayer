@@ -99,6 +99,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    if (encoderFactory.videoNeedsEncoding()) {
+      return false;
+    }
     if (transformationRequest.enableHdrEditing) {
       return false;
     }
