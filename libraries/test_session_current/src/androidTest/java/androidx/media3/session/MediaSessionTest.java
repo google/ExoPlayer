@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -104,6 +105,16 @@ public class MediaSessionTest {
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .buildAsync()
             .get(TIMEOUT_MS, MILLISECONDS);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if ((controller != null)) {
+      threadTestRule.getHandler().postAndSync(() -> controller.release());
+    }
+    if (session != null) {
+      session.release();
+    }
   }
 
   @Test

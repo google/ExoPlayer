@@ -84,10 +84,9 @@ public class MediaSessionPlayerTest {
   }
 
   @After
-  public void cleanUp() {
-    if (session != null) {
-      session.release();
-    }
+  public void tearDown() throws Exception {
+    controller.release();
+    session.release();
   }
 
   @Test

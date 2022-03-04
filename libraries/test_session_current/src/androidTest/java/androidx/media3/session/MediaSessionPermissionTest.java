@@ -88,61 +88,13 @@ public class MediaSessionPermissionTest {
   }
 
   @After
-  public void cleanUp() {
+  public void tearDown() {
     if (session != null) {
       session.release();
       session = null;
     }
     player = null;
     callback = null;
-  }
-
-  private void createSessionWithAvailableCommands(
-      SessionCommands sessionCommands, Player.Commands playerCommands) {
-    player =
-        new MockPlayer.Builder()
-            .setApplicationLooper(threadTestRule.getHandler().getLooper())
-            .build();
-    callback =
-        new MySessionCallback() {
-          @Override
-          public MediaSession.ConnectionResult onConnect(
-              MediaSession session, ControllerInfo controller) {
-            if (!TextUtils.equals(SUPPORT_APP_PACKAGE_NAME, controller.getPackageName())) {
-              return MediaSession.ConnectionResult.reject();
-            }
-            return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
-          }
-        };
-    if (this.session != null) {
-      this.session.release();
-    }
-    this.session =
-        new MediaSession.Builder(context, player)
-            .setId(SESSION_ID)
-            .setSessionCallback(callback)
-            .build();
-  }
-
-  private SessionCommands createSessionCommandsWith(SessionCommand command) {
-    return new SessionCommands.Builder().add(command).build();
-  }
-
-  private void testOnCommandRequest(int commandCode, PermissionTestTask runnable) throws Exception {
-    createSessionWithAvailableCommands(
-        SessionCommands.EMPTY, createPlayerCommandsWith(commandCode));
-    runnable.run(controllerTestRule.createRemoteController(session.getToken()));
-
-    assertThat(callback.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(callback.onCommandRequestCalled).isTrue();
-    assertThat(callback.command).isEqualTo(commandCode);
-
-    createSessionWithAvailableCommands(
-        SessionCommands.EMPTY, createPlayerCommandsWithout(commandCode));
-    runnable.run(controllerTestRule.createRemoteController(session.getToken()));
-
-    assertThat(callback.countDownLatch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
-    assertThat(callback.onCommandRequestCalled).isFalse();
   }
 
   @Test
@@ -407,5 +359,53 @@ public class MediaSessionPermissionTest {
       countDownLatch.countDown();
       return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
     }
+  }
+
+  private void createSessionWithAvailableCommands(
+      SessionCommands sessionCommands, Player.Commands playerCommands) {
+    player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .build();
+    callback =
+        new MySessionCallback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            if (!TextUtils.equals(SUPPORT_APP_PACKAGE_NAME, controller.getPackageName())) {
+              return MediaSession.ConnectionResult.reject();
+            }
+            return MediaSession.ConnectionResult.accept(sessionCommands, playerCommands);
+          }
+        };
+    if (this.session != null) {
+      this.session.release();
+    }
+    this.session =
+        new MediaSession.Builder(context, player)
+            .setId(SESSION_ID)
+            .setSessionCallback(callback)
+            .build();
+  }
+
+  private SessionCommands createSessionCommandsWith(SessionCommand command) {
+    return new SessionCommands.Builder().add(command).build();
+  }
+
+  private void testOnCommandRequest(int commandCode, PermissionTestTask runnable) throws Exception {
+    createSessionWithAvailableCommands(
+        SessionCommands.EMPTY, createPlayerCommandsWith(commandCode));
+    runnable.run(controllerTestRule.createRemoteController(session.getToken()));
+
+    assertThat(callback.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(callback.onCommandRequestCalled).isTrue();
+    assertThat(callback.command).isEqualTo(commandCode);
+
+    createSessionWithAvailableCommands(
+        SessionCommands.EMPTY, createPlayerCommandsWithout(commandCode));
+    runnable.run(controllerTestRule.createRemoteController(session.getToken()));
+
+    assertThat(callback.countDownLatch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
+    assertThat(callback.onCommandRequestCalled).isFalse();
   }
 }
