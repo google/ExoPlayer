@@ -31,23 +31,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Parses an AMR byte stream carried on RTP packets and extracts individual samples. Interleaving
- * mode is not supported.
+ * mode is not supported. Refer to RFC4867 for more details.
  */
 /* package */ final class RtpAmrReader implements RtpPayloadReader {
   private static final String TAG = "RtpAmrReader";
   /**
    * The frame size in bytes, including header (1 byte), for each of the 16 frame types for AMR
    * narrow band.
+   * AMR-NB is a multi-mode codec that supports eight narrow band speech encoding modes
+   * with bit rates between 4.75 and 12.2 kbps RFC4867 Section 3.1
+   * Refer to table 1a in 3GPP TS 26.101
    */
-  private static final int[] frameSizeBytesByTypeNb = {
-    13,
-    14,
-    16,
-    18,
-    20,
-    21,
-    27,
-    32,
+  private static final int[] amrNbFrameTypeIndexToFrameSize = {
+    13, // 4.75kbps
+    14, // 5.15kbps
+    16, // 5.90kbps
+    18, // 6.70kbps PDC-EFR
+    20, // 7.40kbps TDMA-EFR
+    21, // 7.95kbps
+    27, // 10.2kbps
+    32, // 12.2kbps GSM-EFR
     6, // AMR SID
     7, // GSM-EFR SID
     6, // TDMA-EFR SID
@@ -61,17 +64,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * The frame size in bytes, including header (1 byte), for each of the 16 frame types for AMR wide
    * band.
+   * AMR-WB is a multi-mode codec that supports nine wide band speech encoding modes
+   * with bit rates between 6.6 to 23.85 kbps RFC4867 Section 3.2
+   * Refer to table 1a in 3GPP TS 26.201
    */
-  private static final int[] frameSizeBytesByTypeWb = {
-    18,
-    24,
-    33,
-    37,
-    41,
-    47,
-    51,
-    59,
-    61,
+  private static final int[] amrWbFrameTypeIndexToFrameSize = {
+    18, // 6.60kbps
+    24, // 8.85kbps
+    33, // 12.65kbps
+    37, // 14.25kbps
+    41, // 15.85kbps
+    47, // 18.25kbps
+    51, // 19.85kbps
+    59, // 23.05kbps
+    61, // 23.85kbps
     6, // AMR-WB SID
     1, // Future use
     1, // Future use
@@ -82,19 +88,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   };
 
   private final RtpPayloadFormat payloadFormat;
+  private final int sampleRate;
+
   private @MonotonicNonNull TrackOutput trackOutput;
   private long firstReceivedTimestamp;
-  private int previousSequenceNumber;
   private long startTimeOffsetUs;
-  private final int sampleRate;
+  private int previousSequenceNumber;
   private boolean isWideBand;
 
   public RtpAmrReader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
-    firstReceivedTimestamp = C.TIME_UNSET;
-    previousSequenceNumber = C.INDEX_UNSET;
+    this.firstReceivedTimestamp = C.TIME_UNSET;
+    this.previousSequenceNumber = C.INDEX_UNSET;
     this.sampleRate = this.payloadFormat.clockRate;
-    this.isWideBand = (payloadFormat.format.sampleMimeType == MimeTypes.AUDIO_AMR_WB);
+
+    checkNotNull(this.payloadFormat.format.sampleMimeType);
+    this.isWideBand = this.payloadFormat.format.sampleMimeType == MimeTypes.AUDIO_AMR_WB;
   }
 
   // RtpPayloadReader implementation.
@@ -125,12 +134,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     checkNotNull(trackOutput);
     /**
-     * AMR as RTP payload RFC4867 Section-4.2
+     * AMR as RTP payload RFC4867 Section 4.2
      * +----------------+-------------------+----------------
      * | payload header | table of contents | speech data ...
      * +----------------+-------------------+----------------
      *
-     * Payload header RFC4867 Section-4.4.1
+     * Payload header RFC4867 Section 4.4.1
      * As interleaving is not supported currently, our header won't contain ILL and ILP
      * +-+-+-+-+-+-+-+
      * | CMR |R|R|R|R|
@@ -164,21 +173,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Internal methods.
 
-  private boolean isValidFrameType(int frameType) {
-    if (frameType < 0 || frameType > 15) {
-      return false;
-    }
-    // For wide band, type 10-13 are for future use.
-    // For narrow band, type 12-14 are for future use.
-    return isWideBand ? (frameType < 10 || frameType > 13) : (frameType < 12 || frameType > 14);
-  }
-
-  public int getFrameSize(int frameType, boolean isWideBand) {
+  public static int getFrameSize(int frameType, boolean isWideBand) {
     checkArgument(
         isValidFrameType(frameType),
         "Illegal AMR " + (isWideBand ? "WB" : "NB") + " frame type " + frameType);
 
-    return isWideBand ? frameSizeBytesByTypeWb[frameType] : frameSizeBytesByTypeNb[frameType];
+    return isWideBand
+        ? amrWbFrameTypeIndexToFrameSize[frameType]
+        : amrNbFrameTypeIndexToFrameSize[frameType];
+  }
+
+  private static boolean isValidFrameType(int frameType) {
+    if (frameType < 0 || frameType > 15) {
+      return false;
+    }
+    return (frameType < 9 || frameType > 14);
   }
 
   /** Returns the correct sample time from RTP timestamp, accounting for the AMR sampling rate. */

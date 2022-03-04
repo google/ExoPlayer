@@ -128,10 +128,11 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(channelCount == 1, "multi channel is not supported currently");
         checkArgument(!fmtpParameters.isEmpty());
         checkArgument(
-            fmtpParameters.containsKey(PARAMETER_AMR_OCTET_ALIGN), "mode not supported currently");
+            fmtpParameters.containsKey(PARAMETER_AMR_OCTET_ALIGN),
+            "modes other than octet align is not supported currently");
         checkArgument(
             !fmtpParameters.containsKey(PARAMETER_AMR_INTERLEAVING),
-            "mode not supported currently");
+            "interleaving mode is not supported currently");
         break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());
