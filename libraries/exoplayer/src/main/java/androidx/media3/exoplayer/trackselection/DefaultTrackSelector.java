@@ -1056,6 +1056,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Deprecated
     public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+      @Nullable
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
       return overrides != null && overrides.containsKey(groups);
@@ -1074,6 +1075,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Deprecated
     @Nullable
     public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+      @Nullable
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
       return overrides != null ? overrides.get(groups) : null;
@@ -1604,30 +1606,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             rendererMixedMimeTypeAdaptationSupports,
             params);
 
-    // Apply per track type overrides.
-    SparseArray<Pair<TrackSelectionOverride, Integer>> applicableOverridesByTrackType =
-        getApplicableOverrides(mappedTrackInfo, params);
-    for (int i = 0; i < applicableOverridesByTrackType.size(); i++) {
-      Pair<TrackSelectionOverride, Integer> overrideAndRendererIndex =
-          applicableOverridesByTrackType.valueAt(i);
-      applyTrackTypeOverride(
-          mappedTrackInfo,
-          definitions,
-          /* trackType= */ applicableOverridesByTrackType.keyAt(i),
-          /* override= */ overrideAndRendererIndex.first,
-          /* overrideRendererIndex= */ overrideAndRendererIndex.second);
-    }
-
-    // Apply legacy per renderer overrides.
-    for (int i = 0; i < rendererCount; i++) {
-      if (hasLegacyRendererOverride(mappedTrackInfo, params, /* rendererIndex= */ i)) {
-        definitions[i] = getLegacyRendererOverride(mappedTrackInfo, params, /* rendererIndex= */ i);
-      }
-    }
+    applyTrackSelectionOverrides(mappedTrackInfo, params, definitions);
+    applyLegacyRendererOverrides(mappedTrackInfo, params, definitions);
 
     // Disable renderers if needed.
     for (int i = 0; i < rendererCount; i++) {
-      if (isRendererDisabled(mappedTrackInfo, params, /* rendererIndex= */ i)) {
+      @C.TrackType int rendererType = mappedTrackInfo.getRendererType(i);
+      if (params.getRendererDisabled(i) || params.disabledTrackTypes.contains(rendererType)) {
         definitions[i] = null;
       }
     }
@@ -1659,94 +1644,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     return Pair.create(rendererConfigurations, rendererTrackSelections);
-  }
-
-  private boolean isRendererDisabled(
-      MappedTrackInfo mappedTrackInfo, Parameters params, int rendererIndex) {
-    @C.TrackType int rendererType = mappedTrackInfo.getRendererType(rendererIndex);
-    return params.getRendererDisabled(rendererIndex)
-        || params.disabledTrackTypes.contains(rendererType);
-  }
-
-  @SuppressWarnings("deprecation") // Calling deprecated hasSelectionOverride.
-  private boolean hasLegacyRendererOverride(
-      MappedTrackInfo mappedTrackInfo, Parameters params, int rendererIndex) {
-    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-    return params.hasSelectionOverride(rendererIndex, rendererTrackGroups);
-  }
-
-  @SuppressWarnings("deprecation") // Calling deprecated getSelectionOverride.
-  private ExoTrackSelection.@NullableType Definition getLegacyRendererOverride(
-      MappedTrackInfo mappedTrackInfo, Parameters params, int rendererIndex) {
-    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-    @Nullable
-    SelectionOverride override = params.getSelectionOverride(rendererIndex, rendererTrackGroups);
-    if (override == null) {
-      return null;
-    }
-    return new ExoTrackSelection.Definition(
-        rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
-  }
-
-  /**
-   * Returns applicable overrides. Mapping from track type to a pair of override and renderer index
-   * for this override.
-   */
-  private SparseArray<Pair<TrackSelectionOverride, Integer>> getApplicableOverrides(
-      MappedTrackInfo mappedTrackInfo, Parameters params) {
-    SparseArray<Pair<TrackSelectionOverride, Integer>> applicableOverrides = new SparseArray<>();
-    // Iterate through all existing track groups to ensure only overrides for those groups are used.
-    int rendererCount = mappedTrackInfo.getRendererCount();
-    for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
-      TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-      for (int j = 0; j < rendererTrackGroups.length; j++) {
-        maybeUpdateApplicableOverrides(
-            applicableOverrides, params.overrides.get(rendererTrackGroups.get(j)), rendererIndex);
-      }
-    }
-    // Also iterate unmapped groups to see if they have overrides.
-    TrackGroupArray unmappedGroups = mappedTrackInfo.getUnmappedTrackGroups();
-    for (int i = 0; i < unmappedGroups.length; i++) {
-      maybeUpdateApplicableOverrides(
-          applicableOverrides,
-          params.overrides.get(unmappedGroups.get(i)),
-          /* rendererIndex= */ C.INDEX_UNSET);
-    }
-    return applicableOverrides;
-  }
-
-  private void maybeUpdateApplicableOverrides(
-      SparseArray<Pair<TrackSelectionOverride, Integer>> applicableOverrides,
-      @Nullable TrackSelectionOverride override,
-      int rendererIndex) {
-    if (override == null) {
-      return;
-    }
-    @C.TrackType int trackType = override.getTrackType();
-    @Nullable
-    Pair<TrackSelectionOverride, Integer> existingOverride = applicableOverrides.get(trackType);
-    if (existingOverride == null || existingOverride.first.trackIndices.isEmpty()) {
-      // We only need to choose one non-empty override per type.
-      applicableOverrides.put(trackType, Pair.create(override, rendererIndex));
-    }
-  }
-
-  private void applyTrackTypeOverride(
-      MappedTrackInfo mappedTrackInfo,
-      ExoTrackSelection.@NullableType Definition[] definitions,
-      @C.TrackType int trackType,
-      TrackSelectionOverride override,
-      int overrideRendererIndex) {
-    for (int i = 0; i < definitions.length; i++) {
-      if (overrideRendererIndex == i) {
-        definitions[i] =
-            new ExoTrackSelection.Definition(
-                override.trackGroup, Ints.toArray(override.trackIndices));
-      } else if (mappedTrackInfo.getRendererType(i) == trackType) {
-        // Disable other renderers of the same type.
-        definitions[i] = null;
-      }
-    }
   }
 
   // Track selection prior to overrides and disabled flags being applied.
@@ -2038,6 +1935,95 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   // Utility methods.
+
+  private static void applyTrackSelectionOverrides(
+      MappedTrackInfo mappedTrackInfo,
+      TrackSelectionParameters params,
+      ExoTrackSelection.@NullableType Definition[] outDefinitions) {
+    int rendererCount = mappedTrackInfo.getRendererCount();
+
+    // Determine overrides to apply.
+    HashMap<@C.TrackType Integer, TrackSelectionOverride> overridesByType = new HashMap<>();
+    for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+      collectTrackSelectionOverrides(
+          mappedTrackInfo.getTrackGroups(rendererIndex), params, overridesByType);
+    }
+    collectTrackSelectionOverrides(
+        mappedTrackInfo.getUnmappedTrackGroups(), params, overridesByType);
+
+    // Apply the overrides.
+    for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+      @C.TrackType int trackType = mappedTrackInfo.getRendererType(rendererIndex);
+      @Nullable TrackSelectionOverride overrideForType = overridesByType.get(trackType);
+      if (overrideForType == null) {
+        continue;
+      }
+      // If the override is non-empty and applies to this renderer, then apply it. Else we don't
+      // want the renderer to be enabled at all, so clear any existing selection.
+      @Nullable ExoTrackSelection.Definition selection;
+      if (!overrideForType.trackIndices.isEmpty()
+          && mappedTrackInfo.getTrackGroups(rendererIndex).indexOf(overrideForType.trackGroup)
+              != -1) {
+        selection =
+            new ExoTrackSelection.Definition(
+                overrideForType.trackGroup, Ints.toArray(overrideForType.trackIndices));
+      } else {
+        selection = null;
+      }
+      outDefinitions[rendererIndex] = selection;
+    }
+  }
+
+  /**
+   * Adds {@link TrackSelectionOverride TrackSelectionOverrides} in {@code params} to {@code
+   * overridesByType} if they apply to tracks in {@code trackGroups}. If there's an existing
+   * override for a track type, it is replaced only if the existing override is empty and the one
+   * being considered is not.
+   */
+  private static void collectTrackSelectionOverrides(
+      TrackGroupArray trackGroups,
+      TrackSelectionParameters params,
+      Map<@C.TrackType Integer, TrackSelectionOverride> overridesByType) {
+    for (int trackGroupIndex = 0; trackGroupIndex < trackGroups.length; trackGroupIndex++) {
+      TrackGroup trackGroup = trackGroups.get(trackGroupIndex);
+      @Nullable TrackSelectionOverride override = params.overrides.get(trackGroup);
+      if (override == null) {
+        continue;
+      }
+      @Nullable
+      TrackSelectionOverride existingOverride = overridesByType.get(override.getTrackType());
+      // Only replace an existing override if it's empty and the one being considered is not.
+      if (existingOverride == null
+          || (existingOverride.trackIndices.isEmpty() && !override.trackIndices.isEmpty())) {
+        overridesByType.put(override.getTrackType(), override);
+      }
+    }
+  }
+
+  @SuppressWarnings("deprecation") // Calling legacy hasSelectionOverride and getSelectionOverride
+  private static void applyLegacyRendererOverrides(
+      MappedTrackInfo mappedTrackInfo,
+      Parameters params,
+      ExoTrackSelection.@NullableType Definition[] outDefinitions) {
+    int rendererCount = mappedTrackInfo.getRendererCount();
+    for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+      TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+      if (!params.hasSelectionOverride(rendererIndex, trackGroups)) {
+        continue;
+      }
+      @Nullable
+      SelectionOverride override = params.getSelectionOverride(rendererIndex, trackGroups);
+      @Nullable ExoTrackSelection.Definition selection;
+      if (override != null && override.tracks.length != 0) {
+        selection =
+            new ExoTrackSelection.Definition(
+                trackGroups.get(override.groupIndex), override.tracks, override.type);
+      } else {
+        selection = null;
+      }
+      outDefinitions[rendererIndex] = selection;
+    }
+  }
 
   /**
    * Determines whether tunneling can be enabled, replacing {@link RendererConfiguration}s in {@code
