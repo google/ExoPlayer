@@ -96,7 +96,6 @@ class PlaybackService : MediaLibraryService() {
 
       val item = MediaItemTree.getItemFromTitle(mediaTitle) ?: MediaItemTree.getRandomItem()
       player.setMediaItem(item)
-      player.prepare()
     }
 
     override fun onSetMediaUri(

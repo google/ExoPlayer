@@ -30,6 +30,7 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.session.MediaBrowser
 import androidx.media3.session.SessionToken
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -179,6 +180,9 @@ class PlayableFolderActivity : AppCompatActivity() {
       returnConvertView.findViewById<TextView>(R.id.add_button).setOnClickListener {
         val browser = this@PlayableFolderActivity.browser ?: return@setOnClickListener
         browser.addMediaItem(mediaItem)
+        if (browser.playbackState == Player.STATE_IDLE) {
+          browser.prepare()
+        }
         Snackbar.make(
             findViewById<LinearLayout>(R.id.linear_layout),
             getString(R.string.added_media_item_format, mediaItem.mediaMetadata.title),
