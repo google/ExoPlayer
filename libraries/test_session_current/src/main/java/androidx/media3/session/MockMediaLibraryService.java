@@ -134,8 +134,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
       return (MediaLibrarySession) onGetSessionHandler.onGetSession(controllerInfo);
     }
 
-    MockPlayer player =
-        new MockPlayer.Builder().setLatchCount(1).setApplicationLooper(handler.getLooper()).build();
+    MockPlayer player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
     MediaLibrarySessionCallback callback = registry.getSessionCallback();
     session =

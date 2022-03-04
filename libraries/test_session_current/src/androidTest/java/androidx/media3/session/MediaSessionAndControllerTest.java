@@ -181,7 +181,6 @@ public class MediaSessionAndControllerTest {
     MockPlayer player =
         new MockPlayer.Builder()
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
-            .setLatchCount(1)
             .build();
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
@@ -190,8 +189,7 @@ public class MediaSessionAndControllerTest {
 
     threadTestRule.getHandler().postAndSync(controller::play);
 
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.playCalled).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
   }
 
   @Test
