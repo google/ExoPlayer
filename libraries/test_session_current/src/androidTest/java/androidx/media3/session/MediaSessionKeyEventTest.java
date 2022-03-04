@@ -119,7 +119,7 @@ public class MediaSessionKeyEventTest {
   }
 
   @After
-  public void cleanUp() throws Exception {
+  public void tearDown() throws Exception {
     handler.postAndSync(
         () -> {
           if (mediaPlayer != null) {
@@ -128,15 +128,6 @@ public class MediaSessionKeyEventTest {
           }
         });
     session.release();
-  }
-
-  private void dispatchMediaKeyEvent(int keyCode, boolean doubleTap) {
-    audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-    audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
-    if (doubleTap) {
-      audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-      audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
-    }
   }
 
   @Test
@@ -200,6 +191,15 @@ public class MediaSessionKeyEventTest {
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isFalse();
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PAUSE)).isFalse();
+  }
+
+  private void dispatchMediaKeyEvent(int keyCode, boolean doubleTap) {
+    audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+    audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+    if (doubleTap) {
+      audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+      audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+    }
   }
 
   private static class TestSessionCallback implements MediaSession.SessionCallback {
