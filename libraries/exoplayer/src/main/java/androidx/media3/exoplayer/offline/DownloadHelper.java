@@ -34,6 +34,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -58,6 +59,7 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.SelectionOverride;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.trackselection.MappingTrackSelector.MappedTrackInfo;
+import androidx.media3.exoplayer.trackselection.TrackSelectionUtil;
 import androidx.media3.exoplayer.trackselection.TrackSelectorResult;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
@@ -541,6 +543,20 @@ public final class DownloadHelper {
     }
     assertPreparedWithMedia();
     return trackGroupArrays.length;
+  }
+
+  /**
+   * Returns {@link TracksInfo} for the given period. Must not be called until after preparation
+   * completes.
+   *
+   * @param periodIndex The period index.
+   * @return The {@link TracksInfo} for the period. May be {@link TracksInfo#EMPTY} for single
+   *     stream content.
+   */
+  public TracksInfo getTracksInfo(int periodIndex) {
+    assertPreparedWithMedia();
+    return TrackSelectionUtil.buildTracksInfo(
+        mappedTrackInfos[periodIndex], immutableTrackSelectionsByPeriodAndRenderer[periodIndex]);
   }
 
   /**

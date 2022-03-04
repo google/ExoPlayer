@@ -32,7 +32,6 @@ import androidx.media3.common.C.FormatSupport;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -43,7 +42,6 @@ import androidx.media3.exoplayer.RendererCapabilities.AdaptiveSupport;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
-import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -429,7 +427,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             periodId,
             timeline);
 
-    TracksInfo tracksInfo = buildTracksInfo(result.second, mappedTrackInfo);
+    TracksInfo tracksInfo = TrackSelectionUtil.buildTracksInfo(mappedTrackInfo, result.second);
 
     return new TrackSelectorResult(result.first, result.second, tracksInfo, mappedTrackInfo);
   }
@@ -558,49 +556,5 @@ public abstract class MappingTrackSelector extends TrackSelector {
       mixedMimeTypeAdaptationSupport[i] = rendererCapabilities[i].supportsMixedMimeTypeAdaptation();
     }
     return mixedMimeTypeAdaptationSupport;
-  }
-
-  @VisibleForTesting
-  /* package */ static TracksInfo buildTracksInfo(
-      @NullableType TrackSelection[] selections, MappedTrackInfo mappedTrackInfo) {
-    ImmutableList.Builder<TracksInfo.TrackGroupInfo> builder = new ImmutableList.Builder<>();
-    for (int rendererIndex = 0;
-        rendererIndex < mappedTrackInfo.getRendererCount();
-        rendererIndex++) {
-      TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex);
-      @Nullable TrackSelection trackSelection = selections[rendererIndex];
-      for (int groupIndex = 0; groupIndex < trackGroupArray.length; groupIndex++) {
-        TrackGroup trackGroup = trackGroupArray.get(groupIndex);
-        boolean adaptiveSupported =
-            mappedTrackInfo.getAdaptiveSupport(
-                    rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false)
-                != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
-        @C.FormatSupport int[] trackSupport = new int[trackGroup.length];
-        boolean[] selected = new boolean[trackGroup.length];
-        for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-          trackSupport[trackIndex] =
-              mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex);
-          boolean isTrackSelected =
-              trackSelection != null
-                  && trackSelection.getTrackGroup().equals(trackGroup)
-                  && trackSelection.indexOf(trackIndex) != C.INDEX_UNSET;
-          selected[trackIndex] = isTrackSelected;
-        }
-        builder.add(
-            new TracksInfo.TrackGroupInfo(trackGroup, adaptiveSupported, trackSupport, selected));
-      }
-    }
-    TrackGroupArray unmappedTrackGroups = mappedTrackInfo.getUnmappedTrackGroups();
-    for (int groupIndex = 0; groupIndex < unmappedTrackGroups.length; groupIndex++) {
-      TrackGroup trackGroup = unmappedTrackGroups.get(groupIndex);
-      @C.FormatSupport int[] trackSupport = new int[trackGroup.length];
-      Arrays.fill(trackSupport, C.FORMAT_UNSUPPORTED_TYPE);
-      // A track group only contains tracks of the same type, thus only consider the first track.
-      boolean[] selected = new boolean[trackGroup.length]; // Initialized to false.
-      builder.add(
-          new TracksInfo.TrackGroupInfo(
-              trackGroup, /* adaptiveSupported= */ false, trackSupport, selected));
-    }
-    return new TracksInfo(builder.build());
   }
 }
