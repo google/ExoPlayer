@@ -223,8 +223,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
   private boolean isTouching;
-  private static final int PICTURE_TYPE_FRONT_COVER = 3;
-  private static final int PICTURE_TYPE_NOT_SET = -1;
 
   public StyledPlayerView(Context context) {
     this(context, /* attrs= */ null);
