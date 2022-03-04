@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -24,9 +23,10 @@ import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
-import com.google.android.exoplayer2.transformer.TestTransformationResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
+import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
+import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashSet;
 import java.util.Set;
@@ -56,14 +56,12 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TestTransformationResult testResult =
-          runTransformer(
-              context,
-              /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
-              transformer,
-              AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING,
-              /* timeoutSeconds= */ 120,
-              /* calculateSsim= */ false);
+      TransformationTestResult testResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(
+                  /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
+                  AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -91,14 +89,12 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TestTransformationResult testResult =
-          runTransformer(
-              context,
-              /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
-              transformer,
-              AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING,
-              /* timeoutSeconds= */ 120,
-              /* calculateSsim= */ false);
+      TransformationTestResult testResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(
+                  /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
+                  AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -121,14 +117,12 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TestTransformationResult testResult =
-          runTransformer(
-              context,
-              /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
-              transformer,
-              AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING,
-              /* timeoutSeconds= */ 120,
-              /* calculateSsim= */ false);
+      TransformationTestResult testResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(
+                  /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
+                  AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 

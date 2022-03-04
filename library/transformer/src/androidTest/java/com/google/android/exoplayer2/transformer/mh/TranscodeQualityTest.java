@@ -16,16 +16,16 @@
 
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
-import com.google.android.exoplayer2.transformer.TestTransformationResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
+import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
+import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,14 +45,11 @@ public final class TranscodeQualityTest {
                     .build())
             .build();
 
-    TestTransformationResult result =
-        runTransformer(
-            context,
-            /* testId= */ "singleTranscode_ssim",
-            transformer,
-            AndroidTestUtil.MP4_ASSET_URI_STRING,
-            /* timeoutSeconds= */ 120,
-            /* calculateSsim= */ true);
+    TransformationTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .setCalculateSsim(true)
+            .build()
+            .run(/* testId= */ "singleTranscode_ssim", AndroidTestUtil.MP4_ASSET_URI_STRING);
 
     assertThat(result.ssim).isGreaterThan(0.95);
   }

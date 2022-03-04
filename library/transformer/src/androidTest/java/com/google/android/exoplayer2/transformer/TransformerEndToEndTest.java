@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -54,13 +53,11 @@ public class TransformerEndToEndTest {
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames bear-vp9.webm
     int expectedFrameCount = 82;
 
-    runTransformer(
-        context,
-        /* testId= */ "videoTranscoding_completesWithConsistentFrameCount",
-        transformer,
-        VP9_VIDEO_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(
+            /* testId= */ "videoTranscoding_completesWithConsistentFrameCount",
+            VP9_VIDEO_URI_STRING);
 
     FrameCountingMuxer frameCountingMuxer =
         checkNotNull(muxerFactory.getLastFrameCountingMuxerCreated());
@@ -88,13 +85,9 @@ public class TransformerEndToEndTest {
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
     int expectedFrameCount = 30;
 
-    runTransformer(
-        context,
-        /* testId= */ "videoEditing_completesWithConsistentFrameCount",
-        transformer,
-        AVC_VIDEO_URI_STRING,
-        /* timeoutSeconds= */ 120,
-        /* calculateSsim= */ false);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(/* testId= */ "videoEditing_completesWithConsistentFrameCount", AVC_VIDEO_URI_STRING);
 
     FrameCountingMuxer frameCountingMuxer =
         checkNotNull(muxerFactory.getLastFrameCountingMuxerCreated());
