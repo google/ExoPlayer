@@ -89,8 +89,7 @@ public class MediaSessionKeyEventTest {
     Context context = ApplicationProvider.getApplicationContext();
     audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     handler = threadTestRule.getHandler();
-    player =
-        new MockPlayer.Builder().setLatchCount(1).setApplicationLooper(handler.getLooper()).build();
+    player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
     sessionCallback = new TestSessionCallback();
     session = new MediaSession.Builder(context, player).setSessionCallback(sessionCallback).build();
@@ -143,43 +142,43 @@ public class MediaSessionKeyEventTest {
   @Test
   public void playKeyEvent() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.playCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
   }
 
   @Test
   public void pauseKeyEvent() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.pauseCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
   }
 
   @Test
   public void nextKeyEvent() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToNextCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
   }
 
   @Test
   public void previousKeyEvent() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToPreviousCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_PREVIOUS, TIMEOUT_MS);
   }
 
   @Test
   public void stopKeyEvent() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.stopCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_STOP, TIMEOUT_MS);
   }
 
   @Test
   public void playPauseKeyEvent_play() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.playCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
   }
 
   @Test
@@ -188,18 +187,19 @@ public class MediaSessionKeyEventTest {
         () -> {
           player.playWhenReady = true;
         });
+
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.pauseCalled).isTrue();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
   }
 
   @Test
   public void playPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToNextCalled).isTrue();
-    assertThat(player.playCalled).isFalse();
-    assertThat(player.pauseCalled).isFalse();
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isFalse();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PAUSE)).isFalse();
   }
 
   private static class TestSessionCallback implements MediaSession.SessionCallback {

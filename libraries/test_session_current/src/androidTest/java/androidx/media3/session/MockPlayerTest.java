@@ -44,81 +44,98 @@ public class MockPlayerTest {
   @Test
   public void play() {
     player.play();
-    assertThat(player.playCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isTrue();
   }
 
   @Test
   public void pause() {
     player.pause();
-    assertThat(player.pauseCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PAUSE)).isTrue();
   }
 
   @Test
   public void prepare() {
     player.prepare();
-    assertThat(player.prepareCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
   }
 
   @Test
   public void stop() {
     player.stop();
-    assertThat(player.stopCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_STOP)).isTrue();
   }
 
   @Test
   public void release() {
     player.release();
-    assertThat(player.releaseCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_RELEASE)).isTrue();
   }
 
   @Test
   public void setPlayWhenReady() {
     boolean testPlayWhenReady = false;
+
     player.setPlayWhenReady(testPlayWhenReady);
-    assertThat(player.setPlayWhenReadyCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_PLAY_WHEN_READY)).isTrue();
   }
 
   @Test
   public void seekTo() {
     long pos = 1004L;
+
     player.seekTo(pos);
-    assertThat(player.seekToCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO)).isTrue();
     assertThat(player.seekPositionMs).isEqualTo(pos);
   }
 
   @Test
   public void seekBack() {
     player.seekBack();
-    assertThat(player.seekBackCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_BACK)).isTrue();
   }
 
   @Test
   public void seekForward() {
     player.seekForward();
-    assertThat(player.seekForwardCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_FORWARD)).isTrue();
   }
 
   @Test
   public void setPlaybackParameters() {
     PlaybackParameters playbackParameters = new PlaybackParameters(/* speed= */ 1.5f);
+
     player.setPlaybackParameters(playbackParameters);
-    assertThat(player.setPlaybackParametersCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_PLAYBACK_PARAMETERS)).isTrue();
     assertThat(player.playbackParameters).isEqualTo(playbackParameters);
   }
 
   @Test
   public void setPlaybackSpeed() {
     float speed = 1.5f;
+
     player.setPlaybackSpeed(speed);
-    assertThat(player.setPlaybackSpeedCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_PLAYBACK_SPEED)).isTrue();
     assertThat(player.playbackParameters.speed).isEqualTo(speed);
   }
 
   @Test
   public void setMediaItem() {
     MediaItem mediaItem = MediaTestUtils.createMediaItem("setMediaItem");
+
     player.setMediaItem(mediaItem);
-    assertThat(player.setMediaItemCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM)).isTrue();
     assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
   }
 
@@ -126,8 +143,11 @@ public class MockPlayerTest {
   public void setMediaItem_withStartPosition() {
     MediaItem mediaItem = MediaTestUtils.createMediaItem("setMediaItem");
     long startPositionMs = 321L;
+
     player.setMediaItem(mediaItem, startPositionMs);
-    assertThat(player.setMediaItemWithStartPositionCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM_WITH_START_POSITION))
+        .isTrue();
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
   }
@@ -136,8 +156,11 @@ public class MockPlayerTest {
   public void setMediaItem_withResetPosition() {
     MediaItem mediaItem = MediaTestUtils.createMediaItem("setMediaItem");
     boolean resetPosition = true;
+
     player.setMediaItem(mediaItem, resetPosition);
-    assertThat(player.setMediaItemWithResetPositionCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION))
+        .isTrue();
     assertThat(player.resetPosition).isEqualTo(resetPosition);
     assertThat(player.mediaItem).isEqualTo(mediaItem);
   }
@@ -145,8 +168,10 @@ public class MockPlayerTest {
   @Test
   public void setMediaItems() {
     List<MediaItem> list = MediaTestUtils.createMediaItems(/* size= */ 2);
+
     player.setMediaItems(list);
-    assertThat(player.setMediaItemsCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS)).isTrue();
     assertThat(player.mediaItems).isSameInstanceAs(list);
   }
 
@@ -154,8 +179,11 @@ public class MockPlayerTest {
   public void setMediaItems_withResetPosition() {
     List<MediaItem> list = MediaTestUtils.createMediaItems(/* size= */ 2);
     boolean resetPosition = true;
+
     player.setMediaItems(list, resetPosition);
-    assertThat(player.setMediaItemsWithResetPositionCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION))
+        .isTrue();
     assertThat(player.resetPosition).isEqualTo(resetPosition);
     assertThat(player.mediaItems).isSameInstanceAs(list);
   }
@@ -165,8 +193,11 @@ public class MockPlayerTest {
     List<MediaItem> list = MediaTestUtils.createMediaItems(/* size= */ 2);
     int startWindowIndex = 3;
     long startPositionMs = 132L;
+
     player.setMediaItems(list, startWindowIndex, startPositionMs);
-    assertThat(player.setMediaItemsWithStartIndexCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX))
+        .isTrue();
     assertThat(player.startMediaItemIndex).isEqualTo(startWindowIndex);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.mediaItems).isSameInstanceAs(list);
@@ -176,8 +207,10 @@ public class MockPlayerTest {
   public void setMediaItems_withDuplicatedItems() {
     List<MediaItem> list = MediaTestUtils.createMediaItems(/* size= */ 4);
     list.set(2, list.get(1));
+
     player.setMediaItems(list);
-    assertThat(player.setMediaItemsCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS)).isTrue();
     assertThat(player.mediaItems).isSameInstanceAs(list);
   }
 
@@ -187,7 +220,7 @@ public class MockPlayerTest {
 
     player.setPlaylistMetadata(playlistMetadata);
 
-    assertThat(player.setPlaylistMetadataCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_PLAYLIST_METADATA)).isTrue();
     assertThat(player.playlistMetadata).isSameInstanceAs(playlistMetadata);
   }
 
@@ -197,7 +230,7 @@ public class MockPlayerTest {
 
     player.addMediaItem(mediaItem);
 
-    assertThat(player.addMediaItemCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM)).isTrue();
     assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
   }
 
@@ -208,7 +241,7 @@ public class MockPlayerTest {
 
     player.addMediaItem(index, mediaItem);
 
-    assertThat(player.addMediaItemWithIndexCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM_WITH_INDEX)).isTrue();
     assertThat(player.index).isEqualTo(index);
     assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
   }
@@ -221,7 +254,7 @@ public class MockPlayerTest {
 
     player.addMediaItems(index, mediaItems);
 
-    assertThat(player.addMediaItemsWithIndexCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).isTrue();
     assertThat(player.index).isEqualTo(index);
     assertThat(player.mediaItems).isSameInstanceAs(mediaItems);
   }
@@ -234,7 +267,7 @@ public class MockPlayerTest {
 
     player.addMediaItems(index, mediaItems);
 
-    assertThat(player.addMediaItemsWithIndexCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).isTrue();
     assertThat(player.index).isEqualTo(index);
     assertThat(player.mediaItems).isSameInstanceAs(mediaItems);
   }
@@ -245,7 +278,7 @@ public class MockPlayerTest {
 
     player.removeMediaItem(index);
 
-    assertThat(player.removeMediaItemCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEM)).isTrue();
     assertThat(player.index).isEqualTo(index);
   }
 
@@ -256,7 +289,7 @@ public class MockPlayerTest {
 
     player.removeMediaItems(fromIndex, toIndex);
 
-    assertThat(player.removeMediaItemsCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEMS)).isTrue();
     assertThat(player.fromIndex).isEqualTo(fromIndex);
     assertThat(player.toIndex).isEqualTo(toIndex);
   }
@@ -265,7 +298,7 @@ public class MockPlayerTest {
   public void clearMediaItems() {
     player.clearMediaItems();
 
-    assertThat(player.clearMediaItemsCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_CLEAR_MEDIA_ITEMS)).isTrue();
   }
 
   @Test
@@ -275,7 +308,7 @@ public class MockPlayerTest {
 
     player.moveMediaItem(index, newIndex);
 
-    assertThat(player.moveMediaItemCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_MOVE_MEDIA_ITEM)).isTrue();
     assertThat(player.index).isEqualTo(index);
     assertThat(player.newIndex).isEqualTo(newIndex);
   }
@@ -288,7 +321,7 @@ public class MockPlayerTest {
 
     player.moveMediaItems(fromIndex, toIndex, newIndex);
 
-    assertThat(player.moveMediaItemsCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_MOVE_MEDIA_ITEMS)).isTrue();
     assertThat(player.fromIndex).isEqualTo(fromIndex);
     assertThat(player.toIndex).isEqualTo(toIndex);
     assertThat(player.newIndex).isEqualTo(newIndex);
@@ -297,76 +330,92 @@ public class MockPlayerTest {
   @Test
   public void seekToPreviousMediaItem() {
     player.seekToPreviousMediaItem();
-    assertThat(player.seekToPreviousMediaItemCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isTrue();
   }
 
   @Test
   public void seekToNextMediaItem() {
     player.seekToNextMediaItem();
-    assertThat(player.seekToNextMediaItemCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
   }
 
   @Test
   public void seekToPrevious() {
     player.seekToPrevious();
-    assertThat(player.seekToPreviousCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_PREVIOUS)).isTrue();
   }
 
   @Test
   public void seekToNext() {
     player.seekToNext();
-    assertThat(player.seekToNextCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SEEK_TO_NEXT)).isTrue();
   }
 
   @Test
   public void setShuffleModeEnabled() {
     boolean testShuffleModeEnabled = true;
+
     player.setShuffleModeEnabled(testShuffleModeEnabled);
-    assertThat(player.setShuffleModeCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_SHUFFLE_MODE)).isTrue();
     assertThat(player.shuffleModeEnabled).isEqualTo(testShuffleModeEnabled);
   }
 
   @Test
   public void setRepeatMode() {
     int testRepeatMode = Player.REPEAT_MODE_ALL;
+
     player.setRepeatMode(testRepeatMode);
-    assertThat(player.setRepeatModeCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_REPEAT_MODE)).isTrue();
     assertThat(player.repeatMode).isEqualTo(testRepeatMode);
   }
 
   @Test
   public void setVolume() {
     float testVolume = .123f;
+
     player.setVolume(testVolume);
-    assertThat(player.setVolumeCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_VOLUME)).isTrue();
     assertThat(player.volume).isEqualTo(testVolume);
   }
 
   @Test
   public void setDeviceVolume() {
     int testVolume = 12;
+
     player.setDeviceVolume(testVolume);
-    assertThat(player.setDeviceVolumeCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_DEVICE_VOLUME)).isTrue();
     assertThat(player.deviceVolume).isEqualTo(testVolume);
   }
 
   @Test
   public void increaseDeviceVolume() {
     player.increaseDeviceVolume();
-    assertThat(player.increaseDeviceVolumeCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_INCREASE_DEVICE_VOLUME)).isTrue();
   }
 
   @Test
   public void decreaseDeviceVolume() {
     player.decreaseDeviceVolume();
-    assertThat(player.decreaseDeviceVolumeCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_DECREASE_DEVICE_VOLUME)).isTrue();
   }
 
   @Test
   public void setDeviceMuted() {
     player.deviceMuted = false;
+
     player.setDeviceMuted(true);
-    assertThat(player.setDeviceMutedCalled).isTrue();
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_DEVICE_MUTED)).isTrue();
     assertThat(player.deviceMuted).isTrue();
   }
 
@@ -377,7 +426,8 @@ public class MockPlayerTest {
 
     player.setTrackSelectionParameters(trackSelectionParameters);
 
-    assertThat(player.setTrackSelectionParametersCalled).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_TRACK_SELECTION_PARAMETERS))
+        .isTrue();
     assertThat(player.trackSelectionParameters).isSameInstanceAs(trackSelectionParameters);
   }
 }

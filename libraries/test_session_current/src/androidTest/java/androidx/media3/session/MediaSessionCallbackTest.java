@@ -74,7 +74,6 @@ public class MediaSessionCallbackTest {
     context = ApplicationProvider.getApplicationContext();
     player =
         new MockPlayer.Builder()
-            .setLatchCount(1)
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .build();
   }
@@ -157,15 +156,14 @@ public class MediaSessionCallbackTest {
         controllerTestRule.createRemoteController(session.getToken());
 
     controller.prepare();
-    assertThat(player.countDownLatch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
-    assertThat(player.prepareCalled).isFalse();
+    Thread.sleep(NO_RESPONSE_TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
     assertThat(commands).hasSize(1);
     assertThat(commands.get(0)).isEqualTo(Player.COMMAND_PREPARE);
 
     controller.play();
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.playCalled).isTrue();
-    assertThat(player.prepareCalled).isFalse();
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isFalse();
     assertThat(commands).hasSize(2);
     assertThat(commands.get(1)).isEqualTo(Player.COMMAND_PLAY_PAUSE);
   }

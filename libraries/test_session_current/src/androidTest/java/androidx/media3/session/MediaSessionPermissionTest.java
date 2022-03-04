@@ -101,7 +101,6 @@ public class MediaSessionPermissionTest {
       SessionCommands sessionCommands, Player.Commands playerCommands) {
     player =
         new MockPlayer.Builder()
-            .setLatchCount(1)
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .build();
     callback =

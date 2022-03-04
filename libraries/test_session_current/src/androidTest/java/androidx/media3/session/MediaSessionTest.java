@@ -78,8 +78,7 @@ public class MediaSessionTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     handler = threadTestRule.getHandler();
-    player =
-        new MockPlayer.Builder().setLatchCount(1).setApplicationLooper(handler.getLooper()).build();
+    player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
     session =
         sessionTestRule.ensureReleaseAfterTest(
@@ -394,8 +393,7 @@ public class MediaSessionTest {
     long testSeekPositionMs = 1234;
     controllerCompat.getTransportControls().seekTo(testSeekPositionMs);
 
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToCalled).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO, TIMEOUT_MS);
     assertThat(player.seekPositionMs).isEqualTo(testSeekPositionMs);
   }
 
