@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -52,6 +53,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -538,6 +540,20 @@ public final class DownloadHelper {
     }
     assertPreparedWithMedia();
     return trackGroupArrays.length;
+  }
+
+  /**
+   * Returns {@link TracksInfo} for the given period. Must not be called until after preparation
+   * completes.
+   *
+   * @param periodIndex The period index.
+   * @return The {@link TracksInfo} for the period. May be {@link TracksInfo#EMPTY} for single
+   *     stream content.
+   */
+  public TracksInfo getTracksInfo(int periodIndex) {
+    assertPreparedWithMedia();
+    return TrackSelectionUtil.buildTracksInfo(
+        mappedTrackInfos[periodIndex], immutableTrackSelectionsByPeriodAndRenderer[periodIndex]);
   }
 
   /**
