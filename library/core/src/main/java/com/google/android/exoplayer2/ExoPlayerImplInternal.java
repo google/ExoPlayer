@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -2220,6 +2221,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return reading.info.isFollowedByTransitionToSameStream
         && nextPeriod.prepared
         && (renderer instanceof TextRenderer // [internal: b/181312195]
+            || renderer instanceof MetadataRenderer
             || renderer.getReadingPositionUs() >= nextPeriod.getStartPositionRendererTime());
   }
 

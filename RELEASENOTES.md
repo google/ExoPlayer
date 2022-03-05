@@ -32,6 +32,8 @@
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
+*   Ad playback:
+    *   Fix audio underruns between ad periods in live HLS SSAI streams.
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
