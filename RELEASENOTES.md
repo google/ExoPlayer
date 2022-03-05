@@ -15,6 +15,8 @@
         `SubtitleConfiguration` field and fall back to the `Factory` value if
         it's not set
         ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
+*   Ad playback:
+    *   Fix audio underruns between ad periods in live HLS SSAI streams.
 
 ### 2.17.0 (2022-02-24)
 
