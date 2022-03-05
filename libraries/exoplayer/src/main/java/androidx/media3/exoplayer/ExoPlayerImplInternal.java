@@ -56,6 +56,7 @@ import androidx.media3.exoplayer.DefaultMediaClock.PlaybackParametersListener;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
+import androidx.media3.exoplayer.metadata.MetadataRenderer;
 import androidx.media3.exoplayer.source.BehindLiveWindowException;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
@@ -2228,6 +2229,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return reading.info.isFollowedByTransitionToSameStream
         && nextPeriod.prepared
         && (renderer instanceof TextRenderer // [internal: b/181312195]
+            || renderer instanceof MetadataRenderer
             || renderer.getReadingPositionUs() >= nextPeriod.getStartPositionRendererTime());
   }
 
