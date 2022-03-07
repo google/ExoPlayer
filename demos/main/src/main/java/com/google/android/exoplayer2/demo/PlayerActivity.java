@@ -45,7 +45,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -79,8 +79,7 @@ public class PlayerActivity extends AppCompatActivity
   private Button selectTracksButton;
   private DataSource.Factory dataSourceFactory;
   private List<MediaItem> mediaItems;
-  private DefaultTrackSelector trackSelector;
-  private DefaultTrackSelector.Parameters trackSelectionParameters;
+  private TrackSelectionParameters trackSelectionParameters;
   private DebugTextViewHelper debugViewHelper;
   private TracksInfo lastSeenTracksInfo;
   private boolean startAutoPlay;
@@ -113,9 +112,8 @@ public class PlayerActivity extends AppCompatActivity
     playerView.requestFocus();
 
     if (savedInstanceState != null) {
-      // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
       trackSelectionParameters =
-          DefaultTrackSelector.Parameters.CREATOR.fromBundle(
+          TrackSelectionParameters.CREATOR.fromBundle(
               savedInstanceState.getBundle(KEY_TRACK_SELECTION_PARAMETERS));
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
@@ -127,8 +125,7 @@ public class PlayerActivity extends AppCompatActivity
                 adsLoaderStateBundle);
       }
     } else {
-      trackSelectionParameters =
-          new DefaultTrackSelector.ParametersBuilder(/* context= */ this).build();
+      trackSelectionParameters = new TrackSelectionParameters.Builder(/* context= */ this).build();
       clearStartPosition();
     }
   }
@@ -237,11 +234,11 @@ public class PlayerActivity extends AppCompatActivity
   public void onClick(View view) {
     if (view == selectTracksButton
         && !isShowingTrackSelectionDialog
-        && TrackSelectionDialog.willHaveContent(trackSelector)) {
+        && TrackSelectionDialog.willHaveContent(player)) {
       isShowingTrackSelectionDialog = true;
       TrackSelectionDialog trackSelectionDialog =
-          TrackSelectionDialog.createForTrackSelector(
-              trackSelector,
+          TrackSelectionDialog.createForPlayer(
+              player,
               /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false);
       trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
@@ -277,13 +274,11 @@ public class PlayerActivity extends AppCompatActivity
       RenderersFactory renderersFactory =
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
 
-      trackSelector = new DefaultTrackSelector(/* context= */ this);
       lastSeenTracksInfo = TracksInfo.EMPTY;
       player =
           new ExoPlayer.Builder(/* context= */ this)
               .setRenderersFactory(renderersFactory)
               .setMediaSourceFactory(createMediaSourceFactory())
-              .setTrackSelector(trackSelector)
               .build();
       player.setTrackSelectionParameters(trackSelectionParameters);
       player.addListener(new PlayerEventListener());
@@ -400,10 +395,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private void updateTrackSelectorParameters() {
     if (player != null) {
-      // Until the demo app is fully migrated to TrackSelectionParameters, rely on ExoPlayer to use
-      // DefaultTrackSelector by default.
-      trackSelectionParameters =
-          (DefaultTrackSelector.Parameters) player.getTrackSelectionParameters();
+      trackSelectionParameters = player.getTrackSelectionParameters();
     }
   }
 
@@ -424,8 +416,7 @@ public class PlayerActivity extends AppCompatActivity
   // User controls
 
   private void updateButtonVisibility() {
-    selectTracksButton.setEnabled(
-        player != null && TrackSelectionDialog.willHaveContent(trackSelector));
+    selectTracksButton.setEnabled(player != null && TrackSelectionDialog.willHaveContent(player));
   }
 
   private void showControls() {

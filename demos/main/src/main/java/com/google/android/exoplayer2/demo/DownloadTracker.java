@@ -29,6 +29,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -43,8 +44,8 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -69,7 +70,6 @@ public class DownloadTracker {
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, Download> downloads;
   private final DownloadIndex downloadIndex;
-  private final DefaultTrackSelector.Parameters trackSelectorParameters;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
@@ -82,7 +82,6 @@ public class DownloadTracker {
     listeners = new CopyOnWriteArraySet<>();
     downloads = new HashMap<>();
     downloadIndex = downloadManager.getDownloadIndex();
-    trackSelectorParameters = DownloadHelper.getDefaultTrackSelectorParameters(context);
     downloadManager.addListener(new DownloadManagerListener());
     loadDownloads();
   }
@@ -159,7 +158,7 @@ public class DownloadTracker {
 
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback,
-          DialogInterface.OnClickListener,
+          TrackSelectionDialog.TrackSelectionListener,
           DialogInterface.OnDismissListener {
 
     private final FragmentManager fragmentManager;
@@ -167,7 +166,6 @@ public class DownloadTracker {
     private final MediaItem mediaItem;
 
     private TrackSelectionDialog trackSelectionDialog;
-    private MappedTrackInfo mappedTrackInfo;
     private WidevineOfflineLicenseFetchTask widevineOfflineLicenseFetchTask;
     @Nullable private byte[] keySetId;
 
@@ -237,21 +235,13 @@ public class DownloadTracker {
       Log.e(TAG, logMessage, e);
     }
 
-    // DialogInterface.OnClickListener implementation.
+    // TrackSelectionListener implementation.
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onTracksSelected(TrackSelectionParameters trackSelectionParameters) {
       for (int periodIndex = 0; periodIndex < downloadHelper.getPeriodCount(); periodIndex++) {
         downloadHelper.clearTrackSelections(periodIndex);
-        for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
-          if (!trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i)) {
-            downloadHelper.addTrackSelectionForSingleRenderer(
-                periodIndex,
-                /* rendererIndex= */ i,
-                trackSelectorParameters,
-                trackSelectionDialog.getOverrides(/* rendererIndex= */ i));
-          }
-        }
+        downloadHelper.addTrackSelection(periodIndex, trackSelectionParameters);
       }
       DownloadRequest downloadRequest = buildDownloadRequest();
       if (downloadRequest.streamKeys.isEmpty()) {
@@ -316,21 +306,21 @@ public class DownloadTracker {
         return;
       }
 
-      mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
-      if (!TrackSelectionDialog.willHaveContent(mappedTrackInfo)) {
+      TracksInfo tracksInfo = downloadHelper.getTracksInfo(/* periodIndex= */ 0);
+      if (!TrackSelectionDialog.willHaveContent(tracksInfo)) {
         Log.d(TAG, "No dialog content. Downloading entire stream.");
         startDownload();
         downloadHelper.release();
         return;
       }
       trackSelectionDialog =
-          TrackSelectionDialog.createForMappedTrackInfoAndParameters(
+          TrackSelectionDialog.createForTracksInfoAndParameters(
               /* titleId= */ R.string.exo_download_description,
-              mappedTrackInfo,
-              trackSelectorParameters,
+              tracksInfo,
+              DownloadHelper.getDefaultTrackSelectorParameters(context),
               /* allowAdaptiveSelections= */ false,
               /* allowMultipleOverrides= */ true,
-              /* onClickListener= */ this,
+              /* onTracksSelectedListener= */ this,
               /* onDismissListener= */ this);
       trackSelectionDialog.show(fragmentManager, /* tag= */ null);
     }

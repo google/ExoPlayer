@@ -29,6 +29,12 @@
         `SubtitleConfiguration` field and fall back to the `Factory` value if
         it's not set
         ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
+*   UI:
+    *   Rewrite `TrackSelectionView` and `TrackSelectionDialogBuilder` to work
+        with the `Player` interface rather than `ExoPlayer`. This allows the
+        views to be used with other `Player` implementations, and removes the
+        dependency from the UI module to the ExoPlayer module. This is a
+        breaking change.
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
