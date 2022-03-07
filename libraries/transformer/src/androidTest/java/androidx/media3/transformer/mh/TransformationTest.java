@@ -21,13 +21,17 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREAS
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
 
 import android.content.Context;
+import androidx.media3.common.Format;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import androidx.media3.transformer.Codec;
+import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,6 +47,46 @@ public class TransformationTest {
 
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+  }
+
+  @Test
+  public void transformWithDecodeEncode() throws Exception {
+    final String testId = TAG + "_transformForceCodecUse";
+
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setEncoderFactory(
+                new Codec.EncoderFactory() {
+                  @Override
+                  public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+                      throws TransformationException {
+                    return Codec.EncoderFactory.DEFAULT.createForAudioEncoding(
+                        format, allowedMimeTypes);
+                  }
+
+                  @Override
+                  public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+                      throws TransformationException {
+                    return Codec.EncoderFactory.DEFAULT.createForVideoEncoding(
+                        format, allowedMimeTypes);
+                  }
+
+                  @Override
+                  public boolean audioNeedsEncoding() {
+                    return true;
+                  }
+
+                  @Override
+                  public boolean videoNeedsEncoding() {
+                    return true;
+                  }
+                })
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
