@@ -22,17 +22,24 @@ public class TransformationTestResult {
 
   public final TransformationResult transformationResult;
   public final String filePath;
+  /** The amount of time taken to perform the transformation in milliseconds. */
+  public final long transformationDurationMs;
   /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
   public final double ssim;
 
-  public TransformationTestResult(TransformationResult transformationResult, String filePath) {
-    this(transformationResult, filePath, /* ssim= */ SSIM_UNSET);
+  public TransformationTestResult(
+      TransformationResult transformationResult, String filePath, long transformationDurationMs) {
+    this(transformationResult, filePath, transformationDurationMs, /* ssim= */ SSIM_UNSET);
   }
 
   public TransformationTestResult(
-      TransformationResult transformationResult, String filePath, double ssim) {
+      TransformationResult transformationResult,
+      String filePath,
+      long transformationDurationMs,
+      double ssim) {
     this.transformationResult = transformationResult;
     this.filePath = filePath;
+    this.transformationDurationMs = transformationDurationMs;
     this.ssim = ssim;
   }
 }
