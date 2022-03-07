@@ -124,7 +124,6 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveVideo(true).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_URI_STRING);
   }
