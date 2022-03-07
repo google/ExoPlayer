@@ -85,6 +85,9 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    if (encoderFactory.audioNeedsEncoding()) {
+      return false;
+    }
     if (transformationRequest.audioMimeType != null
         && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
       return false;
