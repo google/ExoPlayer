@@ -35,6 +35,17 @@
         views to be used with other `Player` implementations, and removes the
         dependency from the UI module to the ExoPlayer module. This is a
         breaking change.
+*   UI:
+    *   Fix delivery of events to `OnClickListener`s set on `StyledPlayerView`
+        and `PlayerView`, in the case that `useController=false`
+        ([#9605](https://github.com/google/ExoPlayer/issues/9605)). Also fix
+        delivery of events to `OnLongClickListener` for all view configurations.
+    *   Fix incorrectly treating a sequence of touch events that exit the bounds
+        of `StyledPlayerView` and `PlayerView` before `ACTION_UP` as a click
+        ([#9861](https://github.com/google/ExoPlayer/issues/9861)).
+    *   Fix `StyledPlayerView` accessibility issue where it was not possible to
+        tapping would toggle playback rather than hiding the controls
+        ([#8627](https://github.com/google/ExoPlayer/issues/8627)).
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).

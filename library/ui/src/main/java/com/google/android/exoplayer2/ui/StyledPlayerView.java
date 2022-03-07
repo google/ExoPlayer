@@ -311,6 +311,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
     LayoutInflater.from(context).inflate(playerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+    setClickable(true);
 
     // Content frame.
     contentFrame = findViewById(R.id.exo_content_frame);
@@ -1019,29 +1020,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   @Override
-  public boolean onTouchEvent(MotionEvent event) {
-    if (!useController() || player == null) {
-      return false;
-    }
-    switch (event.getAction()) {
-      case MotionEvent.ACTION_DOWN:
-        isTouching = true;
-        return true;
-      case MotionEvent.ACTION_UP:
-        if (isTouching) {
-          isTouching = false;
-          return performClick();
-        }
-        return false;
-      default:
-        return false;
-    }
-  }
-
-  @Override
   public boolean performClick() {
-    super.performClick();
-    return toggleControllerVisibility();
+    toggleControllerVisibility();
+    return super.performClick();
   }
 
   @Override
@@ -1137,18 +1118,15 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     return false;
   }
 
-  private boolean toggleControllerVisibility() {
+  private void toggleControllerVisibility() {
     if (!useController() || player == null) {
-      return false;
+      return;
     }
     if (!controller.isFullyVisible()) {
       maybeShowController(true);
-      return true;
     } else if (controllerHideOnTouch) {
       controller.hide();
-      return true;
     }
-    return false;
   }
 
   /** Shows the playback controls, but only if forced or shown indefinitely. */
