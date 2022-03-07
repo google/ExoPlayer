@@ -31,6 +31,8 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
+import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.HttpDataSource;
@@ -46,7 +48,6 @@ import androidx.media3.exoplayer.offline.DownloadIndex;
 import androidx.media3.exoplayer.offline.DownloadManager;
 import androidx.media3.exoplayer.offline.DownloadRequest;
 import androidx.media3.exoplayer.offline.DownloadService;
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.MappingTrackSelector.MappedTrackInfo;
 import java.io.IOException;
 import java.util.HashMap;
@@ -69,7 +70,6 @@ public class DownloadTracker {
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, Download> downloads;
   private final DownloadIndex downloadIndex;
-  private final DefaultTrackSelector.Parameters trackSelectorParameters;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
@@ -82,7 +82,6 @@ public class DownloadTracker {
     listeners = new CopyOnWriteArraySet<>();
     downloads = new HashMap<>();
     downloadIndex = downloadManager.getDownloadIndex();
-    trackSelectorParameters = DownloadHelper.getDefaultTrackSelectorParameters(context);
     downloadManager.addListener(new DownloadManagerListener());
     loadDownloads();
   }
@@ -159,7 +158,7 @@ public class DownloadTracker {
 
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback,
-          DialogInterface.OnClickListener,
+          TrackSelectionDialog.TrackSelectionListener,
           DialogInterface.OnDismissListener {
 
     private final FragmentManager fragmentManager;
@@ -167,7 +166,6 @@ public class DownloadTracker {
     private final MediaItem mediaItem;
 
     private TrackSelectionDialog trackSelectionDialog;
-    private MappedTrackInfo mappedTrackInfo;
     private WidevineOfflineLicenseFetchTask widevineOfflineLicenseFetchTask;
     @Nullable private byte[] keySetId;
 
@@ -237,21 +235,13 @@ public class DownloadTracker {
       Log.e(TAG, logMessage, e);
     }
 
-    // DialogInterface.OnClickListener implementation.
+    // TrackSelectionListener implementation.
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onTracksSelected(TrackSelectionParameters trackSelectionParameters) {
       for (int periodIndex = 0; periodIndex < downloadHelper.getPeriodCount(); periodIndex++) {
         downloadHelper.clearTrackSelections(periodIndex);
-        for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
-          if (!trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i)) {
-            downloadHelper.addTrackSelectionForSingleRenderer(
-                periodIndex,
-                /* rendererIndex= */ i,
-                trackSelectorParameters,
-                trackSelectionDialog.getOverrides(/* rendererIndex= */ i));
-          }
-        }
+        downloadHelper.addTrackSelection(periodIndex, trackSelectionParameters);
       }
       DownloadRequest downloadRequest = buildDownloadRequest();
       if (downloadRequest.streamKeys.isEmpty()) {
@@ -316,21 +306,21 @@ public class DownloadTracker {
         return;
       }
 
-      mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
-      if (!TrackSelectionDialog.willHaveContent(mappedTrackInfo)) {
+      TracksInfo tracksInfo = downloadHelper.getTracksInfo(/* periodIndex= */ 0);
+      if (!TrackSelectionDialog.willHaveContent(tracksInfo)) {
         Log.d(TAG, "No dialog content. Downloading entire stream.");
         startDownload();
         downloadHelper.release();
         return;
       }
       trackSelectionDialog =
-          TrackSelectionDialog.createForMappedTrackInfoAndParameters(
+          TrackSelectionDialog.createForTracksInfoAndParameters(
               /* titleId= */ R.string.exo_download_description,
-              mappedTrackInfo,
-              trackSelectorParameters,
+              tracksInfo,
+              DownloadHelper.getDefaultTrackSelectorParameters(context),
               /* allowAdaptiveSelections= */ false,
               /* allowMultipleOverrides= */ true,
-              /* onClickListener= */ this,
+              /* onTracksSelectedListener= */ this,
               /* onDismissListener= */ this);
       trackSelectionDialog.show(fragmentManager, /* tag= */ null);
     }
