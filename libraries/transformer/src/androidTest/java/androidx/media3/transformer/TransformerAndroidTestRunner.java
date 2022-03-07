@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.SystemClock;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.FileWriter;
@@ -157,6 +158,7 @@ public class TransformerAndroidTestRunner {
     AtomicReference<@NullableType TransformationResult> transformationResultReference =
         new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
+    long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
     Transformer testTransformer =
         transformer
@@ -199,6 +201,7 @@ public class TransformerAndroidTestRunner {
     if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
       throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
     }
+    long transformationDurationMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
 
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
     if (unexpectedException != null) {
@@ -220,13 +223,15 @@ public class TransformerAndroidTestRunner {
             .build();
 
     if (!calculateSsim) {
-      return new TransformationTestResult(transformationResult, outputVideoFile.getPath());
+      return new TransformationTestResult(
+          transformationResult, outputVideoFile.getPath(), transformationDurationMs);
     }
 
     double ssim =
         SsimHelper.calculate(
             context, /* expectedVideoPath= */ uriString, outputVideoFile.getPath());
-    return new TransformationTestResult(transformationResult, outputVideoFile.getPath(), ssim);
+    return new TransformationTestResult(
+        transformationResult, outputVideoFile.getPath(), transformationDurationMs, ssim);
   }
 
   private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
@@ -270,6 +275,7 @@ public class TransformerAndroidTestRunner {
     if (testResult.ssim != TransformationTestResult.SSIM_UNSET) {
       transformationResultJson.put("ssim", testResult.ssim);
     }
+    transformationResultJson.put("transformationDurationMs", testResult.transformationDurationMs);
     return transformationResultJson;
   }
 
