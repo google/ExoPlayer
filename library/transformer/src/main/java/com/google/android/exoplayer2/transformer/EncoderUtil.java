@@ -90,16 +90,11 @@ public final class EncoderUtil {
     }
 
     // Fix frame being too wide or too tall.
-    int adjustedHeight = videoEncoderCapabilities.getSupportedHeights().clamp(height);
+    width = videoEncoderCapabilities.getSupportedWidths().clamp(width);
+    int adjustedHeight = videoEncoderCapabilities.getSupportedHeightsFor(width).clamp(height);
     if (adjustedHeight != height) {
       width = (int) round((double) width * adjustedHeight / height);
       height = adjustedHeight;
-    }
-
-    int adjustedWidth = videoEncoderCapabilities.getSupportedWidths().clamp(width);
-    if (adjustedWidth != width) {
-      height = (int) round((double) height * adjustedWidth / width);
-      width = adjustedWidth;
     }
 
     // Fix pixel alignment.
