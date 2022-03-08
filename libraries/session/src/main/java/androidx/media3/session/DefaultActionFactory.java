@@ -65,7 +65,7 @@ import androidx.media3.common.util.Util;
     intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
     if (Util.SDK_INT >= 26 && command != COMMAND_PAUSE && command != COMMAND_STOP) {
-      return Api26.createPendingIntent(service, /* requestCode= */ keyCode, intent);
+      return Api26.createPendingIntent(service, keyCode, intent);
     } else {
       return PendingIntent.getService(
           service,
@@ -80,16 +80,12 @@ import androidx.media3.common.util.Util;
     intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(EXTRAS_KEY_ACTION_CUSTOM, action);
     intent.putExtra(EXTRAS_KEY_ACTION_CUSTOM_EXTRAS, extras);
-    if (Util.SDK_INT >= 26) {
-      return Api26.createPendingIntent(
-          service, /* requestCode= */ KeyEvent.KEYCODE_UNKNOWN, intent);
-    } else {
-      return PendingIntent.getService(
-          service,
-          /* requestCode= */ KeyEvent.KEYCODE_UNKNOWN,
-          intent,
-          Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
-    }
+    // Custom actions always start the service in the background.
+    return PendingIntent.getService(
+        service,
+        /* requestCode= */ KeyEvent.KEYCODE_UNKNOWN,
+        intent,
+        Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
   }
 
   /** Returns whether {@code intent} was part of a {@link #createMediaAction media action}. */
