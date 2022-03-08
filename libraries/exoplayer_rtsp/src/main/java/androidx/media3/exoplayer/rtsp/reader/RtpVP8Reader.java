@@ -42,7 +42,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final RtpPayloadFormat payloadFormat;
 
   private @MonotonicNonNull TrackOutput trackOutput;
-  @C.BufferFlags private int bufferFlags;
 
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
@@ -78,7 +77,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throws ParserException {
     checkStateNotNull(trackOutput);
 
-    if (parseVP8Descriptor(data, sequenceNumber)) {
+    // Check if valid VP8 Payload Descriptor is present
+    boolean isValidVP8Descriptor =  parseVP8Descriptor(data, sequenceNumber);
+    if (isValidVP8Descriptor) {
       //  VP8 Payload Header, RFC7741 Section 4.3
       //  0 1 2 3 4 5 6 7
       //  +-+-+-+-+-+-+-+-+
@@ -89,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         isKeyFrame = (data.peekUnsignedByte() & 0x01) == 0;
       }
       if (!isOutputFormatSet) {
-        // Parsing frame data to get width and height, RFC6386 Section 9.1
+        // Parsing frame data to get width and height, RFC6386 Section 19.1
         int currPosition = data.getPosition();
         data.setPosition(currPosition + 6);
         int width = data.readLittleEndianUnsignedShort() & 0x3fff;
@@ -97,10 +98,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         data.setPosition(currPosition);
 
         if (width != payloadFormat.format.width || height != payloadFormat.format.height) {
-          Format trackFormat = payloadFormat.format;
-          Format.Builder formatBuilder = trackFormat.buildUpon();
-          formatBuilder.setWidth(width).setHeight(height);
-          trackOutput.format(formatBuilder.build());
+          trackOutput.format(
+              payloadFormat.format.buildUpon().setWidth(width).setHeight(height).build());
         }
         isOutputFormatSet = true;
       }
@@ -114,11 +113,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (firstReceivedTimestamp == C.TIME_UNSET) {
           firstReceivedTimestamp = timestamp;
         }
-        bufferFlags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
         long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
         trackOutput.sampleMetadata(
             timeUs,
-            bufferFlags,
+            isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
             fragmentedSampleSizeBytes,
             /* offset= */ 0,
             /* encryptionData= */ null);
@@ -156,11 +154,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (!gotFirstPacketOfVP8Frame) {
       // For start of VP8 partition S=1 and PID=0 as per RFC7741 Section 4.2
       if ((header & 0x17) != 0x10) {
-        Log.w(
-            TAG,
-            Util.formatInvariant(
-                "first payload octet of the RTP packet is not the beginning of a new VP8 "
-                    + "partition, Dropping current packet"));
+        Log.w(TAG,"first payload octet of the RTP packet is not the beginning of a new VP8 "
+            + "partition, Dropping current packet");
         return false;
       }
       gotFirstPacketOfVP8Frame = true;
@@ -187,9 +182,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int iHeader = payload.readUnsignedByte();
         if ((iHeader & 0x80) != 0) {
           payload.skipBytes(1);
-          Log.i(TAG, "15 bits PictureID");
-        } else {
-          Log.i(TAG, "7 bits PictureID");
         }
       }
 
