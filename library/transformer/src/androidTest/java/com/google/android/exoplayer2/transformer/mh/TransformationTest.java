@@ -47,8 +47,8 @@ public class TransformationTest {
 
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
+    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -87,8 +87,8 @@ public class TransformationTest {
                   }
                 })
             .build();
+    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -97,10 +97,10 @@ public class TransformationTest {
   public void transform4K60() throws Exception {
     final String testId = TAG + "_transform4K60";
 
+    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
   }
@@ -109,10 +109,10 @@ public class TransformationTest {
   public void transformNoAudio() throws Exception {
     final String testId = TAG + "_transformNoAudio";
 
+    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -144,8 +144,8 @@ public class TransformationTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
+    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_SEF_URI_STRING);
   }
