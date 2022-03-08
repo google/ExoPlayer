@@ -83,7 +83,7 @@ public interface Renderer extends PlayerMessage.Target {
    * #MSG_SET_SCALING_MODE}, {@link #MSG_SET_CHANGE_FRAME_RATE_STRATEGY}, {@link
    * #MSG_SET_AUX_EFFECT_INFO}, {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER}, {@link
    * #MSG_SET_CAMERA_MOTION_LISTENER}, {@link #MSG_SET_SKIP_SILENCE_ENABLED}, {@link
-   * #MSG_SET_AUDIO_SESSION_ID} or {@link #MSG_SET_WAKEUP_LISTENER}. May also be an app-defined
+   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER} or {@link #MSG_SET_CODEC_PARAMETERS}. May also be an app-defined
    * value (see {@link #MSG_CUSTOM_BASE}).
    */
   @Documented
@@ -102,9 +102,11 @@ public interface Renderer extends PlayerMessage.Target {
         MSG_SET_CAMERA_MOTION_LISTENER,
         MSG_SET_SKIP_SILENCE_ENABLED,
         MSG_SET_AUDIO_SESSION_ID,
-        MSG_SET_WAKEUP_LISTENER
+        MSG_SET_WAKEUP_LISTENER,
+        MSG_SET_CODEC_PARAMETERS
       })
   public @interface MessageType {}
+
   /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload is normally a {@link
@@ -197,6 +199,15 @@ public interface Renderer extends PlayerMessage.Target {
    * <p>The message payload must be a {@link WakeupListener} instance.
    */
   int MSG_SET_WAKEUP_LISTENER = 11;
+
+  /**
+   * The type of a message that can be passed to renderers via {@link
+   * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload is normally a bundle of
+   * MediaCodec KeyValue pairs
+   *
+   * <p>If the receiving renderer does not support the KV pair, then it should ignore it
+   */
+  int MSG_SET_CODEC_PARAMETERS  = 12;
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.

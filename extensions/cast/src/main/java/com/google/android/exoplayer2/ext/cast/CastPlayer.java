@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DeviceInfo;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.MediaCodecParameters;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
@@ -744,6 +745,16 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public void setDeviceMuted(boolean muted) {}
 
+  @Override
+  public void setMediaCodecParameters(MediaCodecParameters mediaCodecParameters) {
+
+  }
+
+  @Override
+  public MediaCodecParameters getMediaCodecParameters() {
+    MediaCodecParameters mediaCodecParameters = new MediaCodecParameters();
+    return mediaCodecParameters;
+  }
   // Internal methods.
 
   // Call deprecated callbacks.

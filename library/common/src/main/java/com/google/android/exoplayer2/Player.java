@@ -2476,4 +2476,10 @@ public interface Player {
 
   /** Sets the mute state of the device. */
   void setDeviceMuted(boolean muted);
+
+  /** Set the CodecParameters */
+  void setMediaCodecParameters(MediaCodecParameters mediaCodecParameters);
+  /** Get the CodecParameters */
+  MediaCodecParameters getMediaCodecParameters();
+
 }

@@ -800,6 +800,16 @@ public class ForwardingPlayer implements Player {
     player.setDeviceMuted(muted);
   }
 
+  @Override
+  public void setMediaCodecParameters(MediaCodecParameters mediaCodecParameters) {
+    player.setMediaCodecParameters(mediaCodecParameters);
+  }
+
+  @Override
+  public MediaCodecParameters getMediaCodecParameters() {
+    return player.getMediaCodecParameters();
+  }
+
   /** Returns the {@link Player} to which operations are forwarded. */
   public Player getWrappedPlayer() {
     return player;
