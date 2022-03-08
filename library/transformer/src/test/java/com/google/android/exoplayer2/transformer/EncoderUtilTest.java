@@ -62,28 +62,54 @@ public class EncoderUtilTest {
   }
 
   @Test
-  public void getClosestSupportedResolution_withSupportedResolution_succeeds() {
+  public void getSupportedResolution_withSupportedResolution_succeeds() {
     ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
     Pair<Integer, Integer> closestSupportedResolution =
-        EncoderUtil.getClosestSupportedResolution(encoderInfo, MIME_TYPE, 1920, 1080);
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 1920, 1080);
 
     assertThat(closestSupportedResolution).isNotNull();
     assertThat(closestSupportedResolution).isEqualTo(Pair.create(1920, 1080));
   }
 
   @Test
-  public void getClosestSupportedResolution_withWidthTooBig_findsMostCloselySupportedResolution() {
+  public void getSupportedResolution_withUnalignedSize_findsMostCloselySupportedResolution() {
     ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
     Pair<Integer, Integer> closestSupportedResolution =
-        EncoderUtil.getClosestSupportedResolution(encoderInfo, MIME_TYPE, 1920, 1920);
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 1919, 1081);
 
     assertThat(closestSupportedResolution).isNotNull();
-    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1088, 1088));
+    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1920, 1080));
+  }
+
+  @Test
+  public void getSupportedResolution_withWidthTooBig_findsTwoThirdsOfTheOriginalSize() {
+    ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
+    MediaCodecInfo encoderInfo = supportedEncoders.get(0);
+
+    @Nullable
+    Pair<Integer, Integer> closestSupportedResolution =
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 1920, 1920);
+
+    assertThat(closestSupportedResolution).isNotNull();
+    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1440, 1440));
+  }
+
+  @Test
+  public void getSupportedResolution_withWidthTooBig2_findsHalfOfTheOriginalSize() {
+    ImmutableList<MediaCodecInfo> supportedEncoders = EncoderUtil.getSupportedEncoders(MIME_TYPE);
+    MediaCodecInfo encoderInfo = supportedEncoders.get(0);
+
+    @Nullable
+    Pair<Integer, Integer> closestSupportedResolution =
+        EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 3840, 2160);
+
+    assertThat(closestSupportedResolution).isNotNull();
+    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1920, 1080));
   }
 }

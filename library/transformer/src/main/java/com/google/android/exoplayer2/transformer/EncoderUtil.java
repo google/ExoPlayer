@@ -63,15 +63,16 @@ public final class EncoderUtil {
   }
 
   /**
-   * Finds the {@link MediaCodecInfo encoder}'s closest supported resolution from the given
-   * resolution.
+   * Finds a {@link MediaCodecInfo encoder}'s supported resolution from a given resolution.
    *
-   * <p>The input resolution is returned, if it is supported by the {@link MediaCodecInfo encoder}.
+   * <p>The input resolution is returned, if it (after aligning to the encoders requirement) is
+   * supported by the {@link MediaCodecInfo encoder}.
    *
-   * <p>The resolution will be clamped to the {@link MediaCodecInfo encoder}'s range of supported
-   * resolutions, and adjusted to the {@link MediaCodecInfo encoder}'s size alignment. The
-   * adjustment process takes into account the original aspect ratio. But the fixed resolution may
-   * not preserve the original aspect ratio, depending on the encoder's required size alignment.
+   * <p>The resolution will be adjusted to be within the {@link MediaCodecInfo encoder}'s range of
+   * supported resolutions, and will be aligned to the {@link MediaCodecInfo encoder}'s alignment
+   * requirement. The adjustment process takes into account the original aspect ratio. But the fixed
+   * resolution may not preserve the original aspect ratio, depending on the encoder's required size
+   * alignment.
    *
    * @param encoderInfo The {@link MediaCodecInfo} of the encoder.
    * @param mimeType The output MIME type.
@@ -80,26 +81,49 @@ public final class EncoderUtil {
    * @return A {@link Pair} of width and height, or {@code null} if unable to find a fix.
    */
   @Nullable
-  public static Pair<Integer, Integer> getClosestSupportedResolution(
+  public static Pair<Integer, Integer> getSupportedResolution(
       MediaCodecInfo encoderInfo, String mimeType, int width, int height) {
     MediaCodecInfo.VideoCapabilities videoEncoderCapabilities =
         encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
+    int widthAlignment = videoEncoderCapabilities.getWidthAlignment();
+    int heightAlignment = videoEncoderCapabilities.getHeightAlignment();
 
+    // Fix size alignment.
+    width = alignResolution(width, widthAlignment);
+    height = alignResolution(height, heightAlignment);
     if (videoEncoderCapabilities.isSizeSupported(width, height)) {
       return Pair.create(width, height);
+    }
+
+    // Try three-fourths (e.g. 1440 -> 1080).
+    int newWidth = alignResolution(width * 3 / 4, widthAlignment);
+    int newHeight = alignResolution(height * 3 / 4, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return Pair.create(newWidth, newHeight);
+    }
+
+    // Try two-thirds (e.g. 4k -> 1440).
+    newWidth = alignResolution(width * 2 / 3, widthAlignment);
+    newHeight = alignResolution(height * 2 / 3, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return Pair.create(newWidth, newHeight);
+    }
+
+    // Try half (e.g. 4k -> 1080).
+    newWidth = alignResolution(width / 2, widthAlignment);
+    newHeight = alignResolution(height / 2, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return Pair.create(newWidth, newHeight);
     }
 
     // Fix frame being too wide or too tall.
     width = videoEncoderCapabilities.getSupportedWidths().clamp(width);
     int adjustedHeight = videoEncoderCapabilities.getSupportedHeightsFor(width).clamp(height);
     if (adjustedHeight != height) {
-      width = (int) round((double) width * adjustedHeight / height);
-      height = adjustedHeight;
+      width =
+          alignResolution((int) round((double) width * adjustedHeight / height), widthAlignment);
+      height = alignResolution(adjustedHeight, heightAlignment);
     }
-
-    // Fix pixel alignment.
-    width = alignResolution(width, videoEncoderCapabilities.getWidthAlignment());
-    height = alignResolution(height, videoEncoderCapabilities.getHeightAlignment());
 
     return videoEncoderCapabilities.isSizeSupported(width, height)
         ? Pair.create(width, height)
@@ -185,7 +209,15 @@ public final class EncoderUtil {
    * aligned to 48.
    */
   private static int alignResolution(int size, int alignment) {
-    return alignment * Math.round((float) size / alignment);
+    // Aligning to resolutions that are multiples of 10, like from 1081 to 1080, assuming alignment
+    // is 2 in most encoders.
+    boolean shouldRoundDown = false;
+    if (size % 10 == 1) {
+      shouldRoundDown = true;
+    }
+    return shouldRoundDown
+        ? (int) (alignment * Math.floor((float) size / alignment))
+        : alignment * Math.round((float) size / alignment);
   }
 
   private static synchronized void maybePopulateEncoderInfos() {

@@ -232,7 +232,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             /* cost= */ (encoderInfo) -> {
               @Nullable
               Pair<Integer, Integer> closestSupportedResolution =
-                  EncoderUtil.getClosestSupportedResolution(
+                  EncoderUtil.getSupportedResolution(
                       encoderInfo, mimeType, requestedFormat.width, requestedFormat.height);
               if (closestSupportedResolution == null) {
                 // Drops encoder.
@@ -248,7 +248,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     // The supported resolution is the same for all remaining encoders.
     Pair<Integer, Integer> finalResolution =
         checkNotNull(
-            EncoderUtil.getClosestSupportedResolution(
+            EncoderUtil.getSupportedResolution(
                 filteredEncoders.get(0), mimeType, requestedFormat.width, requestedFormat.height));
 
     int requestedBitrate =
