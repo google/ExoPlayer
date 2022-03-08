@@ -93,7 +93,7 @@ public final class SsimHelper {
   public static double calculate(Context context, String expectedVideoPath, String actualVideoPath)
       throws IOException, InterruptedException {
     return new SsimHelper(context, expectedVideoPath, actualVideoPath, DEFAULT_COMPARISON_INTERVAL)
-        .startCalculation();
+        .calculateSsim();
   }
 
   private SsimHelper(
@@ -108,12 +108,10 @@ public final class SsimHelper {
     this.height = new AtomicInteger(Format.NO_VALUE);
   }
 
-  void ensureDecoderWrappersAreCreated() throws IOException {
-    if (expectedDecodingWrapper != null || actualDecodingWrapper != null) {
-      return;
-    }
-    // This constructor is executed on the test thread, which does not have a looper attached.
-    // Creates a handler on which the ImageReader.onImageAvailableListener is called.
+  /** Calculates the SSIM score between the two videos. */
+  private double calculateSsim() throws InterruptedException, IOException {
+    // The test thread has no looper, so a handler is created on which the
+    // ImageReader.OnImageAvailableListener is called.
     Handler mainThreadHandler = Util.createHandlerForCurrentOrMainLooper();
     ImageReader.OnImageAvailableListener onImageAvailableListener = this::onImageAvailableListener;
     expectedDecodingWrapper =
@@ -130,13 +128,7 @@ public final class SsimHelper {
             onImageAvailableListener,
             mainThreadHandler,
             comparisonInterval);
-  }
 
-  /** Returns the SSIM score between the two videos. */
-  private double startCalculation() throws InterruptedException, IOException {
-    ensureDecoderWrappersAreCreated();
-    checkStateNotNull(expectedDecodingWrapper);
-    checkStateNotNull(actualDecodingWrapper);
     try {
       while (!expectedDecodingWrapper.hasEnded() && !actualDecodingWrapper.hasEnded()) {
         if (!expectedDecodingWrapper.runUntilComparisonFrameOrEnded()
@@ -161,12 +153,13 @@ public final class SsimHelper {
         expectedLumaBuffer.set(EMPTY_BUFFER);
         actualLumaBuffer.set(EMPTY_BUFFER);
       }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw e;
     } finally {
       expectedDecodingWrapper.close();
       actualDecodingWrapper.close();
+    }
+
+    if (comparedImagesCount == 0) {
+      throw new IOException("Input had no frames.");
     }
     return accumulatedSsim / comparedImagesCount;
   }
@@ -303,7 +296,7 @@ public final class SsimHelper {
      * @return {@code true} when a comparison frame is encountered, or {@code false} if decoding
      *     {@link #hasEnded() had ended}.
      */
-    public boolean runUntilComparisonFrameOrEnded() throws InterruptedException {
+    public boolean runUntilComparisonFrameOrEnded() {
       while (!hasEnded() && !isCurrentFrameComparisonFrame) {
         while (dequeueOneFrameFromDecoder()) {}
         while (queueOneFrameToEncoder()) {}
