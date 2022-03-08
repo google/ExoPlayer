@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.PlaybackParameters.MAX_AC4_DE;
+import static com.google.android.exoplayer2.PlaybackParameters.MIN_AC4_DE;
 import static com.google.android.exoplayer2.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.constrainValue;
@@ -377,6 +379,7 @@ public final class DefaultAudioSink implements AudioSink {
   public static final float MIN_PITCH = 0.1f;
   /** The maximum allowed pitch factor. Higher values will be constrained to fall in range. */
   public static final float MAX_PITCH = 8f;
+
 
   /** The default skip silence flag. */
   private static final boolean DEFAULT_SKIP_SILENCE = false;
@@ -1279,7 +1282,8 @@ public final class DefaultAudioSink implements AudioSink {
     playbackParameters =
         new PlaybackParameters(
             constrainValue(playbackParameters.speed, MIN_PLAYBACK_SPEED, MAX_PLAYBACK_SPEED),
-            constrainValue(playbackParameters.pitch, MIN_PITCH, MAX_PITCH));
+            constrainValue(playbackParameters.pitch, MIN_PITCH, MAX_PITCH),
+            constrainValue(playbackParameters.dialogEnhancementGain, MIN_AC4_DE, MAX_AC4_DE));
     if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
       setAudioTrackPlaybackParametersV23(playbackParameters);
     } else {

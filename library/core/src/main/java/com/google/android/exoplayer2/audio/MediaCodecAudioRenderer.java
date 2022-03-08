@@ -27,6 +27,8 @@ import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -166,6 +168,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
                 firstNonNull(audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
             .setAudioProcessors(audioProcessors)
             .build());
+  }
+
+  public void ConfigureAC4(int dialogEnhancementGain) {
+
+      if (audioCodecInfo != null && audioCodecInfo.name.contains("ac4")) {
+        Bundle bundle = new Bundle(1);
+        bundle.putInt("vendor.dolby.dialog-enhancement-gain.value", dialogEnhancementGain);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          super.getCodec().setParameters(bundle);
+        }
+      }
   }
 
   /**
@@ -348,6 +362,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         decoderSupport);
   }
 
+  MediaCodecInfo audioCodecInfo;
   @Override
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
@@ -416,6 +431,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
+    audioCodecInfo = codecInfo;
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
@@ -494,6 +510,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       throws ExoPlaybackException {
     @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
     eventDispatcher.inputFormatChanged(formatHolder.format, evaluation);
+
+    /* To DO: set the last applied preference */
+    ConfigureAC4(0);
     return evaluation;
   }
 

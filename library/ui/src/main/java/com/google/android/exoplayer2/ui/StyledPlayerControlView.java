@@ -244,6 +244,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
+  private static final int SETTINGS_DIALOG_ENHANCEMENT = 2;
 
   private final ComponentListener componentListener;
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
@@ -311,6 +312,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private RecyclerView settingsView;
   private SettingsAdapter settingsAdapter;
   private PlaybackSpeedAdapter playbackSpeedAdapter;
+  private Ac4DialogEnhancementAdapter ac4DialogEnhancementAdapter;
   private PopupWindow settingsWindow;
   private boolean needToHideBars;
   private int settingsWindowMargin;
@@ -528,8 +530,8 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
-    String[] settingTexts = new String[2];
-    Drawable[] settingIcons = new Drawable[2];
+    String[] settingTexts = new String[3];
+    Drawable[] settingIcons = new Drawable[3];
     settingTexts[SETTINGS_PLAYBACK_SPEED_POSITION] =
         resources.getString(R.string.exo_controls_playback_speed);
     settingIcons[SETTINGS_PLAYBACK_SPEED_POSITION] =
@@ -538,6 +540,12 @@ public class StyledPlayerControlView extends FrameLayout {
         resources.getString(R.string.exo_track_selection_title_audio);
     settingIcons[SETTINGS_AUDIO_TRACK_SELECTION_POSITION] =
         resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
+
+    // ADD DialogEnhancement Gain support
+    settingTexts[SETTINGS_DIALOG_ENHANCEMENT] = "AC-4 Dialog Enhancement";
+    settingIcons[SETTINGS_DIALOG_ENHANCEMENT] =
+        resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
+
     settingsAdapter = new SettingsAdapter(settingTexts, settingIcons);
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
     settingsView =
@@ -568,6 +576,11 @@ public class StyledPlayerControlView extends FrameLayout {
     playbackSpeedAdapter =
         new PlaybackSpeedAdapter(
             resources.getStringArray(R.array.exo_controls_playback_speeds), PLAYBACK_SPEEDS);
+
+    ac4DialogEnhancementAdapter =
+        new Ac4DialogEnhancementAdapter(
+            resources.getStringArray(R.array.exo_ac4_de_gains),
+            resources.getIntArray(R.array.exo_ac4_de_gains_db));
 
     fullScreenExitDrawable = resources.getDrawable(R.drawable.exo_styled_controls_fullscreen_exit);
     fullScreenEnterDrawable =
@@ -946,6 +959,7 @@ public class StyledPlayerControlView extends FrameLayout {
     updateShuffleButton();
     updateTrackLists();
     updatePlaybackSpeedList();
+    updateDialogEnhancementList();
     updateTimeline();
   }
 
@@ -1265,6 +1279,15 @@ public class StyledPlayerControlView extends FrameLayout {
         SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedAdapter.getSelectedText());
   }
 
+  private void updateDialogEnhancementList() {
+    if (player == null) {
+      return;
+    }
+    ac4DialogEnhancementAdapter.updateSelectedIndex(player.getPlaybackParameters().dialogEnhancementGain);
+    settingsAdapter.setSubTextAtPosition(
+        SETTINGS_DIALOG_ENHANCEMENT, ac4DialogEnhancementAdapter.getSelectedText());
+  }
+
   private void updateSettingsWindowSize() {
     settingsView.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 
@@ -1292,6 +1315,13 @@ public class StyledPlayerControlView extends FrameLayout {
     int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
 
     settingsWindow.showAsDropDown(this, xoff, yoff);
+  }
+
+  private void setDialogEnhancementGain(int gain) {
+    if (player == null) {
+      return;
+    }
+    player.setPlaybackParameters(player.getPlaybackParameters().withDialogEnhancement(gain));
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1376,6 +1406,8 @@ public class StyledPlayerControlView extends FrameLayout {
       displaySettingsWindow(playbackSpeedAdapter);
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
       displaySettingsWindow(audioTrackSelectionAdapter);
+    } else if (position == SETTINGS_DIALOG_ENHANCEMENT) {
+      displaySettingsWindow(ac4DialogEnhancementAdapter);
     } else {
       settingsWindow.dismiss();
     }
@@ -1605,6 +1637,7 @@ public class StyledPlayerControlView extends FrameLayout {
       }
       if (events.contains(EVENT_PLAYBACK_PARAMETERS_CHANGED)) {
         updatePlaybackSpeedList();
+        updateDialogEnhancementList();
       }
       if (events.contains(EVENT_TRACKS_CHANGED)) {
         updateTrackLists();
@@ -1811,6 +1844,65 @@ public class StyledPlayerControlView extends FrameLayout {
       return playbackSpeedTexts.length;
     }
   }
+
+  private final class Ac4DialogEnhancementAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
+
+    private final String[] ac4DialogEnhancementTexts;
+    private final int[]    ac4DialogEnhancementGain;
+    private int            selectedIndex;
+
+    public Ac4DialogEnhancementAdapter(String[] ac4DialogEnhancementTexts, int[] ac4DialogEnhancementGain) {
+      this.ac4DialogEnhancementTexts = ac4DialogEnhancementTexts;
+      this.ac4DialogEnhancementGain  = ac4DialogEnhancementGain;
+    }
+
+    public void updateSelectedIndex(int gain) {
+      int closestMatchIndex      = 0;
+      int closestMatchDifference = Integer.MAX_VALUE;
+      for (int i = 0; i < ac4DialogEnhancementGain.length; i++) {
+        int difference = Math.abs(gain - ac4DialogEnhancementGain[i]);
+        if (difference < closestMatchDifference) {
+          closestMatchIndex = i;
+          closestMatchDifference = difference;
+        }
+      }
+      selectedIndex = closestMatchIndex;
+    }
+
+    public String getSelectedText() {
+      return ac4DialogEnhancementTexts[selectedIndex];
+    }
+
+    @Override
+    public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      View v =
+          LayoutInflater.from(getContext())
+              .inflate(R.layout.exo_styled_sub_settings_list_item, null);
+      return new SubSettingViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(SubSettingViewHolder holder, int position) {
+      if (position < ac4DialogEnhancementTexts.length) {
+        holder.textView.setText(ac4DialogEnhancementTexts[position]);
+      }
+      holder.checkView.setVisibility(position == selectedIndex ? VISIBLE : INVISIBLE);
+      holder.itemView.setOnClickListener(
+          v -> {
+            if (position != selectedIndex) {
+              int gain = ac4DialogEnhancementGain[position];
+              setDialogEnhancementGain(gain);
+            }
+            settingsWindow.dismiss();
+          });
+    }
+
+    @Override
+    public int getItemCount() {
+      return ac4DialogEnhancementTexts.length;
+    }
+  }
+
 
   private static final class TrackInformation {
 

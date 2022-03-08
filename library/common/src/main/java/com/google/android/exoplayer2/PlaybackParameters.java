@@ -21,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -37,6 +38,13 @@ public final class PlaybackParameters implements Bundleable {
 
   /** The factor by which playback will be sped up. */
   public final float speed;
+  public final int   dialogEnhancementGain;
+  /** The default dialog enhancement setting as long as the user has not set it up. */
+  static private final int AC4_DE_NOT_SELECTED = -1;
+  /** The minimum allowed dialog enhancement gain in dB. Lower values will be constrained to fall in range. */
+  public static final int MIN_AC4_DE = 0;
+  /** The maximum allowed dialog enhancement gain in dB. Higher values will be constrained to fall in range. */
+  public static final int MAX_AC4_DE = 9;
 
   /** The factor by which pitch will be shifted. */
   public final float pitch;
@@ -50,7 +58,7 @@ public final class PlaybackParameters implements Bundleable {
    * @param speed The factor by which playback will be sped up. Must be greater than zero.
    */
   public PlaybackParameters(float speed) {
-    this(speed, /* pitch= */ 1f);
+    this(speed, /* pitch= */ 1f, AC4_DE_NOT_SELECTED);
   }
 
   /**
@@ -61,15 +69,32 @@ public final class PlaybackParameters implements Bundleable {
    *     zero. Useful values are {@code 1} (to time-stretch audio) and the same value as passed in
    *     as the {@code speed} (to resample audio, which is useful for slow-motion videos).
    */
+  public PlaybackParameters(float speed, float pitch) {
+    this(speed, pitch, AC4_DE_NOT_SELECTED);
+  }
+
+  /**
+   * Creates new playback parameters that set the playback speed/pitch.
+   *
+   * @param speed The factor by which playback will be sped up. Must be greater than zero.
+   * @param pitch The factor by which the pitch of audio will be adjusted. Must be greater than
+   *     zero. Useful values are {@code 1} (to time-stretch audio) and the same value as passed in
+   *     as the {@code speed} (to resample audio, which is useful for slow-motion videos).
+   * @param dialogEnhancementGain The amount of dialog enhancement to apply
+   */
   public PlaybackParameters(
       @FloatRange(from = 0, fromInclusive = false) float speed,
-      @FloatRange(from = 0, fromInclusive = false) float pitch) {
+      @FloatRange(from = 0, fromInclusive = false) float pitch,
+      @IntRange(from = AC4_DE_NOT_SELECTED, to = MAX_AC4_DE) int dialogEnhancementGain) {
     Assertions.checkArgument(speed > 0);
     Assertions.checkArgument(pitch > 0);
+    Assertions.checkArgument((dialogEnhancementGain >= AC4_DE_NOT_SELECTED) && (dialogEnhancementGain <= MAX_AC4_DE));
     this.speed = speed;
     this.pitch = pitch;
+    this.dialogEnhancementGain = dialogEnhancementGain;
     scaledUsPerMs = Math.round(speed * 1000f);
   }
+
 
   /**
    * Returns the media time in microseconds that will elapse in {@code timeMs} milliseconds of
@@ -90,7 +115,18 @@ public final class PlaybackParameters implements Bundleable {
    */
   @CheckResult
   public PlaybackParameters withSpeed(@FloatRange(from = 0, fromInclusive = false) float speed) {
-    return new PlaybackParameters(speed, pitch);
+    return new PlaybackParameters(speed, pitch, dialogEnhancementGain);
+  }
+
+  /**
+    * Returns a copy with the given dialogEnhancement Gain.
+    *
+    * @param dialogEnhancementGain The new dialog enhancement gain.
+    * @return The copied playback parameters.
+    */
+  @CheckResult
+  public PlaybackParameters withDialogEnhancement(int dialogEnhancementGain) {
+    return new PlaybackParameters(speed, pitch, dialogEnhancementGain);
   }
 
   @Override
@@ -102,7 +138,7 @@ public final class PlaybackParameters implements Bundleable {
       return false;
     }
     PlaybackParameters other = (PlaybackParameters) obj;
-    return this.speed == other.speed && this.pitch == other.pitch;
+    return this.speed == other.speed && this.pitch == other.pitch && this.dialogEnhancementGain == other.dialogEnhancementGain;
   }
 
   @Override
@@ -110,12 +146,13 @@ public final class PlaybackParameters implements Bundleable {
     int result = 17;
     result = 31 * result + Float.floatToRawIntBits(speed);
     result = 31 * result + Float.floatToRawIntBits(pitch);
+    result = 31 * result + dialogEnhancementGain;
     return result;
   }
 
   @Override
   public String toString() {
-    return Util.formatInvariant("PlaybackParameters(speed=%.2f, pitch=%.2f)", speed, pitch);
+    return Util.formatInvariant("PlaybackParameters(speed=%.2f, pitch=%.2f, dialogEnhancementGain=%d", speed, pitch, dialogEnhancementGain);
   }
 
   // Bundleable implementation.
@@ -123,17 +160,19 @@ public final class PlaybackParameters implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({FIELD_SPEED, FIELD_PITCH})
+  @IntDef({FIELD_SPEED, FIELD_PITCH, FIELD_DIALOG_ENHANCEMENT_GAIN})
   private @interface FieldNumber {}
 
   private static final int FIELD_SPEED = 0;
   private static final int FIELD_PITCH = 1;
+  private static final int FIELD_DIALOG_ENHANCEMENT_GAIN = 2;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putFloat(keyForField(FIELD_SPEED), speed);
     bundle.putFloat(keyForField(FIELD_PITCH), pitch);
+    bundle.putInt(keyForField(FIELD_DIALOG_ENHANCEMENT_GAIN), dialogEnhancementGain);
     return bundle;
   }
 
@@ -142,7 +181,8 @@ public final class PlaybackParameters implements Bundleable {
       bundle -> {
         float speed = bundle.getFloat(keyForField(FIELD_SPEED), /* defaultValue= */ 1f);
         float pitch = bundle.getFloat(keyForField(FIELD_PITCH), /* defaultValue= */ 1f);
-        return new PlaybackParameters(speed, pitch);
+        int   dialogEnhancementGain = bundle.getInt(keyForField(FIELD_DIALOG_ENHANCEMENT_GAIN), /* defaultValue= */ AC4_DE_NOT_SELECTED);
+        return new PlaybackParameters(speed, pitch, dialogEnhancementGain);
       };
 
   private static String keyForField(@FieldNumber int field) {

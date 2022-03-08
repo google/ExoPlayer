@@ -83,6 +83,21 @@
     <item>1.5x</item>
     <item>2x</item>
   </string-array>
+
+  <integer-array name="exo_ac4_de_gains_db">
+    <item>0</item>
+    <item>3</item>
+    <item>6</item>
+    <item>9</item>
+  </integer-array>
+
+  <string-array translatable="false" name="exo_ac4_de_gains">
+    <item> Off </item>
+    <item> Low </item>
+    <item> Mid </item>
+    <item> High </item>
+  </string-array>
+
   <!-- LINT.ThenChange(../../java/com/google/android/exoplayer2/ui/StyledPlayerControlView.java:playback_speeds) -->
   <!-- Shown to indicate a custom playback speed. [CHAR_LIMIT=16] -->
   <string translatable="false" name="exo_controls_custom_playback_speed"><xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x</string>
