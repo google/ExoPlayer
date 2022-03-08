@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link FrameEditor#processData()}.
+ * Pixel test for frame processing via {@link FrameEditor}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -61,8 +61,11 @@ public final class FrameEditorDataProcessingTest {
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
-  /** Time to wait for the frame editor's input to be populated by the decoder, in milliseconds. */
-  private static final int SURFACE_WAIT_MS = 1000;
+  /**
+   * Time to wait for the decoded frame to populate the frame editor's input surface and the frame
+   * editor to finish processing the frame, in milliseconds.
+   */
+  private static final int FRAME_PROCESSING_WAIT_MS = 1000;
   /** The ratio of width over height, for each pixel in a frame. */
   private static final float PIXEL_WIDTH_HEIGHT_RATIO = 1;
 
@@ -84,10 +87,7 @@ public final class FrameEditorDataProcessingTest {
     setUpAndPrepareFirstFrame(identityMatrix);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
-    checkNotNull(frameEditor).processData();
-    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
-    editorOutputImage.close();
+    Bitmap actualBitmap = processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -107,10 +107,7 @@ public final class FrameEditorDataProcessingTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    checkNotNull(frameEditor).processData();
-    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
-    editorOutputImage.close();
+    Bitmap actualBitmap = processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -130,10 +127,7 @@ public final class FrameEditorDataProcessingTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    checkNotNull(frameEditor).processData();
-    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
-    editorOutputImage.close();
+    Bitmap actualBitmap = processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -155,10 +149,7 @@ public final class FrameEditorDataProcessingTest {
     setUpAndPrepareFirstFrame(rotate90Matrix);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    checkNotNull(frameEditor).processData();
-    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
-    editorOutputImage.close();
+    Bitmap actualBitmap = processFirstFrameAndEnd();
 
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
@@ -205,7 +196,7 @@ public final class FrameEditorDataProcessingTest {
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaCodec = MediaCodec.createDecoderByType(mimeType);
       mediaCodec.configure(
-          mediaFormat, frameEditor.getInputSurface(), /* crypto= */ null, /* flags= */ 0);
+          mediaFormat, frameEditor.createInputSurface(), /* crypto= */ null, /* flags= */ 0);
       mediaCodec.start();
       int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
       assertThat(inputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
@@ -237,15 +228,23 @@ public final class FrameEditorDataProcessingTest {
       } while (outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED
           || outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
       mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ true);
-
-      // Sleep to give time for the surface texture to be populated.
-      Thread.sleep(SURFACE_WAIT_MS);
-      assertThat(frameEditor.canProcessData()).isTrue();
     } finally {
       mediaExtractor.release();
       if (mediaCodec != null) {
         mediaCodec.release();
       }
     }
+  }
+
+  private Bitmap processFirstFrameAndEnd() throws InterruptedException, TransformationException {
+    checkNotNull(frameEditor).signalEndOfInputStream();
+    Thread.sleep(FRAME_PROCESSING_WAIT_MS);
+    assertThat(frameEditor.isEnded()).isTrue();
+    frameEditor.getAndRethrowBackgroundExceptions();
+
+    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
+    editorOutputImage.close();
+    return actualBitmap;
   }
 }

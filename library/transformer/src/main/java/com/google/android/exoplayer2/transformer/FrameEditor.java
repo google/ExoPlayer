@@ -31,16 +31,26 @@ import android.view.SurfaceView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * {@code FrameEditor} applies changes to individual video frames.
  *
- * <p>Input becomes available on its {@link #getInputSurface() input surface} asynchronously so
- * {@link #canProcessData()} needs to be checked before calling {@link #processData()}. Output is
- * written to its {@link #create(Context, int, int, float, GlFrameProcessor, Surface, boolean,
- * Transformer.DebugViewProvider) output surface}.
+ * <p>Input becomes available on its {@link #createInputSurface() input surface} asynchronously and
+ * is processed on a background thread as it becomes available. All input frames should be {@link
+ * #registerInputFrame() registered} before they are rendered to the input surface. {@link
+ * #hasPendingFrames()} can be used to check whether there are frames that have not been fully
+ * processed yet. Output is written to its {@link #create(Context, int, int, float,
+ * GlFrameProcessor, Surface, boolean, Transformer.DebugViewProvider) output surface}.
  */
 /* package */ final class FrameEditor {
 
@@ -86,50 +96,9 @@ import java.util.concurrent.atomic.AtomicInteger;
           TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
 
-    ExternalCopyFrameProcessor externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
     @Nullable
     SurfaceView debugSurfaceView =
         debugViewProvider.getDebugPreviewSurfaceView(outputWidth, outputHeight);
-
-    EGLDisplay eglDisplay;
-    EGLContext eglContext;
-    EGLSurface eglSurface;
-    int inputExternalTexId;
-    int intermediateTexId;
-    int frameBuffer;
-    @Nullable EGLSurface debugPreviewEglSurface = null;
-    try {
-      eglDisplay = GlUtil.createEglDisplay();
-
-      if (enableExperimentalHdrEditing) {
-        eglContext = GlUtil.createEglContextEs3Rgba1010102(eglDisplay);
-        // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
-        eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
-        if (debugSurfaceView != null) {
-          debugPreviewEglSurface =
-              GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-        }
-      } else {
-        eglContext = GlUtil.createEglContext(eglDisplay);
-        eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-        if (debugSurfaceView != null) {
-          debugPreviewEglSurface =
-              GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-        }
-      }
-
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-      inputExternalTexId = GlUtil.createExternalTexture();
-      intermediateTexId = GlUtil.createTexture(outputWidth, outputHeight);
-      frameBuffer = GlUtil.createFboForTexture(intermediateTexId);
-      externalCopyFrameProcessor.initialize();
-      transformationFrameProcessor.initialize();
-    } catch (GlUtil.GlException | IOException e) {
-      throw TransformationException.createForFrameEditor(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
-
     int debugPreviewWidth;
     int debugPreviewHeight;
     if (debugSurfaceView != null) {
@@ -140,15 +109,95 @@ import java.util.concurrent.atomic.AtomicInteger;
       debugPreviewHeight = C.LENGTH_UNSET;
     }
 
+    ExternalCopyFrameProcessor externalCopyFrameProcessor =
+        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
+
+    ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
+    Future<FrameEditor> frameEditorFuture =
+        singleThreadExecutorService.submit(
+            () ->
+                createOpenGlObjectsAndFrameEditor(
+                    singleThreadExecutorService,
+                    externalCopyFrameProcessor,
+                    transformationFrameProcessor,
+                    outputSurface,
+                    outputWidth,
+                    outputHeight,
+                    enableExperimentalHdrEditing,
+                    debugSurfaceView,
+                    debugPreviewWidth,
+                    debugPreviewHeight));
+    try {
+      return frameEditorFuture.get();
+    } catch (ExecutionException e) {
+      throw TransformationException.createForFrameEditor(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw TransformationException.createForFrameEditor(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+  }
+
+  /**
+   * Creates a {@code FrameEditor} and its OpenGL objects.
+   *
+   * <p>As the {@code FrameEditor} will call OpenGL commands on the {@code
+   * singleThreadExecutorService}'s thread, the OpenGL context and objects also need to be created
+   * on that thread. So this method should only be called on the {@code
+   * singleThreadExecutorService}'s thread.
+   */
+  private static FrameEditor createOpenGlObjectsAndFrameEditor(
+      ExecutorService singleThreadExecutorService,
+      ExternalCopyFrameProcessor externalCopyFrameProcessor,
+      GlFrameProcessor transformationFrameProcessor,
+      Surface outputSurface,
+      int outputWidth,
+      int outputHeight,
+      boolean enableExperimentalHdrEditing,
+      @Nullable SurfaceView debugSurfaceView,
+      int debugPreviewWidth,
+      int debugPreviewHeight)
+      throws IOException {
+    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
+
+    final EGLContext eglContext;
+    final EGLSurface eglSurface;
+    @Nullable EGLSurface debugPreviewEglSurface = null;
+    if (enableExperimentalHdrEditing) {
+      eglContext = GlUtil.createEglContextEs3Rgba1010102(eglDisplay);
+      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+      eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
+      if (debugSurfaceView != null) {
+        debugPreviewEglSurface =
+            GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+      }
+    } else {
+      eglContext = GlUtil.createEglContext(eglDisplay);
+      eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
+      if (debugSurfaceView != null) {
+        debugPreviewEglSurface =
+            GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+      }
+    }
+
+    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+    int inputExternalTexId = GlUtil.createExternalTexture();
+    int intermediateTexId = GlUtil.createTexture(outputWidth, outputHeight);
+    int frameBuffer = GlUtil.createFboForTexture(intermediateTexId);
+    externalCopyFrameProcessor.initialize();
+    transformationFrameProcessor.initialize();
+
     return new FrameEditor(
+        singleThreadExecutorService,
         eglDisplay,
         eglContext,
         eglSurface,
+        externalCopyFrameProcessor,
+        transformationFrameProcessor,
         inputExternalTexId,
         intermediateTexId,
         frameBuffer,
-        externalCopyFrameProcessor,
-        transformationFrameProcessor,
         outputWidth,
         outputHeight,
         debugPreviewEglSurface,
@@ -156,17 +205,28 @@ import java.util.concurrent.atomic.AtomicInteger;
         debugPreviewHeight);
   }
 
+  private static final String THREAD_NAME = "Transformer:FrameEditor";
+
+  /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
+  private final ExecutorService singleThreadExecutorService;
+  /** Futures corresponding to the executor service's pending tasks. */
+  private final ConcurrentLinkedQueue<Future<?>> futures;
+  /** Number of frames {@link #registerInputFrame() registered} but not fully processed. */
+  private final AtomicInteger pendingFrameCount;
   // TODO(b/214975934): Write javadoc for fields where the purpose might be unclear to someone less
   //  familiar with this class and consider grouping some of these fields into new classes to
   //  reduce the number of constructor parameters.
-  private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
-  private final GlFrameProcessor transformationFrameProcessor;
-  private final float[] textureTransformMatrix;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final EGLSurface eglSurface;
+  private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
+  private final GlFrameProcessor transformationFrameProcessor;
+
   /** Identifier of the external texture the {@code FrameEditor} reads its input from. */
   private final int inputExternalTexId;
+  /** Transformation matrix associated with the surface texture. */
+  private final float[] textureTransformMatrix;
+
   /**
    * Identifier of the texture where the output of the {@link ExternalCopyFrameProcessor} is written
    * to and the {@link TransformationFrameProcessor} reads its input from.
@@ -175,59 +235,80 @@ import java.util.concurrent.atomic.AtomicInteger;
   /** Identifier of a framebuffer object associated with the intermediate texture. */
   private final int frameBuffer;
 
-  private final AtomicInteger pendingInputFrameCount;
-  private final AtomicInteger availableInputFrameCount;
-  private final SurfaceTexture inputSurfaceTexture;
-  private final Surface inputSurface;
   private final int outputWidth;
   private final int outputHeight;
+
   @Nullable private final EGLSurface debugPreviewEglSurface;
   private final int debugPreviewWidth;
   private final int debugPreviewHeight;
 
+  private @MonotonicNonNull SurfaceTexture inputSurfaceTexture;
+  private @MonotonicNonNull Surface inputSurface;
   private boolean inputStreamEnded;
+  private volatile boolean releaseRequested;
 
   private FrameEditor(
+      ExecutorService singleThreadExecutorService,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       EGLSurface eglSurface,
+      ExternalCopyFrameProcessor externalCopyFrameProcessor,
+      GlFrameProcessor transformationFrameProcessor,
       int inputExternalTexId,
       int intermediateTexId,
       int frameBuffer,
-      ExternalCopyFrameProcessor externalCopyFrameProcessor,
-      GlFrameProcessor transformationFrameProcessor,
       int outputWidth,
       int outputHeight,
       @Nullable EGLSurface debugPreviewEglSurface,
       int debugPreviewWidth,
       int debugPreviewHeight) {
+    this.singleThreadExecutorService = singleThreadExecutorService;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.eglSurface = eglSurface;
+    this.externalCopyFrameProcessor = externalCopyFrameProcessor;
+    this.transformationFrameProcessor = transformationFrameProcessor;
     this.inputExternalTexId = inputExternalTexId;
     this.intermediateTexId = intermediateTexId;
     this.frameBuffer = frameBuffer;
-    this.externalCopyFrameProcessor = externalCopyFrameProcessor;
-    this.transformationFrameProcessor = transformationFrameProcessor;
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
     this.debugPreviewEglSurface = debugPreviewEglSurface;
     this.debugPreviewWidth = debugPreviewWidth;
     this.debugPreviewHeight = debugPreviewHeight;
-    pendingInputFrameCount = new AtomicInteger();
-    availableInputFrameCount = new AtomicInteger();
+
+    futures = new ConcurrentLinkedQueue<>();
+    pendingFrameCount = new AtomicInteger();
     textureTransformMatrix = new float[16];
+  }
+
+  /**
+   * Creates the input {@link Surface} and configures it to process frames.
+   *
+   * <p>This method must not be called again after creating an input surface.
+   *
+   * @return The configured input {@link Surface}.
+   * @throws IllegalStateException If an input {@link Surface} has already been created.
+   */
+  public Surface createInputSurface() {
+    checkState(inputSurface == null, "The input surface has already been created.");
     inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
-          checkState(pendingInputFrameCount.getAndDecrement() > 0);
-          availableInputFrameCount.incrementAndGet();
+          if (releaseRequested) {
+            // Frames can still become available after a transformation is cancelled but they can be
+            // ignored.
+            return;
+          }
+          try {
+            futures.add(singleThreadExecutorService.submit(this::processFrame));
+          } catch (RejectedExecutionException e) {
+            if (!releaseRequested) {
+              throw e;
+            }
+          }
         });
     inputSurface = new Surface(inputSurfaceTexture);
-  }
-
-  /** Returns the input {@link Surface}. */
-  public Surface getInputSurface() {
     return inputSurface;
   }
 
@@ -240,75 +321,104 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void registerInputFrame() {
     checkState(!inputStreamEnded);
-    pendingInputFrameCount.incrementAndGet();
+    pendingFrameCount.incrementAndGet();
   }
 
   /**
-   * Returns whether there is available input data that can be processed by calling {@link
-   * #processData()}.
+   * Checks whether any exceptions occurred during asynchronous frame processing and rethrows the
+   * first exception encountered.
    */
-  public boolean canProcessData() {
-    return availableInputFrameCount.get() > 0;
-  }
-
-  /**
-   * Processes an input frame.
-   *
-   * @throws TransformationException If an OpenGL error occurs while processing the data.
-   * @throws IllegalStateException If there is no input data to process. Use {@link
-   *     #canProcessData()} to check whether input data is available.
-   */
-  public void processData() throws TransformationException {
-    checkState(canProcessData());
-    try {
-      inputSurfaceTexture.updateTexImage();
-      inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-      long presentationTimeNs = inputSurfaceTexture.getTimestamp();
-
-      GlUtil.focusFramebuffer(
-          eglDisplay, eglContext, eglSurface, frameBuffer, outputWidth, outputHeight);
-      externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
-      externalCopyFrameProcessor.updateProgramAndDraw(inputExternalTexId, presentationTimeNs);
-
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-      transformationFrameProcessor.updateProgramAndDraw(intermediateTexId, presentationTimeNs);
-      EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
-      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
-
-      if (debugPreviewEglSurface != null) {
-        GlUtil.focusEglSurface(
-            eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
-        GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        // The four-vertex triangle strip forms a quad.
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-        EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+  public void getAndRethrowBackgroundExceptions() throws TransformationException {
+    @Nullable Future<?> oldestGlProcessingFuture = futures.peek();
+    while (oldestGlProcessingFuture != null && oldestGlProcessingFuture.isDone()) {
+      futures.poll();
+      try {
+        oldestGlProcessingFuture.get();
+      } catch (ExecutionException e) {
+        throw TransformationException.createForFrameEditor(
+            e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw TransformationException.createForFrameEditor(
+            e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
       }
-    } catch (GlUtil.GlException e) {
-      throw TransformationException.createForFrameEditor(
-          e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
+      oldestGlProcessingFuture = futures.peek();
     }
-    availableInputFrameCount.decrementAndGet();
   }
 
-  /** Releases all resources. */
-  public void release() {
-    externalCopyFrameProcessor.release();
-    transformationFrameProcessor.release();
-    GlUtil.destroyEglContext(eglDisplay, eglContext);
-    inputSurfaceTexture.release();
-    inputSurface.release();
+  /**
+   * Returns whether there are input frames that have been {@link #registerInputFrame() registered}
+   * but not completely processed yet.
+   */
+  public boolean hasPendingFrames() {
+    return pendingFrameCount.get() > 0;
   }
 
-  /** Returns whether all data has been processed. */
+  /** Returns whether all frames have been processed. */
   public boolean isEnded() {
-    return inputStreamEnded
-        && pendingInputFrameCount.get() == 0
-        && availableInputFrameCount.get() == 0;
+    return inputStreamEnded && !hasPendingFrames();
   }
 
-  /** Informs the {@code FrameEditor} that no further input data should be accepted. */
+  /** Informs the {@code FrameEditor} that no further input frames should be accepted. */
   public void signalEndOfInputStream() {
     inputStreamEnded = true;
+  }
+
+  /**
+   * Releases all resources.
+   *
+   * <p>If the frame editor is released before it has {@link #isEnded() ended}, it will attempt to
+   * cancel processing any input frames that have already become available. Input frames that become
+   * available after release are ignored.
+   */
+  public void release() {
+    releaseRequested = true;
+    while (!futures.isEmpty()) {
+      checkNotNull(futures.poll()).cancel(/* mayInterruptIfRunning= */ true);
+    }
+    futures.add(
+        singleThreadExecutorService.submit(
+            () -> {
+              externalCopyFrameProcessor.release();
+              transformationFrameProcessor.release();
+              GlUtil.destroyEglContext(eglDisplay, eglContext);
+            }));
+    if (inputSurfaceTexture != null) {
+      inputSurfaceTexture.release();
+    }
+    if (inputSurface != null) {
+      inputSurface.release();
+    }
+    singleThreadExecutorService.shutdown();
+  }
+
+  /** Processes an input frame. */
+  @RequiresNonNull("inputSurfaceTexture")
+  private void processFrame() {
+    inputSurfaceTexture.updateTexImage();
+    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
+    long presentationTimeNs = inputSurfaceTexture.getTimestamp();
+
+    GlUtil.focusFramebuffer(
+        eglDisplay, eglContext, eglSurface, frameBuffer, outputWidth, outputHeight);
+    externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    externalCopyFrameProcessor.updateProgramAndDraw(inputExternalTexId, presentationTimeNs);
+
+    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+    transformationFrameProcessor.updateProgramAndDraw(intermediateTexId, presentationTimeNs);
+    EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
+    EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+
+    if (debugPreviewEglSurface != null) {
+      GlUtil.focusEglSurface(
+          eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
+      GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
+      GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+      // The four-vertex triangle strip forms a quad.
+      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+    }
+
+    checkState(pendingFrameCount.getAndDecrement() > 0);
   }
 }
