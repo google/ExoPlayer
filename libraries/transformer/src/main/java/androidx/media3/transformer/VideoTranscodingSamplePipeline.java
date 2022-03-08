@@ -48,7 +48,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
 
-  private boolean waitingForFrameEditorInput;
+  private boolean signaledEndOfStreamToEncoder;
 
   public VideoTranscodingSamplePipeline(
       Context context,
@@ -177,7 +177,7 @@ import org.checkerframework.dataflow.qual.Pure;
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
-            frameEditor == null ? encoder.getInputSurface() : frameEditor.getInputSurface());
+            frameEditor == null ? encoder.getInputSurface() : frameEditor.createInputSurface());
   }
 
   @Override
@@ -193,18 +193,39 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    if (hasProcessedAllInputData()) {
+    if (frameEditor != null) {
+      frameEditor.getAndRethrowBackgroundExceptions();
+      if (frameEditor.isEnded()) {
+        if (!signaledEndOfStreamToEncoder) {
+          encoder.signalEndOfInputStream();
+          signaledEndOfStreamToEncoder = true;
+        }
+        return false;
+      }
+    }
+    if (decoder.isEnded()) {
       return false;
     }
 
+    boolean canProcessMoreDataImmediately = false;
     if (SDK_INT >= 29
         && !(("samsung".equals(Util.MANUFACTURER) || "OnePlus".equals(Util.MANUFACTURER))
             && SDK_INT < 31)) {
       // TODO(b/213455700): Fix Samsung and OnePlus devices filling the decoder in processDataV29().
-      return processDataV29();
+      processDataV29();
     } else {
-      return processDataDefault();
+      canProcessMoreDataImmediately = processDataDefault();
     }
+    if (decoder.isEnded()) {
+      if (frameEditor != null) {
+        frameEditor.signalEndOfInputStream();
+      } else {
+        encoder.signalEndOfInputStream();
+        signaledEndOfStreamToEncoder = true;
+        return false;
+      }
+    }
+    return canProcessMoreDataImmediately;
   }
 
   /**
@@ -221,54 +242,22 @@ import org.checkerframework.dataflow.qual.Pure;
    * Transformer}, using this method requires API level 29 or higher.
    */
   @RequiresApi(29)
-  private boolean processDataV29() throws TransformationException {
-    if (frameEditor != null) {
-      // Processes as many frames as possible. FrameEditor's output surface will block when it's
-      // full, so there will be no frame drop and the surface will not grow out of bound.
-      while (frameEditor.canProcessData()) {
-        frameEditor.processData();
-      }
-    }
-
-    while (decoder.getOutputBufferInfo() != null) {
-      if (frameEditor != null) {
-        frameEditor.registerInputFrame();
-      }
-      decoder.releaseOutputBuffer(/* render= */ true);
-    }
-    if (decoder.isEnded()) {
-      signalEndOfInputStream();
-    }
-
-    return frameEditor != null && frameEditor.canProcessData();
+  private void processDataV29() throws TransformationException {
+    while (maybeProcessDecoderOutput()) {}
   }
 
-  /** Processes input data. */
+  /**
+   * Processes at most one input frame and returns whether a frame was processed.
+   *
+   * <p>Only renders decoder output to the {@link FrameEditor}'s input surface if the {@link
+   * FrameEditor} has finished processing the previous frame.
+   */
   private boolean processDataDefault() throws TransformationException {
-    if (frameEditor != null) {
-      if (frameEditor.canProcessData()) {
-        waitingForFrameEditorInput = false;
-        frameEditor.processData();
-        return true;
-      }
-      if (waitingForFrameEditorInput) {
-        return false;
-      }
-    }
-
-    boolean decoderHasOutputBuffer = decoder.getOutputBufferInfo() != null;
-    if (decoderHasOutputBuffer) {
-      if (frameEditor != null) {
-        frameEditor.registerInputFrame();
-        waitingForFrameEditorInput = true;
-      }
-      decoder.releaseOutputBuffer(/* render= */ true);
-    }
-    if (decoder.isEnded()) {
-      signalEndOfInputStream();
+    // TODO(b/214975934): Check whether this can be converted to a while-loop like processDataV29.
+    if (frameEditor != null && frameEditor.hasPendingFrames()) {
       return false;
     }
-    return decoderHasOutputBuffer && !waitingForFrameEditorInput;
+    return maybeProcessDecoderOutput();
   }
 
   @Override
@@ -332,16 +321,21 @@ import org.checkerframework.dataflow.qual.Pure;
         .build();
   }
 
-  private boolean hasProcessedAllInputData() {
-    return decoder.isEnded() && (frameEditor == null || frameEditor.isEnded());
-  }
+  /**
+   * Feeds at most one decoder output frame to the next step of the pipeline.
+   *
+   * @return Whether a frame was processed.
+   * @throws TransformationException If a problem occurs while processing the frame.
+   */
+  private boolean maybeProcessDecoderOutput() throws TransformationException {
+    if (decoder.getOutputBufferInfo() == null) {
+      return false;
+    }
 
-  private void signalEndOfInputStream() throws TransformationException {
     if (frameEditor != null) {
-      frameEditor.signalEndOfInputStream();
+      frameEditor.registerInputFrame();
     }
-    if (frameEditor == null || frameEditor.isEnded()) {
-      encoder.signalEndOfInputStream();
-    }
+    decoder.releaseOutputBuffer(/* render= */ true);
+    return true;
   }
 }
