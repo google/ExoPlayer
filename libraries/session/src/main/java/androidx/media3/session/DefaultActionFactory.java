@@ -64,8 +64,8 @@ import androidx.media3.common.util.Util;
     Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
     intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-    if (Util.SDK_INT >= 26 && command != COMMAND_PAUSE && command != COMMAND_STOP) {
-      return Api26.createPendingIntent(service, keyCode, intent);
+    if (Util.SDK_INT >= 26 && command == COMMAND_PLAY) {
+      return Api26.createForegroundServicePendingIntent(service, keyCode, intent);
     } else {
       return PendingIntent.getService(
           service,
@@ -137,7 +137,8 @@ import androidx.media3.common.util.Util;
   private static final class Api26 {
     private Api26() {}
 
-    public static PendingIntent createPendingIntent(Service service, int keyCode, Intent intent) {
+    public static PendingIntent createForegroundServicePendingIntent(
+        Service service, int keyCode, Intent intent) {
       return PendingIntent.getForegroundService(
           service, /* requestCode= */ keyCode, intent, PendingIntent.FLAG_IMMUTABLE);
     }
