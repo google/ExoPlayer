@@ -143,7 +143,7 @@ public final class Cea708Decoder extends CeaDecoder {
   private static final int CHARACTER_UPPER_LEFT_BORDER = 0x7F;
 
   private final ParsableByteArray ccData;
-  private final ParsableBitArray serviceBlockPacket;
+  private final ParsableBitArray captionChannelPacketData;
   private int previousSequenceNumber;
   // TODO: Use isWideAspectRatio in decoding.
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -161,7 +161,7 @@ public final class Cea708Decoder extends CeaDecoder {
 
   public Cea708Decoder(int accessibilityChannel, @Nullable List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
-    serviceBlockPacket = new ParsableBitArray();
+    captionChannelPacketData = new ParsableBitArray();
     previousSequenceNumber = C.INDEX_UNSET;
     selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
     isWideAspectRatio =
@@ -303,7 +303,7 @@ public final class Cea708Decoder extends CeaDecoder {
     boolean cuesNeedUpdate = false;
 
     // Streams with multiple embedded cc tracks (different language tracks) can be delivered
-    // in the same frame packet, so current serviceBlockPacket buffer can contain information
+    // in the same frame packet, so current captionChannelPacketData buffer can contain information
     // for different service numbers.
     // xe: consider the following service block 298CFC9818E332731F104220620000. This service
     // block must be split into 3 different blocks
@@ -315,14 +315,14 @@ public final class Cea708Decoder extends CeaDecoder {
     // buffer is emptied, and, on each iteration, process only the block related to that
     // service block. if the specific service number is not the selected one, then just skip
     // it and continue with next service block.
-    serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
-    while (serviceBlockPacket.bitsLeft() > 0) {
-      int serviceNumber = serviceBlockPacket.readBits(3);
-      int blockSize = serviceBlockPacket.readBits(5);
+    captionChannelPacketData.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
+    while (captionChannelPacketData.bitsLeft() > 0) {
+      int serviceNumber = captionChannelPacketData.readBits(3);
+      int blockSize = captionChannelPacketData.readBits(5);
       if (serviceNumber == 7) {
         // extended service numbers
-        serviceBlockPacket.skipBits(2);
-        serviceNumber = serviceBlockPacket.readBits(6);
+        captionChannelPacketData.skipBits(2);
+        serviceNumber = captionChannelPacketData.readBits(6);
         if (serviceNumber < 7) {
           Log.w(TAG, "Invalid extended service number: " + serviceNumber);
         }
@@ -337,15 +337,15 @@ public final class Cea708Decoder extends CeaDecoder {
       }
 
       if (serviceNumber != selectedServiceNumber) {
-        serviceBlockPacket.skipBytes(blockSize);
+        captionChannelPacketData.skipBytes(blockSize);
         continue;
       }
 
       // Process only the information for the current service block (there could be
       // more data in the buffer, but it is not part of the current service block).
-      int endBlockPosition = serviceBlockPacket.getPosition() + (blockSize * 8);
-      while (serviceBlockPacket.getPosition() < endBlockPosition) {
-        int command = serviceBlockPacket.readBits(8);
+      int endBlockPosition = captionChannelPacketData.getPosition() + (blockSize * 8);
+      while (captionChannelPacketData.getPosition() < endBlockPosition) {
+        int command = captionChannelPacketData.readBits(8);
         if (command != COMMAND_EXT1) {
           if (command <= GROUP_C0_END) {
             handleC0Command(command);
@@ -364,7 +364,7 @@ public final class Cea708Decoder extends CeaDecoder {
           }
         } else {
           // Read the extended command
-          command = serviceBlockPacket.readBits(8);
+          command = captionChannelPacketData.readBits(8);
           if (command <= GROUP_C2_END) {
             handleC2Command(command);
           } else if (command <= GROUP_G2_END) {
@@ -410,10 +410,10 @@ public final class Cea708Decoder extends CeaDecoder {
       default:
         if (command >= COMMAND_EXT1_START && command <= COMMAND_EXT1_END) {
           Log.w(TAG, "Currently unsupported COMMAND_EXT1 Command: " + command);
-          serviceBlockPacket.skipBits(8);
+          captionChannelPacketData.skipBits(8);
         } else if (command >= COMMAND_P16_START && command <= COMMAND_P16_END) {
           Log.w(TAG, "Currently unsupported COMMAND_P16 Command: " + command);
-          serviceBlockPacket.skipBits(16);
+          captionChannelPacketData.skipBits(16);
         } else {
           Log.w(TAG, "Invalid C0 command: " + command);
         }
@@ -439,28 +439,28 @@ public final class Cea708Decoder extends CeaDecoder {
         break;
       case COMMAND_CLW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
+          if (captionChannelPacketData.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].clear();
           }
         }
         break;
       case COMMAND_DSW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
+          if (captionChannelPacketData.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].setVisibility(true);
           }
         }
         break;
       case COMMAND_HDW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
+          if (captionChannelPacketData.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].setVisibility(false);
           }
         }
         break;
       case COMMAND_TGW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
+          if (captionChannelPacketData.readBit()) {
             CueInfoBuilder cueInfoBuilder = cueInfoBuilders[NUM_WINDOWS - i];
             cueInfoBuilder.setVisibility(!cueInfoBuilder.isVisible());
           }
@@ -468,14 +468,14 @@ public final class Cea708Decoder extends CeaDecoder {
         break;
       case COMMAND_DLW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
+          if (captionChannelPacketData.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].reset();
           }
         }
         break;
       case COMMAND_DLY:
         // TODO: Add support for delay commands.
-        serviceBlockPacket.skipBits(8);
+        captionChannelPacketData.skipBits(8);
         break;
       case COMMAND_DLC:
         // TODO: Add support for delay commands.
@@ -486,7 +486,7 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_SPA:
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(16);
+          captionChannelPacketData.skipBits(16);
         } else {
           handleSetPenAttributes();
         }
@@ -494,7 +494,7 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_SPC:
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(24);
+          captionChannelPacketData.skipBits(24);
         } else {
           handleSetPenColor();
         }
@@ -502,7 +502,7 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_SPL:
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(16);
+          captionChannelPacketData.skipBits(16);
         } else {
           handleSetPenLocation();
         }
@@ -510,7 +510,7 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_SWA:
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(32);
+          captionChannelPacketData.skipBits(32);
         } else {
           handleSetWindowAttributes();
         }
@@ -541,27 +541,27 @@ public final class Cea708Decoder extends CeaDecoder {
     if (command <= 0x07) {
       // Do nothing.
     } else if (command <= 0x0F) {
-      serviceBlockPacket.skipBits(8);
+      captionChannelPacketData.skipBits(8);
     } else if (command <= 0x17) {
-      serviceBlockPacket.skipBits(16);
+      captionChannelPacketData.skipBits(16);
     } else if (command <= 0x1F) {
-      serviceBlockPacket.skipBits(24);
+      captionChannelPacketData.skipBits(24);
     }
   }
 
   private void handleC3Command(int command) {
     // C3 Table doesn't contain any commands in CEA-708-B, but we do need to skip bytes
     if (command <= 0x87) {
-      serviceBlockPacket.skipBits(32);
+      captionChannelPacketData.skipBits(32);
     } else if (command <= 0x8F) {
-      serviceBlockPacket.skipBits(40);
+      captionChannelPacketData.skipBits(40);
     } else if (command <= 0x9F) {
       // 90-9F are variable length codes; the first byte defines the header with the first
       // 2 bits specifying the type and the last 6 bits specifying the remaining length of the
       // command in bytes
-      serviceBlockPacket.skipBits(2);
-      int length = serviceBlockPacket.readBits(6);
-      serviceBlockPacket.skipBits(8 * length);
+      captionChannelPacketData.skipBits(2);
+      int length = captionChannelPacketData.readBits(6);
+      captionChannelPacketData.skipBits(8 * length);
     }
   }
 
@@ -677,14 +677,14 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetPenAttributes() {
     // the SetPenAttributes command contains 2 bytes of data
     // first byte
-    int textTag = serviceBlockPacket.readBits(4);
-    int offset = serviceBlockPacket.readBits(2);
-    int penSize = serviceBlockPacket.readBits(2);
+    int textTag = captionChannelPacketData.readBits(4);
+    int offset = captionChannelPacketData.readBits(2);
+    int penSize = captionChannelPacketData.readBits(2);
     // second byte
-    boolean italicsToggle = serviceBlockPacket.readBit();
-    boolean underlineToggle = serviceBlockPacket.readBit();
-    int edgeType = serviceBlockPacket.readBits(3);
-    int fontStyle = serviceBlockPacket.readBits(3);
+    boolean italicsToggle = captionChannelPacketData.readBit();
+    boolean underlineToggle = captionChannelPacketData.readBit();
+    int edgeType = captionChannelPacketData.readBits(3);
+    int fontStyle = captionChannelPacketData.readBits(3);
 
     currentCueInfoBuilder.setPenAttributes(
         textTag, offset, penSize, italicsToggle, underlineToggle, edgeType, fontStyle);
@@ -693,24 +693,24 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetPenColor() {
     // the SetPenColor command contains 3 bytes of data
     // first byte
-    int foregroundO = serviceBlockPacket.readBits(2);
-    int foregroundR = serviceBlockPacket.readBits(2);
-    int foregroundG = serviceBlockPacket.readBits(2);
-    int foregroundB = serviceBlockPacket.readBits(2);
+    int foregroundO = captionChannelPacketData.readBits(2);
+    int foregroundR = captionChannelPacketData.readBits(2);
+    int foregroundG = captionChannelPacketData.readBits(2);
+    int foregroundB = captionChannelPacketData.readBits(2);
     int foregroundColor =
         CueInfoBuilder.getArgbColorFromCeaColor(foregroundR, foregroundG, foregroundB, foregroundO);
     // second byte
-    int backgroundO = serviceBlockPacket.readBits(2);
-    int backgroundR = serviceBlockPacket.readBits(2);
-    int backgroundG = serviceBlockPacket.readBits(2);
-    int backgroundB = serviceBlockPacket.readBits(2);
+    int backgroundO = captionChannelPacketData.readBits(2);
+    int backgroundR = captionChannelPacketData.readBits(2);
+    int backgroundG = captionChannelPacketData.readBits(2);
+    int backgroundB = captionChannelPacketData.readBits(2);
     int backgroundColor =
         CueInfoBuilder.getArgbColorFromCeaColor(backgroundR, backgroundG, backgroundB, backgroundO);
     // third byte
-    serviceBlockPacket.skipBits(2); // null padding
-    int edgeR = serviceBlockPacket.readBits(2);
-    int edgeG = serviceBlockPacket.readBits(2);
-    int edgeB = serviceBlockPacket.readBits(2);
+    captionChannelPacketData.skipBits(2); // null padding
+    int edgeR = captionChannelPacketData.readBits(2);
+    int edgeG = captionChannelPacketData.readBits(2);
+    int edgeB = captionChannelPacketData.readBits(2);
     int edgeColor = CueInfoBuilder.getArgbColorFromCeaColor(edgeR, edgeG, edgeB);
 
     currentCueInfoBuilder.setPenColor(foregroundColor, backgroundColor, edgeColor);
@@ -719,11 +719,11 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetPenLocation() {
     // the SetPenLocation command contains 2 bytes of data
     // first byte
-    serviceBlockPacket.skipBits(4);
-    int row = serviceBlockPacket.readBits(4);
+    captionChannelPacketData.skipBits(4);
+    int row = captionChannelPacketData.readBits(4);
     // second byte
-    serviceBlockPacket.skipBits(2);
-    int column = serviceBlockPacket.readBits(6);
+    captionChannelPacketData.skipBits(2);
+    int column = captionChannelPacketData.readBits(6);
 
     currentCueInfoBuilder.setPenLocation(row, column);
   }
@@ -731,28 +731,28 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetWindowAttributes() {
     // the SetWindowAttributes command contains 4 bytes of data
     // first byte
-    int fillO = serviceBlockPacket.readBits(2);
-    int fillR = serviceBlockPacket.readBits(2);
-    int fillG = serviceBlockPacket.readBits(2);
-    int fillB = serviceBlockPacket.readBits(2);
+    int fillO = captionChannelPacketData.readBits(2);
+    int fillR = captionChannelPacketData.readBits(2);
+    int fillG = captionChannelPacketData.readBits(2);
+    int fillB = captionChannelPacketData.readBits(2);
     int fillColor = CueInfoBuilder.getArgbColorFromCeaColor(fillR, fillG, fillB, fillO);
     // second byte
-    int borderType = serviceBlockPacket.readBits(2); // only the lower 2 bits of borderType
-    int borderR = serviceBlockPacket.readBits(2);
-    int borderG = serviceBlockPacket.readBits(2);
-    int borderB = serviceBlockPacket.readBits(2);
+    int borderType = captionChannelPacketData.readBits(2); // only the lower 2 bits of borderType
+    int borderR = captionChannelPacketData.readBits(2);
+    int borderG = captionChannelPacketData.readBits(2);
+    int borderB = captionChannelPacketData.readBits(2);
     int borderColor = CueInfoBuilder.getArgbColorFromCeaColor(borderR, borderG, borderB);
     // third byte
-    if (serviceBlockPacket.readBit()) {
+    if (captionChannelPacketData.readBit()) {
       borderType |= 0x04; // set the top bit of the 3-bit borderType
     }
-    boolean wordWrapToggle = serviceBlockPacket.readBit();
-    int printDirection = serviceBlockPacket.readBits(2);
-    int scrollDirection = serviceBlockPacket.readBits(2);
-    int justification = serviceBlockPacket.readBits(2);
+    boolean wordWrapToggle = captionChannelPacketData.readBit();
+    int printDirection = captionChannelPacketData.readBits(2);
+    int scrollDirection = captionChannelPacketData.readBits(2);
+    int justification = captionChannelPacketData.readBits(2);
     // fourth byte
     // Note that we don't intend to support display effects
-    serviceBlockPacket.skipBits(8); // effectSpeed(4), effectDirection(2), displayEffect(2)
+    captionChannelPacketData.skipBits(8); // effectSpeed(4), effectDirection(2), displayEffect(2)
 
     currentCueInfoBuilder.setWindowAttributes(
         fillColor,
@@ -769,26 +769,26 @@ public final class Cea708Decoder extends CeaDecoder {
 
     // the DefineWindow command contains 6 bytes of data
     // first byte
-    serviceBlockPacket.skipBits(2); // null padding
-    boolean visible = serviceBlockPacket.readBit();
-    boolean rowLock = serviceBlockPacket.readBit();
-    boolean columnLock = serviceBlockPacket.readBit();
-    int priority = serviceBlockPacket.readBits(3);
+    captionChannelPacketData.skipBits(2); // null padding
+    boolean visible = captionChannelPacketData.readBit();
+    boolean rowLock = captionChannelPacketData.readBit();
+    boolean columnLock = captionChannelPacketData.readBit();
+    int priority = captionChannelPacketData.readBits(3);
     // second byte
-    boolean relativePositioning = serviceBlockPacket.readBit();
-    int verticalAnchor = serviceBlockPacket.readBits(7);
+    boolean relativePositioning = captionChannelPacketData.readBit();
+    int verticalAnchor = captionChannelPacketData.readBits(7);
     // third byte
-    int horizontalAnchor = serviceBlockPacket.readBits(8);
+    int horizontalAnchor = captionChannelPacketData.readBits(8);
     // fourth byte
-    int anchorId = serviceBlockPacket.readBits(4);
-    int rowCount = serviceBlockPacket.readBits(4);
+    int anchorId = captionChannelPacketData.readBits(4);
+    int rowCount = captionChannelPacketData.readBits(4);
     // fifth byte
-    serviceBlockPacket.skipBits(2); // null padding
-    int columnCount = serviceBlockPacket.readBits(6);
+    captionChannelPacketData.skipBits(2); // null padding
+    int columnCount = captionChannelPacketData.readBits(6);
     // sixth byte
-    serviceBlockPacket.skipBits(2); // null padding
-    int windowStyle = serviceBlockPacket.readBits(3);
-    int penStyle = serviceBlockPacket.readBits(3);
+    captionChannelPacketData.skipBits(2); // null padding
+    int windowStyle = captionChannelPacketData.readBits(3);
+    int penStyle = captionChannelPacketData.readBits(3);
 
     cueInfoBuilder.defineWindow(
         visible,
