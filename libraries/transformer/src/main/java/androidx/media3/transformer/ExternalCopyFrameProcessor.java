@@ -74,7 +74,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     glProgram.setBufferAttribute(
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setBufferAttribute(
-        "aTexCoords", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aTexSamplingCoord", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     if (enableExperimentalHdrEditing) {
       // In HDR editing mode the decoder output is sampled in YUV.
       glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);

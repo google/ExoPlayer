@@ -24,10 +24,10 @@
 precision mediump float;
 uniform __samplerExternal2DY2YEXT uTexSampler;
 uniform mat3 uColorTransform;
-in vec2 vTexCoords;
+in vec2 vTexSamplingCoord;
 out vec4 outColor;
 void main() {
-  vec3 srcYuv = texture(uTexSampler, vTexCoords).xyz;
+  vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
   vec3 yuvOffset;
   yuvOffset.x = srcYuv.r - 0.0625;
   yuvOffset.y = srcYuv.g - 0.5;
