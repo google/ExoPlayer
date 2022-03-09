@@ -15,20 +15,8 @@
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
-*   Audio:
-    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
-        HLS.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
-    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
-        order for streams containing both v0 and v1 emsg atoms
-        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
-*   Text:
-    *   Fix the interaction of `SingleSampleMediaSource.Factory.setTrackId` and
-        `MediaItem.SubtitleConfiguration.Builder.setId` to prioritise the
-        `SubtitleConfiguration` field and fall back to the `Factory` value if
-        it's not set
-        ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
 *   UI:
     *   Rewrite `TrackSelectionView` and `TrackSelectionDialogBuilder` to work
         with the `Player` interface rather than `ExoPlayer`. This allows the
@@ -38,8 +26,6 @@
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
-*   Ad playback:
-    *   Fix audio underruns between ad periods in live HLS SSAI streams.
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
@@ -53,6 +39,27 @@
         `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
         `getDefaultTrackSelectorParameters(Context)` instead when possible, and
         `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
+
+### 2.17.1 (2022-03-10)
+
+This release corresponds to the
+[AndroidX media3 1.0.0-alpha03 release](https://github.com/androidx/media/releases/tag/1.0.0-alpha03).
+
+*   Audio:
+    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
+        HLS.
+*   Extractors:
+    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
+        order for streams containing both v0 and v1 emsg atoms
+        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
+*   Text:
+    *   Fix the interaction of `SingleSampleMediaSource.Factory.setTrackId` and
+        `MediaItem.SubtitleConfiguration.Builder.setId` to prioritise the
+        `SubtitleConfiguration` field and fall back to the `Factory` value if
+        it's not set
+        ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
+*   Ad playback:
+    *   Fix audio underruns between ad periods in live HLS SSAI streams.
 
 ### 2.17.0 (2022-02-24)
 
