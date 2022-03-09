@@ -1,6 +1,9 @@
 # Release notes
 
-### dev-v2 (not yet released)
+### 2.17.1 (2022-03-10)
+
+This release corresponds to the
+[AndroidX media3 1.0.0-alpha03 release](https://github.com/androidx/media/releases/tag/1.0.0-alpha03).
 
 *   Audio:
     *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
