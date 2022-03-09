@@ -122,7 +122,6 @@ public final class TransformationRequest {
      *
      * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
-     * @throws IllegalArgumentException If the {@code outputHeight} is not supported.
      */
     public Builder setResolution(int outputHeight) {
       // TODO(b/201293185): Restructure to input a Presentation class.
