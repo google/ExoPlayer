@@ -325,23 +325,31 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       @Override
       public Bundle toBundle() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable(keyForField(FIELD_AD_PLAYBACK_STATES), adPlaybackStates);
+        Bundle adPlaybackStatesBundle = new Bundle();
+        for (Map.Entry<String, AdPlaybackState> entry : adPlaybackStates.entrySet()) {
+          adPlaybackStatesBundle.putBundle(entry.getKey(), entry.getValue().toBundle());
+        }
+        bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATES), adPlaybackStatesBundle);
         return bundle;
       }
 
       /** Object that can restore {@link AdsLoader.State} from a {@link Bundle}. */
       public static final Bundleable.Creator<State> CREATOR = State::fromBundle;
 
-      @SuppressWarnings("unchecked")
       private static State fromBundle(Bundle bundle) {
         @Nullable
-        Map<String, AdPlaybackState> adPlaybackStateMap =
-            (Map<String, AdPlaybackState>)
-                bundle.getSerializable(keyForField(FIELD_AD_PLAYBACK_STATES));
-        return new State(
-            adPlaybackStateMap != null
-                ? ImmutableMap.copyOf(adPlaybackStateMap)
-                : ImmutableMap.of());
+        ImmutableMap.Builder<String, AdPlaybackState> adPlaybackStateMap =
+            new ImmutableMap.Builder<>();
+        Bundle adPlaybackStateBundle =
+            checkNotNull(bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATES)));
+        for (String key : adPlaybackStateBundle.keySet()) {
+          AdPlaybackState adPlaybackState =
+              AdPlaybackState.CREATOR.fromBundle(
+                  checkNotNull(adPlaybackStateBundle.getBundle(key)));
+          adPlaybackStateMap.put(
+              key, AdPlaybackState.fromAdPlaybackState(/* adsId= */ key, adPlaybackState));
+        }
+        return new State(adPlaybackStateMap.buildOrThrow());
       }
 
       private static String keyForField(@FieldNumber int field) {
