@@ -1,6 +1,27 @@
 # Release notes
 
-### 1.0.0-alpha02 (2022-03-09)
+### 1.0.0-alpha03 (2022-03-14)
+
+This release corresponds to the
+[ExoPlayer 2.17.1 release](https://github.com/google/ExoPlayer/releases/tag/r2.17.1).
+
+*   Audio:
+    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
+        HLS.
+*   Extractors:
+    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
+        order for streams containing both v0 and v1 emsg atoms
+        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
+*   Text:
+    *   Fix the interaction of `SingleSampleMediaSource.Factory.setTrackId` and
+        `MediaItem.SubtitleConfiguration.Builder.setId` to prioritise the
+        `SubtitleConfiguration` field and fall back to the `Factory` value if
+        it's not set
+        ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
+*   Ad playback:
+    *   Fix audio underruns between ad periods in live HLS SSAI streams.
+
+### 1.0.0-alpha02 (2022-03-02)
 
 This release corresponds to the
 [ExoPlayer 2.17.0 release](https://github.com/google/ExoPlayer/releases/tag/r2.17.0).
