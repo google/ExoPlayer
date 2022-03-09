@@ -923,7 +923,8 @@ import com.google.common.collect.ImmutableList;
             : endPositionUs;
     if (durationUs != C.TIME_UNSET && startPositionUs >= durationUs) {
       // Ensure start position doesn't exceed duration.
-      startPositionUs = max(0, durationUs - 1);
+      boolean endAtLastFrame = isLastInTimeline || !clipPeriodAtContentDuration;
+      startPositionUs = max(0, durationUs - (endAtLastFrame ? 1 : 0));
     }
     return new MediaPeriodInfo(
         id,
