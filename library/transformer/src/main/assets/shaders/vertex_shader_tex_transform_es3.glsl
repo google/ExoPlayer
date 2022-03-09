@@ -18,10 +18,10 @@
 // locations.
 
 in vec4 aFramePosition;
-in vec4 aTexCoords;
+in vec4 aTexSamplingCoord;
 uniform mat4 uTexTransform;
-out vec2 vTexCoords;
+out vec2 vTexSamplingCoord;
 void main() {
   gl_Position = aFramePosition;
-  vTexCoords = (uTexTransform * aTexCoords).xy;
+  vTexSamplingCoord = (uTexTransform * aTexSamplingCoord).xy;
 }

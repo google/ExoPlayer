@@ -101,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     glProgram.setBufferAttribute(
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setBufferAttribute(
-        "aTexCoords", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aTexSamplingCoord", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setFloatsUniform("uTransformationMatrix", getGlMatrixArray(transformationMatrix));
   }
 
