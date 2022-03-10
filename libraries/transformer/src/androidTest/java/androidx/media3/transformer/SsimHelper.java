@@ -225,7 +225,7 @@ public final class SsimHelper {
 
     private boolean isCurrentFrameComparisonFrame;
     private boolean hasReadEndOfInputStream;
-    private boolean queuedEndOfStreamToEncoder;
+    private boolean queuedEndOfStreamToDecoder;
     private boolean dequeuedAllDecodedFrames;
     private int dequeuedFramesCount;
 
@@ -299,7 +299,7 @@ public final class SsimHelper {
     public boolean runUntilComparisonFrameOrEnded() {
       while (!hasEnded() && !isCurrentFrameComparisonFrame) {
         while (dequeueOneFrameFromDecoder()) {}
-        while (queueOneFrameToEncoder()) {}
+        while (queueOneFrameToDecoder()) {}
       }
       if (isCurrentFrameComparisonFrame) {
         isCurrentFrameComparisonFrame = false;
@@ -310,12 +310,12 @@ public final class SsimHelper {
 
     /** Returns whether decoding has ended. */
     public boolean hasEnded() {
-      return queuedEndOfStreamToEncoder && dequeuedAllDecodedFrames;
+      return queuedEndOfStreamToDecoder && dequeuedAllDecodedFrames;
     }
 
     /** Returns whether a frame is queued to the {@link MediaCodec decoder}. */
-    private boolean queueOneFrameToEncoder() {
-      if (queuedEndOfStreamToEncoder) {
+    private boolean queueOneFrameToDecoder() {
+      if (queuedEndOfStreamToDecoder) {
         return false;
       }
 
@@ -331,7 +331,7 @@ public final class SsimHelper {
             /* size= */ 0,
             /* presentationTimeUs= */ 0,
             MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        queuedEndOfStreamToEncoder = true;
+        queuedEndOfStreamToDecoder = true;
         return false;
       }
 
