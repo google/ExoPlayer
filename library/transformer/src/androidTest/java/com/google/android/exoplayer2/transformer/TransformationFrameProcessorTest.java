@@ -94,10 +94,10 @@ public final class TransformationFrameProcessorTest {
     Matrix identityMatrix = new Matrix();
     transformationFrameProcessor =
         new TransformationFrameProcessor(getApplicationContext(), identityMatrix);
-    transformationFrameProcessor.initialize();
+    transformationFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    transformationFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -117,11 +117,11 @@ public final class TransformationFrameProcessorTest {
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     transformationFrameProcessor =
         new TransformationFrameProcessor(getApplicationContext(), translateRightMatrix);
-    transformationFrameProcessor.initialize();
+    transformationFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    transformationFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -141,11 +141,11 @@ public final class TransformationFrameProcessorTest {
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     transformationFrameProcessor =
         new TransformationFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
-    transformationFrameProcessor.initialize();
+    transformationFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    transformationFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -168,10 +168,10 @@ public final class TransformationFrameProcessorTest {
     rotate90Matrix.postRotate(/* degrees= */ 90);
     transformationFrameProcessor =
         new TransformationFrameProcessor(getApplicationContext(), rotate90Matrix);
-    transformationFrameProcessor.initialize();
+    transformationFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    transformationFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
