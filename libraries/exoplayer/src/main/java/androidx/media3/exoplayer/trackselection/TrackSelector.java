@@ -18,7 +18,6 @@ package androidx.media3.exoplayer.trackselection;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;

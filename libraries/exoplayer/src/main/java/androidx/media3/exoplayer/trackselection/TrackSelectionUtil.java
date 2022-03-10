@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.TracksInfo.TrackGroupInfo;
 import androidx.media3.common.util.UnstableApi;
