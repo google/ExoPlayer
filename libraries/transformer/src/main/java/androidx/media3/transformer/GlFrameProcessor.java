@@ -28,19 +28,20 @@ import java.io.IOException;
    *
    * <p>This method may only be called after creating the OpenGL context and focusing a render
    * target.
+   *
+   * @param inputTexId The identifier of an OpenGL texture that the fragment shader can sample from.
    */
-  void initialize() throws IOException;
+  void initialize(int inputTexId) throws IOException;
 
   /**
    * Updates the shader program's vertex attributes and uniforms, binds them, and draws.
    *
-   * <p>The frame processor must be {@link #initialize() initialized}. The caller is responsible for
-   * focussing the correct render target before calling this method.
+   * <p>The frame processor must be {@link #initialize(int) initialized}. The caller is responsible
+   * for focussing the correct render target before calling this method.
    *
-   * @param inputTexId The identifier of an OpenGL texture that the fragment shader can sample from.
    * @param presentationTimeNs The presentation timestamp of the current frame, in nanoseconds.
    */
-  void updateProgramAndDraw(int inputTexId, long presentationTimeNs);
+  void updateProgramAndDraw(long presentationTimeNs);
 
   /** Releases all resources. */
   void release();

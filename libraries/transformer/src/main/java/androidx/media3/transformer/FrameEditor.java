@@ -183,10 +183,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
     int inputExternalTexId = GlUtil.createExternalTexture();
+    externalCopyFrameProcessor.initialize(inputExternalTexId);
     int intermediateTexId = GlUtil.createTexture(outputWidth, outputHeight);
     int frameBuffer = GlUtil.createFboForTexture(intermediateTexId);
-    externalCopyFrameProcessor.initialize();
-    transformationFrameProcessor.initialize();
+    transformationFrameProcessor.initialize(intermediateTexId);
 
     return new FrameEditor(
         singleThreadExecutorService,
@@ -196,7 +196,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         externalCopyFrameProcessor,
         transformationFrameProcessor,
         inputExternalTexId,
-        intermediateTexId,
         frameBuffer,
         outputWidth,
         outputHeight,
@@ -228,11 +227,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final float[] textureTransformMatrix;
 
   /**
-   * Identifier of the texture where the output of the {@link ExternalCopyFrameProcessor} is written
-   * to and the {@link TransformationFrameProcessor} reads its input from.
+   * Identifier of a framebuffer object associated with the intermediate texture that the output of
+   * the {@link ExternalCopyFrameProcessor} is written to and the {@link
+   * TransformationFrameProcessor} reads its input from.
    */
-  private final int intermediateTexId;
-  /** Identifier of a framebuffer object associated with the intermediate texture. */
   private final int frameBuffer;
 
   private final int outputWidth;
@@ -255,7 +253,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       ExternalCopyFrameProcessor externalCopyFrameProcessor,
       GlFrameProcessor transformationFrameProcessor,
       int inputExternalTexId,
-      int intermediateTexId,
       int frameBuffer,
       int outputWidth,
       int outputHeight,
@@ -269,7 +266,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.externalCopyFrameProcessor = externalCopyFrameProcessor;
     this.transformationFrameProcessor = transformationFrameProcessor;
     this.inputExternalTexId = inputExternalTexId;
-    this.intermediateTexId = intermediateTexId;
     this.frameBuffer = frameBuffer;
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
@@ -402,10 +398,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     GlUtil.focusFramebuffer(
         eglDisplay, eglContext, eglSurface, frameBuffer, outputWidth, outputHeight);
     externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    externalCopyFrameProcessor.updateProgramAndDraw(inputExternalTexId, presentationTimeNs);
+    externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeNs);
 
     GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-    transformationFrameProcessor.updateProgramAndDraw(intermediateTexId, presentationTimeNs);
+    transformationFrameProcessor.updateProgramAndDraw(presentationTimeNs);
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);
 
