@@ -1,45 +1,5 @@
 # Release notes
 
-### dev-v2 (not yet released)
-
-*   Core library:
-    *   Enable support for Android platform diagnostics via
-        `MediaMetricsManager`. ExoPlayer will forward playback events and
-        performance data to the platform, which helps to provide system
-        performance and debugging information on the device. This data may also
-        be collected by Google
-        [if sharing usage and diagnostics data is enabled](https://support.google.com/accounts/answer/6078260)
-        by the user of the device. Apps can opt-out of contributing to platform
-        diagnostics for ExoPlayer with
-        `ExoPlayer.Builder.setUsePlatformDiagnostics(false)`.
-*   Track selection:
-    *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
-        and promote `TrackSelectionOverride` to a top level class.
-*   Extractors:
-    *   Matroska: Parse `DiscardPadding` for Opus tracks.
-*   UI:
-    *   Rewrite `TrackSelectionView` and `TrackSelectionDialogBuilder` to work
-        with the `Player` interface rather than `ExoPlayer`. This allows the
-        views to be used with other `Player` implementations, and removes the
-        dependency from the UI module to the ExoPlayer module. This is a
-        breaking change.
-*   RTSP:
-    *   Add RTP reader for HEVC
-        ([#36](https://github.com/androidx/media/pull/36)).
-*   Remove deprecated symbols:
-    *   Remove `Player.Listener.onTracksChanged`. Use
-        `Player.Listener.onTracksInfoChanged` instead.
-    *   Remove `Player.getCurrentTrackGroups` and
-        `Player.getCurrentTrackSelections`. Use `Player.getCurrentTracksInfo`
-        instead. You can also continue to use `ExoPlayer.getCurrentTrackGroups`
-        and `ExoPlayer.getCurrentTrackSelections`, although these methods remain
-        deprecated.
-    *   Remove `DownloadHelper`
-        `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT` and
-        `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
-        `getDefaultTrackSelectorParameters(Context)` instead when possible, and
-        `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
-
 ### 2.17.1 (2022-03-10)
 
 This release corresponds to the
