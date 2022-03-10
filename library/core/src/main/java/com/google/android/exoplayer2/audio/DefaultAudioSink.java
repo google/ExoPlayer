@@ -1730,8 +1730,11 @@ public final class DefaultAudioSink implements AudioSink {
       // the channel count for this encoding, but before then there is no way to query it so we
       // assume 6 channel audio is supported.
       if (Util.SDK_INT >= 29) {
+        // Default to 48 kHz if the format doesn't have a sample rate (for example, for chunkless
+        // HLS preparation). See [Internal: b/222127949].
+        int sampleRate = format.sampleRate != Format.NO_VALUE ? format.sampleRate : 48000;
         channelCount =
-            getMaxSupportedChannelCountForPassthroughV29(C.ENCODING_E_AC3_JOC, format.sampleRate);
+            getMaxSupportedChannelCountForPassthroughV29(C.ENCODING_E_AC3_JOC, sampleRate);
         if (channelCount == 0) {
           Log.w(TAG, "E-AC3 JOC encoding supported but no channel count supported");
           return null;

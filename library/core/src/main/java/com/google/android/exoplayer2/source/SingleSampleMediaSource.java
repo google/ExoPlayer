@@ -72,11 +72,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets an optional track id to be used.
-     *
-     * @param trackId An optional track id.
-     * @return This factory, for convenience.
+     * @deprecated Use {@link MediaItem.SubtitleConfiguration.Builder#setId(String)} instead (on the
+     *     {@link MediaItem.SubtitleConfiguration} passed to {@link
+     *     #createMediaSource(MediaItem.SubtitleConfiguration, long)}). {@code trackId} will only be
+     *     used if {@link MediaItem.SubtitleConfiguration#id} is {@code null}.
      */
+    @Deprecated
     public Factory setTrackId(@Nullable String trackId) {
       this.trackId = trackId;
       return this;
@@ -155,29 +156,28 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     this.durationUs = durationUs;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    mediaItem =
+    this.mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
             .setMediaId(subtitleConfiguration.uri.toString())
             .setSubtitleConfigurations(ImmutableList.of(subtitleConfiguration))
             .setTag(tag)
             .build();
-    format =
+    this.format =
         new Format.Builder()
-            .setId(trackId)
             .setSampleMimeType(firstNonNull(subtitleConfiguration.mimeType, MimeTypes.TEXT_UNKNOWN))
             .setLanguage(subtitleConfiguration.language)
             .setSelectionFlags(subtitleConfiguration.selectionFlags)
             .setRoleFlags(subtitleConfiguration.roleFlags)
             .setLabel(subtitleConfiguration.label)
-            .setId(subtitleConfiguration.id)
+            .setId(subtitleConfiguration.id != null ? subtitleConfiguration.id : trackId)
             .build();
-    dataSpec =
+    this.dataSpec =
         new DataSpec.Builder()
             .setUri(subtitleConfiguration.uri)
             .setFlags(DataSpec.FLAG_ALLOW_GZIP)
             .build();
-    timeline =
+    this.timeline =
         new SinglePeriodTimeline(
             durationUs,
             /* isSeekable= */ true,

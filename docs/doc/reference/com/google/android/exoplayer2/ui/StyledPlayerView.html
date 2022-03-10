@@ -231,21 +231,9 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
          <li>Corresponding method: <a href="#setKeepContentOnPlayerReset(boolean)"><code>setKeepContentOnPlayerReset(boolean)</code></a>
          <li>Default: <code>false</code>
        </ul>
-   <li><b><code>player_layout_id</code></b> - Specifies the id of the layout to be inflated. See below
-       for more details.
-       <ul>
-         <li>Corresponding method: None
-         <li>Default: <code>R.layout.exo_styled_player_view</code>
-       </ul>
-   <li><b><code>controller_layout_id</code></b> - Specifies the id of the layout resource to be
-       inflated by the child <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a>. See below for more details.
-       <ul>
-         <li>Corresponding method: None
-         <li>Default: <code>R.layout.exo_styled_player_control_view</code>
-       </ul>
    <li>All attributes that can be set on <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a> and <a href="DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> can also be set on a StyledPlayerView, and will be propagated to the
        inflated <a href="StyledPlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView</code></a> unless the layout is overridden to specify a
-       custom <code>exo_controller</code> (see below).
+       custom <code>exo_controller</code>.
  </ul>
 
  <h2>Overriding drawables</h2>

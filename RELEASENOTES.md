@@ -1,6 +1,30 @@
 # Release notes
 
+### 2.17.1 (2022-03-10)
+
+This release corresponds to the
+[AndroidX media3 1.0.0-alpha03 release](https://github.com/androidx/media/releases/tag/1.0.0-alpha03).
+
+*   Audio:
+    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
+        HLS.
+*   Extractors:
+    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
+        order for streams containing both v0 and v1 emsg atoms
+        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
+*   Text:
+    *   Fix the interaction of `SingleSampleMediaSource.Factory.setTrackId` and
+        `MediaItem.SubtitleConfiguration.Builder.setId` to prioritise the
+        `SubtitleConfiguration` field and fall back to the `Factory` value if
+        it's not set
+        ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
+*   Ad playback:
+    *   Fix audio underruns between ad periods in live HLS SSAI streams.
+
 ### 2.17.0 (2022-02-24)
+
+This release corresponds to the
+[AndroidX media3 1.0.0-alpha02 release](https://github.com/androidx/media/releases/tag/1.0.0-alpha02).
 
 *   Core library:
     *   Sleep and retry when creating a `MediaCodec` instance fails. This works
@@ -55,9 +79,9 @@
     *   Change `AudioCapabilities` APIs to require passing explicitly
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
     *   Allow customization of the `AudioTrack` buffer size calculation by
-        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`.
+        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`
         ([#8891](https://github.com/google/ExoPlayer/issues/8891)).
-    *   Retry `AudioTrack` creation if the requested buffer size was > 1MB.
+    *   Retry `AudioTrack` creation if the requested buffer size was > 1MB
         ([#9712](https://github.com/google/ExoPlayer/issues/9712)).
 *   Extractors:
     *   Fix incorrect parsing of H.265 SPS NAL units
@@ -159,38 +183,38 @@
         ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
 *   Remove deprecated symbols:
     *   Remove `Player.EventLister`. Use `Player.Listener` instead.
-    *   Remove `MediaSourceFactory#setDrmSessionManager`,
-        `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
-        `MediaSourceFactory#setDrmUserAgent`. Use
-        `MediaSourceFactory#setDrmSessionManagerProvider` instead.
-    *   Remove `MediaSourceFactory#setStreamKeys`. Use
-        `MediaItem.Builder#setStreamKeys` instead.
-    *   Remove `MediaSourceFactory#createMediaSource(Uri)`. Use
-        `MediaSourceFactory#createMediaSource(MediaItem)` instead.
+    *   Remove `MediaSourceFactory.setDrmSessionManager`,
+        `MediaSourceFactory.setDrmHttpDataSourceFactory`, and
+        `MediaSourceFactory.setDrmUserAgent`. Use
+        `MediaSourceFactory.setDrmSessionManagerProvider` instead.
+    *   Remove `MediaSourceFactory.setStreamKeys`. Use
+        `MediaItem.Builder.setStreamKeys` instead.
+    *   Remove `MediaSourceFactory.createMediaSource(Uri)`. Use
+        `MediaSourceFactory.createMediaSource(MediaItem)` instead.
     *   Remove `setTag` from `DashMediaSource`, `HlsMediaSource` and
-        `SsMediaSource`. Use `MediaItem.Builder#setTag` instead.
-    *   Remove `DashMediaSource#setLivePresentationDelayMs(long, boolean)`. Use
-        `MediaItem.Builder#setLiveConfiguration` and
-        `MediaItem.LiveConfiguration.Builder#setTargetOffsetMs` to override the
-        manifest, or `DashMediaSource#setFallbackTargetLiveOffsetMs` to provide
+        `SsMediaSource`. Use `MediaItem.Builder.setTag` instead.
+    *   Remove `DashMediaSource.setLivePresentationDelayMs(long, boolean)`. Use
+        `MediaItem.Builder.setLiveConfiguration` and
+        `MediaItem.LiveConfiguration.Builder.setTargetOffsetMs` to override the
+        manifest, or `DashMediaSource.setFallbackTargetLiveOffsetMs` to provide
         a fallback value.
     *   Remove `(Simple)ExoPlayer.setThrowsWhenUsingWrongThread`. Opting out of
         the thread enforcement is no longer possible.
     *   Remove `ActionFile` and `ActionFileUpgradeUtil`. Use ExoPlayer 2.16.1 or
         before to use `ActionFileUpgradeUtil` to merge legacy action files into
         `DefaultDownloadIndex`.
-    *   Remove `ProgressiveMediaSource#setExtractorsFactory`. Use
+    *   Remove `ProgressiveMediaSource.setExtractorsFactory`. Use
         `ProgressiveMediaSource.Factory(DataSource.Factory, ExtractorsFactory)`
         constructor instead.
-    *   Remove `ProgressiveMediaSource.Factory#setTag` and, and
-        `ProgressiveMediaSource.Factory#setCustomCacheKey`. Use
-        `MediaItem.Builder#setTag` and `MediaItem.Builder#setCustomCacheKey`
+    *   Remove `ProgressiveMediaSource.Factory.setTag` and
+        `ProgressiveMediaSource.Factory.setCustomCacheKey`. Use
+        `MediaItem.Builder.setTag` and `MediaItem.Builder.setCustomCacheKey`
         instead.
     *   Remove `DefaultRenderersFactory(Context, @ExtensionRendererMode int)`
         and `DefaultRenderersFactory(Context, @ExtensionRendererMode int, long)`
         constructors. Use the `DefaultRenderersFactory(Context)` constructor,
-        `DefaultRenderersFactory#setExtensionRendererMode`, and
-        `DefaultRenderersFactory#setAllowedVideoJoiningTimeMs` instead.
+        `DefaultRenderersFactory.setExtensionRendererMode`, and
+        `DefaultRenderersFactory.setAllowedVideoJoiningTimeMs` instead.
     *   Remove all public `CronetDataSource` constructors. Use
         `CronetDataSource.Factory` instead.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
