@@ -24,7 +24,6 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.dash.manifest.DashManifest;
 import androidx.media3.exoplayer.dash.manifest.DashManifestParser;
 import androidx.media3.exoplayer.dash.manifest.Period;
@@ -85,7 +84,7 @@ public final class DashUtil {
   /**
    * Loads a DASH manifest.
    *
-   * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
+   * @param dataSource The {@link DataSource} from which the manifest should be read.
    * @param uri The {@link Uri} of the manifest to be read.
    * @return An instance of {@link DashManifest}.
    * @throws IOException Thrown when there is an error while loading.
@@ -97,7 +96,7 @@ public final class DashUtil {
   /**
    * Loads a {@link Format} for acquiring keys for a given period in a DASH manifest.
    *
-   * @param dataSource The {@link HttpDataSource} from which data should be loaded.
+   * @param dataSource The {@link DataSource} from which data should be loaded.
    * @param period The {@link Period}.
    * @return The loaded {@link Format}, or null if none is defined.
    * @throws IOException Thrown when there is an error while loading.
