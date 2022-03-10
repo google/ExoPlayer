@@ -34,7 +34,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.FlagSet;
@@ -681,11 +680,12 @@ public interface Player {
     /**
      * Called when the combined {@link MediaMetadata} changes.
      *
-     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
-     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
-     * static or dynamic metadata.
+     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata
+     * MediaItem metadata}, the static metadata in the media's {@link Format#metadata Format}, and
+     * any timed metadata that has been parsed from the media and output via {@link
+     * Listener#onMetadata(Metadata)}. If a field is populated in the {@link
+     * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
+     * timed metadata.
      *
      * <p>This method may be called multiple times in quick succession.
      *
@@ -2105,11 +2105,11 @@ public interface Player {
    * Returns the current combined {@link MediaMetadata}, or {@link MediaMetadata#EMPTY} if not
    * supported.
    *
-   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in the {@link
-   * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
-   * dynamic metadata.
+   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata MediaItem
+   * metadata}, the static metadata in the media's {@link Format#metadata Format}, and any timed
+   * metadata that has been parsed from the media and output via {@link
+   * Listener#onMetadata(Metadata)}. If a field is populated in the {@link MediaItem#mediaMetadata},
+   * it will be prioritised above the same field coming from static or timed metadata.
    */
   MediaMetadata getMediaMetadata();
 

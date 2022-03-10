@@ -79,7 +79,7 @@ import com.google.android.exoplayer2.util.Util;
     PositionInfo oldPosition =
         new PositionInfo(
             windowUid,
-            /* windowIndex= */ 0,
+            /* mediaItemIndex= */ 0,
             mediaItem,
             periodUid,
             /* periodIndex= */ 0,
@@ -97,7 +97,7 @@ import com.google.android.exoplayer2.util.Util;
       PositionInfo newPosition =
           new PositionInfo(
               windowUid,
-              /* windowIndex= */ 0,
+              /* mediaItemIndex= */ 0,
               mediaItem,
               periodUid,
               /* periodIndex= */ 0,
@@ -128,7 +128,7 @@ import com.google.android.exoplayer2.util.Util;
     PositionInfo oldPosition =
         new PositionInfo(
             windowUid,
-            /* windowIndex= */ 0,
+            /* mediaItemIndex= */ 0,
             mediaItem,
             periodUid,
             /* periodIndex= */ 0,
@@ -146,7 +146,7 @@ import com.google.android.exoplayer2.util.Util;
       PositionInfo newPosition =
           new PositionInfo(
               windowUid,
-              /* windowIndex= */ 0,
+              /* mediaItemIndex= */ 0,
               mediaItem,
               periodUid,
               /* periodIndex= */ 0,
