@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.rtsp;
 
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
@@ -40,6 +41,10 @@ public final class RtpPayloadFormat {
   private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
+  private static final String RTP_MEDIA_PCM_L8 = "L8";
+  private static final String RTP_MEDIA_PCM_L16 = "L16";
+  private static final String RTP_MEDIA_PCMA = "PCMA";
+  private static final String RTP_MEDIA_PCMU = "PCMU";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
@@ -48,6 +53,10 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_PCM_L8:
+      case RTP_MEDIA_PCM_L16:
+      case RTP_MEDIA_PCMA:
+      case RTP_MEDIA_PCMU:
         return true;
       default:
         return false;
@@ -71,6 +80,33 @@ public final class RtpPayloadFormat {
         return MimeTypes.VIDEO_H265;
       case RTP_MEDIA_MPEG4_GENERIC:
         return MimeTypes.AUDIO_AAC;
+      case RTP_MEDIA_PCM_L8:
+      case RTP_MEDIA_PCM_L16:
+        return MimeTypes.AUDIO_RAW;
+      case RTP_MEDIA_PCMA:
+        return MimeTypes.AUDIO_ALAW;
+      case RTP_MEDIA_PCMU:
+        return MimeTypes.AUDIO_MLAW;
+      default:
+        throw new IllegalArgumentException(mediaType);
+    }
+  }
+
+  /**
+   * Gets the PCM Encoding type for RAW track that is associated with the RTP media type.
+   *
+   * <p>For instance, RTP media type "L8" maps to {@link C.PcmEncoding#ENCODING_PCM_8BIT}.
+   *
+   * @throws IllegalArgumentException When the media type is not supported/recognized.
+   */
+  public static int getPCMEncodingFromRtpMediaType(String mediaType) {
+    switch (mediaType) {
+      case RTP_MEDIA_PCM_L8:
+        // Refer to RFC3551#section-4.5.10
+        return C.ENCODING_PCM_8BIT;
+      case RTP_MEDIA_PCM_L16:
+        // Refer to RFC3551#section-4.5.11
+        return C.ENCODING_PCM_16BIT_BIG_ENDIAN;
       default:
         throw new IllegalArgumentException(mediaType);
     }

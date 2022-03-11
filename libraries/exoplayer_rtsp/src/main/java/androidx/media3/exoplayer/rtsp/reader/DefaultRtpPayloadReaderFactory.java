@@ -40,6 +40,10 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
         return new RtpH264Reader(payloadFormat);
       case MimeTypes.VIDEO_H265:
         return new RtpH265Reader(payloadFormat);
+      case MimeTypes.AUDIO_RAW:
+      case MimeTypes.AUDIO_ALAW:
+      case MimeTypes.AUDIO_MLAW:
+        return new RtpPCMReader(payloadFormat);
       default:
         // No supported reader, returning null.
     }

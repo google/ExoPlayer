@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.exoplayer.rtsp.MediaDescription.MEDIA_TYPE_AUDIO;
 import static androidx.media3.exoplayer.rtsp.RtpPayloadFormat.getMimeTypeFromRtpMediaType;
+import static androidx.media3.exoplayer.rtsp.RtpPayloadFormat.getPCMEncodingFromRtpMediaType;
 import static androidx.media3.exoplayer.rtsp.SessionDescription.ATTR_CONTROL;
 import static androidx.media3.extractor.NalUnitUtil.NAL_START_CODE;
 
@@ -129,8 +130,15 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(!fmtpParameters.isEmpty());
         processH265FmtpAttribute(formatBuilder, fmtpParameters);
         break;
+      case MimeTypes.AUDIO_RAW:
+        int pcmEncoding =
+            getPCMEncodingFromRtpMediaType(mediaDescription.rtpMapAttribute.mediaEncoding);
+        formatBuilder.setPcmEncoding(pcmEncoding);
+        break;
       case MimeTypes.AUDIO_AC3:
-        // AC3 does not require a FMTP attribute. Fall through.
+      case MimeTypes.AUDIO_ALAW:
+      case MimeTypes.AUDIO_MLAW:
+        // Does not require a FMTP attribute. Fall through.
       default:
         // Do nothing.
     }
