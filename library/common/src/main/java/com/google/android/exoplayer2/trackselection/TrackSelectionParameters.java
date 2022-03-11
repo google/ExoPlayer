@@ -98,6 +98,7 @@ public class TrackSelectionParameters implements Bundleable {
     private ImmutableList<String> preferredTextLanguages;
     private @C.RoleFlags int preferredTextRoleFlags;
     private boolean selectUndeterminedTextLanguage;
+    private @C.SelectionFlags int disabledTextTrackSelectionFlags;
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
@@ -130,6 +131,7 @@ public class TrackSelectionParameters implements Bundleable {
       preferredTextLanguages = ImmutableList.of();
       preferredTextRoleFlags = 0;
       selectUndeterminedTextLanguage = false;
+      disabledTextTrackSelectionFlags = 0;
       // General
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
@@ -231,6 +233,10 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE),
               DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage);
+      disabledTextTrackSelectionFlags = bundle.getInt(
+          keyForField(FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS),
+          DEFAULT_WITHOUT_CONTEXT.disabledTextTrackSelectionFlags);
+
       // General
       forceLowestBitrate =
           bundle.getBoolean(
@@ -264,7 +270,7 @@ public class TrackSelectionParameters implements Bundleable {
       "preferredAudioMimeTypes",
       "preferredTextLanguages",
       "overrides",
-      "disabledTrackTypes",
+      "disabledTrackTypes"
     })
     private void init(@UnknownInitialization Builder this, TrackSelectionParameters parameters) {
       // Video
@@ -291,6 +297,7 @@ public class TrackSelectionParameters implements Bundleable {
       preferredTextLanguages = parameters.preferredTextLanguages;
       preferredTextRoleFlags = parameters.preferredTextRoleFlags;
       selectUndeterminedTextLanguage = parameters.selectUndeterminedTextLanguage;
+      disabledTextTrackSelectionFlags = parameters.disabledTextTrackSelectionFlags;
       // General
       forceLowestBitrate = parameters.forceLowestBitrate;
       forceHighestSupportedBitrate = parameters.forceHighestSupportedBitrate;
@@ -757,6 +764,12 @@ public class TrackSelectionParameters implements Bundleable {
       }
       return listBuilder.build();
     }
+
+    public Builder setDisabledTextTrackSelectionFlags(
+        @C.SelectionFlags int disabledTextTrackSelectionFlags) {
+      this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
+      return this;
+    }
   }
 
   /**
@@ -924,6 +937,12 @@ public class TrackSelectionParameters implements Bundleable {
    */
   public final ImmutableSet<@C.TrackType Integer> disabledTrackTypes;
 
+  /**
+   * The track selectionFlags bitmap that are disabled. No track of a disabled selectionFlag will be selected,
+   * thus no track selectionFlag contained in the bitmap will be played. The default value is that no selectionFlag is disabled(0)
+   */
+  public final @C.SelectionFlags int disabledTextTrackSelectionFlags;
+
   protected TrackSelectionParameters(Builder builder) {
     // Video
     this.maxVideoWidth = builder.maxVideoWidth;
@@ -949,6 +968,7 @@ public class TrackSelectionParameters implements Bundleable {
     this.preferredTextLanguages = builder.preferredTextLanguages;
     this.preferredTextRoleFlags = builder.preferredTextRoleFlags;
     this.selectUndeterminedTextLanguage = builder.selectUndeterminedTextLanguage;
+    this.disabledTextTrackSelectionFlags = builder.disabledTextTrackSelectionFlags;
     // General
     this.forceLowestBitrate = builder.forceLowestBitrate;
     this.forceHighestSupportedBitrate = builder.forceHighestSupportedBitrate;
@@ -998,7 +1018,8 @@ public class TrackSelectionParameters implements Bundleable {
         && forceLowestBitrate == other.forceLowestBitrate
         && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
         && overrides.equals(other.overrides)
-        && disabledTrackTypes.equals(other.disabledTrackTypes);
+        && disabledTrackTypes.equals(other.disabledTrackTypes)
+        && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags;
   }
 
   @Override
@@ -1033,6 +1054,7 @@ public class TrackSelectionParameters implements Bundleable {
     result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
     result = 31 * result + overrides.hashCode();
     result = 31 * result + disabledTrackTypes.hashCode();
+    result = 31 * result + disabledTextTrackSelectionFlags;
     return result;
   }
 
@@ -1065,7 +1087,8 @@ public class TrackSelectionParameters implements Bundleable {
     FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
     FIELD_SELECTION_OVERRIDES,
     FIELD_DISABLED_TRACK_TYPE,
-    FIELD_PREFERRED_VIDEO_ROLE_FLAGS
+    FIELD_PREFERRED_VIDEO_ROLE_FLAGS,
+    FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS
   })
   private @interface FieldNumber {}
 
@@ -1094,6 +1117,7 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_SELECTION_OVERRIDES = 23;
   private static final int FIELD_DISABLED_TRACK_TYPE = 24;
   private static final int FIELD_PREFERRED_VIDEO_ROLE_FLAGS = 25;
+  private static final int FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS = 26;
 
   @Override
   public Bundle toBundle() {
@@ -1139,6 +1163,7 @@ public class TrackSelectionParameters implements Bundleable {
     bundle.putParcelableArrayList(
         keyForField(FIELD_SELECTION_OVERRIDES), toBundleArrayList(overrides.values()));
     bundle.putIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE), Ints.toArray(disabledTrackTypes));
+    bundle.putInt(keyForField(disabledTextTrackSelectionFlags), disabledTextTrackSelectionFlags);
 
     return bundle;
   }

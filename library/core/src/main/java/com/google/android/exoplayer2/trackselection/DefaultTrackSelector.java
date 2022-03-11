@@ -573,6 +573,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setDisabledTextTrackSelectionFlags(
         @C.SelectionFlags int disabledTextTrackSelectionFlags) {
+      super.setDisabledTextTrackSelectionFlags(disabledTextTrackSelectionFlags);
       this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
       return this;
     }
