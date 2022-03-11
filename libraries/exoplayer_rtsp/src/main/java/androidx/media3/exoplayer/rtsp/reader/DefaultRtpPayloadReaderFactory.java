@@ -43,7 +43,7 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
       case MimeTypes.AUDIO_RAW:
       case MimeTypes.AUDIO_ALAW:
       case MimeTypes.AUDIO_MLAW:
-        return new RtpPCMReader(payloadFormat);
+        return new RtpPcmReader(payloadFormat);
       default:
         // No supported reader, returning null.
     }

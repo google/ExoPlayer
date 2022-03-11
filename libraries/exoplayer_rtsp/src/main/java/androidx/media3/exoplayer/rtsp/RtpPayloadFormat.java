@@ -93,22 +93,23 @@ public final class RtpPayloadFormat {
   }
 
   /**
-   * Gets the PCM Encoding type for RAW track that is associated with the RTP media type.
+   * Gets the PCM Encoding type for audio encoding of track.
    *
-   * <p>For instance, RTP media type "L8" maps to {@link C.PcmEncoding#ENCODING_PCM_8BIT}.
+   * <p>For instance, Audio encoding "L8" has 8 bits/sample and thus maps to
+   * {@link C.PcmEncoding#ENCODING_PCM_8BIT}. Refer to RFC3551 Section 4.5 Table 1.
    *
-   * @throws IllegalArgumentException When the media type is not supported/recognized.
+   * @throws IllegalArgumentException When the audio encoding is not supported/recognized.
    */
-  public static int getPCMEncodingFromRtpMediaType(String mediaType) {
-    switch (mediaType) {
+  public static int getPcmEncodingFromAudioEncoding(String mediaEncoding) {
+    switch (mediaEncoding) {
       case RTP_MEDIA_PCM_L8:
-        // Refer to RFC3551#section-4.5.10
+        // Refer to RFC3551 Section 4.5.10
         return C.ENCODING_PCM_8BIT;
       case RTP_MEDIA_PCM_L16:
-        // Refer to RFC3551#section-4.5.11
+        // Refer to RFC3551 Section 4.5.11
         return C.ENCODING_PCM_16BIT_BIG_ENDIAN;
       default:
-        throw new IllegalArgumentException(mediaType);
+        throw new IllegalArgumentException("Unsupported RAW Audio Encoding " + mediaEncoding);
     }
   }
 

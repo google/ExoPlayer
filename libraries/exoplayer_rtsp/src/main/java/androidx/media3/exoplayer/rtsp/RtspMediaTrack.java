@@ -20,7 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.exoplayer.rtsp.MediaDescription.MEDIA_TYPE_AUDIO;
 import static androidx.media3.exoplayer.rtsp.RtpPayloadFormat.getMimeTypeFromRtpMediaType;
-import static androidx.media3.exoplayer.rtsp.RtpPayloadFormat.getPCMEncodingFromRtpMediaType;
+import static androidx.media3.exoplayer.rtsp.RtpPayloadFormat.getPcmEncodingFromAudioEncoding;
 import static androidx.media3.exoplayer.rtsp.SessionDescription.ATTR_CONTROL;
 import static androidx.media3.extractor.NalUnitUtil.NAL_START_CODE;
 
@@ -103,8 +103,9 @@ import com.google.common.collect.ImmutableMap;
     }
 
     int rtpPayloadType = mediaDescription.rtpMapAttribute.payloadType;
+    String mediaEncoding = mediaDescription.rtpMapAttribute.mediaEncoding;
 
-    String mimeType = getMimeTypeFromRtpMediaType(mediaDescription.rtpMapAttribute.mediaEncoding);
+    String mimeType = getMimeTypeFromRtpMediaType(mediaEncoding);
     formatBuilder.setSampleMimeType(mimeType);
 
     int clockRate = mediaDescription.rtpMapAttribute.clockRate;
@@ -131,8 +132,7 @@ import com.google.common.collect.ImmutableMap;
         processH265FmtpAttribute(formatBuilder, fmtpParameters);
         break;
       case MimeTypes.AUDIO_RAW:
-        int pcmEncoding =
-            getPCMEncodingFromRtpMediaType(mediaDescription.rtpMapAttribute.mediaEncoding);
+        int pcmEncoding = getPcmEncodingFromAudioEncoding(mediaEncoding);
         formatBuilder.setPcmEncoding(pcmEncoding);
         break;
       case MimeTypes.AUDIO_AC3:

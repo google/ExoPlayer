@@ -29,16 +29,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Parses byte stream carried on RTP packets, and extracts PCM frames. Refer to RFC3551 for more
  * details.
  */
-/* package */ public final class RtpPCMReader implements RtpPayloadReader {
+/* package */ public final class RtpPcmReader implements RtpPayloadReader {
 
   private final RtpPayloadFormat payloadFormat;
   private @MonotonicNonNull TrackOutput trackOutput;
   private long firstReceivedTimestamp;
   private long startTimeOffsetUs;
 
-  public RtpPCMReader(RtpPayloadFormat payloadFormat) {
+  public RtpPcmReader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
+    startTimeOffsetUs = 0;
   }
 
   @Override
@@ -62,9 +63,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     trackOutput.sampleData(data, size);
     trackOutput
         .sampleMetadata(
-            /* timeUs= */ sampleTimeUs,
-            /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
-            /* size= */ size,
+            sampleTimeUs,
+            C.BUFFER_FLAG_KEY_FRAME,
+            size,
             /* offset= */ 0,
             /* cryptoData= */ null);
   }
