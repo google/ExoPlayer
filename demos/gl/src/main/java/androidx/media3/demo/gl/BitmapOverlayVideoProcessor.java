@@ -119,8 +119,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Run the shader program.
     GlProgram program = checkNotNull(this.program);
-    program.setSamplerTexIdUniform("uTexSampler0", frameTexture, /* unit= */ 0);
-    program.setSamplerTexIdUniform("uTexSampler1", textures[0], /* unit= */ 1);
+    program.setSamplerTexIdUniform("uTexSampler0", frameTexture, /* texUnitIndex= */ 0);
+    program.setSamplerTexIdUniform("uTexSampler1", textures[0], /* texUnitIndex= */ 1);
     program.setFloatUniform("uScaleX", bitmapScaleX);
     program.setFloatUniform("uScaleY", bitmapScaleY);
     program.setFloatsUniform("uTexTransform", transformMatrix);

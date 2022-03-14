@@ -70,7 +70,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
     glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* unit= */ 0);
+    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
