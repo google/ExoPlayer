@@ -18,6 +18,16 @@
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
 *   UI:
+    *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
+        `LegacyPlayerView`, in the case that `useController=false`
+        ([#9605](https://github.com/google/ExoPlayer/issues/9605)). Also fix
+        delivery of events to `OnLongClickListener` for all view configurations.
+    *   Fix incorrectly treating a sequence of touch events that exit the bounds
+        of `PlayerView` and `LegacyPlayerView` before `ACTION_UP` as a click
+        ([#9861](https://github.com/google/ExoPlayer/issues/9861)).
+    *   Fix `PlayerView` accessibility issue where it was not possible to
+        tapping would toggle playback rather than hiding the controls
+        ([#8627](https://github.com/google/ExoPlayer/issues/8627)).
     *   Rewrite `TrackSelectionView` and `TrackSelectionDialogBuilder` to work
         with the `Player` interface rather than `ExoPlayer`. This allows the
         views to be used with other `Player` implementations, and removes the
