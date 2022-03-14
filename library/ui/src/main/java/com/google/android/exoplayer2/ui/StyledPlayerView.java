@@ -432,6 +432,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       controller.hideImmediately();
       controller.addVisibilityListener(/* listener= */ componentListener);
     }
+    if (useController) {
+      setClickable(true);
+    }
     updateContentDescription();
   }
 
@@ -596,10 +599,14 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
    * Sets whether the playback controls can be shown. If set to {@code false} the playback controls
    * are never visible and are disconnected from the player.
    *
+   * <p>This call will update whether the view is clickable. After the call, the view will be
+   * clickable if playback controls can be shown or if the view has a registered click listener.
+   *
    * @param useController Whether the playback controls can be shown.
    */
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
+    setClickable(useController || hasOnClickListeners());
     if (this.useController == useController) {
       return;
     }
@@ -1019,29 +1026,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   @Override
-  public boolean onTouchEvent(MotionEvent event) {
-    if (!useController() || player == null) {
-      return false;
-    }
-    switch (event.getAction()) {
-      case MotionEvent.ACTION_DOWN:
-        isTouching = true;
-        return true;
-      case MotionEvent.ACTION_UP:
-        if (isTouching) {
-          isTouching = false;
-          return performClick();
-        }
-        return false;
-      default:
-        return false;
-    }
-  }
-
-  @Override
   public boolean performClick() {
-    super.performClick();
-    return toggleControllerVisibility();
+    toggleControllerVisibility();
+    return super.performClick();
   }
 
   @Override
@@ -1137,18 +1124,15 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     return false;
   }
 
-  private boolean toggleControllerVisibility() {
+  private void toggleControllerVisibility() {
     if (!useController() || player == null) {
-      return false;
+      return;
     }
     if (!controller.isFullyVisible()) {
       maybeShowController(true);
-      return true;
     } else if (controllerHideOnTouch) {
       controller.hide();
-      return true;
     }
-    return false;
   }
 
   /** Shows the playback controls, but only if forced or shown indefinitely. */
