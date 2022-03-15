@@ -99,6 +99,13 @@ MediaSource.Factory mediaSourceFactory =
 ~~~
 {: .language-java}
 
+### Improving playback performance ###
+
+If you're experiencing video stuttering (dropped frames and/or audio underruns)
+with Widevide-protected content on a device with Android version prior to 12,
+you can try [enabling asynchronous buffer queueing].
+
 [main demo app]: {{ site.release_v2 }}/demos/main
 [`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html
 [used when building the player]: {{ site.baseurl }}/media-sources.html#customizing-media-source-creation
+[enabling asynchronous buffer queueing]: {{ site.baseurl }}/customization.html#enabling-asynchronous-buffer-queueing

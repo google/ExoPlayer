@@ -206,6 +206,38 @@ DefaultExtractorsFactory extractorsFactory =
 The `ExtractorsFactory` can then be injected via `DefaultMediaSourceFactory` as
 described for customizing extractor flags above.
 
+
+### Enabling asynchronous buffer queueing ###
+
+Asynchronous buffer queueing is an enhancement in ExoPlayer's rendering pipeline
+that improves dropped frames and audio underruns. With asynchronous buffer
+queueing, the player is operating the platform's `MediaCodec` in [asynchronous
+mode][], thus the feature is applicable when content is decoded using the
+platform decoders. The player also utilizes additional threads for scheduling
+decoding and rendering of data.
+
+The feature is enabled by default on devices with Android 12 onwards and you can
+also enable it in your app for other devices too. For example, consider enabling
+asynchronous buffer queueing if you observe dropped frames or audio underruns on
+specific devices, particularly with Widevine-protected or high frame-rate
+content.
+
+In the simplest case, you need to inject a `DefaultRenderersFactory` to the
+player as follows:
+
+~~~
+DefaultRenderersFactory renderersFactory =
+    new DefaultRenderersFactory(context)
+        .forceEnableMediaCodecAsynchronousQueueing();
+ExoPlayer exoPlayer = new ExoPlayer.Builder(context, renderersFactory).build();
+~~~
+{: .language-java}
+
+If however in your app you are instantiating the player with custom renderers,
+then make sure to create the `MediaCodecVideoRenderer` and
+`MediaCodecAudioRenderer` instances passing an
+`AsynchronousMediaCodecAdapter.Factory` to their constructor.
+
 ## MediaSource customization ##
 
 The examples above inject customized components for use during playback of all
@@ -274,4 +306,5 @@ When building custom components, we recommend the following:
 [OkHttp extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/okhttp
 [LoadErrorHandlingPolicy]: {{ site.exo_sdk }}/upstream/LoadErrorHandlingPolicy.html
 [media source based playlist API]: {{ site.baseurl }}/media-sources.html#media-source-based-playlist-api
+[asynchronous mode]: https://developer.android.com/reference/android/media/MediaCodec#asynchronous-processing-using-buffers
 
