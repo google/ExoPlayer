@@ -152,7 +152,7 @@ import org.checkerframework.dataflow.qual.Pure;
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
             transformationRequest,
-            /* resolutionIsHeight= */ !swapEncodingDimensions,
+            /* hasOutputFormatRotation= */ swapEncodingDimensions,
             requestedEncoderFormat,
             encoderSupportedFormat));
 
@@ -301,23 +301,33 @@ import org.checkerframework.dataflow.qual.Pure;
     encoder.release();
   }
 
+  /**
+   * Creates a fallback transformation request to execute, based on device-specific support.
+   *
+   * @param transformationRequest The requested transformation.
+   * @param hasOutputFormatRotation Whether the input video will be rotated to landscape during
+   *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
+   * @param requestedFormat The requested format.
+   * @param supportedFormat A format supported by the device.
+   */
   @Pure
   private static TransformationRequest createFallbackTransformationRequest(
       TransformationRequest transformationRequest,
-      boolean resolutionIsHeight,
+      boolean hasOutputFormatRotation,
       Format requestedFormat,
-      Format actualFormat) {
+      Format supportedFormat) {
     // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
     // implemented.
-    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)
-        && ((!resolutionIsHeight && requestedFormat.width == actualFormat.width)
-            || (resolutionIsHeight && requestedFormat.height == actualFormat.height))) {
+    if (Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
+        && (hasOutputFormatRotation
+            ? requestedFormat.width == supportedFormat.width
+            : requestedFormat.height == supportedFormat.height)) {
       return transformationRequest;
     }
     return transformationRequest
         .buildUpon()
-        .setVideoMimeType(actualFormat.sampleMimeType)
-        .setResolution(resolutionIsHeight ? requestedFormat.height : requestedFormat.width)
+        .setVideoMimeType(supportedFormat.sampleMimeType)
+        .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
         .build();
   }
 
