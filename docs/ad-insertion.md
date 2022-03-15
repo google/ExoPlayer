@@ -301,7 +301,7 @@ provide a custom `MediaSource` that accepts URIs with the `ssai://` scheme
 similar to `ImaServerSideAdInsertionMediaSource`.
 
 The actual logic of creating the ad structure can be delegated to the general
-purpose `ServerSideInsertedAdsMediaSource`, which wraps a stream `MediaSource`
+purpose `ServerSideAdInsertionMediaSource`, which wraps a stream `MediaSource`
 and allows the user to set and update the `AdPlaybackState` representing the ad
 metadata.
 
