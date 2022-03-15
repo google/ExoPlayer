@@ -39,6 +39,7 @@ import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
 public class TransformerAndroidTestRunner {
+  private static final String TAG_PREFIX = "TransformerAndroidTest_";
 
   /** The default transformation timeout value. */
   public static final int DEFAULT_TIMEOUT_SECONDS = 120;
@@ -49,6 +50,7 @@ public class TransformerAndroidTestRunner {
     private final Transformer transformer;
     private boolean calculateSsim;
     private int timeoutSeconds;
+    private boolean suppressAnalysisExceptions;
 
     /**
      * Creates a {@link Builder}.
@@ -93,9 +95,29 @@ public class TransformerAndroidTestRunner {
       return this;
     }
 
+    /**
+     * Sets whether the runner should suppress any {@link Exception} that occurs as a result of
+     * post-transformation analysis, such as SSIM calculation.
+     *
+     * <p>Regardless of this value, analysis exceptions are attached to the analysis file.
+     *
+     * <p>It's recommended to add a comment explaining why this suppression is needed, ideally with
+     * a bug number.
+     *
+     * <p>The default value is {@code false}.
+     *
+     * @param suppressAnalysisExceptions Whether to suppress analysis exceptions.
+     * @return This {@link Builder}.
+     */
+    public Builder setSuppressAnalysisExceptions(boolean suppressAnalysisExceptions) {
+      this.suppressAnalysisExceptions = suppressAnalysisExceptions;
+      return this;
+    }
+
     /** Builds the {@link TransformerAndroidTestRunner}. */
     public TransformerAndroidTestRunner build() {
-      return new TransformerAndroidTestRunner(context, transformer, timeoutSeconds, calculateSsim);
+      return new TransformerAndroidTestRunner(
+          context, transformer, timeoutSeconds, calculateSsim, suppressAnalysisExceptions);
     }
   }
 
@@ -103,13 +125,19 @@ public class TransformerAndroidTestRunner {
   private final Transformer transformer;
   private final int timeoutSeconds;
   private final boolean calculateSsim;
+  private final boolean suppressAnalysisExceptions;
 
   private TransformerAndroidTestRunner(
-      Context context, Transformer transformer, int timeoutSeconds, boolean calculateSsim) {
+      Context context,
+      Transformer transformer,
+      int timeoutSeconds,
+      boolean calculateSsim,
+      boolean suppressAnalysisExceptions) {
     this.context = context;
     this.transformer = transformer;
     this.timeoutSeconds = timeoutSeconds;
     this.calculateSsim = calculateSsim;
+    this.suppressAnalysisExceptions = suppressAnalysisExceptions;
   }
 
   /**
@@ -126,6 +154,9 @@ public class TransformerAndroidTestRunner {
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, uriString);
       resultJson.put("transformationResult", getTestResultJson(transformationTestResult));
+      if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
+        throw transformationTestResult.analysisException;
+      }
       return transformationTestResult;
     } catch (Exception e) {
       resultJson.put("exception", getExceptionJson(e));
@@ -147,11 +178,10 @@ public class TransformerAndroidTestRunner {
    *     complete.
    * @throws TransformationException If an exception occurs as a result of the transformation.
    * @throws IllegalArgumentException If the path is invalid.
-   * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws IllegalStateException If a transformation is already in progress.
-   * @throws Exception If the transformation did not complete.
+   * @throws IllegalStateException If an unexpected exception occurs when starting a transformation.
    */
-  private TransformationTestResult runInternal(String testId, String uriString) throws Exception {
+  private TransformationTestResult runInternal(String testId, String uriString)
+      throws InterruptedException, IOException, TimeoutException, TransformationException {
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
         new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
@@ -201,11 +231,12 @@ public class TransformerAndroidTestRunner {
     if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
       throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
     }
-    long transformationDurationMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
+    long elapsedTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
 
     @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
     if (unexpectedException != null) {
-      throw unexpectedException;
+      throw new IllegalStateException(
+          "Unexpected exception starting the transformer.", unexpectedException);
     }
 
     @Nullable
@@ -222,16 +253,31 @@ public class TransformerAndroidTestRunner {
             .setFileSizeBytes(outputVideoFile.length())
             .build();
 
-    if (!calculateSsim) {
-      return new TransformationTestResult(
-          transformationResult, outputVideoFile.getPath(), transformationDurationMs);
+    TransformationTestResult.Builder resultBuilder =
+        new TransformationTestResult.Builder(transformationResult)
+            .setFilePath(outputVideoFile.getPath())
+            .setElapsedTimeMs(elapsedTimeMs);
+
+    try {
+      if (calculateSsim) {
+        double ssim =
+            SsimHelper.calculate(
+                context, /* expectedVideoPath= */ uriString, outputVideoFile.getPath());
+        resultBuilder.setSsim(ssim);
+      }
+    } catch (InterruptedException interruptedException) {
+      // InterruptedException is a special unexpected case because it is not related to Ssim
+      // calculation, so it should be thrown, rather than processed as part of the
+      // TransformationTestResult.
+      throw interruptedException;
+    } catch (Exception analysisException) {
+      // Catch all (checked and unchecked) exceptions throw by the SsimHelper and process them as
+      // part of the TransformationTestResult.
+      resultBuilder.setAnalysisException(analysisException);
+      Log.e(TAG_PREFIX + testId, "SSIM calculation failed.", analysisException);
     }
 
-    double ssim =
-        SsimHelper.calculate(
-            context, /* expectedVideoPath= */ uriString, outputVideoFile.getPath());
-    return new TransformationTestResult(
-        transformationResult, outputVideoFile.getPath(), transformationDurationMs, ssim);
+    return resultBuilder.build();
   }
 
   private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
@@ -241,7 +287,7 @@ public class TransformerAndroidTestRunner {
     String analysisContents = resultJson.toString(/* indentSpaces= */ 2);
 
     // Log contents as well as writing to file, for easier visibility on individual device testing.
-    Log.i("TransformerAndroidTest_" + testId, analysisContents);
+    Log.i(TAG_PREFIX + testId, analysisContents);
 
     File analysisFile =
         AndroidTestUtil.createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
@@ -272,10 +318,16 @@ public class TransformerAndroidTestRunner {
     if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
       transformationResultJson.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
     }
+    if (testResult.elapsedTimeMs != C.TIME_UNSET) {
+      transformationResultJson.put("elapsedTimeMs", testResult.elapsedTimeMs);
+    }
     if (testResult.ssim != TransformationTestResult.SSIM_UNSET) {
       transformationResultJson.put("ssim", testResult.ssim);
     }
-    transformationResultJson.put("transformationDurationMs", testResult.transformationDurationMs);
+    if (testResult.analysisException != null) {
+      transformationResultJson.put(
+          "analysisException", getExceptionJson(testResult.analysisException));
+    }
     return transformationResultJson;
   }
 
