@@ -20,13 +20,19 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
+import android.util.Pair;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Applies a transformation matrix in the vertex shader. */
-/* package */ class TransformationFrameProcessor implements GlFrameProcessor {
+/**
+ * Applies a transformation matrix in the vertex shader. Operations are done on normalized device
+ * coordinates (-1 to 1 on x and y axes). No automatic adjustments (like done in {@link
+ * ScaleToFitFrameProcessor}) are applied on the transformation. Width and height are not modified.
+ * The background color will default to black.
+ */
+/* package */ final class AdvancedFrameProcessor implements GlFrameProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -85,11 +91,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Creates a new instance.
    *
    * @param context The {@link Context}.
-   * @param transformationMatrix The transformation matrix to apply to each frame.
+   * @param transformationMatrix The transformation matrix to apply to each frame. Operations are
+   *     done on normalized device coordinates (-1 to 1 on x and y), and no automatic adjustments
+   *     are applied on the transformation matrix.
    */
-  public TransformationFrameProcessor(Context context, Matrix transformationMatrix) {
+  public AdvancedFrameProcessor(Context context, Matrix transformationMatrix) {
     this.context = context;
     this.transformationMatrix = transformationMatrix;
+  }
+
+  @Override
+  public Pair<Integer, Integer> configureOutputDimensions(int inputWidth, int inputHeight) {
+    return new Pair<>(inputWidth, inputHeight);
   }
 
   @Override

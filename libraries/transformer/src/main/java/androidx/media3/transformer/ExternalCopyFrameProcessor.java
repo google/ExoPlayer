@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Pair;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
@@ -55,6 +56,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public ExternalCopyFrameProcessor(Context context, boolean enableExperimentalHdrEditing) {
     this.context = context;
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
+  }
+
+  @Override
+  public Pair<Integer, Integer> configureOutputDimensions(int inputWidth, int inputHeight) {
+    return new Pair<>(inputWidth, inputHeight);
   }
 
   @Override

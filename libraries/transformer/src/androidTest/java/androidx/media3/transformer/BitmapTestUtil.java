@@ -55,6 +55,10 @@ public class BitmapTestUtil {
       "media/bitmap/sample_mp4_first_frame_scale_narrow.png";
   public static final String ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame_rotate90.png";
+  public static final String REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_request_output_height.png";
+  public static final String ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_rotate_45_scale_to_fit.png";
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images for the
    * test to pass. The value is chosen so that differences in decoder behavior across emulator

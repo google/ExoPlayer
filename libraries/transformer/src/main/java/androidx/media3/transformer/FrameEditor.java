@@ -49,7 +49,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * is processed on a background thread as it becomes available. All input frames should be {@link
  * #registerInputFrame() registered} before they are rendered to the input surface. {@link
  * #hasPendingFrames()} can be used to check whether there are frames that have not been fully
- * processed yet. Output is written to its {@link #create(Context, int, int, float,
+ * processed yet. Output is written to its {@link #create(Context, int, int, int, int, float,
  * GlFrameProcessor, Surface, boolean, Transformer.DebugViewProvider) output surface}.
  */
 /* package */ final class FrameEditor {
@@ -62,6 +62,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Returns a new {@code FrameEditor} for applying changes to individual frames.
    *
    * @param context A {@link Context}.
+   * @param inputWidth The input width in pixels.
+   * @param inputHeight The input height in pixels.
    * @param outputWidth The output width in pixels.
    * @param outputHeight The output height in pixels.
    * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
@@ -76,8 +78,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   // TODO(b/214975934): Take a List<GlFrameProcessor> as input and rename FrameEditor to
   //  FrameProcessorChain.
+  // TODO(b/218488308): Remove the need to input outputWidth and outputHeight into FrameEditor, that
+  // stems from encoder fallback resolution. This could maybe be input into the last
+  // GlFrameProcessor in the FrameEditor instead of being input directly into the FrameEditor.
   public static FrameEditor create(
       Context context,
+      int inputWidth,
+      int inputHeight,
       int outputWidth,
       int outputHeight,
       float pixelWidthHeightRatio,
@@ -121,6 +128,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                     externalCopyFrameProcessor,
                     transformationFrameProcessor,
                     outputSurface,
+                    inputWidth,
+                    inputHeight,
                     outputWidth,
                     outputHeight,
                     enableExperimentalHdrEditing,
@@ -152,6 +161,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       ExternalCopyFrameProcessor externalCopyFrameProcessor,
       GlFrameProcessor transformationFrameProcessor,
       Surface outputSurface,
+      int inputWidth,
+      int inputHeight,
       int outputWidth,
       int outputHeight,
       boolean enableExperimentalHdrEditing,
@@ -182,7 +193,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+    GlUtil.assertValidTextureDimensions(outputWidth, outputHeight);
     int inputExternalTexId = GlUtil.createExternalTexture();
+    externalCopyFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
     externalCopyFrameProcessor.initialize(inputExternalTexId);
     int intermediateTexId = GlUtil.createTexture(outputWidth, outputHeight);
     int frameBuffer = GlUtil.createFboForTexture(intermediateTexId);
@@ -227,9 +240,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final float[] textureTransformMatrix;
 
   /**
-   * Identifier of a framebuffer object associated with the intermediate texture that the output of
-   * the {@link ExternalCopyFrameProcessor} is written to and the {@link
-   * TransformationFrameProcessor} reads its input from.
+   * Identifier of a framebuffer object associated with the intermediate texture that receives
+   * output from the prior {@link ExternalCopyFrameProcessor}, and provides input for the following
+   * {@link GlFrameProcessor}.
    */
   private final int frameBuffer;
 

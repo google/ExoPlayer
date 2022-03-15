@@ -223,6 +223,30 @@ public final class GlUtil {
   }
 
   /**
+   * Asserts that dimensions are valid for a texture.
+   *
+   * @param width The width for a texture.
+   * @param height The height for a texture.
+   * @throws GlException If the texture width or height is invalid.
+   */
+  public static void assertValidTextureDimensions(int width, int height) {
+    // TODO(b/201293185): Consider handling adjustments for resolutions > GL_MAX_TEXTURE_SIZE
+    //  (ex. downscaling appropriately) in a FrameProcessor instead of asserting incorrect values.
+
+    // For valid GL resolutions, see:
+    // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
+    int[] maxTextureSizeBuffer = new int[1];
+    GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSizeBuffer, 0);
+    int maxTextureSize = maxTextureSizeBuffer[0];
+    if (width < 0 || height < 0) {
+      throwGlException("width or height is less than 0");
+    }
+    if (width > maxTextureSize || height > maxTextureSize) {
+      throwGlException("width or height is greater than GL_MAX_TEXTURE_SIZE " + maxTextureSize);
+    }
+  }
+
+  /**
    * Makes the specified {@code eglSurface} the render target, using a viewport of {@code width} by
    * {@code height} pixels.
    */

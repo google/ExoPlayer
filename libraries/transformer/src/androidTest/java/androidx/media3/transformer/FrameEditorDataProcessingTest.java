@@ -18,6 +18,8 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.transformer.BitmapTestUtil.REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
+import static androidx.media3.transformer.BitmapTestUtil.ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
@@ -34,7 +36,9 @@ import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
@@ -84,7 +88,9 @@ public final class FrameEditorDataProcessingTest {
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     final String testId = "processData_noEdits";
     Matrix identityMatrix = new Matrix();
-    setUpAndPrepareFirstFrame(identityMatrix);
+    GlFrameProcessor glFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
+    setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -103,7 +109,9 @@ public final class FrameEditorDataProcessingTest {
     final String testId = "processData_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    setUpAndPrepareFirstFrame(translateRightMatrix);
+    GlFrameProcessor glFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+    setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
@@ -123,7 +131,9 @@ public final class FrameEditorDataProcessingTest {
     final String testId = "processData_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
-    setUpAndPrepareFirstFrame(scaleNarrowMatrix);
+    GlFrameProcessor glFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
+    setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
@@ -141,12 +151,11 @@ public final class FrameEditorDataProcessingTest {
   @Test
   public void processData_rotate90_producesExpectedOutput() throws Exception {
     final String testId = "processData_rotate90";
-    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
-    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
-    //  test that rotation doesn't distort the image.
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
-    setUpAndPrepareFirstFrame(rotate90Matrix);
+    GlFrameProcessor glFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
+    setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -160,12 +169,70 @@ public final class FrameEditorDataProcessingTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  private void setUpAndPrepareFirstFrame(Matrix transformationMatrix) throws Exception {
+  @Test
+  public void processData_requestOutputHeight_producesExpectedOutput() throws Exception {
+    final String testId = "processData_requestOutputHeight";
+    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
+    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
+    //  test that rotation doesn't distort the image.
+    Matrix identityMatrix = new Matrix();
+    GlFrameProcessor glFrameProcessor =
+        new ScaleToFitFrameProcessor(
+            getApplicationContext(), identityMatrix, /* requestedHeight= */ 480);
+    setUpAndPrepareFirstFrame(glFrameProcessor);
+    Bitmap expectedBitmap =
+        BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    BitmapTestUtil.saveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_rotate45_scaleToFit_producesExpectedOutput() throws Exception {
+    final String testId = "processData_rotate45_scaleToFit";
+    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
+    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
+    //  test that rotation doesn't distort the image.
+    Matrix rotate45Matrix = new Matrix();
+    rotate45Matrix.postRotate(/* degrees= */ 45);
+    GlFrameProcessor glFrameProcessor =
+        new ScaleToFitFrameProcessor(
+            getApplicationContext(), rotate45Matrix, /* requestedHeight= */ C.LENGTH_UNSET);
+    setUpAndPrepareFirstFrame(glFrameProcessor);
+    Bitmap expectedBitmap =
+        BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    BitmapTestUtil.saveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  /**
+   * Set up and prepare the first frame from an input video, as well as relevant test
+   * infrastructure. The frame will be sent towards the {@link FrameEditor}, and may be accessed on
+   * the {@link FrameEditor}'s output {@code frameEditorOutputImageReader}.
+   *
+   * @param glFrameProcessor The frame processor that will apply changes to the input frame.
+   */
+  private void setUpAndPrepareFirstFrame(GlFrameProcessor glFrameProcessor) throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
-    try (AssetFileDescriptor afd =
-        getApplicationContext().getAssets().openFd(INPUT_MP4_ASSET_STRING)) {
+    Context context = getApplicationContext();
+    try (AssetFileDescriptor afd = context.getAssets().openFd(INPUT_MP4_ASSET_STRING)) {
       mediaExtractor.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
       for (int i = 0; i < mediaExtractor.getTrackCount(); i++) {
         if (MimeTypes.isVideo(mediaExtractor.getTrackFormat(i).getString(MediaFormat.KEY_MIME))) {
@@ -175,18 +242,24 @@ public final class FrameEditorDataProcessingTest {
         }
       }
 
-      int width = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
-      int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
+      int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
+      int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
+      Pair<Integer, Integer> outputDimensions =
+          glFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+      int outputWidth = outputDimensions.first;
+      int outputHeight = outputDimensions.second;
       frameEditorOutputImageReader =
-          ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-      Context context = getApplicationContext();
+          ImageReader.newInstance(
+              outputWidth, outputHeight, PixelFormat.RGBA_8888, /* maxImages= */ 1);
       frameEditor =
           FrameEditor.create(
               context,
-              width,
-              height,
+              inputWidth,
+              inputHeight,
+              outputWidth,
+              outputHeight,
               PIXEL_WIDTH_HEIGHT_RATIO,
-              new TransformationFrameProcessor(context, transformationMatrix),
+              glFrameProcessor,
               frameEditorOutputImageReader.getSurface(),
               /* enableExperimentalHdrEditing= */ false,
               Transformer.DebugViewProvider.NONE);
