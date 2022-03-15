@@ -283,19 +283,19 @@ public class EventLogger implements AnalyticsListener {
     }
     // TODO: Replace this with an override of onMediaMetadataChanged.
     // Log metadata for at most one of the selected tracks.
-    for (int groupIndex = 0; groupIndex < trackGroupInfos.size(); groupIndex++) {
+    boolean loggedMetadata = false;
+    for (int groupIndex = 0; !loggedMetadata && groupIndex < trackGroupInfos.size(); groupIndex++) {
       TracksInfo.TrackGroupInfo trackGroupInfo = trackGroupInfos.get(groupIndex);
       TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        if (!trackGroupInfo.isTrackSelected(trackIndex)) {
-          continue;
-        }
-        @Nullable Metadata metadata = trackGroup.getFormat(trackIndex).metadata;
-        if (metadata != null) {
-          logd("    Metadata [");
-          printMetadata(metadata, "      ");
-          logd("    ]");
-          break;
+      for (int trackIndex = 0; !loggedMetadata && trackIndex < trackGroup.length; trackIndex++) {
+        if (trackGroupInfo.isTrackSelected(trackIndex)) {
+          @Nullable Metadata metadata = trackGroup.getFormat(trackIndex).metadata;
+          if (metadata != null && metadata.length() > 0) {
+            logd("  Metadata [");
+            printMetadata(metadata, "    ");
+            logd("  ]");
+            loggedMetadata = true;
+          }
         }
       }
     }
