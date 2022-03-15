@@ -15,21 +15,36 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import android.util.Pair;
 import java.io.IOException;
 
-/** Manages a GLSL shader program for processing a frame. */
+/**
+ * Manages a GLSL shader program for processing a frame.
+ *
+ * <p>Methods must be called in the following order:
+ *
+ * <ol>
+ *   <li>The constructor, for implementation-specific arguments.
+ *   <li>{@link #configureOutputDimensions(int, int)}, to configure based on input dimensions.
+ *   <li>{@link #initialize(int)}, to set up graphics initialization.
+ *   <li>{@link #updateProgramAndDraw(long)}, to process one frame.
+ *   <li>{@link #release()}, upon conclusion of processing.
+ * </ol>
+ */
 /* package */ interface GlFrameProcessor {
 
-  // TODO(b/214975934): Add getOutputDimensions(inputWidth, inputHeight) and move output dimension
-  //  calculations out of the VideoTranscodingSamplePipeline into the frame processors.
+  /**
+   * Returns the output dimensions of frames processed through {@link #updateProgramAndDraw(long)}.
+   *
+   * <p>This method must be called before {@link #initialize(int)} and does not use OpenGL.
+   */
+  Pair<Integer, Integer> configureOutputDimensions(int inputWidth, int inputHeight);
 
   /**
    * Does any initialization necessary such as loading and compiling a GLSL shader programs.
    *
    * <p>This method may only be called after creating the OpenGL context and focusing a render
    * target.
-   *
-   * @param inputTexId The identifier of an OpenGL texture that the fragment shader can sample from.
    */
   void initialize(int inputTexId) throws IOException;
 

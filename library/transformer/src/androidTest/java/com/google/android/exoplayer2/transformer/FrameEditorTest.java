@@ -28,8 +28,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test for {@link FrameEditor#create(Context, int, int, float, GlFrameProcessor, Surface, boolean,
- * Transformer.DebugViewProvider) creating} a {@link FrameEditor}.
+ * Test for {@link FrameEditor#create(Context, int, int, int, int, float, GlFrameProcessor, Surface,
+ * boolean, Transformer.DebugViewProvider) creating} a {@link FrameEditor}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorTest {
@@ -43,10 +43,12 @@ public final class FrameEditorTest {
 
     FrameEditor.create(
         context,
+        /* inputWidth= */ 200,
+        /* inputHeight= */ 100,
         /* outputWidth= */ 200,
         /* outputHeight= */ 100,
         /* pixelWidthHeightRatio= */ 1,
-        new TransformationFrameProcessor(context, new Matrix()),
+        new AdvancedFrameProcessor(context, new Matrix()),
         new Surface(new SurfaceTexture(false)),
         /* enableExperimentalHdrEditing= */ false,
         Transformer.DebugViewProvider.NONE);
@@ -62,10 +64,12 @@ public final class FrameEditorTest {
             () ->
                 FrameEditor.create(
                     context,
+                    /* inputWidth= */ 200,
+                    /* inputHeight= */ 100,
                     /* outputWidth= */ 200,
                     /* outputHeight= */ 100,
                     /* pixelWidthHeightRatio= */ 2,
-                    new TransformationFrameProcessor(context, new Matrix()),
+                    new AdvancedFrameProcessor(context, new Matrix()),
                     new Surface(new SurfaceTexture(false)),
                     /* enableExperimentalHdrEditing= */ false,
                     Transformer.DebugViewProvider.NONE));

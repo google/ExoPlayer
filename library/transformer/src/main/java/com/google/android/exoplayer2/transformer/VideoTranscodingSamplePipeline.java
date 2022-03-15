@@ -18,16 +18,13 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
@@ -70,77 +67,20 @@ import org.checkerframework.dataflow.qual.Pure;
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
-    float decodedAspectRatio = (float) decodedWidth / decodedHeight;
 
-    Matrix transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
-
-    int outputWidth = decodedWidth;
-    int outputHeight = decodedHeight;
-    if (!transformationMatrix.isIdentity()) {
-      // Scale frames by decodedAspectRatio, to account for FrameEditor's normalized device
-      // coordinates (NDC) (a square from -1 to 1 for both x and y) and preserve rectangular display
-      // of input pixels during transformations (ex. rotations). With scaling, transformationMatrix
-      // operations operate on a rectangle for x from -decodedAspectRatio to decodedAspectRatio, and
-      // y from -1 to 1.
-      transformationMatrix.preScale(/* sx= */ decodedAspectRatio, /* sy= */ 1f);
-      transformationMatrix.postScale(/* sx= */ 1f / decodedAspectRatio, /* sy= */ 1f);
-
-      float[][] transformOnNdcPoints = {{-1, -1, 0, 1}, {-1, 1, 0, 1}, {1, -1, 0, 1}, {1, 1, 0, 1}};
-      float xMin = Float.MAX_VALUE;
-      float xMax = Float.MIN_VALUE;
-      float yMin = Float.MAX_VALUE;
-      float yMax = Float.MIN_VALUE;
-      for (float[] transformOnNdcPoint : transformOnNdcPoints) {
-        transformationMatrix.mapPoints(transformOnNdcPoint);
-        xMin = min(xMin, transformOnNdcPoint[0]);
-        xMax = max(xMax, transformOnNdcPoint[0]);
-        yMin = min(yMin, transformOnNdcPoint[1]);
-        yMax = max(yMax, transformOnNdcPoint[1]);
-      }
-
-      float xCenter = (xMax + xMin) / 2f;
-      float yCenter = (yMax + yMin) / 2f;
-      transformationMatrix.postTranslate(-xCenter, -yCenter);
-
-      float ndcWidthAndHeight = 2f; // Length from -1 to 1.
-      float xScale = (xMax - xMin) / ndcWidthAndHeight;
-      float yScale = (yMax - yMin) / ndcWidthAndHeight;
-      transformationMatrix.postScale(1f / xScale, 1f / yScale);
-      outputWidth = Math.round(decodedWidth * xScale);
-      outputHeight = Math.round(decodedHeight * yScale);
-    }
-    // Scale width and height to desired transformationRequest.outputHeight, preserving
-    // aspect ratio.
-    if (transformationRequest.outputHeight != C.LENGTH_UNSET
-        && transformationRequest.outputHeight != outputHeight) {
-      outputWidth =
-          Math.round((float) transformationRequest.outputHeight * outputWidth / outputHeight);
-      outputHeight = transformationRequest.outputHeight;
-    }
-
-    // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
-    // video before encoding, so the encoded video's width >= height, and set outputRotationDegrees
-    // to ensure the video is displayed in the correct orientation.
-    int requestedEncoderWidth;
-    int requestedEncoderHeight;
-    boolean swapEncodingDimensions = outputHeight > outputWidth;
-    if (swapEncodingDimensions) {
-      outputRotationDegrees = 90;
-      requestedEncoderWidth = outputHeight;
-      requestedEncoderHeight = outputWidth;
-      // TODO(b/201293185): After fragment shader transformations are implemented, put
-      // postRotate in a later vertex shader.
-      transformationMatrix.postRotate(outputRotationDegrees);
-    } else {
-      outputRotationDegrees = 0;
-      requestedEncoderWidth = outputWidth;
-      requestedEncoderHeight = outputHeight;
-    }
+    ScaleToFitFrameProcessor scaleToFitFrameProcessor =
+        new ScaleToFitFrameProcessor(
+            context,
+            transformationRequest.transformationMatrix,
+            transformationRequest.outputHeight);
+    Pair<Integer, Integer> requestedEncoderDimensions =
+        scaleToFitFrameProcessor.configureOutputDimensions(decodedWidth, decodedHeight);
+    outputRotationDegrees = scaleToFitFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
-            .setWidth(requestedEncoderWidth)
-            .setHeight(requestedEncoderHeight)
+            .setWidth(requestedEncoderDimensions.first)
+            .setHeight(requestedEncoderDimensions.second)
             .setRotationDegrees(0)
             .setSampleMimeType(
                 transformationRequest.videoMimeType != null
@@ -152,21 +92,23 @@ import org.checkerframework.dataflow.qual.Pure;
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
             transformationRequest,
-            /* hasOutputFormatRotation= */ swapEncodingDimensions,
+            /* hasOutputFormatRotation= */ outputRotationDegrees == 0,
             requestedEncoderFormat,
             encoderSupportedFormat));
 
     if (transformationRequest.enableHdrEditing
         || inputFormat.height != encoderSupportedFormat.height
         || inputFormat.width != encoderSupportedFormat.width
-        || !transformationMatrix.isIdentity()) {
+        || scaleToFitFrameProcessor.shouldProcess()) {
       frameEditor =
           FrameEditor.create(
               context,
-              encoderSupportedFormat.width,
-              encoderSupportedFormat.height,
+              /* inputWidth= */ decodedWidth,
+              /* inputHeight= */ decodedHeight,
+              /* outputWidth= */ encoderSupportedFormat.width,
+              /* outputHeight= */ encoderSupportedFormat.height,
               inputFormat.pixelWidthHeightRatio,
-              new TransformationFrameProcessor(context, transformationMatrix),
+              scaleToFitFrameProcessor,
               /* outputSurface= */ encoder.getInputSurface(),
               transformationRequest.enableHdrEditing,
               debugViewProvider);
