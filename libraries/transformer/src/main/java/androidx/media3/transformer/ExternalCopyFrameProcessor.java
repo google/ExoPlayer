@@ -19,7 +19,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Pair;
+import android.util.Size;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
@@ -59,8 +59,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public Pair<Integer, Integer> configureOutputDimensions(int inputWidth, int inputHeight) {
-    return new Pair<>(inputWidth, inputHeight);
+  public Size configureOutputDimensions(int inputWidth, int inputHeight) {
+    return new Size(inputWidth, inputHeight);
   }
 
   @Override

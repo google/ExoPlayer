@@ -26,6 +26,7 @@ import static java.lang.Math.abs;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Pair;
+import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -233,7 +234,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             encodersForMimeType,
             /* cost= */ (encoderInfo) -> {
               @Nullable
-              Pair<Integer, Integer> closestSupportedResolution =
+              Size closestSupportedResolution =
                   EncoderUtil.getSupportedResolution(
                       encoderInfo, mimeType, requestedFormat.width, requestedFormat.height);
               if (closestSupportedResolution == null) {
@@ -242,13 +243,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
               }
               return abs(
                   requestedFormat.width * requestedFormat.height
-                      - closestSupportedResolution.first * closestSupportedResolution.second);
+                      - closestSupportedResolution.getWidth()
+                          * closestSupportedResolution.getHeight());
             });
     if (filteredEncoders.isEmpty()) {
       return null;
     }
     // The supported resolution is the same for all remaining encoders.
-    Pair<Integer, Integer> finalResolution =
+    Size finalResolution =
         checkNotNull(
             EncoderUtil.getSupportedResolution(
                 filteredEncoders.get(0), mimeType, requestedFormat.width, requestedFormat.height));
@@ -256,8 +258,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     int requestedBitrate =
         requestedFormat.averageBitrate == Format.NO_VALUE
             ? getSuggestedBitrate(
-                /* width= */ finalResolution.first,
-                /* height= */ finalResolution.second,
+                finalResolution.getWidth(),
+                finalResolution.getHeight(),
                 requestedFormat.frameRate == Format.NO_VALUE
                     ? DEFAULT_FRAME_RATE
                     : requestedFormat.frameRate)
@@ -291,8 +293,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             .buildUpon()
             .setSampleMimeType(mimeType)
             .setCodecs(codecs)
-            .setWidth(finalResolution.first)
-            .setHeight(finalResolution.second)
+            .setWidth(finalResolution.getWidth())
+            .setHeight(finalResolution.getHeight())
             .setFrameRate(
                 requestedFormat.frameRate != Format.NO_VALUE
                     ? requestedFormat.frameRate

@@ -22,7 +22,7 @@ import static java.lang.Math.min;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.util.Pair;
+import android.util.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
@@ -104,7 +104,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   @EnsuresNonNull("adjustedTransformationMatrix")
-  public Pair<Integer, Integer> configureOutputDimensions(int inputWidth, int inputHeight) {
+  public Size configureOutputDimensions(int inputWidth, int inputHeight) {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
@@ -172,7 +172,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       outputHeight = displayHeight;
     }
 
-    return new Pair<>(outputWidth, outputHeight);
+    return new Size(outputWidth, outputHeight);
   }
 
   @Override

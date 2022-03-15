@@ -22,7 +22,7 @@ import static androidx.media3.common.util.Util.SDK_INT;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.util.Pair;
+import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.Format;
@@ -73,14 +73,14 @@ import org.checkerframework.dataflow.qual.Pure;
             context,
             transformationRequest.transformationMatrix,
             transformationRequest.outputHeight);
-    Pair<Integer, Integer> requestedEncoderDimensions =
+    Size requestedEncoderDimensions =
         scaleToFitFrameProcessor.configureOutputDimensions(decodedWidth, decodedHeight);
     outputRotationDegrees = scaleToFitFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
-            .setWidth(requestedEncoderDimensions.first)
-            .setHeight(requestedEncoderDimensions.second)
+            .setWidth(requestedEncoderDimensions.getWidth())
+            .setHeight(requestedEncoderDimensions.getHeight())
             .setRotationDegrees(0)
             .setSampleMimeType(
                 transformationRequest.videoMimeType != null
