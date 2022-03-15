@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -78,8 +79,7 @@ public class MediaSessionTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     handler = threadTestRule.getHandler();
-    player =
-        new MockPlayer.Builder().setLatchCount(1).setApplicationLooper(handler.getLooper()).build();
+    player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
     session =
         sessionTestRule.ensureReleaseAfterTest(
@@ -105,6 +105,16 @@ public class MediaSessionTest {
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .buildAsync()
             .get(TIMEOUT_MS, MILLISECONDS);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if ((controller != null)) {
+      threadTestRule.getHandler().postAndSync(() -> controller.release());
+    }
+    if (session != null) {
+      session.release();
+    }
   }
 
   @Test
@@ -394,8 +404,7 @@ public class MediaSessionTest {
     long testSeekPositionMs = 1234;
     controllerCompat.getTransportControls().seekTo(testSeekPositionMs);
 
-    assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToCalled).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO, TIMEOUT_MS);
     assertThat(player.seekPositionMs).isEqualTo(testSeekPositionMs);
   }
 

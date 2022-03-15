@@ -196,7 +196,9 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onEvents(Player player, Player.Events events) {
       if (events.containsAny(
-          Player.EVENT_PLAY_WHEN_READY_CHANGED, Player.EVENT_MEDIA_METADATA_CHANGED)) {
+          Player.EVENT_PLAYBACK_STATE_CHANGED,
+          Player.EVENT_PLAY_WHEN_READY_CHANGED,
+          Player.EVENT_MEDIA_METADATA_CHANGED)) {
         updateNotification(session);
       }
     }

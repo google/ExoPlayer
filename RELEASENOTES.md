@@ -1,6 +1,30 @@
 # Release notes
 
-### 1.0.0-alpha02 (2022-03-09)
+### 1.0.0-alpha03 (2022-03-14)
+
+This release corresponds to the
+[ExoPlayer 2.17.1 release](https://github.com/google/ExoPlayer/releases/tag/r2.17.1).
+
+*   Audio:
+    *   Fix error checking audio capabilities for Dolby Atmos (E-AC3-JOC) in
+        HLS.
+*   Extractors:
+    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
+        order for streams containing both v0 and v1 emsg atoms
+        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
+*   Text:
+    *   Fix the interaction of `SingleSampleMediaSource.Factory.setTrackId` and
+        `MediaItem.SubtitleConfiguration.Builder.setId` to prioritise the
+        `SubtitleConfiguration` field and fall back to the `Factory` value if
+        it's not set
+        ([#10016](https://github.com/google/ExoPlayer/issues/10016)).
+*   Ad playback:
+    *   Fix audio underruns between ad periods in live HLS SSAI streams.
+
+### 1.0.0-alpha02 (2022-03-02)
+
+This release corresponds to the
+[ExoPlayer 2.17.0 release](https://github.com/google/ExoPlayer/releases/tag/r2.17.0).
 
 *   Core Library:
     *   Add protected method `DefaultRenderersFactory.getCodecAdapterFactory()`
@@ -18,7 +42,7 @@
         from a secure codec to another codec
         ([#8696](https://github.com/google/ExoPlayer/issues/8696)).
     *   Add `MediaCodecAdapter.getMetrics()` to allow users obtain metrics data
-        from `MediaCodec`.
+        from `MediaCodec`
         ([#9766](https://github.com/google/ExoPlayer/issues/9766)).
     *   Fix Maven dependency resolution
         ([#8353](https://github.com/google/ExoPlayer/issues/8353)).
@@ -63,17 +87,17 @@
         under sufficient network bandwidth even if playback is very close to the
         live edge ([#9784](https://github.com/google/ExoPlayer/issues/9784)).
 *   Video:
-    *  Fix decoder fallback logic for Dolby Vision
-        to use a compatible H264/H265 decoder if needed.
+    *   Fix decoder fallback logic for Dolby Vision to use a compatible
+        H264/H265 decoder if needed.
 *   Audio:
-    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC)
-        to use a compatible E-AC3 decoder if needed.
+    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) to use a
+        compatible E-AC3 decoder if needed.
     *   Change `AudioCapabilities` APIs to require passing explicitly
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
     *   Allow customization of the `AudioTrack` buffer size calculation by
-        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`.
+        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`
         ([#8891](https://github.com/google/ExoPlayer/issues/8891)).
-    *   Retry `AudioTrack` creation if the requested buffer size was > 1MB.
+    *   Retry `AudioTrack` creation if the requested buffer size was > 1MB
         ([#9712](https://github.com/google/ExoPlayer/issues/9712)).
 *   Extractors:
     *   WAV: Add support for RF64 streams
@@ -120,7 +144,8 @@
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
     *   Stop interpreting the `main` track role as `C.SELECTION_FLAG_DEFAULT`.
-    *   Fix base URL exclusion logic for manifests that do not declare the DVB namespace ([#9856](https://github.com/google/ExoPlayer/issues/9856)).
+    *   Fix base URL exclusion logic for manifests that do not declare the DVB
+        namespace ([#9856](https://github.com/google/ExoPlayer/issues/9856)).
     *   Support relative `MPD.Location` URLs
         ([#9939](https://github.com/google/ExoPlayer/issues/9939)).
 *   HLS:
@@ -133,8 +158,6 @@
         `HlsMediaSource.Factory.setAllowChunklessPreparation(false)`.
     *   Support key-frame accurate seeking in HLS
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
-    *   Correctly populate `Format.label` for audio only HLS streams
-        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
 *   RTSP:
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
@@ -154,12 +177,10 @@
     *   Fix potential NPE in `Transformer.getProgress` when releasing the muxer
         throws.
     *   Add a demo app for applying transformations.
-    *   The transformer module is no longer included by depending on
-        `com.google.android.exoplayer:exoplayer`. To continue using transformer,
-        add an additional dependency on
-        `com.google.android.exoplayer:exoplayer-transformer`.
 *   MediaSession extension:
-    *   By default, `MediaSessionConnector` now clears the playlist on stop. Apps that want the playlist to be retained can call `setClearMediaItemsOnStop(false)` on the connector.
+    *   By default, `MediaSessionConnector` now clears the playlist on stop.
+        Apps that want the playlist to be retained can call
+        `setClearMediaItemsOnStop(false)` on the connector.
 *   Cast extension:
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
         correctly ([#9792](https://github.com/google/ExoPlayer/issues/9792)).
@@ -178,38 +199,38 @@
         ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
 *   Remove deprecated symbols:
     *   Remove `Player.EventLister`. Use `Player.Listener` instead.
-    *   Remove `MediaSourceFactory#setDrmSessionManager`,
-        `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
-        `MediaSourceFactory#setDrmUserAgent`. Use
-        `MediaSourceFactory#setDrmSessionManagerProvider` instead.
-    *   Remove `MediaSourceFactory#setStreamKeys`. Use
-        `MediaItem.Builder#setStreamKeys` instead.
-    *   Remove `MediaSourceFactory#createMediaSource(Uri)`. Use
-        `MediaSourceFactory#createMediaSource(MediaItem)` instead.
+    *   Remove `MediaSourceFactory.setDrmSessionManager`,
+        `MediaSourceFactory.setDrmHttpDataSourceFactory`, and
+        `MediaSourceFactory.setDrmUserAgent`. Use
+        `MediaSourceFactory.setDrmSessionManagerProvider` instead.
+    *   Remove `MediaSourceFactory.setStreamKeys`. Use
+        `MediaItem.Builder.setStreamKeys` instead.
+    *   Remove `MediaSourceFactory.createMediaSource(Uri)`. Use
+        `MediaSourceFactory.createMediaSource(MediaItem)` instead.
     *   Remove `setTag` from `DashMediaSource`, `HlsMediaSource` and
-        `SsMediaSource`. Use `MediaItem.Builder#setTag` instead.
-    *   Remove `DashMediaSource#setLivePresentationDelayMs(long, boolean)`. Use
-        `MediaItem.Builder#setLiveConfiguration` and
-        `MediaItem.LiveConfiguration.Builder#setTargetOffsetMs` to override the
-        manifest, or `DashMediaSource#setFallbackTargetLiveOffsetMs` to provide
+        `SsMediaSource`. Use `MediaItem.Builder.setTag` instead.
+    *   Remove `DashMediaSource.setLivePresentationDelayMs(long, boolean)`. Use
+        `MediaItem.Builder.setLiveConfiguration` and
+        `MediaItem.LiveConfiguration.Builder.setTargetOffsetMs` to override the
+        manifest, or `DashMediaSource.setFallbackTargetLiveOffsetMs` to provide
         a fallback value.
     *   Remove `(Simple)ExoPlayer.setThrowsWhenUsingWrongThread`. Opting out of
         the thread enforcement is no longer possible.
     *   Remove `ActionFile` and `ActionFileUpgradeUtil`. Use ExoPlayer 2.16.1 or
         before to use `ActionFileUpgradeUtil` to merge legacy action files into
         `DefaultDownloadIndex`.
-    *   Remove `ProgressiveMediaSource#setExtractorsFactory`. Use
+    *   Remove `ProgressiveMediaSource.setExtractorsFactory`. Use
         `ProgressiveMediaSource.Factory(DataSource.Factory, ExtractorsFactory)`
         constructor instead.
-    *   Remove `ProgressiveMediaSource.Factory#setTag` and, and
-        `ProgressiveMediaSource.Factory#setCustomCacheKey`. Use
-        `MediaItem.Builder#setTag` and `MediaItem.Builder#setCustomCacheKey`
+    *   Remove `ProgressiveMediaSource.Factory.setTag` and
+        `ProgressiveMediaSource.Factory.setCustomCacheKey`. Use
+        `MediaItem.Builder.setTag` and `MediaItem.Builder.setCustomCacheKey`
         instead.
     *   Remove `DefaultRenderersFactory(Context, @ExtensionRendererMode int)`
         and `DefaultRenderersFactory(Context, @ExtensionRendererMode int, long)`
         constructors. Use the `DefaultRenderersFactory(Context)` constructor,
-        `DefaultRenderersFactory#setExtensionRendererMode`, and
-        `DefaultRenderersFactory#setAllowedVideoJoiningTimeMs` instead.
+        `DefaultRenderersFactory.setExtensionRendererMode`, and
+        `DefaultRenderersFactory.setAllowedVideoJoiningTimeMs` instead.
     *   Remove all public `CronetDataSource` constructors. Use
         `CronetDataSource.Factory` instead.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
