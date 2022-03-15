@@ -36,7 +36,7 @@ import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.util.Pair;
+import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -244,10 +244,9 @@ public final class FrameEditorDataProcessingTest {
 
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-      Pair<Integer, Integer> outputDimensions =
-          glFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
-      int outputWidth = outputDimensions.first;
-      int outputHeight = outputDimensions.second;
+      Size outputDimensions = glFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+      int outputWidth = outputDimensions.getWidth();
+      int outputHeight = outputDimensions.getHeight();
       frameEditorOutputImageReader =
           ImageReader.newInstance(
               outputWidth, outputHeight, PixelFormat.RGBA_8888, /* maxImages= */ 1);

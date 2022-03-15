@@ -19,7 +19,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Matrix;
-import android.util.Pair;
+import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,11 +40,11 @@ public final class AdvancedFrameProcessorTest {
     AdvancedFrameProcessor advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
 
-    Pair<Integer, Integer> outputDimensions =
+    Size outputDimensions =
         advancedFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
 
-    assertThat(outputDimensions.first).isEqualTo(inputWidth);
-    assertThat(outputDimensions.second).isEqualTo(inputHeight);
+    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -57,10 +57,10 @@ public final class AdvancedFrameProcessorTest {
     AdvancedFrameProcessor advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), transformationMatrix);
 
-    Pair<Integer, Integer> outputDimensions =
+    Size outputDimensions =
         advancedFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
 
-    assertThat(outputDimensions.first).isEqualTo(inputWidth);
-    assertThat(outputDimensions.second).isEqualTo(inputHeight);
+    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
   }
 }

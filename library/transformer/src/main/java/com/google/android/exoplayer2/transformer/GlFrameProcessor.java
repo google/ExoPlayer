@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import android.util.Pair;
+import android.util.Size;
 import java.io.IOException;
 
 /**
@@ -34,11 +34,12 @@ import java.io.IOException;
 /* package */ interface GlFrameProcessor {
 
   /**
-   * Returns the output dimensions of frames processed through {@link #updateProgramAndDraw(long)}.
+   * Returns the output {@link Size dimensions} of frames processed through {@link
+   * #updateProgramAndDraw(long)}.
    *
    * <p>This method must be called before {@link #initialize(int)} and does not use OpenGL.
    */
-  Pair<Integer, Integer> configureOutputDimensions(int inputWidth, int inputHeight);
+  Size configureOutputDimensions(int inputWidth, int inputHeight);
 
   /**
    * Does any initialization necessary such as loading and compiling a GLSL shader programs.
