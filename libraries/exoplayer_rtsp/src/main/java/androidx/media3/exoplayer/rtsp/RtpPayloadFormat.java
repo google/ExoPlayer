@@ -38,6 +38,8 @@ public final class RtpPayloadFormat {
 
   private static final String RTP_MEDIA_AC3 = "AC3";
   private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
+  private static final String RTP_MEDIA_H263_1998 = "H263-1998";
+  private static final String RTP_MEDIA_H263_2000 = "H263-2000";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
 
@@ -45,6 +47,8 @@ public final class RtpPayloadFormat {
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
+      case RTP_MEDIA_H263_1998:
+      case RTP_MEDIA_H263_2000:
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_GENERIC:
@@ -65,6 +69,9 @@ public final class RtpPayloadFormat {
     switch (Ascii.toUpperCase(mediaType)) {
       case RTP_MEDIA_AC3:
         return MimeTypes.AUDIO_AC3;
+      case RTP_MEDIA_H263_1998:
+      case RTP_MEDIA_H263_2000:
+        return MimeTypes.VIDEO_H263;
       case RTP_MEDIA_H264:
         return MimeTypes.VIDEO_H264;
       case RTP_MEDIA_H265:

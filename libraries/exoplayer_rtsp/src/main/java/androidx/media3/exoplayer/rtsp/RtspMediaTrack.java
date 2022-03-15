@@ -56,6 +56,10 @@ import com.google.common.collect.ImmutableMap;
 
   private static final String GENERIC_CONTROL_ATTR = "*";
 
+  /** Default width and height for H263. */
+  private static final int DEFAULT_H263_WIDTH = 352;
+  private static final int DEFAULT_H263_HEIGHT = 288;
+
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
   /** The track's URI. */
@@ -120,6 +124,10 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(channelCount != C.INDEX_UNSET);
         checkArgument(!fmtpParameters.isEmpty());
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
+        break;
+      case MimeTypes.VIDEO_H263:
+        // H263 does not require a FMTP attribute. So Setting default width and height.
+        formatBuilder.setWidth(DEFAULT_H263_WIDTH).setHeight(DEFAULT_H263_HEIGHT);
         break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());
