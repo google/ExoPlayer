@@ -83,6 +83,8 @@ import java.util.List;
   private boolean needToShowBars;
   private boolean animationEnabled;
 
+  float translationYForProgressBar;
+
   @SuppressWarnings({"nullness:method.invocation", "nullness:methodref.receiver.bound"})
   public StyledPlayerControlViewLayoutManager(StyledPlayerControlView playerControlView) {
     this.playerControlView = playerControlView;
@@ -194,7 +196,7 @@ import java.util.List;
         });
 
     Resources resources = playerControlView.getResources();
-    float translationYForProgressBar =
+    translationYForProgressBar =
         resources.getDimension(R.dimen.exo_styled_bottom_bar_height)
             - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
     float translationYForNoBars = resources.getDimension(R.dimen.exo_styled_bottom_bar_height);
@@ -461,6 +463,16 @@ import java.util.List;
     }
   }
 
+  private void setUxStateSilently(int uxState) {
+    int prevUxState = this.uxState;
+    this.uxState = uxState;
+    if (uxState == UX_STATE_NONE_VISIBLE) {
+      playerControlView.setVisibility(View.GONE);
+    } else if (prevUxState == UX_STATE_NONE_VISIBLE) {
+      playerControlView.setVisibility(View.VISIBLE);
+    }
+  }
+
   public void onLayout(boolean changed, int left, int top, int right, int bottom) {
     if (controlsBackground != null) {
       // The background view should occupy the entirety of the parent. This is done in code rather
@@ -524,6 +536,29 @@ import java.util.List;
         break;
     }
     resetHideCallbacks();
+  }
+
+  public void showProgress() {
+    switch (uxState) {
+      case UX_STATE_ALL_VISIBLE:
+        hideMainBarAnimator.start();
+        break;
+      case UX_STATE_NONE_VISIBLE:
+        setUxStateSilently(UX_STATE_ONLY_PROGRESS_VISIBLE);
+
+        if (timeBar instanceof DefaultTimeBar) {
+          DefaultTimeBar defaultTimeBar = (DefaultTimeBar) timeBar;
+          defaultTimeBar.hideScrubber(false);
+        }
+
+        timeBar.setTranslationY(translationYForProgressBar);
+        bottomBar.setTranslationY(translationYForProgressBar);
+        break;
+    }
+  }
+
+  public boolean isProgress() {
+    return uxState == UX_STATE_ONLY_PROGRESS_VISIBLE;
   }
 
   private void hideAllBars() {
