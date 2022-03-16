@@ -74,7 +74,7 @@ import org.checkerframework.dataflow.qual.Pure;
             transformationRequest.transformationMatrix,
             transformationRequest.outputHeight);
     Size requestedEncoderDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(decodedWidth, decodedHeight);
+        scaleToFitFrameProcessor.configureOutputSize(decodedWidth, decodedHeight);
     outputRotationDegrees = scaleToFitFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =

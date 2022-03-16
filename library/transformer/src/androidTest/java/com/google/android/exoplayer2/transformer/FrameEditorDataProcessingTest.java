@@ -244,9 +244,9 @@ public final class FrameEditorDataProcessingTest {
 
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-      Size outputDimensions = glFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
-      int outputWidth = outputDimensions.getWidth();
-      int outputHeight = outputDimensions.getHeight();
+      Size outputSize = glFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+      int outputWidth = outputSize.getWidth();
+      int outputHeight = outputSize.getHeight();
       frameEditorOutputImageReader =
           ImageReader.newInstance(
               outputWidth, outputHeight, PixelFormat.RGBA_8888, /* maxImages= */ 1);

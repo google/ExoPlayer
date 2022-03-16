@@ -40,11 +40,10 @@ public final class AdvancedFrameProcessorTest {
     AdvancedFrameProcessor advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
 
-    Size outputDimensions =
-        advancedFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -57,10 +56,9 @@ public final class AdvancedFrameProcessorTest {
     AdvancedFrameProcessor advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), transformationMatrix);
 
-    Size outputDimensions =
-        advancedFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 }
