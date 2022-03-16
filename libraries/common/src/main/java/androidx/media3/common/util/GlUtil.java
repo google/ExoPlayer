@@ -223,17 +223,17 @@ public final class GlUtil {
   }
 
   /**
-   * Asserts that dimensions are valid for a texture.
+   * Asserts the texture size is valid.
    *
    * @param width The width for a texture.
    * @param height The height for a texture.
    * @throws GlException If the texture width or height is invalid.
    */
-  public static void assertValidTextureDimensions(int width, int height) {
-    // TODO(b/201293185): Consider handling adjustments for resolutions > GL_MAX_TEXTURE_SIZE
+  public static void assertValidTextureSize(int width, int height) {
+    // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
     //  (ex. downscaling appropriately) in a FrameProcessor instead of asserting incorrect values.
 
-    // For valid GL resolutions, see:
+    // For valid GL sizes, see:
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
     int[] maxTextureSizeBuffer = new int[1];
     GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSizeBuffer, 0);

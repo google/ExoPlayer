@@ -101,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public Size configureOutputDimensions(int inputWidth, int inputHeight) {
+  public Size configureOutputSize(int inputWidth, int inputHeight) {
     return new Size(inputWidth, inputHeight);
   }
 

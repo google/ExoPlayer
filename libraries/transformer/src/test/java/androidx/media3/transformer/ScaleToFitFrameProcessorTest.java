@@ -43,13 +43,12 @@ public final class ScaleToFitFrameProcessorTest {
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor(getApplicationContext(), identityMatrix, C.LENGTH_UNSET);
 
-    Size outputDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(scaleToFitFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(scaleToFitFrameProcessor.shouldProcess()).isFalse();
-    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -83,13 +82,12 @@ public final class ScaleToFitFrameProcessorTest {
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor(getApplicationContext(), scaleNarrowMatrix, C.LENGTH_UNSET);
 
-    Size outputDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(scaleToFitFrameProcessor.getOutputRotationDegrees()).isEqualTo(90);
     assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
-    assertThat(outputDimensions.getWidth()).isEqualTo(inputHeight);
-    assertThat(outputDimensions.getHeight()).isEqualTo(Math.round(inputWidth * .5f));
+    assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
+    assertThat(outputSize.getHeight()).isEqualTo(Math.round(inputWidth * .5f));
   }
 
   @Test
@@ -101,13 +99,12 @@ public final class ScaleToFitFrameProcessorTest {
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor(getApplicationContext(), scaleNarrowMatrix, C.LENGTH_UNSET);
 
-    Size outputDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(scaleToFitFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
-    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth * 2);
-    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth * 2);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -119,13 +116,12 @@ public final class ScaleToFitFrameProcessorTest {
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor(getApplicationContext(), rotate90Matrix, C.LENGTH_UNSET);
 
-    Size outputDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(scaleToFitFrameProcessor.getOutputRotationDegrees()).isEqualTo(90);
     assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
-    assertThat(outputDimensions.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputDimensions.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -138,13 +134,12 @@ public final class ScaleToFitFrameProcessorTest {
         new ScaleToFitFrameProcessor(getApplicationContext(), rotate45Matrix, C.LENGTH_UNSET);
     long expectedOutputWidthHeight = 247;
 
-    Size outputDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(scaleToFitFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
-    assertThat(outputDimensions.getWidth()).isEqualTo(expectedOutputWidthHeight);
-    assertThat(outputDimensions.getHeight()).isEqualTo(expectedOutputWidthHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);
+    assertThat(outputSize.getHeight()).isEqualTo(expectedOutputWidthHeight);
   }
 
   @Test
@@ -156,12 +151,11 @@ public final class ScaleToFitFrameProcessorTest {
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor(getApplicationContext(), identityMatrix, requestedHeight);
 
-    Size outputDimensions =
-        scaleToFitFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(scaleToFitFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
-    assertThat(outputDimensions.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
-    assertThat(outputDimensions.getHeight()).isEqualTo(requestedHeight);
+    assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
+    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
 }

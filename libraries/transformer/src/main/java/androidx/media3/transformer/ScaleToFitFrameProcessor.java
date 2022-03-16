@@ -81,7 +81,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>Return values may be {@code 0} or {@code 90} degrees.
    *
-   * <p>This method can only be called after {@link #configureOutputDimensions(int, int)}.
+   * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
    */
   public int getOutputRotationDegrees() {
     checkState(outputRotationDegrees != C.LENGTH_UNSET);
@@ -93,7 +93,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>The ScaleToFitFrameProcessor should only be used if this returns true.
    *
-   * <p>This method can only be called after {@link #configureOutputDimensions(int, int)}.
+   * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
    */
   @RequiresNonNull("adjustedTransformationMatrix")
   public boolean shouldProcess() {
@@ -104,7 +104,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   @EnsuresNonNull("adjustedTransformationMatrix")
-  public Size configureOutputDimensions(int inputWidth, int inputHeight) {
+  public Size configureOutputSize(int inputWidth, int inputHeight) {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
@@ -179,7 +179,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void initialize(int inputTexId) throws IOException {
     checkStateNotNull(adjustedTransformationMatrix);
     advancedFrameProcessor = new AdvancedFrameProcessor(context, adjustedTransformationMatrix);
-    advancedFrameProcessor.configureOutputDimensions(inputWidth, inputHeight);
+    advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
     advancedFrameProcessor.initialize(inputTexId);
   }
 

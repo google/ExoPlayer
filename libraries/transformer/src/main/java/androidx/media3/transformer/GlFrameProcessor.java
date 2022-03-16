@@ -25,7 +25,7 @@ import java.io.IOException;
  *
  * <ol>
  *   <li>The constructor, for implementation-specific arguments.
- *   <li>{@link #configureOutputDimensions(int, int)}, to configure based on input dimensions.
+ *   <li>{@link #configureOutputSize(int, int)}, to configure based on input dimensions.
  *   <li>{@link #initialize(int)}, to set up graphics initialization.
  *   <li>{@link #updateProgramAndDraw(long)}, to process one frame.
  *   <li>{@link #release()}, upon conclusion of processing.
@@ -34,12 +34,12 @@ import java.io.IOException;
 /* package */ interface GlFrameProcessor {
 
   /**
-   * Returns the output {@link Size dimensions} of frames processed through {@link
+   * Returns the output {@link Size} of frames processed through {@link
    * #updateProgramAndDraw(long)}.
    *
    * <p>This method must be called before {@link #initialize(int)} and does not use OpenGL.
    */
-  Size configureOutputDimensions(int inputWidth, int inputHeight);
+  Size configureOutputSize(int inputWidth, int inputHeight);
 
   /**
    * Does any initialization necessary such as loading and compiling a GLSL shader programs.
