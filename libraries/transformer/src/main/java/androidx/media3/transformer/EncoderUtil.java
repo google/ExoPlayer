@@ -22,12 +22,14 @@ import static java.lang.Math.round;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
+import android.media.MediaFormat;
 import android.util.Size;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
@@ -152,6 +154,32 @@ public final class EncoderUtil {
       }
     }
     return maxSupportedLevel;
+  }
+
+  /**
+   * Finds a {@link MediaCodec codec} that supports the {@link MediaFormat}, or {@code null} if none
+   * is found.
+   */
+  @Nullable
+  public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    // Format must not include KEY_FRAME_RATE on API21.
+    // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
+    @Nullable String frameRate = null;
+    if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+      frameRate = format.getString(MediaFormat.KEY_FRAME_RATE);
+      format.setString(MediaFormat.KEY_FRAME_RATE, null);
+    }
+
+    String mediaCodecName =
+        isDecoder
+            ? mediaCodecList.findDecoderForFormat(format)
+            : mediaCodecList.findEncoderForFormat(format);
+
+    if (Util.SDK_INT == 21) {
+      MediaFormatUtil.maybeSetString(format, MediaFormat.KEY_FRAME_RATE, frameRate);
+    }
+    return mediaCodecName;
   }
 
   /**
