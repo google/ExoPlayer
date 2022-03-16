@@ -21,11 +21,15 @@ import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.DecoderFactory}. */
 /* package */ final class DefaultDecoderFactory implements Codec.DecoderFactory {
+
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
     MediaFormat mediaFormat =
@@ -35,12 +39,13 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
 
+    @Nullable
+    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
+    if (mediaCodecName == null) {
+      throw createTransformationException(format);
+    }
     return new DefaultCodec(
-        format,
-        mediaFormat,
-        /* mediaCodecName= */ null,
-        /* isDecoder= */ true,
-        /* outputSurface= */ null);
+        format, mediaFormat, mediaCodecName, /* isDecoder= */ true, /* outputSurface= */ null);
   }
 
   @Override
@@ -59,7 +64,23 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
 
+    @Nullable
+    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
+    if (mediaCodecName == null) {
+      throw createTransformationException(format);
+    }
     return new DefaultCodec(
-        format, mediaFormat, /* mediaCodecName= */ null, /* isDecoder= */ true, outputSurface);
+        format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
+  }
+
+  @RequiresNonNull("#1.sampleMimeType")
+  private static TransformationException createTransformationException(Format format) {
+    return TransformationException.createForCodec(
+        new IllegalArgumentException("The requested decoding format is not supported."),
+        MimeTypes.isVideo(format.sampleMimeType),
+        /* isDecoder= */ true,
+        format,
+        /* mediaCodecName= */ null,
+        TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
   }
 }

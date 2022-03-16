@@ -30,6 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
+import android.media.MediaCodecInfo;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
@@ -49,6 +50,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -64,7 +66,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowMediaCodec;
+import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** End-to-end test for {@link Transformer}. */
 @RunWith(AndroidJUnit4.class)
@@ -750,10 +754,26 @@ public final class TransformerEndToEndTest {
             /* inputBufferSize= */ 10_000,
             /* outputBufferSize= */ 10_000,
             /* codec= */ (in, out) -> out.put(in));
-    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AAC, codecConfig);
-    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AC3, codecConfig);
-    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AMR_NB, codecConfig);
-    ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AAC, codecConfig);
+    addCodec(
+        MimeTypes.AUDIO_AAC,
+        codecConfig,
+        /* colorFormats= */ ImmutableList.of(),
+        /* isDecoder= */ true);
+    addCodec(
+        MimeTypes.AUDIO_AC3,
+        codecConfig,
+        /* colorFormats= */ ImmutableList.of(),
+        /* isDecoder= */ true);
+    addCodec(
+        MimeTypes.AUDIO_AMR_NB,
+        codecConfig,
+        /* colorFormats= */ ImmutableList.of(),
+        /* isDecoder= */ true);
+    addCodec(
+        MimeTypes.AUDIO_AAC,
+        codecConfig,
+        /* colorFormats= */ ImmutableList.of(),
+        /* isDecoder= */ false);
 
     ShadowMediaCodec.CodecConfig throwingCodecConfig =
         new ShadowMediaCodec.CodecConfig(
@@ -776,9 +796,54 @@ public final class TransformerEndToEndTest {
               }
             });
 
-    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AMR_WB, throwingCodecConfig);
-    ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AMR_NB, throwingCodecConfig);
-    ShadowMediaCodec.addEncoder(MimeTypes.VIDEO_H263, throwingCodecConfig);
+    addCodec(
+        MimeTypes.AUDIO_AMR_WB,
+        throwingCodecConfig,
+        /* colorFormats= */ ImmutableList.of(),
+        /* isDecoder= */ true);
+    addCodec(
+        MimeTypes.VIDEO_H263,
+        throwingCodecConfig,
+        ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible),
+        /* isDecoder= */ false);
+    addCodec(
+        MimeTypes.AUDIO_AMR_NB,
+        throwingCodecConfig,
+        /* colorFormats= */ ImmutableList.of(),
+        /* isDecoder= */ false);
+  }
+
+  private static void addCodec(
+      String mimeType,
+      ShadowMediaCodec.CodecConfig codecConfig,
+      List<Integer> colorFormats,
+      boolean isDecoder) {
+    String codecName =
+        Util.formatInvariant(
+            isDecoder ? "exo.%s.decoder" : "exo.%s.encoder", mimeType.replace('/', '-'));
+    if (isDecoder) {
+      ShadowMediaCodec.addDecoder(codecName, codecConfig);
+    } else {
+      ShadowMediaCodec.addEncoder(codecName, codecConfig);
+    }
+
+    MediaFormat mediaFormat = new MediaFormat();
+    mediaFormat.setString(MediaFormat.KEY_MIME, mimeType);
+    MediaCodecInfoBuilder.CodecCapabilitiesBuilder codecCapabilities =
+        MediaCodecInfoBuilder.CodecCapabilitiesBuilder.newBuilder()
+            .setMediaFormat(mediaFormat)
+            .setIsEncoder(!isDecoder);
+
+    if (!colorFormats.isEmpty()) {
+      codecCapabilities.setColorFormats(Ints.toArray(colorFormats));
+    }
+
+    ShadowMediaCodecList.addCodec(
+        MediaCodecInfoBuilder.newBuilder()
+            .setName(codecName)
+            .setIsEncoder(!isDecoder)
+            .setCapabilities(codecCapabilities.build())
+            .build());
   }
 
   private static void removeEncodersAndDecoders() {

@@ -72,19 +72,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       throws TransformationException {
     // TODO(b/210591626) Add encoder selection for audio.
     checkArgument(!allowedMimeTypes.isEmpty());
+    checkNotNull(format.sampleMimeType);
     if (!allowedMimeTypes.contains(format.sampleMimeType)) {
       if (enableFallback) {
         // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
         // capabilities limitations.
         format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
       } else {
-        throw TransformationException.createForCodec(
-            new IllegalArgumentException("The requested output format is not supported."),
-            /* isVideo= */ false,
-            /* isDecoder= */ false,
-            format,
-            /* mediaCodecName= */ null,
-            TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+        throw createTransformationException(format);
       }
     }
     MediaFormat mediaFormat =
@@ -92,12 +87,13 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
 
+    @Nullable
+    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ false);
+    if (mediaCodecName == null) {
+      throw createTransformationException(format);
+    }
     return new DefaultCodec(
-        format,
-        mediaFormat,
-        /* mediaCodecName= */ null,
-        /* isDecoder= */ false,
-        /* outputSurface= */ null);
+        format, mediaFormat, mediaCodecName, /* isDecoder= */ false, /* outputSurface= */ null);
   }
 
   @Override
@@ -118,13 +114,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         findEncoderWithClosestFormatSupport(
             format, videoEncoderSelector, allowedMimeTypes, enableFallback);
     if (encoderAndClosestFormatSupport == null) {
-      throw TransformationException.createForCodec(
-          new IllegalArgumentException("The requested output format is not supported."),
-          /* isVideo= */ true,
-          /* isDecoder= */ false,
-          format,
-          /* mediaCodecName= */ null,
-          TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
+      throw createTransformationException(format);
     }
 
     MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.first;
@@ -368,5 +358,16 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     // TODO(b/210591626) Implement bitrate estimation.
     // 1080p30 -> 6.2Mbps, 720p30 -> 2.7Mbps.
     return (int) (width * height * frameRate * 0.1);
+  }
+
+  @RequiresNonNull("#1.sampleMimeType")
+  private static TransformationException createTransformationException(Format format) {
+    return TransformationException.createForCodec(
+        new IllegalArgumentException("The requested encoding format is not supported."),
+        MimeTypes.isVideo(format.sampleMimeType),
+        /* isDecoder= */ false,
+        format,
+        /* mediaCodecName= */ null,
+        TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 }
