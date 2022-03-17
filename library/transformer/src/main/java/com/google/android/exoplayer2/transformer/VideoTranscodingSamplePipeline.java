@@ -82,11 +82,13 @@ import org.checkerframework.dataflow.qual.Pure;
             .setWidth(requestedEncoderDimensions.getWidth())
             .setHeight(requestedEncoderDimensions.getHeight())
             .setRotationDegrees(0)
+            .setFrameRate(inputFormat.frameRate)
             .setSampleMimeType(
                 transformationRequest.videoMimeType != null
                     ? transformationRequest.videoMimeType
                     : inputFormat.sampleMimeType)
             .build();
+
     encoder = encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
     Format encoderSupportedFormat = encoder.getConfigurationFormat();
     fallbackListener.onTransformationRequestFinalized(

@@ -29,7 +29,6 @@ import android.util.Pair;
 import android.util.Size;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -38,32 +37,50 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.EncoderFactory}. */
+// TODO(b/224949986) Split audio and video encoder factory.
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
-  private static final int DEFAULT_COLOR_FORMAT =
-      MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
-  private static final int DEFAULT_FRAME_RATE = 60;
-  private static final int DEFAULT_I_FRAME_INTERVAL_SECS = 1;
+  private static final int DEFAULT_FRAME_RATE = 30;
 
-  @Nullable private final EncoderSelector videoEncoderSelector;
+  private final EncoderSelector videoEncoderSelector;
+  private final VideoEncoderSettings requestedVideoEncoderSettings;
   private final boolean enableFallback;
 
   /**
-   * Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}, and
-   * format fallback enabled.
-   *
-   * <p>With format fallback enabled, and when the requested {@link Format} is not supported, {@code
-   * DefaultEncoderFactory} finds a format that is supported by the device and configures the {@link
-   * Codec} with it. The fallback process may change the requested {@link Format#sampleMimeType MIME
-   * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level}, etc.
+   * Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}, a
+   * default {@link VideoEncoderSettings}, and with format fallback enabled.
    */
   public DefaultEncoderFactory() {
     this(EncoderSelector.DEFAULT, /* enableFallback= */ true);
   }
 
-  /** Creates a new instance. */
+  /** Creates a new instance using a default {@link VideoEncoderSettings}. */
+  public DefaultEncoderFactory(EncoderSelector videoEncoderSelector, boolean enableFallback) {
+    this(videoEncoderSelector, new VideoEncoderSettings.Builder().build(), enableFallback);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * <p>Values in {@code requestedVideoEncoderSettings} could be adjusted to improve encoding
+   * quality and/or reduce failures. Specifically, {@link VideoEncoderSettings#profile} and {@link
+   * VideoEncoderSettings#level} are ignored for {@link MimeTypes#VIDEO_H264}. Consider implementing
+   * {@link Codec.EncoderFactory} if such adjustments are unwanted.
+   *
+   * <p>With format fallback enabled, and when the requested {@link Format} is not supported, {@code
+   * DefaultEncoderFactory} finds a format that is supported by the device and configures the {@link
+   * Codec} with it. The fallback process may change the requested {@link Format#sampleMimeType MIME
+   * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level}, etc.
+   *
+   * @param videoEncoderSelector The {@link EncoderSelector}.
+   * @param requestedVideoEncoderSettings The {@link VideoEncoderSettings}.
+   * @param enableFallback Whether to enable fallback.
+   */
   public DefaultEncoderFactory(
-      @Nullable EncoderSelector videoEncoderSelector, boolean enableFallback) {
+      EncoderSelector videoEncoderSelector,
+      VideoEncoderSettings requestedVideoEncoderSettings,
+      boolean enableFallback) {
     this.videoEncoderSelector = videoEncoderSelector;
+    this.requestedVideoEncoderSettings = requestedVideoEncoderSettings;
     this.enableFallback = enableFallback;
   }
 
@@ -99,6 +116,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   @Override
   public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
       throws TransformationException {
+    if (format.frameRate == Format.NO_VALUE) {
+      format = format.buildUpon().setFrameRate(DEFAULT_FRAME_RATE).build();
+    }
     checkArgument(format.width != Format.NO_VALUE);
     checkArgument(format.height != Format.NO_VALUE);
     // According to interface Javadoc, format.rotationDegrees should be 0. The video should always
@@ -110,78 +130,51 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     checkStateNotNull(videoEncoderSelector);
 
     @Nullable
-    Pair<MediaCodecInfo, Format> encoderAndClosestFormatSupport =
+    VideoEncoderQueryResult encoderAndClosestFormatSupport =
         findEncoderWithClosestFormatSupport(
-            format, videoEncoderSelector, allowedMimeTypes, enableFallback);
+            format,
+            requestedVideoEncoderSettings,
+            videoEncoderSelector,
+            allowedMimeTypes,
+            enableFallback);
+
     if (encoderAndClosestFormatSupport == null) {
       throw createTransformationException(format);
     }
 
-    MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.first;
-    format = encoderAndClosestFormatSupport.second;
+    MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.encoder;
+    format = encoderAndClosestFormatSupport.supportedFormat;
+    VideoEncoderSettings supportedVideoEncoderSettings =
+        encoderAndClosestFormatSupport.supportedEncoderSettings;
+
     String mimeType = checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = MediaFormat.createVideoFormat(mimeType, format.width, format.height);
     mediaFormat.setFloat(MediaFormat.KEY_FRAME_RATE, format.frameRate);
-    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.averageBitrate);
+    mediaFormat.setInteger(
+        MediaFormat.KEY_BIT_RATE,
+        supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE
+            ? supportedVideoEncoderSettings.bitrate
+            : getSuggestedBitrate(format.width, format.height, format.frameRate));
 
-    @Nullable
-    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
-    if (codecProfileAndLevel != null) {
-      // The codecProfileAndLevel is supported by the encoder.
-      mediaFormat.setInteger(MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
-      if (SDK_INT >= 23) {
-        mediaFormat.setInteger(MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
-      }
+    mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, supportedVideoEncoderSettings.bitrateMode);
+
+    if (supportedVideoEncoderSettings.profile != VideoEncoderSettings.NO_VALUE
+        && supportedVideoEncoderSettings.level != VideoEncoderSettings.NO_VALUE
+        && SDK_INT >= 23) {
+      // Set profile and level at the same time to maximize compatibility, or the encoder will pick
+      // the values.
+      mediaFormat.setInteger(MediaFormat.KEY_PROFILE, supportedVideoEncoderSettings.profile);
+      mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedVideoEncoderSettings.level);
     }
 
-    // TODO(b/210593256): Remove overriding profile/level (before API 29) after switching to in-app
-    // muxing.
     if (mimeType.equals(MimeTypes.VIDEO_H264)) {
-      // Applying suggested profile/level settings from
-      // https://developer.android.com/guide/topics/media/sharing-video#b-frames_and_encoding_profiles
-      if (Util.SDK_INT >= 29) {
-        int supportedEncodingLevel =
-            EncoderUtil.findHighestSupportedEncodingLevel(
-                encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
-        if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
-          // Use the highest supported profile and use B-frames.
-          mediaFormat.setInteger(
-              MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
-          mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
-          mediaFormat.setInteger(MediaFormat.KEY_MAX_B_FRAMES, 1);
-        }
-      } else if (Util.SDK_INT >= 26) {
-        int supportedEncodingLevel =
-            EncoderUtil.findHighestSupportedEncodingLevel(
-                encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
-        if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
-          // Use the highest-supported profile, but disable the generation of B-frames using
-          // MediaFormat.KEY_LATENCY. This accommodates some limitations in the MediaMuxer in these
-          // system versions.
-          mediaFormat.setInteger(
-              MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
-          mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
-          // TODO(b/210593256): Set KEY_LATENCY to 2 to enable B-frame production after switching to
-          // in-app muxing.
-          mediaFormat.setInteger(MediaFormat.KEY_LATENCY, 1);
-        }
-      } else if (Util.SDK_INT >= 24) {
-        int supportedLevel =
-            EncoderUtil.findHighestSupportedEncodingLevel(
-                encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
-        checkState(supportedLevel != EncoderUtil.LEVEL_UNSET);
-        // Use the baseline profile for safest results, as encoding in baseline is required per
-        // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
-        mediaFormat.setInteger(
-            MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
-        mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedLevel);
-      }
-      // For API levels below 24, setting profile and level can lead to failures in MediaCodec
-      // configuration. The encoder selects the profile/level when we don't set them.
+      adjustMediaFormatForH264EncoderSettings(mediaFormat, encoderInfo);
     }
 
-    mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, DEFAULT_COLOR_FORMAT);
-    mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, DEFAULT_I_FRAME_INTERVAL_SECS);
+    mediaFormat.setInteger(
+        MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
+    mediaFormat.setFloat(
+        MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
 
     return new DefaultCodec(
         format,
@@ -199,8 +192,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    */
   @RequiresNonNull("#1.sampleMimeType")
   @Nullable
-  private static Pair<MediaCodecInfo, Format> findEncoderWithClosestFormatSupport(
+  private static VideoEncoderQueryResult findEncoderWithClosestFormatSupport(
       Format requestedFormat,
+      VideoEncoderSettings videoEncoderSettings,
       EncoderSelector encoderSelector,
       List<String> allowedMimeTypes,
       boolean enableFallback) {
@@ -216,7 +210,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       return null;
     }
     if (!enableFallback) {
-      return Pair.create(encodersForMimeType.get(0), requestedFormat);
+      return new VideoEncoderQueryResult(
+          encodersForMimeType.get(0), requestedFormat, videoEncoderSettings);
     }
     ImmutableList<MediaCodecInfo> filteredEncoders =
         filterEncoders(
@@ -238,6 +233,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     if (filteredEncoders.isEmpty()) {
       return null;
     }
+
     // The supported resolution is the same for all remaining encoders.
     Size finalResolution =
         checkNotNull(
@@ -245,14 +241,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
                 filteredEncoders.get(0), mimeType, requestedFormat.width, requestedFormat.height));
 
     int requestedBitrate =
-        requestedFormat.averageBitrate == Format.NO_VALUE
-            ? getSuggestedBitrate(
-                finalResolution.getWidth(),
-                finalResolution.getHeight(),
-                requestedFormat.frameRate == Format.NO_VALUE
-                    ? DEFAULT_FRAME_RATE
-                    : requestedFormat.frameRate)
-            : requestedFormat.averageBitrate;
+        videoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE
+            ? videoEncoderSettings.bitrate
+            : getSuggestedBitrate(
+                finalResolution.getWidth(), finalResolution.getHeight(), requestedFormat.frameRate);
     filteredEncoders =
         filterEncoders(
             filteredEncoders,
@@ -266,32 +258,99 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     MediaCodecInfo pickedEncoder = filteredEncoders.get(0);
-    @Nullable
-    Pair<Integer, Integer> profileLevel = MediaCodecUtil.getCodecProfileAndLevel(requestedFormat);
-    @Nullable String codecs = null;
-    if (profileLevel != null
-        && requestedFormat.sampleMimeType.equals(mimeType)
-        && profileLevel.second
-            <= EncoderUtil.findHighestSupportedEncodingLevel(
-                pickedEncoder, mimeType, /* profile= */ profileLevel.first)) {
-      codecs = requestedFormat.codecs;
+    int closestSupportedBitrate =
+        EncoderUtil.getClosestSupportedBitrate(pickedEncoder, mimeType, requestedBitrate);
+    VideoEncoderSettings.Builder supportedEncodingSettingBuilder =
+        videoEncoderSettings.buildUpon().setBitrate(closestSupportedBitrate);
+    if (videoEncoderSettings.profile == VideoEncoderSettings.NO_VALUE
+        || videoEncoderSettings.level == VideoEncoderSettings.NO_VALUE
+        || videoEncoderSettings.level
+            > EncoderUtil.findHighestSupportedEncodingLevel(
+                pickedEncoder, mimeType, videoEncoderSettings.profile)) {
+      supportedEncodingSettingBuilder.setEncodingProfileLevel(
+          VideoEncoderSettings.NO_VALUE, VideoEncoderSettings.NO_VALUE);
     }
 
-    Format encoderSupportedFormat =
+    Format supportedEncoderFormat =
         requestedFormat
             .buildUpon()
             .setSampleMimeType(mimeType)
-            .setCodecs(codecs)
             .setWidth(finalResolution.getWidth())
             .setHeight(finalResolution.getHeight())
-            .setFrameRate(
-                requestedFormat.frameRate != Format.NO_VALUE
-                    ? requestedFormat.frameRate
-                    : DEFAULT_FRAME_RATE)
-            .setAverageBitrate(
-                EncoderUtil.getClosestSupportedBitrate(pickedEncoder, mimeType, requestedBitrate))
+            .setAverageBitrate(closestSupportedBitrate)
             .build();
-    return Pair.create(pickedEncoder, encoderSupportedFormat);
+    return new VideoEncoderQueryResult(
+        pickedEncoder, supportedEncoderFormat, supportedEncodingSettingBuilder.build());
+  }
+
+  private static final class VideoEncoderQueryResult {
+    public final MediaCodecInfo encoder;
+    public final Format supportedFormat;
+    public final VideoEncoderSettings supportedEncoderSettings;
+
+    public VideoEncoderQueryResult(
+        MediaCodecInfo encoder,
+        Format supportedFormat,
+        VideoEncoderSettings supportedEncoderSettings) {
+      this.encoder = encoder;
+      this.supportedFormat = supportedFormat;
+      this.supportedEncoderSettings = supportedEncoderSettings;
+    }
+  }
+
+  /**
+   * Applying suggested profile/level settings from
+   * https://developer.android.com/guide/topics/media/sharing-video#b-frames_and_encoding_profiles
+   *
+   * <p>The adjustment is applied in-place to {@code mediaFormat}.
+   */
+  private static void adjustMediaFormatForH264EncoderSettings(
+      MediaFormat mediaFormat, MediaCodecInfo encoderInfo) {
+    // TODO(b/210593256): Remove overriding profile/level (before API 29) after switching to in-app
+    // muxing.
+    String mimeType = MimeTypes.VIDEO_H264;
+    if (Util.SDK_INT >= 29) {
+      int expectedEncodingProfile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh;
+      int supportedEncodingLevel =
+          EncoderUtil.findHighestSupportedEncodingLevel(
+              encoderInfo, mimeType, expectedEncodingProfile);
+      if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
+        // Use the highest supported profile and use B-frames.
+        mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
+        mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
+        mediaFormat.setInteger(MediaFormat.KEY_MAX_B_FRAMES, 1);
+      }
+    } else if (Util.SDK_INT >= 26) {
+      int expectedEncodingProfile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh;
+      int supportedEncodingLevel =
+          EncoderUtil.findHighestSupportedEncodingLevel(
+              encoderInfo, mimeType, expectedEncodingProfile);
+      if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
+        // Use the highest-supported profile, but disable the generation of B-frames using
+        // MediaFormat.KEY_LATENCY. This accommodates some limitations in the MediaMuxer in these
+        // system versions.
+        mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
+        mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
+        // TODO(b/210593256): Set KEY_LATENCY to 2 to enable B-frame production after switching to
+        // in-app muxing.
+        mediaFormat.setInteger(MediaFormat.KEY_LATENCY, 1);
+      }
+    } else if (Util.SDK_INT >= 24) {
+      int expectedEncodingProfile = MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline;
+      int supportedLevel =
+          EncoderUtil.findHighestSupportedEncodingLevel(
+              encoderInfo, mimeType, expectedEncodingProfile);
+      checkState(supportedLevel != EncoderUtil.LEVEL_UNSET);
+      // Use the baseline profile for safest results, as encoding in baseline is required per
+      // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
+      mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
+      mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedLevel);
+    } else {
+      // For API levels below 24, setting profile and level can lead to failures in MediaCodec
+      // configuration. The encoder selects the profile/level when we don't set them.
+      mediaFormat.setString(MediaFormat.KEY_PROFILE, null);
+      mediaFormat.setString(MediaFormat.KEY_LEVEL, null);
+    }
   }
 
   private interface EncoderFallbackCost {
@@ -305,6 +364,15 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     int getParameterSupportGap(MediaCodecInfo encoderInfo);
   }
 
+  /**
+   * Filters a list of {@link MediaCodecInfo encoders} by a {@link EncoderFallbackCost cost
+   * function}.
+   *
+   * @param encoders A list of {@link MediaCodecInfo encoders}.
+   * @param cost A {@link EncoderFallbackCost cost function}.
+   * @return A list of {@link MediaCodecInfo encoders} with the lowest costs, empty if the costs of
+   *     all encoders are {@link Integer#MAX_VALUE}.
+   */
   private static ImmutableList<MediaCodecInfo> filterEncoders(
       List<MediaCodecInfo> encoders, EncoderFallbackCost cost) {
     List<MediaCodecInfo> filteredEncoders = new ArrayList<>(encoders.size());
