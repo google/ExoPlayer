@@ -60,7 +60,9 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the transformation matrix. The default value is to apply no change.
+     * Sets the transformation matrix.
+     *
+     * <p>The default value is to apply no change.
      *
      * <p>This can be used to perform operations supported by {@link Matrix}, like scaling and
      * rotating the video.
@@ -82,10 +84,11 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets whether the input should be flattened for media containing slow motion markers. The
-     * transformed output is obtained by removing the slow motion metadata and by actually slowing
-     * down the parts of the video and audio streams defined in this metadata. The default value for
-     * {@code flattenForSlowMotion} is {@code false}.
+     * Sets whether the input should be flattened for media containing slow motion markers.
+     *
+     * <p>The transformed output is obtained by removing the slow motion metadata and by actually
+     * slowing down the parts of the video and audio streams defined in this metadata. The default
+     * value for {@code flattenForSlowMotion} is {@code false}.
      *
      * <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. The
      * transformation has no effect if the input does not contain this metadata type.
@@ -112,9 +115,11 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height. The default value {@link C#LENGTH_UNSET}
-     * corresponds to using the same height as the input. Output width of the displayed video will
-     * scale to preserve the video's aspect ratio after other transformations.
+     * Sets the output resolution using the output height.
+     *
+     * <p>The default value {@link C#LENGTH_UNSET} corresponds to using the same height as the
+     * input. Output width of the displayed video will scale to preserve the video's aspect ratio
+     * after other transformations.
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
      *
@@ -128,8 +133,10 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the video MIME type of the output. The default value is {@code null} which corresponds
-     * to using the same MIME type as the input. Supported MIME types are:
+     * Sets the video MIME type of the output.
+     *
+     * <p>The default value is {@code null} which corresponds to using the same MIME type as the
+     * input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_H263}
@@ -152,8 +159,10 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the audio MIME type of the output. The default value is {@code null} which corresponds
-     * to using the same MIME type as the input. Supported MIME types are:
+     * Sets the audio MIME type of the output.
+     *
+     * <p>The default value is {@code null} which corresponds to using the same MIME type as the
+     * input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#AUDIO_AAC}

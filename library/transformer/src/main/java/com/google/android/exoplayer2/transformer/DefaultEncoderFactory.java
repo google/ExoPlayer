@@ -192,9 +192,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds a {@link MediaCodecInfo encoder} that supports the requested format most closely. Returns
-   * the {@link MediaCodecInfo encoder} and the supported {@link Format} in a {@link Pair}, or
-   * {@code null} if none is found.
+   * Finds a {@link MediaCodecInfo encoder} that supports the requested format most closely.
+   *
+   * <p>Returns the {@link MediaCodecInfo encoder} and the supported {@link Format} in a {@link
+   * Pair}, or {@code null} if none is found.
    */
   @RequiresNonNull("#1.sampleMimeType")
   @Nullable
