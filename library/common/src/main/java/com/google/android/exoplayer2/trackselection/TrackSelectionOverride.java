@@ -33,16 +33,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Forces the selection of {@link #trackIndices} for a {@link TrackGroup}.
+ * A track selection override, consisting of a {@link TrackGroup} and the indices of the tracks
+ * within the group that should be selected.
  *
- * <p>If multiple tracks in {@link #trackGroup} are overridden, as many as possible will be selected
- * depending on the player capabilities.
+ * <p>A track selection override is applied during playback if the media being played contains a
+ * {@link TrackGroup} equal to the one in the override. If a {@link TrackSelectionParameters}
+ * contains only one override of a given track type that applies to the media, this override will be
+ * used to control the track selection for that type. If multiple overrides of a given track type
+ * apply then the player will apply only one of them.
  *
- * <p>If {@link #trackIndices} is empty, no tracks from {@link #trackGroup} will be played. This is
- * similar to {@link TrackSelectionParameters#disabledTrackTypes}, except it will only affect the
- * playback of the associated {@link TrackGroup}. For example, if the only {@link
- * C#TRACK_TYPE_VIDEO} {@link TrackGroup} is associated with no tracks, no video will play until the
- * next video starts.
+ * <p>If {@link #trackIndices} is empty then the override specifies that no tracks should be
+ * selected. Adding an empty override to a {@link TrackSelectionParameters} is similar to {@link
+ * TrackSelectionParameters.Builder#setTrackTypeDisabled disabling a track type}, except that an
+ * empty override will only be applied if the media being played contains a {@link TrackGroup} equal
+ * to the one in the override. Conversely, disabling a track type will prevent selection of tracks
+ * of that type for all media.
  */
 public final class TrackSelectionOverride implements Bundleable {
 

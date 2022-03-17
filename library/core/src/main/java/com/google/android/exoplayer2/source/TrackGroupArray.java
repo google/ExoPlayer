@@ -31,7 +31,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-/** An immutable array of {@link TrackGroup}s. */
+/**
+ * An immutable array of {@link TrackGroup}s.
+ *
+ * <p>This class is typically used to represent all of the tracks available in a piece of media.
+ * Tracks that are known to present the same content are grouped together (e.g., the same video feed
+ * provided at different resolutions in an adaptive stream). Tracks that are known to present
+ * different content are in separate track groups (e.g., an audio track will not be in the same
+ * group as a video track, and an audio track in one language will be in a different group to an
+ * audio track in another language).
+ */
 public final class TrackGroupArray implements Bundleable {
 
   private static final String TAG = "TrackGroupArray";

@@ -82,11 +82,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *         .setMaxVideoSizeSd()
  *         .setPreferredAudioLanguage("de")
  *         .build());
- *
  * }</pre>
  *
  * Some specialized parameters are only available in the extended {@link Parameters} class, which
- * can be retrieved and modified in a similar way in this track selector:
+ * can be retrieved and modified in a similar way by calling methods directly on this class:
  *
  * <pre>{@code
  * defaultTrackSelector.setParameters(
@@ -94,7 +93,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *         .buildUpon()
  *         .setTunnelingEnabled(true)
  *         .build());
- *
  * }</pre>
  */
 public class DefaultTrackSelector extends MappingTrackSelector {

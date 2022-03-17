@@ -41,8 +41,8 @@ public final class TracksInfo implements Bundleable {
 
   /**
    * Information about a single group of tracks, including the underlying {@link TrackGroup}, the
-   * {@link C.TrackType type} of tracks it contains, and the level to which each track is supported
-   * by the player.
+   * level to which each track is supported by the player, and whether any of the tracks are
+   * selected.
    */
   public static final class TrackGroupInfo implements Bundleable {
 
@@ -55,25 +55,25 @@ public final class TracksInfo implements Bundleable {
     private final boolean[] trackSelected;
 
     /**
-     * Constructs a TrackGroupInfo.
+     * Constructs an instance.
      *
-     * @param trackGroup The {@link TrackGroup} described.
-     * @param adaptiveSupported Whether adaptive selections containing more than one track in the
-     *     {@code trackGroup} are supported.
-     * @param trackSupport The {@link C.FormatSupport} of each track in the {@code trackGroup}.
-     * @param tracksSelected Whether each track in the {@code trackGroup} is selected.
+     * @param trackGroup The underlying {@link TrackGroup}.
+     * @param adaptiveSupported Whether the player supports adaptive selections containing more than
+     *     one track in the group.
+     * @param trackSupport The {@link C.FormatSupport} of each track in the group.
+     * @param trackSelected Whether each track in the {@code trackGroup} is selected.
      */
     public TrackGroupInfo(
         TrackGroup trackGroup,
         boolean adaptiveSupported,
         @C.FormatSupport int[] trackSupport,
-        boolean[] tracksSelected) {
+        boolean[] trackSelected) {
       length = trackGroup.length;
-      checkArgument(length == trackSupport.length && length == tracksSelected.length);
+      checkArgument(length == trackSupport.length && length == trackSelected.length);
       this.trackGroup = trackGroup;
       this.adaptiveSupported = adaptiveSupported && length > 1;
       this.trackSupport = trackSupport.clone();
-      this.trackSelected = tracksSelected.clone();
+      this.trackSelected = trackSelected.clone();
     }
 
     /** Returns the underlying {@link TrackGroup}. */
@@ -263,10 +263,10 @@ public final class TracksInfo implements Bundleable {
     }
   }
 
-  private final ImmutableList<TrackGroupInfo> trackGroupInfos;
-
   /** An {@code TrackInfo} that contains no tracks. */
   public static final TracksInfo EMPTY = new TracksInfo(ImmutableList.of());
+
+  private final ImmutableList<TrackGroupInfo> trackGroupInfos;
 
   /**
    * Constructs an instance.
