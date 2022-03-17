@@ -43,12 +43,14 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -327,6 +329,14 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private View playbackSpeedButton;
   @Nullable private View audioTrackButton;
 
+  //TODO DDD
+  private Drawable playDrawable;
+  private Drawable pauseDrawable;
+  @Nullable private Drawable rewindBackgroundDrawable;
+  @Nullable private Drawable forwardBackgroundDrawable;
+  @Nullable private Drawable previousDrawable;
+  @Nullable private Drawable nextDrawable;
+
   public StyledPlayerControlView(Context context) {
     this(context, /* attrs= */ null);
   }
@@ -524,6 +534,10 @@ public class StyledPlayerControlView extends FrameLayout {
     if (vrButton != null) {
       updateButton(/* enabled= */ false, vrButton);
     }
+
+    //TODO DDD
+    playDrawable = resources.getDrawable(R.drawable.exo_styled_controls_play);
+    pauseDrawable = resources.getDrawable(R.drawable.exo_styled_controls_pause);
 
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
@@ -939,6 +953,42 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
+  //todo ddd
+  void setPLayDrawable(Drawable playDrawable) {
+    this.playDrawable = playDrawable;
+  }
+
+  //todo ddd
+  void setPauseDrawable(Drawable pauseDrawable) {
+    this.pauseDrawable = pauseDrawable;
+  }
+
+  //todo ddd
+  void setRewindBackgroundDrawable(Drawable rewindDrawable) {
+    this.rewindBackgroundDrawable = rewindDrawable;
+  }
+
+  //todo ddd
+  void setForwardBackgroundDrawable(Drawable forwardDrawable) {
+    this.forwardBackgroundDrawable = forwardDrawable;
+  }
+
+  //todo ddd
+  void setPreviousDrawable(Drawable previousDrawable) {
+    this.previousDrawable = previousDrawable;
+    if (previousButton != null) {//TODO DDD
+      ((ImageView) previousButton).setImageDrawable(previousDrawable);
+    }
+  }
+
+  //todo ddd
+  void setNextDrawable(Drawable nextDrawable) {
+    this.nextDrawable = nextDrawable;
+    if (nextButton != null) {//TODO DDD
+      ((ImageView) nextButton).setImageDrawable(nextDrawable);
+    }
+  }
+
   /* package */ void updateAll() {
     updatePlayPauseButton();
     updateNavigation();
@@ -949,19 +999,21 @@ public class StyledPlayerControlView extends FrameLayout {
     updateTimeline();
   }
 
-  private void updatePlayPauseButton() {
+  private void updatePlayPauseButton() {//TODO DDD
     if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     if (playPauseButton != null) {
       if (shouldShowPauseButton()) {
         ((ImageView) playPauseButton)
-            .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_pause));
+            // .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_pause));
+            .setImageDrawable(pauseDrawable);
         playPauseButton.setContentDescription(
             resources.getString(R.string.exo_controls_pause_description));
       } else {
         ((ImageView) playPauseButton)
-            .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_play));
+            // .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_play));
+            .setImageDrawable(playDrawable);
         playPauseButton.setContentDescription(
             resources.getString(R.string.exo_controls_play_description));
       }
@@ -1009,6 +1061,13 @@ public class StyledPlayerControlView extends FrameLayout {
     int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
+      if (rewindBackgroundDrawable != null){ //TODO DDD
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          ((Button) findViewById(R.id.exo_rew_with_amount)).setForeground(rewindBackgroundDrawable);
+        } else {
+          ((Button) findViewById(R.id.exo_rew_with_amount)).setBackground(rewindBackgroundDrawable);
+        }
+      }
     }
     if (rewindButton != null) {
       rewindButton.setContentDescription(
@@ -1023,6 +1082,15 @@ public class StyledPlayerControlView extends FrameLayout {
     int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
+      if (forwardBackgroundDrawable != null) {//TODO DDD
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          ((Button) findViewById(R.id.exo_ffwd_with_amount))
+              .setForeground(forwardBackgroundDrawable);
+        } else {
+          ((Button) findViewById(R.id.exo_ffwd_with_amount))
+              .setBackground(forwardBackgroundDrawable);
+        }
+      }
     }
     if (fastForwardButton != null) {
       fastForwardButton.setContentDescription(

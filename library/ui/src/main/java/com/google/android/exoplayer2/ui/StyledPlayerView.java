@@ -690,6 +690,48 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     updateErrorMessage();
   }
 
+  //TODO DDD
+  public void setCustomPlayDrawable(Drawable playDrawable) {
+    if (controller != null) {
+      controller.setPLayDrawable(playDrawable);
+    }
+  }
+
+  //TODO DDD
+  public void setCustomPauseDrawable(Drawable pauseDrawable) {
+    if (controller != null) {
+      controller.setPauseDrawable(pauseDrawable);
+    }
+  }
+
+  //TODO DDD
+  public void setCustomRewindBackgroundDrawable(Drawable rewindDrawable) {
+    if (controller != null) {
+      controller.setRewindBackgroundDrawable(rewindDrawable);
+    }
+  }
+
+  //TODO DDD
+  public void setCustomForwardBackgroundDrawable(Drawable forwardDrawable) {
+    if (controller != null) {
+      controller.setForwardBackgroundDrawable(forwardDrawable);
+    }
+  }
+
+  //TODO DDD
+  public void setCustomPreviousDrawable(Drawable previousDrawable) {
+    if (controller != null) {
+      controller.setPreviousDrawable(previousDrawable);
+    }
+  }
+
+  //TODO DDD
+  public void setCustomNextDrawable(Drawable nextDrawable) {
+    if (controller != null) {
+      controller.setNextDrawable(nextDrawable);
+    }
+  }
+
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     if (player != null && player.isPlayingAd()) {
