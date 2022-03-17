@@ -690,46 +690,40 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     updateErrorMessage();
   }
 
-  //TODO DDD
+  /** Setting custom play button drawable. */
   public void setCustomPlayDrawable(Drawable playDrawable) {
-    if (controller != null) {
-      controller.setPLayDrawable(playDrawable);
-    }
+    Assertions.checkStateNotNull(controller);
+    controller.setPLayDrawable(playDrawable);
   }
 
-  //TODO DDD
+  /** Setting custom pause button drawable. */
   public void setCustomPauseDrawable(Drawable pauseDrawable) {
-    if (controller != null) {
-      controller.setPauseDrawable(pauseDrawable);
-    }
+    Assertions.checkStateNotNull(controller);
+    controller.setPauseDrawable(pauseDrawable);
   }
 
-  //TODO DDD
+  /** Setting custom rewind button background drawable. */
   public void setCustomRewindBackgroundDrawable(Drawable rewindDrawable) {
-    if (controller != null) {
-      controller.setRewindBackgroundDrawable(rewindDrawable);
-    }
+    Assertions.checkStateNotNull(controller);
+    controller.setRewindBackgroundDrawable(rewindDrawable);
   }
 
-  //TODO DDD
+  /** Setting custom forward button background drawable. */
   public void setCustomForwardBackgroundDrawable(Drawable forwardDrawable) {
-    if (controller != null) {
-      controller.setForwardBackgroundDrawable(forwardDrawable);
-    }
+    Assertions.checkStateNotNull(controller);
+    controller.setForwardBackgroundDrawable(forwardDrawable);
   }
 
-  //TODO DDD
+  /** Setting custom previous button drawable. */
   public void setCustomPreviousDrawable(Drawable previousDrawable) {
-    if (controller != null) {
-      controller.setPreviousDrawable(previousDrawable);
-    }
+    Assertions.checkStateNotNull(controller);
+    controller.setPreviousDrawable(previousDrawable);
   }
 
-  //TODO DDD
+  /** Setting custom next button drawable. */
   public void setCustomNextDrawable(Drawable nextDrawable) {
-    if (controller != null) {
-      controller.setNextDrawable(nextDrawable);
-    }
+    Assertions.checkStateNotNull(controller);
+    controller.setNextDrawable(nextDrawable);
   }
 
   @Override

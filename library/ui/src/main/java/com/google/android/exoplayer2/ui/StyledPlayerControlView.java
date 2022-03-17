@@ -329,7 +329,7 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private View playbackSpeedButton;
   @Nullable private View audioTrackButton;
 
-  //TODO DDD
+
   private Drawable playDrawable;
   private Drawable pauseDrawable;
   @Nullable private Drawable rewindBackgroundDrawable;
@@ -535,7 +535,6 @@ public class StyledPlayerControlView extends FrameLayout {
       updateButton(/* enabled= */ false, vrButton);
     }
 
-    //TODO DDD
     playDrawable = resources.getDrawable(R.drawable.exo_styled_controls_play);
     pauseDrawable = resources.getDrawable(R.drawable.exo_styled_controls_pause);
 
@@ -953,38 +952,38 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  //todo ddd
+  /** Setting custom play button drawable. */
   void setPLayDrawable(Drawable playDrawable) {
     this.playDrawable = playDrawable;
   }
 
-  //todo ddd
+  /** Setting custom pause button drawable. */
   void setPauseDrawable(Drawable pauseDrawable) {
     this.pauseDrawable = pauseDrawable;
   }
 
-  //todo ddd
+  /** Setting custom rewind button background drawable. */
   void setRewindBackgroundDrawable(Drawable rewindDrawable) {
     this.rewindBackgroundDrawable = rewindDrawable;
   }
 
-  //todo ddd
+  /** Setting custom forward button background drawable. */
   void setForwardBackgroundDrawable(Drawable forwardDrawable) {
     this.forwardBackgroundDrawable = forwardDrawable;
   }
 
-  //todo ddd
+  /** Setting custom previous button drawable. */
   void setPreviousDrawable(Drawable previousDrawable) {
     this.previousDrawable = previousDrawable;
-    if (previousButton != null) {//TODO DDD
+    if (previousButton != null) {
       ((ImageView) previousButton).setImageDrawable(previousDrawable);
     }
   }
 
-  //todo ddd
+  /** Setting custom next button drawable. */
   void setNextDrawable(Drawable nextDrawable) {
     this.nextDrawable = nextDrawable;
-    if (nextButton != null) {//TODO DDD
+    if (nextButton != null) {
       ((ImageView) nextButton).setImageDrawable(nextDrawable);
     }
   }
@@ -999,21 +998,17 @@ public class StyledPlayerControlView extends FrameLayout {
     updateTimeline();
   }
 
-  private void updatePlayPauseButton() {//TODO DDD
+  private void updatePlayPauseButton() {
     if (!isVisible() || !isAttachedToWindow) {
       return;
     }
     if (playPauseButton != null) {
       if (shouldShowPauseButton()) {
-        ((ImageView) playPauseButton)
-            // .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_pause));
-            .setImageDrawable(pauseDrawable);
+        ((ImageView) playPauseButton).setImageDrawable(pauseDrawable);
         playPauseButton.setContentDescription(
             resources.getString(R.string.exo_controls_pause_description));
       } else {
-        ((ImageView) playPauseButton)
-            // .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_play));
-            .setImageDrawable(playDrawable);
+        ((ImageView) playPauseButton).setImageDrawable(playDrawable);
         playPauseButton.setContentDescription(
             resources.getString(R.string.exo_controls_play_description));
       }
@@ -1061,7 +1056,7 @@ public class StyledPlayerControlView extends FrameLayout {
     int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
-      if (rewindBackgroundDrawable != null){ //TODO DDD
+      if (rewindBackgroundDrawable != null){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           ((Button) findViewById(R.id.exo_rew_with_amount)).setForeground(rewindBackgroundDrawable);
         } else {
@@ -1082,7 +1077,7 @@ public class StyledPlayerControlView extends FrameLayout {
     int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
-      if (forwardBackgroundDrawable != null) {//TODO DDD
+      if (forwardBackgroundDrawable != null) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           ((Button) findViewById(R.id.exo_ffwd_with_amount))
               .setForeground(forwardBackgroundDrawable);

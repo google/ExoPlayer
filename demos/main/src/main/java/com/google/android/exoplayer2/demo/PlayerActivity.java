@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -57,7 +56,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An activity that plays media using {@link ExoPlayer}. */
@@ -112,14 +110,6 @@ public class PlayerActivity extends AppCompatActivity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
-
-    //todo ddd test
-    playerView.setCustomPlayDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, android.R.drawable.btn_dialog)));
-    playerView.setCustomPauseDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, android.R.drawable.btn_star)));
-    playerView.setCustomRewindBackgroundDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, android.R.drawable.ic_menu_call)));
-    playerView.setCustomForwardBackgroundDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, android.R.drawable.ic_menu_call)));
-    playerView.setCustomPreviousDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, android.R.drawable.ic_dialog_email)));
-    playerView.setCustomNextDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this, android.R.drawable.ic_delete)));
 
     if (savedInstanceState != null) {
       trackSelectionParameters =
