@@ -413,6 +413,11 @@ public final class GlUtil {
     }
   }
 
+  private static void checkEglException(String errorMessage) {
+    int error = EGL14.eglGetError();
+    checkEglException(error == EGL14.EGL_SUCCESS, errorMessage + ", error code: " + error);
+  }
+
   @RequiresApi(17)
   private static final class Api17 {
     private Api17() {}
@@ -461,12 +466,15 @@ public final class GlUtil {
         Object surface,
         int[] configAttributes,
         int[] windowSurfaceAttributes) {
-      return EGL14.eglCreateWindowSurface(
-          eglDisplay,
-          getEglConfig(eglDisplay, configAttributes),
-          surface,
-          windowSurfaceAttributes,
-          /* offset= */ 0);
+      EGLSurface eglSurface =
+          EGL14.eglCreateWindowSurface(
+              eglDisplay,
+              getEglConfig(eglDisplay, configAttributes),
+              surface,
+              windowSurfaceAttributes,
+              /* offset= */ 0);
+      checkEglException("Error creating surface");
+      return eglSurface;
     }
 
     @DoNotInline
@@ -482,8 +490,11 @@ public final class GlUtil {
       if (boundFramebuffer[0] != framebuffer) {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
       }
+      checkGlError();
       EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+      checkEglException("Error making context current");
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
+      checkGlError();
     }
 
     @DoNotInline
@@ -494,19 +505,15 @@ public final class GlUtil {
       }
       EGL14.eglMakeCurrent(
           eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
-      int error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error releasing context: " + error);
+      checkEglException("Error releasing context");
       if (eglContext != null) {
         EGL14.eglDestroyContext(eglDisplay, eglContext);
-        error = EGL14.eglGetError();
-        checkEglException(error == EGL14.EGL_SUCCESS, "Error destroying context: " + error);
+        checkEglException("Error destroying context");
       }
       EGL14.eglReleaseThread();
-      error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error releasing thread: " + error);
+      checkEglException("Error releasing thread");
       EGL14.eglTerminate(eglDisplay);
-      error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error terminating display: " + error);
+      checkEglException("Error terminating display");
     }
 
     @DoNotInline
