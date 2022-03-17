@@ -43,8 +43,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
 
   /**
-   * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}. This is useful
-   * for converting to the 4x4 column-major format commonly used in OpenGL.
+   * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}.
+   *
+   * <p>This is useful for converting to the 4x4 column-major format commonly used in OpenGL.
    */
   private static float[] getGlMatrixArray(Matrix matrix) {
     float[] matrix3x3Array = new float[9];

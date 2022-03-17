@@ -177,9 +177,10 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform. The
-     * default value is a {@link DefaultMediaSourceFactory} built with the context provided in
-     * {@link #Builder(Context) the constructor}.
+     * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform.
+     *
+     * <p>The default value is a {@link DefaultMediaSourceFactory} built with the context provided
+     * in {@link #Builder(Context) the constructor}.
      *
      * @param mediaSourceFactory A {@link MediaSource.Factory}.
      * @return This builder.
@@ -190,7 +191,9 @@ public final class Transformer {
     }
 
     /**
-     * Sets whether to remove the audio from the output. The default value is {@code false}.
+     * Sets whether to remove the audio from the output.
+     *
+     * <p>The default value is {@code false}.
      *
      * <p>The audio and video cannot both be removed because the output would not contain any
      * samples.
@@ -204,7 +207,9 @@ public final class Transformer {
     }
 
     /**
-     * Sets whether to remove the video from the output. The default value is {@code false}.
+     * Sets whether to remove the video from the output.
+     *
+     * <p>The default value is {@code false}.
      *
      * <p>The audio and video cannot both be removed because the output would not contain any
      * samples.
@@ -289,9 +294,10 @@ public final class Transformer {
 
     /**
      * Sets the {@link Looper} that must be used for all calls to the transformer and that is used
-     * to call listeners on. The default value is the Looper of the thread that this builder was
-     * created on, or if that thread does not have a Looper, the Looper of the application's main
-     * thread.
+     * to call listeners on.
+     *
+     * <p>The default value is the Looper of the thread that this builder was created on, or if that
+     * thread does not have a Looper, the Looper of the application's main thread.
      *
      * @param looper A {@link Looper}.
      * @return This builder.
@@ -303,8 +309,9 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer. The default value
-     * is {@link Codec.EncoderFactory#DEFAULT}.
+     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
+     *
+     * <p>The default value is {@link Codec.EncoderFactory#DEFAULT}.
      *
      * @param encoderFactory The {@link Codec.EncoderFactory} instance.
      * @return This builder.
@@ -316,8 +323,10 @@ public final class Transformer {
 
     /**
      * Sets a provider for views to show diagnostic information (if available) during
-     * transformation. This is intended for debugging. The default value is {@link
-     * DebugViewProvider#NONE}, which doesn't show any debug info.
+     * transformation.
+     *
+     * <p>This is intended for debugging. The default value is {@link DebugViewProvider#NONE}, which
+     * doesn't show any debug info.
      *
      * <p>Not all transformations will result in debug views being populated.
      *
@@ -330,8 +339,9 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link Clock} that will be used by the transformer. The default value is {@link
-     * Clock#DEFAULT}.
+     * Sets the {@link Clock} that will be used by the transformer.
+     *
+     * <p>The default value is {@link Clock#DEFAULT}.
      *
      * @param clock The {@link Clock} instance.
      * @return This builder.
@@ -344,8 +354,9 @@ public final class Transformer {
     }
 
     /**
-     * Sets the factory for muxers that write the media container. The default value is a {@link
-     * FrameworkMuxer.Factory}.
+     * Sets the factory for muxers that write the media container.
+     *
+     * <p>The default value is a {@link FrameworkMuxer.Factory}.
      *
      * @param muxerFactory A {@link Muxer.Factory}.
      * @return This builder.

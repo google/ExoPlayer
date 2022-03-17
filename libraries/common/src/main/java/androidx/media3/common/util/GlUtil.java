@@ -119,7 +119,8 @@ public final class GlUtil {
 
   /**
    * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.
-   * If {@code true}, the device supports a protected output path for DRM content when using GL.
+   *
+   * <p>If {@code true}, the device supports a protected output path for DRM content when using GL.
    */
   public static boolean isProtectedContentExtensionSupported(Context context) {
     if (Util.SDK_INT < 24) {
