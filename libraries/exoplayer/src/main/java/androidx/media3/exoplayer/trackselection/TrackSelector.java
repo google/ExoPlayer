@@ -17,7 +17,6 @@ package androidx.media3.exoplayer.trackselection;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
@@ -27,6 +26,7 @@ import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 
 /**

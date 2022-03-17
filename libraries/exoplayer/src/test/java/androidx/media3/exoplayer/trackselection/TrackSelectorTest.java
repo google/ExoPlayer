@@ -20,10 +20,10 @@ import static org.junit.Assert.fail;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.TrackSelector.InvalidationListener;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

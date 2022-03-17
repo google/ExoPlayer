@@ -47,10 +47,11 @@ import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /**
- * Constraint parameters for track selection.
+ * Parameters for controlling track selection.
  *
- * <p>For example the following code modifies the parameters to restrict video track selections to
- * SD, and to select a German audio track if there is one:
+ * <p>Parameters can be queried and set on a {@link Player}. For example the following code modifies
+ * the parameters to restrict video track selections to SD, and to select a German audio track if
+ * there is one:
  *
  * <pre>{@code
  * // Build on the current parameters.
@@ -656,28 +657,26 @@ public class TrackSelectionParameters implements Bundleable {
       return this;
     }
 
-    /** Adds an override for the provided {@link TrackGroup}. */
+    /** Adds an override, replacing any override for the same {@link TrackGroup}. */
     public Builder addOverride(TrackSelectionOverride override) {
       overrides.put(override.trackGroup, override);
       return this;
     }
 
-    /** Removes the override associated with the provided {@link TrackGroup} if present. */
-    public Builder clearOverride(TrackGroup trackGroup) {
-      overrides.remove(trackGroup);
-      return this;
-    }
-
-    /** Set the override for the type of the provided {@link TrackGroup}. */
+    /** Sets an override, replacing all existing overrides with the same track type. */
     public Builder setOverrideForType(TrackSelectionOverride override) {
       clearOverridesOfType(override.getTrackType());
       overrides.put(override.trackGroup, override);
       return this;
     }
 
-    /**
-     * Remove any override associated with {@link TrackGroup TrackGroups} of type {@code trackType}.
-     */
+    /** Removes the override for the provided {@link TrackGroup}, if there is one. */
+    public Builder clearOverride(TrackGroup trackGroup) {
+      overrides.remove(trackGroup);
+      return this;
+    }
+
+    /** Removes all overrides of the provided track type. */
     public Builder clearOverridesOfType(@C.TrackType int trackType) {
       Iterator<TrackSelectionOverride> it = overrides.values().iterator();
       while (it.hasNext()) {
@@ -689,7 +688,7 @@ public class TrackSelectionParameters implements Bundleable {
       return this;
     }
 
-    /** Removes all track overrides. */
+    /** Removes all overrides. */
     public Builder clearOverrides() {
       overrides.clear();
       return this;
