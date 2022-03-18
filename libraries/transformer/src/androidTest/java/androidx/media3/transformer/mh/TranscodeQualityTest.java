@@ -39,10 +39,8 @@ public final class TranscodeQualityTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setVideoMimeType(MimeTypes.VIDEO_H265)
-                    .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
-                    .build())
+                new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H265).build())
+            .setRemoveAudio(true)
             .build();
 
     TransformationTestResult result =
