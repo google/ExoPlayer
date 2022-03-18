@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static java.lang.Math.pow;
 
 import android.content.Context;
@@ -33,15 +34,12 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.Nullable;
-import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A helper for calculating SSIM score for transcoded videos.
@@ -58,26 +56,8 @@ public final class SsimHelper {
   /** The default comparison interval. */
   public static final int DEFAULT_COMPARISON_INTERVAL = 11;
 
-  private static final int SURFACE_WAIT_MS = 10;
+  private static final int IMAGE_AVAILABLE_TIMEOUT_MS = 10_000;
   private static final int DECODED_IMAGE_CHANNEL_COUNT = 3;
-  private static final int[] EMPTY_BUFFER = new int[0];
-
-  private final Context context;
-  private final String expectedVideoPath;
-  private final String actualVideoPath;
-  private final int comparisonInterval;
-
-  private @MonotonicNonNull VideoDecodingWrapper expectedDecodingWrapper;
-  private @MonotonicNonNull VideoDecodingWrapper actualDecodingWrapper;
-  private double accumulatedSsim;
-  private int comparedImagesCount;
-
-  // These atomic fields are read on both test thread (where MediaCodec is controlled) and set on
-  // the main thread (where ImageReader invokes its callback).
-  private final AtomicReference<int[]> expectedLumaBuffer;
-  private final AtomicReference<int[]> actualLumaBuffer;
-  private final AtomicInteger width;
-  private final AtomicInteger height;
 
   /**
    * Returns the mean SSIM score between the expected and the actual video.
@@ -92,93 +72,47 @@ public final class SsimHelper {
    */
   public static double calculate(Context context, String expectedVideoPath, String actualVideoPath)
       throws IOException, InterruptedException {
-    return new SsimHelper(context, expectedVideoPath, actualVideoPath, DEFAULT_COMPARISON_INTERVAL)
-        .calculateSsim();
-  }
-
-  private SsimHelper(
-      Context context, String expectedVideoPath, String actualVideoPath, int comparisonInterval) {
-    this.context = context;
-    this.expectedVideoPath = expectedVideoPath;
-    this.actualVideoPath = actualVideoPath;
-    this.comparisonInterval = comparisonInterval;
-    this.expectedLumaBuffer = new AtomicReference<>(EMPTY_BUFFER);
-    this.actualLumaBuffer = new AtomicReference<>(EMPTY_BUFFER);
-    this.width = new AtomicInteger(Format.NO_VALUE);
-    this.height = new AtomicInteger(Format.NO_VALUE);
-  }
-
-  /** Calculates the SSIM score between the two videos. */
-  private double calculateSsim() throws InterruptedException, IOException {
-    // The test thread has no looper, so a handler is created on which the
-    // ImageReader.OnImageAvailableListener is called.
-    Handler mainThreadHandler = Util.createHandlerForCurrentOrMainLooper();
-    ImageReader.OnImageAvailableListener onImageAvailableListener = this::onImageAvailableListener;
-    expectedDecodingWrapper =
-        new VideoDecodingWrapper(
-            context,
-            expectedVideoPath,
-            onImageAvailableListener,
-            mainThreadHandler,
-            comparisonInterval);
-    actualDecodingWrapper =
-        new VideoDecodingWrapper(
-            context,
-            actualVideoPath,
-            onImageAvailableListener,
-            mainThreadHandler,
-            comparisonInterval);
-
+    VideoDecodingWrapper expectedDecodingWrapper =
+        new VideoDecodingWrapper(context, expectedVideoPath, DEFAULT_COMPARISON_INTERVAL);
+    VideoDecodingWrapper actualDecodingWrapper =
+        new VideoDecodingWrapper(context, actualVideoPath, DEFAULT_COMPARISON_INTERVAL);
+    double accumulatedSsim = 0.0;
+    int comparedImagesCount = 0;
     try {
-      while (!expectedDecodingWrapper.hasEnded() && !actualDecodingWrapper.hasEnded()) {
-        if (!expectedDecodingWrapper.runUntilComparisonFrameOrEnded()
-            || !actualDecodingWrapper.runUntilComparisonFrameOrEnded()) {
-          continue;
+      while (true) {
+        @Nullable Image expectedImage = expectedDecodingWrapper.runUntilComparisonFrameOrEnded();
+        @Nullable Image actualImage = actualDecodingWrapper.runUntilComparisonFrameOrEnded();
+        if (expectedImage == null) {
+          assertThat(actualImage).isNull();
+          break;
         }
+        checkNotNull(actualImage);
 
-        while (expectedLumaBuffer.get() == EMPTY_BUFFER || actualLumaBuffer.get() == EMPTY_BUFFER) {
-          // Wait for the ImageReader to call onImageAvailable and process the luma channel on the
-          // main thread.
-          Thread.sleep(SURFACE_WAIT_MS);
+        int width = expectedImage.getWidth();
+        int height = expectedImage.getHeight();
+        assertThat(actualImage.getWidth()).isEqualTo(width);
+        assertThat(actualImage.getHeight()).isEqualTo(height);
+        try {
+          accumulatedSsim +=
+              SsimCalculator.calculate(
+                  extractLumaChannelBuffer(expectedImage),
+                  extractLumaChannelBuffer(actualImage),
+                  /* offset= */ 0,
+                  /* stride= */ width,
+                  width,
+                  height);
+        } finally {
+          expectedImage.close();
+          actualImage.close();
         }
-        accumulatedSsim +=
-            SsimCalculator.calculate(
-                expectedLumaBuffer.get(),
-                actualLumaBuffer.get(),
-                /* offset= */ 0,
-                /* stride= */ width.get(),
-                width.get(),
-                height.get());
         comparedImagesCount++;
-        expectedLumaBuffer.set(EMPTY_BUFFER);
-        actualLumaBuffer.set(EMPTY_BUFFER);
       }
     } finally {
       expectedDecodingWrapper.close();
       actualDecodingWrapper.close();
     }
-
-    if (comparedImagesCount == 0) {
-      throw new IOException("Input had no frames.");
-    }
+    assertWithMessage("Input had no frames.").that(comparedImagesCount).isGreaterThan(0);
     return accumulatedSsim / comparedImagesCount;
-  }
-
-  private void onImageAvailableListener(ImageReader imageReader) {
-    // This method is invoked on the main thread.
-    Image image = imageReader.acquireLatestImage();
-    int[] lumaBuffer = extractLumaChannelBuffer(image);
-    width.set(image.getWidth());
-    height.set(image.getHeight());
-    image.close();
-
-    if (imageReader == checkNotNull(expectedDecodingWrapper).imageReader) {
-      expectedLumaBuffer.set(lumaBuffer);
-    } else if (imageReader == checkNotNull(actualDecodingWrapper).imageReader) {
-      actualLumaBuffer.set(lumaBuffer);
-    } else {
-      throw new IllegalStateException("Unexpected ImageReader.");
-    }
   }
 
   /**
@@ -206,6 +140,10 @@ public final class SsimHelper {
     return lumaChannelBuffer;
   }
 
+  private SsimHelper() {
+    // Prevent instantiation.
+  }
+
   private static final class VideoDecodingWrapper implements Closeable {
     // Use ExoPlayer's 10ms timeout setting. In practise, the test durations from using timeouts of
     // 1/10/100ms don't differ significantly.
@@ -221,6 +159,7 @@ public final class SsimHelper {
     private final MediaExtractor mediaExtractor;
     private final MediaCodec.BufferInfo bufferInfo;
     private final ImageReader imageReader;
+    private final ConditionVariable imageAvailableConditionVariable;
     private final int comparisonInterval;
 
     private boolean isCurrentFrameComparisonFrame;
@@ -234,18 +173,11 @@ public final class SsimHelper {
      *
      * @param context The {@link Context}.
      * @param filePath The path to the video file.
-     * @param imageAvailableListener An {@link ImageReader.OnImageAvailableListener} implementation.
-     * @param handler The {@link Handler} on which the {@code imageAvailableListener} is called.
      * @param comparisonInterval The number of frames between the frames selected for comparison by
      *     SSIM.
      * @throws IOException When failed to open the video file.
      */
-    public VideoDecodingWrapper(
-        Context context,
-        String filePath,
-        ImageReader.OnImageAvailableListener imageAvailableListener,
-        Handler handler,
-        int comparisonInterval)
+    public VideoDecodingWrapper(Context context, String filePath, int comparisonInterval)
         throws IOException {
       this.comparisonInterval = comparisonInterval;
       mediaExtractor = new MediaExtractor();
@@ -275,9 +207,14 @@ public final class SsimHelper {
       checkState(mediaFormat.containsKey(MediaFormat.KEY_HEIGHT));
       int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
 
+      // Create a handler for the main thread to receive image available notifications. The current
+      // (test) thread blocks until this callback is received.
+      Handler mainThreadHandler = Util.createHandlerForCurrentOrMainLooper();
+      imageAvailableConditionVariable = new ConditionVariable();
       imageReader =
           ImageReader.newInstance(width, height, IMAGE_READER_COLOR_SPACE, MAX_IMAGES_ALLOWED);
-      imageReader.setOnImageAvailableListener(imageAvailableListener, handler);
+      imageReader.setOnImageAvailableListener(
+          imageReader -> imageAvailableConditionVariable.open(), mainThreadHandler);
 
       String sampleMimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MEDIA_CODEC_COLOR_SPACE);
@@ -288,29 +225,28 @@ public final class SsimHelper {
     }
 
     /**
-     * Run decoding until a comparison frame is rendered, or decoding has ended.
-     *
-     * <p>The method returns after rendering the comparison frame. There is no guarantee that the
-     * frame is available for processing at this time.
-     *
-     * @return {@code true} when a comparison frame is encountered, or {@code false} if decoding
-     *     {@link #hasEnded() had ended}.
+     * Returns the next decoded comparison frame, or {@code null} if the stream has ended. The
+     * caller takes ownership of any returned image and is responsible for closing it before calling
+     * this method again.
      */
-    public boolean runUntilComparisonFrameOrEnded() {
+    @Nullable
+    public Image runUntilComparisonFrameOrEnded() throws InterruptedException {
       while (!hasEnded() && !isCurrentFrameComparisonFrame) {
         while (dequeueOneFrameFromDecoder()) {}
         while (queueOneFrameToDecoder()) {}
       }
       if (isCurrentFrameComparisonFrame) {
         isCurrentFrameComparisonFrame = false;
-        return true;
+        assertThat(imageAvailableConditionVariable.block(IMAGE_AVAILABLE_TIMEOUT_MS)).isTrue();
+        imageAvailableConditionVariable.close();
+        return imageReader.acquireLatestImage();
       }
-      return false;
+      return null;
     }
 
     /** Returns whether decoding has ended. */
-    public boolean hasEnded() {
-      return queuedEndOfStreamToDecoder && dequeuedAllDecodedFrames;
+    private boolean hasEnded() {
+      return dequeuedAllDecodedFrames;
     }
 
     /** Returns whether a frame is queued to the {@link MediaCodec decoder}. */
