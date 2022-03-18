@@ -194,6 +194,15 @@ public final class EncoderUtil {
         .clamp(bitrate);
   }
 
+  /** Returns whether the bitrate mode is supported by the encoder. */
+  public static boolean isBitrateModeSupported(
+      MediaCodecInfo encoderInfo, String mimeType, int bitrateMode) {
+    return encoderInfo
+        .getCapabilitiesForType(mimeType)
+        .getEncoderCapabilities()
+        .isBitrateModeSupported(bitrateMode);
+  }
+
   /** Checks if a {@link MediaCodecInfo codec} is hardware-accelerated. */
   public static boolean isHardwareAccelerated(MediaCodecInfo encoderInfo, String mimeType) {
     // TODO(b/214964116): Merge into MediaCodecUtil.

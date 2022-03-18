@@ -30,6 +30,7 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -42,6 +43,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 @UnstableApi
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static final int DEFAULT_FRAME_RATE = 30;
+  private static final String TAG = "DefaultEncoderFactory";
 
   private final EncoderSelector videoEncoderSelector;
   private final VideoEncoderSettings requestedVideoEncoderSettings;
@@ -63,15 +65,20 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   /**
    * Creates a new instance.
    *
+   * <p>With format fallback enabled, when the requested {@link Format} is not supported, {@code
+   * DefaultEncoderFactory} finds a format that is supported by the device and configures the {@link
+   * Codec} with it. The fallback process may change the requested {@link Format#sampleMimeType MIME
+   * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level} etc.
+   *
    * <p>Values in {@code requestedVideoEncoderSettings} could be adjusted to improve encoding
    * quality and/or reduce failures. Specifically, {@link VideoEncoderSettings#profile} and {@link
    * VideoEncoderSettings#level} are ignored for {@link MimeTypes#VIDEO_H264}. Consider implementing
    * {@link Codec.EncoderFactory} if such adjustments are unwanted.
    *
-   * <p>With format fallback enabled, and when the requested {@link Format} is not supported, {@code
-   * DefaultEncoderFactory} finds a format that is supported by the device and configures the {@link
-   * Codec} with it. The fallback process may change the requested {@link Format#sampleMimeType MIME
-   * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level}, etc.
+   * <p>{@code requestedVideoEncoderSettings} should be handled with care because there is no
+   * fallback support for it. For example, using incompatible {@link VideoEncoderSettings#profile}
+   * and {@link VideoEncoderSettings#level} can cause codec configuration failure. Setting an
+   * unsupported {@link VideoEncoderSettings#bitrateMode} may cause encoder instantiation failure.
    *
    * @param videoEncoderSelector The {@link EncoderSelector}.
    * @param requestedVideoEncoderSettings The {@link VideoEncoderSettings}.
@@ -187,7 +194,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds a {@link MediaCodecInfo encoder} that supports the requested format most closely.
+   * Finds an {@link MediaCodecInfo encoder} that supports the requested format most closely.
    *
    * <p>Returns the {@link MediaCodecInfo encoder} and the supported {@link Format} in a {@link
    * Pair}, or {@code null} if none is found.
@@ -215,27 +222,13 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       return new VideoEncoderQueryResult(
           encodersForMimeType.get(0), requestedFormat, videoEncoderSettings);
     }
+
     ImmutableList<MediaCodecInfo> filteredEncoders =
-        filterEncoders(
-            encodersForMimeType,
-            /* cost= */ (encoderInfo) -> {
-              @Nullable
-              Size closestSupportedResolution =
-                  EncoderUtil.getSupportedResolution(
-                      encoderInfo, mimeType, requestedFormat.width, requestedFormat.height);
-              if (closestSupportedResolution == null) {
-                // Drops encoder.
-                return Integer.MAX_VALUE;
-              }
-              return abs(
-                  requestedFormat.width * requestedFormat.height
-                      - closestSupportedResolution.getWidth()
-                          * closestSupportedResolution.getHeight());
-            });
+        filterEncodersByResolution(
+            encodersForMimeType, mimeType, requestedFormat.width, requestedFormat.height);
     if (filteredEncoders.isEmpty()) {
       return null;
     }
-
     // The supported resolution is the same for all remaining encoders.
     Size finalResolution =
         checkNotNull(
@@ -247,14 +240,13 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             ? videoEncoderSettings.bitrate
             : getSuggestedBitrate(
                 finalResolution.getWidth(), finalResolution.getHeight(), requestedFormat.frameRate);
+    filteredEncoders = filterEncodersByBitrate(filteredEncoders, mimeType, requestedBitrate);
+    if (filteredEncoders.isEmpty()) {
+      return null;
+    }
+
     filteredEncoders =
-        filterEncoders(
-            filteredEncoders,
-            /* cost= */ (encoderInfo) -> {
-              int achievableBitrate =
-                  EncoderUtil.getClosestSupportedBitrate(encoderInfo, mimeType, requestedBitrate);
-              return abs(achievableBitrate - requestedBitrate);
-            });
+        filterEncodersByBitrateMode(filteredEncoders, mimeType, videoEncoderSettings.bitrateMode);
     if (filteredEncoders.isEmpty()) {
       return null;
     }
@@ -264,6 +256,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         EncoderUtil.getClosestSupportedBitrate(pickedEncoder, mimeType, requestedBitrate);
     VideoEncoderSettings.Builder supportedEncodingSettingBuilder =
         videoEncoderSettings.buildUpon().setBitrate(closestSupportedBitrate);
+
     if (videoEncoderSettings.profile == VideoEncoderSettings.NO_VALUE
         || videoEncoderSettings.level == VideoEncoderSettings.NO_VALUE
         || videoEncoderSettings.level
@@ -283,6 +276,52 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             .build();
     return new VideoEncoderQueryResult(
         pickedEncoder, supportedEncoderFormat, supportedEncodingSettingBuilder.build());
+  }
+
+  /** Returns a list of encoders that support the requested resolution most closely. */
+  private static ImmutableList<MediaCodecInfo> filterEncodersByResolution(
+      List<MediaCodecInfo> encoders, String mimeType, int requestedWidth, int requestedHeight) {
+    return filterEncoders(
+        encoders,
+        /* cost= */ (encoderInfo) -> {
+          @Nullable
+          Size closestSupportedResolution =
+              EncoderUtil.getSupportedResolution(
+                  encoderInfo, mimeType, requestedWidth, requestedHeight);
+          if (closestSupportedResolution == null) {
+            // Drops encoder.
+            return Integer.MAX_VALUE;
+          }
+          return abs(
+              requestedWidth * requestedHeight
+                  - closestSupportedResolution.getWidth() * closestSupportedResolution.getHeight());
+        },
+        /* filterName= */ "resolution");
+  }
+
+  /** Returns a list of encoders that support the requested bitrate most closely. */
+  private static ImmutableList<MediaCodecInfo> filterEncodersByBitrate(
+      List<MediaCodecInfo> encoders, String mimeType, int requestedBitrate) {
+    return filterEncoders(
+        encoders,
+        /* cost= */ (encoderInfo) -> {
+          int achievableBitrate =
+              EncoderUtil.getClosestSupportedBitrate(encoderInfo, mimeType, requestedBitrate);
+          return abs(achievableBitrate - requestedBitrate);
+        },
+        /* filterName= */ "bitrate");
+  }
+
+  /** Returns a list of encoders that support the requested bitrate mode. */
+  private static ImmutableList<MediaCodecInfo> filterEncodersByBitrateMode(
+      List<MediaCodecInfo> encoders, String mimeType, int requestedBitrateMode) {
+    return filterEncoders(
+        encoders,
+        /* cost= */ (encoderInfo) ->
+            EncoderUtil.isBitrateModeSupported(encoderInfo, mimeType, requestedBitrateMode)
+                ? 0
+                : Integer.MAX_VALUE, // Drops encoder.
+        /* filterName= */ "bitrate mode");
   }
 
   private static final class VideoEncoderQueryResult {
@@ -376,7 +415,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    *     all encoders are {@link Integer#MAX_VALUE}.
    */
   private static ImmutableList<MediaCodecInfo> filterEncoders(
-      List<MediaCodecInfo> encoders, EncoderFallbackCost cost) {
+      List<MediaCodecInfo> encoders, EncoderFallbackCost cost, String filterName) {
     List<MediaCodecInfo> filteredEncoders = new ArrayList<>(encoders.size());
 
     int minGap = Integer.MAX_VALUE;
@@ -395,9 +434,24 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         filteredEncoders.add(encoderInfo);
       }
     }
+
+    List<MediaCodecInfo> removedEncoders = new ArrayList<>(encoders);
+    removedEncoders.removeAll(filteredEncoders);
+    StringBuilder stringBuilder =
+        new StringBuilder("Encoders removed for ").append(filterName).append(":\n");
+    for (int i = 0; i < removedEncoders.size(); i++) {
+      MediaCodecInfo encoderInfo = removedEncoders.get(i);
+      stringBuilder.append(Util.formatInvariant("  %s\n", encoderInfo.getName()));
+    }
+    Log.d(TAG, stringBuilder.toString());
+
     return ImmutableList.copyOf(filteredEncoders);
   }
 
+  /**
+   * Finds a {@link MimeTypes MIME type} that is supported by the encoder and in the {@code
+   * allowedMimeTypes}.
+   */
   @Nullable
   private static String findFallbackMimeType(
       EncoderSelector encoderSelector, String requestedMimeType, List<String> allowedMimeTypes) {
