@@ -101,7 +101,8 @@ import org.checkerframework.dataflow.qual.Pure;
     if (transformationRequest.enableHdrEditing
         || inputFormat.height != encoderSupportedFormat.height
         || inputFormat.width != encoderSupportedFormat.width
-        || scaleToFitFrameProcessor.shouldProcess()) {
+        || scaleToFitFrameProcessor.shouldProcess()
+        || shouldAlwaysUseFrameEditor()) {
       frameEditor =
           FrameEditor.create(
               context,
@@ -273,6 +274,17 @@ import org.checkerframework.dataflow.qual.Pure;
         .setVideoMimeType(supportedFormat.sampleMimeType)
         .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
         .build();
+  }
+
+  /** Always use {@link FrameEditor} to work around device-specific encoder issues. */
+  private static boolean shouldAlwaysUseFrameEditor() {
+    switch (Util.MODEL) {
+      case "XT1635-02":
+      case "Nexus 5":
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**
