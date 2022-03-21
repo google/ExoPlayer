@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import androidx.media3.common.MimeTypes;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -67,16 +66,12 @@ public class TransformerEndToEndTest {
   @Test
   public void videoEditing_completesWithConsistentFrameCount() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postTranslate(/* dx= */ .2f, /* dy= */ .1f);
     FrameCountingMuxer.Factory muxerFactory =
         new FrameCountingMuxer.Factory(new FrameworkMuxer.Factory());
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setTransformationMatrix(transformationMatrix)
-                    .build())
+                new TransformationRequest.Builder().setResolution(480).build())
             .setMuxerFactory(muxerFactory)
             .setEncoderFactory(
                 new DefaultEncoderFactory(EncoderSelector.DEFAULT, /* enableFallback= */ false))

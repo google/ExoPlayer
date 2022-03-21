@@ -168,6 +168,10 @@ public final class Transformer {
     /**
      * Sets the {@link TransformationRequest} which configures the editing and transcoding options.
      *
+     * <p>Actual applied values may differ, per device capabilities. {@link
+     * Listener#onFallbackApplied(MediaItem, TransformationRequest, TransformationRequest)} will be
+     * invoked with the actual applied values.
+     *
      * @param transformationRequest The {@link TransformationRequest}.
      * @return This builder.
      */
