@@ -113,14 +113,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
-    if (transformationRequest.outputHeight != C.LENGTH_UNSET
-        && transformationRequest.outputHeight != inputFormat.height) {
+    if (transformationRequest.rotationDegrees != 0f) {
       return false;
     }
-    if (!transformationRequest.transformationMatrix.isIdentity()) {
-      // TODO(b/201293185, b/214010296): Move FrameProcessor transformationMatrix calculation /
-      // adjustments out of the VideoTranscodingSamplePipeline, so that we can skip transcoding when
-      // adjustments result in identity matrices.
+    if (transformationRequest.scaleX != 1f) {
+      return false;
+    }
+    if (transformationRequest.scaleY != 1f) {
+      return false;
+    }
+    if (transformationRequest.outputHeight != C.LENGTH_UNSET
+        && transformationRequest.outputHeight != inputFormat.height) {
       return false;
     }
     return true;

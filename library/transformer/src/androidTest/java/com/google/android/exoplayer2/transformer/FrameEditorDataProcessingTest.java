@@ -39,7 +39,6 @@ import android.media.MediaFormat;
 import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -175,10 +174,8 @@ public final class FrameEditorDataProcessingTest {
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
-    Matrix identityMatrix = new Matrix();
     GlFrameProcessor glFrameProcessor =
-        new ScaleToFitFrameProcessor(
-            getApplicationContext(), identityMatrix, /* requestedHeight= */ 480);
+        new ScaleToFitFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
@@ -200,11 +197,10 @@ public final class FrameEditorDataProcessingTest {
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
-    Matrix rotate45Matrix = new Matrix();
-    rotate45Matrix.postRotate(/* degrees= */ 45);
     GlFrameProcessor glFrameProcessor =
-        new ScaleToFitFrameProcessor(
-            getApplicationContext(), rotate45Matrix, /* requestedHeight= */ C.LENGTH_UNSET);
+        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
+            .setRotationDegrees(45)
+            .build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING);

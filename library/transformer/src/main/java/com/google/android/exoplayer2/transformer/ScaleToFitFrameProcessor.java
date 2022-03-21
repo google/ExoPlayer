@@ -38,6 +38,81 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 /* package */ final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
+  /** A builder for {@link ScaleToFitFrameProcessor} instances. */
+  public static final class Builder {
+    // Mandatory field.
+    Context context;
+
+    // Optional field.
+    private int outputHeight;
+    private float scaleX;
+    private float scaleY;
+    private float rotationDegrees;
+
+    /**
+     * Creates a builder with default values.
+     *
+     * @param context The {@link Context}.
+     */
+    public Builder(Context context) {
+      this.context = context;
+
+      outputHeight = C.LENGTH_UNSET;
+      scaleX = 1;
+      scaleY = 1;
+      rotationDegrees = 0;
+    }
+
+    /**
+     * Sets the x and y axis scaling factors to apply to each frame's width and height.
+     *
+     * <p>The values default to 1, which corresponds to not scaling along both axes.
+     *
+     * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
+     * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
+     * @return This builder.
+     */
+    public Builder setScale(float scaleX, float scaleY) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      return this;
+    }
+
+    /**
+     * Sets the counterclockwise rotation degrees.
+     *
+     * <p>The default value, 0, corresponds to not applying any rotation.
+     *
+     * @param rotationDegrees The counterclockwise rotation, in degrees.
+     * @return This builder.
+     */
+    public Builder setRotationDegrees(float rotationDegrees) {
+      this.rotationDegrees = rotationDegrees;
+      return this;
+    }
+
+    /**
+     * Sets the output resolution using the output height.
+     *
+     * <p>The default value {@link C#LENGTH_UNSET} corresponds to using the same height as the
+     * input. Output width of the displayed frame will scale to preserve the frame's aspect ratio
+     * after other transformations.
+     *
+     * <p>For example, a 1920x1440 frame can be scaled to 640x480 by calling setResolution(480).
+     *
+     * @param outputHeight The output height of the displayed frame, in pixels.
+     * @return This builder.
+     */
+    public Builder setResolution(int outputHeight) {
+      this.outputHeight = outputHeight;
+      return this;
+    }
+
+    public ScaleToFitFrameProcessor build() {
+      return new ScaleToFitFrameProcessor(context, scaleX, scaleY, rotationDegrees, outputHeight);
+    }
+  }
+
   static {
     GlUtil.glAssertionsEnabled = true;
   }
@@ -58,15 +133,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Creates a new instance.
    *
    * @param context The {@link Context}.
-   * @param transformationMatrix The transformation matrix to apply to each frame.
+   * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
+   * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
+   * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
    * @param requestedHeight The height of the output frame, in pixels.
    */
-  public ScaleToFitFrameProcessor(
-      Context context, Matrix transformationMatrix, int requestedHeight) {
-    // TODO(b/201293185): Replace transformationMatrix parameter with scale and rotation.
+  private ScaleToFitFrameProcessor(
+      Context context, float scaleX, float scaleY, float rotationDegrees, int requestedHeight) {
 
     this.context = context;
-    this.transformationMatrix = new Matrix(transformationMatrix);
+    this.transformationMatrix = new Matrix();
+    this.transformationMatrix.postScale(scaleX, scaleY);
+    this.transformationMatrix.postRotate(rotationDegrees);
     this.requestedHeight = requestedHeight;
 
     inputWidth = C.LENGTH_UNSET;

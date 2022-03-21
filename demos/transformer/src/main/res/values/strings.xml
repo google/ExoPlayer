@@ -24,7 +24,6 @@
   <string name="audio_mime" translatable="false">Output audio MIME type</string>
   <string name="video_mime" translatable="false">Output video MIME type</string>
   <string name="resolution_height" translatable="false">Output video resolution</string>
-  <string name="translate" translatable="false">Translate video</string>
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>

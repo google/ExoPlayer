@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.transformer.mh;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
@@ -27,26 +26,21 @@ import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test for setting a transformation matrix. */
+/** {@link Transformer} instrumentation test for applying a frame edit. */
 @RunWith(AndroidJUnit4.class)
-public class SetTransformationMatrixTransformationTest {
+public class SetFrameEditTransformationTest {
   @Test
-  public void setTransformationMatrixTransform() throws Exception {
+  public void setFrameEditTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postTranslate(/* dx= */ .2f, /* dy= */ .1f);
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setTransformationMatrix(transformationMatrix)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(45).build())
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(
-            /* testId= */ "setTransformationMatrixTransform",
-            MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+            /* testId= */ "SetFrameEditTransform", MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 }

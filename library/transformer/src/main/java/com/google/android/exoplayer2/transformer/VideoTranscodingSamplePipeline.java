@@ -69,10 +69,11 @@ import org.checkerframework.dataflow.qual.Pure;
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor(
-            context,
-            transformationRequest.transformationMatrix,
-            transformationRequest.outputHeight);
+        new ScaleToFitFrameProcessor.Builder(context)
+            .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
+            .setRotationDegrees(transformationRequest.rotationDegrees)
+            .setResolution(transformationRequest.outputHeight)
+            .build();
     Size requestedEncoderDimensions =
         scaleToFitFrameProcessor.configureOutputSize(decodedWidth, decodedHeight);
     outputRotationDegrees = scaleToFitFrameProcessor.getOutputRotationDegrees();
