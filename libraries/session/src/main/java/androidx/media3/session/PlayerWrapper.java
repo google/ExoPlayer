@@ -808,8 +808,8 @@ import java.util.List;
     return new PositionInfo(
         /* windowUid= */ null,
         getCurrentMediaItemIndex(),
-        /* periodUid= */ null,
         getCurrentMediaItem(),
+        /* periodUid= */ null,
         getCurrentPeriodIndex(),
         getCurrentPosition(),
         getContentPosition(),
