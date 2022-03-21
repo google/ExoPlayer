@@ -25,10 +25,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.transformer.Codec;
+import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
@@ -88,6 +91,27 @@ public class TransformationTest {
                     return true;
                   }
                 })
+            .build();
+    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .setSuppressAnalysisExceptions(true)
+        .build()
+        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+  }
+
+  @Test
+  public void transformToSpecificBitrate() throws Exception {
+    final String testId = TAG + "_transformWithSpecificBitrate";
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setRemoveAudio(true)
+            .setEncoderFactory(
+                new DefaultEncoderFactory(
+                    EncoderSelector.DEFAULT,
+                    new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
+                    /* enableFallback= */ true))
             .build();
     // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
