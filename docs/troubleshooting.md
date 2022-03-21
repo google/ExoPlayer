@@ -296,13 +296,12 @@ is the official way to play YouTube videos on Android.
 
 #### Video playback is stuttering ###
 
-The device on which you're observing this may not be able to decode the content
-fast enough if, for example, the content bitrate or resolution exceeds the
-device capabilities. You may need to use lower quality content to obtain good
-performance on such devices.
+The device may not be able to decode the content fast enough if, for example,
+the content bitrate or resolution exceeds the device capabilities. You may need
+to use lower quality content to obtain good performance on such devices.
 
-If you're experiencing this on a device with Android version prior to 12,
-particularly with Widevine-protected or high frame-rate content, you can try
+If you're experiencing video stuttering on a device running Android 6 to 11,
+particularly when playing DRM protected or high frame rate content, you can try
 [enabling asynchronous buffer queueing].
 
 [Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
