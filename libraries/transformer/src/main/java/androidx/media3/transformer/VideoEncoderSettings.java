@@ -19,8 +19,10 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodecInfo;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
@@ -40,6 +42,9 @@ public final class VideoEncoderSettings {
   /** The default I-frame interval in seconds. */
   public static final float DEFAULT_I_FRAME_INTERVAL_SECONDS = 1.0f;
 
+  /** A default {@link VideoEncoderSettings}. */
+  public static final VideoEncoderSettings DEFAULT = new Builder().build();
+
   /**
    * The allowed values for {@code bitrateMode}, one of
    *
@@ -51,6 +56,7 @@ public final class VideoEncoderSettings {
    *       MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR_FD}, available from API31.
    * </ul>
    */
+  @SuppressLint("InlinedApi")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
@@ -206,5 +212,34 @@ public final class VideoEncoderSettings {
    */
   public Builder buildUpon() {
     return new Builder(this);
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof VideoEncoderSettings)) {
+      return false;
+    }
+    VideoEncoderSettings that = (VideoEncoderSettings) o;
+    return bitrate == that.bitrate
+        && bitrateMode == that.bitrateMode
+        && profile == that.profile
+        && level == that.level
+        && colorProfile == that.colorProfile
+        && iFrameIntervalSeconds == that.iFrameIntervalSeconds;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 7;
+    result = 31 * result + bitrate;
+    result = 31 * result + bitrateMode;
+    result = 31 * result + profile;
+    result = 31 * result + level;
+    result = 31 * result + colorProfile;
+    result = 31 * result + Float.floatToIntBits(iFrameIntervalSeconds);
+    return result;
   }
 }

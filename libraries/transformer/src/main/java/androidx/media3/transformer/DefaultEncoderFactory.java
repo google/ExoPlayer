@@ -59,7 +59,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
   /** Creates a new instance using a default {@link VideoEncoderSettings}. */
   public DefaultEncoderFactory(EncoderSelector videoEncoderSelector, boolean enableFallback) {
-    this(videoEncoderSelector, new VideoEncoderSettings.Builder().build(), enableFallback);
+    this(videoEncoderSelector, VideoEncoderSettings.DEFAULT, enableFallback);
   }
 
   /**
@@ -191,6 +191,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         encoderInfo.getName(),
         /* isDecoder= */ false,
         /* outputSurface= */ null);
+  }
+
+  @Override
+  public boolean videoNeedsEncoding() {
+    return !requestedVideoEncoderSettings.equals(VideoEncoderSettings.DEFAULT);
   }
 
   /**

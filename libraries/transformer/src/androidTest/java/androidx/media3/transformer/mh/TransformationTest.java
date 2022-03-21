@@ -25,10 +25,13 @@ import androidx.media3.common.Format;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.Codec;
+import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
+import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.List;
@@ -88,6 +91,27 @@ public class TransformationTest {
                     return true;
                   }
                 })
+            .build();
+    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .setSuppressAnalysisExceptions(true)
+        .build()
+        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+  }
+
+  @Test
+  public void transformToSpecificBitrate() throws Exception {
+    final String testId = TAG + "_transformWithSpecificBitrate";
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setRemoveAudio(true)
+            .setEncoderFactory(
+                new DefaultEncoderFactory(
+                    EncoderSelector.DEFAULT,
+                    new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
+                    /* enableFallback= */ true))
             .build();
     // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
