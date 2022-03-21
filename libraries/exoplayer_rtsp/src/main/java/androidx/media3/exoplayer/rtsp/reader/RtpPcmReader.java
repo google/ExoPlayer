@@ -17,9 +17,11 @@ package androidx.media3.exoplayer.rtsp.reader;
 
 import static androidx.media3.common.util.Assertions.checkState;
 
+import android.util.Log;
 import androidx.media3.common.C;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.rtsp.RtpPacket;
 import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.TrackOutput;
@@ -31,15 +33,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 /* package */ public final class RtpPcmReader implements RtpPayloadReader {
 
+  private static final String TAG = "RtpPcmReader";
   private final RtpPayloadFormat payloadFormat;
   private @MonotonicNonNull TrackOutput trackOutput;
   private long firstReceivedTimestamp;
   private long startTimeOffsetUs;
+  private int previousSequenceNumber;
 
   public RtpPcmReader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
     startTimeOffsetUs = 0;
+    previousSequenceNumber = C.INDEX_UNSET;
   }
 
   @Override
@@ -57,6 +62,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void consume(
       ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker) {
+    if (previousSequenceNumber != C.INDEX_UNSET) {
+      int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
+      if (sequenceNumber < expectedSequenceNumber) {
+        Log.w(
+            TAG,
+            Util.formatInvariant(
+                "Received RTP packet with unexpected sequence number. Expected: %d; received: %d.",
+                expectedSequenceNumber, sequenceNumber));
+      }
+    }
+
     long sampleTimeUs =
         toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp, payloadFormat.clockRate);
     int size = data.bytesLeft();
@@ -68,6 +84,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             size,
             /* offset= */ 0,
             /* cryptoData= */ null);
+    previousSequenceNumber = sequenceNumber;
   }
 
   @Override
