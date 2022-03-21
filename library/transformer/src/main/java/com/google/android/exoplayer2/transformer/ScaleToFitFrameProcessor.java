@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /** A builder for {@link ScaleToFitFrameProcessor} instances. */
   public static final class Builder {
     // Mandatory field.
-    Context context;
+    private final Context context;
 
     // Optional field.
     private int outputHeight;
