@@ -279,7 +279,10 @@ public final class SsimHelper {
           sampleSize,
           mediaExtractor.getSampleTime(),
           mediaExtractor.getSampleFlags());
-      hasReadEndOfInputStream = !mediaExtractor.advance();
+      // MediaExtractor.advance does not reliably return false for end-of-stream, so check sample
+      // metadata instead as a more reliable signal. See [internal: b/121204004].
+      mediaExtractor.advance();
+      hasReadEndOfInputStream = mediaExtractor.getSampleTime() == -1;
       return true;
     }
 
