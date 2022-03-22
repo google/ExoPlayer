@@ -61,13 +61,11 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
   }
 
   /**
-   * Sets the optional user agent to be used for DRM requests.
-   *
-   * <p>In case a factory has been set by {@link #setDrmHttpDataSourceFactory(DataSource.Factory)},
-   * this user agent is ignored.
-   *
-   * @param userAgent The user agent to be used for DRM requests.
+   * @deprecated Pass a custom {@link DataSource.Factory} to {@link
+   *     #setDrmHttpDataSourceFactory(DataSource.Factory)} which sets the desired user agent on
+   *     outgoing requests.
    */
+  @Deprecated
   public void setDrmUserAgent(@Nullable String userAgent) {
     this.userAgent = userAgent;
   }
