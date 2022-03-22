@@ -345,6 +345,7 @@ public final class GlUtil {
    * @param height of the new texture in pixels
    */
   public static int createTexture(int width, int height) {
+    assertValidTextureSize(width, height);
     int texId = generateAndBindTexture(GLES20.GL_TEXTURE_2D);
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * 4);
     GLES20.glTexImage2D(

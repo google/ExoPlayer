@@ -28,6 +28,8 @@ import androidx.annotation.RequiresApi;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.util.List;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -40,7 +42,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
 
-  @Nullable private final FrameEditor frameEditor;
+  @Nullable private final FrameProcessorChain frameProcessorChain;
 
   private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
@@ -74,14 +76,18 @@ import org.checkerframework.dataflow.qual.Pure;
             .setRotationDegrees(transformationRequest.rotationDegrees)
             .setResolution(transformationRequest.outputHeight)
             .build();
-    Size requestedEncoderDimensions =
-        scaleToFitFrameProcessor.configureOutputSize(decodedWidth, decodedHeight);
+    // TODO(b/214975934): Allow a list of frame processors to be passed into the sample pipeline.
+    ImmutableList<GlFrameProcessor> frameProcessors = ImmutableList.of(scaleToFitFrameProcessor);
+    List<Size> frameProcessorSizes =
+        FrameProcessorChain.configureSizes(decodedWidth, decodedHeight, frameProcessors);
+    Size requestedEncoderSize = Iterables.getLast(frameProcessorSizes);
+    // TODO(b/213190310): Move output rotation configuration to PresentationFrameProcessor.
     outputRotationDegrees = scaleToFitFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
-            .setWidth(requestedEncoderDimensions.getWidth())
-            .setHeight(requestedEncoderDimensions.getHeight())
+            .setWidth(requestedEncoderSize.getWidth())
+            .setHeight(requestedEncoderSize.getHeight())
             .setRotationDegrees(0)
             .setFrameRate(inputFormat.frameRate)
             .setSampleMimeType(
@@ -104,26 +110,30 @@ import org.checkerframework.dataflow.qual.Pure;
         || inputFormat.width != encoderSupportedFormat.width
         || scaleToFitFrameProcessor.shouldProcess()
         || shouldAlwaysUseFrameEditor()) {
-      frameEditor =
-          FrameEditor.create(
+      // TODO(b/218488308): Allow the final GlFrameProcessor to be re-configured if its output size
+      //  has to change due to encoder fallback or append another GlFrameProcessor.
+      frameProcessorSizes.set(
+          frameProcessorSizes.size() - 1,
+          new Size(encoderSupportedFormat.width, encoderSupportedFormat.height));
+      frameProcessorChain =
+          FrameProcessorChain.create(
               context,
-              /* inputWidth= */ decodedWidth,
-              /* inputHeight= */ decodedHeight,
-              /* outputWidth= */ encoderSupportedFormat.width,
-              /* outputHeight= */ encoderSupportedFormat.height,
               inputFormat.pixelWidthHeightRatio,
-              scaleToFitFrameProcessor,
+              frameProcessors,
+              frameProcessorSizes,
               /* outputSurface= */ encoder.getInputSurface(),
               transformationRequest.enableHdrEditing,
               debugViewProvider);
     } else {
-      frameEditor = null;
+      frameProcessorChain = null;
     }
 
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
-            frameEditor == null ? encoder.getInputSurface() : frameEditor.createInputSurface());
+            frameProcessorChain == null
+                ? encoder.getInputSurface()
+                : frameProcessorChain.createInputSurface());
   }
 
   @Override
@@ -139,9 +149,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    if (frameEditor != null) {
-      frameEditor.getAndRethrowBackgroundExceptions();
-      if (frameEditor.isEnded()) {
+    if (frameProcessorChain != null) {
+      frameProcessorChain.getAndRethrowBackgroundExceptions();
+      if (frameProcessorChain.isEnded()) {
         if (!signaledEndOfStreamToEncoder) {
           encoder.signalEndOfInputStream();
           signaledEndOfStreamToEncoder = true;
@@ -163,8 +173,8 @@ import org.checkerframework.dataflow.qual.Pure;
       canProcessMoreDataImmediately = processDataDefault();
     }
     if (decoder.isEnded()) {
-      if (frameEditor != null) {
-        frameEditor.signalEndOfInputStream();
+      if (frameProcessorChain != null) {
+        frameProcessorChain.signalEndOfInputStream();
       } else {
         encoder.signalEndOfInputStream();
         signaledEndOfStreamToEncoder = true;
@@ -179,8 +189,8 @@ import org.checkerframework.dataflow.qual.Pure;
    *
    * <p>In this method the decoder could decode multiple frames in one invocation; as compared to
    * {@link #processDataDefault()}, in which one frame is decoded in each invocation. Consequently,
-   * if {@link FrameEditor} processes frames slower than the decoder, decoded frames are queued up
-   * in the decoder's output surface.
+   * if {@link FrameProcessorChain} processes frames slower than the decoder, decoded frames are
+   * queued up in the decoder's output surface.
    *
    * <p>Prior to API 29, decoders may drop frames to keep their output surface from growing out of
    * bound; while after API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
@@ -195,12 +205,12 @@ import org.checkerframework.dataflow.qual.Pure;
   /**
    * Processes at most one input frame and returns whether a frame was processed.
    *
-   * <p>Only renders decoder output to the {@link FrameEditor}'s input surface if the {@link
-   * FrameEditor} has finished processing the previous frame.
+   * <p>Only renders decoder output to the {@link FrameProcessorChain}'s input surface if the {@link
+   * FrameProcessorChain} has finished processing the previous frame.
    */
   private boolean processDataDefault() throws TransformationException {
     // TODO(b/214975934): Check whether this can be converted to a while-loop like processDataV29.
-    if (frameEditor != null && frameEditor.hasPendingFrames()) {
+    if (frameProcessorChain != null && frameProcessorChain.hasPendingFrames()) {
       return false;
     }
     return maybeProcessDecoderOutput();
@@ -240,8 +250,8 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void release() {
-    if (frameEditor != null) {
-      frameEditor.release();
+    if (frameProcessorChain != null) {
+      frameProcessorChain.release();
     }
     decoder.release();
     encoder.release();
@@ -299,8 +309,8 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
-    if (frameEditor != null) {
-      frameEditor.registerInputFrame();
+    if (frameProcessorChain != null) {
+      frameProcessorChain.registerInputFrame();
     }
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;

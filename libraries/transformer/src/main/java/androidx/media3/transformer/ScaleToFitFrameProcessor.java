@@ -27,9 +27,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Applies a simple rotation and/or scale in the vertex shader. All input frames' pixels will be
@@ -173,15 +171,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
    */
-  @RequiresNonNull("adjustedTransformationMatrix")
   public boolean shouldProcess() {
+    checkStateNotNull(adjustedTransformationMatrix);
     return inputWidth != outputWidth
         || inputHeight != outputHeight
         || !adjustedTransformationMatrix.isIdentity();
   }
 
   @Override
-  @EnsuresNonNull("adjustedTransformationMatrix")
   public Size configureOutputSize(int inputWidth, int inputHeight) {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
@@ -191,7 +188,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int displayHeight = inputHeight;
     if (!transformationMatrix.isIdentity()) {
       float inputAspectRatio = (float) inputWidth / inputHeight;
-      // Scale frames by inputAspectRatio, to account for FrameEditor's normalized device
+      // Scale frames by inputAspectRatio, to account for FrameProcessorChain's normalized device
       // coordinates (NDC) (a square from -1 to 1 for both x and y) and preserve rectangular
       // display of input pixels during transformations (ex. rotations). With scaling,
       // transformationMatrix operations operate on a rectangle for x from -inputAspectRatio to

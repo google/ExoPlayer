@@ -20,19 +20,21 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.util.Size;
 import android.view.Surface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test for {@link FrameEditor#create(Context, int, int, int, int, float, GlFrameProcessor, Surface,
- * boolean, Transformer.DebugViewProvider) creating} a {@link FrameEditor}.
+ * Test for {@link FrameProcessorChain#create(Context, float, List, List, Surface, boolean,
+ * Transformer.DebugViewProvider) creating} a {@link FrameProcessorChain}.
  */
 @RunWith(AndroidJUnit4.class)
-public final class FrameEditorTest {
+public final class FrameProcessorChainTest {
   // TODO(b/212539951): Make this a robolectric test by e.g. updating shadows or adding a
   // wrapper around GlUtil to allow the usage of mocks or fakes which don't need (Shadow)GLES20.
 
@@ -41,15 +43,12 @@ public final class FrameEditorTest {
       throws TransformationException {
     Context context = getApplicationContext();
 
-    FrameEditor.create(
+    FrameProcessorChain.create(
         context,
-        /* inputWidth= */ 200,
-        /* inputHeight= */ 100,
-        /* outputWidth= */ 200,
-        /* outputHeight= */ 100,
         /* pixelWidthHeightRatio= */ 1,
-        new AdvancedFrameProcessor(context, new Matrix()),
-        new Surface(new SurfaceTexture(false)),
+        /* frameProcessors= */ ImmutableList.of(),
+        /* sizes= */ ImmutableList.of(new Size(200, 100)),
+        /* outputSurface= */ new Surface(new SurfaceTexture(false)),
         /* enableExperimentalHdrEditing= */ false,
         Transformer.DebugViewProvider.NONE);
   }
@@ -62,15 +61,12 @@ public final class FrameEditorTest {
         assertThrows(
             TransformationException.class,
             () ->
-                FrameEditor.create(
+                FrameProcessorChain.create(
                     context,
-                    /* inputWidth= */ 200,
-                    /* inputHeight= */ 100,
-                    /* outputWidth= */ 200,
-                    /* outputHeight= */ 100,
                     /* pixelWidthHeightRatio= */ 2,
-                    new AdvancedFrameProcessor(context, new Matrix()),
-                    new Surface(new SurfaceTexture(false)),
+                    /* frameProcessors= */ ImmutableList.of(),
+                    /* sizes= */ ImmutableList.of(new Size(200, 100)),
+                    /* outputSurface= */ new Surface(new SurfaceTexture(false)),
                     /* enableExperimentalHdrEditing= */ false,
                     Transformer.DebugViewProvider.NONE));
 
