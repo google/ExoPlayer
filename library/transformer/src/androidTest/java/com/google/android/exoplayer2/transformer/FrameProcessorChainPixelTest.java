@@ -20,11 +20,12 @@ import static com.google.android.exoplayer2.transformer.BitmapTestUtil.FIRST_FRA
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
+import static com.google.android.exoplayer2.transformer.BitmapTestUtil.ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
+import static com.google.android.exoplayer2.transformer.BitmapTestUtil.TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.asList;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -40,14 +41,16 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.Iterables;
 import java.nio.ByteBuffer;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link FrameEditor}.
+ * Pixel test for frame processing via {@link FrameProcessorChain}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -55,41 +58,35 @@ import org.junit.runner.RunWith;
  * bitmaps.
  */
 @RunWith(AndroidJUnit4.class)
-public final class FrameEditorDataProcessingTest {
-  // TODO(b/214975934): Once FrameEditor is converted to a FrameProcessorChain, replace these tests
-  //  with a test for a few example combinations of GlFrameProcessors rather than testing all use
-  //  cases of TransformationFrameProcessor.
+public final class FrameProcessorChainPixelTest {
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
   /**
-   * Time to wait for the decoded frame to populate the frame editor's input surface and the frame
-   * editor to finish processing the frame, in milliseconds.
+   * Time to wait for the decoded frame to populate the {@link FrameProcessorChain}'s input surface
+   * and the {@link FrameProcessorChain} to finish processing the frame, in milliseconds.
    */
-  private static final int FRAME_PROCESSING_WAIT_MS = 1000;
+  private static final int FRAME_PROCESSING_WAIT_MS = 2000;
   /** The ratio of width over height, for each pixel in a frame. */
   private static final float PIXEL_WIDTH_HEIGHT_RATIO = 1;
 
-  private @MonotonicNonNull FrameEditor frameEditor;
-  private @MonotonicNonNull ImageReader frameEditorOutputImageReader;
+  private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
+  private @MonotonicNonNull ImageReader outputImageReader;
   private @MonotonicNonNull MediaFormat mediaFormat;
 
   @After
   public void release() {
-    if (frameEditor != null) {
-      frameEditor.release();
+    if (frameProcessorChain != null) {
+      frameProcessorChain.release();
     }
   }
 
   @Test
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     final String testId = "processData_noEdits";
-    Matrix identityMatrix = new Matrix();
-    GlFrameProcessor glFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+    setUpAndPrepareFirstFrame();
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -104,8 +101,9 @@ public final class FrameEditorDataProcessingTest {
   }
 
   @Test
-  public void processData_translateRight_producesExpectedOutput() throws Exception {
-    final String testId = "processData_translateRight";
+  public void processData_withAdvancedFrameProcessor_translateRight_producesExpectedOutput()
+      throws Exception {
+    final String testId = "processData_withAdvancedFrameProcessor_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor glFrameProcessor =
@@ -126,15 +124,20 @@ public final class FrameEditorDataProcessingTest {
   }
 
   @Test
-  public void processData_scaleNarrow_producesExpectedOutput() throws Exception {
-    final String testId = "processData_scaleNarrow";
-    Matrix scaleNarrowMatrix = new Matrix();
-    scaleNarrowMatrix.postScale(.5f, 1.2f);
-    GlFrameProcessor glFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+  public void processData_withAdvancedAndScaleToFitFrameProcessors_producesExpectedOutput()
+      throws Exception {
+    final String testId = "processData_withAdvancedAndScaleToFitFrameProcessors";
+    Matrix translateRightMatrix = new Matrix();
+    translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
+    GlFrameProcessor translateRightFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+    GlFrameProcessor rotate45FrameProcessor =
+        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
+            .setRotationDegrees(45)
+            .build();
+    setUpAndPrepareFirstFrame(translateRightFrameProcessor, rotate45FrameProcessor);
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -148,14 +151,20 @@ public final class FrameEditorDataProcessingTest {
   }
 
   @Test
-  public void processData_rotate90_producesExpectedOutput() throws Exception {
-    final String testId = "processData_rotate90";
-    Matrix rotate90Matrix = new Matrix();
-    rotate90Matrix.postRotate(/* degrees= */ 90);
-    GlFrameProcessor glFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
-    setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+  public void processData_withScaleToFitAndAdvancedFrameProcessors_producesExpectedOutput()
+      throws Exception {
+    final String testId = "processData_withScaleToFitAndAdvancedFrameProcessors";
+    GlFrameProcessor rotate45FrameProcessor =
+        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
+            .setRotationDegrees(45)
+            .build();
+    Matrix translateRightMatrix = new Matrix();
+    translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
+    GlFrameProcessor translateRightFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+    setUpAndPrepareFirstFrame(rotate45FrameProcessor, translateRightFrameProcessor);
+    Bitmap expectedBitmap =
+        BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -169,8 +178,9 @@ public final class FrameEditorDataProcessingTest {
   }
 
   @Test
-  public void processData_requestOutputHeight_producesExpectedOutput() throws Exception {
-    final String testId = "processData_requestOutputHeight";
+  public void processData_withScaleToFitFrameProcessor_requestOutputHeight_producesExpectedOutput()
+      throws Exception {
+    final String testId = "processData_withScaleToFitFrameProcessor_requestOutputHeight";
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
@@ -192,8 +202,9 @@ public final class FrameEditorDataProcessingTest {
   }
 
   @Test
-  public void processData_rotate45_scaleToFit_producesExpectedOutput() throws Exception {
-    final String testId = "processData_rotate45_scaleToFit";
+  public void processData_withScaleToFitFrameProcessor_rotate45_producesExpectedOutput()
+      throws Exception {
+    final String testId = "processData_withScaleToFitFrameProcessor_rotate45";
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
@@ -218,12 +229,13 @@ public final class FrameEditorDataProcessingTest {
 
   /**
    * Set up and prepare the first frame from an input video, as well as relevant test
-   * infrastructure. The frame will be sent towards the {@link FrameEditor}, and may be accessed on
-   * the {@link FrameEditor}'s output {@code frameEditorOutputImageReader}.
+   * infrastructure. The frame will be sent towards the {@link FrameProcessorChain}, and may be
+   * accessed on the {@link FrameProcessorChain}'s output {@code outputImageReader}.
    *
-   * @param glFrameProcessor The frame processor that will apply changes to the input frame.
+   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} that will apply changes
+   *     to the input frame.
    */
-  private void setUpAndPrepareFirstFrame(GlFrameProcessor glFrameProcessor) throws Exception {
+  private void setUpAndPrepareFirstFrame(GlFrameProcessor... frameProcessors) throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
@@ -240,31 +252,35 @@ public final class FrameEditorDataProcessingTest {
 
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-      Size outputSize = glFrameProcessor.configureOutputSize(inputWidth, inputHeight);
-      int outputWidth = outputSize.getWidth();
-      int outputHeight = outputSize.getHeight();
-      frameEditorOutputImageReader =
+      List<GlFrameProcessor> frameProcessorsList = asList(frameProcessors);
+      List<Size> sizes =
+          FrameProcessorChain.configureSizes(inputWidth, inputHeight, frameProcessorsList);
+      assertThat(sizes).isNotEmpty();
+      outputImageReader =
           ImageReader.newInstance(
-              outputWidth, outputHeight, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-      frameEditor =
-          FrameEditor.create(
+              Iterables.getLast(sizes).getWidth(),
+              Iterables.getLast(sizes).getHeight(),
+              PixelFormat.RGBA_8888,
+              /* maxImages= */ 1);
+      frameProcessorChain =
+          FrameProcessorChain.create(
               context,
-              inputWidth,
-              inputHeight,
-              outputWidth,
-              outputHeight,
               PIXEL_WIDTH_HEIGHT_RATIO,
-              glFrameProcessor,
-              frameEditorOutputImageReader.getSurface(),
+              frameProcessorsList,
+              sizes,
+              outputImageReader.getSurface(),
               /* enableExperimentalHdrEditing= */ false,
               Transformer.DebugViewProvider.NONE);
-      frameEditor.registerInputFrame();
+      frameProcessorChain.registerInputFrame();
 
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaCodec = MediaCodec.createDecoderByType(mimeType);
       mediaCodec.configure(
-          mediaFormat, frameEditor.createInputSurface(), /* crypto= */ null, /* flags= */ 0);
+          mediaFormat,
+          frameProcessorChain.createInputSurface(),
+          /* crypto= */ null,
+          /* flags= */ 0);
       mediaCodec.start();
       int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
       assertThat(inputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
@@ -305,14 +321,15 @@ public final class FrameEditorDataProcessingTest {
   }
 
   private Bitmap processFirstFrameAndEnd() throws InterruptedException, TransformationException {
-    checkNotNull(frameEditor).signalEndOfInputStream();
+    checkNotNull(frameProcessorChain).signalEndOfInputStream();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
-    assertThat(frameEditor.isEnded()).isTrue();
-    frameEditor.getAndRethrowBackgroundExceptions();
+    assertThat(frameProcessorChain.isEnded()).isTrue();
+    frameProcessorChain.getAndRethrowBackgroundExceptions();
 
-    Image editorOutputImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap actualBitmap = BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(editorOutputImage);
-    editorOutputImage.close();
+    Image frameProcessorChainOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
+    Bitmap actualBitmap =
+        BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(frameProcessorChainOutputImage);
+    frameProcessorChainOutputImage.close();
     return actualBitmap;
   }
 }
