@@ -49,12 +49,13 @@ case. The following example shows how to customize the player to use Android's
 default network stack with cross-protocol redirects enabled:
 
 ~~~
-// Build a HttpDataSource.Factory with cross-protocol redirects enabled.
-HttpDataSource.Factory httpDataSourceFactory =
+// Build a DefaultHttpDataSource.Factory with cross-protocol redirects enabled.
+DataSource.Factory httpDataSourceFactory =
     new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
 
-// Wrap the HttpDataSource.Factory in a DefaultDataSource.Factory, which adds in
-// support for requesting data from other sources (e.g., files, resources, etc).
+// Wrap the DefaultHttpDataSource.Factory in a DefaultDataSource.Factory, which
+// adds in support for requesting data from other sources (e.g., files,
+// resources, etc).
 DefaultDataSource.Factory dataSourceFactory =
     new DefaultDataSource.Factory(context, httpDataSourceFactory);
 
@@ -66,9 +67,9 @@ ExoPlayer player =
 ~~~
 {: .language-java}
 
-The same approach can be used to configure and inject `HttpDataSource.Factory`
-implementations provided by the [Cronet extension] and the [OkHttp extension],
-depending on your preferred choice of network stack.
+The same approach can be used to configure and inject HTTP-based
+`DataSource.Factory` implementations provided by the [Cronet extension] and the
+[OkHttp extension], depending on your preferred choice of network stack.
 
 ### Caching data loaded from the network ###
 
