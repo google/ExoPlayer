@@ -85,7 +85,7 @@ public final class FrameProcessorChainPixelTest {
 
   @Test
   public void processData_noEdits_producesExpectedOutput() throws Exception {
-    final String testId = "processData_noEdits";
+    String testId = "processData_noEdits";
     setUpAndPrepareFirstFrame();
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
@@ -103,7 +103,7 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_withAdvancedFrameProcessor_translateRight_producesExpectedOutput()
       throws Exception {
-    final String testId = "processData_withAdvancedFrameProcessor_translateRight";
+    String testId = "processData_withAdvancedFrameProcessor_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor glFrameProcessor =
@@ -126,7 +126,7 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_withAdvancedAndScaleToFitFrameProcessors_producesExpectedOutput()
       throws Exception {
-    final String testId = "processData_withAdvancedAndScaleToFitFrameProcessors";
+    String testId = "processData_withAdvancedAndScaleToFitFrameProcessors";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor translateRightFrameProcessor =
@@ -153,7 +153,7 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_withScaleToFitAndAdvancedFrameProcessors_producesExpectedOutput()
       throws Exception {
-    final String testId = "processData_withScaleToFitAndAdvancedFrameProcessors";
+    String testId = "processData_withScaleToFitAndAdvancedFrameProcessors";
     GlFrameProcessor rotate45FrameProcessor =
         new ScaleToFitFrameProcessor.Builder(getApplicationContext())
             .setRotationDegrees(45)
@@ -180,7 +180,7 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_withScaleToFitFrameProcessor_requestOutputHeight_producesExpectedOutput()
       throws Exception {
-    final String testId = "processData_withScaleToFitFrameProcessor_requestOutputHeight";
+    String testId = "processData_withScaleToFitFrameProcessor_requestOutputHeight";
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
@@ -204,7 +204,7 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_withScaleToFitFrameProcessor_rotate45_producesExpectedOutput()
       throws Exception {
-    final String testId = "processData_withScaleToFitFrameProcessor_rotate45";
+    String testId = "processData_withScaleToFitFrameProcessor_rotate45";
     // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.

@@ -90,7 +90,7 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @Test
   public void updateProgramAndDraw_noEdits_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_noEdits";
+    String testId = "updateProgramAndDraw_noEdits";
     Matrix identityMatrix = new Matrix();
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
     advancedFrameProcessor.initialize(inputTexId);
@@ -111,7 +111,7 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @Test
   public void updateProgramAndDraw_translateRight_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_translateRight";
+    String testId = "updateProgramAndDraw_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     advancedFrameProcessor =
@@ -135,7 +135,7 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @Test
   public void updateProgramAndDraw_scaleNarrow_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_scaleNarrow";
+    String testId = "updateProgramAndDraw_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
@@ -158,7 +158,7 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @Test
   public void updateProgramAndDraw_rotate90_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_rotate90";
+    String testId = "updateProgramAndDraw_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
