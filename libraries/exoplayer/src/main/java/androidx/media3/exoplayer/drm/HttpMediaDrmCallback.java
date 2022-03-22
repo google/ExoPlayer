@@ -22,9 +22,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceInputStream;
 import androidx.media3.datasource.DataSpec;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException;
 import androidx.media3.datasource.StatsDataSource;
 import androidx.media3.exoplayer.drm.ExoMediaDrm.KeyRequest;
@@ -36,41 +36,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances. */
+/** A {@link MediaDrmCallback} that makes requests using {@link DataSource} instances. */
 @UnstableApi
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final int MAX_MANUAL_REDIRECTS = 5;
 
-  private final HttpDataSource.Factory dataSourceFactory;
+  private final DataSource.Factory dataSourceFactory;
   @Nullable private final String defaultLicenseUrl;
   private final boolean forceDefaultLicenseUrl;
   private final Map<String, String> keyRequestProperties;
 
   /**
+   * Constructs an instance.
+   *
    * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
    *     their own license URL. May be {@code null} if it's known that all key requests will specify
    *     their own URLs.
-   * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param dataSourceFactory A factory from which to obtain {@link DataSource} instances. This will
+   *     usually be an HTTP-based {@link DataSource}.
    */
   public HttpMediaDrmCallback(
-      @Nullable String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
+      @Nullable String defaultLicenseUrl, DataSource.Factory dataSourceFactory) {
     this(defaultLicenseUrl, /* forceDefaultLicenseUrl= */ false, dataSourceFactory);
   }
 
   /**
+   * Constructs an instance.
+   *
    * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
    *     their own license URL, or for all key requests if {@code forceDefaultLicenseUrl} is set to
    *     true. May be {@code null} if {@code forceDefaultLicenseUrl} is {@code false} and if it's
    *     known that all key requests will specify their own URLs.
    * @param forceDefaultLicenseUrl Whether to force use of {@code defaultLicenseUrl} for key
    *     requests that include their own license URL.
-   * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param dataSourceFactory A factory from which to obtain {@link DataSource} instances. This will
+   *     * usually be an HTTP-based {@link DataSource}.
    */
   public HttpMediaDrmCallback(
       @Nullable String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
-      HttpDataSource.Factory dataSourceFactory) {
+      DataSource.Factory dataSourceFactory) {
     Assertions.checkArgument(!(forceDefaultLicenseUrl && TextUtils.isEmpty(defaultLicenseUrl)));
     this.dataSourceFactory = dataSourceFactory;
     this.defaultLicenseUrl = defaultLicenseUrl;
@@ -156,7 +162,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   }
 
   private static byte[] executePost(
-      HttpDataSource.Factory dataSourceFactory,
+      DataSource.Factory dataSourceFactory,
       String url,
       @Nullable byte[] httpBody,
       Map<String, String> requestProperties)
