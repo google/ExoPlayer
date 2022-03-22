@@ -49,10 +49,8 @@ public class TransformationTest {
     String testId = TAG + "_transform";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
-    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
-        .setSuppressAnalysisExceptions(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -90,10 +88,8 @@ public class TransformationTest {
                   }
                 })
             .build();
-    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
-        .setSuppressAnalysisExceptions(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -111,10 +107,8 @@ public class TransformationTest {
                     new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
                     /* enableFallback= */ true))
             .build();
-    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
-        .setSuppressAnalysisExceptions(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -124,10 +118,8 @@ public class TransformationTest {
     String testId = TAG + "_transform4K60";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
-    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
-        .setSuppressAnalysisExceptions(true)
         .build()
         .run(testId, MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
   }
@@ -137,10 +129,8 @@ public class TransformationTest {
     String testId = TAG + "_transformNoAudio";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
-    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
-        .setSuppressAnalysisExceptions(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -171,10 +161,8 @@ public class TransformationTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
-    // TODO(b/223381524): Remove analysis failure suppression after ssim calculation doesn't fail.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
-        .setSuppressAnalysisExceptions(true)
         .build()
         .run(testId, MP4_ASSET_SEF_URI_STRING);
   }
