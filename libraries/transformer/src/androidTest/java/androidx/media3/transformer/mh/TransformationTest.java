@@ -162,7 +162,6 @@ public class TransformationTest {
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_SEF_URI_STRING);
   }
