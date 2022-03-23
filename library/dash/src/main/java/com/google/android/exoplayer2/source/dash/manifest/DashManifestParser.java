@@ -1187,41 +1187,41 @@ public class DashManifestParser extends DefaultHandler
     xpp.nextToken();
     while (!XmlPullParserUtil.isEndTag(xpp, "Event")) {
       switch (xpp.getEventType()) {
-        case (XmlPullParser.START_DOCUMENT):
+        case XmlPullParser.START_DOCUMENT:
           xmlSerializer.startDocument(null, false);
           break;
-        case (XmlPullParser.END_DOCUMENT):
+        case XmlPullParser.END_DOCUMENT:
           xmlSerializer.endDocument();
           break;
-        case (XmlPullParser.START_TAG):
+        case XmlPullParser.START_TAG:
           xmlSerializer.startTag(xpp.getNamespace(), xpp.getName());
           for (int i = 0; i < xpp.getAttributeCount(); i++) {
             xmlSerializer.attribute(
                 xpp.getAttributeNamespace(i), xpp.getAttributeName(i), xpp.getAttributeValue(i));
           }
           break;
-        case (XmlPullParser.END_TAG):
+        case XmlPullParser.END_TAG:
           xmlSerializer.endTag(xpp.getNamespace(), xpp.getName());
           break;
-        case (XmlPullParser.TEXT):
+        case XmlPullParser.TEXT:
           xmlSerializer.text(xpp.getText());
           break;
-        case (XmlPullParser.CDSECT):
+        case XmlPullParser.CDSECT:
           xmlSerializer.cdsect(xpp.getText());
           break;
-        case (XmlPullParser.ENTITY_REF):
+        case XmlPullParser.ENTITY_REF:
           xmlSerializer.entityRef(xpp.getText());
           break;
-        case (XmlPullParser.IGNORABLE_WHITESPACE):
+        case XmlPullParser.IGNORABLE_WHITESPACE:
           xmlSerializer.ignorableWhitespace(xpp.getText());
           break;
-        case (XmlPullParser.PROCESSING_INSTRUCTION):
+        case XmlPullParser.PROCESSING_INSTRUCTION:
           xmlSerializer.processingInstruction(xpp.getText());
           break;
-        case (XmlPullParser.COMMENT):
+        case XmlPullParser.COMMENT:
           xmlSerializer.comment(xpp.getText());
           break;
-        case (XmlPullParser.DOCDECL):
+        case XmlPullParser.DOCDECL:
           xmlSerializer.docdecl(xpp.getText());
           break;
         default: // fall out
