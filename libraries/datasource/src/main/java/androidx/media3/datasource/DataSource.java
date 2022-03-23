@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 /** Reads data from URI-identified resources. */
-@UnstableApi
 public interface DataSource extends DataReader {
 
   /** A factory for {@link DataSource} instances. */
   interface Factory {
 
     /** Creates a {@link DataSource} instance. */
+    @UnstableApi
     DataSource createDataSource();
   }
 
@@ -41,6 +41,7 @@ public interface DataSource extends DataReader {
    *
    * @param transferListener A {@link TransferListener}.
    */
+  @UnstableApi
   void addTransferListener(TransferListener transferListener);
 
   /**
@@ -72,6 +73,7 @@ public interface DataSource extends DataReader {
    *     unresolved. For all other requests, the value returned will be equal to the request's
    *     {@link DataSpec#length}.
    */
+  @UnstableApi
   long open(DataSpec dataSpec) throws IOException;
 
   /**
@@ -82,6 +84,7 @@ public interface DataSource extends DataReader {
    *
    * @return The {@link Uri} from which data is being read, or null if the source is not open.
    */
+  @UnstableApi
   @Nullable
   Uri getUri();
 
@@ -91,6 +94,7 @@ public interface DataSource extends DataReader {
    *
    * <p>Key look-up in the returned map is case-insensitive.
    */
+  @UnstableApi
   default Map<String, List<String>> getResponseHeaders() {
     return Collections.emptyMap();
   }
@@ -101,5 +105,6 @@ public interface DataSource extends DataReader {
    *
    * @throws IOException If an error occurs closing the source.
    */
+  @UnstableApi
   void close() throws IOException;
 }

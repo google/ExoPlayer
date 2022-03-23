@@ -48,6 +48,7 @@ public abstract class BaseDataSource implements DataSource {
     this.listeners = new ArrayList<>(/* initialCapacity= */ 1);
   }
 
+  @UnstableApi
   @Override
   public final void addTransferListener(TransferListener transferListener) {
     checkNotNull(transferListener);
