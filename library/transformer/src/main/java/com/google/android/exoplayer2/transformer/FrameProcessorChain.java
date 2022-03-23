@@ -244,18 +244,34 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
 
+  private final EGLContext eglContext;
+  private final EGLDisplay eglDisplay;
+  /**
+   * Wraps the output {@link Surface} that is populated with the output of the final {@link
+   * GlFrameProcessor} for each frame.
+   */
+  private final EGLSurface eglSurface;
   /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
   private final ExecutorService singleThreadExecutorService;
   /** Futures corresponding to the executor service's pending tasks. */
   private final ConcurrentLinkedQueue<Future<?>> futures;
   /** Number of frames {@link #registerInputFrame() registered} but not fully processed. */
   private final AtomicInteger pendingFrameCount;
-  // TODO(b/214975934): Write javadoc for fields where the purpose might be unclear to someone less
-  //  familiar with this class and consider grouping some of these fields into new classes to
-  //  reduce the number of constructor parameters.
-  private final EGLDisplay eglDisplay;
-  private final EGLContext eglContext;
-  private final EGLSurface eglSurface;
+  /** Prevents further frame processing tasks from being scheduled after {@link #release()}. */
+  private volatile boolean releaseRequested;
+
+  private boolean inputStreamEnded;
+  /** Wraps the {@link #inputSurfaceTexture}. */
+  private @MonotonicNonNull Surface inputSurface;
+  /** Associated with an OpenGL external texture. */
+  private @MonotonicNonNull SurfaceTexture inputSurfaceTexture;
+  /**
+   * Identifier of the external texture the {@link ExternalCopyFrameProcessor} reads its input from.
+   */
+  private final int inputExternalTexId;
+  /** Transformation matrix associated with the surface texture. */
+  private final float[] textureTransformMatrix;
+
   private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
   private final List<GlFrameProcessor> frameProcessors;
   /**
@@ -272,21 +288,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * frameProcessors}.
    */
   private final List<Size> sizes;
-  /**
-   * Identifier of the external texture the {@link ExternalCopyFrameProcessor} reads its input from.
-   */
-  private final int inputExternalTexId;
-  /** Transformation matrix associated with the surface texture. */
-  private final float[] textureTransformMatrix;
 
-  @Nullable private final EGLSurface debugPreviewEglSurface;
   private final int debugPreviewWidth;
   private final int debugPreviewHeight;
-
-  private @MonotonicNonNull SurfaceTexture inputSurfaceTexture;
-  private @MonotonicNonNull Surface inputSurface;
-  private boolean inputStreamEnded;
-  private volatile boolean releaseRequested;
+  /**
+   * Wraps a debug {@link SurfaceView} that is populated with the output of the final {@link
+   * GlFrameProcessor} for each frame.
+   */
+  @Nullable private final EGLSurface debugPreviewEglSurface;
 
   private FrameProcessorChain(
       ExecutorService singleThreadExecutorService,
