@@ -37,19 +37,19 @@ import java.util.Map;
 public final class RtpPayloadFormat {
 
   private static final String RTP_MEDIA_AC3 = "AC3";
-  private static final String RTP_MEDIA_OPUS = "OPUS";
-  private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
+  private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
+  private static final String RTP_MEDIA_OPUS = "OPUS";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
-      case RTP_MEDIA_OPUS:
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_OPUS:
         return true;
       default:
         return false;

@@ -56,6 +56,9 @@ import com.google.common.collect.ImmutableMap;
 
   private static final String GENERIC_CONTROL_ATTR = "*";
 
+  /** RFC7587 Section 6.1 Sampling rate for OPUS is fixed at 48KHz. */
+  private static final int OPUS_SAMPLING_RATE = 48000;
+
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
   /** The track's URI. */
@@ -122,12 +125,11 @@ import com.google.common.collect.ImmutableMap;
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
         break;
       case MimeTypes.AUDIO_OPUS:
-        // RFC7587 Section 7
-        checkArgument(channelCount == 2, "Invalid channel count");
-        // RFC7587 Section 6.1
+        checkArgument(channelCount != C.INDEX_UNSET);
+        // RFC7587 Section 6.1.
         // the RTP timestamp is incremented with a 48000 Hz clock rate
         // for all modes of Opus and all sampling rates.
-        checkArgument(clockRate == 48000, "Invalid sampling rate");
+        checkArgument(clockRate == OPUS_SAMPLING_RATE, "Invalid sampling rate");
         break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());

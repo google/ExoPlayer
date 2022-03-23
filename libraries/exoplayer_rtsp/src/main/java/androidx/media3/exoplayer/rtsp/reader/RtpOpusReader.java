@@ -39,11 +39,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String TAG = "RtpOpusReader";
 
   private final RtpPayloadFormat payloadFormat;
+  private static final long MEDIA_CLOCK_FREQUENCY = 48_000;
+
   private @MonotonicNonNull TrackOutput trackOutput;
   private long firstReceivedTimestamp;
   private long startTimeOffsetUs;
-
-  private final int sampleRate;
   private int previousSequenceNumber;
   private boolean foundOpusIDHeader;
   private boolean foundOpusCommentHeader;
@@ -51,7 +51,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public RtpOpusReader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     this.firstReceivedTimestamp = C.INDEX_UNSET;
-    this.sampleRate = this.payloadFormat.clockRate;
     this.previousSequenceNumber = C.INDEX_UNSET;
     this.foundOpusIDHeader = false;
     this.foundOpusCommentHeader = false;
@@ -75,23 +74,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker) {
     checkStateNotNull(trackOutput);
 
-    /* RFC7845 Section 3
+    /* RFC7845 Section 3.
      * +---------+ +----------------+ +--------------------+ +-----
      * |ID Header| | Comment Header | |Audio Data Packet 1 | | ...
      * +---------+ +----------------+ +--------------------+ +-----
      */
     if (!foundOpusIDHeader) {
-      int currPosition = data.getPosition();
-      checkArgument(isOpusIDHeader(data), "ID Header missing");
-
-      data.setPosition(currPosition);
+      checkForOpusIdHeader(data);
       List<byte[]> initializationData = OpusUtil.buildInitializationData(data.getData());
       Format.Builder formatBuilder = payloadFormat.format.buildUpon();
       formatBuilder.setInitializationData(initializationData);
       trackOutput.format(formatBuilder.build());
       foundOpusIDHeader = true;
     } else if (!foundOpusCommentHeader) {
-      // Comment Header RFC7845 Section 5.2
+      // Comment Header RFC7845 Section 5.2.
       String header = data.readString(8);
       checkArgument(header.equals("OpusTags"), "Comment Header should follow ID Header");
       foundOpusCommentHeader = true;
@@ -106,12 +102,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 expectedSequenceNumber, sequenceNumber));
       }
 
-      // sending opus data
+      // sending opus data.
       int size = data.bytesLeft();
       trackOutput.sampleData(data, size);
       long timeUs =
-          toSampleTimeUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp, sampleRate);
-      trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, size, 0, null);
+          toSampleTimeUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
+      trackOutput.sampleMetadata(
+          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset*/ 0, /* cryptoData*/ null);
     }
     previousSequenceNumber = sequenceNumber;
   }
@@ -124,29 +121,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Internal methods.
 
-  private static boolean isOpusIDHeader(ParsableByteArray data) {
+  private static void checkForOpusIdHeader(ParsableByteArray data) {
+    int currPosition = data.getPosition();
     int sampleSize = data.limit();
     String header = data.readString(8);
-    // Identification header RFC7845 Section 5.1
-    if (sampleSize < 19 || !header.equals("OpusHead")) {
-      Log.e(
-          TAG,
-          Util.formatInvariant(
-              "first data octet of the RTP packet is not the beginning of a OpusHeader "
-                  + "Dropping current packet"));
-      return false;
-    }
+    // Identification header RFC7845 Section 5.1.
+    checkArgument(sampleSize > 18 && header.equals("OpusHead"), "ID Header missing");
     checkArgument(data.readUnsignedByte() == 1, "version number must always be 1");
-    return true;
+    data.setPosition(currPosition);
   }
 
   /** Returns the correct sample time from RTP timestamp, accounting for the OPUS sampling rate. */
   private static long toSampleTimeUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp, int sampleRate) {
+      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
     return startTimeOffsetUs
         + Util.scaleLargeTimestamp(
             rtpTimestamp - firstReceivedRtpTimestamp,
             /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ sampleRate);
+            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 }
