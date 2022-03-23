@@ -109,7 +109,7 @@ import org.checkerframework.dataflow.qual.Pure;
         || inputFormat.height != encoderSupportedFormat.height
         || inputFormat.width != encoderSupportedFormat.width
         || scaleToFitFrameProcessor.shouldProcess()
-        || shouldAlwaysUseFrameEditor()) {
+        || shouldAlwaysUseFrameProcessorChain()) {
       // TODO(b/218488308): Allow the final GlFrameProcessor to be re-configured if its output size
       //  has to change due to encoder fallback or append another GlFrameProcessor.
       frameProcessorSizes.set(
@@ -287,8 +287,8 @@ import org.checkerframework.dataflow.qual.Pure;
         .build();
   }
 
-  /** Always use {@link FrameEditor} to work around device-specific encoder issues. */
-  private static boolean shouldAlwaysUseFrameEditor() {
+  /** Always use {@link FrameProcessorChain} to work around device-specific encoder issues. */
+  private static boolean shouldAlwaysUseFrameProcessorChain() {
     switch (Util.MODEL) {
       case "XT1635-02":
       case "Nexus 5":
