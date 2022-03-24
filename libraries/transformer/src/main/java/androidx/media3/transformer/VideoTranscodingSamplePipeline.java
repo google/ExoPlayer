@@ -29,7 +29,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import java.util.List;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -70,6 +69,7 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
+    // TODO(b/214975934): Allow a list of frame processors to be passed into the sample pipeline.
     // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor.Builder(context)
@@ -80,13 +80,15 @@ import org.checkerframework.dataflow.qual.Pure;
         new PresentationFrameProcessor.Builder(context)
             .setResolution(transformationRequest.outputHeight)
             .build();
-    // TODO(b/214975934): Allow a list of frame processors to be passed into the sample pipeline.
-    ImmutableList<GlFrameProcessor> frameProcessors =
-        ImmutableList.of(scaleToFitFrameProcessor, presentationFrameProcessor);
-    List<Size> frameProcessorSizes =
-        FrameProcessorChain.configureSizes(decodedWidth, decodedHeight, frameProcessors);
-    Size requestedEncoderSize = Iterables.getLast(frameProcessorSizes);
-    // TODO(b/213190310): Move output rotation configuration to PresentationFrameProcessor.
+    frameProcessorChain =
+        new FrameProcessorChain(
+            context,
+            inputFormat.pixelWidthHeightRatio,
+            /* inputWidth= */ decodedWidth,
+            /* inputHeight= */ decodedHeight,
+            ImmutableList.of(scaleToFitFrameProcessor, presentationFrameProcessor),
+            transformationRequest.enableHdrEditing);
+    Size requestedEncoderSize = frameProcessorChain.getOutputSize();
     outputRotationDegrees = presentationFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
@@ -110,13 +112,6 @@ import org.checkerframework.dataflow.qual.Pure;
             requestedEncoderFormat,
             encoderSupportedFormat));
 
-    frameProcessorChain =
-        new FrameProcessorChain(
-            context,
-            inputFormat.pixelWidthHeightRatio,
-            frameProcessors,
-            frameProcessorSizes,
-            transformationRequest.enableHdrEditing);
     frameProcessorChain.configure(
         /* outputSurface= */ encoder.getInputSurface(),
         /* outputWidth= */ encoderSupportedFormat.width,

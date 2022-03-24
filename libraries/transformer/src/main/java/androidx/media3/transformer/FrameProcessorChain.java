@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -29,6 +28,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -36,8 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
@@ -56,39 +56,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * processed on a background thread as it becomes available. All input frames should be {@link
  * #registerInputFrame() registered} before they are rendered to the input surface. {@link
  * #hasPendingFrames()} can be used to check whether there are frames that have not been fully
- * processed yet. The {@code FrameProcessorChain} writes output to the surface passed to {@link
- * #configure(Surface, int, int, SurfaceView)}.
+ * processed yet. Output is written to its {@link #configure(Surface, int, int, SurfaceView) output
+ * surface}.
  */
 /* package */ final class FrameProcessorChain {
 
   static {
     GlUtil.glAssertionsEnabled = true;
-  }
-
-  /**
-   * Configures the output {@link Size sizes} of a list of {@link GlFrameProcessor
-   * GlFrameProcessors}.
-   *
-   * @param inputWidth The width of frames passed to the first {@link GlFrameProcessor}.
-   * @param inputHeight The height of frames passed to the first {@link GlFrameProcessor}.
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors}.
-   * @return A mutable {@link List} containing the input {@link Size} as well as the output {@link
-   *     Size} of each {@link GlFrameProcessor}.
-   */
-  // TODO(b/218488308): Return an immutable list once VideoTranscodingSamplePipeline no longer needs
-  //  to modify this list for encoder fallback.
-  public static List<Size> configureSizes(
-      int inputWidth, int inputHeight, List<GlFrameProcessor> frameProcessors) {
-
-    List<Size> sizes = new ArrayList<>(frameProcessors.size() + 1);
-    sizes.add(new Size(inputWidth, inputHeight));
-    for (int i = 0; i < frameProcessors.size(); i++) {
-      sizes.add(
-          frameProcessors
-              .get(i)
-              .configureOutputSize(getLast(sizes).getWidth(), getLast(sizes).getHeight()));
-    }
-    return sizes;
   }
 
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
@@ -129,12 +103,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * <p>The {@link ExternalCopyFrameProcessor} writes to the first framebuffer.
    */
   private final int[] framebuffers;
-  /**
-   * The input {@link Size}, i.e., the output {@link Size} of the {@link
-   * ExternalCopyFrameProcessor}), as well as the output {@link Size} of each of the {@code
-   * frameProcessors}.
-   */
-  private final List<Size> sizes;
+  /** The input {@link Size} of each of the {@code frameProcessors}. */
+  private final ImmutableList<Size> inputSizes;
 
   private int outputWidth;
   private int outputHeight;
@@ -157,23 +127,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param context A {@link Context}.
    * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
+   * @param inputWidth The input frame width, in pixels.
+   * @param inputHeight The input frame height, in pixels.
    * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
-   *     Their output sizes must be {@link GlFrameProcessor#configureOutputSize(int, int)}
-   *     configured}.
-   * @param sizes The input {@link Size} as well as the output {@link Size} of each {@link
-   *     GlFrameProcessor}.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1.
    */
   public FrameProcessorChain(
       Context context,
       float pixelWidthHeightRatio,
+      int inputWidth,
+      int inputHeight,
       List<GlFrameProcessor> frameProcessors,
-      List<Size> sizes,
       boolean enableExperimentalHdrEditing)
       throws TransformationException {
-    checkArgument(frameProcessors.size() + 1 == sizes.size());
-
     if (pixelWidthHeightRatio != 1.0f) {
       // TODO(b/211782176): Consider implementing support for non-square pixels.
       throw TransformationException.createForFrameProcessorChain(
@@ -186,7 +153,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
     this.frameProcessors = frameProcessors;
-    this.sizes = sizes;
 
     try {
       eglDisplay = GlUtil.createEglDisplay();
@@ -205,10 +171,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     externalCopyFrameProcessor =
         new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
     framebuffers = new int[frameProcessors.size()];
-    outputWidth = getLast(sizes).getWidth();
-    outputHeight = getLast(sizes).getHeight();
+    Pair<ImmutableList<Size>, Size> sizes =
+        configureFrameProcessorSizes(inputWidth, inputHeight, frameProcessors);
+    inputSizes = sizes.first;
+    outputWidth = sizes.second.getWidth();
+    outputHeight = sizes.second.getHeight();
     debugPreviewWidth = C.LENGTH_UNSET;
     debugPreviewHeight = C.LENGTH_UNSET;
+  }
+
+  /** Returns the output {@link Size}. */
+  public Size getOutputSize() {
+    return new Size(outputWidth, outputHeight);
   }
 
   /**
@@ -399,12 +373,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
 
     inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.configureOutputSize(
-        /* inputWidth= */ sizes.get(0).getWidth(), /* inputHeight= */ sizes.get(0).getHeight());
+    Size inputSize = inputSizes.get(0);
+    externalCopyFrameProcessor.configureOutputSize(inputSize.getWidth(), inputSize.getHeight());
     externalCopyFrameProcessor.initialize(inputExternalTexId);
 
     for (int i = 0; i < frameProcessors.size(); i++) {
-      int inputTexId = GlUtil.createTexture(sizes.get(i).getWidth(), sizes.get(i).getHeight());
+      inputSize = inputSizes.get(i);
+      int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
       framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
       frameProcessors.get(i).initialize(inputTexId);
     }
@@ -423,16 +398,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private void processFrame() {
     checkState(Thread.currentThread().equals(glThread));
 
+    Size outputSize = inputSizes.get(0);
     if (frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      GlUtil.focusEglSurface(
+          eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
     } else {
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
           eglSurface,
           framebuffers[0],
-          sizes.get(0).getWidth(),
-          sizes.get(0).getHeight());
+          outputSize.getWidth(),
+          outputSize.getHeight());
     }
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
@@ -441,13 +418,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeNs);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
+      outputSize = inputSizes.get(i + 1);
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
           eglSurface,
           framebuffers[i + 1],
-          sizes.get(i + 1).getWidth(),
-          sizes.get(i + 1).getHeight());
+          outputSize.getWidth(),
+          outputSize.getHeight());
       frameProcessors.get(i).updateProgramAndDraw(presentationTimeNs);
     }
     if (!frameProcessors.isEmpty()) {
@@ -469,5 +447,31 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     checkState(pendingFrameCount.getAndDecrement() > 0);
+  }
+
+  /**
+   * Configures the input and output {@link Size sizes} of a list of {@link GlFrameProcessor
+   * GlFrameProcessors}.
+   *
+   * @param inputWidth The width of frames passed to the first {@link GlFrameProcessor}, in pixels.
+   * @param inputHeight The height of frames passed to the first {@link GlFrameProcessor}, in
+   *     pixels.
+   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors}.
+   * @return The input {@link Size} of each {@link GlFrameProcessor} and the output {@link Size} of
+   *     the final {@link GlFrameProcessor}.
+   */
+  private static Pair<ImmutableList<Size>, Size> configureFrameProcessorSizes(
+      int inputWidth, int inputHeight, List<GlFrameProcessor> frameProcessors) {
+    Size size = new Size(inputWidth, inputHeight);
+    if (frameProcessors.isEmpty()) {
+      return Pair.create(ImmutableList.of(size), size);
+    }
+
+    ImmutableList.Builder<Size> inputSizes = new ImmutableList.Builder<>();
+    for (int i = 0; i < frameProcessors.size(); i++) {
+      inputSizes.add(size);
+      size = frameProcessors.get(i).configureOutputSize(size.getWidth(), size.getHeight());
+    }
+    return Pair.create(inputSizes.build(), size);
   }
 }

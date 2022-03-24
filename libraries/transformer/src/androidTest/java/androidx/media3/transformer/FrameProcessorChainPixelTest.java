@@ -41,9 +41,7 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.Iterables;
 import java.nio.ByteBuffer;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
@@ -247,24 +245,26 @@ public final class FrameProcessorChainPixelTest {
 
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-      List<GlFrameProcessor> frameProcessorsList = asList(frameProcessors);
-      List<Size> sizes =
-          FrameProcessorChain.configureSizes(inputWidth, inputHeight, frameProcessorsList);
-      assertThat(sizes).isNotEmpty();
-      int outputWidth = Iterables.getLast(sizes).getWidth();
-      int outputHeight = Iterables.getLast(sizes).getHeight();
-      outputImageReader =
-          ImageReader.newInstance(
-              outputWidth, outputHeight, PixelFormat.RGBA_8888, /* maxImages= */ 1);
       frameProcessorChain =
           new FrameProcessorChain(
               context,
               PIXEL_WIDTH_HEIGHT_RATIO,
-              frameProcessorsList,
-              sizes,
+              inputWidth,
+              inputHeight,
+              asList(frameProcessors),
               /* enableExperimentalHdrEditing= */ false);
+      Size outputSize = frameProcessorChain.getOutputSize();
+      outputImageReader =
+          ImageReader.newInstance(
+              outputSize.getWidth(),
+              outputSize.getHeight(),
+              PixelFormat.RGBA_8888,
+              /* maxImages= */ 1);
       frameProcessorChain.configure(
-          outputImageReader.getSurface(), outputWidth, outputHeight, /* debugSurfaceView= */ null);
+          outputImageReader.getSurface(),
+          outputSize.getWidth(),
+          outputSize.getHeight(),
+          /* debugSurfaceView= */ null);
       frameProcessorChain.registerInputFrame();
 
       // Queue the first video frame from the extractor.
