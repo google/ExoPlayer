@@ -441,6 +441,8 @@ public final class MediaCodecUtil {
       return "audio/x-lg-alac";
     } else if (mimeType.equals(MimeTypes.AUDIO_FLAC) && "OMX.lge.flac.decoder".equals(name)) {
       return "audio/x-lg-flac";
+    } else if (mimeType.equals(MimeTypes.AUDIO_AC3) && "OMX.lge.ac3.decoder".equals(name)) {
+      return "audio/lg-ac3";
     }
 
     return null;
