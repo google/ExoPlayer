@@ -178,14 +178,12 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withScaleToFitFrameProcessor_requestOutputHeight_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withScaleToFitFrameProcessor_requestOutputHeight";
-    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
-    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
-    //  test that rotation doesn't distort the image.
+  public void
+      processData_withPresentationFrameProcessor_requestOutputHeight_producesExpectedOutput()
+          throws Exception {
+    String testId = "processData_withPresentationFrameProcessor_requestOutputHeight";
     GlFrameProcessor glFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
+        new PresentationFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
@@ -205,9 +203,6 @@ public final class FrameProcessorChainPixelTest {
   public void processData_withScaleToFitFrameProcessor_rotate45_producesExpectedOutput()
       throws Exception {
     String testId = "processData_withScaleToFitFrameProcessor_rotate45";
-    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
-    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
-    //  test that rotation doesn't distort the image.
     GlFrameProcessor glFrameProcessor =
         new ScaleToFitFrameProcessor.Builder(getApplicationContext())
             .setRotationDegrees(45)

@@ -98,7 +98,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public AdvancedFrameProcessor(Context context, Matrix transformationMatrix) {
     this.context = context;
-    this.transformationMatrix = transformationMatrix;
+    this.transformationMatrix = new Matrix(transformationMatrix);
   }
 
   @Override
