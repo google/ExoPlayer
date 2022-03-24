@@ -59,7 +59,7 @@ DataSource.Factory httpDataSourceFactory =
 DefaultDataSource.Factory dataSourceFactory =
     new DefaultDataSource.Factory(context, httpDataSourceFactory);
 
-// Inject the DefaultDataSourceFactory when creating the player.
+// Inject the DefaultDataSource.Factory when creating the player.
 ExoPlayer player =
     new ExoPlayer.Builder(context)
         .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
