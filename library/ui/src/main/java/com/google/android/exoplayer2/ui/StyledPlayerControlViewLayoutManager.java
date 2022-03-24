@@ -598,21 +598,21 @@ import java.util.List;
     return width <= defaultModeMinimumWidth || height <= defaultModeMinimumHeight;
   }
 
-  // dereference of possibly-null reference timeBarParams
-  @SuppressWarnings("nullness:dereference.of.nullable")
   private void updateLayoutForSizeChange() {
     if (minimalControls != null) {
       minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
     }
 
     if (timeBar != null) {
-      MarginLayoutParams timeBarParams = (MarginLayoutParams) timeBar.getLayoutParams();
       int timeBarMarginBottom =
           playerControlView
               .getResources()
               .getDimensionPixelSize(R.dimen.exo_styled_progress_margin_bottom);
-      timeBarParams.bottomMargin = (isMinimalMode ? 0 : timeBarMarginBottom);
-      timeBar.setLayoutParams(timeBarParams);
+      @Nullable MarginLayoutParams timeBarParams = (MarginLayoutParams) timeBar.getLayoutParams();
+      if (timeBarParams != null) {
+        timeBarParams.bottomMargin = (isMinimalMode ? 0 : timeBarMarginBottom);
+        timeBar.setLayoutParams(timeBarParams);
+      }
       if (timeBar instanceof DefaultTimeBar) {
         DefaultTimeBar defaultTimeBar = (DefaultTimeBar) timeBar;
         if (isMinimalMode) {
