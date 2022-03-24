@@ -15,6 +15,8 @@
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
+*   Audio:
+    *   Use LG AC3 audio decoder advertising non-standard MIME type.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
 *   UI:
