@@ -68,7 +68,7 @@ public final class FrameProcessorChainPixelTest {
    * Time to wait for the decoded frame to populate the {@link FrameProcessorChain}'s input surface
    * and the {@link FrameProcessorChain} to finish processing the frame, in milliseconds.
    */
-  private static final int FRAME_PROCESSING_WAIT_MS = 2000;
+  private static final int FRAME_PROCESSING_WAIT_MS = 5000;
   /** The ratio of width over height, for each pixel in a frame. */
   private static final float PIXEL_WIDTH_HEIGHT_RATIO = 1;
 
