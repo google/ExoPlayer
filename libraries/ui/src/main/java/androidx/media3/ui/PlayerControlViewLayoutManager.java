@@ -598,6 +598,8 @@ import java.util.List;
     return width <= defaultModeMinimumWidth || height <= defaultModeMinimumHeight;
   }
 
+  // dereference of possibly-null reference timeBarParams
+  @SuppressWarnings("nullness:dereference.of.nullable")
   private void updateLayoutForSizeChange() {
     if (minimalControls != null) {
       minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
