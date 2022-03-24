@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;
@@ -44,18 +45,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * {@code FrameProcessorChain} applies changes to individual video frames.
  *
- * <p>Input becomes available on its {@link #createInputSurface() input surface} asynchronously and
- * is processed on a background thread as it becomes available. All input frames should be {@link
+ * <p>Input becomes available on its {@link #getInputSurface() input surface} asynchronously and is
+ * processed on a background thread as it becomes available. All input frames should be {@link
  * #registerInputFrame() registered} before they are rendered to the input surface. {@link
  * #hasPendingFrames()} can be used to check whether there are frames that have not been fully
  * processed yet. The {@code FrameProcessorChain} writes output to the surface passed to {@link
- * #create(Context, float, List, List, Surface, boolean, Transformer.DebugViewProvider)}.
+ * #configure(Surface, int, int, SurfaceView)}.
  */
 /* package */ final class FrameProcessorChain {
 
@@ -89,170 +91,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return sizes;
   }
 
-  /**
-   * Returns a new {@code FrameProcessorChain} for applying changes to individual frames.
-   *
-   * @param context A {@link Context}.
-   * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
-   *     Their output sizes must be {@link GlFrameProcessor#configureOutputSize(int, int)}
-   *     configured}.
-   * @param sizes The input {@link Size} as well as the output {@link Size} of each {@link
-   *     GlFrameProcessor}.
-   * @param outputSurface The {@link Surface}.
-   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
-   * @param debugViewProvider Provider for optional debug views to show intermediate output.
-   * @return A configured {@code FrameProcessorChain}.
-   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1, reading shader
-   *     files fails, or an OpenGL error occurs while creating and configuring the OpenGL
-   *     components.
-   */
-  public static FrameProcessorChain create(
-      Context context,
-      float pixelWidthHeightRatio,
-      List<GlFrameProcessor> frameProcessors,
-      List<Size> sizes,
-      Surface outputSurface,
-      boolean enableExperimentalHdrEditing,
-      Transformer.DebugViewProvider debugViewProvider)
-      throws TransformationException {
-    checkArgument(frameProcessors.size() + 1 == sizes.size());
-
-    if (pixelWidthHeightRatio != 1.0f) {
-      // TODO(b/211782176): Consider implementing support for non-square pixels.
-      throw TransformationException.createForFrameProcessorChain(
-          new UnsupportedOperationException(
-              "Transformer's FrameProcessorChain currently does not support frame edits on"
-                  + " non-square pixels. The pixelWidthHeightRatio is: "
-                  + pixelWidthHeightRatio),
-          TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
-
-    @Nullable
-    SurfaceView debugSurfaceView =
-        debugViewProvider.getDebugPreviewSurfaceView(
-            getLast(sizes).getWidth(), getLast(sizes).getHeight());
-    int debugPreviewWidth;
-    int debugPreviewHeight;
-    if (debugSurfaceView != null) {
-      debugPreviewWidth = debugSurfaceView.getWidth();
-      debugPreviewHeight = debugSurfaceView.getHeight();
-    } else {
-      debugPreviewWidth = C.LENGTH_UNSET;
-      debugPreviewHeight = C.LENGTH_UNSET;
-    }
-
-    ExternalCopyFrameProcessor externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
-
-    ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
-    Future<FrameProcessorChain> frameProcessorChainFuture =
-        singleThreadExecutorService.submit(
-            () ->
-                createOpenGlObjectsAndFrameProcessorChain(
-                    singleThreadExecutorService,
-                    externalCopyFrameProcessor,
-                    frameProcessors,
-                    sizes,
-                    outputSurface,
-                    enableExperimentalHdrEditing,
-                    debugSurfaceView,
-                    debugPreviewWidth,
-                    debugPreviewHeight));
-    try {
-      return frameProcessorChainFuture.get();
-    } catch (ExecutionException e) {
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
-  }
-
-  /**
-   * Creates a {@code FrameProcessorChain} and its OpenGL objects.
-   *
-   * <p>As the {@code FrameProcessorChain} will call OpenGL commands on the {@code
-   * singleThreadExecutorService}'s thread, the OpenGL context and objects also need to be created
-   * on that thread. So this method should only be called on the {@code
-   * singleThreadExecutorService}'s thread.
-   */
-  private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
-      ExecutorService singleThreadExecutorService,
-      ExternalCopyFrameProcessor externalCopyFrameProcessor,
-      List<GlFrameProcessor> frameProcessors,
-      List<Size> sizes,
-      Surface outputSurface,
-      boolean enableExperimentalHdrEditing,
-      @Nullable SurfaceView debugSurfaceView,
-      int debugPreviewWidth,
-      int debugPreviewHeight)
-      throws IOException {
-    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-
-    final EGLContext eglContext;
-    final EGLSurface eglSurface;
-    @Nullable EGLSurface debugPreviewEglSurface = null;
-    if (enableExperimentalHdrEditing) {
-      eglContext = GlUtil.createEglContextEs3Rgba1010102(eglDisplay);
-      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
-      eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
-      if (debugSurfaceView != null) {
-        debugPreviewEglSurface =
-            GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-      }
-    } else {
-      eglContext = GlUtil.createEglContext(eglDisplay);
-      eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-      if (debugSurfaceView != null) {
-        debugPreviewEglSurface =
-            GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-      }
-    }
-
-    GlUtil.focusEglSurface(
-        eglDisplay, eglContext, eglSurface, getLast(sizes).getWidth(), getLast(sizes).getHeight());
-
-    int inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.configureOutputSize(
-        /* inputWidth= */ sizes.get(0).getWidth(), /* inputHeight= */ sizes.get(0).getHeight());
-    externalCopyFrameProcessor.initialize(inputExternalTexId);
-
-    int[] framebuffers = new int[frameProcessors.size()];
-    for (int i = 0; i < frameProcessors.size(); i++) {
-      int inputTexId = GlUtil.createTexture(sizes.get(i).getWidth(), sizes.get(i).getHeight());
-      framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
-      frameProcessors.get(i).initialize(inputTexId);
-    }
-
-    return new FrameProcessorChain(
-        singleThreadExecutorService,
-        eglDisplay,
-        eglContext,
-        eglSurface,
-        externalCopyFrameProcessor,
-        frameProcessors,
-        inputExternalTexId,
-        framebuffers,
-        sizes,
-        debugPreviewEglSurface,
-        debugPreviewWidth,
-        debugPreviewHeight);
-  }
-
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
 
-  private final EGLContext eglContext;
+  private final boolean enableExperimentalHdrEditing;
   private final EGLDisplay eglDisplay;
-  /**
-   * Wraps the output {@link Surface} that is populated with the output of the final {@link
-   * GlFrameProcessor} for each frame.
-   */
-  private final EGLSurface eglSurface;
+  private final EGLContext eglContext;
   /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
   private final ExecutorService singleThreadExecutorService;
+  /** The {@link #singleThreadExecutorService} thread. */
+  private @MonotonicNonNull Thread glThread;
   /** Futures corresponding to the executor service's pending tasks. */
   private final ConcurrentLinkedQueue<Future<?>> futures;
   /** Number of frames {@link #registerInputFrame() registered} but not fully processed. */
@@ -268,8 +115,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Identifier of the external texture the {@link ExternalCopyFrameProcessor} reads its input from.
    */
-  private final int inputExternalTexId;
-  /** Transformation matrix associated with the surface texture. */
+  private int inputExternalTexId;
+  /** Transformation matrix associated with the {@link #inputSurfaceTexture}. */
   private final float[] textureTransformMatrix;
 
   private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
@@ -289,55 +136,129 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private final List<Size> sizes;
 
-  private final int debugPreviewWidth;
-  private final int debugPreviewHeight;
+  private int outputWidth;
+  private int outputHeight;
+  /**
+   * Wraps the output {@link Surface} that is populated with the output of the final {@link
+   * GlFrameProcessor} for each frame.
+   */
+  private @MonotonicNonNull EGLSurface eglSurface;
+
+  private int debugPreviewWidth;
+  private int debugPreviewHeight;
   /**
    * Wraps a debug {@link SurfaceView} that is populated with the output of the final {@link
    * GlFrameProcessor} for each frame.
    */
-  @Nullable private final EGLSurface debugPreviewEglSurface;
+  private @MonotonicNonNull EGLSurface debugPreviewEglSurface;
 
-  private FrameProcessorChain(
-      ExecutorService singleThreadExecutorService,
-      EGLDisplay eglDisplay,
-      EGLContext eglContext,
-      EGLSurface eglSurface,
-      ExternalCopyFrameProcessor externalCopyFrameProcessor,
+  /**
+   * Creates a new instance.
+   *
+   * @param context A {@link Context}.
+   * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
+   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
+   *     Their output sizes must be {@link GlFrameProcessor#configureOutputSize(int, int)}
+   *     configured}.
+   * @param sizes The input {@link Size} as well as the output {@link Size} of each {@link
+   *     GlFrameProcessor}.
+   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
+   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1.
+   */
+  public FrameProcessorChain(
+      Context context,
+      float pixelWidthHeightRatio,
       List<GlFrameProcessor> frameProcessors,
-      int inputExternalTexId,
-      int[] framebuffers,
       List<Size> sizes,
-      @Nullable EGLSurface debugPreviewEglSurface,
-      int debugPreviewWidth,
-      int debugPreviewHeight) {
-    this.singleThreadExecutorService = singleThreadExecutorService;
-    this.eglDisplay = eglDisplay;
-    this.eglContext = eglContext;
-    this.eglSurface = eglSurface;
-    this.externalCopyFrameProcessor = externalCopyFrameProcessor;
-    this.frameProcessors = frameProcessors;
-    this.inputExternalTexId = inputExternalTexId;
-    this.framebuffers = framebuffers;
-    this.sizes = sizes;
-    this.debugPreviewEglSurface = debugPreviewEglSurface;
-    this.debugPreviewWidth = debugPreviewWidth;
-    this.debugPreviewHeight = debugPreviewHeight;
+      boolean enableExperimentalHdrEditing)
+      throws TransformationException {
+    checkArgument(frameProcessors.size() + 1 == sizes.size());
 
+    if (pixelWidthHeightRatio != 1.0f) {
+      // TODO(b/211782176): Consider implementing support for non-square pixels.
+      throw TransformationException.createForFrameProcessorChain(
+          new UnsupportedOperationException(
+              "Transformer's FrameProcessorChain currently does not support frame edits on"
+                  + " non-square pixels. The pixelWidthHeightRatio is: "
+                  + pixelWidthHeightRatio),
+          TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+
+    this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
+    this.frameProcessors = frameProcessors;
+    this.sizes = sizes;
+
+    try {
+      eglDisplay = GlUtil.createEglDisplay();
+      eglContext =
+          enableExperimentalHdrEditing
+              ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
+              : GlUtil.createEglContext(eglDisplay);
+    } catch (GlUtil.GlException e) {
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+    singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     futures = new ConcurrentLinkedQueue<>();
     pendingFrameCount = new AtomicInteger();
     textureTransformMatrix = new float[16];
+    externalCopyFrameProcessor =
+        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
+    framebuffers = new int[frameProcessors.size()];
+    outputWidth = getLast(sizes).getWidth();
+    outputHeight = getLast(sizes).getHeight();
+    debugPreviewWidth = C.LENGTH_UNSET;
+    debugPreviewHeight = C.LENGTH_UNSET;
   }
 
   /**
-   * Creates the input {@link Surface} and configures it to process frames.
+   * Configures the {@code FrameProcessorChain} to process frames to the specified output targets.
    *
-   * <p>This method must not be called again after creating an input surface.
+   * <p>This method may only be called once and may override the {@link
+   * GlFrameProcessor#configureOutputSize(int, int) output size} of the final {@link
+   * GlFrameProcessor}.
    *
-   * @return The configured input {@link Surface}.
-   * @throws IllegalStateException If an input {@link Surface} has already been created.
+   * @param outputSurface The output {@link Surface}.
+   * @param outputWidth The output width, in pixels.
+   * @param outputHeight The output height, in pixels.
+   * @param debugSurfaceView Optional debug {@link SurfaceView} to show output.
+   * @throws IllegalStateException If the {@code FrameProcessorChain} has already been configured.
+   * @throws TransformationException If reading shader files fails, or an OpenGL error occurs while
+   *     creating and configuring the OpenGL components.
    */
-  public Surface createInputSurface() {
-    checkState(inputSurface == null, "The input surface has already been created.");
+  public void configure(
+      Surface outputSurface,
+      int outputWidth,
+      int outputHeight,
+      @Nullable SurfaceView debugSurfaceView)
+      throws TransformationException {
+    checkState(inputSurface == null, "The FrameProcessorChain has already been configured.");
+    // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
+    //  GlFrameProcessor to be re-configured or append another GlFrameProcessor.
+    this.outputWidth = outputWidth;
+    this.outputHeight = outputHeight;
+
+    if (debugSurfaceView != null) {
+      debugPreviewWidth = debugSurfaceView.getWidth();
+      debugPreviewHeight = debugSurfaceView.getHeight();
+    }
+
+    try {
+      // Wait for task to finish to be able to use inputExternalTexId to create the SurfaceTexture.
+      singleThreadExecutorService
+          .submit(
+              () ->
+                  createOpenGlObjectsAndInitializeFrameProcessors(outputSurface, debugSurfaceView))
+          .get();
+    } catch (ExecutionException e) {
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+
     inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
@@ -355,6 +276,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           }
         });
     inputSurface = new Surface(inputSurfaceTexture);
+  }
+
+  /**
+   * Returns the input {@link Surface}.
+   *
+   * <p>The {@code FrameProcessorChain} must be {@link #configure(Surface, int, int, SurfaceView)
+   * configured}.
+   */
+  public Surface getInputSurface() {
+    checkStateNotNull(inputSurface, "The FrameProcessorChain must be configured.");
     return inputSurface;
   }
 
@@ -440,16 +371,60 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     singleThreadExecutorService.shutdown();
   }
 
-  /** Processes an input frame. */
-  @RequiresNonNull("inputSurfaceTexture")
+  /**
+   * Creates the OpenGL textures, framebuffers, surfaces, and initializes the {@link
+   * GlFrameProcessor GlFrameProcessors}.
+   *
+   * <p>This method must by executed on the same thread as {@link #processFrame()}, i.e., executed
+   * by the {@link #singleThreadExecutorService}.
+   */
+  @EnsuresNonNull("eglSurface")
+  private Void createOpenGlObjectsAndInitializeFrameProcessors(
+      Surface outputSurface, @Nullable SurfaceView debugSurfaceView) throws IOException {
+    glThread = Thread.currentThread();
+    if (enableExperimentalHdrEditing) {
+      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+      eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
+      if (debugSurfaceView != null) {
+        debugPreviewEglSurface =
+            GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+      }
+    } else {
+      eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
+      if (debugSurfaceView != null) {
+        debugPreviewEglSurface =
+            GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+      }
+    }
+    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+
+    inputExternalTexId = GlUtil.createExternalTexture();
+    externalCopyFrameProcessor.configureOutputSize(
+        /* inputWidth= */ sizes.get(0).getWidth(), /* inputHeight= */ sizes.get(0).getHeight());
+    externalCopyFrameProcessor.initialize(inputExternalTexId);
+
+    for (int i = 0; i < frameProcessors.size(); i++) {
+      int inputTexId = GlUtil.createTexture(sizes.get(i).getWidth(), sizes.get(i).getHeight());
+      framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
+      frameProcessors.get(i).initialize(inputTexId);
+    }
+    // Return something because only Callables not Runnables can throw checked exceptions.
+    return null;
+  }
+
+  /**
+   * Processes an input frame.
+   *
+   * <p>This method must by executed on the same thread as {@link
+   * #createOpenGlObjectsAndInitializeFrameProcessors(Surface,SurfaceView)}, i.e., executed by the
+   * {@link #singleThreadExecutorService}.
+   */
+  @RequiresNonNull({"inputSurfaceTexture", "eglSurface"})
   private void processFrame() {
-    inputSurfaceTexture.updateTexImage();
-    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-    long presentationTimeNs = inputSurfaceTexture.getTimestamp();
+    checkState(Thread.currentThread().equals(glThread));
 
     if (frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, eglSurface, sizes.get(0).getWidth(), sizes.get(0).getHeight());
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
     } else {
       GlUtil.focusFramebuffer(
           eglDisplay,
@@ -459,7 +434,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           sizes.get(0).getWidth(),
           sizes.get(0).getHeight());
     }
+    inputSurfaceTexture.updateTexImage();
+    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
     externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    long presentationTimeNs = inputSurfaceTexture.getTimestamp();
     externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeNs);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
@@ -473,12 +451,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       frameProcessors.get(i).updateProgramAndDraw(presentationTimeNs);
     }
     if (!frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(
-          eglDisplay,
-          eglContext,
-          eglSurface,
-          getLast(sizes).getWidth(),
-          getLast(sizes).getHeight());
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
       getLast(frameProcessors).updateProgramAndDraw(presentationTimeNs);
     }
 

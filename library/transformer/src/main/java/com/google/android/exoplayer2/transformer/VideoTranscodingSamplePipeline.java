@@ -110,24 +110,22 @@ import org.checkerframework.dataflow.qual.Pure;
             requestedEncoderFormat,
             encoderSupportedFormat));
 
-    // TODO(b/218488308): Allow the final GlFrameProcessor to be re-configured if its output size
-    //  has to change due to encoder fallback or append another GlFrameProcessor.
-    frameProcessorSizes.set(
-        frameProcessorSizes.size() - 1,
-        new Size(encoderSupportedFormat.width, encoderSupportedFormat.height));
     frameProcessorChain =
-        FrameProcessorChain.create(
+        new FrameProcessorChain(
             context,
             inputFormat.pixelWidthHeightRatio,
             frameProcessors,
             frameProcessorSizes,
-            /* outputSurface= */ encoder.getInputSurface(),
-            transformationRequest.enableHdrEditing,
-            debugViewProvider);
+            transformationRequest.enableHdrEditing);
+    frameProcessorChain.configure(
+        /* outputSurface= */ encoder.getInputSurface(),
+        /* outputWidth= */ encoderSupportedFormat.width,
+        /* outputHeight= */ encoderSupportedFormat.height,
+        debugViewProvider.getDebugPreviewSurfaceView(
+            encoderSupportedFormat.width, encoderSupportedFormat.height));
 
     decoder =
-        decoderFactory.createForVideoDecoding(
-            inputFormat, frameProcessorChain.createInputSurface());
+        decoderFactory.createForVideoDecoding(inputFormat, frameProcessorChain.getInputSurface());
   }
 
   @Override

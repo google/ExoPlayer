@@ -251,31 +251,27 @@ public final class FrameProcessorChainPixelTest {
       List<Size> sizes =
           FrameProcessorChain.configureSizes(inputWidth, inputHeight, frameProcessorsList);
       assertThat(sizes).isNotEmpty();
+      int outputWidth = Iterables.getLast(sizes).getWidth();
+      int outputHeight = Iterables.getLast(sizes).getHeight();
       outputImageReader =
           ImageReader.newInstance(
-              Iterables.getLast(sizes).getWidth(),
-              Iterables.getLast(sizes).getHeight(),
-              PixelFormat.RGBA_8888,
-              /* maxImages= */ 1);
+              outputWidth, outputHeight, PixelFormat.RGBA_8888, /* maxImages= */ 1);
       frameProcessorChain =
-          FrameProcessorChain.create(
+          new FrameProcessorChain(
               context,
               PIXEL_WIDTH_HEIGHT_RATIO,
               frameProcessorsList,
               sizes,
-              outputImageReader.getSurface(),
-              /* enableExperimentalHdrEditing= */ false,
-              Transformer.DebugViewProvider.NONE);
+              /* enableExperimentalHdrEditing= */ false);
+      frameProcessorChain.configure(
+          outputImageReader.getSurface(), outputWidth, outputHeight, /* debugSurfaceView= */ null);
       frameProcessorChain.registerInputFrame();
 
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaCodec = MediaCodec.createDecoderByType(mimeType);
       mediaCodec.configure(
-          mediaFormat,
-          frameProcessorChain.createInputSurface(),
-          /* crypto= */ null,
-          /* flags= */ 0);
+          mediaFormat, frameProcessorChain.getInputSurface(), /* crypto= */ null, /* flags= */ 0);
       mediaCodec.start();
       int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
       assertThat(inputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
