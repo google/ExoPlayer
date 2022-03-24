@@ -42,7 +42,6 @@ public final class ScaleToFitFrameProcessorTest {
 
     Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(scaleToFitFrameProcessor.shouldProcess()).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -69,7 +68,6 @@ public final class ScaleToFitFrameProcessorTest {
 
     Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * .5f));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -85,7 +83,6 @@ public final class ScaleToFitFrameProcessorTest {
 
     Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth * 2);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -101,7 +98,6 @@ public final class ScaleToFitFrameProcessorTest {
 
     Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight * 2);
   }
@@ -117,7 +113,6 @@ public final class ScaleToFitFrameProcessorTest {
 
     Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(inputWidth);
   }
@@ -134,7 +129,6 @@ public final class ScaleToFitFrameProcessorTest {
 
     Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
-    assertThat(scaleToFitFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);
     assertThat(outputSize.getHeight()).isEqualTo(expectedOutputWidthHeight);
   }

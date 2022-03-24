@@ -42,7 +42,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
 
-  @Nullable private final FrameProcessorChain frameProcessorChain;
+  private final FrameProcessorChain frameProcessorChain;
 
   private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
@@ -70,6 +70,7 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
+    // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor.Builder(context)
             .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
@@ -109,36 +110,24 @@ import org.checkerframework.dataflow.qual.Pure;
             requestedEncoderFormat,
             encoderSupportedFormat));
 
-    if (transformationRequest.enableHdrEditing
-        || inputFormat.height != encoderSupportedFormat.height
-        || inputFormat.width != encoderSupportedFormat.width
-        || scaleToFitFrameProcessor.shouldProcess()
-        || presentationFrameProcessor.shouldProcess()
-        || shouldAlwaysUseFrameProcessorChain()) {
-      // TODO(b/218488308): Allow the final GlFrameProcessor to be re-configured if its output size
-      //  has to change due to encoder fallback or append another GlFrameProcessor.
-      frameProcessorSizes.set(
-          frameProcessorSizes.size() - 1,
-          new Size(encoderSupportedFormat.width, encoderSupportedFormat.height));
-      frameProcessorChain =
-          FrameProcessorChain.create(
-              context,
-              inputFormat.pixelWidthHeightRatio,
-              frameProcessors,
-              frameProcessorSizes,
-              /* outputSurface= */ encoder.getInputSurface(),
-              transformationRequest.enableHdrEditing,
-              debugViewProvider);
-    } else {
-      frameProcessorChain = null;
-    }
+    // TODO(b/218488308): Allow the final GlFrameProcessor to be re-configured if its output size
+    //  has to change due to encoder fallback or append another GlFrameProcessor.
+    frameProcessorSizes.set(
+        frameProcessorSizes.size() - 1,
+        new Size(encoderSupportedFormat.width, encoderSupportedFormat.height));
+    frameProcessorChain =
+        FrameProcessorChain.create(
+            context,
+            inputFormat.pixelWidthHeightRatio,
+            frameProcessors,
+            frameProcessorSizes,
+            /* outputSurface= */ encoder.getInputSurface(),
+            transformationRequest.enableHdrEditing,
+            debugViewProvider);
 
     decoder =
         decoderFactory.createForVideoDecoding(
-            inputFormat,
-            frameProcessorChain == null
-                ? encoder.getInputSurface()
-                : frameProcessorChain.createInputSurface());
+            inputFormat, frameProcessorChain.createInputSurface());
   }
 
   @Override
@@ -154,15 +143,13 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    if (frameProcessorChain != null) {
-      frameProcessorChain.getAndRethrowBackgroundExceptions();
-      if (frameProcessorChain.isEnded()) {
-        if (!signaledEndOfStreamToEncoder) {
-          encoder.signalEndOfInputStream();
-          signaledEndOfStreamToEncoder = true;
-        }
-        return false;
+    frameProcessorChain.getAndRethrowBackgroundExceptions();
+    if (frameProcessorChain.isEnded()) {
+      if (!signaledEndOfStreamToEncoder) {
+        encoder.signalEndOfInputStream();
+        signaledEndOfStreamToEncoder = true;
       }
+      return false;
     }
     if (decoder.isEnded()) {
       return false;
@@ -178,13 +165,7 @@ import org.checkerframework.dataflow.qual.Pure;
       canProcessMoreDataImmediately = processDataDefault();
     }
     if (decoder.isEnded()) {
-      if (frameProcessorChain != null) {
-        frameProcessorChain.signalEndOfInputStream();
-      } else {
-        encoder.signalEndOfInputStream();
-        signaledEndOfStreamToEncoder = true;
-        return false;
-      }
+      frameProcessorChain.signalEndOfInputStream();
     }
     return canProcessMoreDataImmediately;
   }
@@ -215,7 +196,7 @@ import org.checkerframework.dataflow.qual.Pure;
    */
   private boolean processDataDefault() throws TransformationException {
     // TODO(b/214975934): Check whether this can be converted to a while-loop like processDataV29.
-    if (frameProcessorChain != null && frameProcessorChain.hasPendingFrames()) {
+    if (frameProcessorChain.hasPendingFrames()) {
       return false;
     }
     return maybeProcessDecoderOutput();
@@ -255,9 +236,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void release() {
-    if (frameProcessorChain != null) {
-      frameProcessorChain.release();
-    }
+    frameProcessorChain.release();
     decoder.release();
     encoder.release();
   }
@@ -292,17 +271,6 @@ import org.checkerframework.dataflow.qual.Pure;
         .build();
   }
 
-  /** Always use {@link FrameProcessorChain} to work around device-specific encoder issues. */
-  private static boolean shouldAlwaysUseFrameProcessorChain() {
-    switch (Util.MODEL) {
-      case "XT1635-02":
-      case "Nexus 5":
-        return true;
-      default:
-        return false;
-    }
-  }
-
   /**
    * Feeds at most one decoder output frame to the next step of the pipeline.
    *
@@ -314,9 +282,7 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
-    if (frameProcessorChain != null) {
-      frameProcessorChain.registerInputFrame();
-    }
+    frameProcessorChain.registerInputFrame();
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;
   }

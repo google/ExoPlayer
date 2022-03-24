@@ -42,7 +42,6 @@ public final class PresentationFrameProcessorTest {
     Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
-    assertThat(presentationFrameProcessor.shouldProcess()).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -57,7 +56,6 @@ public final class PresentationFrameProcessorTest {
     Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
-    assertThat(presentationFrameProcessor.shouldProcess()).isFalse();
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -72,7 +70,6 @@ public final class PresentationFrameProcessorTest {
     Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(90);
-    assertThat(presentationFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(inputWidth);
   }
@@ -90,7 +87,6 @@ public final class PresentationFrameProcessorTest {
     Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
-    assertThat(presentationFrameProcessor.shouldProcess()).isTrue();
     assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
