@@ -55,7 +55,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>Input becomes available on its {@link #getInputSurface() input surface} asynchronously and is
  * processed on a background thread as it becomes available. All input frames should be {@link
  * #registerInputFrame() registered} before they are rendered to the input surface. {@link
- * #hasPendingFrames()} can be used to check whether there are frames that have not been fully
+ * #getPendingFrameCount()} can be used to check whether there are frames that have not been fully
  * processed yet. Output is written to its {@link #configure(Surface, int, int, SurfaceView) output
  * surface}.
  */
@@ -298,16 +298,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Returns whether there are input frames that have been {@link #registerInputFrame() registered}
-   * but not completely processed yet.
+   * Returns the number of input frames that have been {@link #registerInputFrame() registered} but
+   * not completely processed yet.
    */
-  public boolean hasPendingFrames() {
-    return pendingFrameCount.get() > 0;
+  public int getPendingFrameCount() {
+    return pendingFrameCount.get();
   }
 
   /** Returns whether all frames have been processed. */
   public boolean isEnded() {
-    return inputStreamEnded && !hasPendingFrames();
+    return inputStreamEnded && getPendingFrameCount() == 0;
   }
 
   /** Informs the {@code FrameProcessorChain} that no further input frames should be accepted. */

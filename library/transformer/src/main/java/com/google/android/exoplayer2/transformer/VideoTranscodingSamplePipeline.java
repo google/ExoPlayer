@@ -17,14 +17,11 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
 import android.media.MediaCodec;
-import android.media.MediaFormat;
 import android.util.Size;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
@@ -37,9 +34,12 @@ import org.checkerframework.dataflow.qual.Pure;
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
 
+  private static final int FRAME_COUNT_UNLIMITED = -1;
+
   private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
+  private final int maxPendingFrameCount;
 
   private final FrameProcessorChain frameProcessorChain;
 
@@ -121,6 +121,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
     decoder =
         decoderFactory.createForVideoDecoding(inputFormat, frameProcessorChain.getInputSurface());
+    maxPendingFrameCount = getMaxPendingFrameCount();
   }
 
   @Override
@@ -148,51 +149,15 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
-    boolean canProcessMoreDataImmediately = false;
-    if (SDK_INT >= 29
-        && !(("samsung".equals(Util.MANUFACTURER) || "OnePlus".equals(Util.MANUFACTURER))
-            && SDK_INT < 31)) {
-      // TODO(b/213455700): Fix Samsung and OnePlus devices filling the decoder in processDataV29().
-      processDataV29();
-    } else {
-      canProcessMoreDataImmediately = processDataDefault();
+    boolean processedData = false;
+    while (maybeProcessDecoderOutput()) {
+      processedData = true;
     }
     if (decoder.isEnded()) {
       frameProcessorChain.signalEndOfInputStream();
     }
-    return canProcessMoreDataImmediately;
-  }
-
-  /**
-   * Processes input data from API 29.
-   *
-   * <p>In this method the decoder could decode multiple frames in one invocation; as compared to
-   * {@link #processDataDefault()}, in which one frame is decoded in each invocation. Consequently,
-   * if {@link FrameProcessorChain} processes frames slower than the decoder, decoded frames are
-   * queued up in the decoder's output surface.
-   *
-   * <p>Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-   * bound; while after API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
-   * dropping even when the surface is full. As dropping random frames is not acceptable in {@code
-   * Transformer}, using this method requires API level 29 or higher.
-   */
-  @RequiresApi(29)
-  private void processDataV29() throws TransformationException {
-    while (maybeProcessDecoderOutput()) {}
-  }
-
-  /**
-   * Processes at most one input frame and returns whether a frame was processed.
-   *
-   * <p>Only renders decoder output to the {@link FrameProcessorChain}'s input surface if the {@link
-   * FrameProcessorChain} has finished processing the previous frame.
-   */
-  private boolean processDataDefault() throws TransformationException {
-    // TODO(b/214975934): Check whether this can be converted to a while-loop like processDataV29.
-    if (frameProcessorChain.hasPendingFrames()) {
-      return false;
-    }
-    return maybeProcessDecoderOutput();
+    // If the decoder produced output, signal that it may be possible to process data again.
+    return processedData;
   }
 
   @Override
@@ -275,8 +240,40 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
+    if (maxPendingFrameCount != FRAME_COUNT_UNLIMITED
+        && frameProcessorChain.getPendingFrameCount() == maxPendingFrameCount) {
+      return false;
+    }
+
     frameProcessorChain.registerInputFrame();
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;
+  }
+
+  /**
+   * Returns the maximum number of frames that may be pending in the output {@link
+   * FrameProcessorChain} at a time, or {@link #FRAME_COUNT_UNLIMITED} if it's not necessary to
+   * enforce a limit.
+   */
+  private static int getMaxPendingFrameCount() {
+    if (Util.SDK_INT < 29) {
+      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+      // bounds, while from API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
+      // dropping even when the surface is full. We never want frame dropping so allow a maximum of
+      // one frame to be pending at a time.
+      // TODO(b/226330223): Investigate increasing this limit.
+      return 1;
+    }
+    if (Util.SDK_INT < 31
+        && ("OnePlus".equals(Util.MANUFACTURER) || "samsung".equals(Util.MANUFACTURER))) {
+      // Some OMX decoders don't correctly track their number of output buffers available, and get
+      // stuck if too many frames are rendered without being processed, so we limit the number of
+      // pending frames to avoid getting stuck. This value is experimentally determined. See also
+      // b/213455700.
+      return 10;
+    }
+    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
+    // throughput.
+    return FRAME_COUNT_UNLIMITED;
   }
 }
