@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import android.content.Context;
 import android.content.Intent;

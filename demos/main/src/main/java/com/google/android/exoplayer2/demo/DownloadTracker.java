@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -85,8 +84,7 @@ public class DownloadTracker {
   }
 
   public void addListener(Listener listener) {
-    checkNotNull(listener);
-    listeners.add(listener);
+    listeners.add(checkNotNull(listener));
   }
 
   public void removeListener(Listener listener) {
@@ -402,7 +400,7 @@ public class DownloadTracker {
       if (drmSessionException != null) {
         dialogHelper.onOfflineLicenseFetchedError(drmSessionException);
       } else {
-        dialogHelper.onOfflineLicenseFetched(downloadHelper, checkStateNotNull(keySetId));
+        dialogHelper.onOfflineLicenseFetched(downloadHelper, checkNotNull(keySetId));
       }
     }
   }
