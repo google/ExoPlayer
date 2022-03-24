@@ -122,18 +122,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputHeight = C.LENGTH_UNSET;
   }
 
-  /**
-   * Returns whether this ScaleToFitFrameProcessor will apply any changes on a frame.
-   *
-   * <p>The ScaleToFitFrameProcessor should only be used if this returns true.
-   *
-   * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
-   */
-  public boolean shouldProcess() {
-    checkStateNotNull(adjustedTransformationMatrix);
-    return !transformationMatrix.isIdentity();
-  }
-
   @Override
   public Size configureOutputSize(int inputWidth, int inputHeight) {
     this.inputWidth = inputWidth;

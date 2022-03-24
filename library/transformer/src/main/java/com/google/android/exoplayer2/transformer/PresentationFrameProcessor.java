@@ -81,7 +81,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
   private int inputWidth;
   private int inputHeight;
-  private int outputHeight;
   private int outputRotationDegrees;
   private @MonotonicNonNull Matrix transformationMatrix;
 
@@ -97,7 +96,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     inputWidth = C.LENGTH_UNSET;
     inputHeight = C.LENGTH_UNSET;
-    outputHeight = C.LENGTH_UNSET;
     outputRotationDegrees = C.LENGTH_UNSET;
   }
 
@@ -111,18 +109,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public int getOutputRotationDegrees() {
     checkState(outputRotationDegrees != C.LENGTH_UNSET);
     return outputRotationDegrees;
-  }
-
-  /**
-   * Returns whether this {@code PresentationFrameProcessor} will apply any changes on a frame.
-   *
-   * <p>The {@code PresentationFrameProcessor} should only be used if this returns true.
-   *
-   * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
-   */
-  public boolean shouldProcess() {
-    checkStateNotNull(transformationMatrix);
-    return inputHeight != outputHeight || !transformationMatrix.isIdentity();
   }
 
   @Override
@@ -140,24 +126,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       displayHeight = requestedHeight;
     }
 
-    int outputWidth;
     // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
     // frame before encoding, so the encoded frame's width >= height, and set
     // outputRotationDegrees to ensure the frame is displayed in the correct orientation.
     if (displayHeight > displayWidth) {
       outputRotationDegrees = 90;
-      outputWidth = displayHeight;
-      outputHeight = displayWidth;
-      // TODO(b/201293185): After fragment shader transformations are implemented, put postRotate in
-      //  a later GlFrameProcessor.
+      // TODO(b/201293185): After fragment shader transformations are implemented, put
+      //  postRotate in a later GlFrameProcessor.
       transformationMatrix.postRotate(outputRotationDegrees);
+      return new Size(displayHeight, displayWidth);
     } else {
       outputRotationDegrees = 0;
-      outputWidth = displayWidth;
-      outputHeight = displayHeight;
+      return new Size(displayWidth, displayHeight);
     }
-
-    return new Size(outputWidth, outputHeight);
   }
 
   @Override
