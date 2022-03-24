@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -24,14 +23,13 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Applies a simple rotation and/or scale in the vertex shader. All input frames' pixels will be
- * preserved, potentially changing the width and height of the video by scaling dimensions to fit.
+ * preserved, potentially changing the width and height of the frame by scaling dimensions to fit.
  * The background color will default to black.
  */
 /* package */ final class ScaleToFitFrameProcessor implements GlFrameProcessor {
@@ -41,8 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Mandatory field.
     private final Context context;
 
-    // Optional field.
-    private int outputHeight;
+    // Optional fields.
     private float scaleX;
     private float scaleY;
     private float rotationDegrees;
@@ -55,7 +52,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public Builder(Context context) {
       this.context = context;
 
-      outputHeight = C.LENGTH_UNSET;
       scaleX = 1;
       scaleY = 1;
       rotationDegrees = 0;
@@ -89,25 +85,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return this;
     }
 
-    /**
-     * Sets the output resolution using the output height.
-     *
-     * <p>The default value {@link C#LENGTH_UNSET} corresponds to using the same height as the
-     * input. Output width of the displayed frame will scale to preserve the frame's aspect ratio
-     * after other transformations.
-     *
-     * <p>For example, a 1920x1440 frame can be scaled to 640x480 by calling setResolution(480).
-     *
-     * @param outputHeight The output height of the displayed frame, in pixels.
-     * @return This builder.
-     */
-    public Builder setResolution(int outputHeight) {
-      this.outputHeight = outputHeight;
-      return this;
-    }
-
     public ScaleToFitFrameProcessor build() {
-      return new ScaleToFitFrameProcessor(context, scaleX, scaleY, rotationDegrees, outputHeight);
+      return new ScaleToFitFrameProcessor(context, scaleX, scaleY, rotationDegrees);
     }
   }
 
@@ -117,14 +96,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final Context context;
   private final Matrix transformationMatrix;
-  private final int requestedHeight;
 
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
   private int inputWidth;
   private int inputHeight;
-  private int outputWidth;
-  private int outputHeight;
-  private int outputRotationDegrees;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
   /**
@@ -134,34 +109,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
    * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
    * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
-   * @param requestedHeight The height of the output frame, in pixels.
    */
   private ScaleToFitFrameProcessor(
-      Context context, float scaleX, float scaleY, float rotationDegrees, int requestedHeight) {
+      Context context, float scaleX, float scaleY, float rotationDegrees) {
 
     this.context = context;
     this.transformationMatrix = new Matrix();
     this.transformationMatrix.postScale(scaleX, scaleY);
     this.transformationMatrix.postRotate(rotationDegrees);
-    this.requestedHeight = requestedHeight;
 
     inputWidth = C.LENGTH_UNSET;
     inputHeight = C.LENGTH_UNSET;
-    outputWidth = C.LENGTH_UNSET;
-    outputHeight = C.LENGTH_UNSET;
-    outputRotationDegrees = C.LENGTH_UNSET;
-  }
-
-  /**
-   * Returns {@link Format#rotationDegrees} for the output frame.
-   *
-   * <p>Return values may be {@code 0} or {@code 90} degrees.
-   *
-   * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
-   */
-  public int getOutputRotationDegrees() {
-    checkState(outputRotationDegrees != C.LENGTH_UNSET);
-    return outputRotationDegrees;
   }
 
   /**
@@ -173,9 +131,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public boolean shouldProcess() {
     checkStateNotNull(adjustedTransformationMatrix);
-    return inputWidth != outputWidth
-        || inputHeight != outputHeight
-        || !adjustedTransformationMatrix.isIdentity();
+    return !transformationMatrix.isIdentity();
   }
 
   @Override
@@ -184,69 +140,40 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.inputHeight = inputHeight;
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
-    int displayWidth = inputWidth;
-    int displayHeight = inputHeight;
-    if (!transformationMatrix.isIdentity()) {
-      float inputAspectRatio = (float) inputWidth / inputHeight;
-      // Scale frames by inputAspectRatio, to account for FrameProcessorChain's normalized device
-      // coordinates (NDC) (a square from -1 to 1 for both x and y) and preserve rectangular
-      // display of input pixels during transformations (ex. rotations). With scaling,
-      // transformationMatrix operations operate on a rectangle for x from -inputAspectRatio to
-      // inputAspectRatio, and y from -1 to 1.
-      adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
-      adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
-
-      // Modify transformationMatrix to keep input pixels.
-      float[][] transformOnNdcPoints = {{-1, -1, 0, 1}, {-1, 1, 0, 1}, {1, -1, 0, 1}, {1, 1, 0, 1}};
-      float xMin = Float.MAX_VALUE;
-      float xMax = Float.MIN_VALUE;
-      float yMin = Float.MAX_VALUE;
-      float yMax = Float.MIN_VALUE;
-      for (float[] transformOnNdcPoint : transformOnNdcPoints) {
-        adjustedTransformationMatrix.mapPoints(transformOnNdcPoint);
-        xMin = min(xMin, transformOnNdcPoint[0]);
-        xMax = max(xMax, transformOnNdcPoint[0]);
-        yMin = min(yMin, transformOnNdcPoint[1]);
-        yMax = max(yMax, transformOnNdcPoint[1]);
-      }
-
-      float xCenter = (xMax + xMin) / 2f;
-      float yCenter = (yMax + yMin) / 2f;
-      adjustedTransformationMatrix.postTranslate(-xCenter, -yCenter);
-
-      float ndcWidthAndHeight = 2f; // Length from -1 to 1.
-      float xScale = (xMax - xMin) / ndcWidthAndHeight;
-      float yScale = (yMax - yMin) / ndcWidthAndHeight;
-      adjustedTransformationMatrix.postScale(1f / xScale, 1f / yScale);
-      displayWidth = Math.round(inputWidth * xScale);
-      displayHeight = Math.round(inputHeight * yScale);
+    if (transformationMatrix.isIdentity()) {
+      return new Size(inputWidth, inputHeight);
     }
 
-    // TODO(b/214975934): Move following requestedHeight and outputRotationDegrees logic into
-    //  separate GlFrameProcessors (ex. Presentation).
+    float inputAspectRatio = (float) inputWidth / inputHeight;
+    // Scale frames by inputAspectRatio, to account for OpenGL's normalized device
+    // coordinates (NDC) (a square from -1 to 1 for both x and y) and preserve rectangular
+    // display of input pixels during transformations (ex. rotations). With scaling,
+    // transformationMatrix operations operate on a rectangle for x from -inputAspectRatio to
+    // inputAspectRatio, and y from -1 to 1.
+    adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
+    adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
 
-    // Scale width and height to desired requestedHeight, preserving aspect ratio.
-    if (requestedHeight != C.LENGTH_UNSET && requestedHeight != displayHeight) {
-      displayWidth = Math.round((float) requestedHeight * displayWidth / displayHeight);
-      displayHeight = requestedHeight;
+    // Modify transformationMatrix to keep input pixels.
+    float[][] transformOnNdcPoints = {{-1, -1, 0, 1}, {-1, 1, 0, 1}, {1, -1, 0, 1}, {1, 1, 0, 1}};
+    float xMin = Float.MAX_VALUE;
+    float xMax = Float.MIN_VALUE;
+    float yMin = Float.MAX_VALUE;
+    float yMax = Float.MIN_VALUE;
+    for (float[] transformOnNdcPoint : transformOnNdcPoints) {
+      adjustedTransformationMatrix.mapPoints(transformOnNdcPoint);
+      xMin = min(xMin, transformOnNdcPoint[0]);
+      xMax = max(xMax, transformOnNdcPoint[0]);
+      yMin = min(yMin, transformOnNdcPoint[1]);
+      yMax = max(yMax, transformOnNdcPoint[1]);
     }
 
-    // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
-    // video before encoding, so the encoded video's width >= height, and set
-    // outputRotationDegrees to ensure the video is displayed in the correct orientation.
-    if (displayHeight > displayWidth) {
-      outputRotationDegrees = 90;
-      outputWidth = displayHeight;
-      outputHeight = displayWidth;
-      // TODO(b/201293185): After fragment shader transformations are implemented, put
-      //  postRotate in a later GlFrameProcessor.
-      adjustedTransformationMatrix.postRotate(outputRotationDegrees);
-    } else {
-      outputRotationDegrees = 0;
-      outputWidth = displayWidth;
-      outputHeight = displayHeight;
-    }
+    float ndcWidthAndHeight = 2f; // Length from -1 to 1.
+    float xScale = (xMax - xMin) / ndcWidthAndHeight;
+    float yScale = (yMax - yMin) / ndcWidthAndHeight;
+    adjustedTransformationMatrix.postScale(1f / xScale, 1f / yScale);
 
+    int outputWidth = Math.round(inputWidth * xScale);
+    int outputHeight = Math.round(inputHeight * yScale);
     return new Size(outputWidth, outputHeight);
   }
 

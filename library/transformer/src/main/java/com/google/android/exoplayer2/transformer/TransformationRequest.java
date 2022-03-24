@@ -138,7 +138,6 @@ public final class TransformationRequest {
      * @return This builder.
      */
     public Builder setResolution(int outputHeight) {
-      // TODO(b/201293185): Restructure to input a Presentation class.
       this.outputHeight = outputHeight;
       return this;
     }

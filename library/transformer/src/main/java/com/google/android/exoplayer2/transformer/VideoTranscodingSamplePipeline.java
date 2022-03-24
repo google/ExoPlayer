@@ -74,15 +74,19 @@ import org.checkerframework.dataflow.qual.Pure;
         new ScaleToFitFrameProcessor.Builder(context)
             .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
             .setRotationDegrees(transformationRequest.rotationDegrees)
+            .build();
+    PresentationFrameProcessor presentationFrameProcessor =
+        new PresentationFrameProcessor.Builder(context)
             .setResolution(transformationRequest.outputHeight)
             .build();
     // TODO(b/214975934): Allow a list of frame processors to be passed into the sample pipeline.
-    ImmutableList<GlFrameProcessor> frameProcessors = ImmutableList.of(scaleToFitFrameProcessor);
+    ImmutableList<GlFrameProcessor> frameProcessors =
+        ImmutableList.of(scaleToFitFrameProcessor, presentationFrameProcessor);
     List<Size> frameProcessorSizes =
         FrameProcessorChain.configureSizes(decodedWidth, decodedHeight, frameProcessors);
     Size requestedEncoderSize = Iterables.getLast(frameProcessorSizes);
     // TODO(b/213190310): Move output rotation configuration to PresentationFrameProcessor.
-    outputRotationDegrees = scaleToFitFrameProcessor.getOutputRotationDegrees();
+    outputRotationDegrees = presentationFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
@@ -109,6 +113,7 @@ import org.checkerframework.dataflow.qual.Pure;
         || inputFormat.height != encoderSupportedFormat.height
         || inputFormat.width != encoderSupportedFormat.width
         || scaleToFitFrameProcessor.shouldProcess()
+        || presentationFrameProcessor.shouldProcess()
         || shouldAlwaysUseFrameProcessorChain()) {
       // TODO(b/218488308): Allow the final GlFrameProcessor to be re-configured if its output size
       //  has to change due to encoder fallback or append another GlFrameProcessor.
