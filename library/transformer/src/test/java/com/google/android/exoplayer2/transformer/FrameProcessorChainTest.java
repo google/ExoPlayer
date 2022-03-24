@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainTest {
+
   @Test
   public void construct_withSupportedPixelWidthHeightRatio_completesSuccessfully()
       throws TransformationException {
@@ -43,8 +44,9 @@ public final class FrameProcessorChainTest {
     new FrameProcessorChain(
         context,
         /* pixelWidthHeightRatio= */ 1,
+        /* inputWidth= */ 200,
+        /* inputHeight= */ 100,
         /* frameProcessors= */ ImmutableList.of(),
-        /* sizes= */ ImmutableList.of(new Size(200, 100)),
         /* enableExperimentalHdrEditing= */ false);
   }
 
@@ -59,8 +61,9 @@ public final class FrameProcessorChainTest {
                 new FrameProcessorChain(
                     context,
                     /* pixelWidthHeightRatio= */ 2,
+                    /* inputWidth= */ 200,
+                    /* inputHeight= */ 100,
                     /* frameProcessors= */ ImmutableList.of(),
-                    /* sizes= */ ImmutableList.of(new Size(200, 100)),
                     /* enableExperimentalHdrEditing= */ false));
 
     assertThat(exception).hasCauseThat().isInstanceOf(UnsupportedOperationException.class);
@@ -68,46 +71,63 @@ public final class FrameProcessorChainTest {
   }
 
   @Test
-  public void configureOutputDimensions_withEmptyList_returnsInputSize() {
+  public void getOutputSize_withoutFrameProcessors_returnsInputSize()
+      throws TransformationException {
     Size inputSize = new Size(200, 100);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeFrameProcessors(
+            inputSize, /* frameProcessorOutputSizes= */ ImmutableList.of());
 
-    List<Size> sizes =
-        FrameProcessorChain.configureSizes(
-            inputSize.getWidth(), inputSize.getHeight(), /* frameProcessors= */ ImmutableList.of());
+    Size outputSize = frameProcessorChain.getOutputSize();
 
-    assertThat(sizes).containsExactly(inputSize);
+    assertThat(outputSize).isEqualTo(inputSize);
   }
 
   @Test
-  public void configureOutputDimensions_withOneFrameProcessor_returnsItsInputAndOutputDimensions() {
+  public void getOutputSize_withOneFrameProcessor_returnsItsOutputSize()
+      throws TransformationException {
     Size inputSize = new Size(200, 100);
-    Size outputSize = new Size(300, 250);
-    GlFrameProcessor frameProcessor = new FakeFrameProcessor(outputSize);
+    Size frameProcessorOutputSize = new Size(300, 250);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeFrameProcessors(
+            inputSize, /* frameProcessorOutputSizes= */ ImmutableList.of(frameProcessorOutputSize));
 
-    List<Size> sizes =
-        FrameProcessorChain.configureSizes(
-            inputSize.getWidth(), inputSize.getHeight(), ImmutableList.of(frameProcessor));
+    Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
-    assertThat(sizes).containsExactly(inputSize, outputSize).inOrder();
+    assertThat(frameProcessorChainOutputSize).isEqualTo(frameProcessorOutputSize);
   }
 
   @Test
-  public void configureOutputDimensions_withThreeFrameProcessors_propagatesOutputDimensions() {
+  public void getOutputSize_withThreeFrameProcessors_returnsLastOutputSize()
+      throws TransformationException {
     Size inputSize = new Size(200, 100);
     Size outputSize1 = new Size(300, 250);
     Size outputSize2 = new Size(400, 244);
     Size outputSize3 = new Size(150, 160);
-    GlFrameProcessor frameProcessor1 = new FakeFrameProcessor(outputSize1);
-    GlFrameProcessor frameProcessor2 = new FakeFrameProcessor(outputSize2);
-    GlFrameProcessor frameProcessor3 = new FakeFrameProcessor(outputSize3);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeFrameProcessors(
+            inputSize,
+            /* frameProcessorOutputSizes= */ ImmutableList.of(
+                outputSize1, outputSize2, outputSize3));
 
-    List<Size> sizes =
-        FrameProcessorChain.configureSizes(
-            inputSize.getWidth(),
-            inputSize.getHeight(),
-            ImmutableList.of(frameProcessor1, frameProcessor2, frameProcessor3));
+    Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
-    assertThat(sizes).containsExactly(inputSize, outputSize1, outputSize2, outputSize3).inOrder();
+    assertThat(frameProcessorChainOutputSize).isEqualTo(outputSize3);
+  }
+
+  private static FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
+      Size inputSize, List<Size> frameProcessorOutputSizes) throws TransformationException {
+    ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
+    for (Size element : frameProcessorOutputSizes) {
+      frameProcessors.add(new FakeFrameProcessor(element));
+    }
+    return new FrameProcessorChain(
+        getApplicationContext(),
+        /* pixelWidthHeightRatio= */ 1,
+        inputSize.getWidth(),
+        inputSize.getHeight(),
+        frameProcessors.build(),
+        /* enableExperimentalHdrEditing= */ false);
   }
 
   private static class FakeFrameProcessor implements GlFrameProcessor {
