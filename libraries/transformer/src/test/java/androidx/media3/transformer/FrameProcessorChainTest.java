@@ -15,8 +15,11 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
+import android.content.Context;
 import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -27,11 +30,42 @@ import org.junit.runner.RunWith;
 /**
  * Robolectric tests for {@link FrameProcessorChain}.
  *
- * <p>See {@code FrameProcessorChainTest} and {@code FrameProcessorChainPixelTest} in the
- * androidTest directory for instrumentation tests.
+ * <p>See {@code FrameProcessorChainPixelTest} in the androidTest directory for instrumentation
+ * tests.
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainTest {
+  @Test
+  public void construct_withSupportedPixelWidthHeightRatio_completesSuccessfully()
+      throws TransformationException {
+    Context context = getApplicationContext();
+
+    new FrameProcessorChain(
+        context,
+        /* pixelWidthHeightRatio= */ 1,
+        /* frameProcessors= */ ImmutableList.of(),
+        /* sizes= */ ImmutableList.of(new Size(200, 100)),
+        /* enableExperimentalHdrEditing= */ false);
+  }
+
+  @Test
+  public void construct_withUnsupportedPixelWidthHeightRatio_throwsException() {
+    Context context = getApplicationContext();
+
+    TransformationException exception =
+        assertThrows(
+            TransformationException.class,
+            () ->
+                new FrameProcessorChain(
+                    context,
+                    /* pixelWidthHeightRatio= */ 2,
+                    /* frameProcessors= */ ImmutableList.of(),
+                    /* sizes= */ ImmutableList.of(new Size(200, 100)),
+                    /* enableExperimentalHdrEditing= */ false));
+
+    assertThat(exception).hasCauseThat().isInstanceOf(UnsupportedOperationException.class);
+    assertThat(exception).hasCauseThat().hasMessageThat().contains("pixelWidthHeightRatio");
+  }
 
   @Test
   public void configureOutputDimensions_withEmptyList_returnsInputSize() {
