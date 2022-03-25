@@ -398,18 +398,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private void processFrame() {
     checkState(Thread.currentThread().equals(glThread));
 
-    Size outputSize = inputSizes.get(0);
     if (frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
     } else {
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
           eglSurface,
           framebuffers[0],
-          outputSize.getWidth(),
-          outputSize.getHeight());
+          inputSizes.get(0).getWidth(),
+          inputSizes.get(0).getHeight());
     }
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
@@ -418,7 +416,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeNs);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
-      outputSize = inputSizes.get(i + 1);
+      Size outputSize = inputSizes.get(i + 1);
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
