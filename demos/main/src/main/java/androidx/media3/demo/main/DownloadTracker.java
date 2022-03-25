@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentManager;
 import androidx.media3.common.DrmInitData;
@@ -53,6 +54,7 @@ import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /** Tracks media that has been downloaded. */
+@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
 public class DownloadTracker {
 
   /** Listens for changes in the tracked downloads. */

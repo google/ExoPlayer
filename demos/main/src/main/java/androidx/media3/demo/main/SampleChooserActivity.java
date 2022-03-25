@@ -41,6 +41,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaItem.ClippingConfiguration;
@@ -120,6 +121,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   /** Start the download service if it should be running but it's not currently. */
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private void startDownloadService() {
     // Starting the service in the foreground causes notification flicker if there is no scheduled
     // action. Starting it in the background throws an exception if the app is in the background too
@@ -274,6 +276,7 @@ public class SampleChooserActivity extends AppCompatActivity
 
     private boolean sawError;
 
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
     @Override
     protected List<PlaylistGroup> doInBackground(String... uris) {
       List<PlaylistGroup> result = new ArrayList<>();
