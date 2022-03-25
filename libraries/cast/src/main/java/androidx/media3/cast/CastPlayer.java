@@ -111,9 +111,6 @@ public final class CastPlayer extends BasePlayer {
 
   private static final String TAG = "CastPlayer";
 
-  private static final int RENDERER_INDEX_VIDEO = 0;
-  private static final int RENDERER_INDEX_AUDIO = 1;
-  private static final int RENDERER_INDEX_TEXT = 2;
   private static final long PROGRESS_REPORT_PERIOD_MS = 1000;
   private static final long[] EMPTY_TRACK_ID_ARRAY = new long[0];
 
