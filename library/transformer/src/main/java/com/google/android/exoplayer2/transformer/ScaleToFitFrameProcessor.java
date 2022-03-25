@@ -32,7 +32,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * preserved, potentially changing the width and height of the frame by scaling dimensions to fit.
  * The background color will default to black.
  */
-/* package */ final class ScaleToFitFrameProcessor implements GlFrameProcessor {
+public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link ScaleToFitFrameProcessor} instances. */
   public static final class Builder {

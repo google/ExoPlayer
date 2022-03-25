@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -34,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TVideoRenderer";
 
   private final Context context;
+  private final ImmutableList<GlFrameProcessor> frameProcessors;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
@@ -46,12 +48,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
+      ImmutableList<GlFrameProcessor> frameProcessors,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.context = context;
+    this.frameProcessors = frameProcessors;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
@@ -86,6 +90,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               context,
               inputFormat,
               transformationRequest,
+              frameProcessors,
               decoderFactory,
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
@@ -124,6 +129,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
         && transformationRequest.outputHeight != inputFormat.height) {
+      return false;
+    }
+    if (!frameProcessors.isEmpty()) {
       return false;
     }
     return true;

@@ -32,7 +32,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * ScaleToFitFrameProcessor}) are applied on the transformation. Width and height are not modified.
  * The background color will default to black.
  */
-/* package */ final class AdvancedFrameProcessor implements GlFrameProcessor {
+public final class AdvancedFrameProcessor implements GlFrameProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;

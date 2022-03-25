@@ -29,7 +29,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Controls how a frame is viewed, by changing resolution. */
 // TODO(b/213190310): Implement crop, aspect ratio changes, etc.
-/* package */ final class PresentationFrameProcessor implements GlFrameProcessor {
+public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link PresentationFrameProcessor} instances. */
   public static final class Builder {
