@@ -146,8 +146,6 @@ public final class GlProgram {
    * <p>Call this in the rendering loop to switch between different programs.
    */
   public void use() {
-    // TODO(b/214975934): When multiple GL programs are supported by Transformer, make sure
-    // to call use() to switch between programs.
     GLES20.glUseProgram(programId);
     GlUtil.checkGlError();
   }

@@ -58,8 +58,6 @@ public final class AdvancedFrameProcessorPixelTest {
   private @MonotonicNonNull GlFrameProcessor advancedFrameProcessor;
   private int inputTexId;
   private int outputTexId;
-  // TODO(b/214975934): Once the frame processors are allowed to have different input and output
-  //  dimensions, get the output dimensions from the frame processor.
   private int width;
   private int height;
 
