@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 @UnstableApi
 public interface GlFrameProcessor {
-  // TODO(b/214975934): Investigate whether all configuration can be moved to initialize by
+  // TODO(b/213313666): Investigate whether all configuration can be moved to initialize by
   //  using a placeholder surface until the encoder surface is known. If so, convert
   //  configureOutputSize to a simple getter.
 
