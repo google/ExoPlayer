@@ -24,12 +24,14 @@ import android.util.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Controls how a frame is viewed, by changing resolution. */
 // TODO(b/213190310): Implement crop, aspect ratio changes, etc.
-/* package */ final class PresentationFrameProcessor implements GlFrameProcessor {
+@UnstableApi
+public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link PresentationFrameProcessor} instances. */
   public static final class Builder {

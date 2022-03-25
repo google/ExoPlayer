@@ -52,6 +52,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format inputFormat,
       TransformationRequest transformationRequest,
+      ImmutableList<GlFrameProcessor> frameProcessors,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
@@ -69,7 +70,6 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    // TODO(b/214975934): Allow a list of frame processors to be passed into the sample pipeline.
     // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor.Builder(context)
@@ -86,7 +86,11 @@ import org.checkerframework.dataflow.qual.Pure;
             inputFormat.pixelWidthHeightRatio,
             /* inputWidth= */ decodedWidth,
             /* inputHeight= */ decodedHeight,
-            ImmutableList.of(scaleToFitFrameProcessor, presentationFrameProcessor),
+            new ImmutableList.Builder<GlFrameProcessor>()
+                .addAll(frameProcessors)
+                .add(scaleToFitFrameProcessor)
+                .add(presentationFrameProcessor)
+                .build(),
             transformationRequest.enableHdrEditing);
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
     outputRotationDegrees = presentationFrameProcessor.getOutputRotationDegrees();

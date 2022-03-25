@@ -23,6 +23,7 @@ import android.opengl.GLES20;
 import android.util.Size;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -32,7 +33,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * ScaleToFitFrameProcessor}) are applied on the transformation. Width and height are not modified.
  * The background color will default to black.
  */
-/* package */ final class AdvancedFrameProcessor implements GlFrameProcessor {
+@UnstableApi
+public final class AdvancedFrameProcessor implements GlFrameProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;

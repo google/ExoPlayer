@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import android.util.Size;
+import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 
 /**
@@ -31,7 +32,8 @@ import java.io.IOException;
  *   <li>{@link #release()}, upon conclusion of processing.
  * </ol>
  */
-/* package */ interface GlFrameProcessor {
+@UnstableApi
+public interface GlFrameProcessor {
   // TODO(b/214975934): Investigate whether all configuration can be moved to initialize by
   //  using a placeholder surface until the encoder surface is known. If so, convert
   //  configureOutputSize to a simple getter.

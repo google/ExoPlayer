@@ -152,7 +152,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
-    this.frameProcessors = frameProcessors;
+    this.frameProcessors = ImmutableList.copyOf(frameProcessors);
 
     try {
       eglDisplay = GlUtil.createEglDisplay();

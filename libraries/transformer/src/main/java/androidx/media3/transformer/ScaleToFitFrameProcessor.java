@@ -24,6 +24,7 @@ import android.graphics.Matrix;
 import android.util.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -32,7 +33,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * preserved, potentially changing the width and height of the frame by scaling dimensions to fit.
  * The background color will default to black.
  */
-/* package */ final class ScaleToFitFrameProcessor implements GlFrameProcessor {
+@UnstableApi
+public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link ScaleToFitFrameProcessor} instances. */
   public static final class Builder {
