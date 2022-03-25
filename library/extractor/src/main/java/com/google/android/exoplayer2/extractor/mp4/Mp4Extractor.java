@@ -279,6 +279,22 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public SeekPoints getSeekPoints(long timeUs) {
+    return getSeekPoints(timeUs, /* trackId= */ C.INDEX_UNSET);
+  }
+
+  // Non-inherited public methods.
+
+  /**
+   * Equivalent to {@link SeekMap#getSeekPoints(long)}, except it adds the {@code trackId}
+   * parameter.
+   *
+   * @param timeUs A seek time in microseconds.
+   * @param trackId The id of the track on which to seek for {@link SeekPoints}. May be {@link
+   *     C#INDEX_UNSET} if the extractor is expected to define the strategy for generating {@link
+   *     SeekPoints}.
+   * @return The corresponding seek points.
+   */
+  public SeekPoints getSeekPoints(long timeUs, int trackId) {
     if (tracks.length == 0) {
       return new SeekPoints(SeekPoint.START);
     }
@@ -288,9 +304,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long secondTimeUs = C.TIME_UNSET;
     long secondOffset = C.POSITION_UNSET;
 
+    // Note that the id matches the index in tracks.
+    int mainTrackIndex = trackId != C.INDEX_UNSET ? trackId : firstVideoTrackIndex;
     // If we have a video track, use it to establish one or two seek points.
-    if (firstVideoTrackIndex != C.INDEX_UNSET) {
-      TrackSampleTable sampleTable = tracks[firstVideoTrackIndex].sampleTable;
+    if (mainTrackIndex != C.INDEX_UNSET) {
+      TrackSampleTable sampleTable = tracks[mainTrackIndex].sampleTable;
       int sampleIndex = getSynchronizationSampleIndex(sampleTable, timeUs);
       if (sampleIndex == C.INDEX_UNSET) {
         return new SeekPoints(SeekPoint.START);
@@ -310,13 +328,15 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       firstOffset = Long.MAX_VALUE;
     }
 
-    // Take into account other tracks.
-    for (int i = 0; i < tracks.length; i++) {
-      if (i != firstVideoTrackIndex) {
-        TrackSampleTable sampleTable = tracks[i].sampleTable;
-        firstOffset = maybeAdjustSeekOffset(sampleTable, firstTimeUs, firstOffset);
-        if (secondTimeUs != C.TIME_UNSET) {
-          secondOffset = maybeAdjustSeekOffset(sampleTable, secondTimeUs, secondOffset);
+    if (trackId == C.INDEX_UNSET) {
+      // Take into account other tracks, but only if the caller has not specified a trackId.
+      for (int i = 0; i < tracks.length; i++) {
+        if (i != firstVideoTrackIndex) {
+          TrackSampleTable sampleTable = tracks[i].sampleTable;
+          firstOffset = maybeAdjustSeekOffset(sampleTable, firstTimeUs, firstOffset);
+          if (secondTimeUs != C.TIME_UNSET) {
+            secondOffset = maybeAdjustSeekOffset(sampleTable, secondTimeUs, secondOffset);
+          }
         }
       }
     }
