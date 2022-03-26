@@ -171,6 +171,23 @@ public class MediaControllerWithMediaSessionCompatTest {
   }
 
   @Test
+  public void disconnected_byControllerReleaseRightAfterCreated() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaController controller =
+        controllerTestRule.createController(
+            session.getSessionToken(),
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            },
+            MediaController::release);
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.isConnected()).isFalse();
+  }
+
+  @Test
   public void close_twice_doesNotCrash() throws Exception {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     threadTestRule.getHandler().postAndSync(controller::release);
