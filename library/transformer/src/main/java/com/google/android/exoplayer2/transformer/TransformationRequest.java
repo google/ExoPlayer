@@ -49,7 +49,6 @@ public final class TransformationRequest {
     public Builder() {
       scaleX = 1;
       scaleY = 1;
-      rotationDegrees = 0;
       outputHeight = C.LENGTH_UNSET;
     }
 
