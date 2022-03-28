@@ -43,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -625,7 +626,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param color The background color.
    */
-  public void setShutterBackgroundColor(int color) {
+  public void setShutterBackgroundColor(@ColorInt int color) {
     if (shutterView != null) {
       shutterView.setBackgroundColor(color);
     }
