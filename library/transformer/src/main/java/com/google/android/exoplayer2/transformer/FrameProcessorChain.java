@@ -72,8 +72,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final EGLContext eglContext;
   /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
   private final ExecutorService singleThreadExecutorService;
-  /** The {@link #singleThreadExecutorService} thread. */
-  private @MonotonicNonNull Thread glThread;
   /** Futures corresponding to the executor service's pending tasks. */
   private final ConcurrentLinkedQueue<Future<?>> futures;
   /** Number of frames {@link #registerInputFrame() registered} but not fully processed. */
@@ -355,7 +353,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @EnsuresNonNull("eglSurface")
   private Void createOpenGlObjectsAndInitializeFrameProcessors(
       Surface outputSurface, @Nullable SurfaceView debugSurfaceView) throws IOException {
-    glThread = Thread.currentThread();
+    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+
     if (enableExperimentalHdrEditing) {
       // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
       eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
@@ -396,7 +395,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull({"inputSurfaceTexture", "eglSurface"})
   private void processFrame() {
-    checkState(Thread.currentThread().equals(glThread));
+    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     if (frameProcessors.isEmpty()) {
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
