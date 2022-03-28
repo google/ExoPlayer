@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -484,7 +485,7 @@ public class SampleChooserActivity extends AppCompatActivity
 
     private PlaylistGroup getGroup(String groupName, List<PlaylistGroup> groups) {
       for (int i = 0; i < groups.size(); i++) {
-        if (Util.areEqual(groupName, groups.get(i).title)) {
+        if (Objects.equal(groupName, groups.get(i).title)) {
           return groups.get(i);
         }
       }
