@@ -32,7 +32,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.drm.DefaultDrmSessionManager;
@@ -144,7 +143,7 @@ public final class MainActivity extends Activity {
       String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
       String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
       UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));
-      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSource.Factory();
+      DataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSource.Factory();
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
       drmSessionManager =

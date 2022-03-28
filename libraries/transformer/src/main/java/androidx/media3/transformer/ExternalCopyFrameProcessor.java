@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Size;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
@@ -58,7 +59,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void initialize() throws IOException {
+  public Size configureOutputSize(int inputWidth, int inputHeight) {
+    return new Size(inputWidth, inputHeight);
+  }
+
+  @Override
+  public void initialize(int inputTexId) throws IOException {
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.
     String vertexShaderFilePath =
@@ -70,6 +76,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
     glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
+    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
@@ -94,9 +101,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void updateProgramAndDraw(int inputTexId, long presentationTimeNs) {
+  public void updateProgramAndDraw(long presentationTimeNs) {
     checkStateNotNull(glProgram);
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* unit= */ 0);
     glProgram.use();
     glProgram.bindAttributesAndUniforms();
     GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);

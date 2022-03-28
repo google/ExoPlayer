@@ -24,7 +24,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -781,7 +780,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       }
       double[] logBitrates = new double[trackBitrates[i].length];
       for (int j = 0; j < trackBitrates[i].length; j++) {
-        logBitrates[j] = trackBitrates[i][j] == Format.NO_VALUE ? 0 : Math.log(trackBitrates[i][j]);
+        logBitrates[j] =
+            trackBitrates[i][j] == Format.NO_VALUE ? 0 : Math.log((double) trackBitrates[i][j]);
       }
       double totalBitrateDiff = logBitrates[logBitrates.length - 1] - logBitrates[0];
       for (int j = 0; j < logBitrates.length - 1; j++) {

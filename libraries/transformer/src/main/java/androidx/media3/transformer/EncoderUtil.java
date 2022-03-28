@@ -22,12 +22,14 @@ import static java.lang.Math.round;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
-import android.util.Pair;
+import android.media.MediaFormat;
+import android.util.Size;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
@@ -80,10 +82,10 @@ public final class EncoderUtil {
    * @param mimeType The output MIME type.
    * @param width The original width.
    * @param height The original height.
-   * @return A {@link Pair} of width and height, or {@code null} if unable to find a fix.
+   * @return A {@link Size supported resolution}, or {@code null} if unable to find a fallback.
    */
   @Nullable
-  public static Pair<Integer, Integer> getSupportedResolution(
+  public static Size getSupportedResolution(
       MediaCodecInfo encoderInfo, String mimeType, int width, int height) {
     MediaCodecInfo.VideoCapabilities videoEncoderCapabilities =
         encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
@@ -94,28 +96,28 @@ public final class EncoderUtil {
     width = alignResolution(width, widthAlignment);
     height = alignResolution(height, heightAlignment);
     if (videoEncoderCapabilities.isSizeSupported(width, height)) {
-      return Pair.create(width, height);
+      return new Size(width, height);
     }
 
     // Try three-fourths (e.g. 1440 -> 1080).
     int newWidth = alignResolution(width * 3 / 4, widthAlignment);
     int newHeight = alignResolution(height * 3 / 4, heightAlignment);
     if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
-      return Pair.create(newWidth, newHeight);
+      return new Size(newWidth, newHeight);
     }
 
     // Try two-thirds (e.g. 4k -> 1440).
     newWidth = alignResolution(width * 2 / 3, widthAlignment);
     newHeight = alignResolution(height * 2 / 3, heightAlignment);
     if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
-      return Pair.create(newWidth, newHeight);
+      return new Size(newWidth, newHeight);
     }
 
     // Try half (e.g. 4k -> 1080).
     newWidth = alignResolution(width / 2, widthAlignment);
     newHeight = alignResolution(height / 2, heightAlignment);
     if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
-      return Pair.create(newWidth, newHeight);
+      return new Size(newWidth, newHeight);
     }
 
     // Fix frame being too wide or too tall.
@@ -127,9 +129,7 @@ public final class EncoderUtil {
       height = alignResolution(adjustedHeight, heightAlignment);
     }
 
-    return videoEncoderCapabilities.isSizeSupported(width, height)
-        ? Pair.create(width, height)
-        : null;
+    return videoEncoderCapabilities.isSizeSupported(width, height) ? new Size(width, height) : null;
   }
 
   /**
@@ -157,6 +157,32 @@ public final class EncoderUtil {
   }
 
   /**
+   * Finds a {@link MediaCodec codec} that supports the {@link MediaFormat}, or {@code null} if none
+   * is found.
+   */
+  @Nullable
+  public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    // Format must not include KEY_FRAME_RATE on API21.
+    // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
+    @Nullable String frameRate = null;
+    if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+      frameRate = format.getString(MediaFormat.KEY_FRAME_RATE);
+      format.setString(MediaFormat.KEY_FRAME_RATE, null);
+    }
+
+    String mediaCodecName =
+        isDecoder
+            ? mediaCodecList.findDecoderForFormat(format)
+            : mediaCodecList.findEncoderForFormat(format);
+
+    if (Util.SDK_INT == 21) {
+      MediaFormatUtil.maybeSetString(format, MediaFormat.KEY_FRAME_RATE, frameRate);
+    }
+    return mediaCodecName;
+  }
+
+  /**
    * Finds the {@link MediaCodecInfo encoder}'s closest supported bitrate from the given bitrate.
    */
   public static int getClosestSupportedBitrate(
@@ -166,6 +192,15 @@ public final class EncoderUtil {
         .getVideoCapabilities()
         .getBitrateRange()
         .clamp(bitrate);
+  }
+
+  /** Returns whether the bitrate mode is supported by the encoder. */
+  public static boolean isBitrateModeSupported(
+      MediaCodecInfo encoderInfo, String mimeType, int bitrateMode) {
+    return encoderInfo
+        .getCapabilitiesForType(mimeType)
+        .getEncoderCapabilities()
+        .isBitrateModeSupported(bitrateMode);
   }
 
   /** Checks if a {@link MediaCodecInfo codec} is hardware-accelerated. */

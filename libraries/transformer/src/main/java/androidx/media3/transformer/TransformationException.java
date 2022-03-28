@@ -274,15 +274,15 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for a {@link FrameEditor} related exception.
+   * Creates an instance for a {@link FrameProcessorChain} related exception.
    *
    * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForFrameEditor(
+  /* package */ static TransformationException createForFrameProcessorChain(
       Throwable cause, int errorCode) {
-    return new TransformationException("FrameEditor error", cause, errorCode);
+    return new TransformationException("FrameProcessorChain error", cause, errorCode);
   }
 
   /**

@@ -147,8 +147,6 @@ public final class GlProgram {
    * <p>Call this in the rendering loop to switch between different programs.
    */
   public void use() {
-    // TODO(b/214975934): When multiple GL programs are supported by Transformer, make sure
-    // to call use() to switch between programs.
     GLES20.glUseProgram(programId);
     GlUtil.checkGlError();
   }
@@ -175,9 +173,16 @@ public final class GlProgram {
     checkNotNull(attributeByName.get(name)).setBuffer(values, size);
   }
 
-  /** Sets a texture sampler type uniform. */
-  public void setSamplerTexIdUniform(String name, int texId, int unit) {
-    checkNotNull(uniformByName.get(name)).setSamplerTexId(texId, unit);
+  /**
+   * Sets a texture sampler type uniform.
+   *
+   * @param name The uniform's name.
+   * @param texId The texture identifier.
+   * @param texUnitIndex The texture unit index. Use a different index (0, 1, 2, ...) for each
+   *     texture sampler in the program.
+   */
+  public void setSamplerTexIdUniform(String name, int texId, int texUnitIndex) {
+    checkNotNull(uniformByName.get(name)).setSamplerTexId(texId, texUnitIndex);
   }
 
   /** Sets a float type uniform. */
@@ -322,7 +327,7 @@ public final class GlProgram {
     private final float[] value;
 
     private int texId;
-    private int unit;
+    private int texUnitIndex;
 
     private Uniform(String name, int location, int type) {
       this.name = name;
@@ -335,11 +340,11 @@ public final class GlProgram {
      * Configures {@link #bind()} to use the specified {@code texId} for this sampler uniform.
      *
      * @param texId The GL texture identifier from which to sample.
-     * @param unit The GL texture unit index.
+     * @param texUnitIndex The GL texture unit index.
      */
-    public void setSamplerTexId(int texId, int unit) {
+    public void setSamplerTexId(int texId, int texUnitIndex) {
       this.texId = texId;
-      this.unit = unit;
+      this.texUnitIndex = texUnitIndex;
     }
 
     /** Configures {@link #bind()} to use the specified float {@code value} for this uniform. */
@@ -382,7 +387,7 @@ public final class GlProgram {
       if (texId == 0) {
         throw new IllegalStateException("No call to setSamplerTexId() before bind.");
       }
-      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
+      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texUnitIndex);
       if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES || type == GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT) {
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
       } else if (type == GLES20.GL_SAMPLER_2D) {
@@ -390,7 +395,7 @@ public final class GlProgram {
       } else {
         throw new IllegalStateException("Unexpected uniform type: " + type);
       }
-      GLES20.glUniform1i(location, unit);
+      GLES20.glUniform1i(location, texUnitIndex);
       GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
       GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
       GLES20.glTexParameteri(

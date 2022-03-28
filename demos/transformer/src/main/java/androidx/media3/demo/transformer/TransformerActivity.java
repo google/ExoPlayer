@@ -21,7 +21,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -217,10 +216,15 @@ public final class TransformerActivity extends AppCompatActivity {
       if (resolutionHeight != C.LENGTH_UNSET) {
         requestBuilder.setResolution(resolutionHeight);
       }
-      Matrix transformationMatrix = getTransformationMatrix(bundle);
-      if (!transformationMatrix.isIdentity()) {
-        requestBuilder.setTransformationMatrix(transformationMatrix);
-      }
+
+      float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
+      float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
+      requestBuilder.setScale(scaleX, scaleY);
+
+      float rotateDegrees =
+          bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
+      requestBuilder.setRotationDegrees(rotateDegrees);
+
       requestBuilder.experimental_setEnableHdrEditing(
           bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder
@@ -249,27 +253,6 @@ public final class TransformerActivity extends AppCompatActivity {
             })
         .setDebugViewProvider(new DemoDebugViewProvider())
         .build();
-  }
-
-  private static Matrix getTransformationMatrix(Bundle bundle) {
-    Matrix transformationMatrix = new Matrix();
-
-    float translateX = bundle.getFloat(ConfigurationActivity.TRANSLATE_X, /* defaultValue= */ 0);
-    float translateY = bundle.getFloat(ConfigurationActivity.TRANSLATE_Y, /* defaultValue= */ 0);
-    // TODO(b/201293185): Implement an AdvancedFrameEditor to handle translation, as the current
-    // transformationMatrix is automatically adjusted to focus on the original pixels and
-    // effectively undo translations.
-    transformationMatrix.postTranslate(translateX, translateY);
-
-    float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
-    float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
-    transformationMatrix.postScale(scaleX, scaleY);
-
-    float rotateDegrees =
-        bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
-    transformationMatrix.postRotate(rotateDegrees);
-
-    return transformationMatrix;
   }
 
   @RequiresNonNull({

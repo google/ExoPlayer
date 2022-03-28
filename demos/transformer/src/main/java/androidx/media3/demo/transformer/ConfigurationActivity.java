@@ -50,8 +50,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String AUDIO_MIME_TYPE = "audio_mime_type";
   public static final String VIDEO_MIME_TYPE = "video_mime_type";
   public static final String RESOLUTION_HEIGHT = "resolution_height";
-  public static final String TRANSLATE_X = "translate_x";
-  public static final String TRANSLATE_Y = "translate_y";
   public static final String SCALE_X = "scale_x";
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
@@ -81,7 +79,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner audioMimeSpinner;
   private @MonotonicNonNull Spinner videoMimeSpinner;
   private @MonotonicNonNull Spinner resolutionHeightSpinner;
-  private @MonotonicNonNull Spinner translateSpinner;
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
@@ -136,14 +133,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightAdapter.addAll(
         SAME_AS_INPUT_OPTION, "144", "240", "360", "480", "720", "1080", "1440", "2160");
 
-    ArrayAdapter<String> translateAdapter =
-        new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
-    translateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    translateSpinner = findViewById(R.id.translate_spinner);
-    translateSpinner.setAdapter(translateAdapter);
-    translateAdapter.addAll(
-        SAME_AS_INPUT_OPTION, "-.1, -.1", "0, 0", ".5, 0", "0, .5", "1, 1", "1.9, 0", "0, 1.9");
-
     ArrayAdapter<String> scaleAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
     scaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -185,7 +174,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
     "enableFallbackCheckBox",
@@ -208,13 +196,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     String selectedResolutionHeight = String.valueOf(resolutionHeightSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedResolutionHeight)) {
       bundle.putInt(RESOLUTION_HEIGHT, Integer.parseInt(selectedResolutionHeight));
-    }
-    String selectedTranslate = String.valueOf(translateSpinner.getSelectedItem());
-    if (!SAME_AS_INPUT_OPTION.equals(selectedTranslate)) {
-      List<String> translateXY = Arrays.asList(selectedTranslate.split(", "));
-      checkState(translateXY.size() == 2);
-      bundle.putFloat(TRANSLATE_X, Float.parseFloat(translateXY.get(0)));
-      bundle.putFloat(TRANSLATE_Y, Float.parseFloat(translateXY.get(1)));
     }
     String selectedScale = String.valueOf(scaleSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedScale)) {
@@ -258,7 +239,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
     "enableHdrEditingCheckBox"
@@ -277,7 +257,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
     "enableHdrEditingCheckBox"
@@ -295,7 +274,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
     "enableHdrEditingCheckBox"
@@ -304,7 +282,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     audioMimeSpinner.setEnabled(isAudioEnabled);
     videoMimeSpinner.setEnabled(isVideoEnabled);
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
-    translateSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
@@ -312,7 +289,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.resolution_height_text_view).setEnabled(isVideoEnabled);
-    findViewById(R.id.translate).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);

@@ -54,7 +54,6 @@ import java.util.Map;
  *       #DefaultDataSource(Context, DataSource)}.
  * </ul>
  */
-@UnstableApi
 public final class DefaultDataSource implements DataSource {
 
   /** {@link DataSource.Factory} for {@link DefaultDataSource} instances. */
@@ -98,11 +97,13 @@ public final class DefaultDataSource implements DataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
     }
 
+    @UnstableApi
     @Override
     public DefaultDataSource createDataSource() {
       DefaultDataSource dataSource =
@@ -144,6 +145,7 @@ public final class DefaultDataSource implements DataSource {
    *
    * @param context A context.
    */
+  @UnstableApi
   public DefaultDataSource(Context context, boolean allowCrossProtocolRedirects) {
     this(
         context,
@@ -162,6 +164,7 @@ public final class DefaultDataSource implements DataSource {
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data.
    */
+  @UnstableApi
   public DefaultDataSource(
       Context context, @Nullable String userAgent, boolean allowCrossProtocolRedirects) {
     this(
@@ -185,6 +188,7 @@ public final class DefaultDataSource implements DataSource {
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data.
    */
+  @UnstableApi
   public DefaultDataSource(
       Context context,
       @Nullable String userAgent,
@@ -209,12 +213,14 @@ public final class DefaultDataSource implements DataSource {
    * @param baseDataSource A {@link DataSource} to use for URI schemes other than file, asset and
    *     content. This {@link DataSource} should normally support at least http(s).
    */
+  @UnstableApi
   public DefaultDataSource(Context context, DataSource baseDataSource) {
     this.context = context.getApplicationContext();
     this.baseDataSource = Assertions.checkNotNull(baseDataSource);
     transferListeners = new ArrayList<>();
   }
 
+  @UnstableApi
   @Override
   public void addTransferListener(TransferListener transferListener) {
     Assertions.checkNotNull(transferListener);
@@ -229,6 +235,7 @@ public final class DefaultDataSource implements DataSource {
     maybeAddListenerToDataSource(rawResourceDataSource, transferListener);
   }
 
+  @UnstableApi
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     Assertions.checkState(dataSource == null);
@@ -260,22 +267,26 @@ public final class DefaultDataSource implements DataSource {
     return dataSource.open(dataSpec);
   }
 
+  @UnstableApi
   @Override
   public int read(byte[] buffer, int offset, int length) throws IOException {
     return Assertions.checkNotNull(dataSource).read(buffer, offset, length);
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public Uri getUri() {
     return dataSource == null ? null : dataSource.getUri();
   }
 
+  @UnstableApi
   @Override
   public Map<String, List<String>> getResponseHeaders() {
     return dataSource == null ? Collections.emptyMap() : dataSource.getResponseHeaders();
   }
 
+  @UnstableApi
   @Override
   public void close() throws IOException {
     if (dataSource != null) {

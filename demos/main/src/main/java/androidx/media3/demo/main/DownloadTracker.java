@@ -15,8 +15,7 @@
  */
 package androidx.media3.demo.main;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,12 +29,11 @@ import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
-import androidx.media3.datasource.HttpDataSource;
+import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
@@ -48,6 +46,7 @@ import androidx.media3.exoplayer.offline.DownloadIndex;
 import androidx.media3.exoplayer.offline.DownloadManager;
 import androidx.media3.exoplayer.offline.DownloadRequest;
 import androidx.media3.exoplayer.offline.DownloadService;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.MappingTrackSelector.MappedTrackInfo;
 import java.io.IOException;
 import java.util.HashMap;
@@ -66,7 +65,7 @@ public class DownloadTracker {
   private static final String TAG = "DownloadTracker";
 
   private final Context context;
-  private final HttpDataSource.Factory httpDataSourceFactory;
+  private final DataSource.Factory dataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, Download> downloads;
   private final DownloadIndex downloadIndex;
@@ -74,11 +73,9 @@ public class DownloadTracker {
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
   public DownloadTracker(
-      Context context,
-      HttpDataSource.Factory httpDataSourceFactory,
-      DownloadManager downloadManager) {
+      Context context, DataSource.Factory dataSourceFactory, DownloadManager downloadManager) {
     this.context = context.getApplicationContext();
-    this.httpDataSourceFactory = httpDataSourceFactory;
+    this.dataSourceFactory = dataSourceFactory;
     listeners = new CopyOnWriteArraySet<>();
     downloads = new HashMap<>();
     downloadIndex = downloadManager.getDownloadIndex();
@@ -87,8 +84,7 @@ public class DownloadTracker {
   }
 
   public void addListener(Listener listener) {
-    checkNotNull(listener);
-    listeners.add(listener);
+    listeners.add(checkNotNull(listener));
   }
 
   public void removeListener(Listener listener) {
@@ -119,8 +115,7 @@ public class DownloadTracker {
       startDownloadDialogHelper =
           new StartDownloadDialogHelper(
               fragmentManager,
-              DownloadHelper.forMediaItem(
-                  context, mediaItem, renderersFactory, httpDataSourceFactory),
+              DownloadHelper.forMediaItem(context, mediaItem, renderersFactory, dataSourceFactory),
               mediaItem);
     }
   }
@@ -218,7 +213,7 @@ public class DownloadTracker {
           new WidevineOfflineLicenseFetchTask(
               format,
               mediaItem.localConfiguration.drmConfiguration,
-              httpDataSourceFactory,
+              dataSourceFactory,
               /* dialogHelper= */ this,
               helper);
       widevineOfflineLicenseFetchTask.execute();
@@ -361,7 +356,7 @@ public class DownloadTracker {
 
     private final Format format;
     private final MediaItem.DrmConfiguration drmConfiguration;
-    private final HttpDataSource.Factory httpDataSourceFactory;
+    private final DataSource.Factory dataSourceFactory;
     private final StartDownloadDialogHelper dialogHelper;
     private final DownloadHelper downloadHelper;
 
@@ -371,12 +366,12 @@ public class DownloadTracker {
     public WidevineOfflineLicenseFetchTask(
         Format format,
         MediaItem.DrmConfiguration drmConfiguration,
-        HttpDataSource.Factory httpDataSourceFactory,
+        DataSource.Factory dataSourceFactory,
         StartDownloadDialogHelper dialogHelper,
         DownloadHelper downloadHelper) {
       this.format = format;
       this.drmConfiguration = drmConfiguration;
-      this.httpDataSourceFactory = httpDataSourceFactory;
+      this.dataSourceFactory = dataSourceFactory;
       this.dialogHelper = dialogHelper;
       this.downloadHelper = downloadHelper;
     }
@@ -387,7 +382,7 @@ public class DownloadTracker {
           OfflineLicenseHelper.newWidevineInstance(
               drmConfiguration.licenseUri.toString(),
               drmConfiguration.forceDefaultLicenseUri,
-              httpDataSourceFactory,
+              dataSourceFactory,
               drmConfiguration.licenseRequestHeaders,
               new DrmSessionEventListener.EventDispatcher());
       try {
@@ -405,7 +400,7 @@ public class DownloadTracker {
       if (drmSessionException != null) {
         dialogHelper.onOfflineLicenseFetchedError(drmSessionException);
       } else {
-        dialogHelper.onOfflineLicenseFetched(downloadHelper, checkStateNotNull(keySetId));
+        dialogHelper.onOfflineLicenseFetched(downloadHelper, checkNotNull(keySetId));
       }
     }
   }

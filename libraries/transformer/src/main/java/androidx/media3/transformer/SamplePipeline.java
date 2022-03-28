@@ -40,8 +40,8 @@ import androidx.media3.decoder.DecoderInputBuffer;
   void queueInputBuffer() throws TransformationException;
 
   /**
-   * Processes the input data and returns whether more data can be processed by calling this method
-   * again.
+   * Processes the input data and returns whether it may be possible to process more data by calling
+   * this method again.
    */
   boolean processData() throws TransformationException;
 

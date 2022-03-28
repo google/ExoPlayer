@@ -172,6 +172,7 @@ public interface HttpDataSource extends DataSource {
   }
 
   /** A {@link Predicate} that rejects content types often used for pay-walls. */
+  @UnstableApi
   Predicate<String> REJECT_PAYWALL_TYPES =
       contentType -> {
         if (contentType == null) {

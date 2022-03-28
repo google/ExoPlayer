@@ -97,8 +97,10 @@ public interface Codec {
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link Format#width}
-     *     and {@link Format#height} must be set to those of the desired output video format. {@link
-     *     Format#rotationDegrees} should be 0. The video should always be in landscape orientation.
+     *     and {@link Format#height} are set to those of the desired output video format. {@link
+     *     Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link Format#height},
+     *     therefore the video is always in landscape orientation. {@link Format#frameRate} is set
+     *     to the output video's frame rate, if available.
      * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
      *     types}.
      * @return A {@link Codec} for video encoding.

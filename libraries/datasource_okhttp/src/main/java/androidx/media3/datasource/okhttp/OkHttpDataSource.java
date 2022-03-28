@@ -60,7 +60,6 @@ import okhttp3.ResponseBody;
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
  * construct the instance.
  */
-@UnstableApi
 public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   static {
@@ -89,6 +88,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       defaultRequestProperties = new RequestProperties();
     }
 
+    @UnstableApi
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
@@ -105,6 +105,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      *     agent of the underlying {@link OkHttpClient}.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
@@ -118,6 +119,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      * @param cacheControl The cache control that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setCacheControl(@Nullable CacheControl cacheControl) {
       this.cacheControl = cacheControl;
       return this;
@@ -134,6 +136,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      *     predicate that was previously set.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
       return this;
@@ -149,11 +152,13 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
     }
 
+    @UnstableApi
     @Override
     public OkHttpDataSource createDataSource() {
       OkHttpDataSource dataSource =
@@ -185,6 +190,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link OkHttpDataSource.Factory} instead.
    */
   @SuppressWarnings("deprecation")
+  @UnstableApi
   @Deprecated
   public OkHttpDataSource(Call.Factory callFactory) {
     this(callFactory, /* userAgent= */ null);
@@ -194,6 +200,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link OkHttpDataSource.Factory} instead.
    */
   @SuppressWarnings("deprecation")
+  @UnstableApi
   @Deprecated
   public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent) {
     this(callFactory, userAgent, /* cacheControl= */ null, /* defaultRequestProperties= */ null);
@@ -202,6 +209,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * @deprecated Use {@link OkHttpDataSource.Factory} instead.
    */
+  @UnstableApi
   @Deprecated
   public OkHttpDataSource(
       Call.Factory callFactory,
@@ -234,27 +242,32 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * @deprecated Use {@link OkHttpDataSource.Factory#setContentTypePredicate(Predicate)} instead.
    */
+  @UnstableApi
   @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
     this.contentTypePredicate = contentTypePredicate;
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public Uri getUri() {
     return response == null ? null : Uri.parse(response.request().url().toString());
   }
 
+  @UnstableApi
   @Override
   public int getResponseCode() {
     return response == null ? -1 : response.code();
   }
 
+  @UnstableApi
   @Override
   public Map<String, List<String>> getResponseHeaders() {
     return response == null ? Collections.emptyMap() : response.headers().toMultimap();
   }
 
+  @UnstableApi
   @Override
   public void setRequestProperty(String name, String value) {
     Assertions.checkNotNull(name);
@@ -262,17 +275,20 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     requestProperties.set(name, value);
   }
 
+  @UnstableApi
   @Override
   public void clearRequestProperty(String name) {
     Assertions.checkNotNull(name);
     requestProperties.remove(name);
   }
 
+  @UnstableApi
   @Override
   public void clearAllRequestProperties() {
     requestProperties.clear();
   }
 
+  @UnstableApi
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -358,6 +374,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     return bytesToRead;
   }
 
+  @UnstableApi
   @Override
   public int read(byte[] buffer, int offset, int length) throws HttpDataSourceException {
     try {
@@ -368,6 +385,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
   }
 
+  @UnstableApi
   @Override
   public void close() {
     if (opened) {

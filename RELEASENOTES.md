@@ -1,5 +1,61 @@
 # Release notes
 
+### Unreleased changes
+
+*   Core library:
+    *   Enable support for Android platform diagnostics via
+        `MediaMetricsManager`. ExoPlayer will forward playback events and
+        performance data to the platform, which helps to provide system
+        performance and debugging information on the device. This data may also
+        be collected by Google
+        [if sharing usage and diagnostics data is enabled](https://support.google.com/accounts/answer/6078260)
+        by the user of the device. Apps can opt-out of contributing to platform
+        diagnostics for ExoPlayer with
+        `ExoPlayer.Builder.setUsePlatformDiagnostics(false)`.
+*   Track selection:
+    *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
+        and promote `TrackSelectionOverride` to a top level class.
+*   Audio:
+    *   Use LG AC3 audio decoder advertising non-standard MIME type.
+*   Extractors:
+    *   Matroska: Parse `DiscardPadding` for Opus tracks.
+*   UI:
+    *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
+        `LegacyPlayerView`, in the case that `useController=false`
+        ([#9605](https://github.com/google/ExoPlayer/issues/9605)). Also fix
+        delivery of events to `OnLongClickListener` for all view configurations.
+    *   Fix incorrectly treating a sequence of touch events that exit the bounds
+        of `PlayerView` and `LegacyPlayerView` before `ACTION_UP` as a click
+        ([#9861](https://github.com/google/ExoPlayer/issues/9861)).
+    *   Fix `PlayerView` accessibility issue where it was not possible to
+        tapping would toggle playback rather than hiding the controls
+        ([#8627](https://github.com/google/ExoPlayer/issues/8627)).
+    *   Rewrite `TrackSelectionView` and `TrackSelectionDialogBuilder` to work
+        with the `Player` interface rather than `ExoPlayer`. This allows the
+        views to be used with other `Player` implementations, and removes the
+        dependency from the UI module to the ExoPlayer module. This is a
+        breaking change.
+*   RTSP:
+    *   Add RTP reader for HEVC
+        ([#36](https://github.com/androidx/media/pull/36)).
+*   Remove deprecated symbols:
+    *   Remove `Player.Listener.onTracksChanged`. Use
+        `Player.Listener.onTracksInfoChanged` instead.
+    *   Remove `Player.getCurrentTrackGroups` and
+        `Player.getCurrentTrackSelections`. Use `Player.getCurrentTracksInfo`
+        instead. You can also continue to use `ExoPlayer.getCurrentTrackGroups`
+        and `ExoPlayer.getCurrentTrackSelections`, although these methods remain
+        deprecated.
+    *   Remove `DownloadHelper`
+        `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT` and
+        `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
+        `getDefaultTrackSelectorParameters(Context)` instead when possible, and
+        `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
+    *   FFmpeg extension:
+        *   Update CMake version to `3.21.0+` to avoid a CMake bug causing
+            AndroidStudio's gradle sync to fail
+            ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
+
 ### 1.0.0-alpha03 (2022-03-14)
 
 This release corresponds to the

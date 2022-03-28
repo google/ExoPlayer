@@ -21,7 +21,6 @@ import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.datasource.cache.NoOpCacheEvictor;
@@ -59,7 +58,7 @@ public final class DemoUtil {
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
-  private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
+  private static DataSource.@MonotonicNonNull Factory httpDataSourceFactory;
   private static @MonotonicNonNull DatabaseProvider databaseProvider;
   private static @MonotonicNonNull File downloadDirectory;
   private static @MonotonicNonNull Cache downloadCache;
@@ -85,7 +84,7 @@ public final class DemoUtil {
         .setExtensionRendererMode(extensionRendererMode);
   }
 
-  public static synchronized HttpDataSource.Factory getHttpDataSourceFactory(Context context) {
+  public static synchronized DataSource.Factory getHttpDataSourceFactory(Context context) {
     if (httpDataSourceFactory == null) {
       if (USE_CRONET_FOR_NETWORKING) {
         context = context.getApplicationContext();

@@ -68,16 +68,14 @@ public final class DefaultCodec implements Codec {
    *     {@code null}.
    * @param configurationMediaFormat The {@link MediaFormat} to configure the underlying {@link
    *     MediaCodec}.
-   * @param mediaCodecName The name of a specific {@link MediaCodec} to instantiate. If {@code
-   *     null}, {@code DefaultCodec} uses {@link Format#sampleMimeType
-   *     configurationFormat.sampleMimeType} to create the underlying {@link MediaCodec codec}.
+   * @param mediaCodecName The name of a specific {@link MediaCodec} to instantiate.
    * @param isDecoder Whether the {@code DefaultCodec} is intended as a decoder.
    * @param outputSurface The output {@link Surface} if the {@link MediaCodec} outputs to a surface.
    */
   public DefaultCodec(
       Format configurationFormat,
       MediaFormat configurationMediaFormat,
-      @Nullable String mediaCodecName,
+      String mediaCodecName,
       boolean isDecoder,
       @Nullable Surface outputSurface)
       throws TransformationException {
@@ -87,17 +85,11 @@ public final class DefaultCodec implements Codec {
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
 
-    String sampleMimeType = checkNotNull(configurationFormat.sampleMimeType);
-    boolean isVideo = MimeTypes.isVideo(sampleMimeType);
+    boolean isVideo = MimeTypes.isVideo(checkNotNull(configurationFormat.sampleMimeType));
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
     try {
-      mediaCodec =
-          mediaCodecName != null
-              ? MediaCodec.createByCodecName(mediaCodecName)
-              : isDecoder
-                  ? MediaCodec.createDecoderByType(sampleMimeType)
-                  : MediaCodec.createEncoderByType(sampleMimeType);
+      mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
       if (isVideo && !isDecoder) {
         inputSurface = mediaCodec.createInputSurface();
@@ -108,7 +100,6 @@ public final class DefaultCodec implements Codec {
         inputSurface.release();
       }
       if (mediaCodec != null) {
-        mediaCodecName = mediaCodec.getName();
         mediaCodec.release();
       }
 

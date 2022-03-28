@@ -25,10 +25,13 @@ import androidx.media3.common.Format;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.Codec;
+import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
+import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.List;
@@ -43,20 +46,18 @@ public class TransformationTest {
 
   @Test
   public void transform() throws Exception {
-    final String testId = TAG + "_transform";
-
+    String testId = TAG + "_transform";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
-    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 
   @Test
   public void transformWithDecodeEncode() throws Exception {
-    final String testId = TAG + "_transformForceCodecUse";
-
+    String testId = TAG + "_transformForceCodecUse";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -87,40 +88,56 @@ public class TransformationTest {
                   }
                 })
             .build();
-    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
+        .build()
+        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+  }
+
+  @Test
+  public void transformToSpecificBitrate() throws Exception {
+    String testId = TAG + "_transformWithSpecificBitrate";
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setRemoveAudio(true)
+            .setEncoderFactory(
+                new DefaultEncoderFactory(
+                    EncoderSelector.DEFAULT,
+                    new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
+                    /* enableFallback= */ true))
+            .build();
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 
   @Test
   public void transform4K60() throws Exception {
-    final String testId = TAG + "_transform4K60";
-
-    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
+    String testId = TAG + "_transform4K60";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
   }
 
   @Test
   public void transformNoAudio() throws Exception {
-    final String testId = TAG + "_transformNoAudio";
-
-    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
+    String testId = TAG + "_transformNoAudio";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
 
   @Test
   public void transformNoVideo() throws Exception {
-    final String testId = TAG + "_transformNoVideo";
-
+    String testId = TAG + "_transformNoVideo";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveVideo(true).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -130,7 +147,7 @@ public class TransformationTest {
 
   @Test
   public void transformSef() throws Exception {
-    final String testId = TAG + "_transformSef";
+    String testId = TAG + "_transformSef";
 
     if (Util.SDK_INT < 25) {
       // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
@@ -144,7 +161,6 @@ public class TransformationTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
-    // TODO(b/223381524): Enable Ssim calculation after fixing queueInputBuffer exception.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(testId, MP4_ASSET_SEF_URI_STRING);

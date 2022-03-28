@@ -31,7 +31,6 @@ import org.chromium.net.CronetEngine;
 import org.chromium.net.CronetProvider;
 
 /** Cronet utility methods. */
-@UnstableApi
 public final class CronetUtil {
 
   private static final String TAG = "CronetUtil";
@@ -77,6 +76,7 @@ public final class CronetUtil {
    *     over Cronet Embedded, if both are available.
    * @return The {@link CronetEngine}, or {@code null} if no suitable engine could be built.
    */
+  @UnstableApi
   @Nullable
   public static CronetEngine buildCronetEngine(
       Context context, @Nullable String userAgent, boolean preferGooglePlayServices) {

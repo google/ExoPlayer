@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.TransformationRequest;
@@ -41,13 +40,11 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscode_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postTranslate(/* dx= */ 0.1f, /* dy= */ 0.1f);
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setTransformationMatrix(transformationMatrix)
+                    .setRotationDegrees(45)
                     // Video MIME type is H264.
                     .setAudioMimeType(MimeTypes.AUDIO_AAC)
                     .build())
@@ -74,15 +71,13 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscodeNoAudio_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postTranslate(/* dx= */ 0.1f, /* dy= */ 0.1f);
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
                     // Video MIME type is H264.
-                    .setTransformationMatrix(transformationMatrix)
+                    .setRotationDegrees(45)
                     .build())
             .build();
 

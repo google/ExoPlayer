@@ -147,7 +147,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
    *     for requesting media data.
    */
-  @UnstableApi
   public DefaultMediaSourceFactory(DataSource.Factory dataSourceFactory) {
     this(dataSourceFactory, new DefaultExtractorsFactory());
   }

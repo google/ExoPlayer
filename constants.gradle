@@ -26,7 +26,7 @@ project.ext {
     // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
     guavaVersion = '31.0.1-android'
     mockitoVersion = '3.12.4'
-    robolectricVersion = '4.6.1'
+    robolectricVersion = '4.8-alpha-1'
     // Keep this in sync with Google's internal Checker Framework version.
     checkerframeworkVersion = '3.13.0'
     checkerframeworkCompatVersion = '2.5.5'

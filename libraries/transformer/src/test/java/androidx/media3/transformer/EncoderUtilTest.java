@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
-import android.util.Pair;
+import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -67,11 +67,12 @@ public class EncoderUtilTest {
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
-    Pair<Integer, Integer> closestSupportedResolution =
+    Size closestSupportedResolution =
         EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 1920, 1080);
 
     assertThat(closestSupportedResolution).isNotNull();
-    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1920, 1080));
+    assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
+    assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
   }
 
   @Test
@@ -80,11 +81,12 @@ public class EncoderUtilTest {
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
-    Pair<Integer, Integer> closestSupportedResolution =
+    Size closestSupportedResolution =
         EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 1919, 1081);
 
     assertThat(closestSupportedResolution).isNotNull();
-    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1920, 1080));
+    assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
+    assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
   }
 
   @Test
@@ -93,11 +95,12 @@ public class EncoderUtilTest {
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
-    Pair<Integer, Integer> closestSupportedResolution =
+    Size closestSupportedResolution =
         EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 1920, 1920);
 
     assertThat(closestSupportedResolution).isNotNull();
-    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1440, 1440));
+    assertThat(closestSupportedResolution.getWidth()).isEqualTo(1440);
+    assertThat(closestSupportedResolution.getHeight()).isEqualTo(1440);
   }
 
   @Test
@@ -106,10 +109,11 @@ public class EncoderUtilTest {
     MediaCodecInfo encoderInfo = supportedEncoders.get(0);
 
     @Nullable
-    Pair<Integer, Integer> closestSupportedResolution =
+    Size closestSupportedResolution =
         EncoderUtil.getSupportedResolution(encoderInfo, MIME_TYPE, 3840, 2160);
 
     assertThat(closestSupportedResolution).isNotNull();
-    assertThat(closestSupportedResolution).isEqualTo(Pair.create(1920, 1080));
+    assertThat(closestSupportedResolution.getWidth()).isEqualTo(1920);
+    assertThat(closestSupportedResolution.getHeight()).isEqualTo(1080);
   }
 }

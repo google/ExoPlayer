@@ -15,31 +15,117 @@
  */
 package androidx.media3.transformer;
 
+import androidx.annotation.Nullable;
+import androidx.media3.common.C;
+
 /** A test only class for holding the details of a test transformation. */
 public class TransformationTestResult {
   /** Represents an unset or unknown SSIM score. */
   public static final double SSIM_UNSET = -1.0d;
 
-  public final TransformationResult transformationResult;
-  public final String filePath;
-  /** The amount of time taken to perform the transformation in milliseconds. */
-  public final long transformationDurationMs;
-  /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
-  public final double ssim;
+  /** A builder for {@link TransformationTestResult}. */
+  public static class Builder {
+    private final TransformationResult transformationResult;
 
-  public TransformationTestResult(
-      TransformationResult transformationResult, String filePath, long transformationDurationMs) {
-    this(transformationResult, filePath, transformationDurationMs, /* ssim= */ SSIM_UNSET);
+    @Nullable private String filePath;
+    @Nullable private Exception analysisException;
+
+    private long elapsedTimeMs;
+    private double ssim;
+
+    /** Creates a new {@link Builder}. */
+    public Builder(TransformationResult transformationResult) {
+      this.transformationResult = transformationResult;
+      this.elapsedTimeMs = C.TIME_UNSET;
+      this.ssim = SSIM_UNSET;
+    }
+
+    /**
+     * Sets the file path of the output file.
+     *
+     * <p>{@code null} represents an unset or unknown value.
+     *
+     * @param filePath The path.
+     * @return This {@link Builder}.
+     */
+    public Builder setFilePath(@Nullable String filePath) {
+      this.filePath = filePath;
+      return this;
+    }
+
+    /**
+     * Sets the amount of time taken to perform the transformation in milliseconds. {@link
+     * C#TIME_UNSET} if unset.
+     *
+     * <p>{@link C#TIME_UNSET} represents an unset or unknown value.
+     *
+     * @param elapsedTimeMs The time, in ms.
+     * @return This {@link Builder}.
+     */
+    public Builder setElapsedTimeMs(long elapsedTimeMs) {
+      this.elapsedTimeMs = elapsedTimeMs;
+      return this;
+    }
+
+    /**
+     * Sets the SSIM of the output file, compared to input file.
+     *
+     * <p>{@link #SSIM_UNSET} represents an unset or unknown value.
+     *
+     * @param ssim The structural similarity index.
+     * @return This {@link Builder}.
+     */
+    public Builder setSsim(double ssim) {
+      this.ssim = ssim;
+      return this;
+    }
+
+    /**
+     * Sets an {@link Exception} that occurred during post-transformation analysis.
+     *
+     * <p>{@code null} represents an unset or unknown value.
+     *
+     * @param analysisException The {@link Exception} thrown during analysis.
+     * @return This {@link Builder}.
+     */
+    public Builder setAnalysisException(@Nullable Exception analysisException) {
+      this.analysisException = analysisException;
+      return this;
+    }
+
+    /** Builds the {@link TransformationTestResult} instance. */
+    public TransformationTestResult build() {
+      return new TransformationTestResult(
+          transformationResult, filePath, elapsedTimeMs, ssim, analysisException);
+    }
   }
 
-  public TransformationTestResult(
+  public final TransformationResult transformationResult;
+
+  @Nullable public final String filePath;
+  /**
+   * The amount of time taken to perform the transformation in milliseconds. {@link C#TIME_UNSET} if
+   * unset.
+   */
+  public final long elapsedTimeMs;
+  /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
+  public final double ssim;
+  /**
+   * The {@link Exception} that was thrown during post-tranformation analysis, or {@code null} if
+   * nothing was thrown.
+   */
+  @Nullable public final Exception analysisException;
+
+  private TransformationTestResult(
       TransformationResult transformationResult,
-      String filePath,
-      long transformationDurationMs,
-      double ssim) {
+      @Nullable String filePath,
+      long elapsedTimeMs,
+      double ssim,
+      @Nullable Exception analysisException) {
     this.transformationResult = transformationResult;
     this.filePath = filePath;
-    this.transformationDurationMs = transformationDurationMs;
+    this.elapsedTimeMs = elapsedTimeMs;
     this.ssim = ssim;
+    this.analysisException = analysisException;
   }
 }

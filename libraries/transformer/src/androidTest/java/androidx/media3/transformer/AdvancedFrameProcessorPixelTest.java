@@ -39,15 +39,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link TransformationFrameProcessor}.
+ * Pixel test for frame processing via {@link AdvancedFrameProcessor}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
  * BitmapTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output bitmaps
- * as recommended in {@link FrameEditorDataProcessingTest}.
+ * as recommended in {@link FrameProcessorChainPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
-public final class TransformationFrameProcessorTest {
+public final class AdvancedFrameProcessorPixelTest {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -55,11 +55,9 @@ public final class TransformationFrameProcessorTest {
 
   private final EGLDisplay eglDisplay = GlUtil.createEglDisplay();
   private final EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
-  private @MonotonicNonNull GlFrameProcessor transformationFrameProcessor;
+  private @MonotonicNonNull GlFrameProcessor advancedFrameProcessor;
   private int inputTexId;
   private int outputTexId;
-  // TODO(b/214975934): Once the frame processors are allowed to have different input and output
-  //  dimensions, get the output dimensions from the frame processor.
   private int width;
   private int height;
 
@@ -82,22 +80,21 @@ public final class TransformationFrameProcessorTest {
 
   @After
   public void release() {
-    if (transformationFrameProcessor != null) {
-      transformationFrameProcessor.release();
+    if (advancedFrameProcessor != null) {
+      advancedFrameProcessor.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
 
   @Test
   public void updateProgramAndDraw_noEdits_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_noEdits";
+    String testId = "updateProgramAndDraw_noEdits";
     Matrix identityMatrix = new Matrix();
-    transformationFrameProcessor =
-        new TransformationFrameProcessor(getApplicationContext(), identityMatrix);
-    transformationFrameProcessor.initialize();
+    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
+    advancedFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -112,16 +109,16 @@ public final class TransformationFrameProcessorTest {
 
   @Test
   public void updateProgramAndDraw_translateRight_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_translateRight";
+    String testId = "updateProgramAndDraw_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    transformationFrameProcessor =
-        new TransformationFrameProcessor(getApplicationContext(), translateRightMatrix);
-    transformationFrameProcessor.initialize();
+    advancedFrameProcessor =
+        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+    advancedFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -136,16 +133,15 @@ public final class TransformationFrameProcessorTest {
 
   @Test
   public void updateProgramAndDraw_scaleNarrow_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_scaleNarrow";
+    String testId = "updateProgramAndDraw_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
-    transformationFrameProcessor =
-        new TransformationFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
-    transformationFrameProcessor.initialize();
+    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
+    advancedFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -160,18 +156,14 @@ public final class TransformationFrameProcessorTest {
 
   @Test
   public void updateProgramAndDraw_rotate90_producesExpectedOutput() throws Exception {
-    final String testId = "updateProgramAndDraw_rotate90";
-    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
-    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
-    //  test that rotation doesn't distort the image.
+    String testId = "updateProgramAndDraw_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
-    transformationFrameProcessor =
-        new TransformationFrameProcessor(getApplicationContext(), rotate90Matrix);
-    transformationFrameProcessor.initialize();
+    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
+    advancedFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    transformationFrameProcessor.updateProgramAndDraw(inputTexId, /* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 

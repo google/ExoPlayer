@@ -36,8 +36,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.Assertions;
@@ -51,6 +49,7 @@ import androidx.media3.exoplayer.RendererCapabilities.AdaptiveSupport;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
@@ -86,11 +85,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *         .setMaxVideoSizeSd()
  *         .setPreferredAudioLanguage("de")
  *         .build());
- *
  * }</pre>
  *
  * Some specialized parameters are only available in the extended {@link Parameters} class, which
- * can be retrieved and modified in a similar way in this track selector:
+ * can be retrieved and modified in a similar way by calling methods directly on this class:
  *
  * <pre>{@code
  * defaultTrackSelector.setParameters(
@@ -98,7 +96,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *         .buildUpon()
  *         .setTunnelingEnabled(true)
  *         .build());
- *
  * }</pre>
  */
 @UnstableApi

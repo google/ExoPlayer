@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.common;
+package androidx.media3.exoplayer.source;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.media3.common.Bundleable;
+import androidx.media3.common.C;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -30,7 +33,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-/** An immutable array of {@link TrackGroup}s. */
+/**
+ * An immutable array of {@link TrackGroup}s.
+ *
+ * <p>This class is typically used to represent all of the tracks available in a piece of media.
+ * Tracks that are known to present the same content are grouped together (e.g., the same video feed
+ * provided at different resolutions in an adaptive stream). Tracks that are known to present
+ * different content are in separate track groups (e.g., an audio track will not be in the same
+ * group as a video track, and an audio track in one language will be in a different group to an
+ * audio track in another language).
+ */
 @UnstableApi
 public final class TrackGroupArray implements Bundleable {
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.common;
+package androidx.media3.exoplayer.trackselection;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;

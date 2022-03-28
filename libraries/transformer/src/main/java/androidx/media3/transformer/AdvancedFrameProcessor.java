@@ -20,13 +20,21 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
+import android.util.Size;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Applies a transformation matrix in the vertex shader. */
-/* package */ class TransformationFrameProcessor implements GlFrameProcessor {
+/**
+ * Applies a transformation matrix in the vertex shader. Operations are done on normalized device
+ * coordinates (-1 to 1 on x and y axes). No automatic adjustments (like done in {@link
+ * ScaleToFitFrameProcessor}) are applied on the transformation. Width and height are not modified.
+ * The background color will default to black.
+ */
+@UnstableApi
+public final class AdvancedFrameProcessor implements GlFrameProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -37,8 +45,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
 
   /**
-   * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}. This is useful
-   * for converting to the 4x4 column-major format commonly used in OpenGL.
+   * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}.
+   *
+   * <p>This is useful for converting to the 4x4 column-major format commonly used in OpenGL.
    */
   private static float[] getGlMatrixArray(Matrix matrix) {
     float[] matrix3x3Array = new float[9];
@@ -85,18 +94,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Creates a new instance.
    *
    * @param context The {@link Context}.
-   * @param transformationMatrix The transformation matrix to apply to each frame.
+   * @param transformationMatrix The transformation matrix to apply to each frame. Operations are
+   *     done on normalized device coordinates (-1 to 1 on x and y), and no automatic adjustments
+   *     are applied on the transformation matrix.
    */
-  public TransformationFrameProcessor(Context context, Matrix transformationMatrix) {
+  public AdvancedFrameProcessor(Context context, Matrix transformationMatrix) {
     this.context = context;
-    this.transformationMatrix = transformationMatrix;
+    this.transformationMatrix = new Matrix(transformationMatrix);
   }
 
   @Override
-  public void initialize() throws IOException {
+  public Size configureOutputSize(int inputWidth, int inputHeight) {
+    return new Size(inputWidth, inputHeight);
+  }
+
+  @Override
+  public void initialize(int inputTexId) throws IOException {
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.
     glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
+    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
@@ -106,15 +123,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void updateProgramAndDraw(int inputTexId, long presentationTimeNs) {
+  public void updateProgramAndDraw(long presentationTimeNs) {
     checkStateNotNull(glProgram);
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* unit= */ 0);
     glProgram.use();
     glProgram.bindAttributesAndUniforms();
     GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    GlUtil.checkGlError();
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+    GlUtil.checkGlError();
   }
 
   @Override

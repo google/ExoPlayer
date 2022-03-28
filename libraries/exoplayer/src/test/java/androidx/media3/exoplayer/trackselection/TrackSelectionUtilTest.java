@@ -32,10 +32,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.Format;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;

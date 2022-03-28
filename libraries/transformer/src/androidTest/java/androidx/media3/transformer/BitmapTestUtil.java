@@ -39,8 +39,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
- * Utilities for instrumentation tests for the {@link FrameEditor} and {@link GlFrameProcessor
- * GlFrameProcessors}.
+ * Utilities for instrumentation tests for the {@link FrameProcessorChain} and {@link
+ * GlFrameProcessor GlFrameProcessors}.
  */
 public class BitmapTestUtil {
 
@@ -53,19 +53,29 @@ public class BitmapTestUtil {
       "media/bitmap/sample_mp4_first_frame_translate_right.png";
   public static final String SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame_scale_narrow.png";
+  public static final String ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_rotate_then_translate.png";
+  public static final String TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_translate_then_rotate.png";
   public static final String ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame_rotate90.png";
+  public static final String REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_request_output_height.png";
+  public static final String ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_rotate_45_scale_to_fit.png";
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images for the
    * test to pass. The value is chosen so that differences in decoder behavior across emulator
    * versions don't affect whether the test passes for most emulators, but substantial distortions
-   * introduced by changes in the behavior of the frame editor will cause the test to fail.
+   * introduced by changes in the behavior of the {@link GlFrameProcessor GlFrameProcessors} will
+   * cause the test to fail.
    *
    * <p>To run this test on physical devices, please use a value of 5f, rather than 0.1f. This
    * higher value will ignore some very small errors, but will allow for some differences caused by
    * graphics implementations to be ignored. When the difference is close to the threshold, manually
    * inspect expected/actual bitmaps to confirm failure, as it's possible this is caused by a
-   * difference in the codec or graphics implementation as opposed to a FrameEditor issue.
+   * difference in the codec or graphics implementation as opposed to a {@link GlFrameProcessor}
+   * issue.
    */
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.1f;
 

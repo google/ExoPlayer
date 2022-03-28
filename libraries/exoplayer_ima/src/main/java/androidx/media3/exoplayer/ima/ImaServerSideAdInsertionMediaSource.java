@@ -18,11 +18,12 @@ package androidx.media3.exoplayer.ima;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.msToUs;
-import static androidx.media3.common.util.Util.secToUs;
 import static androidx.media3.common.util.Util.sum;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.exoplayer.ima.ImaUtil.expandAdGroupPlaceholder;
 import static androidx.media3.exoplayer.ima.ImaUtil.getAdGroupAndIndexInMultiPeriodWindow;
+import static androidx.media3.exoplayer.ima.ImaUtil.secToMsRounded;
+import static androidx.media3.exoplayer.ima.ImaUtil.secToUsRounded;
 import static androidx.media3.exoplayer.ima.ImaUtil.splitAdPlaybackStateForPeriods;
 import static androidx.media3.exoplayer.ima.ImaUtil.updateAdDurationAndPropagate;
 import static androidx.media3.exoplayer.ima.ImaUtil.updateAdDurationInAdGroup;
@@ -661,17 +662,27 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   private static AdPlaybackState setVodAdGroupPlaceholders(
       List<CuePoint> cuePoints, AdPlaybackState adPlaybackState) {
+    // TODO(b/192231683) Use getEndTimeMs()/getStartTimeMs() after jar target was removed
     for (int i = 0; i < cuePoints.size(); i++) {
       CuePoint cuePoint = cuePoints.get(i);
+      long fromPositionUs = msToUs(secToMsRounded(cuePoint.getStartTime()));
       adPlaybackState =
           addAdGroupToAdPlaybackState(
               adPlaybackState,
-              /* fromPositionUs= */ secToUs(cuePoint.getStartTime()),
+              /* fromPositionUs= */ fromPositionUs,
               /* contentResumeOffsetUs= */ 0,
-              // TODO(b/192231683) Use getEndTimeMs()/getStartTimeMs() after jar target was removed
-              /* adDurationsUs...= */ secToUs(cuePoint.getEndTime() - cuePoint.getStartTime()));
+              /* adDurationsUs...= */ getAdDuration(
+                  /* startTimeSeconds= */ cuePoint.getStartTime(),
+                  /* endTimeSeconds= */ cuePoint.getEndTime()));
     }
     return adPlaybackState;
+  }
+
+  private static long getAdDuration(double startTimeSeconds, double endTimeSeconds) {
+    // startTimeSeconds and endTimeSeconds that are coming from the SDK, only have a precision of
+    // milliseconds so everything that is below a millisecond can be safely considered as coming
+    // from rounding issues.
+    return msToUs(secToMsRounded(endTimeSeconds - startTimeSeconds));
   }
 
   private static AdPlaybackState setVodAdInPlaceholder(Ad ad, AdPlaybackState adPlaybackState) {
@@ -685,9 +696,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       adPlaybackState =
           expandAdGroupPlaceholder(
               adGroupIndex,
-              /* adGroupDurationUs= */ secToUs(adPodInfo.getMaxDuration()),
+              /* adGroupDurationUs= */ msToUs(secToMsRounded(adPodInfo.getMaxDuration())),
               adIndexInAdGroup,
-              /* adDurationUs= */ secToUs(ad.getDuration()),
+              /* adDurationUs= */ msToUs(secToMsRounded(ad.getDuration())),
               /* adsInAdGroupCount= */ adPodInfo.getTotalAds(),
               adPlaybackState);
     } else if (adIndexInAdGroup < adGroup.count - 1) {
@@ -695,7 +706,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           updateAdDurationInAdGroup(
               adGroupIndex,
               adIndexInAdGroup,
-              /* adDurationUs= */ secToUs(ad.getDuration()),
+              /* adDurationUs= */ msToUs(secToMsRounded(ad.getDuration())),
               adPlaybackState);
     }
     return adPlaybackState;
@@ -704,7 +715,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   private AdPlaybackState addLiveAdBreak(
       Ad ad, long currentPeriodPositionUs, AdPlaybackState adPlaybackState) {
     AdPodInfo adPodInfo = ad.getAdPodInfo();
-    long adDurationUs = secToUs(ad.getDuration());
+    long adDurationUs = secToUsRounded(ad.getDuration());
     int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
     // TODO(b/208398934) Support seeking backwards.
     if (adIndexInAdGroup == 0 || adPlaybackState.adGroupCount == 1) {
@@ -718,7 +729,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               new long[adCount],
               adIndexInAdGroup,
               adDurationUs,
-              secToUs(adPodInfo.getMaxDuration()));
+              msToUs(secToMsRounded(adPodInfo.getMaxDuration())));
       adPlaybackState =
           addAdGroupToAdPlaybackState(
               adPlaybackState,
