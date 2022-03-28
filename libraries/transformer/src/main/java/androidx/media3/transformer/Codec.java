@@ -58,10 +58,12 @@ public interface Codec {
      * @param format The {@link Format} (of the input data) used to determine the underlying decoder
      *     and its configuration values.
      * @param outputSurface The {@link Surface} to which the decoder output is rendered.
+     * @param enableRequestSdrToneMapping Whether to request tone-mapping to SDR.
      * @return A {@link Codec} for video decoding.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
-    Codec createForVideoDecoding(Format format, Surface outputSurface)
+    Codec createForVideoDecoding(
+        Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
         throws TransformationException;
   }
 

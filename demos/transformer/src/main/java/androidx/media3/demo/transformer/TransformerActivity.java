@@ -225,6 +225,8 @@ public final class TransformerActivity extends AppCompatActivity {
           bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
       requestBuilder.setRotationDegrees(rotateDegrees);
 
+      requestBuilder.setEnableRequestSdrToneMapping(
+          bundle.getBoolean(ConfigurationActivity.ENABLE_REQUEST_SDR_TONE_MAPPING));
       requestBuilder.experimental_setEnableHdrEditing(
           bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder

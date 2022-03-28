@@ -40,6 +40,7 @@ public final class TransformationRequest {
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
+    private boolean enableRequestSdrToneMapping;
     private boolean enableHdrEditing;
 
     /**
@@ -62,6 +63,7 @@ public final class TransformationRequest {
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
+      this.enableRequestSdrToneMapping = transformationRequest.enableRequestSdrToneMapping;
       this.enableHdrEditing = transformationRequest.enableHdrEditing;
     }
 
@@ -195,12 +197,29 @@ public final class TransformationRequest {
     }
 
     /**
+     * Sets whether to request tone-mapping to standard dynamic range (SDR). If enabled and
+     * supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
+     * transfer function before processing.
+     *
+     * <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
+     * supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.
+     *
+     * @param enableRequestSdrToneMapping Whether to request tone-mapping down to SDR.
+     * @return This builder.
+     */
+    public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
+      this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
+      return this;
+    }
+
+    /**
      * Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
      * signal.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
      * editing feature is under development and is intended for developing/testing HDR processing
-     * and encoding support.
+     * and encoding support. HDR editing can't be enabled at the same time as {@link
+     * #setEnableRequestSdrToneMapping(boolean) SDR tone-mapping}.
      *
      * @param enableHdrEditing Whether to attempt to process any input video stream as a high
      *     dynamic range (HDR) signal.
@@ -221,6 +240,7 @@ public final class TransformationRequest {
           outputHeight,
           audioMimeType,
           videoMimeType,
+          enableRequestSdrToneMapping,
           enableHdrEditing);
     }
   }
@@ -271,6 +291,9 @@ public final class TransformationRequest {
    * @see Builder#setVideoMimeType(String)
    */
   @Nullable public final String videoMimeType;
+  /** Whether to request tone-mapping to standard dynamic range (SDR). */
+  public final boolean enableRequestSdrToneMapping;
+
   /**
    * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
    *
@@ -286,7 +309,9 @@ public final class TransformationRequest {
       int outputHeight,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType,
+      boolean enableRequestSdrToneMapping,
       boolean enableHdrEditing) {
+    checkArgument(!enableHdrEditing || !enableRequestSdrToneMapping);
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.scaleX = scaleX;
     this.scaleY = scaleY;
@@ -294,6 +319,7 @@ public final class TransformationRequest {
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
+    this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
     this.enableHdrEditing = enableHdrEditing;
   }
 
@@ -313,6 +339,7 @@ public final class TransformationRequest {
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
         && Util.areEqual(videoMimeType, that.videoMimeType)
+        && enableRequestSdrToneMapping == that.enableRequestSdrToneMapping
         && enableHdrEditing == that.enableHdrEditing;
   }
 
@@ -325,6 +352,7 @@ public final class TransformationRequest {
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);
+    result = 31 * result + (enableRequestSdrToneMapping ? 1 : 0);
     result = 31 * result + (enableHdrEditing ? 1 : 0);
     return result;
   }
