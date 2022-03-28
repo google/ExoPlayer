@@ -370,6 +370,9 @@ public final class GlUtil {
    *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
    */
   private static int generateAndBindTexture(int textureTarget) {
+    checkEglException(
+        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
     int[] texId = new int[1];
     GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
     checkGlError();
@@ -390,6 +393,9 @@ public final class GlUtil {
    * @param texId The identifier of the texture to attach to the framebuffer.
    */
   public static int createFboForTexture(int texId) {
+    checkEglException(
+        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
     int[] fboId = new int[1];
     GLES20.glGenFramebuffers(/* n= */ 1, fboId, /* offset= */ 0);
     checkGlError();
