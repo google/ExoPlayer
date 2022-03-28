@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -142,7 +143,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStart() {
     super.onStart();
-    if (Util.SDK_INT > 23) {
+    if (Build.VERSION.SDK_INT > 23) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -153,7 +154,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
-    if (Util.SDK_INT <= 23 || player == null) {
+    if (Build.VERSION.SDK_INT <= 23 || player == null) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -164,7 +165,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onPause() {
     super.onPause();
-    if (Util.SDK_INT <= 23) {
+    if (Build.VERSION.SDK_INT <= 23) {
       if (playerView != null) {
         playerView.onPause();
       }
@@ -175,7 +176,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStop() {
     super.onStop();
-    if (Util.SDK_INT > 23) {
+    if (Build.VERSION.SDK_INT > 23) {
       if (playerView != null) {
         playerView.onPause();
       }
@@ -342,7 +343,7 @@ public class PlayerActivity extends AppCompatActivity
 
       MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
       if (drmConfiguration != null) {
-        if (Util.SDK_INT < 18) {
+        if (Build.VERSION.SDK_INT < 18) {
           showToast(R.string.error_drm_unsupported_before_api_18);
           finish();
           return Collections.emptyList();
