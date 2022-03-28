@@ -54,6 +54,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
   public static final String ENABLE_FALLBACK = "enable_fallback";
+  public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   private static final String[] INPUT_URIS = {
     "https://html5demos.com/assets/dizzy.mp4",
@@ -84,6 +85,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
+  private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private int inputUriPosition;
 
@@ -150,6 +152,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
+    enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
   }
 
@@ -179,6 +182,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableFallbackCheckBox",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void startTransformation(View view) {
@@ -211,6 +215,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
+    bundle.putBoolean(
+        ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     transformerIntent.putExtras(bundle);
 
@@ -243,6 +249,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void onRemoveAudio(View view) {
@@ -261,6 +268,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void onRemoveVideo(View view) {
@@ -278,6 +286,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
@@ -286,6 +295,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
+    enableRequestSdrToneMappingCheckBox.setEnabled(isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
@@ -293,6 +303,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.resolution_height_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
+    findViewById(R.id.request_sdr_tone_mapping).setEnabled(isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
   }
 }

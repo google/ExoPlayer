@@ -124,7 +124,10 @@ import org.checkerframework.dataflow.qual.Pure;
             encoderSupportedFormat.width, encoderSupportedFormat.height));
 
     decoder =
-        decoderFactory.createForVideoDecoding(inputFormat, frameProcessorChain.getInputSurface());
+        decoderFactory.createForVideoDecoding(
+            inputFormat,
+            frameProcessorChain.getInputSurface(),
+            transformationRequest.enableRequestSdrToneMapping);
     maxPendingFrameCount = getMaxPendingFrameCount();
   }
 
