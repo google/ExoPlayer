@@ -509,29 +509,28 @@ public class PlayerActivity extends AppCompatActivity
   private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
     List<MediaItem> mediaItems = new ArrayList<>();
     for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
-      @Nullable
-      DownloadRequest downloadRequest =
-          downloadTracker.getDownloadRequest(item.localConfiguration.uri);
-      if (downloadRequest != null) {
-        MediaItem.Builder builder = item.buildUpon();
-        builder
-            .setMediaId(downloadRequest.id)
-            .setUri(downloadRequest.uri)
-            .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(downloadRequest.mimeType)
-            .setStreamKeys(downloadRequest.streamKeys);
-        @Nullable
-        MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
-        if (drmConfiguration != null) {
-          builder.setDrmConfiguration(
-              drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
-        }
-
-        mediaItems.add(builder.build());
-      } else {
-        mediaItems.add(item);
-      }
+      mediaItems.add(
+          maybeSetDownloadProperties(
+              item, downloadTracker.getDownloadRequest(item.localConfiguration.uri)));
     }
     return mediaItems;
+  }
+
+  private static MediaItem maybeSetDownloadProperties(
+      MediaItem item, @Nullable DownloadRequest downloadRequest) {
+    MediaItem.Builder builder = item.buildUpon();
+    builder
+        .setMediaId(downloadRequest.id)
+        .setUri(downloadRequest.uri)
+        .setCustomCacheKey(downloadRequest.customCacheKey)
+        .setMimeType(downloadRequest.mimeType)
+        .setStreamKeys(downloadRequest.streamKeys);
+    @Nullable
+    MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
+    if (drmConfiguration != null) {
+      builder.setDrmConfiguration(
+          drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
+    }
+    return builder.build();
   }
 }
