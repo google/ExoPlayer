@@ -47,8 +47,27 @@ import java.lang.annotation.Target;
  * Android Studio, in order to alert developers to the risk of breaking changes.
  *
  * <p>Individual usage sites can be opted-in to suppress the lint error by using the {@link
- * androidx.annotation.OptIn} annotation: {@code @androidx.annotation.OptIn(markerClass =
- * androidx.media3.common.util.UnstableApi.class)}.
+ * androidx.annotation.OptIn} annotation.
+ *
+ * <p>In Java:
+ *
+ * <pre>{@code
+ * import androidx.annotation.OptIn;
+ * import androidx.media3.common.util.UnstableApi;
+ * ...
+ * @OptIn(markerClass = UnstableApi.class)
+ * private void methodUsingUnstableApis() { ... }
+ * }</pre>
+ *
+ * <p>In Kotlin:
+ *
+ * <pre>{@code
+ * import androidx.annotation.OptIn
+ * import androidx.media3.common.util.UnstableApi
+ * ...
+ * @OptIn(UnstableApi::class)
+ * private fun methodUsingUnstableApis() { ... }
+ * }</pre>
  *
  * <p>Whole projects can be opted-in by suppressing the specific lint error in their <a
  * href="https://developer.android.com/studio/write/lint#pref">{@code lint.xml} file</a>:
