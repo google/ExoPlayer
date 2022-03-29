@@ -247,8 +247,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * output frame rate might be variable.
    *
    * <p>This method can only be called if all the frames until the current one (included) have been
-   * {@link #processCurrentFrame(int, long) processed} in order, and if the next frames have not
-   * been processed yet.
+   * {@linkplain #processCurrentFrame(int, long) processed} in order, and if the next frames have
+   * not been processed yet.
    */
   @VisibleForTesting
   /* package */ long getCurrentFrameOutputTimeUs(long inputTimeUs) {

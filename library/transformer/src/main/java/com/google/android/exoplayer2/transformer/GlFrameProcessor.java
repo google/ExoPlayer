@@ -55,8 +55,8 @@ public interface GlFrameProcessor {
   /**
    * Updates the shader program's vertex attributes and uniforms, binds them, and draws.
    *
-   * <p>The frame processor must be {@link #initialize(int) initialized}. The caller is responsible
-   * for focussing the correct render target before calling this method.
+   * <p>The frame processor must be {@linkplain #initialize(int) initialized}. The caller is
+   * responsible for focussing the correct render target before calling this method.
    *
    * @param presentationTimeNs The presentation timestamp of the current frame, in nanoseconds.
    */

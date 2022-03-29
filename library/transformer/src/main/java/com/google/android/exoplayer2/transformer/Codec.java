@@ -34,7 +34,7 @@ import java.util.List;
  */
 public interface Codec {
 
-  /** A factory for {@link Codec decoder} instances. */
+  /** A factory for {@linkplain Codec decoder} instances. */
   interface DecoderFactory {
 
     /** A default {@code DecoderFactory} implementation. */
@@ -65,7 +65,7 @@ public interface Codec {
         throws TransformationException;
   }
 
-  /** A factory for {@link Codec encoder} instances. */
+  /** A factory for {@linkplain Codec encoder} instances. */
   interface EncoderFactory {
 
     /** A default {@code EncoderFactory} implementation. */
@@ -75,13 +75,13 @@ public interface Codec {
      * Returns a {@link Codec} for audio encoding.
      *
      * <p>This method must validate that the {@link Codec} is configured to produce one of the
-     * {@code allowedMimeTypes}. The {@link Format#sampleMimeType sample MIME type} given in {@code
-     * format} is not necessarily allowed.
+     * {@code allowedMimeTypes}. The {@linkplain Format#sampleMimeType sample MIME type} given in
+     * {@code format} is not necessarily allowed.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values.
-     * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
-     *     types}.
+     * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes
+     *     MIME types}.
      * @return A {@link Codec} for audio encoding.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
@@ -92,8 +92,8 @@ public interface Codec {
      * Returns a {@link Codec} for video encoding.
      *
      * <p>This method must validate that the {@link Codec} is configured to produce one of the
-     * {@code allowedMimeTypes}. The {@link Format#sampleMimeType sample MIME type} given in {@code
-     * format} is not necessarily allowed.
+     * {@code allowedMimeTypes}. The {@linkplain Format#sampleMimeType sample MIME type} given in
+     * {@code format} is not necessarily allowed.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link Format#width}
@@ -101,8 +101,8 @@ public interface Codec {
      *     Format#rotationDegrees} is 0 and {@link Format#width} {@code >=} {@link Format#height},
      *     therefore the video is always in landscape orientation. {@link Format#frameRate} is set
      *     to the output video's frame rate, if available.
-     * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
-     *     types}.
+     * @param allowedMimeTypes The non-empty list of allowed output sample {@linkplain MimeTypes
+     *     MIME types}.
      * @return A {@link Codec} for video encoding.
      * @throws TransformationException If no suitable {@link Codec} can be created.
      */
@@ -140,8 +140,8 @@ public interface Codec {
   /**
    * Dequeues a writable input buffer, if available.
    *
-   * <p>This method must not be called from video encoders because they must use {@link Surface
-   * surfaces} as inputs.
+   * <p>This method must not be called from video encoders because they must use a {@link Surface}
+   * to receive input.
    *
    * @param inputBuffer The buffer where the dequeued buffer data is stored, at {@link
    *     DecoderInputBuffer#data inputBuffer.data}.
@@ -151,13 +151,13 @@ public interface Codec {
   boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer) throws TransformationException;
 
   /**
-   * Queues an input buffer to the {@code Codec}. No buffers may be queued after {@link
+   * Queues an input buffer to the {@code Codec}. No buffers may be queued after {@linkplain
    * DecoderInputBuffer#isEndOfStream() end of stream} buffer has been queued.
    *
-   * <p>This method must not be called from video encoders because they must use {@link Surface
-   * surfaces} as inputs.
+   * <p>This method must not be called from video encoders because they must use a {@link Surface}
+   * to receive input.
    *
-   * @param inputBuffer The {@link DecoderInputBuffer input buffer}.
+   * @param inputBuffer The {@linkplain DecoderInputBuffer input buffer}.
    * @throws TransformationException If the underlying decoder or encoder encounters a problem.
    */
   void queueInputBuffer(DecoderInputBuffer inputBuffer) throws TransformationException;
@@ -167,7 +167,8 @@ public interface Codec {
    *
    * <p>This method must only be called on video encoders because they must use a {@link Surface} as
    * input. For audio/video decoders or audio encoders, the {@link C#BUFFER_FLAG_END_OF_STREAM} flag
-   * should be set on the last input buffer {@link #queueInputBuffer(DecoderInputBuffer) queued}.
+   * should be set on the last input buffer {@linkplain #queueInputBuffer(DecoderInputBuffer)
+   * queued}.
    *
    * @throws TransformationException If the underlying video encoder encounters a problem.
    */

@@ -221,13 +221,13 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Converts a {@link MimeTypes MIME type} into a {@link MediaMuxer.OutputFormat MediaMuxer output
-   * format}.
+   * Converts a {@linkplain MimeTypes MIME type} into a {@linkplain MediaMuxer.OutputFormat
+   * MediaMuxer output format}.
    *
-   * @param mimeType The {@link MimeTypes MIME type} to convert.
-   * @return The corresponding {@link MediaMuxer.OutputFormat MediaMuxer output format}.
-   * @throws IllegalArgumentException If the {@link MimeTypes MIME type} is not supported as output
-   *     format.
+   * @param mimeType The {@linkplain MimeTypes MIME type} to convert.
+   * @return The corresponding {@linkplain MediaMuxer.OutputFormat MediaMuxer output format}.
+   * @throws IllegalArgumentException If the {@linkplain MimeTypes MIME type} is not supported as
+   *     output format.
    */
   private static int mimeTypeToMuxerOutputFormat(String mimeType) {
     if (mimeType.equals(MimeTypes.VIDEO_MP4)) {

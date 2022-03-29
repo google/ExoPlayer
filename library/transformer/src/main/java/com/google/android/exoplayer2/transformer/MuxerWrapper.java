@@ -70,10 +70,10 @@ import java.nio.ByteBuffer;
   /**
    * Registers an output track.
    *
-   * <p>All tracks must be registered before any track format is {@link #addTrackFormat(Format)
+   * <p>All tracks must be registered before any track format is {@linkplain #addTrackFormat(Format)
    * added}.
    *
-   * @throws IllegalStateException If a track format was {@link #addTrackFormat(Format) added}
+   * @throws IllegalStateException If a track format was {@linkplain #addTrackFormat(Format) added}
    *     before calling this method.
    */
   public void registerTrack() {
@@ -82,14 +82,14 @@ import java.nio.ByteBuffer;
     trackCount++;
   }
 
-  /** Returns whether the sample {@link MimeTypes MIME type} is supported. */
+  /** Returns whether the sample {@linkplain MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
     return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
   }
 
   /**
-   * Returns the supported {@link MimeTypes MIME types} for the given {@link C.TrackType track
-   * type}.
+   * Returns the supported {@linkplain MimeTypes MIME types} for the given {@linkplain C.TrackType
+   * track type}.
    */
   public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
     return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
@@ -98,9 +98,9 @@ import java.nio.ByteBuffer;
   /**
    * Adds a track format to the muxer.
    *
-   * <p>The tracks must all be {@link #registerTrack() registered} before any format is added and
-   * all the formats must be added before samples are {@link #writeSample(int, ByteBuffer, boolean,
-   * long) written}.
+   * <p>The tracks must all be {@linkplain #registerTrack() registered} before any format is added
+   * and all the formats must be added before samples are {@linkplain #writeSample(int, ByteBuffer,
+   * boolean, long) written}.
    *
    * @param format The {@link Format} to be added.
    * @throws IllegalStateException If the format is unsupported or if there is already a track
@@ -133,16 +133,16 @@ import java.nio.ByteBuffer;
   /**
    * Attempts to write a sample to the muxer.
    *
-   * @param trackType The {@link C.TrackType track type} of the sample.
+   * @param trackType The {@linkplain C.TrackType track type} of the sample.
    * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
-   *     {@link #addTrackFormat(Format) received a format} for every {@link #registerTrack()
-   *     registered track}, or if it should write samples of other track types first to ensure a
-   *     good interleaving.
-   * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
-   *     track of the given track type.
+   *     {@linkplain #addTrackFormat(Format) received a format} for every {@linkplain
+   *     #registerTrack() registered track}, or if it should write samples of other track types
+   *     first to ensure a good interleaving.
+   * @throws IllegalStateException If the muxer doesn't have any {@linkplain #endTrack(int)
+   *     non-ended} track of the given track type.
    * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
    */
   public boolean writeSample(

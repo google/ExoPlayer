@@ -52,12 +52,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /**
  * {@code FrameProcessorChain} applies changes to individual video frames.
  *
- * <p>Input becomes available on its {@link #getInputSurface() input surface} asynchronously and is
- * processed on a background thread as it becomes available. All input frames should be {@link
- * #registerInputFrame() registered} before they are rendered to the input surface. {@link
- * #getPendingFrameCount()} can be used to check whether there are frames that have not been fully
- * processed yet. Output is written to its {@link #configure(Surface, int, int, SurfaceView) output
- * surface}.
+ * <p>Input becomes available on its {@linkplain #getInputSurface() input surface} asynchronously
+ * and is processed on a background thread as it becomes available. All input frames should be
+ * {@linkplain #registerInputFrame() registered} before they are rendered to the input surface.
+ * {@link #getPendingFrameCount()} can be used to check whether there are frames that have not been
+ * fully processed yet. Output is written to its {@linkplain #configure(Surface, int, int,
+ * SurfaceView) output surface}.
  */
 /* package */ final class FrameProcessorChain {
 
@@ -74,7 +74,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ExecutorService singleThreadExecutorService;
   /** Futures corresponding to the executor service's pending tasks. */
   private final ConcurrentLinkedQueue<Future<?>> futures;
-  /** Number of frames {@link #registerInputFrame() registered} but not fully processed. */
+  /** Number of frames {@linkplain #registerInputFrame() registered} but not fully processed. */
   private final AtomicInteger pendingFrameCount;
   /** Prevents further frame processing tasks from being scheduled after {@link #release()}. */
   private volatile boolean releaseRequested;
@@ -186,7 +186,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Configures the {@code FrameProcessorChain} to process frames to the specified output targets.
    *
-   * <p>This method may only be called once and may override the {@link
+   * <p>This method may only be called once and may override the {@linkplain
    * GlFrameProcessor#configureOutputSize(int, int) output size} of the final {@link
    * GlFrameProcessor}.
    *
@@ -253,8 +253,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Returns the input {@link Surface}.
    *
-   * <p>The {@code FrameProcessorChain} must be {@link #configure(Surface, int, int, SurfaceView)
-   * configured}.
+   * <p>The {@code FrameProcessorChain} must be {@linkplain #configure(Surface, int, int,
+   * SurfaceView) configured}.
    */
   public Surface getInputSurface() {
     checkStateNotNull(inputSurface, "The FrameProcessorChain must be configured.");
@@ -296,8 +296,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Returns the number of input frames that have been {@link #registerInputFrame() registered} but
-   * not completely processed yet.
+   * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
+   * but not completely processed yet.
    */
   public int getPendingFrameCount() {
     return pendingFrameCount.get();
@@ -316,9 +316,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Releases all resources.
    *
-   * <p>If the frame processor chain is released before it has {@link #isEnded() ended}, it will
-   * attempt to cancel processing any input frames that have already become available. Input frames
-   * that become available after release are ignored.
+   * <p>If the frame processor chain is released before it has {@linkplain #isEnded() ended}, it
+   * will attempt to cancel processing any input frames that have already become available. Input
+   * frames that become available after release are ignored.
    */
   public void release() {
     releaseRequested = true;
@@ -447,7 +447,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Configures the input and output {@link Size sizes} of a list of {@link GlFrameProcessor
+   * Configures the input and output {@linkplain Size sizes} of a list of {@link GlFrameProcessor
    * GlFrameProcessors}.
    *
    * @param inputWidth The width of frames passed to the first {@link GlFrameProcessor}, in pixels.
