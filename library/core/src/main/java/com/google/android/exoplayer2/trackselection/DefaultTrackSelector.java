@@ -1729,7 +1729,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     renderer index, or null if no selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  @SuppressLint("WrongConstant") // Lint doesn't understand arrays of IntDefs.
   @Nullable
   protected Pair<ExoTrackSelection.Definition, Integer> selectVideoTrack(
       MappedTrackInfo mappedTrackInfo,
@@ -1741,7 +1740,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         C.TRACK_TYPE_VIDEO,
         mappedTrackInfo,
         rendererFormatSupports,
-        (rendererIndex, group, support) ->
+        (int rendererIndex, TrackGroup group, @Capabilities int[] support) ->
             VideoTrackInfo.createForTrackGroup(
                 rendererIndex, group, params, support, mixedMimeTypeSupports[rendererIndex]),
         VideoTrackInfo::compareSelections);
@@ -1763,7 +1762,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     renderer index, or null if no selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  @SuppressLint("WrongConstant") // Lint doesn't understand arrays of IntDefs.
   @Nullable
   protected Pair<ExoTrackSelection.Definition, Integer> selectAudioTrack(
       MappedTrackInfo mappedTrackInfo,
@@ -1784,7 +1782,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         C.TRACK_TYPE_AUDIO,
         mappedTrackInfo,
         rendererFormatSupports,
-        (rendererIndex, group, support) ->
+        (int rendererIndex, TrackGroup group, @Capabilities int[] support) ->
             AudioTrackInfo.createForTrackGroup(
                 rendererIndex, group, params, support, hasVideoRendererWithMappedTracksFinal),
         AudioTrackInfo::compareSelections);
@@ -1806,7 +1804,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     renderer index, or null if no selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  @SuppressLint("WrongConstant") // Lint doesn't understand arrays of IntDefs.
   @Nullable
   protected Pair<ExoTrackSelection.Definition, Integer> selectTextTrack(
       MappedTrackInfo mappedTrackInfo,
@@ -1818,7 +1815,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         C.TRACK_TYPE_TEXT,
         mappedTrackInfo,
         rendererFormatSupports,
-        (rendererIndex, group, support) ->
+        (int rendererIndex, TrackGroup group, @Capabilities int[] support) ->
             TextTrackInfo.createForTrackGroup(
                 rendererIndex, group, params, support, selectedAudioLanguage),
         TextTrackInfo::compareSelections);
