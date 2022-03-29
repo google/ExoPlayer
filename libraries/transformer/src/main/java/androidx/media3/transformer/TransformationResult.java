@@ -27,14 +27,27 @@ public final class TransformationResult {
 
   /** A builder for {@link TransformationResult} instances. */
   public static final class Builder {
+    private long durationMs;
     private long fileSizeBytes;
     private int averageAudioBitrate;
     private int averageVideoBitrate;
 
     public Builder() {
+      durationMs = C.TIME_UNSET;
       fileSizeBytes = C.LENGTH_UNSET;
       averageAudioBitrate = C.RATE_UNSET_INT;
       averageVideoBitrate = C.RATE_UNSET_INT;
+    }
+
+    /**
+     * Sets the duration of the video in milliseconds.
+     *
+     * <p>Input must be positive or {@link C#TIME_UNSET}.
+     */
+    public Builder setDurationMs(long durationMs) {
+      checkArgument(durationMs > 0 || durationMs == C.TIME_UNSET);
+      this.durationMs = durationMs;
+      return this;
     }
 
     /**
@@ -71,10 +84,13 @@ public final class TransformationResult {
     }
 
     public TransformationResult build() {
-      return new TransformationResult(fileSizeBytes, averageAudioBitrate, averageVideoBitrate);
+      return new TransformationResult(
+          durationMs, fileSizeBytes, averageAudioBitrate, averageVideoBitrate);
     }
   }
 
+  /** The duration of the video in milliseconds, or {@link C#TIME_UNSET} if unset or unknown. */
+  public final long durationMs;
   /** The size of the file in bytes, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final long fileSizeBytes;
   /**
@@ -87,7 +103,8 @@ public final class TransformationResult {
   public final int averageVideoBitrate;
 
   private TransformationResult(
-      long fileSizeBytes, int averageAudioBitrate, int averageVideoBitrate) {
+      long durationMs, long fileSizeBytes, int averageAudioBitrate, int averageVideoBitrate) {
+    this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
     this.averageVideoBitrate = averageVideoBitrate;
@@ -95,6 +112,7 @@ public final class TransformationResult {
 
   public Builder buildUpon() {
     return new Builder()
+        .setDurationMs(durationMs)
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)
         .setAverageVideoBitrate(averageVideoBitrate);
@@ -109,14 +127,16 @@ public final class TransformationResult {
       return false;
     }
     TransformationResult result = (TransformationResult) o;
-    return fileSizeBytes == result.fileSizeBytes
+    return durationMs == result.durationMs
+        && fileSizeBytes == result.fileSizeBytes
         && averageAudioBitrate == result.averageAudioBitrate
         && averageVideoBitrate == result.averageVideoBitrate;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) fileSizeBytes;
+    int result = (int) durationMs;
+    result = 31 * result + (int) fileSizeBytes;
     result = 31 * result + averageAudioBitrate;
     result = 31 * result + averageVideoBitrate;
     return result;

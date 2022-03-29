@@ -101,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeNs) {
+  public void updateProgramAndDraw(long presentationTimeUs) {
     checkStateNotNull(glProgram);
     glProgram.use();
     glProgram.bindAttributesAndUniforms();

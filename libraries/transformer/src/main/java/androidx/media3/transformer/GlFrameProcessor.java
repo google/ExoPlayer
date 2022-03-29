@@ -60,9 +60,9 @@ public interface GlFrameProcessor {
    * <p>The frame processor must be {@linkplain #initialize(int) initialized}. The caller is
    * responsible for focussing the correct render target before calling this method.
    *
-   * @param presentationTimeNs The presentation timestamp of the current frame, in nanoseconds.
+   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
-  void updateProgramAndDraw(long presentationTimeNs);
+  void updateProgramAndDraw(long presentationTimeUs);
 
   /** Releases all resources. */
   void release();
