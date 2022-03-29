@@ -518,6 +518,9 @@ public class PlayerActivity extends AppCompatActivity
 
   private static MediaItem maybeSetDownloadProperties(
       MediaItem item, @Nullable DownloadRequest downloadRequest) {
+    if (downloadRequest == null) {
+      return item;
+    }
     MediaItem.Builder builder = item.buildUpon();
     builder
         .setMediaId(downloadRequest.id)
