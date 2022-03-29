@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.util.SystemClock;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,6 +52,7 @@ public class TransformerAndroidTestRunner {
     private boolean calculateSsim;
     private int timeoutSeconds;
     private boolean suppressAnalysisExceptions;
+    @Nullable private Map<String, Object> inputValues;
 
     /**
      * Creates a {@link Builder}.
@@ -114,10 +116,30 @@ public class TransformerAndroidTestRunner {
       return this;
     }
 
+    /**
+     * Sets a {@link Map} of transformer input values, which are propagated to the transformation
+     * summary JSON file.
+     *
+     * <p>Values in the map should be convertible according to {@link JSONObject#wrap(Object)} to be
+     * recorded properly in the summary file.
+     *
+     * @param inputValues A {@link Map} of values to be written to the transformation summary.
+     * @return This {@link Builder}.
+     */
+    public Builder setInputValues(@Nullable Map<String, Object> inputValues) {
+      this.inputValues = inputValues;
+      return this;
+    }
+
     /** Builds the {@link TransformerAndroidTestRunner}. */
     public TransformerAndroidTestRunner build() {
       return new TransformerAndroidTestRunner(
-          context, transformer, timeoutSeconds, calculateSsim, suppressAnalysisExceptions);
+          context,
+          transformer,
+          timeoutSeconds,
+          calculateSsim,
+          suppressAnalysisExceptions,
+          inputValues);
     }
   }
 
@@ -126,31 +148,35 @@ public class TransformerAndroidTestRunner {
   private final int timeoutSeconds;
   private final boolean calculateSsim;
   private final boolean suppressAnalysisExceptions;
+  @Nullable private final Map<String, Object> inputValues;
 
   private TransformerAndroidTestRunner(
       Context context,
       Transformer transformer,
       int timeoutSeconds,
       boolean calculateSsim,
-      boolean suppressAnalysisExceptions) {
+      boolean suppressAnalysisExceptions,
+      @Nullable Map<String, Object> inputValues) {
     this.context = context;
     this.transformer = transformer;
     this.timeoutSeconds = timeoutSeconds;
     this.calculateSsim = calculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
+    this.inputValues = inputValues;
   }
 
   /**
    * Transforms the {@code uriString}, saving a summary of the transformation to the application
    * cache.
    *
-   * @param testId An identifier for the test.
+   * @param testId A unique identifier for the transformer test run.
    * @param uriString The uri (as a {@link String}) of the file to transform.
    * @return The {@link TransformationTestResult}.
    * @throws Exception The cause of the transformation not completing.
    */
   public TransformationTestResult run(String testId, String uriString) throws Exception {
     JSONObject resultJson = new JSONObject();
+    resultJson.put("inputValues", JSONObject.wrap(inputValues));
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, uriString);
       resultJson.put("transformationResult", getTestResultJson(transformationTestResult));
