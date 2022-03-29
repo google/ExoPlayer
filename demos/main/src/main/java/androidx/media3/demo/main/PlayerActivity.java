@@ -520,6 +520,9 @@ public class PlayerActivity extends AppCompatActivity
   @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static MediaItem maybeSetDownloadProperties(
       MediaItem item, @Nullable DownloadRequest downloadRequest) {
+    if (downloadRequest == null) {
+      return item;
+    }
     MediaItem.Builder builder = item.buildUpon();
     builder
         .setMediaId(downloadRequest.id)
