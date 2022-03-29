@@ -58,4 +58,25 @@ public class TransformerEndToEndTest {
         checkNotNull(muxerFactory.getLastFrameCountingMuxerCreated());
     assertThat(frameCountingMuxer.getFrameCount()).isEqualTo(expectedFrameCount);
   }
+
+  @Test
+  public void videoOnly_completesWithConsistentDuration() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setRemoveAudio(true)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setResolution(480).build())
+            .setEncoderFactory(
+                new DefaultEncoderFactory(EncoderSelector.DEFAULT, /* enableFallback= */ false))
+            .build();
+    long expectedDurationMs = 967;
+
+    TransformationTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(/* testId= */ "videoOnly_completesWithConsistentDuration", AVC_VIDEO_URI_STRING);
+
+    assertThat(result.transformationResult.durationMs).isEqualTo(expectedDurationMs);
+  }
 }

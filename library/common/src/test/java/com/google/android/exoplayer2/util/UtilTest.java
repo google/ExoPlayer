@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.getStringForTime;
 import static com.google.android.exoplayer2.util.Util.gzip;
+import static com.google.android.exoplayer2.util.Util.maxValue;
 import static com.google.android.exoplayer2.util.Util.minValue;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
@@ -745,6 +746,21 @@ public class UtilTest {
   @Test
   public void sparseLongArrayMinValue_emptyArray_throws() {
     assertThrows(NoSuchElementException.class, () -> minValue(new SparseLongArray()));
+  }
+
+  @Test
+  public void sparseLongArrayMaxValue_returnsMaxValue() {
+    SparseLongArray sparseLongArray = new SparseLongArray();
+    sparseLongArray.put(0, 2);
+    sparseLongArray.put(25, 10);
+    sparseLongArray.put(42, 1);
+
+    assertThat(maxValue(sparseLongArray)).isEqualTo(10);
+  }
+
+  @Test
+  public void sparseLongArrayMaxValue_emptyArray_throws() {
+    assertThrows(NoSuchElementException.class, () -> maxValue(new SparseLongArray()));
   }
 
   @Test

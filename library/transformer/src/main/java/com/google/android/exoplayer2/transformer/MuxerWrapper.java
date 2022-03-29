@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.maxValue;
 import static com.google.android.exoplayer2.util.Util.minValue;
 
 import android.util.SparseIntArray;
@@ -239,5 +240,10 @@ import java.nio.ByteBuffer;
       minTrackTimeUs = minValue(trackTypeToTimeUs);
     }
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
+  }
+
+  /** Returns the duration of the longest track in milliseconds. */
+  public long getDurationMs() {
+    return Util.usToMs(maxValue(trackTypeToTimeUs));
   }
 }

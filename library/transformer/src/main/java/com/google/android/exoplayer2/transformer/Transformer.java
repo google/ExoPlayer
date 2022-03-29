@@ -1000,6 +1000,7 @@ public final class Transformer {
       } else {
         TransformationResult result =
             new TransformationResult.Builder()
+                .setDurationMs(muxerWrapper.getDurationMs())
                 .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
                 .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
                 .build();

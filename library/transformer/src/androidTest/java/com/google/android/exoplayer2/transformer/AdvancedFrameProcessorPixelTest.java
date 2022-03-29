@@ -94,7 +94,7 @@ public final class AdvancedFrameProcessorPixelTest {
     advancedFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -118,7 +118,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -141,7 +141,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -163,7 +163,7 @@ public final class AdvancedFrameProcessorPixelTest {
     advancedFrameProcessor.initialize(inputTexId);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 

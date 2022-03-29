@@ -1120,6 +1120,25 @@ public final class Util {
   }
 
   /**
+   * Returns the maximum value in the given {@link SparseLongArray}.
+   *
+   * @param sparseLongArray The {@link SparseLongArray}.
+   * @return The maximum value.
+   * @throws NoSuchElementException If the array is empty.
+   */
+  @RequiresApi(18)
+  public static long maxValue(SparseLongArray sparseLongArray) {
+    if (sparseLongArray.size() == 0) {
+      throw new NoSuchElementException();
+    }
+    long max = Long.MIN_VALUE;
+    for (int i = 0; i < sparseLongArray.size(); i++) {
+      max = max(max, sparseLongArray.valueAt(i));
+    }
+    return max;
+  }
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
    * C#TIME_UNSET} and {@link C#TIME_END_OF_SOURCE} values.
    *

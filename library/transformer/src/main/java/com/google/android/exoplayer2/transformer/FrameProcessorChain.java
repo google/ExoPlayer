@@ -412,7 +412,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
     externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
     long presentationTimeNs = inputSurfaceTexture.getTimestamp();
-    externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeNs);
+    long presentationTimeUs = presentationTimeNs / 1000;
+    externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeUs);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
       Size outputSize = inputSizes.get(i + 1);
@@ -423,11 +424,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           framebuffers[i + 1],
           outputSize.getWidth(),
           outputSize.getHeight());
-      frameProcessors.get(i).updateProgramAndDraw(presentationTimeNs);
+      frameProcessors.get(i).updateProgramAndDraw(presentationTimeUs);
     }
     if (!frameProcessors.isEmpty()) {
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-      getLast(frameProcessors).updateProgramAndDraw(presentationTimeNs);
+      getLast(frameProcessors).updateProgramAndDraw(presentationTimeUs);
     }
 
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);

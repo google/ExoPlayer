@@ -309,6 +309,9 @@ public class TransformerAndroidTestRunner {
     TransformationResult transformationResult = testResult.transformationResult;
 
     JSONObject transformationResultJson = new JSONObject();
+    if (transformationResult.durationMs != C.LENGTH_UNSET) {
+      transformationResultJson.put("durationMs", transformationResult.durationMs);
+    }
     if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
       transformationResultJson.put("fileSizeBytes", transformationResult.fileSizeBytes);
     }

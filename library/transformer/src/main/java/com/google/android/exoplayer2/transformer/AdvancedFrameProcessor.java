@@ -122,7 +122,7 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeNs) {
+  public void updateProgramAndDraw(long presentationTimeUs) {
     checkStateNotNull(glProgram);
     glProgram.use();
     glProgram.bindAttributesAndUniforms();
