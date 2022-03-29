@@ -161,7 +161,7 @@ public final class TransformationRequest {
      * @param videoMimeType The MIME type of the video samples in the output.
      * @return This builder.
      * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
-     *     {@link MimeTypes MIME type}.
+     *     {@linkplain MimeTypes MIME type}.
      */
     public Builder setVideoMimeType(@Nullable String videoMimeType) {
       checkArgument(
@@ -186,7 +186,7 @@ public final class TransformationRequest {
      * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
      * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
-     *     {@link MimeTypes MIME type}.
+     *     {@linkplain MimeTypes MIME type}.
      */
     public Builder setAudioMimeType(@Nullable String audioMimeType) {
       checkArgument(
@@ -218,7 +218,7 @@ public final class TransformationRequest {
      *
      * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
      * editing feature is under development and is intended for developing/testing HDR processing
-     * and encoding support. HDR editing can't be enabled at the same time as {@link
+     * and encoding support. HDR editing can't be enabled at the same time as {@linkplain
      * #setEnableRequestSdrToneMapping(boolean) SDR tone-mapping}.
      *
      * @param enableHdrEditing Whether to attempt to process any input video stream as a high
@@ -278,15 +278,15 @@ public final class TransformationRequest {
    */
   public final int outputHeight;
   /**
-   * The requested output audio sample {@link MimeTypes MIME type}, or {@code null} if inferred from
-   * the input.
+   * The requested output audio sample {@linkplain MimeTypes MIME type}, or {@code null} if inferred
+   * from the input.
    *
    * @see Builder#setAudioMimeType(String)
    */
   @Nullable public final String audioMimeType;
   /**
-   * The requested output video sample {@link MimeTypes MIME type}, or {@code null} if inferred from
-   * the input.
+   * The requested output video sample {@linkplain MimeTypes MIME type}, or {@code null} if inferred
+   * from the input.
    *
    * @see Builder#setVideoMimeType(String)
    */

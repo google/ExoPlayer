@@ -181,7 +181,7 @@ public final class VideoEncoderSettings {
 
   /** The encoding bitrate. */
   public final int bitrate;
-  /** One of {@link BitrateMode the allowed modes}. */
+  /** One of {@linkplain BitrateMode the allowed modes}. */
   public final @BitrateMode int bitrateMode;
   /** The encoding profile. */
   public final int profile;

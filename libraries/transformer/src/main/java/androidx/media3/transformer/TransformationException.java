@@ -147,7 +147,7 @@ public final class TransformationException extends Exception {
   /**
    * Caused by the output format for a track not being supported.
    *
-   * <p>Supported output formats are limited by the muxer's capabilities and the {@link
+   * <p>Supported output formats are limited by the muxer's capabilities and the {@linkplain
    * Codec.DecoderFactory encoders} available.
    */
   public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;

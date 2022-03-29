@@ -208,7 +208,7 @@ public final class Transformer {
      * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform.
      *
      * <p>The default value is a {@link DefaultMediaSourceFactory} built with the context provided
-     * in {@link #Builder(Context) the constructor}.
+     * in {@linkplain #Builder(Context) the constructor}.
      *
      * @param mediaSourceFactory A {@link MediaSource.Factory}.
      * @return This builder.
@@ -309,7 +309,7 @@ public final class Transformer {
     }
 
     /**
-     * Removes all {@link Transformer.Listener listeners}.
+     * Removes all {@linkplain Transformer.Listener listeners}.
      *
      * <p>This is equivalent to {@link Transformer#removeAllListeners()}.
      *
@@ -639,7 +639,7 @@ public final class Transformer {
   }
 
   /**
-   * Removes all {@link Transformer.Listener listeners}.
+   * Removes all {@linkplain Transformer.Listener listeners}.
    *
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
@@ -651,14 +651,14 @@ public final class Transformer {
   /**
    * Starts an asynchronous operation to transform the given {@link MediaItem}.
    *
-   * <p>The transformation state is notified through the {@link Builder#addListener(Listener)
+   * <p>The transformation state is notified through the {@linkplain Builder#addListener(Listener)
    * listener}.
    *
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
    * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
-   * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
-   * bitrate video and audio streams are selected.
+   * track types are ignored. For adaptive bitrate {@linkplain MediaSource media sources}, the
+   * highest bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform.
    * @param path The path to the output file.
@@ -674,14 +674,14 @@ public final class Transformer {
   /**
    * Starts an asynchronous operation to transform the given {@link MediaItem}.
    *
-   * <p>The transformation state is notified through the {@link Builder#addListener(Listener)
+   * <p>The transformation state is notified through the {@linkplain Builder#addListener(Listener)
    * listener}.
    *
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
    * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
-   * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
-   * bitrate video and audio streams are selected.
+   * track types are ignored. For adaptive bitrate {@linkplain MediaSource media sources}, the
+   * highest bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform.
    * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
@@ -767,7 +767,7 @@ public final class Transformer {
    * Returns the current {@link ProgressState} and updates {@code progressHolder} with the current
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
-   * <p>After a transformation {@link Listener#onTransformationCompleted(MediaItem,
+   * <p>After a transformation {@linkplain Listener#onTransformationCompleted(MediaItem,
    * TransformationResult) completes}, this method returns {@link
    * #PROGRESS_STATE_NO_TRANSFORMATION}.
    *

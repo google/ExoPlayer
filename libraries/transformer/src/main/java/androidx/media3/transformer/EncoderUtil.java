@@ -47,8 +47,8 @@ public final class EncoderUtil {
   private static final List<MediaCodecInfo> encoders = new ArrayList<>();
 
   /**
-   * Returns a list of {@link MediaCodecInfo encoders} that support the given {@code mimeType}, or
-   * an empty list if there is none.
+   * Returns a list of {@linkplain MediaCodecInfo encoders} that support the given {@code mimeType},
+   * or an empty list if there is none.
    */
   public static ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
     maybePopulateEncoderInfos();
@@ -67,22 +67,22 @@ public final class EncoderUtil {
   }
 
   /**
-   * Finds a {@link MediaCodecInfo encoder}'s supported resolution from a given resolution.
+   * Finds an {@linkplain MediaCodecInfo encoder}'s supported resolution from a given resolution.
    *
-   * <p>The input resolution is returned, if it (after aligning to the encoders requirement) is
-   * supported by the {@link MediaCodecInfo encoder}.
+   * <p>The input resolution is returned, if it (after aligning to the encoder's requirement) is
+   * supported by the {@linkplain MediaCodecInfo encoder}.
    *
-   * <p>The resolution will be adjusted to be within the {@link MediaCodecInfo encoder}'s range of
-   * supported resolutions, and will be aligned to the {@link MediaCodecInfo encoder}'s alignment
-   * requirement. The adjustment process takes into account the original aspect ratio. But the fixed
-   * resolution may not preserve the original aspect ratio, depending on the encoder's required size
-   * alignment.
+   * <p>The resolution will be adjusted to be within the {@linkplain MediaCodecInfo encoder}'s range
+   * of supported resolutions, and will be aligned to the {@linkplain MediaCodecInfo encoder}'s
+   * alignment requirement. The adjustment process takes into account the original aspect ratio. But
+   * the fixed resolution may not preserve the original aspect ratio, depending on the encoder's
+   * required size alignment.
    *
    * @param encoderInfo The {@link MediaCodecInfo} of the encoder.
    * @param mimeType The output MIME type.
    * @param width The original width.
    * @param height The original height.
-   * @return A {@link Size supported resolution}, or {@code null} if unable to find a fallback.
+   * @return A {@linkplain Size supported resolution}, or {@code null} if unable to find a fallback.
    */
   @Nullable
   public static Size getSupportedResolution(
@@ -136,7 +136,7 @@ public final class EncoderUtil {
    * Finds the highest supported encoding level given a profile.
    *
    * @param encoderInfo The {@link MediaCodecInfo encoderInfo}.
-   * @param mimeType The {@link MimeTypes MIME type}.
+   * @param mimeType The {@linkplain MimeTypes MIME type}.
    * @param profile The encoding profile.
    * @return The highest supported encoding level, as documented in {@link
    *     MediaCodecInfo.CodecProfileLevel}, or {@link #LEVEL_UNSET} if the profile is not supported.
@@ -157,8 +157,8 @@ public final class EncoderUtil {
   }
 
   /**
-   * Finds a {@link MediaCodec codec} that supports the {@link MediaFormat}, or {@code null} if none
-   * is found.
+   * Finds a {@link MediaCodec} that supports the {@link MediaFormat}, or {@code null} if none is
+   * found.
    */
   @Nullable
   public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
@@ -183,7 +183,8 @@ public final class EncoderUtil {
   }
 
   /**
-   * Finds the {@link MediaCodecInfo encoder}'s closest supported bitrate from the given bitrate.
+   * Finds the {@linkplain MediaCodecInfo encoder}'s closest supported bitrate from the given
+   * bitrate.
    */
   public static int getClosestSupportedBitrate(
       MediaCodecInfo encoderInfo, String mimeType, int bitrate) {
@@ -203,7 +204,7 @@ public final class EncoderUtil {
         .isBitrateModeSupported(bitrateMode);
   }
 
-  /** Checks if a {@link MediaCodecInfo codec} is hardware-accelerated. */
+  /** Checks if a {@linkplain MediaCodecInfo codec} is hardware-accelerated. */
   public static boolean isHardwareAccelerated(MediaCodecInfo encoderInfo, String mimeType) {
     // TODO(b/214964116): Merge into MediaCodecUtil.
     if (Util.SDK_INT >= 29) {

@@ -199,9 +199,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds an {@link MediaCodecInfo encoder} that supports the requested format most closely.
+   * Finds an {@linkplain MediaCodecInfo encoder} that supports the requested format most closely.
    *
-   * <p>Returns the {@link MediaCodecInfo encoder} and the supported {@link Format} in a {@link
+   * <p>Returns the {@linkplain MediaCodecInfo encoder} and the supported {@link Format} in a {@link
    * Pair}, or {@code null} if none is found.
    */
   @RequiresNonNull("#1.sampleMimeType")
@@ -402,22 +402,22 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private interface EncoderFallbackCost {
     /**
      * Returns a cost that represents the gap between the requested encoding parameter(s) and the
-     * {@link MediaCodecInfo encoder}'s support for them.
+     * {@linkplain MediaCodecInfo encoder}'s support for them.
      *
-     * <p>The method must return {@link Integer#MAX_VALUE} when the {@link MediaCodecInfo encoder}
-     * does not support the encoding parameters.
+     * <p>The method must return {@link Integer#MAX_VALUE} when the {@linkplain MediaCodecInfo
+     * encoder} does not support the encoding parameters.
      */
     int getParameterSupportGap(MediaCodecInfo encoderInfo);
   }
 
   /**
-   * Filters a list of {@link MediaCodecInfo encoders} by a {@link EncoderFallbackCost cost
-   * function}.
+   * Filters a list of {@linkplain MediaCodecInfo encoders} by a {@linkplain EncoderFallbackCost
+   * cost function}.
    *
-   * @param encoders A list of {@link MediaCodecInfo encoders}.
-   * @param cost A {@link EncoderFallbackCost cost function}.
-   * @return A list of {@link MediaCodecInfo encoders} with the lowest costs, empty if the costs of
-   *     all encoders are {@link Integer#MAX_VALUE}.
+   * @param encoders A list of {@linkplain MediaCodecInfo encoders}.
+   * @param cost A {@linkplain EncoderFallbackCost cost function}.
+   * @return A list of {@linkplain MediaCodecInfo encoders} with the lowest costs, empty if the
+   *     costs of all encoders are {@link Integer#MAX_VALUE}.
    */
   private static ImmutableList<MediaCodecInfo> filterEncoders(
       List<MediaCodecInfo> encoders, EncoderFallbackCost cost, String filterName) {
@@ -454,7 +454,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds a {@link MimeTypes MIME type} that is supported by the encoder and in the {@code
+   * Finds a {@linkplain MimeTypes MIME type} that is supported by the encoder and in the {@code
    * allowedMimeTypes}.
    */
   @Nullable
