@@ -20,9 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import androidx.annotation.Nullable;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
@@ -179,13 +177,13 @@ public class TransformerAndroidTestRunner {
     resultJson.put("inputValues", JSONObject.wrap(inputValues));
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, uriString);
-      resultJson.put("transformationResult", getTestResultJson(transformationTestResult));
+      resultJson.put("transformationResult", transformationTestResult.asJsonObject());
       if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
         throw transformationTestResult.analysisException;
       }
       return transformationTestResult;
     } catch (Exception e) {
-      resultJson.put("exception", getExceptionJson(e));
+      resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
       throw e;
     } finally {
       writeTestSummaryToFile(context, testId, resultJson);
@@ -308,7 +306,7 @@ public class TransformerAndroidTestRunner {
 
   private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
       throws IOException, JSONException {
-    resultJson.put("testId", testId).put("device", getDeviceJson());
+    resultJson.put("testId", testId).put("device", AndroidTestUtil.getDeviceDetailsAsJsonObject());
 
     String analysisContents = resultJson.toString(/* indentSpaces= */ 2);
 
@@ -320,54 +318,5 @@ public class TransformerAndroidTestRunner {
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
       fileWriter.write(analysisContents);
     }
-  }
-
-  private static JSONObject getDeviceJson() throws JSONException {
-    return new JSONObject()
-        .put("manufacturer", Build.MANUFACTURER)
-        .put("model", Build.MODEL)
-        .put("sdkVersion", Build.VERSION.SDK_INT)
-        .put("fingerprint", Build.FINGERPRINT);
-  }
-
-  private static JSONObject getTestResultJson(TransformationTestResult testResult)
-      throws JSONException {
-    TransformationResult transformationResult = testResult.transformationResult;
-
-    JSONObject transformationResultJson = new JSONObject();
-    if (transformationResult.durationMs != C.LENGTH_UNSET) {
-      transformationResultJson.put("durationMs", transformationResult.durationMs);
-    }
-    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
-      transformationResultJson.put("fileSizeBytes", transformationResult.fileSizeBytes);
-    }
-    if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
-      transformationResultJson.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
-    }
-    if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
-      transformationResultJson.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
-    }
-    if (testResult.elapsedTimeMs != C.TIME_UNSET) {
-      transformationResultJson.put("elapsedTimeMs", testResult.elapsedTimeMs);
-    }
-    if (testResult.ssim != TransformationTestResult.SSIM_UNSET) {
-      transformationResultJson.put("ssim", testResult.ssim);
-    }
-    if (testResult.analysisException != null) {
-      transformationResultJson.put(
-          "analysisException", getExceptionJson(testResult.analysisException));
-    }
-    return transformationResultJson;
-  }
-
-  private static JSONObject getExceptionJson(Exception exception) throws JSONException {
-    JSONObject exceptionJson = new JSONObject();
-    exceptionJson.put("message", exception.getMessage());
-    exceptionJson.put("type", exception.getClass());
-    if (exception instanceof TransformationException) {
-      exceptionJson.put("errorCode", ((TransformationException) exception).errorCode);
-    }
-    exceptionJson.put("stackTrace", Log.getThrowableString(exception));
-    return exceptionJson;
   }
 }
