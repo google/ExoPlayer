@@ -35,11 +35,11 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A dummy {@link Surface}. */
+/** A placeholder {@link Surface}. */
 @RequiresApi(17)
-public final class DummySurface extends Surface {
+public final class PlaceholderSurface extends Surface {
 
-  private static final String TAG = "DummySurface";
+  private static final String TAG = "PlaceholderSurface";
 
   /** Whether the surface is secure. */
   public final boolean secure;
@@ -47,14 +47,14 @@ public final class DummySurface extends Surface {
   private static @SecureMode int secureMode;
   private static boolean secureModeInitialized;
 
-  private final DummySurfaceThread thread;
+  private final PlaceholderSurfaceThread thread;
   private boolean threadReleased;
 
   /**
-   * Returns whether the device supports secure dummy surfaces.
+   * Returns whether the device supports secure placeholder surfaces.
    *
    * @param context Any {@link Context}.
-   * @return Whether the device supports secure dummy surfaces.
+   * @return Whether the device supports secure placeholder surfaces.
    */
   public static synchronized boolean isSecureSupported(Context context) {
     if (!secureModeInitialized) {
@@ -65,8 +65,8 @@ public final class DummySurface extends Surface {
   }
 
   /**
-   * Returns a newly created dummy surface. The surface must be released by calling {@link #release}
-   * when it's no longer required.
+   * Returns a newly created placeholder surface. The surface must be released by calling {@link
+   * #release} when it's no longer required.
    *
    * <p>Must only be called if {@link Util#SDK_INT} is 17 or higher.
    *
@@ -76,13 +76,14 @@ public final class DummySurface extends Surface {
    * @throws IllegalStateException If a secure surface is requested on a device for which {@link
    *     #isSecureSupported(Context)} returns {@code false}.
    */
-  public static DummySurface newInstanceV17(Context context, boolean secure) {
+  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
     Assertions.checkState(!secure || isSecureSupported(context));
-    DummySurfaceThread thread = new DummySurfaceThread();
+    PlaceholderSurfaceThread thread = new PlaceholderSurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
   }
 
-  private DummySurface(DummySurfaceThread thread, SurfaceTexture surfaceTexture, boolean secure) {
+  private PlaceholderSurface(
+      PlaceholderSurfaceThread thread, SurfaceTexture surfaceTexture, boolean secure) {
     super(surfaceTexture);
     this.thread = thread;
     this.secure = secure;
@@ -119,7 +120,7 @@ public final class DummySurface extends Surface {
     }
   }
 
-  private static class DummySurfaceThread extends HandlerThread implements Handler.Callback {
+  private static class PlaceholderSurfaceThread extends HandlerThread implements Handler.Callback {
 
     private static final int MSG_INIT = 1;
     private static final int MSG_RELEASE = 2;
@@ -128,13 +129,13 @@ public final class DummySurface extends Surface {
     private @MonotonicNonNull Handler handler;
     @Nullable private Error initError;
     @Nullable private RuntimeException initException;
-    @Nullable private DummySurface surface;
+    @Nullable private PlaceholderSurface surface;
 
-    public DummySurfaceThread() {
-      super("ExoPlayer:DummySurface");
+    public PlaceholderSurfaceThread() {
+      super("ExoPlayer:PlaceholderSurface");
     }
 
-    public DummySurface init(@SecureMode int secureMode) {
+    public PlaceholderSurface init(@SecureMode int secureMode) {
       start();
       handler = new Handler(getLooper(), /* callback= */ this);
       eglSurfaceTexture = new EGLSurfaceTexture(handler);
@@ -174,10 +175,10 @@ public final class DummySurface extends Surface {
           try {
             initInternal(/* secureMode= */ msg.arg1);
           } catch (RuntimeException e) {
-            Log.e(TAG, "Failed to initialize dummy surface", e);
+            Log.e(TAG, "Failed to initialize placeholder surface", e);
             initException = e;
           } catch (Error e) {
-            Log.e(TAG, "Failed to initialize dummy surface", e);
+            Log.e(TAG, "Failed to initialize placeholder surface", e);
             initError = e;
           } finally {
             synchronized (this) {
@@ -189,7 +190,7 @@ public final class DummySurface extends Surface {
           try {
             releaseInternal();
           } catch (Throwable e) {
-            Log.e(TAG, "Failed to release dummy surface", e);
+            Log.e(TAG, "Failed to release placeholder surface", e);
           } finally {
             quit();
           }
@@ -203,7 +204,7 @@ public final class DummySurface extends Surface {
       Assertions.checkNotNull(eglSurfaceTexture);
       eglSurfaceTexture.init(secureMode);
       this.surface =
-          new DummySurface(
+          new PlaceholderSurface(
               this, eglSurfaceTexture.getSurfaceTexture(), secureMode != SECURE_MODE_NONE);
     }
 
