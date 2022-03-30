@@ -35,6 +35,10 @@
         views to be used with other `Player` implementations, and removes the
         dependency from the UI module to the ExoPlayer module. This is a
         breaking change.
+*   HLS:
+    *   Fallback to chunkful preparation if the playlist CODECS attribute
+        does not contain the audio codec
+        ([#10065](https://github.com/google/ExoPlayer/issues/10065)).
 *   RTSP:
     *   Add RTP reader for MPEG4
         ([#35](https://github.com/androidx/media/pull/35))
