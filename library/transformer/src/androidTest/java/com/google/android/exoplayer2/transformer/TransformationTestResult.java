@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.transformer;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** A test only class for holding the details of a test transformation. */
 public class TransformationTestResult {
@@ -111,10 +113,37 @@ public class TransformationTestResult {
   /** The SSIM score of the transformation, {@link #SSIM_UNSET} if unavailable. */
   public final double ssim;
   /**
-   * The {@link Exception} that was thrown during post-tranformation analysis, or {@code null} if
+   * The {@link Exception} that was thrown during post-transformation analysis, or {@code null} if
    * nothing was thrown.
    */
   @Nullable public final Exception analysisException;
+
+  /** Returns a {@link JSONObject} representing all the values in {@code this}. */
+  public JSONObject asJsonObject() throws JSONException {
+    JSONObject jsonObject = new JSONObject();
+    if (transformationResult.durationMs != C.LENGTH_UNSET) {
+      jsonObject.put("durationMs", transformationResult.durationMs);
+    }
+    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
+      jsonObject.put("fileSizeBytes", transformationResult.fileSizeBytes);
+    }
+    if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
+      jsonObject.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
+    }
+    if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
+      jsonObject.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
+    }
+    if (elapsedTimeMs != C.TIME_UNSET) {
+      jsonObject.put("elapsedTimeMs", elapsedTimeMs);
+    }
+    if (ssim != TransformationTestResult.SSIM_UNSET) {
+      jsonObject.put("ssim", ssim);
+    }
+    if (analysisException != null) {
+      jsonObject.put("analysisException", AndroidTestUtil.exceptionAsJsonObject(analysisException));
+    }
+    return jsonObject;
+  }
 
   private TransformationTestResult(
       TransformationResult transformationResult,

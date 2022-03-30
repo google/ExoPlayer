@@ -18,8 +18,12 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
+import android.os.Build;
+import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
@@ -42,6 +46,34 @@ public final class AndroidTestUtil {
     checkState(!file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
     checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
     return file;
+  }
+
+  /**
+   * Returns a {@link JSONObject} containing device specific details from {@link Build}, including
+   * manufacturer, model, SDK version and build fingerprint.
+   */
+  public static JSONObject getDeviceDetailsAsJsonObject() throws JSONException {
+    return new JSONObject()
+        .put("manufacturer", Build.MANUFACTURER)
+        .put("model", Build.MODEL)
+        .put("sdkVersion", Build.VERSION.SDK_INT)
+        .put("fingerprint", Build.FINGERPRINT);
+  }
+
+  /**
+   * Converts an exception to a {@link JSONObject}.
+   *
+   * <p>If the exception is a {@link TransformationException}, {@code errorCode} is included.
+   */
+  public static JSONObject exceptionAsJsonObject(Exception exception) throws JSONException {
+    JSONObject exceptionJson = new JSONObject();
+    exceptionJson.put("message", exception.getMessage());
+    exceptionJson.put("type", exception.getClass());
+    if (exception instanceof TransformationException) {
+      exceptionJson.put("errorCode", ((TransformationException) exception).errorCode);
+    }
+    exceptionJson.put("stackTrace", Log.getThrowableString(exception));
+    return exceptionJson;
   }
 
   private AndroidTestUtil() {}
