@@ -39,7 +39,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.util.Util;
-import androidx.media3.datasource.DummyDataSource;
+import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.datasource.cache.NoOpCacheEvictor;
@@ -104,7 +104,7 @@ public class HlsDownloaderTest {
     CacheDataSource.Factory cacheDataSourceFactory =
         new CacheDataSource.Factory()
             .setCache(Mockito.mock(Cache.class))
-            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+            .setUpstreamDataSourceFactory(PlaceholderDataSource.FACTORY);
     DownloaderFactory factory =
         new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 
@@ -114,7 +114,7 @@ public class HlsDownloaderTest {
                 .setMimeType(MimeTypes.APPLICATION_M3U8)
                 .setStreamKeys(
                     Collections.singletonList(
-                        new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)))
+                        new StreamKey(/* groupIndex= */ 0, /* streamIndex= */ 0)))
                 .build());
     assertThat(downloader).isInstanceOf(HlsDownloader.class);
   }

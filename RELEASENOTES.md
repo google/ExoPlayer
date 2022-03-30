@@ -15,6 +15,8 @@
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
+*   Video:
+    *   Rename `DummySurface` to `PlaceHolderSurface`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
 *   Extractors:
@@ -51,6 +53,8 @@
         ([#47](https://github.com/androidx/media/pull/47)).
     *   Add RTP reader for WAV
         ([#56](https://github.com/androidx/media/pull/56)).
+*   Data sources:
+    *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
