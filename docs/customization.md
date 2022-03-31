@@ -43,33 +43,7 @@ described below.
 
 ### Configuring the network stack ###
 
-ExoPlayer supports Android's default network stack, as well as Cronet and
-OkHttp. In each case it's possible to customize the network stack for your use
-case. The following example shows how to customize the player to use Android's
-default network stack with cross-protocol redirects enabled:
-
-~~~
-// Build a DefaultHttpDataSource.Factory with cross-protocol redirects enabled.
-DataSource.Factory httpDataSourceFactory =
-    new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
-
-// Wrap the DefaultHttpDataSource.Factory in a DefaultDataSource.Factory, which
-// adds in support for requesting data from other sources (e.g., files,
-// resources, etc).
-DefaultDataSource.Factory dataSourceFactory =
-    new DefaultDataSource.Factory(context, httpDataSourceFactory);
-
-// Inject the DefaultDataSource.Factory when creating the player.
-ExoPlayer player =
-    new ExoPlayer.Builder(context)
-        .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
-        .build();
-~~~
-{: .language-java}
-
-The same approach can be used to configure and inject HTTP-based
-`DataSource.Factory` implementations provided by the [Cronet extension] and the
-[OkHttp extension], depending on your preferred choice of network stack.
+We have a page about [customizing the network stack used by ExoPlayer].
 
 ### Caching data loaded from the network ###
 
@@ -299,8 +273,7 @@ When building custom components, we recommend the following:
   ensures that they are executed in order with any other operations being
   performed on the player.
 
-[Cronet extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/cronet
-[OkHttp extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/okhttp
+[customizing the network stack used by ExoPlayer]: {{ site.baseurl }}/network-stacks.html
 [LoadErrorHandlingPolicy]: {{ site.exo_sdk }}/upstream/LoadErrorHandlingPolicy.html
 [media source based playlist API]: {{ site.baseurl }}/media-sources.html#media-source-based-playlist-api
 [asynchronous mode]: https://developer.android.com/reference/android/media/MediaCodec#asynchronous-processing-using-buffers
