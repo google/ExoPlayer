@@ -28,7 +28,6 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
-import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -79,6 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private volatile boolean releaseRequested;
 
   private boolean inputStreamEnded;
+  private final Size inputSize;
   /** Wraps the {@link #inputSurfaceTexture}. */
   private @MonotonicNonNull Surface inputSurface;
   /** Associated with an OpenGL external texture. */
@@ -100,11 +100,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * <p>The {@link ExternalCopyFrameProcessor} writes to the first framebuffer.
    */
   private final int[] framebuffers;
-  /** The input {@link Size} of each of the {@code frameProcessors}. */
-  private final ImmutableList<Size> inputSizes;
 
-  private int outputWidth;
-  private int outputHeight;
+  private Size outputSize;
   /**
    * Wraps the output {@link Surface} that is populated with the output of the final {@link
    * GlFrameProcessor} for each frame.
@@ -154,30 +151,27 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     futures = new ConcurrentLinkedQueue<>();
     pendingFrameCount = new AtomicInteger();
+    inputSize = new Size(inputWidth, inputHeight);
     textureTransformMatrix = new float[16];
     externalCopyFrameProcessor =
         new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
     framebuffers = new int[frameProcessors.size()];
-    Pair<ImmutableList<Size>, Size> sizes =
-        configureFrameProcessorSizes(inputWidth, inputHeight, frameProcessors);
-    inputSizes = sizes.first;
-    outputWidth = sizes.second.getWidth();
-    outputHeight = sizes.second.getHeight();
+    configureFrameProcessorSizes(inputSize, frameProcessors);
+    outputSize = frameProcessors.isEmpty() ? inputSize : getLast(frameProcessors).getOutputSize();
     debugPreviewWidth = C.LENGTH_UNSET;
     debugPreviewHeight = C.LENGTH_UNSET;
   }
 
   /** Returns the output {@link Size}. */
   public Size getOutputSize() {
-    return new Size(outputWidth, outputHeight);
+    return outputSize;
   }
 
   /**
    * Configures the {@code FrameProcessorChain} to process frames to the specified output targets.
    *
    * <p>This method may only be called once and may override the {@linkplain
-   * GlFrameProcessor#configureOutputSize(int, int) output size} of the final {@link
-   * GlFrameProcessor}.
+   * GlFrameProcessor#setInputSize(int, int) output size} of the final {@link GlFrameProcessor}.
    *
    * @param outputSurface The output {@link Surface}.
    * @param outputWidth The output width, in pixels.
@@ -196,8 +190,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkState(inputSurface == null, "The FrameProcessorChain has already been configured.");
     // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
     //  GlFrameProcessor to be re-configured or append another GlFrameProcessor.
-    this.outputWidth = outputWidth;
-    this.outputHeight = outputHeight;
+    outputSize = new Size(outputWidth, outputHeight);
 
     if (debugSurfaceView != null) {
       debugPreviewWidth = debugSurfaceView.getWidth();
@@ -387,15 +380,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     inputExternalTexId = GlUtil.createExternalTexture();
-    Size inputSize = inputSizes.get(0);
-    externalCopyFrameProcessor.configureOutputSize(inputSize.getWidth(), inputSize.getHeight());
+    externalCopyFrameProcessor.setInputSize(inputSize.getWidth(), inputSize.getHeight());
     externalCopyFrameProcessor.initialize(inputExternalTexId);
 
+    Size intermediateSize = inputSize;
     for (int i = 0; i < frameProcessors.size(); i++) {
-      inputSize = inputSizes.get(i);
-      int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
+      int inputTexId =
+          GlUtil.createTexture(intermediateSize.getWidth(), intermediateSize.getHeight());
       framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
       frameProcessors.get(i).initialize(inputTexId);
+      intermediateSize = frameProcessors.get(i).getOutputSize();
     }
     // Return something because only Callables not Runnables can throw checked exceptions.
     return null;
@@ -414,15 +408,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkStateNotNull(eglDisplay);
 
     if (frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      GlUtil.focusEglSurface(
+          eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
     } else {
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
           eglSurface,
           framebuffers[0],
-          inputSizes.get(0).getWidth(),
-          inputSizes.get(0).getHeight());
+          inputSize.getWidth(),
+          inputSize.getHeight());
     }
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
@@ -433,19 +428,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeUs);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
-      Size outputSize = inputSizes.get(i + 1);
+      Size intermediateSize = frameProcessors.get(i).getOutputSize();
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
           eglSurface,
           framebuffers[i + 1],
-          outputSize.getWidth(),
-          outputSize.getHeight());
+          intermediateSize.getWidth(),
+          intermediateSize.getHeight());
       clearOutputFrame();
       frameProcessors.get(i).updateProgramAndDraw(presentationTimeUs);
     }
     if (!frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      GlUtil.focusEglSurface(
+          eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
       clearOutputFrame();
       getLast(frameProcessors).updateProgramAndDraw(presentationTimeUs);
     }
@@ -474,26 +470,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Configures the input and output {@linkplain Size sizes} of a list of {@link GlFrameProcessor
    * GlFrameProcessors}.
-   *
-   * @param inputWidth The width of frames passed to the first {@link GlFrameProcessor}, in pixels.
-   * @param inputHeight The height of frames passed to the first {@link GlFrameProcessor}, in
-   *     pixels.
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors}.
-   * @return The input {@link Size} of each {@link GlFrameProcessor} and the output {@link Size} of
-   *     the final {@link GlFrameProcessor}.
    */
-  private static Pair<ImmutableList<Size>, Size> configureFrameProcessorSizes(
-      int inputWidth, int inputHeight, List<GlFrameProcessor> frameProcessors) {
-    Size size = new Size(inputWidth, inputHeight);
-    if (frameProcessors.isEmpty()) {
-      return Pair.create(ImmutableList.of(size), size);
-    }
-
-    ImmutableList.Builder<Size> inputSizes = new ImmutableList.Builder<>();
+  private static void configureFrameProcessorSizes(
+      Size inputSize, List<GlFrameProcessor> frameProcessors) {
     for (int i = 0; i < frameProcessors.size(); i++) {
-      inputSizes.add(size);
-      size = frameProcessors.get(i).configureOutputSize(size.getWidth(), size.getHeight());
+      frameProcessors.get(i).setInputSize(inputSize.getWidth(), inputSize.getHeight());
+      inputSize = frameProcessors.get(i).getOutputSize();
     }
-    return Pair.create(inputSizes.build(), size);
   }
 }

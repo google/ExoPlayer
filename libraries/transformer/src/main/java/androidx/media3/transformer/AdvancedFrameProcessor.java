@@ -89,6 +89,7 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   private final Context context;
   private final Matrix transformationMatrix;
 
+  private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
 
   /**
@@ -105,8 +106,13 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
-    return new Size(inputWidth, inputHeight);
+  public void setInputSize(int inputWidth, int inputHeight) {
+    size = new Size(inputWidth, inputHeight);
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(size);
   }
 
   @Override

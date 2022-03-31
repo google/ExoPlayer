@@ -139,7 +139,10 @@ public final class FrameProcessorChainTest {
     }
 
     @Override
-    public Size configureOutputSize(int inputWidth, int inputHeight) {
+    public void setInputSize(int inputWidth, int inputHeight) {}
+
+    @Override
+    public Size getOutputSize() {
       return outputSize;
     }
 

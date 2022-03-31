@@ -27,27 +27,28 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link AdvancedFrameProcessor}.
  *
- * <p>See {@link AdvancedFrameProcessorPixelTest} for pixel tests testing {@link
+ * <p>See {@code AdvancedFrameProcessorPixelTest} for pixel tests testing {@link
  * AdvancedFrameProcessor} given a transformation matrix.
  */
 @RunWith(AndroidJUnit4.class)
 public final class AdvancedFrameProcessorTest {
   @Test
-  public void getOutputDimensions_withIdentityMatrix_leavesDimensionsUnchanged() {
+  public void getOutputSize_withIdentityMatrix_leavesSizeUnchanged() {
     Matrix identityMatrix = new Matrix();
     int inputWidth = 200;
     int inputHeight = 150;
     AdvancedFrameProcessor advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
 
-    Size outputSize = advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    advancedFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size outputSize = advancedFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
-  public void getOutputDimensions_withTransformationMatrix_leavesDimensionsUnchanged() {
+  public void getOutputSize_withTransformationMatrix_leavesSizeUnchanged() {
     Matrix transformationMatrix = new Matrix();
     transformationMatrix.postRotate(/* degrees= */ 90);
     transformationMatrix.postScale(/* sx= */ .5f, /* sy= */ 1.2f);
@@ -56,7 +57,8 @@ public final class AdvancedFrameProcessorTest {
     AdvancedFrameProcessor advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), transformationMatrix);
 
-    Size outputSize = advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    advancedFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size outputSize = advancedFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);

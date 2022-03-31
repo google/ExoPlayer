@@ -102,6 +102,7 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
   private int inputWidth;
   private int inputHeight;
+  private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
   /**
@@ -125,13 +126,14 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
+  public void setInputSize(int inputWidth, int inputHeight) {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
     if (transformationMatrix.isIdentity()) {
-      return new Size(inputWidth, inputHeight);
+      outputSize = new Size(inputWidth, inputHeight);
+      return;
     }
 
     float inputAspectRatio = (float) inputWidth / inputHeight;
@@ -161,17 +163,19 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     float xScale = (xMax - xMin) / ndcWidthAndHeight;
     float yScale = (yMax - yMin) / ndcWidthAndHeight;
     adjustedTransformationMatrix.postScale(1f / xScale, 1f / yScale);
+    outputSize = new Size(Math.round(inputWidth * xScale), Math.round(inputHeight * yScale));
+  }
 
-    int outputWidth = Math.round(inputWidth * xScale);
-    int outputHeight = Math.round(inputHeight * yScale);
-    return new Size(outputWidth, outputHeight);
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(outputSize);
   }
 
   @Override
   public void initialize(int inputTexId) throws IOException {
     checkStateNotNull(adjustedTransformationMatrix);
     advancedFrameProcessor = new AdvancedFrameProcessor(context, adjustedTransformationMatrix);
-    advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    advancedFrameProcessor.setInputSize(inputWidth, inputHeight);
     advancedFrameProcessor.initialize(inputTexId);
   }
 

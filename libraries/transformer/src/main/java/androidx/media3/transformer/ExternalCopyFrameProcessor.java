@@ -51,6 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Context context;
   private final boolean enableExperimentalHdrEditing;
 
+  private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
 
   public ExternalCopyFrameProcessor(Context context, boolean enableExperimentalHdrEditing) {
@@ -59,8 +60,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
-    return new Size(inputWidth, inputHeight);
+  public void setInputSize(int inputWidth, int inputHeight) {
+    size = new Size(inputWidth, inputHeight);
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(size);
   }
 
   @Override
