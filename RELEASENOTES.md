@@ -19,6 +19,9 @@
     *   Rename `DummySurface` to `PlaceHolderSurface`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
+*   Ad playback / IMA:
+    *   Decrease ad polling rate from every 100ms to every 200ms, to line up with
+        Media Rating Council (MRC) recommendations.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
 *   UI:
