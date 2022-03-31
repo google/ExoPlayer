@@ -105,8 +105,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkStateNotNull(glProgram);
     glProgram.use();
     glProgram.bindAttributesAndUniforms();
-    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
   }

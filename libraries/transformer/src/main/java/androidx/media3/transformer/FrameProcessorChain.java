@@ -92,7 +92,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final float[] textureTransformMatrix;
 
   private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
-  private final List<GlFrameProcessor> frameProcessors;
+  private final ImmutableList<GlFrameProcessor> frameProcessors;
   /**
    * Identifiers of a framebuffer object associated with the intermediate textures that receive
    * output from the previous {@link GlFrameProcessor}, and provide input for the following {@link
@@ -413,6 +413,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
     long presentationTimeNs = inputSurfaceTexture.getTimestamp();
     long presentationTimeUs = presentationTimeNs / 1000;
+    clearOutputFrame();
     externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeUs);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
@@ -424,10 +425,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           framebuffers[i + 1],
           outputSize.getWidth(),
           outputSize.getHeight());
+      clearOutputFrame();
       frameProcessors.get(i).updateProgramAndDraw(presentationTimeUs);
     }
     if (!frameProcessors.isEmpty()) {
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      clearOutputFrame();
       getLast(frameProcessors).updateProgramAndDraw(presentationTimeUs);
     }
 
@@ -437,14 +440,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (debugPreviewEglSurface != null) {
       GlUtil.focusEglSurface(
           eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
-      GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-      GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+      clearOutputFrame();
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
     }
 
     checkState(pendingFrameCount.getAndDecrement() > 0);
+  }
+
+  private static void clearOutputFrame() {
+    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
+    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    GlUtil.checkGlError();
   }
 
   /**
