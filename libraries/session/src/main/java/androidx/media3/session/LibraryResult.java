@@ -279,6 +279,8 @@ public final class LibraryResult<V> implements Bundleable {
   private static final int FIELD_VALUE = 3;
   private static final int FIELD_VALUE_TYPE = 4;
 
+  // Casting V to ImmutableList<MediaItem> is safe if valueType == VALUE_TYPE_ITEM_LIST.
+  @SuppressWarnings("unchecked")
   @UnstableApi
   @Override
   public Bundle toBundle() {
