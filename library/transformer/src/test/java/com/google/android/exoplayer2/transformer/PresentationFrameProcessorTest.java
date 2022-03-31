@@ -33,13 +33,14 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class PresentationFrameProcessorTest {
   @Test
-  public void configureOutputSize_noEditsLandscape_leavesFramesUnchanged() {
+  public void getOutputSize_noEditsLandscape_leavesFramesUnchanged() {
     int inputWidth = 200;
     int inputHeight = 150;
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
@@ -47,13 +48,14 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void configureOutputSize_noEditsSquare_leavesFramesUnchanged() {
+  public void getOutputSize_noEditsSquare_leavesFramesUnchanged() {
     int inputWidth = 150;
     int inputHeight = 150;
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
@@ -61,13 +63,14 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void configureOutputSize_noEditsPortrait_flipsOrientation() {
+  public void getOutputSize_noEditsPortrait_flipsOrientation() {
     int inputWidth = 150;
     int inputHeight = 200;
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(90);
     assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
@@ -75,7 +78,7 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void configureOutputSize_setResolution_changesDimensions() {
+  public void getOutputSize_setResolution_changesDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
     int requestedHeight = 300;
@@ -84,7 +87,8 @@ public final class PresentationFrameProcessorTest {
             .setResolution(requestedHeight)
             .build();
 
-    Size outputSize = presentationFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
@@ -96,7 +100,7 @@ public final class PresentationFrameProcessorTest {
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    // configureOutputSize not called before initialize.
+    // configureOutputSize not called before getOutputRotationDegrees.
     assertThrows(IllegalStateException.class, presentationFrameProcessor::getOutputRotationDegrees);
   }
 }

@@ -82,6 +82,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private int inputWidth;
   private int inputHeight;
   private int outputRotationDegrees;
+  private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix transformationMatrix;
 
   /**
@@ -104,7 +105,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
    *
    * <p>Return values may be {@code 0} or {@code 90} degrees.
    *
-   * <p>This method can only be called after {@link #configureOutputSize(int, int)}.
+   * <p>This method can only be called after {@link #setInputSize(int, int)}.
    */
   public int getOutputRotationDegrees() {
     checkState(outputRotationDegrees != C.LENGTH_UNSET);
@@ -112,7 +113,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
+  public void setInputSize(int inputWidth, int inputHeight) {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     transformationMatrix = new Matrix();
@@ -134,18 +135,23 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       // TODO(b/201293185): After fragment shader transformations are implemented, put
       //  postRotate in a later GlFrameProcessor.
       transformationMatrix.postRotate(outputRotationDegrees);
-      return new Size(displayHeight, displayWidth);
+      outputSize = new Size(displayHeight, displayWidth);
     } else {
       outputRotationDegrees = 0;
-      return new Size(displayWidth, displayHeight);
+      outputSize = new Size(displayWidth, displayHeight);
     }
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(outputSize);
   }
 
   @Override
   public void initialize(int inputTexId) throws IOException {
     checkStateNotNull(transformationMatrix);
     advancedFrameProcessor = new AdvancedFrameProcessor(context, transformationMatrix);
-    advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    advancedFrameProcessor.setInputSize(inputWidth, inputHeight);
     advancedFrameProcessor.initialize(inputTexId);
   }
 
