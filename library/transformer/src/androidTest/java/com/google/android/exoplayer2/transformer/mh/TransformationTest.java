@@ -23,18 +23,15 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMO
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.transformer.Codec;
+import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
-import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,32 +58,7 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(
-                new Codec.EncoderFactory() {
-                  @Override
-                  public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-                      throws TransformationException {
-                    return Codec.EncoderFactory.DEFAULT.createForAudioEncoding(
-                        format, allowedMimeTypes);
-                  }
-
-                  @Override
-                  public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-                      throws TransformationException {
-                    return Codec.EncoderFactory.DEFAULT.createForVideoEncoding(
-                        format, allowedMimeTypes);
-                  }
-
-                  @Override
-                  public boolean audioNeedsEncoding() {
-                    return true;
-                  }
-
-                  @Override
-                  public boolean videoNeedsEncoding() {
-                    return true;
-                  }
-                })
+            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)

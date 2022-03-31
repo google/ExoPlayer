@@ -19,9 +19,11 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.os.Build;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +49,34 @@ public final class AndroidTestUtil {
     checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
     return file;
   }
+
+  /**
+   * A {@link Codec.EncoderFactory} that forces encoding, wrapping {@link DefaultEncoderFactory}.
+   */
+  public static final Codec.EncoderFactory FORCE_ENCODE_ENCODER_FACTORY =
+      new Codec.EncoderFactory() {
+        @Override
+        public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+            throws TransformationException {
+          return Codec.EncoderFactory.DEFAULT.createForAudioEncoding(format, allowedMimeTypes);
+        }
+
+        @Override
+        public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+            throws TransformationException {
+          return Codec.EncoderFactory.DEFAULT.createForVideoEncoding(format, allowedMimeTypes);
+        }
+
+        @Override
+        public boolean audioNeedsEncoding() {
+          return true;
+        }
+
+        @Override
+        public boolean videoNeedsEncoding() {
+          return true;
+        }
+      };
 
   /**
    * Returns a {@link JSONObject} containing device specific details from {@link Build}, including
