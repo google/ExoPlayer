@@ -45,7 +45,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -68,8 +67,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
 
   private final boolean enableExperimentalHdrEditing;
-  private final EGLDisplay eglDisplay;
-  private final EGLContext eglContext;
+  private @MonotonicNonNull EGLDisplay eglDisplay;
+  private @MonotonicNonNull EGLContext eglContext;
   /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
   private final ExecutorService singleThreadExecutorService;
   /** Futures corresponding to the executor service's pending tasks. */
@@ -152,16 +151,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
     this.frameProcessors = ImmutableList.copyOf(frameProcessors);
 
-    try {
-      eglDisplay = GlUtil.createEglDisplay();
-      eglContext =
-          enableExperimentalHdrEditing
-              ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
-              : GlUtil.createEglContext(eglDisplay);
-    } catch (GlUtil.GlException e) {
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
     singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     futures = new ConcurrentLinkedQueue<>();
     pendingFrameCount = new AtomicInteger();
@@ -218,9 +207,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       // Wait for task to finish to be able to use inputExternalTexId to create the SurfaceTexture.
       singleThreadExecutorService
-          .submit(
-              () ->
-                  createOpenGlObjectsAndInitializeFrameProcessors(outputSurface, debugSurfaceView))
+          .submit(this::createOpenGlObjectsAndInitializeFrameProcessors)
           .get();
     } catch (ExecutionException e) {
       throw TransformationException.createForFrameProcessorChain(
@@ -248,6 +235,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           }
         });
     inputSurface = new Surface(inputSurfaceTexture);
+
+    futures.add(
+        singleThreadExecutorService.submit(
+            () -> createOpenGlSurfaces(outputSurface, debugSurfaceView)));
   }
 
   /**
@@ -344,16 +335,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Creates the OpenGL textures, framebuffers, surfaces, and initializes the {@link
-   * GlFrameProcessor GlFrameProcessors}.
+   * Creates the OpenGL surfaces.
    *
-   * <p>This method must by executed on the same thread as {@link #processFrame()}, i.e., executed
-   * by the {@link #singleThreadExecutorService}.
+   * <p>This method should only be called after {@link
+   * #createOpenGlObjectsAndInitializeFrameProcessors()} and must be called on the background
+   * thread.
    */
-  @EnsuresNonNull("eglSurface")
-  private Void createOpenGlObjectsAndInitializeFrameProcessors(
-      Surface outputSurface, @Nullable SurfaceView debugSurfaceView) throws IOException {
+  private void createOpenGlSurfaces(Surface outputSurface, @Nullable SurfaceView debugSurfaceView) {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+    checkStateNotNull(eglDisplay);
 
     if (enableExperimentalHdrEditing) {
       // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
@@ -369,7 +359,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
       }
     }
-    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+  }
+
+  /**
+   * Creates the OpenGL textures and framebuffers, and initializes the {@link GlFrameProcessor
+   * GlFrameProcessors}.
+   *
+   * <p>This method should only be called on the background thread.
+   */
+  private Void createOpenGlObjectsAndInitializeFrameProcessors() throws IOException {
+    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+
+    eglDisplay = GlUtil.createEglDisplay();
+    eglContext =
+        enableExperimentalHdrEditing
+            ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
+            : GlUtil.createEglContext(eglDisplay);
+
+    if (GlUtil.isSurfacelessContextExtensionSupported()) {
+      GlUtil.focusEglSurface(
+          eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
+    } else if (enableExperimentalHdrEditing) {
+      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+      GlUtil.focusPlaceholderEglSurfaceBt2020Pq(eglContext, eglDisplay);
+    } else {
+      GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
+    }
 
     inputExternalTexId = GlUtil.createExternalTexture();
     Size inputSize = inputSizes.get(0);
@@ -389,13 +404,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Processes an input frame.
    *
-   * <p>This method must by executed on the same thread as {@link
-   * #createOpenGlObjectsAndInitializeFrameProcessors(Surface,SurfaceView)}, i.e., executed by the
-   * {@link #singleThreadExecutorService}.
+   * <p>This method should only be called on the background thread.
    */
-  @RequiresNonNull({"inputSurfaceTexture", "eglSurface"})
+  @RequiresNonNull("inputSurfaceTexture")
   private void processFrame() {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+    checkStateNotNull(eglSurface);
+    checkStateNotNull(eglContext);
+    checkStateNotNull(eglDisplay);
 
     if (frameProcessors.isEmpty()) {
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);

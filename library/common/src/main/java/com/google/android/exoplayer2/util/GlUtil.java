@@ -146,7 +146,11 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether creating a GL context with {@value #EXTENSION_SURFACELESS_CONTEXT} is possible.
+   * Returns whether the {@value #EXTENSION_SURFACELESS_CONTEXT} extension is supported.
+   *
+   * <p>This extension allows passing {@link EGL14#EGL_NO_SURFACE} for both the write and read
+   * surfaces in a call to {@link EGL14#eglMakeCurrent(EGLDisplay, EGLSurface, EGLSurface,
+   * EGLContext)}.
    */
   public static boolean isSurfacelessContextExtensionSupported() {
     if (Util.SDK_INT < 17) {
@@ -204,6 +208,52 @@ public final class GlUtil {
         surface,
         EGL_CONFIG_ATTRIBUTES_RGBA_1010102,
         EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ);
+  }
+
+  /**
+   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   */
+  @RequiresApi(17)
+  public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH, /* width= */ 1,
+          EGL14.EGL_HEIGHT, /* height= */ 1,
+          EGL14.EGL_NONE
+        };
+    EGLSurface eglSurface =
+        Api17.createEglPbufferSurface(
+            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888, pbufferAttributes);
+    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
+   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer, for HDR rendering
+   * with Rec. 2020 color primaries and using the PQ transfer function.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   */
+  @RequiresApi(17)
+  public static void focusPlaceholderEglSurfaceBt2020Pq(
+      EGLContext eglContext, EGLDisplay eglDisplay) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH,
+          /* width= */ 1,
+          EGL14.EGL_HEIGHT,
+          /* height= */ 1,
+          EGL_GL_COLORSPACE_KHR,
+          EGL_GL_COLORSPACE_BT2020_PQ_EXT,
+          EGL14.EGL_NONE
+        };
+    EGLSurface eglSurface =
+        Api17.createEglPbufferSurface(
+            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_1010102, pbufferAttributes);
+    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
   }
 
   /**
@@ -480,6 +530,19 @@ public final class GlUtil {
               getEglConfig(eglDisplay, configAttributes),
               surface,
               windowSurfaceAttributes,
+              /* offset= */ 0);
+      checkEglException("Error creating surface");
+      return eglSurface;
+    }
+
+    @DoNotInline
+    public static EGLSurface createEglPbufferSurface(
+        EGLDisplay eglDisplay, int[] configAttributes, int[] pbufferAttributes) {
+      EGLSurface eglSurface =
+          EGL14.eglCreatePbufferSurface(
+              eglDisplay,
+              getEglConfig(eglDisplay, configAttributes),
+              pbufferAttributes,
               /* offset= */ 0);
       checkEglException("Error creating surface");
       return eglSurface;
