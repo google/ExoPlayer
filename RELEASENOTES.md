@@ -24,6 +24,7 @@
         Media Rating Council (MRC) recommendations.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
+    *   Parse bitrates from `esds` boxes.
 *   UI:
     *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
         `LegacyPlayerView`, in the case that `useController=false`
