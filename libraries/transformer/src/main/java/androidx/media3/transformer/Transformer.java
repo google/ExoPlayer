@@ -704,7 +704,6 @@ public final class Transformer {
     if (player != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
-
     MuxerWrapper muxerWrapper = new MuxerWrapper(muxer, muxerFactory, containerMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
@@ -1005,7 +1004,9 @@ public final class Transformer {
                 .setDurationMs(muxerWrapper.getDurationMs())
                 .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
                 .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
+                .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
                 .build();
+
         listeners.queueEvent(
             /* eventFlag= */ C.INDEX_UNSET,
             listener -> listener.onTransformationCompleted(mediaItem, result));

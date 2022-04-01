@@ -31,6 +31,7 @@ public final class TransformationResult {
     private long fileSizeBytes;
     private int averageAudioBitrate;
     private int averageVideoBitrate;
+    private int videoFrameCount;
 
     public Builder() {
       durationMs = C.TIME_UNSET;
@@ -83,13 +84,24 @@ public final class TransformationResult {
       return this;
     }
 
+    /**
+     * Sets the number of video frames.
+     *
+     * <p>Input must be positive or {@code 0}.
+     */
+    public Builder setVideoFrameCount(int videoFrameCount) {
+      checkArgument(videoFrameCount >= 0);
+      this.videoFrameCount = videoFrameCount;
+      return this;
+    }
+
     public TransformationResult build() {
       return new TransformationResult(
-          durationMs, fileSizeBytes, averageAudioBitrate, averageVideoBitrate);
+          durationMs, fileSizeBytes, averageAudioBitrate, averageVideoBitrate, videoFrameCount);
     }
   }
 
-  /** The duration of the video in milliseconds, or {@link C#TIME_UNSET} if unset or unknown. */
+  /** The duration of the file in milliseconds, or {@link C#TIME_UNSET} if unset or unknown. */
   public final long durationMs;
   /** The size of the file in bytes, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final long fileSizeBytes;
@@ -101,13 +113,20 @@ public final class TransformationResult {
    * The average bitrate of the video track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
   public final int averageVideoBitrate;
+  /** The number of video frames. */
+  public final int videoFrameCount;
 
   private TransformationResult(
-      long durationMs, long fileSizeBytes, int averageAudioBitrate, int averageVideoBitrate) {
+      long durationMs,
+      long fileSizeBytes,
+      int averageAudioBitrate,
+      int averageVideoBitrate,
+      int videoFrameCount) {
     this.durationMs = durationMs;
     this.fileSizeBytes = fileSizeBytes;
     this.averageAudioBitrate = averageAudioBitrate;
     this.averageVideoBitrate = averageVideoBitrate;
+    this.videoFrameCount = videoFrameCount;
   }
 
   public Builder buildUpon() {
@@ -115,7 +134,8 @@ public final class TransformationResult {
         .setDurationMs(durationMs)
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)
-        .setAverageVideoBitrate(averageVideoBitrate);
+        .setAverageVideoBitrate(averageVideoBitrate)
+        .setVideoFrameCount(videoFrameCount);
   }
 
   @Override
@@ -130,7 +150,8 @@ public final class TransformationResult {
     return durationMs == result.durationMs
         && fileSizeBytes == result.fileSizeBytes
         && averageAudioBitrate == result.averageAudioBitrate
-        && averageVideoBitrate == result.averageVideoBitrate;
+        && averageVideoBitrate == result.averageVideoBitrate
+        && videoFrameCount == result.videoFrameCount;
   }
 
   @Override
@@ -139,6 +160,7 @@ public final class TransformationResult {
     result = 31 * result + (int) fileSizeBytes;
     result = 31 * result + averageAudioBitrate;
     result = 31 * result + averageVideoBitrate;
+    result = 31 * result + videoFrameCount;
     return result;
   }
 }
