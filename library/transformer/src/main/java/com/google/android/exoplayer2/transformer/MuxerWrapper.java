@@ -160,7 +160,9 @@ import java.nio.ByteBuffer;
 
     trackTypeToBytesWritten.put(
         trackType, trackTypeToBytesWritten.get(trackType) + data.remaining());
-    trackTypeToTimeUs.put(trackType, presentationTimeUs);
+    if (trackTypeToTimeUs.get(trackType) < presentationTimeUs) {
+      trackTypeToTimeUs.put(trackType, presentationTimeUs);
+    }
 
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
