@@ -88,8 +88,6 @@ public void onPlayerError(PlaybackException error) {
   if (cause instanceof HttpDataSourceException) {
     // An HTTP error occurred.
     HttpDataSourceException httpError = (HttpDataSourceException) cause;
-    // This is the request for which the error occurred.
-    DataSpec requestDataSpec = httpError.dataSpec;
     // It's possible to find out more about the error both by casting and by
     // querying the cause.
     if (httpError instanceof HttpDataSource.InvalidResponseCodeException) {
