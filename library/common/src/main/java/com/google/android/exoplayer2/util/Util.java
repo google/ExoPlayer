@@ -1902,10 +1902,10 @@ public final class Util {
 
   /**
    * Returns the MIME type corresponding to the given adaptive {@link ContentType}, or {@code null}
-   * if the content type is {@link C#TYPE_OTHER}.
+   * if the content type is not adaptive.
    */
   @Nullable
-  public static String getAdaptiveMimeTypeForContentType(int contentType) {
+  public static String getAdaptiveMimeTypeForContentType(@ContentType int contentType) {
     switch (contentType) {
       case C.TYPE_DASH:
         return MimeTypes.APPLICATION_MPD;
@@ -1913,6 +1913,7 @@ public final class Util {
         return MimeTypes.APPLICATION_M3U8;
       case C.TYPE_SS:
         return MimeTypes.APPLICATION_SS;
+      case C.TYPE_RTSP:
       case C.TYPE_OTHER:
       default:
         return null;
