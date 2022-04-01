@@ -116,7 +116,7 @@ import org.checkerframework.dataflow.qual.Pure;
             requestedEncoderFormat,
             encoderSupportedFormat));
 
-    frameProcessorChain.configure(
+    frameProcessorChain.setOutputSurface(
         /* outputSurface= */ encoder.getInputSurface(),
         /* outputWidth= */ encoderSupportedFormat.width,
         /* outputHeight= */ encoderSupportedFormat.height,
