@@ -63,6 +63,49 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     GlUtil.glAssertionsEnabled = true;
   }
 
+  /**
+   * Creates a new instance.
+   *
+   * @param context A {@link Context}.
+   * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
+   * @param inputWidth The input frame width, in pixels.
+   * @param inputHeight The input frame height, in pixels.
+   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
+   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
+   * @return A new instance.
+   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1.
+   */
+  public static FrameProcessorChain create(
+      Context context,
+      float pixelWidthHeightRatio,
+      int inputWidth,
+      int inputHeight,
+      List<GlFrameProcessor> frameProcessors,
+      boolean enableExperimentalHdrEditing)
+      throws TransformationException {
+    if (pixelWidthHeightRatio != 1.0f) {
+      // TODO(b/211782176): Consider implementing support for non-square pixels.
+      throw TransformationException.createForFrameProcessorChain(
+          new UnsupportedOperationException(
+              "Transformer's FrameProcessorChain currently does not support frame edits on"
+                  + " non-square pixels. The pixelWidthHeightRatio is: "
+                  + pixelWidthHeightRatio),
+          TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+
+    ExternalCopyFrameProcessor externalCopyFrameProcessor =
+        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
+    externalCopyFrameProcessor.setInputSize(inputWidth, inputHeight);
+    Size inputSize = externalCopyFrameProcessor.getOutputSize();
+    for (int i = 0; i < frameProcessors.size(); i++) {
+      frameProcessors.get(i).setInputSize(inputSize.getWidth(), inputSize.getHeight());
+      inputSize = frameProcessors.get(i).getOutputSize();
+    }
+
+    return new FrameProcessorChain(
+        externalCopyFrameProcessor, frameProcessors, enableExperimentalHdrEditing);
+  }
+
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
 
   private final boolean enableExperimentalHdrEditing;
@@ -78,7 +121,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private volatile boolean releaseRequested;
 
   private boolean inputStreamEnded;
-  private final Size inputSize;
   /** Wraps the {@link #inputSurfaceTexture}. */
   private @MonotonicNonNull Surface inputSurface;
   /** Associated with an OpenGL external texture. */
@@ -116,48 +158,23 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private @MonotonicNonNull EGLSurface debugPreviewEglSurface;
 
-  /**
-   * Creates a new instance.
-   *
-   * @param context A {@link Context}.
-   * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
-   * @param inputWidth The input frame width, in pixels.
-   * @param inputHeight The input frame height, in pixels.
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
-   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
-   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1.
-   */
-  public FrameProcessorChain(
-      Context context,
-      float pixelWidthHeightRatio,
-      int inputWidth,
-      int inputHeight,
+  private FrameProcessorChain(
+      ExternalCopyFrameProcessor externalCopyFrameProcessor,
       List<GlFrameProcessor> frameProcessors,
-      boolean enableExperimentalHdrEditing)
-      throws TransformationException {
-    if (pixelWidthHeightRatio != 1.0f) {
-      // TODO(b/211782176): Consider implementing support for non-square pixels.
-      throw TransformationException.createForFrameProcessorChain(
-          new UnsupportedOperationException(
-              "Transformer's FrameProcessorChain currently does not support frame edits on"
-                  + " non-square pixels. The pixelWidthHeightRatio is: "
-                  + pixelWidthHeightRatio),
-          TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
-
-    this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
+      boolean enableExperimentalHdrEditing) {
+    this.externalCopyFrameProcessor = externalCopyFrameProcessor;
     this.frameProcessors = ImmutableList.copyOf(frameProcessors);
+    this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
 
     singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     futures = new ConcurrentLinkedQueue<>();
     pendingFrameCount = new AtomicInteger();
-    inputSize = new Size(inputWidth, inputHeight);
     textureTransformMatrix = new float[16];
-    externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
     framebuffers = new int[frameProcessors.size()];
-    configureFrameProcessorSizes(inputSize, frameProcessors);
-    outputSize = frameProcessors.isEmpty() ? inputSize : getLast(frameProcessors).getOutputSize();
+    outputSize =
+        frameProcessors.isEmpty()
+            ? externalCopyFrameProcessor.getOutputSize()
+            : getLast(frameProcessors).getOutputSize();
     debugPreviewWidth = C.LENGTH_UNSET;
     debugPreviewHeight = C.LENGTH_UNSET;
   }
@@ -380,10 +397,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.setInputSize(inputSize.getWidth(), inputSize.getHeight());
     externalCopyFrameProcessor.initialize(inputExternalTexId);
 
-    Size intermediateSize = inputSize;
+    Size intermediateSize = externalCopyFrameProcessor.getOutputSize();
     for (int i = 0; i < frameProcessors.size(); i++) {
       int inputTexId =
           GlUtil.createTexture(intermediateSize.getWidth(), intermediateSize.getHeight());
@@ -411,13 +427,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       GlUtil.focusEglSurface(
           eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
     } else {
+      Size intermediateSize = externalCopyFrameProcessor.getOutputSize();
       GlUtil.focusFramebuffer(
           eglDisplay,
           eglContext,
           eglSurface,
           framebuffers[0],
-          inputSize.getWidth(),
-          inputSize.getHeight());
+          intermediateSize.getWidth(),
+          intermediateSize.getHeight());
     }
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
@@ -465,17 +482,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GlUtil.checkGlError();
-  }
-
-  /**
-   * Configures the input and output {@linkplain Size sizes} of a list of {@link GlFrameProcessor
-   * GlFrameProcessors}.
-   */
-  private static void configureFrameProcessorSizes(
-      Size inputSize, List<GlFrameProcessor> frameProcessors) {
-    for (int i = 0; i < frameProcessors.size(); i++) {
-      frameProcessors.get(i).setInputSize(inputSize.getWidth(), inputSize.getHeight());
-      inputSize = frameProcessors.get(i).getOutputSize();
-    }
   }
 }

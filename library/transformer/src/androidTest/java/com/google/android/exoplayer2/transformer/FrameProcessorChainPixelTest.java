@@ -246,7 +246,7 @@ public final class FrameProcessorChainPixelTest {
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       frameProcessorChain =
-          new FrameProcessorChain(
+          FrameProcessorChain.create(
               context,
               PIXEL_WIDTH_HEIGHT_RATIO,
               inputWidth,

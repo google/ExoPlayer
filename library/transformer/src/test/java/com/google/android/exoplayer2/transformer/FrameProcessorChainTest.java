@@ -37,11 +37,11 @@ import org.junit.runner.RunWith;
 public final class FrameProcessorChainTest {
 
   @Test
-  public void construct_withSupportedPixelWidthHeightRatio_completesSuccessfully()
+  public void create_withSupportedPixelWidthHeightRatio_completesSuccessfully()
       throws TransformationException {
     Context context = getApplicationContext();
 
-    new FrameProcessorChain(
+    FrameProcessorChain.create(
         context,
         /* pixelWidthHeightRatio= */ 1,
         /* inputWidth= */ 200,
@@ -51,14 +51,14 @@ public final class FrameProcessorChainTest {
   }
 
   @Test
-  public void construct_withUnsupportedPixelWidthHeightRatio_throwsException() {
+  public void create_withUnsupportedPixelWidthHeightRatio_throwsException() {
     Context context = getApplicationContext();
 
     TransformationException exception =
         assertThrows(
             TransformationException.class,
             () ->
-                new FrameProcessorChain(
+                FrameProcessorChain.create(
                     context,
                     /* pixelWidthHeightRatio= */ 2,
                     /* inputWidth= */ 200,
@@ -121,7 +121,7 @@ public final class FrameProcessorChainTest {
     for (Size element : frameProcessorOutputSizes) {
       frameProcessors.add(new FakeFrameProcessor(element));
     }
-    return new FrameProcessorChain(
+    return FrameProcessorChain.create(
         getApplicationContext(),
         /* pixelWidthHeightRatio= */ 1,
         inputSize.getWidth(),
