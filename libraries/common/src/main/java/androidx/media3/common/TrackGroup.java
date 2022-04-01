@@ -54,11 +54,11 @@ public final class TrackGroup implements Bundleable {
   private static final String TAG = "TrackGroup";
 
   /** The number of tracks in the group. */
-  public final int length;
+  @UnstableApi public final int length;
   /** An identifier for the track group. */
-  public final String id;
+  @UnstableApi public final String id;
   /** The type of tracks in the group. */
-  public final @C.TrackType int type;
+  @UnstableApi public final @C.TrackType int type;
 
   private final Format[] formats;
 
@@ -113,6 +113,7 @@ public final class TrackGroup implements Bundleable {
    * @param index The index of the track.
    * @return The track's format.
    */
+  @UnstableApi
   public Format getFormat(int index) {
     return formats[index];
   }
@@ -126,6 +127,7 @@ public final class TrackGroup implements Bundleable {
    * @return The index of the track, or {@link C#INDEX_UNSET} if no such track exists.
    */
   @SuppressWarnings("ReferenceEquality")
+  @UnstableApi
   public int indexOf(Format format) {
     for (int i = 0; i < formats.length; i++) {
       if (format == formats[i]) {

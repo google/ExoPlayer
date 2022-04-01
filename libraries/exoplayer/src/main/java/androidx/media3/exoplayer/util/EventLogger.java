@@ -31,7 +31,6 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.PlaybackSuppressionReason;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Log;
@@ -288,11 +287,10 @@ public class EventLogger implements AnalyticsListener {
     // Log metadata for at most one of the selected tracks.
     boolean loggedMetadata = false;
     for (int groupIndex = 0; !loggedMetadata && groupIndex < trackGroupInfos.size(); groupIndex++) {
-      TracksInfo.TrackGroupInfo trackGroupInfo = trackGroupInfos.get(groupIndex);
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+      TracksInfo.TrackGroupInfo trackGroup = trackGroupInfos.get(groupIndex);
       for (int trackIndex = 0; !loggedMetadata && trackIndex < trackGroup.length; trackIndex++) {
-        if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable Metadata metadata = trackGroup.getFormat(trackIndex).metadata;
+        if (trackGroup.isTrackSelected(trackIndex)) {
+          @Nullable Metadata metadata = trackGroup.getTrackFormat(trackIndex).metadata;
           if (metadata != null && metadata.length() > 0) {
             logd("  Metadata [");
             printMetadata(metadata, "    ");
