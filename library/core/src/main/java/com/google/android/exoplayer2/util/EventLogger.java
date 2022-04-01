@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
@@ -285,11 +284,10 @@ public class EventLogger implements AnalyticsListener {
     // Log metadata for at most one of the selected tracks.
     boolean loggedMetadata = false;
     for (int groupIndex = 0; !loggedMetadata && groupIndex < trackGroupInfos.size(); groupIndex++) {
-      TracksInfo.TrackGroupInfo trackGroupInfo = trackGroupInfos.get(groupIndex);
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+      TracksInfo.TrackGroupInfo trackGroup = trackGroupInfos.get(groupIndex);
       for (int trackIndex = 0; !loggedMetadata && trackIndex < trackGroup.length; trackIndex++) {
-        if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable Metadata metadata = trackGroup.getFormat(trackIndex).metadata;
+        if (trackGroup.isTrackSelected(trackIndex)) {
+          @Nullable Metadata metadata = trackGroup.getTrackFormat(trackIndex).metadata;
           if (metadata != null && metadata.length() > 0) {
             logd("  Metadata [");
             printMetadata(metadata, "    ");
