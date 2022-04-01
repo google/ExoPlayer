@@ -19,9 +19,9 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRI
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
-import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -120,14 +120,17 @@ public class TransformationTest {
   @Test
   public void transformSef() throws Exception {
     String testId = TAG + "_transformSef";
+    Context context = ApplicationProvider.getApplicationContext();
 
     if (Util.SDK_INT < 25) {
       // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
-      Log.i(testId, "Skipping on this API version due to lack of muxing support");
+      recordTestSkipped(
+          context,
+          testId,
+          /* reason= */ "Skipping on this API version due to lack of muxing support");
       return;
     }
 
-    Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(

@@ -26,14 +26,12 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
@@ -174,7 +172,9 @@ public class TransformerAndroidTestRunner {
    */
   public TransformationTestResult run(String testId, String uriString) throws Exception {
     JSONObject resultJson = new JSONObject();
-    resultJson.put("inputValues", JSONObject.wrap(inputValues));
+    if (inputValues != null) {
+      resultJson.put("inputValues", JSONObject.wrap(inputValues));
+    }
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, uriString);
       resultJson.put("transformationResult", transformationTestResult.asJsonObject());
@@ -186,7 +186,7 @@ public class TransformerAndroidTestRunner {
       resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
       throw e;
     } finally {
-      writeTestSummaryToFile(context, testId, resultJson);
+      AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
 
@@ -302,21 +302,5 @@ public class TransformerAndroidTestRunner {
     }
 
     return resultBuilder.build();
-  }
-
-  private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
-      throws IOException, JSONException {
-    resultJson.put("testId", testId).put("device", AndroidTestUtil.getDeviceDetailsAsJsonObject());
-
-    String analysisContents = resultJson.toString(/* indentSpaces= */ 2);
-
-    // Log contents as well as writing to file, for easier visibility on individual device testing.
-    Log.i(TAG_PREFIX + testId, analysisContents);
-
-    File analysisFile =
-        AndroidTestUtil.createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
-    try (FileWriter fileWriter = new FileWriter(analysisFile)) {
-      fileWriter.write(analysisContents);
-    }
   }
 }
