@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * and is processed on a background thread as it becomes available. All input frames should be
  * {@linkplain #registerInputFrame() registered} before they are rendered to the input surface.
  * {@link #getPendingFrameCount()} can be used to check whether there are frames that have not been
- * fully processed yet. Output is written to its {@linkplain #configure(Surface, int, int,
+ * fully processed yet. Output is written to its {@linkplain #setOutputSurface(Surface, int, int,
  * SurfaceView) output surface}.
  */
 /* package */ final class FrameProcessorChain {
@@ -73,7 +73,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @return A new instance.
-   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1.
+   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1, reading shader
+   *     files fails, or an OpenGL error occurs while creating and configuring the OpenGL
+   *     components.
    */
   public static FrameProcessorChain create(
       Context context,
@@ -93,42 +95,104 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
 
+    ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     ExternalCopyFrameProcessor externalCopyFrameProcessor =
         new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
-    externalCopyFrameProcessor.setInputSize(inputWidth, inputHeight);
-    Size inputSize = externalCopyFrameProcessor.getOutputSize();
-    for (int i = 0; i < frameProcessors.size(); i++) {
-      frameProcessors.get(i).setInputSize(inputSize.getWidth(), inputSize.getHeight());
-      inputSize = frameProcessors.get(i).getOutputSize();
+
+    try {
+      return singleThreadExecutorService
+          .submit(
+              () ->
+                  createOpenGlObjectsAndFrameProcessorChain(
+                      inputWidth,
+                      inputHeight,
+                      frameProcessors,
+                      enableExperimentalHdrEditing,
+                      singleThreadExecutorService,
+                      externalCopyFrameProcessor))
+          .get();
+    } catch (ExecutionException e) {
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+  }
+
+  /**
+   * Creates the OpenGL textures, framebuffers, initializes the {@link GlFrameProcessor
+   * GlFrameProcessors} and returns a new {@code FrameProcessorChain}.
+   *
+   * <p>This method must by executed using the {@code singleThreadExecutorService}.
+   */
+  private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
+      int inputWidth,
+      int inputHeight,
+      List<GlFrameProcessor> frameProcessors,
+      boolean enableExperimentalHdrEditing,
+      ExecutorService singleThreadExecutorService,
+      ExternalCopyFrameProcessor externalCopyFrameProcessor)
+      throws IOException {
+    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+
+    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
+    EGLContext eglContext =
+        enableExperimentalHdrEditing
+            ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
+            : GlUtil.createEglContext(eglDisplay);
+
+    if (GlUtil.isSurfacelessContextExtensionSupported()) {
+      GlUtil.focusEglSurface(
+          eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
+    } else if (enableExperimentalHdrEditing) {
+      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+      GlUtil.focusPlaceholderEglSurfaceBt2020Pq(eglContext, eglDisplay);
+    } else {
+      GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
+    int inputExternalTexId = GlUtil.createExternalTexture();
+    externalCopyFrameProcessor.setInputSize(inputWidth, inputHeight);
+    externalCopyFrameProcessor.initialize(inputExternalTexId);
+
+    int[] framebuffers = new int[frameProcessors.size()];
+    Size inputSize = externalCopyFrameProcessor.getOutputSize();
+    for (int i = 0; i < frameProcessors.size(); i++) {
+      int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
+      framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
+      frameProcessors.get(i).setInputSize(inputSize.getWidth(), inputSize.getHeight());
+      frameProcessors.get(i).initialize(inputTexId);
+      inputSize = frameProcessors.get(i).getOutputSize();
+    }
     return new FrameProcessorChain(
-        externalCopyFrameProcessor, frameProcessors, enableExperimentalHdrEditing);
+        eglDisplay,
+        eglContext,
+        singleThreadExecutorService,
+        inputExternalTexId,
+        externalCopyFrameProcessor,
+        framebuffers,
+        ImmutableList.copyOf(frameProcessors),
+        enableExperimentalHdrEditing);
   }
 
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
 
   private final boolean enableExperimentalHdrEditing;
-  private @MonotonicNonNull EGLDisplay eglDisplay;
-  private @MonotonicNonNull EGLContext eglContext;
+  private final EGLDisplay eglDisplay;
+  private final EGLContext eglContext;
   /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
   private final ExecutorService singleThreadExecutorService;
   /** Futures corresponding to the executor service's pending tasks. */
   private final ConcurrentLinkedQueue<Future<?>> futures;
   /** Number of frames {@linkplain #registerInputFrame() registered} but not fully processed. */
   private final AtomicInteger pendingFrameCount;
-  /** Prevents further frame processing tasks from being scheduled after {@link #release()}. */
-  private volatile boolean releaseRequested;
 
-  private boolean inputStreamEnded;
   /** Wraps the {@link #inputSurfaceTexture}. */
-  private @MonotonicNonNull Surface inputSurface;
+  private final Surface inputSurface;
   /** Associated with an OpenGL external texture. */
-  private @MonotonicNonNull SurfaceTexture inputSurfaceTexture;
-  /**
-   * Identifier of the external texture the {@link ExternalCopyFrameProcessor} reads its input from.
-   */
-  private int inputExternalTexId;
+  private final SurfaceTexture inputSurfaceTexture;
   /** Transformation matrix associated with the {@link #inputSurfaceTexture}. */
   private final float[] textureTransformMatrix;
 
@@ -158,19 +222,33 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private @MonotonicNonNull EGLSurface debugPreviewEglSurface;
 
+  private boolean inputStreamEnded;
+  /** Prevents further frame processing tasks from being scheduled after {@link #release()}. */
+  private volatile boolean releaseRequested;
+
   private FrameProcessorChain(
+      EGLDisplay eglDisplay,
+      EGLContext eglContext,
+      ExecutorService singleThreadExecutorService,
+      int inputExternalTexId,
       ExternalCopyFrameProcessor externalCopyFrameProcessor,
-      List<GlFrameProcessor> frameProcessors,
+      int[] framebuffers,
+      ImmutableList<GlFrameProcessor> frameProcessors,
       boolean enableExperimentalHdrEditing) {
+
+    this.eglDisplay = eglDisplay;
+    this.eglContext = eglContext;
+    this.singleThreadExecutorService = singleThreadExecutorService;
     this.externalCopyFrameProcessor = externalCopyFrameProcessor;
-    this.frameProcessors = ImmutableList.copyOf(frameProcessors);
+    this.framebuffers = framebuffers;
+    this.frameProcessors = frameProcessors;
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
 
-    singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     futures = new ConcurrentLinkedQueue<>();
     pendingFrameCount = new AtomicInteger();
+    inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
+    inputSurface = new Surface(inputSurfaceTexture);
     textureTransformMatrix = new float[16];
-    framebuffers = new int[frameProcessors.size()];
     outputSize =
         frameProcessors.isEmpty()
             ? externalCopyFrameProcessor.getOutputSize()
@@ -185,26 +263,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Configures the {@code FrameProcessorChain} to process frames to the specified output targets.
+   * Sets the output {@link Surface}.
    *
-   * <p>This method may only be called once and may override the {@linkplain
-   * GlFrameProcessor#setInputSize(int, int) output size} of the final {@link GlFrameProcessor}.
+   * <p>This method may override the output size of the final {@link GlFrameProcessor}.
    *
    * @param outputSurface The output {@link Surface}.
    * @param outputWidth The output width, in pixels.
    * @param outputHeight The output height, in pixels.
    * @param debugSurfaceView Optional debug {@link SurfaceView} to show output.
-   * @throws IllegalStateException If the {@code FrameProcessorChain} has already been configured.
-   * @throws TransformationException If reading shader files fails, or an OpenGL error occurs while
-   *     creating and configuring the OpenGL components.
    */
-  public void configure(
+  public void setOutputSurface(
       Surface outputSurface,
       int outputWidth,
       int outputHeight,
-      @Nullable SurfaceView debugSurfaceView)
-      throws TransformationException {
-    checkState(inputSurface == null, "The FrameProcessorChain has already been configured.");
+      @Nullable SurfaceView debugSurfaceView) {
     // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
     //  GlFrameProcessor to be re-configured or append another GlFrameProcessor.
     outputSize = new Size(outputWidth, outputHeight);
@@ -214,21 +286,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       debugPreviewHeight = debugSurfaceView.getHeight();
     }
 
-    try {
-      // Wait for task to finish to be able to use inputExternalTexId to create the SurfaceTexture.
-      singleThreadExecutorService
-          .submit(this::createOpenGlObjectsAndInitializeFrameProcessors)
-          .get();
-    } catch (ExecutionException e) {
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
+    futures.add(
+        singleThreadExecutorService.submit(
+            () -> createOpenGlSurfaces(outputSurface, debugSurfaceView)));
 
-    inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
           if (releaseRequested) {
@@ -244,21 +305,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             }
           }
         });
-    inputSurface = new Surface(inputSurfaceTexture);
-
-    futures.add(
-        singleThreadExecutorService.submit(
-            () -> createOpenGlSurfaces(outputSurface, debugSurfaceView)));
   }
 
-  /**
-   * Returns the input {@link Surface}.
-   *
-   * <p>The {@code FrameProcessorChain} must be {@linkplain #configure(Surface, int, int,
-   * SurfaceView) configured}.
-   */
+  /** Returns the input {@link Surface}. */
   public Surface getInputSurface() {
-    checkStateNotNull(inputSurface, "The FrameProcessorChain must be configured.");
     return inputSurface;
   }
 
@@ -347,9 +397,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Creates the OpenGL surfaces.
    *
-   * <p>This method should only be called after {@link
-   * #createOpenGlObjectsAndInitializeFrameProcessors()} and must be called on the background
-   * thread.
+   * <p>This method should only be called on the {@linkplain #THREAD_NAME background thread}.
    */
   private void createOpenGlSurfaces(Surface outputSurface, @Nullable SurfaceView debugSurfaceView) {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
@@ -372,56 +420,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Creates the OpenGL textures and framebuffers, and initializes the {@link GlFrameProcessor
-   * GlFrameProcessors}.
-   *
-   * <p>This method should only be called on the background thread.
-   */
-  private Void createOpenGlObjectsAndInitializeFrameProcessors() throws IOException {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-
-    eglDisplay = GlUtil.createEglDisplay();
-    eglContext =
-        enableExperimentalHdrEditing
-            ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
-            : GlUtil.createEglContext(eglDisplay);
-
-    if (GlUtil.isSurfacelessContextExtensionSupported()) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
-    } else if (enableExperimentalHdrEditing) {
-      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
-      GlUtil.focusPlaceholderEglSurfaceBt2020Pq(eglContext, eglDisplay);
-    } else {
-      GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
-    }
-
-    inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.initialize(inputExternalTexId);
-
-    Size intermediateSize = externalCopyFrameProcessor.getOutputSize();
-    for (int i = 0; i < frameProcessors.size(); i++) {
-      int inputTexId =
-          GlUtil.createTexture(intermediateSize.getWidth(), intermediateSize.getHeight());
-      framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
-      frameProcessors.get(i).initialize(inputTexId);
-      intermediateSize = frameProcessors.get(i).getOutputSize();
-    }
-    // Return something because only Callables not Runnables can throw checked exceptions.
-    return null;
-  }
-
-  /**
    * Processes an input frame.
    *
-   * <p>This method should only be called on the background thread.
+   * <p>This method should only be called on the {@linkplain #THREAD_NAME background thread}.
    */
   @RequiresNonNull("inputSurfaceTexture")
   private void processFrame() {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-    checkStateNotNull(eglSurface);
-    checkStateNotNull(eglContext);
-    checkStateNotNull(eglDisplay);
+    checkStateNotNull(eglSurface, "No output surface set.");
 
     if (frameProcessors.isEmpty()) {
       GlUtil.focusEglSurface(

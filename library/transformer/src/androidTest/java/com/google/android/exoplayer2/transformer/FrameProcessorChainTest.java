@@ -28,10 +28,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Robolectric tests for {@link FrameProcessorChain}.
+ * Tests for creating and configuring a {@link FrameProcessorChain}.
  *
- * <p>See {@code FrameProcessorChainPixelTest} in the androidTest directory for instrumentation
- * tests.
+ * <p>See {@link FrameProcessorChainPixelTest} for data processing tests.
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainTest {

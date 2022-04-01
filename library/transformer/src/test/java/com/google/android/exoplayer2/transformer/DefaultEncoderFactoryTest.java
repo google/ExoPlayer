@@ -114,13 +114,19 @@ public class DefaultEncoderFactoryTest {
   @Test
   public void createForVideoEncoding_withNoSupportedEncoder_throws() {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
-    assertThrows(
-        TransformationException.class,
-        () ->
-            new DefaultEncoderFactory()
-                .createForVideoEncoding(
-                    requestedVideoFormat,
-                    /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H265)));
+
+    TransformationException exception =
+        assertThrows(
+            TransformationException.class,
+            () ->
+                new DefaultEncoderFactory()
+                    .createForVideoEncoding(
+                        requestedVideoFormat,
+                        /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H265)));
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception.errorCode)
+        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test

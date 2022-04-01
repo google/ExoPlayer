@@ -260,7 +260,7 @@ public final class FrameProcessorChainPixelTest {
               outputSize.getHeight(),
               PixelFormat.RGBA_8888,
               /* maxImages= */ 1);
-      frameProcessorChain.configure(
+      frameProcessorChain.setOutputSurface(
           outputImageReader.getSurface(),
           outputSize.getWidth(),
           outputSize.getHeight(),
