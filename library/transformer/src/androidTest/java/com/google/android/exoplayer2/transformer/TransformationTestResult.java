@@ -31,7 +31,6 @@ public class TransformationTestResult {
 
     @Nullable private String filePath;
     @Nullable private Exception analysisException;
-
     private long elapsedTimeMs;
     private double ssim;
 
@@ -103,8 +102,12 @@ public class TransformationTestResult {
   }
 
   public final TransformationResult transformationResult;
-
   @Nullable public final String filePath;
+  /**
+   * The average rate (per second) at which frames are processed by the transformer, or {@link
+   * C#RATE_UNSET} if unset or unknown.
+   */
+  public final float throughputFps;
   /**
    * The amount of time taken to perform the transformation in milliseconds. {@link C#TIME_UNSET} if
    * unset.
@@ -133,6 +136,12 @@ public class TransformationTestResult {
     if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
       jsonObject.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
     }
+    if (transformationResult.videoFrameCount > 0) {
+      jsonObject.put("videoFrameCount", transformationResult.videoFrameCount);
+    }
+    if (throughputFps != C.RATE_UNSET) {
+      jsonObject.put("throughputFps", throughputFps);
+    }
     if (elapsedTimeMs != C.TIME_UNSET) {
       jsonObject.put("elapsedTimeMs", elapsedTimeMs);
     }
@@ -156,5 +165,9 @@ public class TransformationTestResult {
     this.elapsedTimeMs = elapsedTimeMs;
     this.ssim = ssim;
     this.analysisException = analysisException;
+    this.throughputFps =
+        elapsedTimeMs != C.TIME_UNSET && transformationResult.videoFrameCount > 0
+            ? 1000f * transformationResult.videoFrameCount / elapsedTimeMs
+            : C.RATE_UNSET;
   }
 }

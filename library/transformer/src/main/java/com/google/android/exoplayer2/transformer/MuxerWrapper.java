@@ -48,6 +48,7 @@ import java.nio.ByteBuffer;
   private final Muxer muxer;
   private final Muxer.Factory muxerFactory;
   private final SparseIntArray trackTypeToIndex;
+  private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
   private final SparseLongArray trackTypeToBytesWritten;
   private final String containerMimeType;
@@ -62,7 +63,9 @@ import java.nio.ByteBuffer;
     this.muxer = muxer;
     this.muxerFactory = muxerFactory;
     this.containerMimeType = containerMimeType;
+
     trackTypeToIndex = new SparseIntArray();
+    trackTypeToSampleCount = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
     trackTypeToBytesWritten = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
@@ -123,6 +126,7 @@ import java.nio.ByteBuffer;
 
     int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
+    trackTypeToSampleCount.put(trackType, 0);
     trackTypeToTimeUs.put(trackType, 0L);
     trackTypeToBytesWritten.put(trackType, 0L);
     trackFormatCount++;
@@ -158,6 +162,7 @@ import java.nio.ByteBuffer;
       return false;
     }
 
+    trackTypeToSampleCount.put(trackType, trackTypeToSampleCount.get(trackType) + 1);
     trackTypeToBytesWritten.put(
         trackType, trackTypeToBytesWritten.get(trackType) + data.remaining());
     if (trackTypeToTimeUs.get(trackType) < presentationTimeUs) {
@@ -218,6 +223,16 @@ import java.nio.ByteBuffer;
             /* divisor= */ trackDurationUs);
   }
 
+  /** Returns the number of samples written to the track of the provided {@code trackType}. */
+  public int getTrackSampleCount(@C.TrackType int trackType) {
+    return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
+  }
+
+  /** Returns the duration of the longest track in milliseconds. */
+  public long getDurationMs() {
+    return Util.usToMs(maxValue(trackTypeToTimeUs));
+  }
+
   /**
    * Returns whether the muxer can write a sample of the given track type.
    *
@@ -242,10 +257,5 @@ import java.nio.ByteBuffer;
       minTrackTimeUs = minValue(trackTypeToTimeUs);
     }
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
-  }
-
-  /** Returns the duration of the longest track in milliseconds. */
-  public long getDurationMs() {
-    return Util.usToMs(maxValue(trackTypeToTimeUs));
   }
 }
