@@ -171,9 +171,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         eglContext,
         singleThreadExecutorService,
         inputExternalTexId,
-        externalCopyFrameProcessor,
         framebuffers,
-        ImmutableList.copyOf(frameProcessors),
+        new ImmutableList.Builder<GlFrameProcessor>()
+            .add(externalCopyFrameProcessor)
+            .addAll(frameProcessors)
+            .build(),
         enableExperimentalHdrEditing);
   }
 
@@ -196,14 +198,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /** Transformation matrix associated with the {@link #inputSurfaceTexture}. */
   private final float[] textureTransformMatrix;
 
-  private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
+  /**
+   * Contains an {@link ExternalCopyFrameProcessor} at the 0th index and optionally other {@link
+   * GlFrameProcessor GlFrameProcessors} at indices >= 1.
+   */
   private final ImmutableList<GlFrameProcessor> frameProcessors;
   /**
    * Identifiers of a framebuffer object associated with the intermediate textures that receive
    * output from the previous {@link GlFrameProcessor}, and provide input for the following {@link
    * GlFrameProcessor}.
-   *
-   * <p>The {@link ExternalCopyFrameProcessor} writes to the first framebuffer.
    */
   private final int[] framebuffers;
 
@@ -231,15 +234,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       EGLContext eglContext,
       ExecutorService singleThreadExecutorService,
       int inputExternalTexId,
-      ExternalCopyFrameProcessor externalCopyFrameProcessor,
       int[] framebuffers,
       ImmutableList<GlFrameProcessor> frameProcessors,
       boolean enableExperimentalHdrEditing) {
+    checkState(!frameProcessors.isEmpty());
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.singleThreadExecutorService = singleThreadExecutorService;
-    this.externalCopyFrameProcessor = externalCopyFrameProcessor;
     this.framebuffers = framebuffers;
     this.frameProcessors = frameProcessors;
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
@@ -249,10 +251,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurface = new Surface(inputSurfaceTexture);
     textureTransformMatrix = new float[16];
-    outputSize =
-        frameProcessors.isEmpty()
-            ? externalCopyFrameProcessor.getOutputSize()
-            : getLast(frameProcessors).getOutputSize();
+    outputSize = getLast(frameProcessors).getOutputSize();
     debugPreviewWidth = C.LENGTH_UNSET;
     debugPreviewHeight = C.LENGTH_UNSET;
   }
@@ -379,7 +378,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     futures.add(
         singleThreadExecutorService.submit(
             () -> {
-              externalCopyFrameProcessor.release();
               for (int i = 0; i < frameProcessors.size(); i++) {
                 frameProcessors.get(i).release();
               }
@@ -429,26 +427,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
     checkStateNotNull(eglSurface, "No output surface set.");
 
-    if (frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
-    } else {
-      Size intermediateSize = externalCopyFrameProcessor.getOutputSize();
-      GlUtil.focusFramebuffer(
-          eglDisplay,
-          eglContext,
-          eglSurface,
-          framebuffers[0],
-          intermediateSize.getWidth(),
-          intermediateSize.getHeight());
-    }
     inputSurfaceTexture.updateTexImage();
-    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-    externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
     long presentationTimeNs = inputSurfaceTexture.getTimestamp();
     long presentationTimeUs = presentationTimeNs / 1000;
-    clearOutputFrame();
-    externalCopyFrameProcessor.updateProgramAndDraw(presentationTimeUs);
+    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
+    ((ExternalCopyFrameProcessor) frameProcessors.get(0))
+        .setTextureTransformMatrix(textureTransformMatrix);
 
     for (int i = 0; i < frameProcessors.size() - 1; i++) {
       Size intermediateSize = frameProcessors.get(i).getOutputSize();
@@ -456,18 +440,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           eglDisplay,
           eglContext,
           eglSurface,
-          framebuffers[i + 1],
+          framebuffers[i],
           intermediateSize.getWidth(),
           intermediateSize.getHeight());
       clearOutputFrame();
       frameProcessors.get(i).updateProgramAndDraw(presentationTimeUs);
     }
-    if (!frameProcessors.isEmpty()) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
-      clearOutputFrame();
-      getLast(frameProcessors).updateProgramAndDraw(presentationTimeUs);
-    }
+    GlUtil.focusEglSurface(
+        eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
+    clearOutputFrame();
+    getLast(frameProcessors).updateProgramAndDraw(presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);
