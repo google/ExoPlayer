@@ -81,7 +81,7 @@ import org.checkerframework.dataflow.qual.Pure;
             .setResolution(transformationRequest.outputHeight)
             .build();
     frameProcessorChain =
-        new FrameProcessorChain(
+        FrameProcessorChain.create(
             context,
             inputFormat.pixelWidthHeightRatio,
             /* inputWidth= */ decodedWidth,
