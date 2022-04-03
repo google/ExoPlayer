@@ -5,14 +5,15 @@ PlayResX: 1280
 PlayResY: 720
 
 [V4+ Styles]
-Format: Name                         ,PrimaryColour
-Style: PrimaryColourStyleHexRed      ,&H000000FF
-Style: PrimaryColourStyleHexYellow   ,&H0000FFFF
-Style: PrimaryColourStyleHexGreen    ,&HFF00
-Style: PrimaryColourStyleHexAlpha    ,&HA00000FF
-Style: PrimaryColourStyleDecimal     ,16711680
-Style: PrimaryColourStyleDecimalAlpha,2164195328
-Style: PrimaryColourStyleInvalid     ,blue
+Format: Name                         ,PrimaryColour,OutlineColour
+Style: PrimaryColourStyleHexRed      ,&H000000FF   ,&H00000000
+Style: PrimaryColourStyleHexYellow   ,&H0000FFFF   ,&H00000000
+Style: PrimaryColourStyleHexGreen    ,&HFF00       ,&H00000000
+Style: PrimaryColourStyleHexAlpha    ,&HA00000FF   ,&H00000000
+Style: PrimaryColourStyleDecimal     ,16711680     ,&H00000000
+Style: PrimaryColourStyleDecimalAlpha,2164195328   ,&H00000000
+Style: PrimaryColourStyleInvalid     ,blue         ,&H00000000
+Style: OutlineColourStyleBlue        ,&H00000000   ,&H00FF0000
 
 
 [Events]
@@ -24,3 +25,4 @@ Dialogue: 0:00:07.00,0:00:08.00,PrimaryColourStyleHexAlpha    ,Fourth line in RE
 Dialogue: 0:00:09.00,0:00:10.00,PrimaryColourStyleDecimal     ,Fifth line in BLUE (16711680).
 Dialogue: 0:00:11.00,0:00:12.00,PrimaryColourStyleDecimalAlpha,Sixth line in BLUE with alpha (2164195328).
 Dialogue: 0:00:13.00,0:00:14.00,PrimaryColourInvalid          ,Seventh line with invalid color.
+Dialogue: 0:00:15.00,0:00:16.00,OutlineColourStyleBlue        ,Eighth line with BLUE (&H00FF0000) outline.

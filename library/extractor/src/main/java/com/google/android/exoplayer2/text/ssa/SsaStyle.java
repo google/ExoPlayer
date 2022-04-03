@@ -95,6 +95,7 @@ import java.util.regex.Pattern;
   public final String name;
   public final @SsaAlignment int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
+  @Nullable @ColorInt public final Integer outlineColor;
   public final float fontSize;
   public final boolean bold;
   public final boolean italic;
@@ -105,6 +106,7 @@ import java.util.regex.Pattern;
       String name,
       @SsaAlignment int alignment,
       @Nullable @ColorInt Integer primaryColor,
+      @Nullable @ColorInt Integer outlineColor,
       float fontSize,
       boolean bold,
       boolean italic,
@@ -113,6 +115,7 @@ import java.util.regex.Pattern;
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
+    this.outlineColor = outlineColor;
     this.fontSize = fontSize;
     this.bold = bold;
     this.italic = italic;
@@ -140,6 +143,9 @@ import java.util.regex.Pattern;
               : SSA_ALIGNMENT_UNKNOWN,
           format.primaryColorIndex != C.INDEX_UNSET
               ? parseColor(styleValues[format.primaryColorIndex].trim())
+              : null,
+          format.outlineColorIndex != C.INDEX_UNSET
+              ? parseColor(styleValues[format.outlineColorIndex].trim())
               : null,
           format.fontSizeIndex != C.INDEX_UNSET
               ? parseFontSize(styleValues[format.fontSizeIndex].trim())
@@ -257,6 +263,7 @@ import java.util.regex.Pattern;
     public final int nameIndex;
     public final int alignmentIndex;
     public final int primaryColorIndex;
+    public final int outlineColorIndex;
     public final int fontSizeIndex;
     public final int boldIndex;
     public final int italicIndex;
@@ -268,6 +275,7 @@ import java.util.regex.Pattern;
         int nameIndex,
         int alignmentIndex,
         int primaryColorIndex,
+        int outlineColorIndex,
         int fontSizeIndex,
         int boldIndex,
         int italicIndex,
@@ -277,6 +285,7 @@ import java.util.regex.Pattern;
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
       this.primaryColorIndex = primaryColorIndex;
+      this.outlineColorIndex = outlineColorIndex;
       this.fontSizeIndex = fontSizeIndex;
       this.boldIndex = boldIndex;
       this.italicIndex = italicIndex;
@@ -295,6 +304,7 @@ import java.util.regex.Pattern;
       int nameIndex = C.INDEX_UNSET;
       int alignmentIndex = C.INDEX_UNSET;
       int primaryColorIndex = C.INDEX_UNSET;
+      int outlineColorIndex = C.INDEX_UNSET;
       int fontSizeIndex = C.INDEX_UNSET;
       int boldIndex = C.INDEX_UNSET;
       int italicIndex = C.INDEX_UNSET;
@@ -312,6 +322,9 @@ import java.util.regex.Pattern;
             break;
           case "primarycolour":
             primaryColorIndex = i;
+            break;
+          case "outlinecolour":
+            outlineColorIndex = i;
             break;
           case "fontsize":
             fontSizeIndex = i;
@@ -335,6 +348,7 @@ import java.util.regex.Pattern;
               nameIndex,
               alignmentIndex,
               primaryColorIndex,
+              outlineColorIndex,
               fontSizeIndex,
               boldIndex,
               italicIndex,

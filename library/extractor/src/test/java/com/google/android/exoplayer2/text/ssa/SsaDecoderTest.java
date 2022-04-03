@@ -301,7 +301,7 @@ public final class SsaDecoderTest {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_COLORS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(14);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(16);
     // &H000000FF (AABBGGRR) -> #FFFF0000 (AARRGGBB)
     Spanned firstCueText =
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
@@ -342,6 +342,11 @@ public final class SsaDecoderTest {
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12))).text;
     SpannedSubject.assertThat(seventhCueText)
         .hasNoForegroundColorSpanBetween(0, seventhCueText.length());
+    Spanned eighthCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(14))).text;
+    SpannedSubject.assertThat(eighthCueText)
+        .hasBackgroundColorSpanBetween(0, eighthCueText.length())
+        .withColor(Color.BLUE);
   }
 
   @Test
