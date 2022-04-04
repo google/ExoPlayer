@@ -55,6 +55,13 @@ public class RtspSessionTimingTest {
   }
 
   @Test
+  public void parseTiming_withRangeTimingAndColonSeparator() throws Exception {
+    RtspSessionTiming sessionTiming = RtspSessionTiming.parseTiming("npt:0.000-32.054");
+    assertThat(sessionTiming.getDurationMs()).isEqualTo(32054);
+    assertThat(sessionTiming.isLive()).isFalse();
+  }
+
+  @Test
   public void parseTiming_withInvalidRangeTiming_throwsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class, () -> RtspSessionTiming.parseTiming("npt=10.000-2.054"));
