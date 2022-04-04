@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
@@ -46,7 +47,8 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
 
   /**
-   * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}.
+   * Returns a 4x4, column-major {@link android.opengl.Matrix} float array, from an input {@link
+   * Matrix}.
    *
    * <p>This is useful for converting to the 4x4 column-major format commonly used in OpenGL.
    */
@@ -87,7 +89,7 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   }
 
   private final Context context;
-  private final Matrix transformationMatrix;
+  private final float[] transformationMatrix;
 
   private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
@@ -96,13 +98,27 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
    * Creates a new instance.
    *
    * @param context The {@link Context}.
-   * @param transformationMatrix The transformation matrix to apply to each frame. Operations are
-   *     done on normalized device coordinates (-1 to 1 on x and y), and no automatic adjustments
-   *     are applied on the transformation matrix.
+   * @param transformationMatrix The transformation {@link Matrix} to apply to each frame.
+   *     Operations are done on normalized device coordinates (-1 to 1 on x and y), and no automatic
+   *     adjustments are applied on the transformation matrix.
    */
   public AdvancedFrameProcessor(Context context, Matrix transformationMatrix) {
+    this(context, getGlMatrixArray(transformationMatrix));
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param context The {@link Context}.
+   * @param transformationMatrix The 4x4 transformation {@link android.opengl.Matrix} to apply to
+   *     each frame. Operations are done on normalized device coordinates (-1 to 1 on x and y), and
+   *     no automatic adjustments are applied on the transformation matrix.
+   */
+  public AdvancedFrameProcessor(Context context, float[] transformationMatrix) {
+    checkArgument(
+        transformationMatrix.length == 16, "A 4x4 transformation matrix must have 16 elements.");
     this.context = context;
-    this.transformationMatrix = new Matrix(transformationMatrix);
+    this.transformationMatrix = transformationMatrix.clone();
   }
 
   @Override
@@ -117,7 +133,7 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setBufferAttribute(
         "aTexSamplingCoord", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
-    glProgram.setFloatsUniform("uTransformationMatrix", getGlMatrixArray(transformationMatrix));
+    glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrix);
   }
 
   @Override
