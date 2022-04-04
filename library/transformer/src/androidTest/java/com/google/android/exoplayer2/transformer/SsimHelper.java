@@ -330,6 +330,17 @@ public final class SsimHelper {
     private static final double C2 = pow(IMAGE_DYNAMIC_RANGE * K2, 2);
     private static final int WINDOW_SIZE = 8;
 
+    /**
+     * Calculates the Structural Similarity Index (SSIM) between two images.
+     *
+     * @param expected The luminance channel (Y) bitmap of the expected image.
+     * @param actual The luminance channel (Y) bitmap of the actual image.
+     * @param offset The offset.
+     * @param stride The stride of the bitmap.
+     * @param width The image width in pixels.
+     * @param height The image height in pixels.
+     * @return The SSIM score between the input images.
+     */
     public static double calculate(
         int[] expected, int[] actual, int offset, int stride, int width, int height) {
       double totalSsim = 0;
