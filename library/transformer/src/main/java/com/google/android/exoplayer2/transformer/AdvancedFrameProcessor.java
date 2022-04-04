@@ -104,17 +104,8 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void setInputSize(int inputWidth, int inputHeight) {
+  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
     size = new Size(inputWidth, inputHeight);
-  }
-
-  @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(size);
-  }
-
-  @Override
-  public void initialize(int inputTexId) throws IOException {
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.
     glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
@@ -125,6 +116,11 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
     glProgram.setBufferAttribute(
         "aTexSamplingCoord", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setFloatsUniform("uTransformationMatrix", getGlMatrixArray(transformationMatrix));
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(size);
   }
 
   @Override

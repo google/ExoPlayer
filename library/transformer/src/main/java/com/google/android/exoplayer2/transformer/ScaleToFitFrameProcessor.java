@@ -22,9 +22,10 @@ import static java.lang.Math.min;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
-import com.google.android.exoplayer2.C;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -98,8 +99,6 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   private final Matrix transformationMatrix;
 
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
-  private int inputWidth;
-  private int inputHeight;
   private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
@@ -118,15 +117,35 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     this.transformationMatrix = new Matrix();
     this.transformationMatrix.postScale(scaleX, scaleY);
     this.transformationMatrix.postRotate(rotationDegrees);
-
-    inputWidth = C.LENGTH_UNSET;
-    inputHeight = C.LENGTH_UNSET;
   }
 
   @Override
-  public void setInputSize(int inputWidth, int inputHeight) {
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
+  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+    configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    advancedFrameProcessor = new AdvancedFrameProcessor(context, adjustedTransformationMatrix);
+    advancedFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(outputSize);
+  }
+
+  @Override
+  public void updateProgramAndDraw(long presentationTimeUs) {
+    checkStateNotNull(advancedFrameProcessor).updateProgramAndDraw(presentationTimeUs);
+  }
+
+  @Override
+  public void release() {
+    if (advancedFrameProcessor != null) {
+      advancedFrameProcessor.release();
+    }
+  }
+
+  @EnsuresNonNull("adjustedTransformationMatrix")
+  @VisibleForTesting // Allows roboletric testing of output size calculation without OpenGL.
+  /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
     if (transformationMatrix.isIdentity()) {
@@ -162,30 +181,5 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     float yScale = (yMax - yMin) / ndcWidthAndHeight;
     adjustedTransformationMatrix.postScale(1f / xScale, 1f / yScale);
     outputSize = new Size(Math.round(inputWidth * xScale), Math.round(inputHeight * yScale));
-  }
-
-  @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(outputSize);
-  }
-
-  @Override
-  public void initialize(int inputTexId) throws IOException {
-    checkStateNotNull(adjustedTransformationMatrix);
-    advancedFrameProcessor = new AdvancedFrameProcessor(context, adjustedTransformationMatrix);
-    advancedFrameProcessor.setInputSize(inputWidth, inputHeight);
-    advancedFrameProcessor.initialize(inputTexId);
-  }
-
-  @Override
-  public void updateProgramAndDraw(long presentationTimeUs) {
-    checkStateNotNull(advancedFrameProcessor).updateProgramAndDraw(presentationTimeUs);
-  }
-
-  @Override
-  public void release() {
-    if (advancedFrameProcessor != null) {
-      advancedFrameProcessor.release();
-    }
   }
 }

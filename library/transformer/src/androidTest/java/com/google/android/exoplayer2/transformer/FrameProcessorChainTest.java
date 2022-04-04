@@ -138,15 +138,12 @@ public final class FrameProcessorChainTest {
     }
 
     @Override
-    public void setInputSize(int inputWidth, int inputHeight) {}
+    public void initialize(int inputTexId, int inputWidth, int inputHeight) {}
 
     @Override
     public Size getOutputSize() {
       return outputSize;
     }
-
-    @Override
-    public void initialize(int inputTexId) {}
 
     @Override
     public void updateProgramAndDraw(long presentationTimeNs) {}

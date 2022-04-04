@@ -154,16 +154,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     int inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.setInputSize(inputWidth, inputHeight);
-    externalCopyFrameProcessor.initialize(inputExternalTexId);
+    externalCopyFrameProcessor.initialize(inputExternalTexId, inputWidth, inputHeight);
 
     int[] framebuffers = new int[frameProcessors.size()];
     Size inputSize = externalCopyFrameProcessor.getOutputSize();
     for (int i = 0; i < frameProcessors.size(); i++) {
       int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
       framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
-      frameProcessors.get(i).setInputSize(inputSize.getWidth(), inputSize.getHeight());
-      frameProcessors.get(i).initialize(inputTexId);
+      frameProcessors.get(i).initialize(inputTexId, inputSize.getWidth(), inputSize.getHeight());
       inputSize = frameProcessors.get(i).getOutputSize();
     }
     return new FrameProcessorChain(
