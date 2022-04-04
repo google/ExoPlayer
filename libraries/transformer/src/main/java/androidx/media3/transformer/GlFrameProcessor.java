@@ -26,50 +26,41 @@ import java.io.IOException;
  *
  * <ol>
  *   <li>The constructor, for implementation-specific arguments.
- *   <li>{@link #setInputSize(int, int)}, to configure based on input dimensions.
- *   <li>{@link #initialize(int)}, to set up graphics initialization.
+ *   <li>{@link #initialize(int,int,int)}, to set up graphics initialization.
  *   <li>{@link #updateProgramAndDraw(long)}, to process one frame.
  *   <li>{@link #release()}, upon conclusion of processing.
  * </ol>
  */
 @UnstableApi
 public interface GlFrameProcessor {
-  // TODO(b/213313666): Investigate whether all configuration can be moved to initialize by
-  //  using a placeholder surface until the encoder surface is known. If so, convert
-  //  configureOutputSize to a simple getter.
 
   /**
-   * Sets the input size of frames processed through {@link #updateProgramAndDraw(long)}.
+   * Performs all initialization that requires OpenGL, such as, loading and compiling a GLSL shader
+   * program.
    *
-   * <p>This method must be called before {@link #initialize(int)} and does not use OpenGL, as
-   * calling this method without a current OpenGL context is allowed.
+   * <p>This method may only be called if there is a current OpenGL context.
    *
-   * <p>After setting the input size, the output size can be obtained using {@link
-   * #getOutputSize()}.
+   * @param inputTexId Identifier of a 2D OpenGL texture.
+   * @param inputWidth The input width, in pixels.
+   * @param inputHeight The input height, in pixels.
    */
-  void setInputSize(int inputWidth, int inputHeight);
+  void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException;
 
   /**
    * Returns the output {@link Size} of frames processed through {@link
    * #updateProgramAndDraw(long)}.
    *
-   * <p>Must call {@link #setInputSize(int, int)} before calling this method.
+   * <p>This method may only be called after the frame processor has been {@link
+   * #initialize(int,int,int) initialized}.
    */
   Size getOutputSize();
 
   /**
-   * Does any initialization necessary such as loading and compiling a GLSL shader programs.
-   *
-   * <p>This method may only be called after creating the OpenGL context and focusing a render
-   * target.
-   */
-  void initialize(int inputTexId) throws IOException;
-
-  /**
    * Updates the shader program's vertex attributes and uniforms, binds them, and draws.
    *
-   * <p>The frame processor must be {@linkplain #initialize(int) initialized}. The caller is
-   * responsible for focussing the correct render target before calling this method.
+   * <p>This method may only be called after the frame processor has been {@link
+   * #initialize(int,int,int) initialized}. The caller is responsible for focussing the correct
+   * render target before calling this method.
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */

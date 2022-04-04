@@ -39,7 +39,7 @@ public final class PresentationFrameProcessorTest {
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
@@ -54,7 +54,7 @@ public final class PresentationFrameProcessorTest {
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
@@ -69,7 +69,7 @@ public final class PresentationFrameProcessorTest {
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
 
-    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(90);
@@ -87,7 +87,7 @@ public final class PresentationFrameProcessorTest {
             .setResolution(requestedHeight)
             .build();
 
-    presentationFrameProcessor.setInputSize(inputWidth, inputHeight);
+    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
     assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);

@@ -21,11 +21,13 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Controls how a frame is viewed, by changing resolution. */
@@ -35,6 +37,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link PresentationFrameProcessor} instances. */
   public static final class Builder {
+
     // Mandatory field.
     private final Context context;
 
@@ -80,12 +83,10 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private final Context context;
   private final int requestedHeight;
 
-  private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
-  private int inputWidth;
-  private int inputHeight;
-  private int outputRotationDegrees;
   private @MonotonicNonNull Size outputSize;
+  private int outputRotationDegrees;
   private @MonotonicNonNull Matrix transformationMatrix;
+  private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
 
   /**
    * Creates a new instance.
@@ -97,9 +98,19 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     this.context = context;
     this.requestedHeight = requestedHeight;
 
-    inputWidth = C.LENGTH_UNSET;
-    inputHeight = C.LENGTH_UNSET;
     outputRotationDegrees = C.LENGTH_UNSET;
+  }
+
+  @Override
+  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+    configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    advancedFrameProcessor = new AdvancedFrameProcessor(context, transformationMatrix);
+    advancedFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(outputSize);
   }
 
   /**
@@ -107,7 +118,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
    *
    * <p>Return values may be {@code 0} or {@code 90} degrees.
    *
-   * <p>This method can only be called after {@link #setInputSize(int, int)}.
+   * <p>The frame processor must be {@linkplain #initialize(int,int,int) initialized}.
    */
   public int getOutputRotationDegrees() {
     checkState(outputRotationDegrees != C.LENGTH_UNSET);
@@ -115,20 +126,28 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void setInputSize(int inputWidth, int inputHeight) {
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
-    transformationMatrix = new Matrix();
+  public void updateProgramAndDraw(long presentationTimeUs) {
+    checkStateNotNull(advancedFrameProcessor).updateProgramAndDraw(presentationTimeUs);
+  }
 
+  @Override
+  public void release() {
+    if (advancedFrameProcessor != null) {
+      advancedFrameProcessor.release();
+    }
+  }
+
+  @EnsuresNonNull("transformationMatrix")
+  @VisibleForTesting // Allows roboletric testing of output size calculation without OpenGL.
+  /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
+    transformationMatrix = new Matrix();
     int displayWidth = inputWidth;
     int displayHeight = inputHeight;
-
     // Scale width and height to desired requestedHeight, preserving aspect ratio.
     if (requestedHeight != C.LENGTH_UNSET && requestedHeight != displayHeight) {
       displayWidth = Math.round((float) requestedHeight * displayWidth / displayHeight);
       displayHeight = requestedHeight;
     }
-
     // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
     // frame before encoding, so the encoded frame's width >= height, and set
     // outputRotationDegrees to ensure the frame is displayed in the correct orientation.
@@ -141,31 +160,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     } else {
       outputRotationDegrees = 0;
       outputSize = new Size(displayWidth, displayHeight);
-    }
-  }
-
-  @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(outputSize);
-  }
-
-  @Override
-  public void initialize(int inputTexId) throws IOException {
-    checkStateNotNull(transformationMatrix);
-    advancedFrameProcessor = new AdvancedFrameProcessor(context, transformationMatrix);
-    advancedFrameProcessor.setInputSize(inputWidth, inputHeight);
-    advancedFrameProcessor.initialize(inputTexId);
-  }
-
-  @Override
-  public void updateProgramAndDraw(long presentationTimeUs) {
-    checkStateNotNull(advancedFrameProcessor).updateProgramAndDraw(presentationTimeUs);
-  }
-
-  @Override
-  public void release() {
-    if (advancedFrameProcessor != null) {
-      advancedFrameProcessor.release();
     }
   }
 }

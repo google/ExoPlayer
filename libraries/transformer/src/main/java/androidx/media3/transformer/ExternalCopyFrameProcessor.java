@@ -60,17 +60,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setInputSize(int inputWidth, int inputHeight) {
+  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
     size = new Size(inputWidth, inputHeight);
-  }
-
-  @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(size);
-  }
-
-  @Override
-  public void initialize(int inputTexId) throws IOException {
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.
     String vertexShaderFilePath =
@@ -92,6 +83,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // In HDR editing mode the decoder output is sampled in YUV.
       glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
     }
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(size);
   }
 
   /**

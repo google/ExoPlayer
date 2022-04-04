@@ -91,7 +91,7 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "updateProgramAndDraw_noEdits";
     Matrix identityMatrix = new Matrix();
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
-    advancedFrameProcessor.initialize(inputTexId);
+    advancedFrameProcessor.initialize(inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
     advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
@@ -114,7 +114,7 @@ public final class AdvancedFrameProcessorPixelTest {
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
-    advancedFrameProcessor.initialize(inputTexId);
+    advancedFrameProcessor.initialize(inputTexId, width, height);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
@@ -137,7 +137,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
-    advancedFrameProcessor.initialize(inputTexId);
+    advancedFrameProcessor.initialize(inputTexId, width, height);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
@@ -160,7 +160,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
-    advancedFrameProcessor.initialize(inputTexId);
+    advancedFrameProcessor.initialize(inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
