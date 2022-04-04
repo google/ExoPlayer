@@ -92,6 +92,31 @@ import java.util.regex.Pattern;
   public static final int SSA_ALIGNMENT_TOP_CENTER = 8;
   public static final int SSA_ALIGNMENT_TOP_RIGHT = 9;
 
+  /**
+   * The SSA/ASS BorderStyle.
+   *
+   * <p>Allowed values:
+   *
+   * <ul>
+   *   <li>{@link #SSA_BORDER_STYLE_UNKNOWN}
+   *   <li>{@link #SSA_BORDER_STYLE_OUTLINE}
+   *   <li>{@link #SSA_BORDER_STYLE_BOX}
+   * </ul>
+   */
+  @Target(TYPE_USE)
+  @IntDef({
+      SSA_BORDER_STYLE_UNKNOWN,
+      SSA_BORDER_STYLE_OUTLINE,
+      SSA_BORDER_STYLE_BOX,
+  })
+  @Documented
+  @Retention(SOURCE)
+  public @interface SsaBorderStyle {}
+
+  public static final int SSA_BORDER_STYLE_UNKNOWN = -1;
+  public static final int SSA_BORDER_STYLE_OUTLINE = 1;
+  public static final int SSA_BORDER_STYLE_BOX = 3;
+
   public final String name;
   public final @SsaAlignment int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
@@ -101,6 +126,7 @@ import java.util.regex.Pattern;
   public final boolean italic;
   public final boolean underline;
   public final boolean strikeout;
+  public final @SsaBorderStyle int borderStyle;
 
   private SsaStyle(
       String name,
@@ -111,7 +137,8 @@ import java.util.regex.Pattern;
       boolean bold,
       boolean italic,
       boolean underline,
-      boolean strikeout) {
+      boolean strikeout,
+      int borderStyle) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
@@ -121,6 +148,7 @@ import java.util.regex.Pattern;
     this.italic = italic;
     this.underline = underline;
     this.strikeout = strikeout;
+    this.borderStyle = borderStyle;
   }
 
   @Nullable
@@ -157,7 +185,10 @@ import java.util.regex.Pattern;
           format.underlineIndex != C.INDEX_UNSET
               && parseBooleanValue(styleValues[format.underlineIndex].trim()),
           format.strikeoutIndex != C.INDEX_UNSET
-              && parseBooleanValue(styleValues[format.strikeoutIndex].trim()));
+              && parseBooleanValue(styleValues[format.strikeoutIndex].trim()),
+          format.borderStyleIndex != C.INDEX_UNSET
+              ? parseBorderStyle(styleValues[format.borderStyleIndex].trim())
+              : SSA_BORDER_STYLE_UNKNOWN);
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;
@@ -190,6 +221,30 @@ import java.util.regex.Pattern;
       case SSA_ALIGNMENT_TOP_RIGHT:
         return true;
       case SSA_ALIGNMENT_UNKNOWN:
+      default:
+        return false;
+    }
+  }
+
+  private static @SsaBorderStyle int parseBorderStyle(String borderStyleStr) {
+    try {
+      @SsaBorderStyle int borderStyle = Integer.parseInt(borderStyleStr.trim());
+      if (isValidBorderStyle(borderStyle)) {
+        return borderStyle;
+      }
+    } catch (NumberFormatException e) {
+      // Swallow the exception and return UNKNOWN below.
+    }
+    Log.w(TAG, "Ignoring unknown BorderStyle: " + borderStyleStr);
+    return SSA_BORDER_STYLE_UNKNOWN;
+  }
+
+  private static boolean isValidBorderStyle(@SsaBorderStyle int alignment) {
+    switch (alignment) {
+      case SSA_BORDER_STYLE_OUTLINE:
+      case SSA_BORDER_STYLE_BOX:
+        return true;
+      case SSA_BORDER_STYLE_UNKNOWN:
       default:
         return false;
     }
@@ -269,6 +324,7 @@ import java.util.regex.Pattern;
     public final int italicIndex;
     public final int underlineIndex;
     public final int strikeoutIndex;
+    public final int borderStyleIndex;
     public final int length;
 
     private Format(
@@ -281,6 +337,7 @@ import java.util.regex.Pattern;
         int italicIndex,
         int underlineIndex,
         int strikeoutIndex,
+        int borderStyleIndex,
         int length) {
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
@@ -291,6 +348,7 @@ import java.util.regex.Pattern;
       this.italicIndex = italicIndex;
       this.underlineIndex = underlineIndex;
       this.strikeoutIndex = strikeoutIndex;
+      this.borderStyleIndex = borderStyleIndex;
       this.length = length;
     }
 
@@ -310,6 +368,7 @@ import java.util.regex.Pattern;
       int italicIndex = C.INDEX_UNSET;
       int underlineIndex = C.INDEX_UNSET;
       int strikeoutIndex = C.INDEX_UNSET;
+      int borderStyleIndex = C.INDEX_UNSET;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
@@ -341,6 +400,9 @@ import java.util.regex.Pattern;
           case "strikeout":
             strikeoutIndex = i;
             break;
+          case "borderstyle":
+            borderStyleIndex = i;
+            break;
         }
       }
       return nameIndex != C.INDEX_UNSET
@@ -354,6 +416,7 @@ import java.util.regex.Pattern;
               italicIndex,
               underlineIndex,
               strikeoutIndex,
+              borderStyleIndex,
               keys.length)
           : null;
     }

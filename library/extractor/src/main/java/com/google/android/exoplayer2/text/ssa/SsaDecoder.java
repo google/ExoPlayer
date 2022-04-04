@@ -320,7 +320,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
             /* end= */ spannableText.length(),
             SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
-      if (style.outlineColor != null) {
+      if (style.borderStyle == SsaStyle.SSA_BORDER_STYLE_BOX && style.outlineColor != null) {
         spannableText.setSpan(
             new BackgroundColorSpan(style.outlineColor),
             /* start= */ 0,
