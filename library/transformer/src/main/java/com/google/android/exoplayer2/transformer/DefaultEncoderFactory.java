@@ -183,6 +183,17 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     mediaFormat.setFloat(
         MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
 
+    if (Util.SDK_INT >= 23) {
+      // Setting operating rate and priority is supported from API 23.
+      if (supportedVideoEncoderSettings.operatingRate != VideoEncoderSettings.NO_VALUE) {
+        mediaFormat.setInteger(
+            MediaFormat.KEY_OPERATING_RATE, supportedVideoEncoderSettings.operatingRate);
+      }
+      if (supportedVideoEncoderSettings.priority != VideoEncoderSettings.NO_VALUE) {
+        mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, supportedVideoEncoderSettings.priority);
+      }
+    }
+
     return new DefaultCodec(
         format,
         mediaFormat,
