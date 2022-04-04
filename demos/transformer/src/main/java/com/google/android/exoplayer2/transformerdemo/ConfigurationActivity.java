@@ -161,6 +161,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
+    enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
+    findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
   }
 
@@ -303,7 +305,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
-    enableRequestSdrToneMappingCheckBox.setEnabled(isVideoEnabled);
+    enableRequestSdrToneMappingCheckBox.setEnabled(
+        isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
@@ -311,7 +314,12 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.resolution_height_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
-    findViewById(R.id.request_sdr_tone_mapping).setEnabled(isVideoEnabled);
+    findViewById(R.id.request_sdr_tone_mapping)
+        .setEnabled(isRequestSdrToneMappingSupported() && isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
+  }
+
+  private static boolean isRequestSdrToneMappingSupported() {
+    return Util.SDK_INT >= 31;
   }
 }

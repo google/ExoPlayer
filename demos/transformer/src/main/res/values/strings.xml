@@ -27,7 +27,7 @@
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
-  <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping</string>
+  <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
   <string name="transform" translatable="false">Transform</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
