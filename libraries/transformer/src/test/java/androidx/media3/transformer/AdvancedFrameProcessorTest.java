@@ -39,7 +39,7 @@ public final class AdvancedFrameProcessorTest {
   }
 
   @Test
-  public void construct_withValidMatrixSize_completesSucessfully() {
+  public void construct_withValidMatrixSize_completesSuccessfully() {
     new AdvancedFrameProcessor(getApplicationContext(), new float[16]);
   }
 }
