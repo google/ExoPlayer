@@ -21,6 +21,8 @@ track 0:
       colorRange = 2
       colorTransfer = 6
       hdrStaticInfo = length 25, hash 423AFC35
+    initializationData:
+      data = length 20, hash 4DF5B288
   sample 0:
     time = 0
     flags = 1
