@@ -25,6 +25,7 @@
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
     *   Parse bitrates from `esds` boxes.
+    *   MP4: Parse initialization data from AV1 tracks.
 *   UI:
     *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
         `LegacyPlayerView`, in the case that `useController=false`

@@ -1169,6 +1169,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
+
+        int childAtomBodySize = childAtomSize - Atom.HEADER_SIZE;
+        byte[] onlyInitializationDataChunk = new byte[childAtomBodySize];
+        parent.readBytes(onlyInitializationDataChunk, /* offset= */ 0, childAtomBodySize);
+        initializationData = ImmutableList.of(onlyInitializationDataChunk);
       } else if (childAtomType == Atom.TYPE_clli) {
         if (hdrStaticInfo == null) {
           hdrStaticInfo = allocateHdrStaticInfo();
