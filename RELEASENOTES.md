@@ -41,6 +41,8 @@
     *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved 
         AMR streams are supported. Compound AMR RTP payload is not supported.
         ([#46](https://github.com/androidx/media/pull/46))
+    *   Add RTP reader for VP8
+        ([#47](https://github.com/androidx/media/pull/47)).
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.

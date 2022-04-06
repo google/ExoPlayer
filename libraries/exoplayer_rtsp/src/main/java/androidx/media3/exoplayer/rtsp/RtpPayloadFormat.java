@@ -42,6 +42,7 @@ public final class RtpPayloadFormat {
   private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
+  private static final String RTP_MEDIA_VP8 = "VP8";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
@@ -52,6 +53,7 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_VP8:
         return true;
       default:
         return false;
@@ -79,6 +81,8 @@ public final class RtpPayloadFormat {
         return MimeTypes.VIDEO_H265;
       case RTP_MEDIA_MPEG4_GENERIC:
         return MimeTypes.AUDIO_AAC;
+      case RTP_MEDIA_VP8:
+        return MimeTypes.VIDEO_VP8;
       default:
         throw new IllegalArgumentException(mediaType);
     }
