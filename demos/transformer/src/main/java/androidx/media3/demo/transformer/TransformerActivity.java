@@ -243,7 +243,7 @@ public final class TransformerActivity extends AppCompatActivity {
       ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
       @Nullable
       boolean[] selectedFrameProcessors =
-          bundle.getBooleanArray(ConfigurationActivity.FRAME_PROCESSOR_SELECTION);
+          bundle.getBooleanArray(ConfigurationActivity.DEMO_FRAME_PROCESSORS_SELECTIONS);
       if (selectedFrameProcessors != null) {
         if (selectedFrameProcessors[0]) {
           frameProcessors.add(
@@ -251,9 +251,21 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         if (selectedFrameProcessors[1]) {
           frameProcessors.add(
-              AdvancedFrameProcessorFactory.createSpin3dFrameProcessor(/* context= */ this));
+              new PeriodicVignetteFrameProcessor(
+                  /* context= */ this,
+                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                  /* minInnerRadius= */ bundle.getFloat(
+                      ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                  /* maxInnerRadius= */ bundle.getFloat(
+                      ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
         if (selectedFrameProcessors[2]) {
+          frameProcessors.add(
+              AdvancedFrameProcessorFactory.createSpin3dFrameProcessor(/* context= */ this));
+        }
+        if (selectedFrameProcessors[3]) {
           frameProcessors.add(
               AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor(
                   /* context= */ this));

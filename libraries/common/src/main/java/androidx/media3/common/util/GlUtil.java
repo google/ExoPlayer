@@ -385,7 +385,9 @@ public final class GlUtil {
    * GL_CLAMP_TO_EDGE wrapping.
    */
   public static int createExternalTexture() {
-    return generateAndBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+    int texId = generateTexture();
+    bindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
+    return texId;
   }
 
   /**
@@ -396,7 +398,8 @@ public final class GlUtil {
    */
   public static int createTexture(int width, int height) {
     assertValidTextureSize(width, height);
-    int texId = generateAndBindTexture(GLES20.GL_TEXTURE_2D);
+    int texId = generateTexture();
+    bindTexture(GLES20.GL_TEXTURE_2D, texId);
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * 4);
     GLES20.glTexImage2D(
         GLES20.GL_TEXTURE_2D,
@@ -412,30 +415,37 @@ public final class GlUtil {
     return texId;
   }
 
-  /**
-   * Returns a GL texture identifier of a newly generated and bound texture of the requested type
-   * with default configuration of GL_LINEAR filtering and GL_CLAMP_TO_EDGE wrapping.
-   *
-   * @param textureTarget The target to which the texture is bound, e.g. {@link
-   *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
-   *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
-   */
-  private static int generateAndBindTexture(int textureTarget) {
+  /** Returns a new GL texture identifier. */
+  private static int generateTexture() {
     checkEglException(
         !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
 
     int[] texId = new int[1];
     GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
     checkGlError();
-    GLES20.glBindTexture(textureTarget, texId[0]);
+    return texId[0];
+  }
+
+  /**
+   * Binds the texture of the given type with default configuration of GL_LINEAR filtering and
+   * GL_CLAMP_TO_EDGE wrapping.
+   *
+   * @param texId The texture identifier.
+   * @param textureTarget The target to which the texture is bound, e.g. {@link
+   *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
+   *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
+   */
+  /* package */ static void bindTexture(int textureTarget, int texId) {
+    GLES20.glBindTexture(textureTarget, texId);
     checkGlError();
     GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
     checkGlError();
     GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
     checkGlError();
     GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     checkGlError();
-    return texId[0];
   }
 
   /**
