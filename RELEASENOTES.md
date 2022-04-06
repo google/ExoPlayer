@@ -41,6 +41,9 @@
         views to be used with other `Player` implementations, and removes the
         dependency from the UI module to the ExoPlayer module. This is a
         breaking change.
+    *   Don't show forced text tracks in the `PlayerView` track selector, and
+        keep a suitable forced text track selected if "None" is selected
+        ([#9432](https://github.com/google/ExoPlayer/issues/9432)).
 *   HLS:
     *   Fallback to chunkful preparation if the playlist CODECS attribute
         does not contain the audio codec

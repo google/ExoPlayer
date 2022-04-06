@@ -56,6 +56,7 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredAudioMimeTypes).isEmpty();
     assertThat(parameters.preferredTextLanguages).isEmpty();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(0);
+    assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(0);
     assertThat(parameters.selectUndeterminedTextLanguage).isFalse();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
@@ -98,6 +99,7 @@ public final class TrackSelectionParametersTest {
             // Text
             .setPreferredTextLanguages("de", "en")
             .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
             .setSelectUndeterminedTextLanguage(true)
             // General
             .setForceLowestBitrate(false)
@@ -141,6 +143,7 @@ public final class TrackSelectionParametersTest {
     // Text
     assertThat(parameters.preferredTextLanguages).containsExactly("de", "en").inOrder();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(C.ROLE_FLAG_CAPTION);
+    assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(C.SELECTION_FLAG_AUTOSELECT);
     assertThat(parameters.selectUndeterminedTextLanguage).isTrue();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();

@@ -1130,7 +1130,7 @@ public final class DefaultTrackSelectorTest {
     // selected.
     trackGroups = wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault);
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+        defaultParameters.buildUpon().setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
 
@@ -1141,8 +1141,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(
-                C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
 
@@ -1160,7 +1159,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, noFlag);
   }
@@ -2371,7 +2370,7 @@ public final class DefaultTrackSelectorTest {
         .setPreferredTextLanguages("de", "en")
         .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
         .setSelectUndeterminedTextLanguage(true)
-        .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
+        .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
         // General
         .setForceLowestBitrate(false)
         .setForceHighestSupportedBitrate(true)
