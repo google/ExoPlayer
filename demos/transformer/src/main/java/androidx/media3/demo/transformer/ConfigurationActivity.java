@@ -56,6 +56,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
+  public static final String FRAME_PROCESSOR_SELECTION = "frame_processor_selection";
   private static final String[] INPUT_URIS = {
     "https://html5demos.com/assets/dizzy.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
@@ -80,10 +81,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "SEF slow motion with 240 fps",
     "MP4 with HDR (HDR10) H265 video (encoding may fail)",
   };
+  private static final String[] FRAME_PROCESSORS = {"Dizzy crop", "3D spin", "Zoom in start"};
   private static final String SAME_AS_INPUT_OPTION = "same as input";
 
-  private @MonotonicNonNull Button chooseFileButton;
-  private @MonotonicNonNull TextView chosenFileTextView;
+  private @MonotonicNonNull Button selectFileButton;
+  private @MonotonicNonNull TextView selectedFileTextView;
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
   private @MonotonicNonNull CheckBox flattenForSlowMotionCheckbox;
@@ -95,6 +97,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
+  private @MonotonicNonNull Button selectFrameProcessorsButton;
+  private boolean @MonotonicNonNull [] selectedFrameProcessors;
   private int inputUriPosition;
 
   @Override
@@ -104,11 +108,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     findViewById(R.id.transform_button).setOnClickListener(this::startTransformation);
 
-    chooseFileButton = findViewById(R.id.choose_file_button);
-    chooseFileButton.setOnClickListener(this::chooseFile);
+    selectFileButton = findViewById(R.id.select_file_button);
+    selectFileButton.setOnClickListener(this::selectFile);
 
-    chosenFileTextView = findViewById(R.id.chosen_file_text_view);
-    chosenFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+    selectedFileTextView = findViewById(R.id.selected_file_text_view);
+    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
 
     removeAudioCheckbox = findViewById(R.id.remove_audio_checkbox);
     removeAudioCheckbox.setOnClickListener(this::onRemoveAudio);
@@ -164,6 +168,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
     findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
+
+    selectedFrameProcessors = new boolean[FRAME_PROCESSORS.length];
+    selectFrameProcessorsButton = findViewById(R.id.select_frameprocessors_button);
+    selectFrameProcessorsButton.setOnClickListener(this::selectFrameProcessors);
   }
 
   @Override
@@ -171,8 +179,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     super.onResume();
     @Nullable Uri intentUri = getIntent().getData();
     if (intentUri != null) {
-      checkNotNull(chooseFileButton).setEnabled(false);
-      checkNotNull(chosenFileTextView).setText(intentUri.toString());
+      checkNotNull(selectFileButton).setEnabled(false);
+      checkNotNull(selectedFileTextView).setText(intentUri.toString());
     }
   }
 
@@ -193,7 +201,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableFallbackCheckBox",
     "enableRequestSdrToneMappingCheckBox",
-    "enableHdrEditingCheckBox"
+    "enableHdrEditingCheckBox",
+    "selectedFrameProcessors"
   })
   private void startTransformation(View view) {
     Intent transformerIntent = new Intent(this, TransformerActivity.class);
@@ -228,6 +237,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
+    bundle.putBooleanArray(FRAME_PROCESSOR_SELECTION, selectedFrameProcessors);
     transformerIntent.putExtras(bundle);
 
     @Nullable Uri intentUri = getIntent().getData();
@@ -237,19 +247,34 @@ public final class ConfigurationActivity extends AppCompatActivity {
     startActivity(transformerIntent);
   }
 
-  private void chooseFile(View view) {
+  private void selectFile(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.choose_file_title)
+        .setTitle(R.string.select_file_title)
         .setSingleChoiceItems(URI_DESCRIPTIONS, inputUriPosition, this::selectFileInDialog)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
         .create()
         .show();
   }
 
-  @RequiresNonNull("chosenFileTextView")
+  private void selectFrameProcessors(View view) {
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.select_frameprocessors)
+        .setMultiChoiceItems(
+            FRAME_PROCESSORS, checkNotNull(selectedFrameProcessors), this::selectFrameProcessor)
+        .setPositiveButton(android.R.string.ok, /* listener= */ null)
+        .create()
+        .show();
+  }
+
+  @RequiresNonNull("selectedFileTextView")
   private void selectFileInDialog(DialogInterface dialog, int which) {
     inputUriPosition = which;
-    chosenFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+  }
+
+  @RequiresNonNull("selectedFrameProcessors")
+  private void selectFrameProcessor(DialogInterface dialog, int which, boolean isChecked) {
+    selectedFrameProcessors[which] = isChecked;
   }
 
   @RequiresNonNull({
@@ -260,7 +285,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
-    "enableHdrEditingCheckBox"
+    "enableHdrEditingCheckBox",
+    "selectFrameProcessorsButton"
   })
   private void onRemoveAudio(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -279,7 +305,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
-    "enableHdrEditingCheckBox"
+    "enableHdrEditingCheckBox",
+    "selectFrameProcessorsButton"
   })
   private void onRemoveVideo(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -297,7 +324,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
-    "enableHdrEditingCheckBox"
+    "enableHdrEditingCheckBox",
+    "selectFrameProcessorsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     audioMimeSpinner.setEnabled(isAudioEnabled);
@@ -308,6 +336,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableRequestSdrToneMappingCheckBox.setEnabled(
         isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
+    selectFrameProcessorsButton.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);
