@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Build;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -126,14 +127,16 @@ public final class AndroidTestUtil {
    * @param testId A unique identifier for the transformer test run.
    * @param testJson A {@link JSONObject} containing a summary of the test run.
    */
-  /* package */ static void writeTestSummaryToFile(
-      Context context, String testId, JSONObject testJson) throws IOException, JSONException {
+  public static void writeTestSummaryToFile(Context context, String testId, JSONObject testJson)
+      throws IOException, JSONException {
     testJson.put("testId", testId).put("device", getDeviceDetailsAsJsonObject());
 
     String analysisContents = testJson.toString(/* indentSpaces= */ 2);
 
     // Log contents as well as writing to file, for easier visibility on individual device testing.
-    Log.i(testId, analysisContents);
+    for (String line : Util.split(analysisContents, "\n")) {
+      Log.i(testId, line);
+    }
 
     File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
