@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
+import com.google.android.exoplayer2.transformer.GlFrameProcessor;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
@@ -50,6 +51,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -237,6 +239,27 @@ public final class TransformerActivity extends AppCompatActivity {
               new DefaultEncoderFactory(
                   EncoderSelector.DEFAULT,
                   /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
+
+      ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
+      @Nullable
+      boolean[] selectedFrameProcessors =
+          bundle.getBooleanArray(ConfigurationActivity.FRAME_PROCESSOR_SELECTION);
+      if (selectedFrameProcessors != null) {
+        if (selectedFrameProcessors[0]) {
+          frameProcessors.add(
+              AdvancedFrameProcessorFactory.createDizzyCropFrameProcessor(/* context= */ this));
+        }
+        if (selectedFrameProcessors[1]) {
+          frameProcessors.add(
+              AdvancedFrameProcessorFactory.createSpin3dFrameProcessor(/* context= */ this));
+        }
+        if (selectedFrameProcessors[2]) {
+          frameProcessors.add(
+              AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor(
+                  /* context= */ this));
+        }
+        transformerBuilder.setFrameProcessors(frameProcessors.build());
+      }
     }
     return transformerBuilder
         .addListener(
