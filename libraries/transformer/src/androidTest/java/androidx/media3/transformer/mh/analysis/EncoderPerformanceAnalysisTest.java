@@ -17,6 +17,7 @@
 package androidx.media3.transformer.mh.analysis;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
 import android.media.MediaFormat;
@@ -95,13 +96,22 @@ public class EncoderPerformanceAnalysisTest {
     String testId =
         Util.formatInvariant(
             "analyzePerformance_%s_OpRate_%d_Priority_%d", filename, operatingRate, priority);
+    Context context = ApplicationProvider.getApplicationContext();
+
+    if (Util.SDK_INT < 23) {
+      recordTestSkipped(
+          context,
+          testId,
+          /* reason= */ "Skipping on this API version due to lack of support for setting operating"
+              + " rate and priority.");
+      return;
+    }
 
     Map<String, Object> inputValues = new HashMap<>();
     inputValues.put("inputFilename", filename);
     inputValues.put("operatingRate", operatingRate);
     inputValues.put("priority", priority);
 
-    Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
