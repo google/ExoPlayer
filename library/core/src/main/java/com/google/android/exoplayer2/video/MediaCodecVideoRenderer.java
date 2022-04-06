@@ -750,6 +750,82 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseHelper.onPlaybackSpeed(currentPlaybackSpeed);
   }
 
+  /**
+   * Returns a maximum input size for a given codec and format.
+   *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
+   * @param format The format.
+   * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
+   *     determined.
+   */
+  public static int getCodecMaxInputSize(MediaCodecInfo codecInfo, Format format) {
+    int width = format.width;
+    int height = format.height;
+    if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
+      // We can't infer a maximum input size without video dimensions.
+      return Format.NO_VALUE;
+    }
+
+    String sampleMimeType = format.sampleMimeType;
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
+      // Dolby vision can be a wrapper around H264 or H265. We assume it's wrapping H265 by default
+      // because it's the common case, and because some devices may fail to allocate the codec when
+      // the larger buffer size required for H264 is requested. We size buffers for H264 only if the
+      // format contains sufficient information for us to determine unambiguously that it's a H264
+      // profile.
+      sampleMimeType = MimeTypes.VIDEO_H265;
+      @Nullable
+      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+      if (codecProfileAndLevel != null) {
+        int profile = codecProfileAndLevel.first;
+        if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe
+            || profile == CodecProfileLevel.DolbyVisionProfileDvavPer
+            || profile == CodecProfileLevel.DolbyVisionProfileDvavPen) {
+          sampleMimeType = MimeTypes.VIDEO_H264;
+        }
+      }
+    }
+
+    // Attempt to infer a maximum input size from the format.
+    int maxPixels;
+    int minCompressionRatio;
+    switch (sampleMimeType) {
+      case MimeTypes.VIDEO_H263:
+      case MimeTypes.VIDEO_MP4V:
+        maxPixels = width * height;
+        minCompressionRatio = 2;
+        break;
+      case MimeTypes.VIDEO_H264:
+        if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
+            || ("Amazon".equals(Util.MANUFACTURER)
+                && ("KFSOWI".equals(Util.MODEL) // Kindle Soho
+                    || ("AFTS".equals(Util.MODEL) && codecInfo.secure)))) { // Fire TV Gen 2
+          // Use the default value for cases where platform limitations may prevent buffers of the
+          // calculated maximum input size from being allocated.
+          return Format.NO_VALUE;
+        }
+        // Round up width/height to an integer number of macroblocks.
+        maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
+        minCompressionRatio = 2;
+        break;
+      case MimeTypes.VIDEO_VP8:
+        // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
+        maxPixels = width * height;
+        minCompressionRatio = 2;
+        break;
+      case MimeTypes.VIDEO_H265:
+      case MimeTypes.VIDEO_VP9:
+        maxPixels = width * height;
+        minCompressionRatio = 4;
+        break;
+      default:
+        // Leave the default max input size.
+        return Format.NO_VALUE;
+    }
+    // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
+    return (maxPixels * 3) / (2 * minCompressionRatio);
+  }
+
   @Override
   protected float getCodecOperatingRateV23(
       float targetPlaybackSpeed, Format format, Format[] streamFormats) {
@@ -1580,82 +1656,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else {
       return getCodecMaxInputSize(codecInfo, format);
     }
-  }
-
-  /**
-   * Returns a maximum input size for a given codec and format.
-   *
-   * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The format.
-   * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
-   *     determined.
-   */
-  private static int getCodecMaxInputSize(MediaCodecInfo codecInfo, Format format) {
-    int width = format.width;
-    int height = format.height;
-    if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
-      // We can't infer a maximum input size without video dimensions.
-      return Format.NO_VALUE;
-    }
-
-    String sampleMimeType = format.sampleMimeType;
-    if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
-      // Dolby vision can be a wrapper around H264 or H265. We assume it's wrapping H265 by default
-      // because it's the common case, and because some devices may fail to allocate the codec when
-      // the larger buffer size required for H264 is requested. We size buffers for H264 only if the
-      // format contains sufficient information for us to determine unambiguously that it's a H264
-      // profile.
-      sampleMimeType = MimeTypes.VIDEO_H265;
-      @Nullable
-      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
-      if (codecProfileAndLevel != null) {
-        int profile = codecProfileAndLevel.first;
-        if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe
-            || profile == CodecProfileLevel.DolbyVisionProfileDvavPer
-            || profile == CodecProfileLevel.DolbyVisionProfileDvavPen) {
-          sampleMimeType = MimeTypes.VIDEO_H264;
-        }
-      }
-    }
-
-    // Attempt to infer a maximum input size from the format.
-    int maxPixels;
-    int minCompressionRatio;
-    switch (sampleMimeType) {
-      case MimeTypes.VIDEO_H263:
-      case MimeTypes.VIDEO_MP4V:
-        maxPixels = width * height;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_H264:
-        if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
-            || ("Amazon".equals(Util.MANUFACTURER)
-                && ("KFSOWI".equals(Util.MODEL) // Kindle Soho
-                    || ("AFTS".equals(Util.MODEL) && codecInfo.secure)))) { // Fire TV Gen 2
-          // Use the default value for cases where platform limitations may prevent buffers of the
-          // calculated maximum input size from being allocated.
-          return Format.NO_VALUE;
-        }
-        // Round up width/height to an integer number of macroblocks.
-        maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_VP8:
-        // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
-        maxPixels = width * height;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_H265:
-      case MimeTypes.VIDEO_VP9:
-        maxPixels = width * height;
-        minCompressionRatio = 4;
-        break;
-      default:
-        // Leave the default max input size.
-        return Format.NO_VALUE;
-    }
-    // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
-    return (maxPixels * 3) / (2 * minCompressionRatio);
   }
 
   /**
