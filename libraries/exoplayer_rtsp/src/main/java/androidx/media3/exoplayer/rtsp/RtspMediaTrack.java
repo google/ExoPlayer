@@ -25,6 +25,7 @@ import static androidx.media3.extractor.NalUnitUtil.NAL_START_CODE;
 
 import android.net.Uri;
 import android.util.Base64;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
@@ -44,19 +45,42 @@ import com.google.common.collect.ImmutableMap;
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
+
+  private static final String PARAMETER_AMR_OCTET_ALIGN = "octet-align";
+  private static final String PARAMETER_AMR_INTERLEAVING = "interleaving";
   private static final String PARAMETER_H265_SPROP_SPS = "sprop-sps";
   private static final String PARAMETER_H265_SPROP_PPS = "sprop-pps";
   private static final String PARAMETER_H265_SPROP_VPS = "sprop-vps";
   private static final String PARAMETER_H265_SPROP_MAX_DON_DIFF = "sprop-max-don-diff";
-  private static final String PARAMETER_AMR_OCTET_ALIGN = "octet-align";
-  private static final String PARAMETER_AMR_INTERLEAVING = "interleaving";
+  private static final String PARAMETER_MP4V_CONFIG = "config";
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
   /** Prefix for the RFC6381 codecs string for AVC formats. */
   private static final String H264_CODECS_PREFIX = "avc1.";
+  /** Prefix for the RFC6416 codecs string for MPEG4V-ES formats. */
+  private static final String MPEG4_CODECS_PREFIX = "mp4v.";
 
   private static final String GENERIC_CONTROL_ATTR = "*";
+  /**
+   * Default height for MP4V.
+   *
+   * <p>RFC6416 does not mandate codec specific data (like width and height) in the fmtp attribute.
+   * These values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mpeg4_h263/C2SoftMpeg4Dec.cpp;l=130
+   * >Android's software MP4V decoder</a>.
+   */
+  private static final int DEFAULT_MP4V_WIDTH = 352;
+
+  /**
+   * Default height for MP4V.
+   *
+   * <p>RFC6416 does not mandate codec specific data (like width and height) in the fmtp attribute.
+   * These values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mpeg4_h263/C2SoftMpeg4Dec.cpp;l=130
+   * >Android's software MP4V decoder</a>.
+   */
+  private static final int DEFAULT_MP4V_HEIGHT = 288;
 
   /**
    * Default width for VP8.
@@ -156,6 +180,10 @@ import com.google.common.collect.ImmutableMap;
             !fmtpParameters.containsKey(PARAMETER_AMR_INTERLEAVING),
             "Interleaving mode is not currently supported.");
         break;
+      case MimeTypes.VIDEO_MP4V:
+        checkArgument(!fmtpParameters.isEmpty());
+        processMPEG4FmtpAttribute(formatBuilder, fmtpParameters);
+        break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
@@ -212,6 +240,23 @@ import com.google.common.collect.ImmutableMap;
         ImmutableList.of(
             // Clock rate equals to sample rate in RTP.
             AacUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount)));
+  }
+
+  private static void processMPEG4FmtpAttribute(
+      Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
+    @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
+    if (configInput != null) {
+      byte[] configBuffer = Util.getBytesFromHexString(configInput);
+      formatBuilder.setInitializationData(ImmutableList.of(configBuffer));
+      Pair<Integer, Integer> resolution =
+          CodecSpecificDataUtil.getVideoResolutionFromMpeg4VideoConfig(configBuffer);
+      formatBuilder.setWidth(resolution.first).setHeight(resolution.second);
+    } else {
+      // set the default width and height
+      formatBuilder.setWidth(DEFAULT_MP4V_WIDTH).setHeight(DEFAULT_MP4V_HEIGHT);
+    }
+    @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
+    formatBuilder.setCodecs(MPEG4_CODECS_PREFIX + (profileLevel == null ? "1" : profileLevel));
   }
 
   /** Returns H264/H265 initialization data from the RTP parameter set. */

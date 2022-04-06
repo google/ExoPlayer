@@ -36,6 +36,8 @@
         dependency from the UI module to the ExoPlayer module. This is a
         breaking change.
 *   RTSP:
+    *   Add RTP reader for MPEG4
+        ([#35](https://github.com/androidx/media/pull/35))
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
     *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved
