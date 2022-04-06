@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.round;
 
@@ -23,6 +24,8 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
+import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
@@ -33,9 +36,12 @@ import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Ints;
 
 /** Utility methods for {@link MediaCodec} encoders. */
 @UnstableApi
@@ -44,26 +50,47 @@ public final class EncoderUtil {
   /** A value to indicate the encoding level is not set. */
   public static final int LEVEL_UNSET = Format.NO_VALUE;
 
-  private static final List<MediaCodecInfo> encoders = new ArrayList<>();
+  private static final Supplier<ImmutableListMultimap<String, MediaCodecInfo>>
+      MIME_TYPE_TO_ENCODERS = Suppliers.memoize(EncoderUtil::populateEncoderInfos);
 
   /**
    * Returns a list of {@linkplain MediaCodecInfo encoders} that support the given {@code mimeType},
    * or an empty list if there is none.
    */
   public static ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
-    maybePopulateEncoderInfos();
+    return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).get(Ascii.toLowerCase(mimeType));
+  }
 
-    ImmutableList.Builder<MediaCodecInfo> availableEncoders = new ImmutableList.Builder<>();
-    for (int i = 0; i < encoders.size(); i++) {
-      MediaCodecInfo encoderInfo = encoders.get(i);
-      String[] supportedMimeTypes = encoderInfo.getSupportedTypes();
-      for (String supportedMimeType : supportedMimeTypes) {
-        if (Ascii.equalsIgnoreCase(supportedMimeType, mimeType)) {
-          availableEncoders.add(encoderInfo);
-        }
-      }
-    }
-    return availableEncoders.build();
+  /** Returns a list of video {@linkplain MimeTypes MIME types} that can be encoded. */
+  public static ImmutableSet<String> getSupportedVideoMimeTypes() {
+    return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).keySet();
+  }
+
+  /**
+   * Returns a {@link Range} of supported heights for the given {@link MediaCodecInfo encoder},
+   * {@linkplain MimeTypes MIME type} and {@code width}.
+   *
+   * @throws IllegalArgumentException When the width is not in the range of {@linkplain
+   *     #getSupportedResolutionRanges supported widths}.
+   */
+  public static Range<Integer> getSupportedHeights(
+      MediaCodecInfo encoderInfo, String mimeType, int width) {
+    return encoderInfo
+        .getCapabilitiesForType(mimeType)
+        .getVideoCapabilities()
+        .getSupportedHeightsFor(width);
+  }
+
+  /**
+   * Returns a {@link Pair} of supported width and height {@link Range ranges} for the given {@link
+   * MediaCodecInfo encoder} and {@linkplain MimeTypes MIME type}.
+   */
+  public static Pair<Range<Integer>, Range<Integer>> getSupportedResolutionRanges(
+      MediaCodecInfo encoderInfo, String mimeType) {
+    MediaCodecInfo.VideoCapabilities videoCapabilities =
+        encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
+    return Pair.create(
+        videoCapabilities.getSupportedWidths(), videoCapabilities.getSupportedHeights());
   }
 
   /**
@@ -133,6 +160,22 @@ public final class EncoderUtil {
   }
 
   /**
+   * Returns a {@link ImmutableSet set} of supported {@linkplain MediaCodecInfo.CodecProfileLevel
+   * encoding profiles} for the given {@linkplain MediaCodecInfo encoder} and {@linkplain MimeTypes
+   * MIME type}.
+   */
+  public static ImmutableSet<Integer> findSupportedEncodingProfiles(
+      MediaCodecInfo encoderInfo, String mimeType) {
+    MediaCodecInfo.CodecProfileLevel[] profileLevels =
+        encoderInfo.getCapabilitiesForType(mimeType).profileLevels;
+    ImmutableSet.Builder<Integer> supportedProfilesBuilder = new ImmutableSet.Builder<>();
+    for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
+      supportedProfilesBuilder.add(profileLevel.profile);
+    }
+    return supportedProfilesBuilder.build();
+  }
+
+  /**
    * Finds the highest supported encoding level given a profile.
    *
    * @param encoderInfo The {@link MediaCodecInfo encoderInfo}.
@@ -182,17 +225,10 @@ public final class EncoderUtil {
     return mediaCodecName;
   }
 
-  /**
-   * Finds the {@linkplain MediaCodecInfo encoder}'s closest supported bitrate from the given
-   * bitrate.
-   */
-  public static int getClosestSupportedBitrate(
-      MediaCodecInfo encoderInfo, String mimeType, int bitrate) {
-    return encoderInfo
-        .getCapabilitiesForType(mimeType)
-        .getVideoCapabilities()
-        .getBitrateRange()
-        .clamp(bitrate);
+  /** Returns the range of supported bitrates for the given {@linkplain MimeTypes MIME type}. */
+  public static Range<Integer> getSupportedBitrateRange(
+      MediaCodecInfo encoderInfo, String mimeType) {
+    return encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities().getBitrateRange();
   }
 
   /** Returns whether the bitrate mode is supported by the encoder. */
@@ -204,6 +240,17 @@ public final class EncoderUtil {
         .isBitrateModeSupported(bitrateMode);
   }
 
+  /**
+   * Returns a {@link ImmutableList list} of supported {@linkplain
+   * MediaCodecInfo.CodecCapabilities#colorFormats color formats} for the given {@linkplain
+   * MediaCodecInfo encoder} and {@linkplain MimeTypes MIME type}.
+   */
+  public static ImmutableList<Integer> getSupportedColorFormats(
+      MediaCodecInfo encoderInfo, String mimeType) {
+    return ImmutableList.copyOf(
+        Ints.asList(encoderInfo.getCapabilitiesForType(mimeType).colorFormats));
+  }
+
   /** Checks if a {@linkplain MediaCodecInfo codec} is hardware-accelerated. */
   public static boolean isHardwareAccelerated(MediaCodecInfo encoderInfo, String mimeType) {
     // TODO(b/214964116): Merge into MediaCodecUtil.
@@ -213,6 +260,18 @@ public final class EncoderUtil {
     // codecInfo.isHardwareAccelerated() == !codecInfo.isSoftwareOnly() is not necessarily true.
     // However, we assume this to be true as an approximation.
     return !isSoftwareOnly(encoderInfo, mimeType);
+  }
+
+  /** Returns whether a given feature is supported. */
+  public static boolean isFeatureSupported(
+      MediaCodecInfo encoderInfo, String mimeType, String featureName) {
+    return encoderInfo.getCapabilitiesForType(mimeType).isFeatureSupported(featureName);
+  }
+
+  /** Returns the number of max number of the supported concurrent codec instances. */
+  @RequiresApi(23)
+  public static int getMaxSupportedInstances(MediaCodecInfo encoderInfo, String mimeType) {
+    return encoderInfo.getCapabilitiesForType(mimeType).getMaxSupportedInstances();
   }
 
   private static boolean isSoftwareOnly(MediaCodecInfo encoderInfo, String mimeType) {
@@ -258,18 +317,25 @@ public final class EncoderUtil {
         : alignment * Math.round((float) size / alignment);
   }
 
-  private static synchronized void maybePopulateEncoderInfos() {
-    if (encoders.isEmpty()) {
-      MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
-      MediaCodecInfo[] allCodecInfos = mediaCodecList.getCodecInfos();
+  private static ImmutableListMultimap<String, MediaCodecInfo> populateEncoderInfos() {
+    ImmutableListMultimap.Builder<String, MediaCodecInfo> encoderInfosBuilder =
+        new ImmutableListMultimap.Builder<>();
 
-      for (MediaCodecInfo mediaCodecInfo : allCodecInfos) {
-        if (!mediaCodecInfo.isEncoder()) {
-          continue;
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    MediaCodecInfo[] allCodecInfos = mediaCodecList.getCodecInfos();
+
+    for (MediaCodecInfo mediaCodecInfo : allCodecInfos) {
+      if (!mediaCodecInfo.isEncoder()) {
+        continue;
+      }
+      String[] supportedMimeTypes = mediaCodecInfo.getSupportedTypes();
+      for (String mimeType : supportedMimeTypes) {
+        if (MimeTypes.isVideo(mimeType)) {
+          encoderInfosBuilder.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
         }
-        encoders.add(mediaCodecInfo);
       }
     }
+    return encoderInfosBuilder.build();
   }
 
   @RequiresApi(29)

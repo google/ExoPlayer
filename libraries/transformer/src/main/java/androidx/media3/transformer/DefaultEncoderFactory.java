@@ -269,7 +269,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     MediaCodecInfo pickedEncoder = filteredEncoders.get(0);
     int closestSupportedBitrate =
-        EncoderUtil.getClosestSupportedBitrate(pickedEncoder, mimeType, requestedBitrate);
+        EncoderUtil.getSupportedBitrateRange(pickedEncoder, mimeType).clamp(requestedBitrate);
     VideoEncoderSettings.Builder supportedEncodingSettingBuilder =
         videoEncoderSettings.buildUpon().setBitrate(closestSupportedBitrate);
 
@@ -322,7 +322,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         encoders,
         /* cost= */ (encoderInfo) -> {
           int achievableBitrate =
-              EncoderUtil.getClosestSupportedBitrate(encoderInfo, mimeType, requestedBitrate);
+              EncoderUtil.getSupportedBitrateRange(encoderInfo, mimeType).clamp(requestedBitrate);
           return abs(achievableBitrate - requestedBitrate);
         },
         /* filterName= */ "bitrate");
