@@ -38,6 +38,9 @@
 *   RTSP:
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
+    *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved 
+        AMR streams are supported. Compound AMR RTP payload is not supported.
+        ([#46](https://github.com/androidx/media/pull/46))
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
