@@ -145,6 +145,13 @@ public final class EncoderUtil {
       return new Size(newWidth, newHeight);
     }
 
+    // Try one-third (e.g. 4k -> 720).
+    newWidth = alignResolution(width / 3, widthAlignment);
+    newHeight = alignResolution(height / 3, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return new Size(newWidth, newHeight);
+    }
+
     // Fix frame being too wide or too tall.
     width = videoEncoderCapabilities.getSupportedWidths().clamp(width);
     int adjustedHeight = videoEncoderCapabilities.getSupportedHeightsFor(width).clamp(height);
