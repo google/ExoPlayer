@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
         return new RtpH264Reader(payloadFormat);
       case MimeTypes.VIDEO_H265:
         return new RtpH265Reader(payloadFormat);
+      case MimeTypes.VIDEO_VP8:
+        return new RtpVp8Reader(payloadFormat);
       default:
         // No supported reader, returning null.
     }
