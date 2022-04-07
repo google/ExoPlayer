@@ -88,7 +88,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "MP4 with HDR (HDR10) H265 video (encoding may fail)",
   };
   private static final String[] DEMO_FRAME_PROCESSORS = {
-    "Dizzy crop", "Periodic vignette", "3D spin", "Zoom in start"
+    "Dizzy crop", "Periodic vignette", "3D spin", "Overlay logo & timer", "Zoom in start"
   };
   private static final int PERIODIC_VIGNETTE_INDEX = 1;
   private static final String SAME_AS_INPUT_OPTION = "same as input";

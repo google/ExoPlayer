@@ -266,6 +266,9 @@ public final class TransformerActivity extends AppCompatActivity {
               AdvancedFrameProcessorFactory.createSpin3dFrameProcessor(/* context= */ this));
         }
         if (selectedFrameProcessors[3]) {
+          frameProcessors.add(new BitmapOverlayFrameProcessor(/* context= */ this));
+        }
+        if (selectedFrameProcessors[4]) {
           frameProcessors.add(
               AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor(
                   /* context= */ this));
