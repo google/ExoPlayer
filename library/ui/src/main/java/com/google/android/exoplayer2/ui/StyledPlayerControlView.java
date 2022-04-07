@@ -59,6 +59,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
@@ -1130,8 +1131,11 @@ public class StyledPlayerControlView extends FrameLayout {
         if (!trackGroupInfo.isTrackSupported(trackIndex)) {
           continue;
         }
-        String trackName =
-            trackNameProvider.getTrackName(trackGroupInfo.getTrackFormat(trackIndex));
+        Format trackFormat = trackGroupInfo.getTrackFormat(trackIndex);
+        if ((trackFormat.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
+          continue;
+        }
+        String trackName = trackNameProvider.getTrackName(trackFormat);
         tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
       }
     }
@@ -1870,7 +1874,8 @@ public class StyledPlayerControlView extends FrameLayout {
               player.setTrackSelectionParameters(
                   trackSelectionParameters
                       .buildUpon()
-                      .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, /* disabled= */ true)
+                      .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+                      .setIgnoredTextSelectionFlags(~C.SELECTION_FLAG_FORCED)
                       .build());
               settingsWindow.dismiss();
             }
