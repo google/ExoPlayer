@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
   @Test
-  public void singleTranscode_ssimIsGreaterThan95Percent() throws Exception {
+  public void singleTranscode_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -49,6 +49,6 @@ public final class TranscodeQualityTest {
             .build()
             .run(/* testId= */ "singleTranscode_ssim", AndroidTestUtil.MP4_ASSET_URI_STRING);
 
-    assertThat(result.ssim).isGreaterThan(0.95);
+    assertThat(result.ssim).isGreaterThan(0.90);
   }
 }
