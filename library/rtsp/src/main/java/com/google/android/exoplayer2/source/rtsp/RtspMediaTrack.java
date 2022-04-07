@@ -46,6 +46,8 @@ import com.google.common.collect.ImmutableMap;
   private static final String PARAMETER_H265_SPROP_PPS = "sprop-pps";
   private static final String PARAMETER_H265_SPROP_VPS = "sprop-vps";
   private static final String PARAMETER_H265_SPROP_MAX_DON_DIFF = "sprop-max-don-diff";
+  private static final String PARAMETER_AMR_OCTET_ALIGN = "octet-align";
+  private static final String PARAMETER_AMR_INTERLEAVING = "interleaving";
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
@@ -118,6 +120,19 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(channelCount != C.INDEX_UNSET);
         checkArgument(!fmtpParameters.isEmpty());
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
+        break;
+      case MimeTypes.AUDIO_AMR_NB:
+      case MimeTypes.AUDIO_AMR_WB:
+        checkArgument(channelCount == 1, "Multi channel AMR is not currently supported.");
+        checkArgument(
+            !fmtpParameters.isEmpty(),
+            "fmtp parameters must include " + PARAMETER_AMR_OCTET_ALIGN + ".");
+        checkArgument(
+            fmtpParameters.containsKey(PARAMETER_AMR_OCTET_ALIGN),
+            "Only octet aligned mode is currently supported.");
+        checkArgument(
+            !fmtpParameters.containsKey(PARAMETER_AMR_INTERLEAVING),
+            "Interleaving mode is not currently supported.");
         break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());

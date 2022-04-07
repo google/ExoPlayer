@@ -35,6 +35,8 @@ import java.util.Map;
 public final class RtpPayloadFormat {
 
   private static final String RTP_MEDIA_AC3 = "AC3";
+  private static final String RTP_MEDIA_AMR = "AMR";
+  private static final String RTP_MEDIA_AMR_WB = "AMR-WB";
   private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
@@ -43,6 +45,8 @@ public final class RtpPayloadFormat {
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
+      case RTP_MEDIA_AMR:
+      case RTP_MEDIA_AMR_WB:
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_GENERIC:
@@ -63,6 +67,10 @@ public final class RtpPayloadFormat {
     switch (Ascii.toUpperCase(mediaType)) {
       case RTP_MEDIA_AC3:
         return MimeTypes.AUDIO_AC3;
+      case RTP_MEDIA_AMR:
+        return MimeTypes.AUDIO_AMR_NB;
+      case RTP_MEDIA_AMR_WB:
+        return MimeTypes.AUDIO_AMR_WB;
       case RTP_MEDIA_H264:
         return MimeTypes.VIDEO_H264;
       case RTP_MEDIA_H265:
