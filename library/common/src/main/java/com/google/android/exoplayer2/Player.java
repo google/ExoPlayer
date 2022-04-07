@@ -521,6 +521,11 @@ public interface Player {
       return flags.contains(command);
     }
 
+    /** Returns whether the set of commands contains at least one of the given {@code commands}. */
+    public boolean containsAny(@Command int... commands) {
+      return flags.containsAny(commands);
+    }
+
     /** Returns the number of commands in this set. */
     public int size() {
       return flags.size();
