@@ -763,7 +763,7 @@ public final class DefaultBandwidthMeterTest {
               networkInfo.getType(), networkTypeOverride);
       Shadows.shadowOf(telephonyManager).setTelephonyDisplayInfo(displayInfo);
     }
-    // Create a sticky broadcast for the connectivity action because Roboletric isn't replying with
+    // Create a sticky broadcast for the connectivity action because Robolectric isn't replying with
     // the current network state if a receiver for this intent is registered.
     ApplicationProvider.getApplicationContext()
         .sendStickyBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
