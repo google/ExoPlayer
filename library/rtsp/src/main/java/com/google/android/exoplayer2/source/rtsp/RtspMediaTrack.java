@@ -121,8 +121,9 @@ import com.google.common.collect.ImmutableMap;
     }
 
     int rtpPayloadType = mediaDescription.rtpMapAttribute.payloadType;
+    String mediaEncoding = mediaDescription.rtpMapAttribute.mediaEncoding;
 
-    String mimeType = getMimeTypeFromRtpMediaType(mediaDescription.rtpMapAttribute.mediaEncoding);
+    String mimeType = getMimeTypeFromRtpMediaType(mediaEncoding);
     formatBuilder.setSampleMimeType(mimeType);
 
     int clockRate = mediaDescription.rtpMapAttribute.clockRate;
@@ -166,8 +167,13 @@ import com.google.common.collect.ImmutableMap;
         // width and height.
         formatBuilder.setWidth(DEFAULT_VP8_WIDTH).setHeight(DEFAULT_VP8_HEIGHT);
         break;
+      case MimeTypes.AUDIO_RAW:
+        formatBuilder.setPcmEncoding(RtpPayloadFormat.getRawPcmEncodingType(mediaEncoding));
+        break;
       case MimeTypes.AUDIO_AC3:
-        // AC3 does not require a fmtp attribute. Fall through.
+      case MimeTypes.AUDIO_ALAW:
+      case MimeTypes.AUDIO_MLAW:
+        // Does not require a fmtp attribute. Fall through.
       default:
         // Do nothing.
     }

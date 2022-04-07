@@ -37,6 +37,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
       case MimeTypes.AUDIO_AMR_NB:
       case MimeTypes.AUDIO_AMR_WB:
         return new RtpAmrReader(payloadFormat);
+      case MimeTypes.AUDIO_RAW:
+      case MimeTypes.AUDIO_ALAW:
+      case MimeTypes.AUDIO_MLAW:
+        return new RtpPcmReader(payloadFormat);
       case MimeTypes.VIDEO_H264:
         return new RtpH264Reader(payloadFormat);
       case MimeTypes.VIDEO_H265:
