@@ -88,6 +88,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       foundOpusIDHeader = true;
     } else if (!foundOpusCommentHeader) {
       // Comment Header RFC7845 Section 5.2.
+      int sampleSize = data.limit();
+      checkArgument(sampleSize >= 8 , "Comment Header has insufficient data");
       String header = data.readString(8);
       checkArgument(header.equals("OpusTags"), "Comment Header should follow ID Header");
       foundOpusCommentHeader = true;
@@ -124,9 +126,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static void checkForOpusIdHeader(ParsableByteArray data) {
     int currPosition = data.getPosition();
     int sampleSize = data.limit();
+    checkArgument(sampleSize > 18, "ID Header has insufficient data");
     String header = data.readString(8);
     // Identification header RFC7845 Section 5.1.
-    checkArgument(sampleSize > 18 && header.equals("OpusHead"), "ID Header missing");
+    checkArgument(header.equals("OpusHead"), "ID Header missing");
     checkArgument(data.readUnsignedByte() == 1, "version number must always be 1");
     data.setPosition(currPosition);
   }
