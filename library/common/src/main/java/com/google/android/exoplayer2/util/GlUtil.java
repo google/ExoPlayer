@@ -55,6 +55,9 @@ public final class GlUtil {
   /** Number of vertices in a rectangle. */
   public static final int RECTANGLE_VERTICES_COUNT = 4;
 
+  /** Length of the normalized device coordinate (NDC) space, which spans from -1 to 1. */
+  public static final float LENGTH_NDC = 2f;
+
   private static final String TAG = "GlUtil";
 
   // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt
