@@ -146,7 +146,7 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   }
 
   @EnsuresNonNull("adjustedTransformationMatrix")
-  @VisibleForTesting // Allows roboletric testing of output size calculation without OpenGL.
+  @VisibleForTesting // Allows robolectric testing of output size calculation without OpenGL.
   /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
@@ -166,22 +166,21 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
     // Modify transformationMatrix to keep input pixels.
     float[][] transformOnNdcPoints = {{-1, -1, 0, 1}, {-1, 1, 0, 1}, {1, -1, 0, 1}, {1, 1, 0, 1}};
-    float xMin = Float.MAX_VALUE;
-    float xMax = Float.MIN_VALUE;
-    float yMin = Float.MAX_VALUE;
-    float yMax = Float.MIN_VALUE;
+    float minX = Float.MAX_VALUE;
+    float maxX = Float.MIN_VALUE;
+    float minY = Float.MAX_VALUE;
+    float maxY = Float.MIN_VALUE;
     for (float[] transformOnNdcPoint : transformOnNdcPoints) {
       adjustedTransformationMatrix.mapPoints(transformOnNdcPoint);
-      xMin = min(xMin, transformOnNdcPoint[0]);
-      xMax = max(xMax, transformOnNdcPoint[0]);
-      yMin = min(yMin, transformOnNdcPoint[1]);
-      yMax = max(yMax, transformOnNdcPoint[1]);
+      minX = min(minX, transformOnNdcPoint[0]);
+      maxX = max(maxX, transformOnNdcPoint[0]);
+      minY = min(minY, transformOnNdcPoint[1]);
+      maxY = max(maxY, transformOnNdcPoint[1]);
     }
 
-    float ndcWidthAndHeight = 2f; // Length from -1 to 1.
-    float xScale = (xMax - xMin) / ndcWidthAndHeight;
-    float yScale = (yMax - yMin) / ndcWidthAndHeight;
-    adjustedTransformationMatrix.postScale(1f / xScale, 1f / yScale);
-    outputSize = new Size(Math.round(inputWidth * xScale), Math.round(inputHeight * yScale));
+    float scaleX = (maxX - minX) / GlUtil.LENGTH_NDC;
+    float scaleY = (maxY - minY) / GlUtil.LENGTH_NDC;
+    adjustedTransformationMatrix.postScale(1f / scaleX, 1f / scaleY);
+    outputSize = new Size(Math.round(inputWidth * scaleX), Math.round(inputHeight * scaleY));
   }
 }

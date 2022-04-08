@@ -63,6 +63,10 @@ public class BitmapTestUtil {
       "media/bitmap/sample_mp4_first_frame_request_output_height.png";
   public static final String ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame_rotate_45_scale_to_fit.png";
+  public static final String CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_crop_smaller.png";
+  public static final String CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_crop_larger.png";
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images in pixel
    * difference-based tests. The value is chosen so that differences in decoder behavior across
