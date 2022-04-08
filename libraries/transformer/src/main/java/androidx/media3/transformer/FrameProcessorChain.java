@@ -32,6 +32,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
@@ -125,8 +126,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Creates the OpenGL textures, framebuffers, initializes the {@link GlFrameProcessor
    * GlFrameProcessors} and returns a new {@code FrameProcessorChain}.
    *
-   * <p>This method must by executed using the {@code singleThreadExecutorService}.
+   * <p>This method must be executed using the {@code singleThreadExecutorService}.
    */
+  @WorkerThread
   private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
       int inputWidth,
       int inputHeight,
@@ -312,7 +314,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Informs the {@code FrameProcessorChain} that a frame will be queued to its input surface.
    *
-   * <p>Should be called before rendering a frame to the frame processor chain's input surface.
+   * <p>Must be called before rendering a frame to the frame processor chain's input surface.
    *
    * @throws IllegalStateException If called after {@link #signalEndOfInputStream()}.
    */
@@ -393,8 +395,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Creates the OpenGL surfaces.
    *
-   * <p>This method should only be called on the {@linkplain #THREAD_NAME background thread}.
+   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
+  @WorkerThread
   private void createOpenGlSurfaces(Surface outputSurface, @Nullable SurfaceView debugSurfaceView) {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
     checkStateNotNull(eglDisplay);
@@ -418,8 +421,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Processes an input frame.
    *
-   * <p>This method should only be called on the {@linkplain #THREAD_NAME background thread}.
+   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
+  @WorkerThread
   @RequiresNonNull("inputSurfaceTexture")
   private void processFrame() {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
