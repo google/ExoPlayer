@@ -235,6 +235,9 @@ public abstract class SimpleDecoder<
       if (inputBuffer.isDecodeOnly()) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
+      if (inputBuffer.isFirstSample()) {
+        outputBuffer.addFlag(C.BUFFER_FLAG_FIRST_SAMPLE);
+      }
       @Nullable E exception;
       try {
         exception = decode(inputBuffer, outputBuffer, resetDecoder);

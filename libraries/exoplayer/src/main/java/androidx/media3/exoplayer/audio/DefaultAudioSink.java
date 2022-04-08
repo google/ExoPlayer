@@ -887,7 +887,6 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void handleDiscontinuity() {
-    // Force resynchronization after a skipped buffer.
     startMediaTimeUsNeedsSync = true;
   }
 
