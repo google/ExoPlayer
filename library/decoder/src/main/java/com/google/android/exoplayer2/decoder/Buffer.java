@@ -32,6 +32,11 @@ public abstract class Buffer {
     return getFlag(C.BUFFER_FLAG_DECODE_ONLY);
   }
 
+  /** Returns whether the {@link C#BUFFER_FLAG_FIRST_SAMPLE} flag is set. */
+  public final boolean isFirstSample() {
+    return getFlag(C.BUFFER_FLAG_FIRST_SAMPLE);
+  }
+
   /** Returns whether the {@link C#BUFFER_FLAG_END_OF_STREAM} flag is set. */
   public final boolean isEndOfStream() {
     return getFlag(C.BUFFER_FLAG_END_OF_STREAM);
