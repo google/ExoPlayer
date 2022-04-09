@@ -273,9 +273,13 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
             .replace("\\N", "\n")
             .replace("\\n", "\n")
             .replace("\\h", "\u00A0");
-    float marginLeft = SsaStyle.parseMargin(lineValues[format.marginLeftIndex]);
-    float marginRight = SsaStyle.parseMargin(lineValues[format.marginRightIndex]);
-    float marginVertical = SsaStyle.parseMargin(lineValues[format.marginVerticalIndex]);
+
+    float marginLeft = format.marginLeftIndex != C.INDEX_UNSET
+        ? SsaStyle.parseMargin(lineValues[format.marginLeftIndex]) : 0f;
+    float marginRight = format.marginRightIndex != C.INDEX_UNSET
+        ? SsaStyle.parseMargin(lineValues[format.marginRightIndex]) : 0f;
+    float marginVertical = format.marginVerticalIndex != C.INDEX_UNSET
+        ? SsaStyle.parseMargin(lineValues[format.marginVerticalIndex]) : 0f;
 
     Cue cue = createCue(
         text,
@@ -348,14 +352,28 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue.setLine(computeDefaultLineOrPosition(cue.getLineAnchor()), LINE_TYPE_FRACTION);
     }
 
-    cue.setPosition(cue.getPosition() + marginLeft / screenWidth);
-    cue.setPosition(cue.getPosition() - marginRight / screenWidth);
-    cue.setLine(cue.getLine() - marginVertical / screenHeight, LINE_TYPE_FRACTION);
+    // Apply margins if there are no overrides and we have valid positions.
+    if (styleOverrides.alignment == SsaStyle.SSA_ALIGNMENT_UNKNOWN
+        && styleOverrides.position == null
+        && cue.getPosition() != Cue.DIMEN_UNSET
+        && cue.getLine() != Cue.DIMEN_UNSET) {
+      // Margin from Dialogue lines takes precedence over margin from Style line.
+      cue.setPosition(cue.getPosition() + (marginLeft != 0f
+          ? marginLeft / screenWidth
+          : style != null ? style.marginLeft / screenWidth : 0f));
+      cue.setPosition(cue.getPosition() - (marginRight != 0f
+          ? marginRight / screenWidth
+          : style != null ? style.marginRight / screenWidth : 0f));
+      cue.setLine(cue.getLine() - (marginVertical != 0f
+          ? marginVertical / screenHeight
+          : style != null ? style.marginVertical / screenHeight : 0f), LINE_TYPE_FRACTION);
+    }
 
     if (style == null) {
       return cue.build();
     }
-    // Apply styles.
+
+    // Apply rest of the styles.
     if (style.primaryColor != null) {
       spannableText.setSpan(
           new ForegroundColorSpan(style.primaryColor),
@@ -400,16 +418,6 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
           /* end= */ spannableText.length(),
           SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    // Margins from dialogue line takes precedence over the style margins.
-    cue.setPosition(cue.getPosition() + (marginLeft != 0
-        ? marginLeft / screenWidth
-        : style.marginLeft / screenWidth));
-    cue.setPosition(cue.getPosition() - (marginRight != 0
-        ? marginRight / screenWidth
-        : style.marginRight / screenWidth));
-    cue.setLine(cue.getLine() - (marginVertical != 0
-        ? marginVertical / screenHeight
-        : style.marginVertical / screenHeight), LINE_TYPE_FRACTION);
 
     return cue.build();
   }

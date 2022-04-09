@@ -103,10 +103,7 @@ import com.google.common.base.Ascii;
     }
     return (startTimeIndex != C.INDEX_UNSET
             && endTimeIndex != C.INDEX_UNSET
-            && textIndex != C.INDEX_UNSET
-            && marginLeftIndex != C.INDEX_UNSET
-            && marginRightIndex != C.INDEX_UNSET
-            && marginVerticalIndex != C.INDEX_UNSET)
+            && textIndex != C.INDEX_UNSET)
         ? new SsaDialogueFormat(
             startTimeIndex,
             endTimeIndex,
