@@ -100,6 +100,9 @@ import java.util.regex.Pattern;
   public final boolean italic;
   public final boolean underline;
   public final boolean strikeout;
+  public final float marginLeft;
+  public final float marginRight;
+  public final float marginVertical;
 
   private SsaStyle(
       String name,
@@ -109,7 +112,10 @@ import java.util.regex.Pattern;
       boolean bold,
       boolean italic,
       boolean underline,
-      boolean strikeout) {
+      boolean strikeout,
+      float marginLeft,
+      float marginRight,
+      float marginVertical) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
@@ -118,6 +124,9 @@ import java.util.regex.Pattern;
     this.italic = italic;
     this.underline = underline;
     this.strikeout = strikeout;
+    this.marginLeft = marginLeft;
+    this.marginRight = marginRight;
+    this.marginVertical = marginVertical;
   }
 
   @Nullable
@@ -151,7 +160,16 @@ import java.util.regex.Pattern;
           format.underlineIndex != C.INDEX_UNSET
               && parseBooleanValue(styleValues[format.underlineIndex].trim()),
           format.strikeoutIndex != C.INDEX_UNSET
-              && parseBooleanValue(styleValues[format.strikeoutIndex].trim()));
+              && parseBooleanValue(styleValues[format.strikeoutIndex].trim()),
+          format.marginLeftIndex != C.INDEX_UNSET
+              ? parseMargin(styleValues[format.marginLeftIndex].trim())
+              : Cue.DIMEN_UNSET,
+          format.marginRightIndex != C.INDEX_UNSET
+              ? parseMargin(styleValues[format.marginRightIndex].trim())
+              : Cue.DIMEN_UNSET,
+          format.marginVerticalIndex != C.INDEX_UNSET
+              ? parseMargin(styleValues[format.marginVerticalIndex].trim())
+              : Cue.DIMEN_UNSET);
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;
@@ -227,6 +245,15 @@ import java.util.regex.Pattern;
     return Color.argb(a, r, g, b);
   }
 
+  public static float parseMargin(String floatValue) {
+    try {
+      return Float.parseFloat(floatValue);
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Failed to parse margin value: '" + floatValue + "'", e);
+      return 0f;
+    }
+  }
+
   private static float parseFontSize(String fontSize) {
     try {
       return Float.parseFloat(fontSize);
@@ -262,6 +289,9 @@ import java.util.regex.Pattern;
     public final int italicIndex;
     public final int underlineIndex;
     public final int strikeoutIndex;
+    public final int marginLeftIndex;
+    public final int marginRightIndex;
+    public final int marginVerticalIndex;
     public final int length;
 
     private Format(
@@ -273,6 +303,9 @@ import java.util.regex.Pattern;
         int italicIndex,
         int underlineIndex,
         int strikeoutIndex,
+        int marginLeftIndex,
+        int marginRightIndex,
+        int marginVerticalIndex,
         int length) {
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
@@ -282,6 +315,9 @@ import java.util.regex.Pattern;
       this.italicIndex = italicIndex;
       this.underlineIndex = underlineIndex;
       this.strikeoutIndex = strikeoutIndex;
+      this.marginLeftIndex = marginLeftIndex;
+      this.marginRightIndex = marginRightIndex;
+      this.marginVerticalIndex = marginVerticalIndex;
       this.length = length;
     }
 
@@ -300,6 +336,9 @@ import java.util.regex.Pattern;
       int italicIndex = C.INDEX_UNSET;
       int underlineIndex = C.INDEX_UNSET;
       int strikeoutIndex = C.INDEX_UNSET;
+      int marginLeftIndex = C.INDEX_UNSET;
+      int marginRightIndex = C.INDEX_UNSET;
+      int marginVerticalIndex = C.INDEX_UNSET;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
@@ -328,6 +367,15 @@ import java.util.regex.Pattern;
           case "strikeout":
             strikeoutIndex = i;
             break;
+          case "marginl":
+            marginLeftIndex = i;
+            break;
+          case "marginr":
+            marginRightIndex = i;
+            break;
+          case "marginv":
+            marginVerticalIndex = i;
+            break;
         }
       }
       return nameIndex != C.INDEX_UNSET
@@ -340,6 +388,9 @@ import java.util.regex.Pattern;
               italicIndex,
               underlineIndex,
               strikeoutIndex,
+              marginLeftIndex,
+              marginRightIndex,
+              marginVerticalIndex,
               keys.length)
           : null;
     }

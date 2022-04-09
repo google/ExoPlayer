@@ -273,7 +273,19 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
             .replace("\\N", "\n")
             .replace("\\n", "\n")
             .replace("\\h", "\u00A0");
-    Cue cue = createCue(text, style, styleOverrides, screenWidth, screenHeight);
+    float marginLeft = SsaStyle.parseMargin(lineValues[format.marginLeftIndex]);
+    float marginRight = SsaStyle.parseMargin(lineValues[format.marginRightIndex]);
+    float marginVertical = SsaStyle.parseMargin(lineValues[format.marginVerticalIndex]);
+
+    Cue cue = createCue(
+        text,
+        style,
+        styleOverrides,
+        marginLeft,
+        marginRight,
+        marginVertical,
+        screenWidth,
+        screenHeight);
 
     int startTimeIndex = addCuePlacerholderByTime(startTimeUs, cueTimesUs, cues);
     int endTimeIndex = addCuePlacerholderByTime(endTimeUs, cueTimesUs, cues);
@@ -306,57 +318,13 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       String text,
       @Nullable SsaStyle style,
       SsaStyle.Overrides styleOverrides,
+      float marginLeft,
+      float marginRight,
+      float marginVertical,
       float screenWidth,
       float screenHeight) {
     SpannableString spannableText = new SpannableString(text);
     Cue.Builder cue = new Cue.Builder().setText(spannableText);
-
-    if (style != null) {
-      if (style.primaryColor != null) {
-        spannableText.setSpan(
-            new ForegroundColorSpan(style.primaryColor),
-            /* start= */ 0,
-            /* end= */ spannableText.length(),
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.fontSize != Cue.DIMEN_UNSET && screenHeight != Cue.DIMEN_UNSET) {
-        cue.setTextSize(
-            style.fontSize / screenHeight, Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
-      }
-      if (style.bold && style.italic) {
-        spannableText.setSpan(
-            new StyleSpan(Typeface.BOLD_ITALIC),
-            /* start= */ 0,
-            /* end= */ spannableText.length(),
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      } else if (style.bold) {
-        spannableText.setSpan(
-            new StyleSpan(Typeface.BOLD),
-            /* start= */ 0,
-            /* end= */ spannableText.length(),
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      } else if (style.italic) {
-        spannableText.setSpan(
-            new StyleSpan(Typeface.ITALIC),
-            /* start= */ 0,
-            /* end= */ spannableText.length(),
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.underline) {
-        spannableText.setSpan(
-            new UnderlineSpan(),
-            /* start= */ 0,
-            /* end= */ spannableText.length(),
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      if (style.strikeout) {
-        spannableText.setSpan(
-            new StrikethroughSpan(),
-            /* start= */ 0,
-            /* end= */ spannableText.length(),
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-    }
 
     @SsaStyle.SsaAlignment int alignment;
     if (styleOverrides.alignment != SsaStyle.SSA_ALIGNMENT_UNKNOWN) {
@@ -376,10 +344,72 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue.setPosition(styleOverrides.position.x / screenWidth);
       cue.setLine(styleOverrides.position.y / screenHeight, LINE_TYPE_FRACTION);
     } else {
-      // TODO: Read the MarginL, MarginR and MarginV values from the Style & Dialogue lines.
       cue.setPosition(computeDefaultLineOrPosition(cue.getPositionAnchor()));
       cue.setLine(computeDefaultLineOrPosition(cue.getLineAnchor()), LINE_TYPE_FRACTION);
     }
+
+    cue.setPosition(cue.getPosition() + marginLeft / screenWidth);
+    cue.setPosition(cue.getPosition() - marginRight / screenWidth);
+    cue.setLine(cue.getLine() - marginVertical / screenHeight, LINE_TYPE_FRACTION);
+
+    if (style == null) {
+      return cue.build();
+    }
+    // Apply styles.
+    if (style.primaryColor != null) {
+      spannableText.setSpan(
+          new ForegroundColorSpan(style.primaryColor),
+          /* start= */ 0,
+          /* end= */ spannableText.length(),
+          SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.fontSize != Cue.DIMEN_UNSET && screenHeight != Cue.DIMEN_UNSET) {
+      cue.setTextSize(
+          style.fontSize / screenHeight, Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
+    }
+    if (style.bold && style.italic) {
+      spannableText.setSpan(
+          new StyleSpan(Typeface.BOLD_ITALIC),
+          /* start= */ 0,
+          /* end= */ spannableText.length(),
+          SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    } else if (style.bold) {
+      spannableText.setSpan(
+          new StyleSpan(Typeface.BOLD),
+          /* start= */ 0,
+          /* end= */ spannableText.length(),
+          SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    } else if (style.italic) {
+      spannableText.setSpan(
+          new StyleSpan(Typeface.ITALIC),
+          /* start= */ 0,
+          /* end= */ spannableText.length(),
+          SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.underline) {
+      spannableText.setSpan(
+          new UnderlineSpan(),
+          /* start= */ 0,
+          /* end= */ spannableText.length(),
+          SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.strikeout) {
+      spannableText.setSpan(
+          new StrikethroughSpan(),
+          /* start= */ 0,
+          /* end= */ spannableText.length(),
+          SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    // Margins from dialogue line takes precedence over the style margins.
+    cue.setPosition(cue.getPosition() + (marginLeft != 0
+        ? marginLeft / screenWidth
+        : style.marginLeft / screenWidth));
+    cue.setPosition(cue.getPosition() - (marginRight != 0
+        ? marginRight / screenWidth
+        : style.marginRight / screenWidth));
+    cue.setLine(cue.getLine() - (marginVertical != 0
+        ? marginVertical / screenHeight
+        : style.marginVertical / screenHeight), LINE_TYPE_FRACTION);
 
     return cue.build();
   }
