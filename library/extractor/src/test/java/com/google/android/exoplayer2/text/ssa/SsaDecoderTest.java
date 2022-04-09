@@ -53,6 +53,7 @@ public final class SsaDecoderTest {
   private static final String STYLE_BOLD_ITALIC = "media/ssa/style_bold_italic";
   private static final String STYLE_UNDERLINE = "media/ssa/style_underline";
   private static final String STYLE_STRIKEOUT = "media/ssa/style_strikeout";
+  private static final String STYLE_MARGIN = "media/ssa/style_margin";
 
   @Test
   public void decodeEmpty() throws IOException {
@@ -410,6 +411,48 @@ public final class SsaDecoderTest {
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
     SpannedSubject.assertThat(secondCueText)
         .hasNoStrikethroughSpanBetween(0, secondCueText.length());
+  }
+
+  @Test
+  public void decodeMargins() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_MARGIN);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    // Margin left.
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.position).isEqualTo(0.6f);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.95f);
+    // Margin right.
+    Cue secondClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondClue.position).isEqualTo(0.4f);
+    assertThat(secondClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(secondClue.line).isEqualTo(0.95f);
+    // Margin vertical.
+    Cue thirdClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdClue.position).isEqualTo(0.5f);
+    assertThat(thirdClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(thirdClue.line).isEqualTo(0.75f);
+    // Margin left + vertical.
+    Cue fourthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
+    assertThat(fourthClue.position).isEqualTo(0.6f);
+    assertThat(fourthClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(fourthClue.line).isEqualTo(0.75f);
+    // Margin left + vertical (defined in Dialogue).
+    Cue fifthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(8)));
+    assertThat(fifthClue.position).isEqualTo(0.4f);
+    assertThat(fifthClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(fifthClue.line).isEqualTo(0.75f);
+    // Margin should be skipped because of the {\pos} override.
+    Cue sixthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(10)));
+    assertThat(sixthClue.position).isEqualTo(0.5f);
+    assertThat(sixthClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(sixthClue.line).isEqualTo(0.25f);
+    // Margin should be skipped because of the {\an} override.
+    Cue seventhClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12)));
+    assertThat(seventhClue.position).isEqualTo(0.5f);
+    assertThat(seventhClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(seventhClue.line).isEqualTo(0.5f);
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {
