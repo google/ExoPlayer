@@ -94,8 +94,8 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets whether the runner should suppress any {@link Exception} that occurs as a result of
-     * post-transformation analysis, such as SSIM calculation.
+     * Sets whether to suppress failures that occurs as a result of post-transformation analysis,
+     * such as SSIM calculation.
      *
      * <p>Regardless of this value, analysis exceptions are attached to the analysis file.
      *
@@ -294,13 +294,17 @@ public class TransformerAndroidTestRunner {
       // calculation, so it should be thrown, rather than processed as part of the
       // TransformationTestResult.
       throw interruptedException;
-    } catch (Exception analysisException) {
-      // Catch all (checked and unchecked) exceptions throw by the SsimHelper and process them as
+    } catch (Throwable analysisFailure) {
+      // Catch all (checked and unchecked) failures throw by the SsimHelper and process them as
       // part of the TransformationTestResult.
+      Exception analysisException =
+          analysisFailure instanceof Exception
+              ? (Exception) analysisFailure
+              : new IllegalStateException(analysisFailure);
+
       resultBuilder.setAnalysisException(analysisException);
       Log.e(TAG_PREFIX + testId, "SSIM calculation failed.", analysisException);
     }
-
     return resultBuilder.build();
   }
 }
