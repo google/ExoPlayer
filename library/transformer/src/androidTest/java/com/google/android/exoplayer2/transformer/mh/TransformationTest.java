@@ -54,7 +54,7 @@ public class TransformationTest {
 
   @Test
   public void transformWithDecodeEncode() throws Exception {
-    String testId = TAG + "_transformForceCodecUse";
+    String testId = TAG + "_transformWithDecodeEncode";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
