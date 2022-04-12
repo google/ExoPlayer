@@ -82,8 +82,8 @@ public final class TransformerEndToEndTest {
   private static final String FILE_AUDIO_UNSUPPORTED_BY_ENCODER = "amr/sample_nb.amr";
   private static final String FILE_AUDIO_UNSUPPORTED_BY_MUXER = "mp4/sample_ac3.mp4";
   private static final String FILE_UNKNOWN_DURATION = "mp4/sample_fragmented.mp4";
-  public static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
-  public static final String DUMP_FILE_EXTENSION = "dump";
+  private static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
+  private static final String DUMP_FILE_EXTENSION = "dump";
 
   private Context context;
   private String outputPath;
