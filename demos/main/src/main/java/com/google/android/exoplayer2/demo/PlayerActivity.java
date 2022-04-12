@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
@@ -82,7 +82,7 @@ public class PlayerActivity extends AppCompatActivity
   private List<MediaItem> mediaItems;
   private TrackSelectionParameters trackSelectionParameters;
   private DebugTextViewHelper debugViewHelper;
-  private TracksInfo lastSeenTracksInfo;
+  private Tracks lastSeenTracks;
   private boolean startAutoPlay;
   private int startItemIndex;
   private long startPosition;
@@ -275,7 +275,7 @@ public class PlayerActivity extends AppCompatActivity
       RenderersFactory renderersFactory =
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
 
-      lastSeenTracksInfo = TracksInfo.EMPTY;
+      lastSeenTracks = Tracks.EMPTY;
       player =
           new ExoPlayer.Builder(/* context= */ this)
               .setRenderersFactory(renderersFactory)
@@ -455,22 +455,20 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       updateButtonVisibility();
-      if (tracksInfo == lastSeenTracksInfo) {
+      if (tracks == lastSeenTracks) {
         return;
       }
-      if (tracksInfo.containsType(C.TRACK_TYPE_VIDEO)
-          && !tracksInfo.isTypeSupported(
-              C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
+      if (tracks.containsType(C.TRACK_TYPE_VIDEO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_video);
       }
-      if (tracksInfo.containsType(C.TRACK_TYPE_AUDIO)
-          && !tracksInfo.isTypeSupported(
-              C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
+      if (tracks.containsType(C.TRACK_TYPE_AUDIO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_audio);
       }
-      lastSeenTracksInfo = tracksInfo;
+      lastSeenTracks = tracks;
     }
   }
 

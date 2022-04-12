@@ -61,8 +61,8 @@ import java.util.List;
  * <ul>
  *   <li>They can provide a {@link Timeline} representing the structure of the media being played,
  *       which can be obtained by calling {@link #getCurrentTimeline()}.
- *   <li>They can provide a {@link TracksInfo} defining the currently available tracks and which are
- *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracksInfo()}.
+ *   <li>They can provide a {@link Tracks} defining the currently available tracks and which are
+ *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracks()}.
  * </ul>
  */
 public interface Player {
@@ -673,14 +673,14 @@ public interface Player {
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
     /**
-     * Called when the available or selected tracks change.
+     * Called when the tracks change.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+     * @param tracks The available tracks information. Never null, but may be of length zero.
      */
-    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
+    default void onTracksChanged(Tracks tracks) {}
 
     /**
      * Called when the combined {@link MediaMetadata} changes.
@@ -1299,7 +1299,7 @@ public interface Player {
   int EVENT_TIMELINE_CHANGED = 0;
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
-  /** {@link #getCurrentTracksInfo()} changed. */
+  /** {@link #getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 3;
@@ -2074,11 +2074,11 @@ public interface Player {
   void release();
 
   /**
-   * Returns information about the current tracks.
+   * Returns the current tracks.
    *
-   * @see Listener#onTracksInfoChanged(TracksInfo)
+   * @see Listener#onTracksChanged(Tracks)
    */
-  TracksInfo getCurrentTracksInfo();
+  Tracks getCurrentTracks();
 
   /**
    * Returns the parameters constraining the track selection.

@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -481,12 +481,12 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
   }
 
   @Override
-  public void onTracksInfoChanged(TracksInfo tracksInfo) {
+  public void onTracksChanged(Tracks tracks) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksInfoChanged(eventTime, tracksInfo));
+        listener -> listener.onTracksChanged(eventTime, tracks));
   }
 
   @SuppressWarnings("deprecation") // Implementing deprecated method.

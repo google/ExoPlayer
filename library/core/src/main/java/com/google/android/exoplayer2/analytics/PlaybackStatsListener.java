@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.PlaybackStats.EventTimeAndException;
 import com.google.android.exoplayer2.analytics.PlaybackStats.EventTimeAndFormat;
 import com.google.android.exoplayer2.analytics.PlaybackStats.EventTimeAndPlaybackState;
@@ -522,11 +522,11 @@ public final class PlaybackStatsListener
         hasFatalError = false;
       }
       if (isForeground && !isInterruptedByAd) {
-        TracksInfo currentTracksInfo = player.getCurrentTracksInfo();
-        if (!currentTracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+        Tracks currentTracks = player.getCurrentTracks();
+        if (!currentTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
           maybeUpdateVideoFormat(eventTime, /* newFormat= */ null);
         }
-        if (!currentTracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
+        if (!currentTracks.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
           maybeUpdateAudioFormat(eventTime, /* newFormat= */ null);
         }
       }

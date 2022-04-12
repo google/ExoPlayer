@@ -44,7 +44,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -2223,10 +2223,10 @@ public final class DefaultTrackSelectorTest {
   public void selectTracks_multipleRenderer_allSelected() throws Exception {
     RendererCapabilities[] rendererCapabilities =
         new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES, AUDIO_CAPABILITIES};
-    TrackGroupArray trackGroups = new TrackGroupArray(AUDIO_TRACK_GROUP);
+    TrackGroupArray trackGroupArray = new TrackGroupArray(AUDIO_TRACK_GROUP);
 
     TrackSelectorResult result =
-        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+        trackSelector.selectTracks(rendererCapabilities, trackGroupArray, periodId, TIMELINE);
 
     assertThat(result.length).isEqualTo(3);
     assertThat(result.rendererConfigurations)
@@ -2234,14 +2234,14 @@ public final class DefaultTrackSelectorTest {
         .containsExactly(null, DEFAULT, null)
         .inOrder();
     assertThat(result.selections[0]).isNull();
-    assertFixedSelection(result.selections[1], trackGroups, trackGroups.get(0).getFormat(0));
+    assertFixedSelection(
+        result.selections[1], trackGroupArray, trackGroupArray.get(0).getFormat(0));
     assertThat(result.selections[2]).isNull();
-    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos =
-        result.tracksInfo.getTrackGroupInfos();
-    assertThat(trackGroupInfos).hasSize(1);
-    assertThat(trackGroupInfos.get(0).getTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
-    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isTrue();
-    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
+    ImmutableList<Tracks.Group> trackGroups = result.tracks.getGroups();
+    assertThat(trackGroups).hasSize(1);
+    assertThat(trackGroups.get(0).getTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
+    assertThat(trackGroups.get(0).isTrackSelected(0)).isTrue();
+    assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }
 
   /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */

@@ -28,7 +28,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -301,17 +301,17 @@ public class DownloadTracker {
         return;
       }
 
-      TracksInfo tracksInfo = downloadHelper.getTracksInfo(/* periodIndex= */ 0);
-      if (!TrackSelectionDialog.willHaveContent(tracksInfo)) {
+      Tracks tracks = downloadHelper.getTracks(/* periodIndex= */ 0);
+      if (!TrackSelectionDialog.willHaveContent(tracks)) {
         Log.d(TAG, "No dialog content. Downloading entire stream.");
         startDownload();
         downloadHelper.release();
         return;
       }
       trackSelectionDialog =
-          TrackSelectionDialog.createForTracksInfoAndParameters(
+          TrackSelectionDialog.createForTracksAndParameters(
               /* titleId= */ R.string.exo_download_description,
-              tracksInfo,
+              tracks,
               DownloadHelper.getDefaultTrackSelectorParameters(context),
               /* allowAdaptiveSelections= */ false,
               /* allowMultipleOverrides= */ true,

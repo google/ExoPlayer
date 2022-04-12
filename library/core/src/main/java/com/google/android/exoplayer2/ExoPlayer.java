@@ -1172,8 +1172,8 @@ public interface ExoPlayer extends Player {
   /**
    * Returns the available track groups.
    *
-   * @see Listener#onTracksInfoChanged(TracksInfo)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   * @see Listener#onTracksChanged(Tracks)
+   * @deprecated Use {@link #getCurrentTracks()}.
    */
   @Deprecated
   TrackGroupArray getCurrentTrackGroups();
@@ -1182,8 +1182,8 @@ public interface ExoPlayer extends Player {
    * Returns the current track selections for each renderer, which may include {@code null} elements
    * if some renderers do not have any selected tracks.
    *
-   * @see Listener#onTracksInfoChanged(TracksInfo)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   * @see Listener#onTracksChanged(Tracks)
+   * @deprecated Use {@link #getCurrentTracks()}.
    */
   @Deprecated
   TrackSelectionArray getCurrentTrackSelections();

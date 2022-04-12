@@ -444,10 +444,10 @@ public class ForwardingPlayer implements Player {
     player.release();
   }
 
-  /** Calls {@link Player#getCurrentTracksInfo()} on the delegate and returns the result. */
+  /** Calls {@link Player#getCurrentTracks()} on the delegate and returns the result. */
   @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return player.getCurrentTracksInfo();
+  public Tracks getCurrentTracks() {
+    return player.getCurrentTracks();
   }
 
   /** Calls {@link Player#getTrackSelectionParameters()} on the delegate and returns the result. */
@@ -833,8 +833,8 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
-      listener.onTracksInfoChanged(tracksInfo);
+    public void onTracksChanged(Tracks tracks) {
+      listener.onTracksChanged(tracks);
     }
 
     @Override

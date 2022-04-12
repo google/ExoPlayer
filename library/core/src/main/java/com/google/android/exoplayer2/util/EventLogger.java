@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -258,23 +258,23 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
+  public void onTracksChanged(EventTime eventTime, Tracks tracks) {
     logd("tracks [" + getEventTimeString(eventTime));
     // Log tracks associated to renderers.
-    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    for (int groupIndex = 0; groupIndex < trackGroupInfos.size(); groupIndex++) {
-      TracksInfo.TrackGroupInfo trackGroupInfo = trackGroupInfos.get(groupIndex);
+    ImmutableList<Tracks.Group> trackGroups = tracks.getGroups();
+    for (int groupIndex = 0; groupIndex < trackGroups.size(); groupIndex++) {
+      Tracks.Group trackGroup = trackGroups.get(groupIndex);
       logd("  group [");
-      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
-        String status = getTrackStatusString(trackGroupInfo.isTrackSelected(trackIndex));
-        String formatSupport = getFormatSupportString(trackGroupInfo.getTrackSupport(trackIndex));
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        String status = getTrackStatusString(trackGroup.isTrackSelected(trackIndex));
+        String formatSupport = getFormatSupportString(trackGroup.getTrackSupport(trackIndex));
         logd(
             "    "
                 + status
                 + " Track:"
                 + trackIndex
                 + ", "
-                + Format.toLogString(trackGroupInfo.getTrackFormat(trackIndex))
+                + Format.toLogString(trackGroup.getTrackFormat(trackIndex))
                 + ", supported="
                 + formatSupport);
       }
@@ -283,8 +283,8 @@ public class EventLogger implements AnalyticsListener {
     // TODO: Replace this with an override of onMediaMetadataChanged.
     // Log metadata for at most one of the selected tracks.
     boolean loggedMetadata = false;
-    for (int groupIndex = 0; !loggedMetadata && groupIndex < trackGroupInfos.size(); groupIndex++) {
-      TracksInfo.TrackGroupInfo trackGroup = trackGroupInfos.get(groupIndex);
+    for (int groupIndex = 0; !loggedMetadata && groupIndex < trackGroups.size(); groupIndex++) {
+      Tracks.Group trackGroup = trackGroups.get(groupIndex);
       for (int trackIndex = 0; !loggedMetadata && trackIndex < trackGroup.length; trackIndex++) {
         if (trackGroup.isTrackSelected(trackIndex)) {
           @Nullable Metadata metadata = trackGroup.getTrackFormat(trackIndex).metadata;

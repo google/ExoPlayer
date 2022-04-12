@@ -1955,12 +1955,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (override == null) {
         continue;
       }
-      @Nullable
-      TrackSelectionOverride existingOverride = overridesByType.get(override.getTrackType());
+      @Nullable TrackSelectionOverride existingOverride = overridesByType.get(override.getType());
       // Only replace an existing override if it's empty and the one being considered is not.
       if (existingOverride == null
           || (existingOverride.trackIndices.isEmpty() && !override.trackIndices.isEmpty())) {
-        overridesByType.put(override.getTrackType(), override);
+        overridesByType.put(override.getType(), override);
       }
     }
   }

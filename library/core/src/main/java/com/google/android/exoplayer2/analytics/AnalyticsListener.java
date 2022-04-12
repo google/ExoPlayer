@@ -42,7 +42,7 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -236,7 +236,7 @@ public interface AnalyticsListener {
    * {@link Player#getCurrentMediaItem()} changed or the player started repeating the current item.
    */
   int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
-  /** {@link Player#getCurrentTracksInfo()} changed. */
+  /** {@link Player#getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
@@ -704,12 +704,12 @@ public interface AnalyticsListener {
   default void onPlayerErrorChanged(EventTime eventTime, @Nullable PlaybackException error) {}
 
   /**
-   * Called when the available or selected tracks change.
+   * Called when the tracks change.
    *
    * @param eventTime The event time.
-   * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+   * @param tracks The tracks. Never null, but may be of length zero.
    */
-  default void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {}
+  default void onTracksChanged(EventTime eventTime, Tracks tracks) {}
 
   /**
    * Called when track selection parameters change.

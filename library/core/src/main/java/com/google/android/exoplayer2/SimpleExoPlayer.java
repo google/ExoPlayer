@@ -1049,9 +1049,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
+  public Tracks getCurrentTracks() {
     blockUntilConstructorFinished();
-    return player.getCurrentTracksInfo();
+    return player.getCurrentTracks();
   }
 
   @Override

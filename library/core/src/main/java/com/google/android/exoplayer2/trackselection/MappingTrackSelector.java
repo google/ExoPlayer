@@ -36,7 +36,7 @@ import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -425,9 +425,9 @@ public abstract class MappingTrackSelector extends TrackSelector {
             periodId,
             timeline);
 
-    TracksInfo tracksInfo = TrackSelectionUtil.buildTracksInfo(mappedTrackInfo, result.second);
+    Tracks tracks = TrackSelectionUtil.buildTracks(mappedTrackInfo, result.second);
 
-    return new TrackSelectorResult(result.first, result.second, tracksInfo, mappedTrackInfo);
+    return new TrackSelectorResult(result.first, result.second, tracks, mappedTrackInfo);
   }
 
   /**

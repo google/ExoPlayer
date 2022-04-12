@@ -49,8 +49,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -338,8 +337,7 @@ public final class MediaMetricsListener
       }
     }
     if (events.contains(EVENT_TRACKS_CHANGED) && metricsBuilder != null) {
-      @Nullable
-      DrmInitData drmInitData = getDrmInitData(player.getCurrentTracksInfo().getTrackGroupInfos());
+      @Nullable DrmInitData drmInitData = getDrmInitData(player.getCurrentTracks().getGroups());
       if (drmInitData != null) {
         castNonNull(metricsBuilder).setDrmType(getDrmType(drmInitData));
       }
@@ -370,10 +368,10 @@ public final class MediaMetricsListener
 
   private void maybeReportTrackChanges(Player player, Events events, long realtimeMs) {
     if (events.contains(EVENT_TRACKS_CHANGED)) {
-      TracksInfo tracksInfo = player.getCurrentTracksInfo();
-      boolean isVideoSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO);
-      boolean isAudioSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO);
-      boolean isTextSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_TEXT);
+      Tracks tracks = player.getCurrentTracks();
+      boolean isVideoSelected = tracks.isTypeSelected(C.TRACK_TYPE_VIDEO);
+      boolean isAudioSelected = tracks.isTypeSelected(C.TRACK_TYPE_AUDIO);
+      boolean isTextSelected = tracks.isTypeSelected(C.TRACK_TYPE_TEXT);
       if (isVideoSelected || isAudioSelected || isTextSelected) {
         // Ignore updates with insufficient information where no tracks are selected.
         if (!isVideoSelected) {
@@ -820,11 +818,11 @@ public final class MediaMetricsListener
   }
 
   @Nullable
-  private static DrmInitData getDrmInitData(ImmutableList<TrackGroupInfo> trackGroupInfos) {
-    for (TrackGroupInfo trackGroupInfo : trackGroupInfos) {
-      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
-        if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable DrmInitData drmInitData = trackGroupInfo.getTrackFormat(trackIndex).drmInitData;
+  private static DrmInitData getDrmInitData(ImmutableList<Tracks.Group> trackGroups) {
+    for (Tracks.Group trackGroup : trackGroups) {
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        if (trackGroup.isTrackSelected(trackIndex)) {
+          @Nullable DrmInitData drmInitData = trackGroup.getTrackFormat(trackIndex).drmInitData;
           if (drmInitData != null) {
             return drmInitData;
           }

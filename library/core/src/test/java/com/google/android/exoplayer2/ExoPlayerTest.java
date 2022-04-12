@@ -96,7 +96,6 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.Listener;
 import com.google.android.exoplayer2.Player.PositionInfo;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -267,15 +266,15 @@ public final class ExoPlayerTest {
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
         .verify(mockListener)
-        .onTracksInfoChanged(
+        .onTracksChanged(
             eq(
-                new TracksInfo(
+                new Tracks(
                     ImmutableList.of(
-                        new TrackGroupInfo(
+                        new Tracks.Group(
                             new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT),
                             /* adaptiveSupported= */ false,
                             new int[] {C.FORMAT_HANDLED},
-                            /* tracksSelected= */ new boolean[] {true})))));
+                            /* trackSelected= */ new boolean[] {true})))));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
     assertThat(renderer.getFormatsRead()).containsExactly(ExoPlayerTestRunner.VIDEO_FORMAT);
@@ -646,15 +645,15 @@ public final class ExoPlayerTest {
             argThat(noUid(thirdTimeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
         .verify(mockPlayerListener)
-        .onTracksInfoChanged(
+        .onTracksChanged(
             eq(
-                new TracksInfo(
+                new Tracks(
                     ImmutableList.of(
-                        new TrackGroupInfo(
+                        new Tracks.Group(
                             new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT),
                             /* adaptiveSupported= */ false,
                             new int[] {C.FORMAT_HANDLED},
-                            /* tracksSelected= */ new boolean[] {true})))));
+                            /* trackSelected= */ new boolean[] {true})))));
     assertThat(renderer.isEnded).isTrue();
   }
 
@@ -3416,7 +3415,7 @@ public final class ExoPlayerTest {
             .waitForPendingPlayerCommands()
             .play()
             .build();
-    List<TracksInfo> tracksInfoList = new ArrayList<>();
+    List<Tracks> tracksList = new ArrayList<>();
     new ExoPlayerTestRunner.Builder(context)
         .setMediaSources(mediaSource)
         .setSupportedFormats(ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT)
@@ -3424,21 +3423,21 @@ public final class ExoPlayerTest {
         .setPlayerListener(
             new Player.Listener() {
               @Override
-              public void onTracksInfoChanged(TracksInfo tracksInfo) {
-                tracksInfoList.add(tracksInfo);
+              public void onTracksChanged(Tracks tracks) {
+                tracksList.add(tracks);
               }
             })
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(tracksInfoList).hasSize(3);
+    assertThat(tracksList).hasSize(3);
     // First track groups of the 1st period are reported.
     // Then the seek to an unprepared period will result in empty track groups being returned.
     // Then the track groups of the 2nd period are reported.
-    assertThat(tracksInfoList.get(0).getTrackGroupInfos().get(0).getTrackFormat(0))
+    assertThat(tracksList.get(0).getGroups().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.VIDEO_FORMAT);
-    assertThat(tracksInfoList.get(1)).isEqualTo(TracksInfo.EMPTY);
-    assertThat(tracksInfoList.get(2).getTrackGroupInfos().get(0).getTrackFormat(0))
+    assertThat(tracksList.get(1)).isEqualTo(Tracks.EMPTY);
+    assertThat(tracksList.get(2).getGroups().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.AUDIO_FORMAT);
   }
 
@@ -7983,7 +7982,7 @@ public final class ExoPlayerTest {
           }
         };
     AtomicReference<Timeline> timelineAfterError = new AtomicReference<>();
-    AtomicReference<TracksInfo> trackInfosAfterError = new AtomicReference<>();
+    AtomicReference<Tracks> trackInfosAfterError = new AtomicReference<>();
     AtomicInteger mediaItemIndexAfterError = new AtomicInteger();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
@@ -7996,7 +7995,7 @@ public final class ExoPlayerTest {
                           @Override
                           public void onPlayerError(EventTime eventTime, PlaybackException error) {
                             timelineAfterError.set(player.getCurrentTimeline());
-                            trackInfosAfterError.set(player.getCurrentTracksInfo());
+                            trackInfosAfterError.set(player.getCurrentTracks());
                             mediaItemIndexAfterError.set(player.getCurrentMediaItemIndex());
                           }
                         });
@@ -8025,8 +8024,8 @@ public final class ExoPlayerTest {
 
     assertThat(timelineAfterError.get().getWindowCount()).isEqualTo(1);
     assertThat(mediaItemIndexAfterError.get()).isEqualTo(0);
-    assertThat(trackInfosAfterError.get().getTrackGroupInfos()).hasSize(1);
-    assertThat(trackInfosAfterError.get().getTrackGroupInfos().get(0).getTrackFormat(0))
+    assertThat(trackInfosAfterError.get().getGroups()).hasSize(1);
+    assertThat(trackInfosAfterError.get().getGroups().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.AUDIO_FORMAT);
     assertThat(trackInfosAfterError.get().isTypeSelected(C.TRACK_TYPE_VIDEO)).isFalse();
     assertThat(trackInfosAfterError.get().isTypeSelected(C.TRACK_TYPE_AUDIO)).isTrue();
@@ -10413,7 +10412,7 @@ public final class ExoPlayerTest {
     verify(listener, atLeastOnce()).onShuffleModeEnabledChanged(anyBoolean());
     verify(listener, atLeastOnce()).onPlaybackStateChanged(anyInt());
     verify(listener, atLeastOnce()).onIsLoadingChanged(anyBoolean());
-    verify(listener, atLeastOnce()).onTracksInfoChanged(any());
+    verify(listener, atLeastOnce()).onTracksChanged(any());
     verify(listener, atLeastOnce()).onMediaMetadataChanged(any());
     verify(listener, atLeastOnce()).onPlayWhenReadyChanged(anyBoolean(), anyInt());
     verify(listener, atLeastOnce()).onIsPlayingChanged(anyBoolean());
