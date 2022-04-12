@@ -107,8 +107,6 @@ public class BitrateAnalysisTest {
                     /* enableFallback= */ false))
             .build();
 
-    inputValues.put("Transformer", transformer);
-
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
         .setCalculateSsim(true)
