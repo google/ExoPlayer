@@ -18,28 +18,56 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
+import androidx.annotation.IntDef;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Controls how a frame is viewed, by cropping or changing resolution.
+ * Controls how a frame is viewed, by cropping, changing aspect ratio, or changing resolution.
  *
- * <p>Cropping is applied before setting resolution.
+ * <p>Cropping or aspect ratio is applied before setting resolution.
  */
-// TODO(b/213190310): Implement aspect ratio changes, etc.
 @UnstableApi
 public final class PresentationFrameProcessor implements GlFrameProcessor {
+  /**
+   * Strategies for how to apply the presented frame. One of {@link #SCALE_TO_FIT}, {@link
+   * #SCALE_TO_FIT_WITH_CROP}, or {@link #STRETCH_TO_FIT}.
+   */
+  @Documented
+  @Retention(SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({SCALE_TO_FIT, SCALE_TO_FIT_WITH_CROP, STRETCH_TO_FIT})
+  public @interface PresentationStrategy {}
+  /**
+   * Empty pixels added above and below the input frame (for letterboxing), or to the left and right
+   * of the input frame (for pillarboxing), until the desired aspect ratio is achieved. All input
+   * frame pixels will be within the output frame.
+   */
+  public static final int SCALE_TO_FIT = 0;
+  /**
+   * Pixels cropped from the input frame, until the desired aspect ratio is achieved. Pixels will be
+   * cropped either from the top and bottom, or from the left and right sides, of the input frame.
+   */
+  public static final int SCALE_TO_FIT_WITH_CROP = 1;
+  /** Frame stretched larger on the x or y axes to fit the desired aspect ratio. */
+  public static final int STRETCH_TO_FIT = 2;
+
   /** A builder for {@link PresentationFrameProcessor} instances. */
   public static final class Builder {
 
@@ -52,6 +80,8 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     private float cropRight;
     private float cropBottom;
     private float cropTop;
+    private float aspectRatio;
+    private @PresentationStrategy int presentationStrategy;
 
     /**
      * Creates a builder with default values.
@@ -65,6 +95,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       cropRight = 1f;
       cropBottom = -1f;
       cropTop = 1f;
+      aspectRatio = C.LENGTH_UNSET;
     }
 
     /**
@@ -95,6 +126,9 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
      *
      * <p>Width and height values set may be rescaled by {@link #setResolution(int)}.
      *
+     * <p>Only one of {@code setCrop} or {@link #setAspectRatio(float, int)} can be called for one
+     * {@link PresentationFrameProcessor}.
+     *
      * @param left The left edge of the output frame, in NDC. Must be less than {@code right}.
      * @param right The right edge of the output frame, in NDC. Must be greater than {@code left}.
      * @param bottom The bottom edge of the output frame, in NDC. Must be less than {@code top}.
@@ -106,6 +140,9 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
           right > left, "right value " + right + " should be greater than left value " + left);
       checkArgument(
           top > bottom, "top value " + top + " should be greater than bottom value " + bottom);
+      checkState(
+          aspectRatio == C.LENGTH_UNSET,
+          "setAspectRatio and setCrop cannot be called in the same instance");
       cropLeft = left;
       cropRight = right;
       cropBottom = bottom;
@@ -114,9 +151,45 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       return this;
     }
 
+    /**
+     * Resize a frame's width or height to conform to an {@code aspectRatio}, given a {@link
+     * PresentationStrategy}, and leaving input pixels unchanged.
+     *
+     * <p>Width and height values set here may be rescaled by {@link #setResolution(int)}.
+     *
+     * <p>Only one of {@link #setCrop(float, float, float, float)} or {@code setAspectRatio} can be
+     * called for one {@link PresentationFrameProcessor}.
+     *
+     * @param aspectRatio The aspect ratio of the output frame, defined as width/height. Must be
+     *     positive.
+     * @return This builder.
+     */
+    public Builder setAspectRatio(
+        float aspectRatio, @PresentationStrategy int presentationStrategy) {
+      checkArgument(aspectRatio > 0, "aspect ratio " + aspectRatio + " must be positive");
+      checkArgument(
+          presentationStrategy == SCALE_TO_FIT
+              || presentationStrategy == SCALE_TO_FIT_WITH_CROP
+              || presentationStrategy == STRETCH_TO_FIT,
+          "invalid presentationStrategy " + presentationStrategy);
+      checkState(
+          cropLeft == -1f && cropRight == 1f && cropBottom == -1f && cropTop == 1f,
+          "setAspectRatio and setCrop cannot be called in the same instance");
+      this.aspectRatio = aspectRatio;
+      this.presentationStrategy = presentationStrategy;
+      return this;
+    }
+
     public PresentationFrameProcessor build() {
       return new PresentationFrameProcessor(
-          context, heightPixels, cropLeft, cropRight, cropBottom, cropTop);
+          context,
+          heightPixels,
+          cropLeft,
+          cropRight,
+          cropBottom,
+          cropTop,
+          aspectRatio,
+          presentationStrategy);
     }
   }
 
@@ -130,9 +203,12 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private final float cropRight;
   private final float cropBottom;
   private final float cropTop;
+  private final float requestedAspectRatio;
+  private final @PresentationStrategy int presentationStrategy;
 
   private int outputRotationDegrees;
-  private @MonotonicNonNull Size outputSize;
+  private int outputWidth;
+  private int outputHeight;
   private @MonotonicNonNull Matrix transformationMatrix;
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
 
@@ -143,14 +219,20 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       float cropLeft,
       float cropRight,
       float cropBottom,
-      float cropTop) {
+      float cropTop,
+      float requestedAspectRatio,
+      @PresentationStrategy int presentationStrategy) {
     this.context = context;
     this.requestedHeightPixels = requestedHeightPixels;
     this.cropLeft = cropLeft;
     this.cropRight = cropRight;
     this.cropBottom = cropBottom;
     this.cropTop = cropTop;
+    this.requestedAspectRatio = requestedAspectRatio;
+    this.presentationStrategy = presentationStrategy;
 
+    outputWidth = C.LENGTH_UNSET;
+    outputHeight = C.LENGTH_UNSET;
     outputRotationDegrees = C.LENGTH_UNSET;
     transformationMatrix = new Matrix();
   }
@@ -164,7 +246,10 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   @Override
   public Size getOutputSize() {
-    return checkStateNotNull(outputSize);
+    checkState(
+        outputWidth != C.LENGTH_UNSET && outputHeight != C.LENGTH_UNSET,
+        "configureOutputSizeAndTransformationMatrix must be called before getOutputSize");
+    return new Size(outputWidth, outputHeight);
   }
 
   /**
@@ -175,7 +260,10 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
    * <p>The frame processor must be {@linkplain #initialize(int,int,int) initialized}.
    */
   public int getOutputRotationDegrees() {
-    checkState(outputRotationDegrees != C.LENGTH_UNSET);
+    checkState(
+        outputRotationDegrees != C.LENGTH_UNSET,
+        "configureOutputSizeAndTransformationMatrix must be called before"
+            + " getOutputRotationDegrees");
     return outputRotationDegrees;
   }
 
@@ -194,35 +282,44 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   @EnsuresNonNull("transformationMatrix")
   @VisibleForTesting // Allows robolectric testing of output size calculation without OpenGL.
   /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
     transformationMatrix = new Matrix();
+    outputWidth = inputWidth;
+    outputHeight = inputHeight;
 
-    Size cropSize = applyCrop(inputWidth, inputHeight);
-    int displayWidth = cropSize.getWidth();
-    int displayHeight = cropSize.getHeight();
+    if (cropLeft != -1f || cropRight != 1f || cropBottom != -1f || cropTop != 1f) {
+      checkState(
+          requestedAspectRatio == C.LENGTH_UNSET,
+          "aspect ratio and crop cannot both be set in the same instance");
+      applyCrop();
+    } else if (requestedAspectRatio != C.LENGTH_UNSET) {
+      applyAspectRatio();
+    }
 
     // Scale width and height to desired requestedHeightPixels, preserving aspect ratio.
-    if (requestedHeightPixels != C.LENGTH_UNSET && requestedHeightPixels != displayHeight) {
-      displayWidth = Math.round((float) requestedHeightPixels * displayWidth / displayHeight);
-      displayHeight = requestedHeightPixels;
+    if (requestedHeightPixels != C.LENGTH_UNSET && requestedHeightPixels != outputHeight) {
+      outputWidth = Math.round((float) requestedHeightPixels * outputWidth / outputHeight);
+      outputHeight = requestedHeightPixels;
     }
 
     // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
     // frame before encoding, so the encoded frame's width >= height, and set
     // outputRotationDegrees to ensure the frame is displayed in the correct orientation.
-    if (displayHeight > displayWidth) {
+    if (outputHeight > outputWidth) {
       outputRotationDegrees = 90;
-      // TODO(b/201293185): After fragment shader transformations are implemented, put
-      //  postRotate in a later GlFrameProcessor.
+      // TODO(b/201293185): Put postRotate in a later GlFrameProcessor.
       transformationMatrix.postRotate(outputRotationDegrees);
-      outputSize = new Size(displayHeight, displayWidth);
+      int swap = outputWidth;
+      outputWidth = outputHeight;
+      outputHeight = swap;
     } else {
       outputRotationDegrees = 0;
-      outputSize = new Size(displayWidth, displayHeight);
     }
   }
 
   @RequiresNonNull("transformationMatrix")
-  private Size applyCrop(int inputWidth, int inputHeight) {
+  private void applyCrop() {
     float scaleX = (cropRight - cropLeft) / GlUtil.LENGTH_NDC;
     float scaleY = (cropTop - cropBottom) / GlUtil.LENGTH_NDC;
     float centerX = (cropLeft + cropRight) / 2;
@@ -231,8 +328,35 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     transformationMatrix.postTranslate(-centerX, -centerY);
     transformationMatrix.postScale(1f / scaleX, 1f / scaleY);
 
-    int outputWidth = Math.round(inputWidth * scaleX);
-    int outputHeight = Math.round(inputHeight * scaleY);
-    return new Size(outputWidth, outputHeight);
+    outputWidth = Math.round(outputWidth * scaleX);
+    outputHeight = Math.round(outputHeight * scaleY);
+  }
+
+  @RequiresNonNull("transformationMatrix")
+  private void applyAspectRatio() {
+    float inputAspectRatio = (float) outputWidth / outputHeight;
+    if (presentationStrategy == SCALE_TO_FIT) {
+      if (requestedAspectRatio > inputAspectRatio) {
+        transformationMatrix.setScale(inputAspectRatio / requestedAspectRatio, 1f);
+        outputWidth = Math.round(outputHeight * requestedAspectRatio);
+      } else {
+        transformationMatrix.setScale(1f, requestedAspectRatio / inputAspectRatio);
+        outputHeight = Math.round(outputWidth / requestedAspectRatio);
+      }
+    } else if (presentationStrategy == SCALE_TO_FIT_WITH_CROP) {
+      if (requestedAspectRatio > inputAspectRatio) {
+        transformationMatrix.setScale(1f, requestedAspectRatio / inputAspectRatio);
+        outputHeight = Math.round(outputWidth / requestedAspectRatio);
+      } else {
+        transformationMatrix.setScale(inputAspectRatio / requestedAspectRatio, 1f);
+        outputWidth = Math.round(outputHeight * requestedAspectRatio);
+      }
+    } else if (presentationStrategy == STRETCH_TO_FIT) {
+      if (requestedAspectRatio > inputAspectRatio) {
+        outputWidth = Math.round(outputHeight * requestedAspectRatio);
+      } else {
+        outputHeight = Math.round(outputWidth / requestedAspectRatio);
+      }
+    }
   }
 }

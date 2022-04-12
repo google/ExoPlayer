@@ -16,8 +16,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.transformer.BitmapTestUtil.CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static androidx.media3.transformer.BitmapTestUtil.REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
@@ -178,60 +176,14 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void
-      processData_withPresentationFrameProcessor_requestOutputHeight_producesExpectedOutput()
-          throws Exception {
-    String testId = "processData_withPresentationFrameProcessor_requestOutputHeight";
+  public void processData_withPresentationFrameProcessor_setResolution_producesExpectedOutput()
+      throws Exception {
+    String testId = "processData_withPresentationFrameProcessor_setResolution";
     GlFrameProcessor glFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
-
-    Bitmap actualBitmap = processFirstFrameAndEnd();
-
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  @Test
-  public void processData_withPresentationFrameProcessor_cropSmaller_producesExpectedOutput()
-      throws Exception {
-    String testId = "updateProgramAndDraw_cropSmaller";
-    GlFrameProcessor glFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
-            .setCrop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
-            .build();
-    setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING);
-
-    Bitmap actualBitmap = processFirstFrameAndEnd();
-
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  @Test
-  public void processData_withPresentationFrameProcessor_cropLarger_producesExpectedOutput()
-      throws Exception {
-    String testId = "updateProgramAndDraw_cropLarger";
-    GlFrameProcessor glFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
-            .setCrop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
-            .build();
-    setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
