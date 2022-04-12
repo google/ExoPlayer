@@ -68,11 +68,10 @@ public final class AdvancedFrameProcessorPixelTest {
     height = inputBitmap.getHeight();
     // This surface is needed for focussing a render target, but the tests don't write output to it.
     // The frame processor's output is written to a framebuffer instead.
-    EGLSurface eglSurface = GlUtil.getEglSurface(eglDisplay, new SurfaceTexture(false));
+    EGLSurface eglSurface =
+        GlUtil.getEglSurface(eglDisplay, new SurfaceTexture(/* singleBufferMode= */ false));
     GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
-    inputTexId =
-        BitmapTestUtil.createGlTextureFromBitmap(
-            BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING));
+    inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
     outputTexId = GlUtil.createTexture(width, height);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(eglDisplay, eglContext, eglSurface, frameBuffer, width, height);
