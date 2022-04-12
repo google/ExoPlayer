@@ -324,6 +324,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
+   * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
+   * but not completely processed yet.
+   */
+  public int getPendingFrameCount() {
+    return pendingFrameCount.get();
+  }
+
+  /**
    * Checks whether any exceptions occurred during asynchronous frame processing and rethrows the
    * first exception encountered.
    */
@@ -345,22 +353,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /**
-   * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
-   * but not completely processed yet.
-   */
-  public int getPendingFrameCount() {
-    return pendingFrameCount.get();
+  /** Informs the {@code FrameProcessorChain} that no further input frames should be accepted. */
+  public void signalEndOfInputStream() {
+    inputStreamEnded = true;
   }
 
   /** Returns whether all frames have been processed. */
   public boolean isEnded() {
     return inputStreamEnded && getPendingFrameCount() == 0;
-  }
-
-  /** Informs the {@code FrameProcessorChain} that no further input frames should be accepted. */
-  public void signalEndOfInputStream() {
-    inputStreamEnded = true;
   }
 
   /**
