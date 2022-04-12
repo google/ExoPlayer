@@ -72,6 +72,16 @@ public final class Log {
   }
 
   /**
+   * Sets a custom logger for the ExoPlayer logs.
+   * Logs are routed to this logger once this is initialized.
+   *
+   * @param customLogger - a {@link CustomLogger} implementation
+   */
+  public static void setCustomLogger(@Nullable CustomLogger customLogger) {
+    Log.customLogger = customLogger;
+  }
+
+  /**
    * Sets whether stack traces of {@link Throwable}s will be logged to logcat. Stack trace logging
    * is enabled by default.
    *
@@ -87,6 +97,9 @@ public final class Log {
   @Pure
   public static void d(@Size(max = 23) String tag, String message) {
     if (logLevel == LOG_LEVEL_ALL) {
+      if (customLogger != null) {
+        customLogger.d(tag, message);
+      }
       android.util.Log.d(tag, message);
     }
   }
@@ -105,6 +118,9 @@ public final class Log {
   @Pure
   public static void i(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_INFO) {
+      if (customLogger != null) {
+        customLogger.i(tag, message);
+      }
       android.util.Log.i(tag, message);
     }
   }
@@ -123,6 +139,9 @@ public final class Log {
   @Pure
   public static void w(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_WARNING) {
+      if (customLogger != null) {
+        customLogger.w(tag, message);
+      }
       android.util.Log.w(tag, message);
     }
   }
@@ -141,6 +160,9 @@ public final class Log {
   @Pure
   public static void e(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_ERROR) {
+      if (customLogger != null) {
+        customLogger.e(tag, message);
+      }
       android.util.Log.e(tag, message);
     }
   }
@@ -203,4 +225,5 @@ public final class Log {
     }
     return false;
   }
+
 }
