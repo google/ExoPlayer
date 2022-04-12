@@ -38,7 +38,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Clock;
@@ -1222,8 +1222,8 @@ public interface ExoPlayer extends Player {
   /**
    * Returns the available track groups.
    *
-   * @see Listener#onTracksInfoChanged(TracksInfo)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   * @see Listener#onTracksChanged(Tracks)
+   * @deprecated Use {@link #getCurrentTracks()}.
    */
   @UnstableApi
   @Deprecated
@@ -1233,8 +1233,8 @@ public interface ExoPlayer extends Player {
    * Returns the current track selections for each renderer, which may include {@code null} elements
    * if some renderers do not have any selected tracks.
    *
-   * @see Listener#onTracksInfoChanged(TracksInfo)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   * @see Listener#onTracksChanged(Tracks)
+   * @deprecated Use {@link #getCurrentTracks()}.
    */
   @UnstableApi
   @Deprecated

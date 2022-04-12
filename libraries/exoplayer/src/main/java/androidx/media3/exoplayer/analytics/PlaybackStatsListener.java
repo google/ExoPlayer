@@ -27,7 +27,7 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
@@ -524,11 +524,11 @@ public final class PlaybackStatsListener
         hasFatalError = false;
       }
       if (isForeground && !isInterruptedByAd) {
-        TracksInfo currentTracksInfo = player.getCurrentTracksInfo();
-        if (!currentTracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+        Tracks currentTracks = player.getCurrentTracks();
+        if (!currentTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
           maybeUpdateVideoFormat(eventTime, /* newFormat= */ null);
         }
-        if (!currentTracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
+        if (!currentTracks.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
           maybeUpdateAudioFormat(eventTime, /* newFormat= */ null);
         }
       }

@@ -36,7 +36,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.ConditionVariable;
@@ -1171,7 +1171,7 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
+  public Tracks getCurrentTracks() {
     throw new UnsupportedOperationException();
   }
 

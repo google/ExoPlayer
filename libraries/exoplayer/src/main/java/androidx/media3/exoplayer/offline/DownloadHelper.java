@@ -33,7 +33,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -546,16 +546,16 @@ public final class DownloadHelper {
   }
 
   /**
-   * Returns {@link TracksInfo} for the given period. Must not be called until after preparation
+   * Returns {@link Tracks} for the given period. Must not be called until after preparation
    * completes.
    *
    * @param periodIndex The period index.
-   * @return The {@link TracksInfo} for the period. May be {@link TracksInfo#EMPTY} for single
-   *     stream content.
+   * @return The {@link Tracks} for the period. May be {@link Tracks#EMPTY} for single stream
+   *     content.
    */
-  public TracksInfo getTracksInfo(int periodIndex) {
+  public Tracks getTracks(int periodIndex) {
     assertPreparedWithMedia();
-    return TrackSelectionUtil.buildTracksInfo(
+    return TrackSelectionUtil.buildTracks(
         mappedTrackInfos[periodIndex], immutableTrackSelectionsByPeriodAndRenderer[periodIndex]);
   }
 

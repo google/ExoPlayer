@@ -31,7 +31,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.C.FormatSupport;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlaybackException;
@@ -427,9 +427,9 @@ public abstract class MappingTrackSelector extends TrackSelector {
             periodId,
             timeline);
 
-    TracksInfo tracksInfo = TrackSelectionUtil.buildTracksInfo(mappedTrackInfo, result.second);
+    Tracks tracks = TrackSelectionUtil.buildTracks(mappedTrackInfo, result.second);
 
-    return new TrackSelectorResult(result.first, result.second, tracksInfo, mappedTrackInfo);
+    return new TrackSelectorResult(result.first, result.second, tracks, mappedTrackInfo);
   }
 
   /**

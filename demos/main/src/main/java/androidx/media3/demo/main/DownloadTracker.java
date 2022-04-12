@@ -31,7 +31,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
@@ -303,17 +303,17 @@ public class DownloadTracker {
         return;
       }
 
-      TracksInfo tracksInfo = downloadHelper.getTracksInfo(/* periodIndex= */ 0);
-      if (!TrackSelectionDialog.willHaveContent(tracksInfo)) {
+      Tracks tracks = downloadHelper.getTracks(/* periodIndex= */ 0);
+      if (!TrackSelectionDialog.willHaveContent(tracks)) {
         Log.d(TAG, "No dialog content. Downloading entire stream.");
         startDownload();
         downloadHelper.release();
         return;
       }
       trackSelectionDialog =
-          TrackSelectionDialog.createForTracksInfoAndParameters(
+          TrackSelectionDialog.createForTracksAndParameters(
               /* titleId= */ R.string.exo_download_description,
-              tracksInfo,
+              tracks,
               DownloadHelper.getDefaultTrackSelectorParameters(context),
               /* allowAdaptiveSelections= */ false,
               /* allowMultipleOverrides= */ true,

@@ -710,7 +710,7 @@ import java.util.Map;
     }
 
     // Check for a selected track using an audio renderer.
-    return player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_AUDIO) ? 100 : 0;
+    return player.getCurrentTracks().isTypeSelected(C.TRACK_TYPE_AUDIO) ? 100 : 0;
   }
 
   private void handleAdEvent(AdEvent adEvent) {

@@ -684,7 +684,7 @@ public class TrackSelectionParameters implements Bundleable {
 
     /** Sets an override, replacing all existing overrides with the same track type. */
     public Builder setOverrideForType(TrackSelectionOverride override) {
-      clearOverridesOfType(override.getTrackType());
+      clearOverridesOfType(override.getType());
       overrides.put(override.trackGroup, override);
       return this;
     }
@@ -700,7 +700,7 @@ public class TrackSelectionParameters implements Bundleable {
       Iterator<TrackSelectionOverride> it = overrides.values().iterator();
       while (it.hasNext()) {
         TrackSelectionOverride override = it.next();
-        if (override.getTrackType() == trackType) {
+        if (override.getType() == trackType) {
           it.remove();
         }
       }

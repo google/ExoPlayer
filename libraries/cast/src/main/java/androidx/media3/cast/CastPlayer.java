@@ -40,8 +40,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
-import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
@@ -136,7 +135,7 @@ public final class CastPlayer extends BasePlayer {
   private final StateHolder<PlaybackParameters> playbackParameters;
   @Nullable private RemoteMediaClient remoteMediaClient;
   private CastTimeline currentTimeline;
-  private TracksInfo currentTracksInfo;
+  private Tracks currentTracks;
   private Commands availableCommands;
   private @Player.State int playbackState;
   private int currentWindowIndex;
@@ -212,7 +211,7 @@ public final class CastPlayer extends BasePlayer {
     playbackParameters = new StateHolder<>(PlaybackParameters.DEFAULT);
     playbackState = STATE_IDLE;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
-    currentTracksInfo = TracksInfo.EMPTY;
+    currentTracks = Tracks.EMPTY;
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
@@ -544,8 +543,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return currentTracksInfo;
+  public Tracks getCurrentTracks() {
+    return currentTracks;
   }
 
   @Override
@@ -818,7 +817,7 @@ public final class CastPlayer extends BasePlayer {
     }
     if (updateTracksAndSelectionsAndNotifyIfChanged()) {
       listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED, listener -> listener.onTracksInfoChanged(currentTracksInfo));
+          Player.EVENT_TRACKS_CHANGED, listener -> listener.onTracksChanged(currentTracks));
     }
     updateAvailableCommandsAndNotifyIfChanged();
     listeners.flushEvents();
@@ -978,8 +977,8 @@ public final class CastPlayer extends BasePlayer {
     @Nullable
     List<MediaTrack> castMediaTracks = mediaInfo != null ? mediaInfo.getMediaTracks() : null;
     if (castMediaTracks == null || castMediaTracks.isEmpty()) {
-      boolean hasChanged = !TracksInfo.EMPTY.equals(currentTracksInfo);
-      currentTracksInfo = TracksInfo.EMPTY;
+      boolean hasChanged = !Tracks.EMPTY.equals(currentTracks);
+      currentTracks = Tracks.EMPTY;
       return hasChanged;
     }
     @Nullable long[] activeTrackIds = mediaStatus.getActiveTrackIds();
@@ -987,20 +986,19 @@ public final class CastPlayer extends BasePlayer {
       activeTrackIds = EMPTY_TRACK_ID_ARRAY;
     }
 
-    TrackGroupInfo[] trackGroupInfos = new TrackGroupInfo[castMediaTracks.size()];
+    Tracks.Group[] trackGroups = new Tracks.Group[castMediaTracks.size()];
     for (int i = 0; i < castMediaTracks.size(); i++) {
       MediaTrack mediaTrack = castMediaTracks.get(i);
       TrackGroup trackGroup =
           new TrackGroup(/* id= */ Integer.toString(i), CastUtils.mediaTrackToFormat(mediaTrack));
       @C.FormatSupport int[] trackSupport = new int[] {C.FORMAT_HANDLED};
       boolean[] trackSelected = new boolean[] {isTrackActive(mediaTrack.getId(), activeTrackIds)};
-      trackGroupInfos[i] =
-          new TrackGroupInfo(
-              trackGroup, /* adaptiveSupported= */ false, trackSupport, trackSelected);
+      trackGroups[i] =
+          new Tracks.Group(trackGroup, /* adaptiveSupported= */ false, trackSupport, trackSelected);
     }
-    TracksInfo newTracksInfo = new TracksInfo(ImmutableList.copyOf(trackGroupInfos));
-    if (!newTracksInfo.equals(currentTracksInfo)) {
-      currentTracksInfo = newTracksInfo;
+    Tracks newTracks = new Tracks(ImmutableList.copyOf(trackGroups));
+    if (!newTracks.equals(currentTracks)) {
+      currentTracks = newTracks;
       return true;
     }
     return false;

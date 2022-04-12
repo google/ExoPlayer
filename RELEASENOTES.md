@@ -15,6 +15,10 @@
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
+    *   Rename `TracksInfo` to `Tracks` and `TracksInfo.TrackGroupInfo` to
+        `Tracks.Group`. `Player.getCurrentTracksInfo` and
+        `Player.Listener.onTracksInfoChanged` have also been renamed to
+        `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
 *   Video:
     *   Rename `DummySurface` to `PlaceHolderSurface`.
 *   Audio:

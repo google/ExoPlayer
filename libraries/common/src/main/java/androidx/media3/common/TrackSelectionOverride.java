@@ -92,7 +92,7 @@ public final class TrackSelectionOverride implements Bundleable {
   }
 
   /** Returns the {@link C.TrackType} of the overridden track group. */
-  public @C.TrackType int getTrackType() {
+  public @C.TrackType int getType() {
     return trackGroup.type;
   }
 

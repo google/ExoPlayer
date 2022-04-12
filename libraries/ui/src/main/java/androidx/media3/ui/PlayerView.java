@@ -58,7 +58,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
@@ -1216,7 +1216,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
     @Nullable Player player = this.player;
-    if (player == null || player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
+    if (player == null || player.getCurrentTracks().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
         closeShutter();
@@ -1229,7 +1229,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       closeShutter();
     }
 
-    if (player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+    if (player.getCurrentTracks().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
       // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
       // in onRenderedFirstFrame().
       hideArtwork();
@@ -1461,7 +1461,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     @Override
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
@@ -1469,7 +1469,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
-      } else if (!player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
+      } else if (!player.getCurrentTracks().isEmpty()) {
         lastPeriodUidWithTracks =
             timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
       } else if (lastPeriodUidWithTracks != null) {

@@ -41,7 +41,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.UnstableApi;
@@ -949,7 +949,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       if (muxerWrapper.getTrackCount() == 0) {
         handleTransformationEnded(
             TransformationException.createForUnexpected(

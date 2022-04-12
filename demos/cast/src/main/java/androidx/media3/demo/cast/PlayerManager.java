@@ -26,7 +26,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.TimelineChangeReason;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerControlView;
 import androidx.media3.ui.PlayerView;
@@ -57,7 +57,7 @@ import java.util.ArrayList;
   private final ArrayList<MediaItem> mediaQueue;
   private final Listener listener;
 
-  private TracksInfo lastSeenTrackGroupInfo;
+  private Tracks lastSeenTracks;
   private int currentItemIndex;
   private Player currentPlayer;
 
@@ -219,19 +219,19 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onTracksInfoChanged(TracksInfo tracksInfo) {
-    if (currentPlayer != localPlayer || tracksInfo == lastSeenTrackGroupInfo) {
+  public void onTracksChanged(Tracks tracks) {
+    if (currentPlayer != localPlayer || tracks == lastSeenTracks) {
       return;
     }
-    if (tracksInfo.containsType(C.TRACK_TYPE_VIDEO)
-        && !tracksInfo.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
+    if (tracks.containsType(C.TRACK_TYPE_VIDEO)
+        && !tracks.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
     }
-    if (tracksInfo.containsType(C.TRACK_TYPE_AUDIO)
-        && !tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
+    if (tracks.containsType(C.TRACK_TYPE_AUDIO)
+        && !tracks.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
     }
-    lastSeenTrackGroupInfo = tracksInfo;
+    lastSeenTracks = tracks;
   }
 
   // CastPlayer.SessionAvailabilityListener implementation.

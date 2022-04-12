@@ -36,7 +36,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Clock;
@@ -1059,9 +1059,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
+  public Tracks getCurrentTracks() {
     blockUntilConstructorFinished();
-    return player.getCurrentTracksInfo();
+    return player.getCurrentTracks();
   }
 
   @Override
