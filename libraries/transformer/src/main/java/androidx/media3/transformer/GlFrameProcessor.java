@@ -27,7 +27,7 @@ import java.io.IOException;
  * <ol>
  *   <li>The constructor, for implementation-specific arguments.
  *   <li>{@link #initialize(int,int,int)}, to set up graphics initialization.
- *   <li>{@link #updateProgramAndDraw(long)}, to process one frame.
+ *   <li>{@link #drawFrame(long)}, to process one frame.
  *   <li>{@link #release()}, upon conclusion of processing.
  * </ol>
  */
@@ -47,8 +47,7 @@ public interface GlFrameProcessor {
   void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException;
 
   /**
-   * Returns the output {@link Size} of frames processed through {@link
-   * #updateProgramAndDraw(long)}.
+   * Returns the output {@link Size} of frames processed through {@link #drawFrame(long)}.
    *
    * <p>This method may only be called after the frame processor has been {@link
    * #initialize(int,int,int) initialized}.
@@ -56,15 +55,18 @@ public interface GlFrameProcessor {
   Size getOutputSize();
 
   /**
-   * Updates the shader program's vertex attributes and uniforms, binds them, and draws.
+   * Draws one frame.
    *
    * <p>This method may only be called after the frame processor has been {@link
    * #initialize(int,int,int) initialized}. The caller is responsible for focussing the correct
    * render target before calling this method.
    *
+   * <p>A minimal implementation should tell OpenGL to use its shader program, bind the shader
+   * program's vertex attributes and uniforms, and issue a drawing command.
+   *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
-  void updateProgramAndDraw(long presentationTimeUs);
+  void drawFrame(long presentationTimeUs);
 
   /** Releases all resources. */
   void release();

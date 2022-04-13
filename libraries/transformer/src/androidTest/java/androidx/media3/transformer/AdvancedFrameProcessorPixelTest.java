@@ -86,14 +86,14 @@ public final class AdvancedFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_noEdits_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_noEdits";
+  public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
     advancedFrameProcessor.initialize(inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -107,8 +107,8 @@ public final class AdvancedFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_translateRight_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_translateRight";
+  public void drawFrame_translateRight_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     advancedFrameProcessor =
@@ -117,7 +117,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -131,8 +131,8 @@ public final class AdvancedFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_scaleNarrow_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_scaleNarrow";
+  public void drawFrame_scaleNarrow_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
@@ -140,7 +140,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -154,15 +154,15 @@ public final class AdvancedFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_rotate90_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_rotate90";
+  public void drawFrame_rotate90_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
     advancedFrameProcessor.initialize(inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 

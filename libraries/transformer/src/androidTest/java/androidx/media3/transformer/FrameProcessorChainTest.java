@@ -146,7 +146,7 @@ public final class FrameProcessorChainTest {
     }
 
     @Override
-    public void updateProgramAndDraw(long presentationTimeNs) {}
+    public void drawFrame(long presentationTimeNs) {}
 
     @Override
     public void release() {}

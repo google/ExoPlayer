@@ -105,7 +105,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeUs) {
+  public void drawFrame(long presentationTimeUs) {
     checkStateNotNull(glProgram).use();
     double theta = presentationTimeUs * 2 * Math.PI / DIMMING_PERIOD_US;
     float innerRadius = minInnerRadius + deltaInnerRadius * (0.5f - 0.5f * (float) Math.cos(theta));

@@ -134,8 +134,8 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeUs) {
-    checkStateNotNull(advancedFrameProcessor).updateProgramAndDraw(presentationTimeUs);
+  public void drawFrame(long presentationTimeUs) {
+    checkStateNotNull(advancedFrameProcessor).drawFrame(presentationTimeUs);
   }
 
   @Override
