@@ -115,8 +115,11 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the rotation, in degrees, counterclockwise, to apply to each frame, automatically
-     * adjusting the frame's width and height to preserve all input pixels.
+     * Sets the rotation, in degrees, counterclockwise, to apply to each frame.
+     *
+     * <p>The output frame's width and height are automatically adjusted to preserve all input
+     * pixels. The rotated input frame is fitted inside an enclosing black rectangle if its edges
+     * aren't parallel to the x and y axes.
      *
      * <p>The default value, 0, corresponds to not applying any rotation.
      *
@@ -131,11 +134,14 @@ public final class TransformationRequest {
     /**
      * Sets the output resolution using the output height.
      *
-     * <p>The default value {@link C#LENGTH_UNSET} corresponds to using the same height as the
-     * input. Output width of the displayed video will scale to preserve the video's aspect ratio
-     * after other transformations.
+     * <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
+     * other transformations.
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
+     *
+     * <p>The default value {@link C#LENGTH_UNSET} leaves the width and height unchanged unless
+     * {@linkplain #setScale(float,float) scaling} or @linkplain #setRotationDegrees(float)
+     * rotation} are requested.
      *
      * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
