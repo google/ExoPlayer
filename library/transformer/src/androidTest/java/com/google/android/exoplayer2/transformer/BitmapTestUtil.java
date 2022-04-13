@@ -46,42 +46,6 @@ public class BitmapTestUtil {
 
   private static final String TAG = "BitmapTestUtil";
 
-  /* Expected first frames after transformation. */
-  public static final String FIRST_FRAME_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame.png";
-  public static final String TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_translate_right.png";
-  public static final String SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_scale_narrow.png";
-  public static final String ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_rotate_then_translate.png";
-  public static final String TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_translate_then_rotate.png";
-  public static final String ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_rotate90.png";
-  public static final String REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_request_output_height.png";
-  public static final String ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_rotate_45_scale_to_fit.png";
-  public static final String CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_crop_smaller.png";
-  public static final String CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_crop_larger.png";
-  public static final String ASPECT_RATIO_SCALE_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_aspect_ratio_scale_to_fit_narrow.png";
-  public static final String ASPECT_RATIO_SCALE_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_aspect_ratio_scale_to_fit_wide.png";
-  public static final String
-      ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-          "media/bitmap/sample_mp4_first_frame_aspect_ratio_scale_to_fit_with_crop_narrow.png";
-  public static final String
-      ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-          "media/bitmap/sample_mp4_first_frame_aspect_ratio_scale_to_fit_with_crop_wide.png";
-  public static final String ASPECT_RATIO_STRETCH_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_aspect_ratio_stretch_to_fit_narrow.png";
-  public static final String ASPECT_RATIO_STRETCH_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING =
-      "media/bitmap/sample_mp4_first_frame_aspect_ratio_stretch_to_fit_wide.png";
-
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images in pixel
    * difference-based tests. The value is chosen so that differences in decoder behavior across

@@ -16,13 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static com.google.android.exoplayer2.transformer.BitmapTestUtil.TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
@@ -57,6 +51,18 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainPixelTest {
+  public static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/translate_right.png";
+  public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate_then_translate.png";
+  public static final String TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/translate_then_rotate.png";
+  public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/request_output_height.png";
+  public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate_45_scale_to_fit.png";
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
@@ -85,7 +91,7 @@ public final class FrameProcessorChainPixelTest {
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     String testId = "processData_noEdits";
     setUpAndPrepareFirstFrame();
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -107,8 +113,7 @@ public final class FrameProcessorChainPixelTest {
     GlFrameProcessor glFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
     setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -134,8 +139,7 @@ public final class FrameProcessorChainPixelTest {
             .setRotationDegrees(45)
             .build();
     setUpAndPrepareFirstFrame(translateRightFrameProcessor, rotate45FrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -161,8 +165,7 @@ public final class FrameProcessorChainPixelTest {
     GlFrameProcessor translateRightFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
     setUpAndPrepareFirstFrame(rotate45FrameProcessor, translateRightFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -182,8 +185,7 @@ public final class FrameProcessorChainPixelTest {
     GlFrameProcessor glFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -205,8 +207,7 @@ public final class FrameProcessorChainPixelTest {
             .setRotationDegrees(45)
             .build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
