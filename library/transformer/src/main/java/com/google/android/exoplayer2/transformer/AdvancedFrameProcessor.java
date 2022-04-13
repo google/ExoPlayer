@@ -185,7 +185,7 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeUs) {
+  public void drawFrame(long presentationTimeUs) {
     checkStateNotNull(glProgram).use();
     glProgram.setFloatsUniform(
         "uTransformationMatrix", matrixProvider.getGlMatrixArray(presentationTimeUs));

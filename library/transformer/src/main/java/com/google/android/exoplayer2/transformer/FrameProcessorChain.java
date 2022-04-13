@@ -446,12 +446,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           intermediateSize.getWidth(),
           intermediateSize.getHeight());
       clearOutputFrame();
-      frameProcessors.get(i).updateProgramAndDraw(presentationTimeUs);
+      frameProcessors.get(i).drawFrame(presentationTimeUs);
     }
     GlUtil.focusEglSurface(
         eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
     clearOutputFrame();
-    getLast(frameProcessors).updateProgramAndDraw(presentationTimeUs);
+    getLast(frameProcessors).drawFrame(presentationTimeUs);
 
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);

@@ -90,8 +90,8 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_noEdits_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_noEdits";
+  public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_noEdits";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext()).build();
     presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
@@ -99,7 +99,7 @@ public final class PresentationFrameProcessorPixelTest {
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -114,8 +114,8 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_cropSmaller_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_cropSmaller";
+  public void drawFrame_cropSmaller_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_cropSmaller";
     GlFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setCrop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
@@ -126,7 +126,7 @@ public final class PresentationFrameProcessorPixelTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -141,8 +141,8 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_cropLarger_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_cropSmaller";
+  public void drawFrame_cropLarger_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_cropSmaller";
     GlFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setCrop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
@@ -152,7 +152,7 @@ public final class PresentationFrameProcessorPixelTest {
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -167,9 +167,9 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_changeAspectRatio_scaleToFit_narrow_producesExpectedOutput()
+  public void drawFrame_changeAspectRatio_scaleToFit_narrow_producesExpectedOutput()
       throws Exception {
-    String testId = "updateProgramAndDraw_changeAspectRatio_scaleToFit_narrow";
+    String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setAspectRatio(1f, PresentationFrameProcessor.SCALE_TO_FIT)
@@ -181,7 +181,7 @@ public final class PresentationFrameProcessorPixelTest {
         BitmapTestUtil.readBitmap(
             ASPECT_RATIO_SCALE_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -196,9 +196,9 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_changeAspectRatio_scaleToFit_wide_producesExpectedOutput()
+  public void drawFrame_changeAspectRatio_scaleToFit_wide_producesExpectedOutput()
       throws Exception {
-    String testId = "updateProgramAndDraw_changeAspectRatio_scaleToFit_wide";
+    String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setAspectRatio(2f, PresentationFrameProcessor.SCALE_TO_FIT)
@@ -209,7 +209,7 @@ public final class PresentationFrameProcessorPixelTest {
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -224,10 +224,9 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void
-      updateProgramAndDraw_changeAspectRatio_scaleToFitWithCrop_narrow_producesExpectedOutput()
-          throws Exception {
-    String testId = "updateProgramAndDraw_changeAspectRatio_scaleToFitWithCrop_narrow";
+  public void drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow_producesExpectedOutput()
+      throws Exception {
+    String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setAspectRatio(1f, PresentationFrameProcessor.SCALE_TO_FIT_WITH_CROP)
@@ -239,7 +238,7 @@ public final class PresentationFrameProcessorPixelTest {
         BitmapTestUtil.readBitmap(
             ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -254,10 +253,9 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void
-      updateProgramAndDraw_changeAspectRatio_scaleToFitWithCrop_wide_producesExpectedOutput()
-          throws Exception {
-    String testId = "updateProgramAndDraw_changeAspectRatio_scaleToFitWithCrop_wide";
+  public void drawFrame_changeAspectRatio_scaleToFitWithCrop_wide_producesExpectedOutput()
+      throws Exception {
+    String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setAspectRatio(2f, PresentationFrameProcessor.SCALE_TO_FIT_WITH_CROP)
@@ -269,7 +267,7 @@ public final class PresentationFrameProcessorPixelTest {
         BitmapTestUtil.readBitmap(
             ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -284,9 +282,9 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_changeAspectRatio_stretchToFit_narrow_producesExpectedOutput()
+  public void drawFrame_changeAspectRatio_stretchToFit_narrow_producesExpectedOutput()
       throws Exception {
-    String testId = "updateProgramAndDraw_changeAspectRatio_stretchToFit_narrow";
+    String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setAspectRatio(1f, PresentationFrameProcessor.STRETCH_TO_FIT)
@@ -298,7 +296,7 @@ public final class PresentationFrameProcessorPixelTest {
         BitmapTestUtil.readBitmap(
             ASPECT_RATIO_STRETCH_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
@@ -313,9 +311,9 @@ public final class PresentationFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_changeAspectRatio_stretchToFit_wide_producesExpectedOutput()
+  public void drawFrame_changeAspectRatio_stretchToFit_wide_producesExpectedOutput()
       throws Exception {
-    String testId = "updateProgramAndDraw_changeAspectRatio_stretchToFit_wide";
+    String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder(getApplicationContext())
             .setAspectRatio(2f, PresentationFrameProcessor.STRETCH_TO_FIT)
@@ -327,7 +325,7 @@ public final class PresentationFrameProcessorPixelTest {
         BitmapTestUtil.readBitmap(
             ASPECT_RATIO_STRETCH_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
 
-    presentationFrameProcessor.updateProgramAndDraw(/* presentationTimeUs= */ 0);
+    presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.getWidth(), outputSize.getHeight());
