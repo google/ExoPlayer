@@ -20,7 +20,7 @@ project.ext {
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.
     targetSdkVersion = 30
-    compileSdkVersion = 31
+    compileSdkVersion = 32
     dexmakerVersion = '2.28.1'
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
