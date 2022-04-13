@@ -15,15 +15,6 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.BitmapTestUtil.ASPECT_RATIO_SCALE_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ASPECT_RATIO_SCALE_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ASPECT_RATIO_STRETCH_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ASPECT_RATIO_STRETCH_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -54,6 +45,24 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class PresentationFrameProcessorPixelTest {
+  public static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String CROP_SMALLER_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/crop_smaller.png";
+  public static final String CROP_LARGER_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/crop_larger.png";
+  public static final String ASPECT_RATIO_SCALE_TO_FIT_NARROW_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/aspect_ratio_scale_to_fit_narrow.png";
+  public static final String ASPECT_RATIO_SCALE_TO_FIT_WIDE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/aspect_ratio_scale_to_fit_wide.png";
+  public static final String ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/aspect_ratio_scale_to_fit_with_crop_narrow.png";
+  public static final String ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/aspect_ratio_scale_to_fit_with_crop_wide.png";
+  public static final String ASPECT_RATIO_STRETCH_TO_FIT_NARROW_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/aspect_ratio_stretch_to_fit_narrow.png";
+  public static final String ASPECT_RATIO_STRETCH_TO_FIT_WIDE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/aspect_ratio_stretch_to_fit_wide.png";
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -70,7 +79,7 @@ public final class PresentationFrameProcessorPixelTest {
 
   @Before
   public void createTextures() throws IOException {
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
     // This surface is needed for focussing a render target, but the tests don't write output to it.
@@ -97,7 +106,7 @@ public final class PresentationFrameProcessorPixelTest {
     presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -123,8 +132,7 @@ public final class PresentationFrameProcessorPixelTest {
     presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(CROP_SMALLER_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_SMALLER_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -150,7 +158,7 @@ public final class PresentationFrameProcessorPixelTest {
     presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -178,8 +186,7 @@ public final class PresentationFrameProcessorPixelTest {
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(
-            ASPECT_RATIO_SCALE_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_NARROW_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -207,7 +214,7 @@ public final class PresentationFrameProcessorPixelTest {
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WIDE_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -235,8 +242,7 @@ public final class PresentationFrameProcessorPixelTest {
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(
-            ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -264,8 +270,7 @@ public final class PresentationFrameProcessorPixelTest {
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(
-            ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -293,8 +298,7 @@ public final class PresentationFrameProcessorPixelTest {
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(
-            ASPECT_RATIO_STRETCH_TO_FIT_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(ASPECT_RATIO_STRETCH_TO_FIT_NARROW_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -322,8 +326,7 @@ public final class PresentationFrameProcessorPixelTest {
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(
-            ASPECT_RATIO_STRETCH_TO_FIT_WIDE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+        BitmapTestUtil.readBitmap(ASPECT_RATIO_STRETCH_TO_FIT_WIDE_PNG_ASSET_PATH);
 
     presentationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =

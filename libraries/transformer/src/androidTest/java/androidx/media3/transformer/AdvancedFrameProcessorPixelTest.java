@@ -15,11 +15,7 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.transformer.BitmapTestUtil.ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -48,6 +44,14 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class AdvancedFrameProcessorPixelTest {
+  public static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/translate_right.png";
+  public static final String SCALE_NARROW_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/scale_narrow.png";
+  public static final String ROTATE_90_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate90.png";
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -63,7 +67,7 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @Before
   public void createTextures() throws IOException {
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     width = inputBitmap.getWidth();
     height = inputBitmap.getHeight();
     // This surface is needed for focussing a render target, but the tests don't write output to it.
@@ -91,7 +95,7 @@ public final class AdvancedFrameProcessorPixelTest {
     Matrix identityMatrix = new Matrix();
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
     advancedFrameProcessor.initialize(inputTexId, width, height);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -114,8 +118,7 @@ public final class AdvancedFrameProcessorPixelTest {
     advancedFrameProcessor =
         new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
     advancedFrameProcessor.initialize(inputTexId, width, height);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -137,8 +140,7 @@ public final class AdvancedFrameProcessorPixelTest {
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
     advancedFrameProcessor.initialize(inputTexId, width, height);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
@@ -160,7 +162,7 @@ public final class AdvancedFrameProcessorPixelTest {
     rotate90Matrix.postRotate(/* degrees= */ 90);
     advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
     advancedFrameProcessor.initialize(inputTexId, width, height);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
