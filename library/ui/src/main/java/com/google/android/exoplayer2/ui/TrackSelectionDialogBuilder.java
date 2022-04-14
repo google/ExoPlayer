@@ -152,7 +152,9 @@ public final class TrackSelectionDialogBuilder {
    */
   public TrackSelectionDialogBuilder setOverride(@Nullable TrackSelectionOverride override) {
     return setOverrides(
-        override == null ? Collections.emptyMap() : ImmutableMap.of(override.trackGroup, override));
+        override == null
+            ? Collections.emptyMap()
+            : ImmutableMap.of(override.mediaTrackGroup, override));
   }
 
   /**

@@ -51,8 +51,8 @@ import java.util.List;
  */
 public final class TrackSelectionOverride implements Bundleable {
 
-  /** The {@link TrackGroup} whose {@link #trackIndices} are forced to be selected. */
-  public final TrackGroup trackGroup;
+  /** The media {@link TrackGroup} whose {@link #trackIndices} are forced to be selected. */
+  public final TrackGroup mediaTrackGroup;
   /** The indices of tracks in a {@link TrackGroup} to be selected. */
   public final ImmutableList<Integer> trackIndices;
 
@@ -70,32 +70,32 @@ public final class TrackSelectionOverride implements Bundleable {
   /**
    * Constructs an instance to force {@code trackIndex} in {@code trackGroup} to be selected.
    *
-   * @param trackGroup The {@link TrackGroup} for which to override the track selection.
+   * @param mediaTrackGroup The media {@link TrackGroup} for which to override the track selection.
    * @param trackIndex The index of the track in the {@link TrackGroup} to select.
    */
-  public TrackSelectionOverride(TrackGroup trackGroup, int trackIndex) {
-    this(trackGroup, ImmutableList.of(trackIndex));
+  public TrackSelectionOverride(TrackGroup mediaTrackGroup, int trackIndex) {
+    this(mediaTrackGroup, ImmutableList.of(trackIndex));
   }
 
   /**
    * Constructs an instance to force {@code trackIndices} in {@code trackGroup} to be selected.
    *
-   * @param trackGroup The {@link TrackGroup} for which to override the track selection.
+   * @param mediaTrackGroup The media {@link TrackGroup} for which to override the track selection.
    * @param trackIndices The indices of the tracks in the {@link TrackGroup} to select.
    */
-  public TrackSelectionOverride(TrackGroup trackGroup, List<Integer> trackIndices) {
+  public TrackSelectionOverride(TrackGroup mediaTrackGroup, List<Integer> trackIndices) {
     if (!trackIndices.isEmpty()) {
-      if (min(trackIndices) < 0 || max(trackIndices) >= trackGroup.length) {
+      if (min(trackIndices) < 0 || max(trackIndices) >= mediaTrackGroup.length) {
         throw new IndexOutOfBoundsException();
       }
     }
-    this.trackGroup = trackGroup;
+    this.mediaTrackGroup = mediaTrackGroup;
     this.trackIndices = ImmutableList.copyOf(trackIndices);
   }
 
   /** Returns the {@link C.TrackType} of the overridden track group. */
   public @C.TrackType int getType() {
-    return trackGroup.type;
+    return mediaTrackGroup.type;
   }
 
   @Override
@@ -107,12 +107,12 @@ public final class TrackSelectionOverride implements Bundleable {
       return false;
     }
     TrackSelectionOverride that = (TrackSelectionOverride) obj;
-    return trackGroup.equals(that.trackGroup) && trackIndices.equals(that.trackIndices);
+    return mediaTrackGroup.equals(that.mediaTrackGroup) && trackIndices.equals(that.trackIndices);
   }
 
   @Override
   public int hashCode() {
-    return trackGroup.hashCode() + 31 * trackIndices.hashCode();
+    return mediaTrackGroup.hashCode() + 31 * trackIndices.hashCode();
   }
 
   // Bundleable implementation
@@ -120,7 +120,7 @@ public final class TrackSelectionOverride implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putBundle(keyForField(FIELD_TRACK_GROUP), trackGroup.toBundle());
+    bundle.putBundle(keyForField(FIELD_TRACK_GROUP), mediaTrackGroup.toBundle());
     bundle.putIntArray(keyForField(FIELD_TRACKS), Ints.toArray(trackIndices));
     return bundle;
   }
@@ -129,9 +129,9 @@ public final class TrackSelectionOverride implements Bundleable {
   public static final Creator<TrackSelectionOverride> CREATOR =
       bundle -> {
         Bundle trackGroupBundle = checkNotNull(bundle.getBundle(keyForField(FIELD_TRACK_GROUP)));
-        TrackGroup trackGroup = TrackGroup.CREATOR.fromBundle(trackGroupBundle);
+        TrackGroup mediaTrackGroup = TrackGroup.CREATOR.fromBundle(trackGroupBundle);
         int[] tracks = checkNotNull(bundle.getIntArray(keyForField(FIELD_TRACKS)));
-        return new TrackSelectionOverride(trackGroup, Ints.asList(tracks));
+        return new TrackSelectionOverride(mediaTrackGroup, Ints.asList(tracks));
       };
 
   private static String keyForField(@FieldNumber int field) {

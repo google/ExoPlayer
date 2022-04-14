@@ -136,7 +136,7 @@ player.setTrackSelectionParameters(
         .buildUpon()
         .setOverrideForType(
             new TrackSelectionOverride(
-                audioTrackGroup.getTrackGroup(),
+                audioTrackGroup.getMediaTrackGroup(),
                 /* trackIndex= */ 0))
         .build());
 ~~~
@@ -171,7 +171,8 @@ player.setTrackSelectionParameters(
         .buildUpon()
         .addOverride(
             new TrackSelectionOverride(
-                disabledTrackGroup.getTrackGroup(), ImmutableList.of()))
+                disabledTrackGroup.getMediaTrackGroup(),
+                /* trackIndices= */ ImmutableList.of()))
         .build());
 ~~~
 {: .language-java}

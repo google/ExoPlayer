@@ -70,9 +70,9 @@ public class TrackSelectionView extends LinearLayout {
     HashMap<TrackGroup, TrackSelectionOverride> filteredOverrides = new HashMap<>();
     for (int i = 0; i < trackGroups.size(); i++) {
       Tracks.Group trackGroup = trackGroups.get(i);
-      @Nullable TrackSelectionOverride override = overrides.get(trackGroup.getTrackGroup());
+      @Nullable TrackSelectionOverride override = overrides.get(trackGroup.getMediaTrackGroup());
       if (override != null && (allowMultipleOverrides || filteredOverrides.isEmpty())) {
-        filteredOverrides.put(override.trackGroup, override);
+        filteredOverrides.put(override.mediaTrackGroup, override);
       }
     }
     return filteredOverrides;
@@ -318,7 +318,8 @@ public class TrackSelectionView extends LinearLayout {
     disableView.setChecked(isDisabled);
     defaultView.setChecked(!isDisabled && overrides.size() == 0);
     for (int i = 0; i < trackViews.length; i++) {
-      @Nullable TrackSelectionOverride override = overrides.get(trackGroups.get(i).getTrackGroup());
+      @Nullable
+      TrackSelectionOverride override = overrides.get(trackGroups.get(i).getMediaTrackGroup());
       for (int j = 0; j < trackViews[i].length; j++) {
         if (override != null) {
           TrackInfo trackInfo = (TrackInfo) Assertions.checkNotNull(trackViews[i][j].getTag());
@@ -357,9 +358,9 @@ public class TrackSelectionView extends LinearLayout {
   private void onTrackViewClicked(View view) {
     isDisabled = false;
     TrackInfo trackInfo = (TrackInfo) Assertions.checkNotNull(view.getTag());
-    TrackGroup trackGroup = trackInfo.trackGroup.getTrackGroup();
+    TrackGroup mediaTrackGroup = trackInfo.trackGroup.getMediaTrackGroup();
     int trackIndex = trackInfo.trackIndex;
-    @Nullable TrackSelectionOverride override = overrides.get(trackGroup);
+    @Nullable TrackSelectionOverride override = overrides.get(mediaTrackGroup);
     if (override == null) {
       // Start new override.
       if (!allowMultipleOverrides && overrides.size() > 0) {
@@ -367,7 +368,8 @@ public class TrackSelectionView extends LinearLayout {
         overrides.clear();
       }
       overrides.put(
-          trackGroup, new TrackSelectionOverride(trackGroup, ImmutableList.of(trackIndex)));
+          mediaTrackGroup,
+          new TrackSelectionOverride(mediaTrackGroup, ImmutableList.of(trackIndex)));
     } else {
       // An existing override is being modified.
       ArrayList<Integer> trackIndices = new ArrayList<>(override.trackIndices);
@@ -379,19 +381,20 @@ public class TrackSelectionView extends LinearLayout {
         trackIndices.remove((Integer) trackIndex);
         if (trackIndices.isEmpty()) {
           // The last track has been removed, so remove the whole override.
-          overrides.remove(trackGroup);
+          overrides.remove(mediaTrackGroup);
         } else {
-          overrides.put(trackGroup, new TrackSelectionOverride(trackGroup, trackIndices));
+          overrides.put(mediaTrackGroup, new TrackSelectionOverride(mediaTrackGroup, trackIndices));
         }
       } else if (!isCurrentlySelected) {
         if (isAdaptiveAllowed) {
           // Add new track to adaptive override.
           trackIndices.add(trackIndex);
-          overrides.put(trackGroup, new TrackSelectionOverride(trackGroup, trackIndices));
+          overrides.put(mediaTrackGroup, new TrackSelectionOverride(mediaTrackGroup, trackIndices));
         } else {
           // Replace existing track in override.
           overrides.put(
-              trackGroup, new TrackSelectionOverride(trackGroup, ImmutableList.of(trackIndex)));
+              mediaTrackGroup,
+              new TrackSelectionOverride(mediaTrackGroup, ImmutableList.of(trackIndex)));
         }
       }
     }

@@ -1926,7 +1926,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
     private boolean hasSelectionOverride(TrackSelectionParameters trackSelectionParameters) {
       for (int i = 0; i < tracks.size(); i++) {
-        TrackGroup trackGroup = tracks.get(i).trackGroup.getTrackGroup();
+        TrackGroup trackGroup = tracks.get(i).trackGroup.getMediaTrackGroup();
         if (trackSelectionParameters.overrides.containsKey(trackGroup)) {
           return true;
         }
@@ -2000,9 +2000,10 @@ public class StyledPlayerControlView extends FrameLayout {
         onBindViewHolderAtZeroPosition(holder);
       } else {
         TrackInformation track = tracks.get(position - 1);
-        TrackGroup trackGroup = track.trackGroup.getTrackGroup();
+        TrackGroup mediaTrackGroup = track.trackGroup.getMediaTrackGroup();
         TrackSelectionParameters params = player.getTrackSelectionParameters();
-        boolean explicitlySelected = params.overrides.get(trackGroup) != null && track.isSelected();
+        boolean explicitlySelected =
+            params.overrides.get(mediaTrackGroup) != null && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
@@ -2014,7 +2015,7 @@ public class StyledPlayerControlView extends FrameLayout {
                       .buildUpon()
                       .setOverrideForType(
                           new TrackSelectionOverride(
-                              trackGroup, ImmutableList.of(track.trackIndex)))
+                              mediaTrackGroup, ImmutableList.of(track.trackIndex)))
                       .setTrackTypeDisabled(track.trackGroup.getType(), /* disabled= */ false)
                       .build());
               onTrackSelection(track.trackName);

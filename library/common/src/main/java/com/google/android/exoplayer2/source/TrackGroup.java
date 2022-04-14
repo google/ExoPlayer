@@ -38,8 +38,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * An immutable group of tracks. All tracks in a group present the same content, but their formats
- * may differ.
+ * An immutable group of tracks available within a media stream. All tracks in a group present the
+ * same content, but their formats may differ.
  *
  * <p>As an example of how tracks can be grouped, consider an adaptive playback where a main video
  * feed is provided in five resolutions, and an alternative video feed (e.g., a different camera
@@ -51,6 +51,10 @@ import java.util.List;
  * languages is not considered to be the same. Conversely, audio tracks in the same language that
  * only differ in properties such as bitrate, sampling rate, channel count and so on can be grouped.
  * This also applies to text tracks.
+ *
+ * <p>Note also that this class only contains information derived from the media itself. Unlike
+ * {@link Tracks.Group}, it does not include runtime information such as the extent to which
+ * playback of each track is supported by the device, or which tracks are currently selected.
  */
 public final class TrackGroup implements Bundleable {
 
