@@ -294,7 +294,7 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_MEDIA_ITEMS_METADATA,
                   COMMAND_SET_MEDIA_ITEMS_METADATA,
                   COMMAND_CHANGE_MEDIA_ITEMS,
-                  COMMAND_GET_TRACK_INFOS,
+                  COMMAND_GET_TRACKS,
                   COMMAND_GET_AUDIO_ATTRIBUTES,
                   COMMAND_GET_VOLUME,
                   COMMAND_GET_DEVICE_VOLUME,
