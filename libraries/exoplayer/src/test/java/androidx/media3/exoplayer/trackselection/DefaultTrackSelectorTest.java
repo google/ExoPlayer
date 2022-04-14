@@ -2240,7 +2240,7 @@ public final class DefaultTrackSelectorTest {
     assertThat(result.selections[2]).isNull();
     ImmutableList<Tracks.Group> trackGroups = result.tracks.getGroups();
     assertThat(trackGroups).hasSize(1);
-    assertThat(trackGroups.get(0).getTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
+    assertThat(trackGroups.get(0).getMediaTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
     assertThat(trackGroups.get(0).isTrackSelected(0)).isTrue();
     assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }

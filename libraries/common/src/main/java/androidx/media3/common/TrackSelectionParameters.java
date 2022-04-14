@@ -255,7 +255,7 @@ public class TrackSelectionParameters implements Bundleable {
       overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);
-        overrides.put(override.trackGroup, override);
+        overrides.put(override.mediaTrackGroup, override);
       }
       int[] disabledTrackTypeArray =
           firstNonNull(bundle.getIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE)), new int[0]);
@@ -678,20 +678,20 @@ public class TrackSelectionParameters implements Bundleable {
 
     /** Adds an override, replacing any override for the same {@link TrackGroup}. */
     public Builder addOverride(TrackSelectionOverride override) {
-      overrides.put(override.trackGroup, override);
+      overrides.put(override.mediaTrackGroup, override);
       return this;
     }
 
     /** Sets an override, replacing all existing overrides with the same track type. */
     public Builder setOverrideForType(TrackSelectionOverride override) {
       clearOverridesOfType(override.getType());
-      overrides.put(override.trackGroup, override);
+      overrides.put(override.mediaTrackGroup, override);
       return this;
     }
 
-    /** Removes the override for the provided {@link TrackGroup}, if there is one. */
-    public Builder clearOverride(TrackGroup trackGroup) {
-      overrides.remove(trackGroup);
+    /** Removes the override for the provided media {@link TrackGroup}, if there is one. */
+    public Builder clearOverride(TrackGroup mediaTrackGroup) {
+      overrides.remove(mediaTrackGroup);
       return this;
     }
 

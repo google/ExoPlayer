@@ -76,13 +76,13 @@ public class TrackSelectionUtilTest {
 
     ImmutableList<Tracks.Group> trackGroups = tracks.getGroups();
     assertThat(trackGroups).hasSize(4);
-    assertThat(trackGroups.get(0).getTrackGroup())
+    assertThat(trackGroups.get(0).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(0));
-    assertThat(trackGroups.get(1).getTrackGroup())
+    assertThat(trackGroups.get(1).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(1));
-    assertThat(trackGroups.get(2).getTrackGroup())
+    assertThat(trackGroups.get(2).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(1).get(0));
-    assertThat(trackGroups.get(3).getTrackGroup())
+    assertThat(trackGroups.get(3).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getUnmappedTrackGroups().get(0));
     assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
     assertThat(trackGroups.get(1).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_SUBTYPE);
@@ -135,9 +135,9 @@ public class TrackSelectionUtilTest {
 
     ImmutableList<Tracks.Group> trackGroups = tracks.getGroups();
     assertThat(trackGroups).hasSize(2);
-    assertThat(trackGroups.get(0).getTrackGroup())
+    assertThat(trackGroups.get(0).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(0));
-    assertThat(trackGroups.get(1).getTrackGroup())
+    assertThat(trackGroups.get(1).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(1));
     assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
     assertThat(trackGroups.get(1).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);

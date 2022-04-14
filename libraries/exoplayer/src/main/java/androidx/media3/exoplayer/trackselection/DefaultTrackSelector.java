@@ -1934,11 +1934,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       // want the renderer to be enabled at all, so clear any existing selection.
       @Nullable ExoTrackSelection.Definition selection;
       if (!overrideForType.trackIndices.isEmpty()
-          && mappedTrackInfo.getTrackGroups(rendererIndex).indexOf(overrideForType.trackGroup)
+          && mappedTrackInfo.getTrackGroups(rendererIndex).indexOf(overrideForType.mediaTrackGroup)
               != -1) {
         selection =
             new ExoTrackSelection.Definition(
-                overrideForType.trackGroup, Ints.toArray(overrideForType.trackIndices));
+                overrideForType.mediaTrackGroup, Ints.toArray(overrideForType.trackIndices));
       } else {
         selection = null;
       }

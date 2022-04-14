@@ -49,7 +49,7 @@ public final class Tracks implements Bundleable {
     /** The number of tracks in the group. */
     public final int length;
 
-    private final TrackGroup trackGroup;
+    private final TrackGroup mediaTrackGroup;
     private final boolean adaptiveSupported;
     private final @C.FormatSupport int[] trackSupport;
     private final boolean[] trackSelected;
@@ -57,7 +57,7 @@ public final class Tracks implements Bundleable {
     /**
      * Constructs an instance.
      *
-     * @param trackGroup The underlying {@link TrackGroup}.
+     * @param mediaTrackGroup The underlying {@link TrackGroup} defined by the media.
      * @param adaptiveSupported Whether the player supports adaptive selections containing more than
      *     one track in the group.
      * @param trackSupport The {@link C.FormatSupport} of each track in the group.
@@ -65,21 +65,28 @@ public final class Tracks implements Bundleable {
      */
     @UnstableApi
     public Group(
-        TrackGroup trackGroup,
+        TrackGroup mediaTrackGroup,
         boolean adaptiveSupported,
         @C.FormatSupport int[] trackSupport,
         boolean[] trackSelected) {
-      length = trackGroup.length;
+      length = mediaTrackGroup.length;
       checkArgument(length == trackSupport.length && length == trackSelected.length);
-      this.trackGroup = trackGroup;
+      this.mediaTrackGroup = mediaTrackGroup;
       this.adaptiveSupported = adaptiveSupported && length > 1;
       this.trackSupport = trackSupport.clone();
       this.trackSelected = trackSelected.clone();
     }
 
-    /** Returns the underlying {@link TrackGroup}. */
-    public TrackGroup getTrackGroup() {
-      return trackGroup;
+    /**
+     * Returns the underlying {@link TrackGroup} defined by the media.
+     *
+     * <p>Unlike this class, {@link TrackGroup} only contains information defined by the media
+     * itself, and does not contain runtime information such as which tracks are supported and
+     * currently selected. This makes it suitable for use as a {@code key} in certain {@code (key,
+     * value)} data structures.
+     */
+    public TrackGroup getMediaTrackGroup() {
+      return mediaTrackGroup;
     }
 
     /**
@@ -89,7 +96,7 @@ public final class Tracks implements Bundleable {
      * @return The {@link Format} of the track.
      */
     public Format getTrackFormat(int trackIndex) {
-      return trackGroup.getFormat(trackIndex);
+      return mediaTrackGroup.getFormat(trackIndex);
     }
 
     /**
@@ -187,7 +194,7 @@ public final class Tracks implements Bundleable {
 
     /** Returns the {@link C.TrackType} of the group. */
     public @C.TrackType int getType() {
-      return trackGroup.type;
+      return mediaTrackGroup.type;
     }
 
     @Override
@@ -200,14 +207,14 @@ public final class Tracks implements Bundleable {
       }
       Group that = (Group) other;
       return adaptiveSupported == that.adaptiveSupported
-          && trackGroup.equals(that.trackGroup)
+          && mediaTrackGroup.equals(that.mediaTrackGroup)
           && Arrays.equals(trackSupport, that.trackSupport)
           && Arrays.equals(trackSelected, that.trackSelected);
     }
 
     @Override
     public int hashCode() {
-      int result = trackGroup.hashCode();
+      int result = mediaTrackGroup.hashCode();
       result = 31 * result + (adaptiveSupported ? 1 : 0);
       result = 31 * result + Arrays.hashCode(trackSupport);
       result = 31 * result + Arrays.hashCode(trackSelected);
@@ -234,7 +241,7 @@ public final class Tracks implements Bundleable {
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putBundle(keyForField(FIELD_TRACK_GROUP), trackGroup.toBundle());
+      bundle.putBundle(keyForField(FIELD_TRACK_GROUP), mediaTrackGroup.toBundle());
       bundle.putIntArray(keyForField(FIELD_TRACK_SUPPORT), trackSupport);
       bundle.putBooleanArray(keyForField(FIELD_TRACK_SELECTED), trackSelected);
       bundle.putBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), adaptiveSupported);

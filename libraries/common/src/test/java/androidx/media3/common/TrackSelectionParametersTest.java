@@ -149,7 +149,8 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isTrue();
     assertThat(parameters.overrides)
-        .containsExactly(override1.trackGroup, override1, override2.trackGroup, override2);
+        .containsExactly(
+            override1.mediaTrackGroup, override1, override2.mediaTrackGroup, override2);
     assertThat(parameters.disabledTrackTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT);
   }
@@ -203,7 +204,8 @@ public final class TrackSelectionParametersTest {
         TrackSelectionParameters.CREATOR.fromBundle(trackSelectionParameters.toBundle());
 
     assertThat(fromBundle).isEqualTo(trackSelectionParameters);
-    assertThat(trackSelectionParameters.overrides).containsExactly(override.trackGroup, override);
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override.mediaTrackGroup, override);
   }
 
   @Test
@@ -220,7 +222,8 @@ public final class TrackSelectionParametersTest {
             .build();
 
     assertThat(trackSelectionParameters.overrides)
-        .containsExactly(override1.trackGroup, override1, override2.trackGroup, override2);
+        .containsExactly(
+            override1.mediaTrackGroup, override1, override2.mediaTrackGroup, override2);
   }
 
   @Test
@@ -237,7 +240,8 @@ public final class TrackSelectionParametersTest {
             .addOverride(override2)
             .build();
 
-    assertThat(trackSelectionParameters.overrides).containsExactly(override2.trackGroup, override2);
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override2.mediaTrackGroup, override2);
   }
 
   @Test
@@ -253,7 +257,8 @@ public final class TrackSelectionParametersTest {
             .setOverrideForType(override2)
             .build();
 
-    assertThat(trackSelectionParameters.overrides).containsExactly(override2.trackGroup, override2);
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override2.mediaTrackGroup, override2);
   }
 
   @Test
@@ -269,7 +274,8 @@ public final class TrackSelectionParametersTest {
             .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
             .build();
 
-    assertThat(trackSelectionParameters.overrides).containsExactly(override2.trackGroup, override2);
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override2.mediaTrackGroup, override2);
   }
 
   @Test
@@ -282,10 +288,11 @@ public final class TrackSelectionParametersTest {
         new TrackSelectionParameters.Builder(getApplicationContext())
             .addOverride(override1)
             .addOverride(override2)
-            .clearOverride(override2.trackGroup)
+            .clearOverride(override2.mediaTrackGroup)
             .build();
 
-    assertThat(trackSelectionParameters.overrides).containsExactly(override1.trackGroup, override1);
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override1.mediaTrackGroup, override1);
   }
 
   private static TrackGroup newTrackGroupWithIds(int... ids) {
