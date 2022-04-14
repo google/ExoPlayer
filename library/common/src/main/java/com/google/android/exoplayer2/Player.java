@@ -380,7 +380,7 @@ public interface Player {
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-        COMMAND_GET_TRACK_INFOS,
+        COMMAND_GET_TRACKS,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -1378,7 +1378,7 @@ public interface Player {
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
    * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
-   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACK_INFOS}.
+   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACKS}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1416,7 +1416,7 @@ public interface Player {
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-    COMMAND_GET_TRACK_INFOS,
+    COMMAND_GET_TRACKS,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1493,8 +1493,8 @@ public interface Player {
   int COMMAND_GET_TEXT = 28;
   /** Command to set the player's track selection parameters. */
   int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 29;
-  /** Command to get track infos. */
-  int COMMAND_GET_TRACK_INFOS = 30;
+  /** Command to get details of the current track selection. */
+  int COMMAND_GET_TRACKS = 30;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
