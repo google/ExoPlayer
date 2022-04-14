@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
@@ -61,6 +62,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
     size = new Size(inputWidth, inputHeight);
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.

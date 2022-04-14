@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -86,6 +87,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       List<GlFrameProcessor> frameProcessors,
       boolean enableExperimentalHdrEditing)
       throws TransformationException {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
     if (pixelWidthHeightRatio != 1.0f) {
       // TODO(b/211782176): Consider implementing support for non-square pixels.
       throw TransformationException.createForFrameProcessorChain(

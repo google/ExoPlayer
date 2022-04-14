@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -148,6 +149,9 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   @EnsuresNonNull("adjustedTransformationMatrix")
   @VisibleForTesting // Allows robolectric testing of output size calculation without OpenGL.
   /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
     if (transformationMatrix.isIdentity()) {
