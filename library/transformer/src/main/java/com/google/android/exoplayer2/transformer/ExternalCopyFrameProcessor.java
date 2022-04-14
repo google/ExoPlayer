@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
@@ -61,6 +62,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
     size = new Size(inputWidth, inputHeight);
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.

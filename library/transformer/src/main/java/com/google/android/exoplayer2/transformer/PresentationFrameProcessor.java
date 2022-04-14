@@ -282,6 +282,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
+
     transformationMatrix = new Matrix();
     outputWidth = inputWidth;
     outputHeight = inputHeight;
