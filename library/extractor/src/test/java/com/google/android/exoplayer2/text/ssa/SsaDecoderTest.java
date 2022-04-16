@@ -453,6 +453,16 @@ public final class SsaDecoderTest {
     assertThat(seventhClue.position).isEqualTo(0.5f);
     assertThat(seventhClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(seventhClue.line).isEqualTo(0.5f);
+    // Margin should be skipped because of middle alignment.
+    Cue eighthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(14)));
+    assertThat(eighthClue.position).isEqualTo(0.95f);
+    assertThat(eighthClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(eighthClue.line).isEqualTo(0.5f);
+    // Margin applied from top because of top alignment.
+    Cue ninthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(16)));
+    assertThat(ninthClue.position).isEqualTo(0.95f);
+    assertThat(ninthClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(ninthClue.line).isEqualTo(0.25f);
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {

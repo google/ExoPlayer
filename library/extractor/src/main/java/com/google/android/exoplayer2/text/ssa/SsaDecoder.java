@@ -364,9 +364,14 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       cue.setPosition(cue.getPosition() - (marginRight != 0f
           ? marginRight / screenWidth
           : style != null ? style.marginRight / screenWidth : 0f));
-      cue.setLine(cue.getLine() - (marginVertical != 0f
-          ? marginVertical / screenHeight
-          : style != null ? style.marginVertical / screenHeight : 0f), LINE_TYPE_FRACTION);
+      // Ignore vertical margin if alignment is middle.
+      if (!SsaStyle.hasMiddleAlignment(style)) {
+        float verticalMargin = marginVertical != 0f ? marginVertical / screenHeight
+            : style != null ? style.marginVertical / screenHeight : 0f;
+        // Apply margin from top if alignment is top.
+        cue.setLine(cue.getLine() - (SsaStyle.hasTopAlignment(style)
+            ? -verticalMargin : verticalMargin), LINE_TYPE_FRACTION);
+      }
     }
 
     if (style == null) {
