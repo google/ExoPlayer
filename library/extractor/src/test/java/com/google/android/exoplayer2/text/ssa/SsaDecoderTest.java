@@ -419,7 +419,7 @@ public final class SsaDecoderTest {
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_MARGIN);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
-    // PlayResX=1280px, PlayResY=720px
+    // PlayResX = 1280px, PlayResY = 720px
 
     // Alignment 1, position anchor = start, position = (0.05f, 0.95f)
     // margin_left = 128px = 0.1f, margin_right 256px = 0.2f
@@ -427,15 +427,15 @@ public final class SsaDecoderTest {
     assertThat(firstCue.position).isEqualTo(0.15f); // = 0.05f + margin_left
     assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(firstCue.line).isEqualTo(0.95f);
-    assertThat(firstCue.size).isEqualTo(0.7f); // = 1 - margin_right - margin_left
+    assertThat(firstCue.size).isEqualTo(0.7f); // = 1f - margin_right - margin_left
 
     // Alignment 6, position anchor = end, position = (0.95f, 0.5f)
     // margin_left = 128px = 0.1f, margin_right = 256px = 0.2f
     Cue secondClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
-    assertThat(secondClue.position).isEqualTo(0.75f); // = 1 - margin_right
+    assertThat(secondClue.position).isEqualTo(0.75f); // = 1f - margin_right
     assertThat(secondClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(secondClue.line).isEqualTo(0.5f);
-    assertThat(secondClue.size).isEqualTo(0.7f); // = 1 - margin_right - margin_left
+    assertThat(secondClue.size).isEqualTo(0.7f); // = 1f - margin_right - margin_left
 
     // Alignment 2, position anchor = middle, position = (0.5f, 0.95f)
     // margin_left = 128px = 0.1f, margin_right = 256px = 0.2f
@@ -443,7 +443,7 @@ public final class SsaDecoderTest {
     assertThat(thirdClue.position).isEqualTo(0.45f); // 0.5f + (margin_left - margin_right)/2
     assertThat(thirdClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(thirdClue.line).isEqualTo(0.95f);
-    assertThat(thirdClue.size).isEqualTo(0.7f); // = 1 - margin_right - margin_left
+    assertThat(thirdClue.size).isEqualTo(0.7f); // = 1f - margin_right - margin_left
 
     // Alignment 5, position anchor = middle, position = (0.5f, 0.5f)
     // margin_vertical = 144px = 0.2f but needs to be ignored when alignment is middle [4,5,6]
@@ -462,7 +462,7 @@ public final class SsaDecoderTest {
     // Alignment 9, position anchor = end, position = (0.95f, 0.05f)
     // margin_vertical = 144px = 0.2f, to be applied from top when alignment is top [7,8,9]
     Cue sixthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(10)));
-    assertThat(sixthClue.position).isEqualTo(0.95f); // alignment 9
+    assertThat(sixthClue.position).isEqualTo(0.95f);
     assertThat(sixthClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(sixthClue.line).isEqualTo(0.25f); // = 0.05f + margin_vertical
 
@@ -471,8 +471,8 @@ public final class SsaDecoderTest {
     Cue seventhClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12)));
     assertThat(seventhClue.position).isEqualTo(0.55f); // 0.5f + (margin_left - margin_right)/2
     assertThat(seventhClue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertThat(seventhClue.line).isEqualTo(0.75f); // 0.95 - margin_vertical
-    assertThat(seventhClue.size).isEqualTo(0.9f); // 1 - margin_right - margin_left
+    assertThat(seventhClue.line).isEqualTo(0.75f); // 0.95f - margin_vertical
+    assertThat(seventhClue.size).isEqualTo(0.9f); // 1f - margin_right - margin_left
 
     // Position override {\pos(640,180)} -> ignore margins
     Cue eighthClue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(14)));
