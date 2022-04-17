@@ -626,9 +626,9 @@
         "subtitle_language": "en"
       },
       {
-        "name": "SubStation Alpha Margin",
+        "name": "SubStation Alpha margin",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
-        "subtitle_uri": "https://gist.githubusercontent.com/szaboa/bca7cdc90c1492eb747032f267a5de19/raw/b93916ec9ca9145b6e47107c4c357abe43bc5641/test-subs-margin.ass",
+        "subtitle_uri": "https://gist.githubusercontent.com/szaboa/bca7cdc90c1492eb747032f267a5de19/raw/8985eeb544641e174da22a1dafe50cd87393512f/test-subs-margin.ass",
         "subtitle_mime_type": "text/x-ssa",
         "subtitle_language": "en"
       },

@@ -274,20 +274,20 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
             .replace("\\n", "\n")
             .replace("\\h", "\u00A0");
 
-    float marginLeft = format.marginLeftIndex != C.INDEX_UNSET
+    float dialogueMarginLeft = format.marginLeftIndex != C.INDEX_UNSET
         ? SsaStyle.parseMargin(lineValues[format.marginLeftIndex]) : 0f;
-    float marginRight = format.marginRightIndex != C.INDEX_UNSET
+    float dialogueMarginRight = format.marginRightIndex != C.INDEX_UNSET
         ? SsaStyle.parseMargin(lineValues[format.marginRightIndex]) : 0f;
-    float marginVertical = format.marginVerticalIndex != C.INDEX_UNSET
+    float dialogueMarginVertical = format.marginVerticalIndex != C.INDEX_UNSET
         ? SsaStyle.parseMargin(lineValues[format.marginVerticalIndex]) : 0f;
 
     Cue cue = createCue(
         text,
         style,
         styleOverrides,
-        marginLeft,
-        marginRight,
-        marginVertical,
+        dialogueMarginLeft,
+        dialogueMarginRight,
+        dialogueMarginVertical,
         screenWidth,
         screenHeight);
 
@@ -322,9 +322,9 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       String text,
       @Nullable SsaStyle style,
       SsaStyle.Overrides styleOverrides,
-      float marginLeft,
-      float marginRight,
-      float marginVertical,
+      float dialogueMarginLeft,
+      float dialogueMarginRight,
+      float dialogueMarginVertical,
       float screenWidth,
       float screenHeight) {
     SpannableString spannableText = new SpannableString(text);
@@ -357,20 +357,35 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
         && styleOverrides.position == null
         && cue.getPosition() != Cue.DIMEN_UNSET
         && cue.getLine() != Cue.DIMEN_UNSET) {
+
       // Margin from Dialogue lines takes precedence over margin from Style line.
-      cue.setPosition(cue.getPosition() + (marginLeft != 0f
-          ? marginLeft / screenWidth
-          : style != null ? style.marginLeft / screenWidth : 0f));
-      cue.setPosition(cue.getPosition() - (marginRight != 0f
-          ? marginRight / screenWidth
-          : style != null ? style.marginRight / screenWidth : 0f));
-      // Ignore vertical margin if alignment is middle.
+      float marginLeft = dialogueMarginLeft != 0f
+          ? dialogueMarginLeft / screenWidth
+          : style != null ? style.marginLeft / screenWidth : 0f;
+      float marginRight = dialogueMarginRight != 0f
+          ? dialogueMarginRight / screenWidth
+          : style != null ? style.marginRight / screenWidth : 0f;
+
+      // Apply margin left, margin right.
+      if (SsaStyle.hasLeftAlignment(style)) {
+        cue.setPosition(cue.getPosition() + marginLeft);
+        cue.setSize(1 - marginRight - marginLeft);
+      } else if (SsaStyle.hasRightAlignment(style)) {
+        cue.setPosition(cue.getPosition() - marginRight);
+        cue.setSize(1 - marginRight - marginLeft);
+      } else {
+        // Center alignment or unknown.
+        cue.setPosition(cue.getPosition() + (marginLeft - marginRight) / 2);
+        cue.setSize(1 - marginRight - marginLeft);
+      }
+
+      // Apply margin vertical, ignore it when alignment is middle.
       if (!SsaStyle.hasMiddleAlignment(style)) {
-        float verticalMargin = marginVertical != 0f ? marginVertical / screenHeight
+        float marginVertical = dialogueMarginVertical != 0f ? dialogueMarginVertical / screenHeight
             : style != null ? style.marginVertical / screenHeight : 0f;
-        // Apply margin from top if alignment is top.
-        cue.setLine(cue.getLine() - (SsaStyle.hasTopAlignment(style)
-            ? -verticalMargin : verticalMargin), LINE_TYPE_FRACTION);
+        cue.setLine(
+            cue.getLine() - (SsaStyle.hasTopAlignment(style) ? -marginVertical : marginVertical),
+            LINE_TYPE_FRACTION);
       }
     }
 

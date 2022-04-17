@@ -176,33 +176,6 @@ import java.util.regex.Pattern;
     }
   }
 
-  public static boolean hasMiddleAlignment(@Nullable SsaStyle style) {
-    if (style == null) {
-      return false;
-    }
-    return style.alignment == SSA_ALIGNMENT_MIDDLE_LEFT
-        || style.alignment == SSA_ALIGNMENT_MIDDLE_CENTER
-        || style.alignment == SSA_ALIGNMENT_MIDDLE_RIGHT;
-  }
-
-  public static boolean hasTopAlignment(@Nullable SsaStyle style) {
-    if (style == null) {
-      return false;
-    }
-    return style.alignment == SSA_ALIGNMENT_TOP_LEFT
-        || style.alignment == SSA_ALIGNMENT_TOP_CENTER
-        || style.alignment == SSA_ALIGNMENT_TOP_RIGHT;
-  }
-
-  public static boolean hasBottomAlignment(@Nullable SsaStyle style) {
-    if (style == null) {
-      return false;
-    }
-    return style.alignment == SSA_ALIGNMENT_BOTTOM_LEFT
-        || style.alignment == SSA_ALIGNMENT_BOTTOM_CENTER
-        || style.alignment == SSA_ALIGNMENT_BOTTOM_RIGHT;
-  }
-
   private static @SsaAlignment int parseAlignment(String alignmentStr) {
     try {
       @SsaAlignment int alignment = Integer.parseInt(alignmentStr.trim());
@@ -298,6 +271,60 @@ import java.util.regex.Pattern;
       Log.w(TAG, "Failed to parse boolean value: '" + booleanValue + "'", e);
       return false;
     }
+  }
+
+  public static boolean hasMiddleAlignment(@Nullable SsaStyle style) {
+    if (style == null) {
+      return false;
+    }
+    return style.alignment == SSA_ALIGNMENT_MIDDLE_LEFT
+        || style.alignment == SSA_ALIGNMENT_MIDDLE_CENTER
+        || style.alignment == SSA_ALIGNMENT_MIDDLE_RIGHT;
+  }
+
+  public static boolean hasTopAlignment(@Nullable SsaStyle style) {
+    if (style == null) {
+      return false;
+    }
+    return style.alignment == SSA_ALIGNMENT_TOP_LEFT
+        || style.alignment == SSA_ALIGNMENT_TOP_CENTER
+        || style.alignment == SSA_ALIGNMENT_TOP_RIGHT;
+  }
+
+  public static boolean hasBottomAlignment(@Nullable SsaStyle style) {
+    if (style == null) {
+      return false;
+    }
+    return style.alignment == SSA_ALIGNMENT_BOTTOM_LEFT
+        || style.alignment == SSA_ALIGNMENT_BOTTOM_CENTER
+        || style.alignment == SSA_ALIGNMENT_BOTTOM_RIGHT;
+  }
+
+  public static boolean hasLeftAlignment(@Nullable SsaStyle style) {
+    if (style == null) {
+      return false;
+    }
+    return style.alignment == SSA_ALIGNMENT_TOP_LEFT
+        || style.alignment == SSA_ALIGNMENT_MIDDLE_LEFT
+        || style.alignment == SSA_ALIGNMENT_BOTTOM_LEFT;
+  }
+
+  public static boolean hasRightAlignment(@Nullable SsaStyle style) {
+    if (style == null) {
+      return false;
+    }
+    return style.alignment == SSA_ALIGNMENT_TOP_RIGHT
+        || style.alignment == SSA_ALIGNMENT_MIDDLE_RIGHT
+        || style.alignment == SSA_ALIGNMENT_BOTTOM_RIGHT;
+  }
+
+  public static boolean hasCenterAlignment(@Nullable SsaStyle style) {
+    if (style == null) {
+      return false;
+    }
+    return style.alignment == SSA_ALIGNMENT_TOP_CENTER
+        || style.alignment == SSA_ALIGNMENT_MIDDLE_CENTER
+        || style.alignment == SSA_ALIGNMENT_BOTTOM_CENTER;
   }
 
   /**
