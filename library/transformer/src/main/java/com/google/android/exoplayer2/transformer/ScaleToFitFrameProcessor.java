@@ -30,9 +30,12 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Applies a simple rotation and/or scale in the vertex shader. All input frames' pixels will be
- * preserved, potentially changing the width and height of the frame by scaling dimensions to fit.
- * The background color will default to black.
+ * Applies a simple rotation and/or scale in the vertex shader.
+ *
+ * <p>All input frames' pixels will be preserved and copied into an output frame, potentially
+ * changing the width and height of the frame by scaling dimensions to fit.
+ *
+ * <p>The background color of the output frame will be black.
  */
 public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 

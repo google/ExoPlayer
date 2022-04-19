@@ -38,33 +38,72 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Controls how a frame is viewed, by cropping, changing aspect ratio, or changing resolution.
+ * Controls how a frame is presented, by copying input pixels into an output frame, with options to
+ * set the output resolution, crop the input, and choose how to map the input pixels onto the output
+ * frame geometry (for example, by stretching the input frame to match the specified output frame,
+ * or fitting the input frame using letterboxing).
  *
  * <p>Cropping or aspect ratio is applied before setting resolution.
+ *
+ * <p>The background color of the output frame will be black.
  */
 public final class PresentationFrameProcessor implements GlFrameProcessor {
   /**
-   * Strategies for how to apply the presented frame. One of {@link #SCALE_TO_FIT}, {@link
-   * #SCALE_TO_FIT_WITH_CROP}, or {@link #STRETCH_TO_FIT}.
+   * Strategies controlling the layout of input pixels in the output frame.
+   *
+   * <p>One of {@link #LAYOUT_SCALE_TO_FIT}, {@link #LAYOUT_SCALE_TO_FIT_WITH_CROP}, or {@link
+   * #LAYOUT_STRETCH_TO_FIT}.
+   *
+   * <p>May scale either width or height, leaving the other output dimension equal to its input,
+   * unless {@link Builder#setResolution(int)} rescales width and height.
    */
   @Documented
   @Retention(SOURCE)
   @Target(TYPE_USE)
-  @IntDef({SCALE_TO_FIT, SCALE_TO_FIT_WITH_CROP, STRETCH_TO_FIT})
-  public @interface PresentationStrategy {}
+  @IntDef({LAYOUT_SCALE_TO_FIT, LAYOUT_SCALE_TO_FIT_WITH_CROP, LAYOUT_STRETCH_TO_FIT})
+  public @interface Layout {}
   /**
    * Empty pixels added above and below the input frame (for letterboxing), or to the left and right
    * of the input frame (for pillarboxing), until the desired aspect ratio is achieved. All input
    * frame pixels will be within the output frame.
+   *
+   * <p>When applying:
+   *
+   * <ul>
+   *   <li>letterboxing, the output width will default to the input width, and the output height
+   *       will be scaled appropriately.
+   *   <li>pillarboxing, the output height will default to the input height, and the output width
+   *       will be scaled appropriately.
+   * </ul>
    */
-  public static final int SCALE_TO_FIT = 0;
+  public static final int LAYOUT_SCALE_TO_FIT = 0;
   /**
-   * Pixels cropped from the input frame, until the desired aspect ratio is achieved. Pixels will be
-   * cropped either from the top and bottom, or from the left and right sides, of the input frame.
+   * Pixels cropped from the input frame, until the desired aspect ratio is achieved. Pixels may be
+   * cropped either from the bottom and top, or from the left and right sides, of the input frame.
+   *
+   * <p>When cropping from the:
+   *
+   * <ul>
+   *   <li>bottom and top, the output width will default to the input width, and the output height
+   *       will be scaled appropriately.
+   *   <li>left and right, the output height will default to the input height, and the output width
+   *       will be scaled appropriately.
+   * </ul>
    */
-  public static final int SCALE_TO_FIT_WITH_CROP = 1;
-  /** Frame stretched larger on the x or y axes to fit the desired aspect ratio. */
-  public static final int STRETCH_TO_FIT = 2;
+  public static final int LAYOUT_SCALE_TO_FIT_WITH_CROP = 1;
+  /**
+   * Frame stretched larger on the x or y axes to fit the desired aspect ratio.
+   *
+   * <p>When stretching to a:
+   *
+   * <ul>
+   *   <li>taller aspect ratio, the output width will default to the input width, and the output
+   *       height will be scaled appropriately.
+   *   <li>narrower aspect ratio, the output height will default to the input height, and the output
+   *       width will be scaled appropriately.
+   * </ul>
+   */
+  public static final int LAYOUT_STRETCH_TO_FIT = 2;
 
   /** A builder for {@link PresentationFrameProcessor} instances. */
   public static final class Builder {
@@ -76,7 +115,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     private float cropBottom;
     private float cropTop;
     private float aspectRatio;
-    private @PresentationStrategy int presentationStrategy;
+    private @Layout int layout;
 
     /** Creates a builder with default values. */
     public Builder() {
@@ -91,7 +130,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     /**
      * Sets the output resolution using the output height.
      *
-     * <p>The default value {@link C#LENGTH_UNSET} corresponds to using the same height as the
+     * <p>The default value, {@link C#LENGTH_UNSET}, corresponds to using the same height as the
      * input. Output width of the displayed frame will scale to preserve the frame's aspect ratio
      * after other transformations.
      *
@@ -111,10 +150,12 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
      * frame corresponds to the square ranging from -1 to 1 on the x and y axes.
      *
      * <p>{@code left} and {@code bottom} default to -1, and {@code right} and {@code top} default
-     * to 1. To crop to a smaller subset of the input frame, use values between -1 and 1. To crop to
-     * a larger frame, use values below -1 and above 1.
+     * to 1, which corresponds to not applying any crop. To crop to a smaller subset of the input
+     * frame, use values between -1 and 1. To crop to a larger frame, use values below -1 and above
+     * 1.
      *
-     * <p>Width and height values set may be rescaled by {@link #setResolution(int)}.
+     * <p>Width and height values set may be rescaled by {@link #setResolution(int)}, which is
+     * applied after cropping changes.
      *
      * <p>Only one of {@code setCrop} or {@link #setAspectRatio(float, int)} can be called for one
      * {@link PresentationFrameProcessor}.
@@ -142,43 +183,40 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     }
 
     /**
-     * Resize a frame's width or height to conform to an {@code aspectRatio}, given a {@link
-     * PresentationStrategy}, and leaving input pixels unchanged.
+     * Sets the aspect ratio (width/height ratio) for the output frame.
      *
-     * <p>Width and height values set here may be rescaled by {@link #setResolution(int)}.
+     * <p>Resizes a frame's width or height to conform to an {@code aspectRatio}, given a {@link
+     * Layout}. {@code aspectRatio} defaults to {@link C#LENGTH_UNSET}, which corresponds to the
+     * same aspect ratio as the input frame. {@code layout} defaults to {@link #LAYOUT_SCALE_TO_FIT}
+     *
+     * <p>Width and height values set may be rescaled by {@link #setResolution(int)}, which is
+     * applied after aspect ratio changes.
      *
      * <p>Only one of {@link #setCrop(float, float, float, float)} or {@code setAspectRatio} can be
      * called for one {@link PresentationFrameProcessor}.
      *
-     * @param aspectRatio The aspect ratio of the output frame, defined as width/height. Must be
+     * @param aspectRatio The aspect ratio (width/height ratio) of the output frame. Must be
      *     positive.
      * @return This builder.
      */
-    public Builder setAspectRatio(
-        float aspectRatio, @PresentationStrategy int presentationStrategy) {
+    public Builder setAspectRatio(float aspectRatio, @Layout int layout) {
       checkArgument(aspectRatio > 0, "aspect ratio " + aspectRatio + " must be positive");
       checkArgument(
-          presentationStrategy == SCALE_TO_FIT
-              || presentationStrategy == SCALE_TO_FIT_WITH_CROP
-              || presentationStrategy == STRETCH_TO_FIT,
-          "invalid presentationStrategy " + presentationStrategy);
+          layout == LAYOUT_SCALE_TO_FIT
+              || layout == LAYOUT_SCALE_TO_FIT_WITH_CROP
+              || layout == LAYOUT_STRETCH_TO_FIT,
+          "invalid layout " + layout);
       checkState(
           cropLeft == -1f && cropRight == 1f && cropBottom == -1f && cropTop == 1f,
           "setAspectRatio and setCrop cannot be called in the same instance");
       this.aspectRatio = aspectRatio;
-      this.presentationStrategy = presentationStrategy;
+      this.layout = layout;
       return this;
     }
 
     public PresentationFrameProcessor build() {
       return new PresentationFrameProcessor(
-          heightPixels,
-          cropLeft,
-          cropRight,
-          cropBottom,
-          cropTop,
-          aspectRatio,
-          presentationStrategy);
+          heightPixels, cropLeft, cropRight, cropBottom, cropTop, aspectRatio, layout);
     }
   }
 
@@ -192,7 +230,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private final float cropBottom;
   private final float cropTop;
   private final float requestedAspectRatio;
-  private final @PresentationStrategy int presentationStrategy;
+  private final @Layout int layout;
 
   private int outputRotationDegrees;
   private int outputWidth;
@@ -208,14 +246,14 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       float cropBottom,
       float cropTop,
       float requestedAspectRatio,
-      @PresentationStrategy int presentationStrategy) {
+      @Layout int layout) {
     this.requestedHeightPixels = requestedHeightPixels;
     this.cropLeft = cropLeft;
     this.cropRight = cropRight;
     this.cropBottom = cropBottom;
     this.cropTop = cropTop;
     this.requestedAspectRatio = requestedAspectRatio;
-    this.presentationStrategy = presentationStrategy;
+    this.layout = layout;
 
     outputWidth = C.LENGTH_UNSET;
     outputHeight = C.LENGTH_UNSET;
@@ -324,7 +362,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   @RequiresNonNull("transformationMatrix")
   private void applyAspectRatio() {
     float inputAspectRatio = (float) outputWidth / outputHeight;
-    if (presentationStrategy == SCALE_TO_FIT) {
+    if (layout == LAYOUT_SCALE_TO_FIT) {
       if (requestedAspectRatio > inputAspectRatio) {
         transformationMatrix.setScale(inputAspectRatio / requestedAspectRatio, 1f);
         outputWidth = Math.round(outputHeight * requestedAspectRatio);
@@ -332,7 +370,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
         transformationMatrix.setScale(1f, requestedAspectRatio / inputAspectRatio);
         outputHeight = Math.round(outputWidth / requestedAspectRatio);
       }
-    } else if (presentationStrategy == SCALE_TO_FIT_WITH_CROP) {
+    } else if (layout == LAYOUT_SCALE_TO_FIT_WITH_CROP) {
       if (requestedAspectRatio > inputAspectRatio) {
         transformationMatrix.setScale(1f, requestedAspectRatio / inputAspectRatio);
         outputHeight = Math.round(outputWidth / requestedAspectRatio);
@@ -340,7 +378,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
         transformationMatrix.setScale(inputAspectRatio / requestedAspectRatio, 1f);
         outputWidth = Math.round(outputHeight * requestedAspectRatio);
       }
-    } else if (presentationStrategy == STRETCH_TO_FIT) {
+    } else if (layout == LAYOUT_STRETCH_TO_FIT) {
       if (requestedAspectRatio > inputAspectRatio) {
         outputWidth = Math.round(outputHeight * requestedAspectRatio);
       } else {

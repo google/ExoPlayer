@@ -100,7 +100,8 @@ public final class TransformationRequest {
      * Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
      * the video along these axes appropriately.
      *
-     * <p>The values default to 1, which corresponds to not scaling along both axes.
+     * <p>The default value for {@code scaleX} and {@code scaleY}, 1, corresponds to not scaling
+     * along the x and y axes, respectively.
      *
      * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
      * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
@@ -137,7 +138,7 @@ public final class TransformationRequest {
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
      *
-     * <p>The default value {@link C#LENGTH_UNSET} leaves the width and height unchanged unless
+     * <p>The default value, {@link C#LENGTH_UNSET}, leaves the width and height unchanged unless
      * {@linkplain #setScale(float,float) scaling} or @linkplain #setRotationDegrees(float)
      * rotation} are requested.
      *
