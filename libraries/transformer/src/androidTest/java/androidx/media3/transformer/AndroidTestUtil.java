@@ -15,13 +15,19 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.os.Build;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
+import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,19 +37,67 @@ import org.json.JSONObject;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
+  // TODO(b/228865104): Add device capability based test skipping.
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
+  public static final Format MP4_ASSET_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1080)
+          .setHeight(720)
+          .setFrameRate(29.97f)
+          .build();
+
   public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING =
       "asset:///media/mp4/sample_with_increasing_timestamps.mp4";
+  public static final Format MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(30.00f)
+          .build();
+
   public static final String MP4_ASSET_SEF_URI_STRING =
       "asset:///media/mp4/sample_sef_slow_motion.mp4";
+  public static final Format MP4_ASSET_SEF_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(320)
+          .setHeight(240)
+          .setFrameRate(30.472f)
+          .build();
+
   public static final String MP4_REMOTE_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
+  public static final Format MP4_REMOTE_10_SECONDS_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1280)
+          .setHeight(720)
+          .setFrameRate(29.97f)
+          .build();
+
   /** Test clip transcoded from {@link #MP4_REMOTE_10_SECONDS_URI_STRING} with H264 and MP3. */
   public static final String MP4_REMOTE_H264_MP3_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/%20android-screens-10s-h264-mp3.mp4";
 
+  public static final Format MP4_REMOTE_H264_MP3_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1280)
+          .setHeight(720)
+          .setFrameRate(29.97f)
+          .build();
+
   public static final String MP4_REMOTE_4K60_PORTRAIT_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4";
+  public static final Format MP4_REMOTE_4K60_PORTRAIT_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setFrameRate(57.39f)
+          .build();
 
   /**
    * Log in logcat and in an analysis file that this test was skipped.
@@ -142,6 +196,70 @@ public final class AndroidTestUtil {
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
       fileWriter.write(analysisContents);
     }
+  }
+
+  /**
+   * Checks whether the test should be skipped because the device is incapable of decoding and
+   * encoding the given formats. If the test should be skipped, logs the reason for skipping.
+   *
+   * @param context The {@link Context context}.
+   * @param testId The test ID.
+   * @param decodingFormat The {@link Format format} to decode.
+   * @param encodingFormat The {@link Format format} to encode.
+   * @return Whether the test should be skipped.
+   */
+  public static boolean skipAndLogIfInsufficientCodecSupport(
+      Context context, String testId, Format decodingFormat, Format encodingFormat)
+      throws IOException, JSONException {
+    boolean canDecode = false;
+    @Nullable MediaCodecUtil.DecoderQueryException queryException = null;
+    try {
+      canDecode = canDecode(decodingFormat);
+    } catch (MediaCodecUtil.DecoderQueryException e) {
+      queryException = e;
+    }
+
+    boolean canEncode = canEncode(encodingFormat);
+
+    if (canDecode && canEncode) {
+      return false;
+    }
+
+    StringBuilder skipReasonBuilder = new StringBuilder();
+    if (!canDecode) {
+      skipReasonBuilder.append("Cannot decode ").append(decodingFormat).append('\n');
+      if (queryException != null) {
+        skipReasonBuilder.append(queryException).append('\n');
+      }
+    }
+    if (!canEncode) {
+      skipReasonBuilder.append("Cannot encode ").append(encodingFormat);
+    }
+    recordTestSkipped(context, testId, skipReasonBuilder.toString());
+    return true;
+  }
+
+  private static boolean canDecode(Format format) throws MediaCodecUtil.DecoderQueryException {
+    @Nullable
+    MediaCodecInfo decoderInfo =
+        MediaCodecUtil.getDecoderInfo(
+            checkNotNull(format.sampleMimeType), /* secure= */ false, /* tunneling= */ false);
+    if (decoderInfo == null) {
+      return false;
+    }
+    return decoderInfo.isVideoSizeAndRateSupportedV21(
+        format.width, format.height, format.frameRate);
+  }
+
+  private static boolean canEncode(Format format) {
+    String mimeType = checkNotNull(format.sampleMimeType);
+    ImmutableList<android.media.MediaCodecInfo> supportedEncoders =
+        EncoderUtil.getSupportedEncoders(mimeType);
+    if (supportedEncoders.isEmpty()) {
+      return false;
+    }
+    return EncoderUtil.areSizeAndRateSupported(
+        supportedEncoders.get(0), mimeType, format.width, format.height, format.frameRate);
   }
 
   /**

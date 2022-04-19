@@ -67,6 +67,26 @@ public final class EncoderUtil {
   }
 
   /**
+   * Returns whether the {@linkplain MediaCodecInfo encoder} supports the given resolution and frame
+   * rate.
+   */
+  public static boolean areSizeAndRateSupported(
+      MediaCodecInfo encoderInfo, String mimeType, int width, int height, double frameRate) {
+    // VideoCapabilities.areSizeAndRateSupported incorrectly returns false if frameRate < 1 on all
+    // current versions of Android, so only checks the width and height in this case [b/153940404].
+    if (frameRate == Format.NO_VALUE || frameRate < 1) {
+      return encoderInfo
+          .getCapabilitiesForType(mimeType)
+          .getVideoCapabilities()
+          .isSizeSupported(width, height);
+    }
+    return encoderInfo
+        .getCapabilitiesForType(mimeType)
+        .getVideoCapabilities()
+        .areSizeAndRateSupported(width, height, frameRate);
+  }
+
+  /**
    * Returns a {@link Range} of supported heights for the given {@link MediaCodecInfo encoder},
    * {@linkplain MimeTypes MIME type} and {@code width}.
    *

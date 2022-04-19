@@ -49,7 +49,41 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(/* testId= */ "singleTranscode_ssim", AndroidTestUtil.MP4_ASSET_URI_STRING);
+            .run(
+                /* testId= */ "transformWithDecodeEncode_ssim",
+                AndroidTestUtil.MP4_ASSET_URI_STRING);
+
+    assertThat(result.ssim).isGreaterThan(0.90);
+  }
+
+  @Test
+  public void transcodeAvcToHevc_ssimIsGreaterThan90Percent() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    String testId = "transcodeAvcToHevc_ssim";
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT,
+        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.VIDEO_H265)
+            .build())) {
+      return;
+    }
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H265).build())
+            .setRemoveAudio(true)
+            .build();
+
+    TransformationTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .setCalculateSsim(true)
+            .build()
+            .run(testId, AndroidTestUtil.MP4_ASSET_URI_STRING);
 
     assertThat(result.ssim).isGreaterThan(0.90);
   }
