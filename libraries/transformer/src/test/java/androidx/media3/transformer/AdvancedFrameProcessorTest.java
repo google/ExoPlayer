@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -35,11 +34,11 @@ public final class AdvancedFrameProcessorTest {
   public void construct_withInvalidMatrixSize_throwsException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new AdvancedFrameProcessor(getApplicationContext(), new float[4]));
+        () -> new AdvancedFrameProcessor(/* transformationMatrix= */ new float[4]));
   }
 
   @Test
   public void construct_withValidMatrixSize_completesSuccessfully() {
-    new AdvancedFrameProcessor(getApplicationContext(), new float[16]);
+    new AdvancedFrameProcessor(/* transformationMatrix= */ new float[16]);
   }
 }

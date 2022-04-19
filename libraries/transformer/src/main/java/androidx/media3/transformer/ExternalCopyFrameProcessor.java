@@ -49,19 +49,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     1.683f, -0.652f, 0.0f,
   };
 
-  private final Context context;
   private final boolean enableExperimentalHdrEditing;
 
   private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
 
-  public ExternalCopyFrameProcessor(Context context, boolean enableExperimentalHdrEditing) {
-    this.context = context;
+  public ExternalCopyFrameProcessor(boolean enableExperimentalHdrEditing) {
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
   }
 
   @Override
-  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 

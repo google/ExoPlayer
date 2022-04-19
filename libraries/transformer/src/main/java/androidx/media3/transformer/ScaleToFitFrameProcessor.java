@@ -40,22 +40,14 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link ScaleToFitFrameProcessor} instances. */
   public static final class Builder {
-    // Mandatory field.
-    private final Context context;
 
     // Optional fields.
     private float scaleX;
     private float scaleY;
     private float rotationDegrees;
 
-    /**
-     * Creates a builder with default values.
-     *
-     * @param context The {@link Context}.
-     */
-    public Builder(Context context) {
-      this.context = context;
-
+    /** Creates a builder with default values. */
+    public Builder() {
       scaleX = 1;
       scaleY = 1;
       rotationDegrees = 0;
@@ -90,7 +82,7 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     }
 
     public ScaleToFitFrameProcessor build() {
-      return new ScaleToFitFrameProcessor(context, scaleX, scaleY, rotationDegrees);
+      return new ScaleToFitFrameProcessor(scaleX, scaleY, rotationDegrees);
     }
   }
 
@@ -98,7 +90,6 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     GlUtil.glAssertionsEnabled = true;
   }
 
-  private final Context context;
   private final Matrix transformationMatrix;
 
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
@@ -108,25 +99,22 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
    * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
    * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
    */
-  private ScaleToFitFrameProcessor(
-      Context context, float scaleX, float scaleY, float rotationDegrees) {
-
-    this.context = context;
+  private ScaleToFitFrameProcessor(float scaleX, float scaleY, float rotationDegrees) {
     this.transformationMatrix = new Matrix();
     this.transformationMatrix.postScale(scaleX, scaleY);
     this.transformationMatrix.postRotate(rotationDegrees);
   }
 
   @Override
-  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
     configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    advancedFrameProcessor = new AdvancedFrameProcessor(context, adjustedTransformationMatrix);
-    advancedFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    advancedFrameProcessor = new AdvancedFrameProcessor(adjustedTransformationMatrix);
+    advancedFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
   }
 
   @Override

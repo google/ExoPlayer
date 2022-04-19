@@ -72,12 +72,12 @@ import org.checkerframework.dataflow.qual.Pure;
 
     // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(context)
+        new ScaleToFitFrameProcessor.Builder()
             .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
             .setRotationDegrees(transformationRequest.rotationDegrees)
             .build();
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(context)
+        new PresentationFrameProcessor.Builder()
             .setResolution(transformationRequest.outputHeight)
             .build();
     frameProcessorChain =

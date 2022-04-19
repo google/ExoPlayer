@@ -110,8 +110,7 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withAdvancedFrameProcessor_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    GlFrameProcessor glFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+    GlFrameProcessor glFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
@@ -133,11 +132,9 @@ public final class FrameProcessorChainPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor translateRightFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+        new AdvancedFrameProcessor(translateRightMatrix);
     GlFrameProcessor rotate45FrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     setUpAndPrepareFirstFrame(translateRightFrameProcessor, rotate45FrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
@@ -157,13 +154,11 @@ public final class FrameProcessorChainPixelTest {
       throws Exception {
     String testId = "processData_withScaleToFitAndAdvancedFrameProcessors";
     GlFrameProcessor rotate45FrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor translateRightFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+        new AdvancedFrameProcessor(translateRightMatrix);
     setUpAndPrepareFirstFrame(rotate45FrameProcessor, translateRightFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
@@ -183,7 +178,7 @@ public final class FrameProcessorChainPixelTest {
       throws Exception {
     String testId = "processData_withPresentationFrameProcessor_setResolution";
     GlFrameProcessor glFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
+        new PresentationFrameProcessor.Builder().setResolution(480).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
@@ -203,9 +198,7 @@ public final class FrameProcessorChainPixelTest {
       throws Exception {
     String testId = "processData_withScaleToFitFrameProcessor_rotate45";
     GlFrameProcessor glFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 

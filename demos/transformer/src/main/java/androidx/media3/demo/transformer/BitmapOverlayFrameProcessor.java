@@ -53,20 +53,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final int BITMAP_WIDTH_HEIGHT = 512;
 
-  private final Context context;
   private final Paint paint;
   private final Bitmap overlayBitmap;
-  private final Bitmap logoBitmap;
   private final Canvas overlayCanvas;
 
   private float bitmapScaleX;
   private float bitmapScaleY;
   private int bitmapTexId;
   private @MonotonicNonNull Size outputSize;
+  private @MonotonicNonNull Bitmap logoBitmap;
   private @MonotonicNonNull GlProgram glProgram;
 
-  public BitmapOverlayFrameProcessor(Context context) {
-    this.context = context;
+  public BitmapOverlayFrameProcessor() {
     paint = new Paint();
     paint.setTextSize(64);
     paint.setAntiAlias(true);
@@ -75,18 +73,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     overlayBitmap =
         Bitmap.createBitmap(BITMAP_WIDTH_HEIGHT, BITMAP_WIDTH_HEIGHT, Bitmap.Config.ARGB_8888);
     overlayCanvas = new Canvas(overlayBitmap);
-    try {
-      logoBitmap =
-          ((BitmapDrawable)
-                  context.getPackageManager().getApplicationIcon(context.getPackageName()))
-              .getBitmap();
-    } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   @Override
-  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
     if (inputWidth > inputHeight) {
       bitmapScaleX = inputWidth / (float) inputHeight;
       bitmapScaleY = 1f;
@@ -96,6 +87,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     outputSize = new Size(inputWidth, inputHeight);
 
+    try {
+      logoBitmap =
+          ((BitmapDrawable)
+                  context.getPackageManager().getApplicationIcon(context.getPackageName()))
+              .getBitmap();
+    } catch (PackageManager.NameNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
     bitmapTexId = GlUtil.createTexture(BITMAP_WIDTH_HEIGHT, BITMAP_WIDTH_HEIGHT);
     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, overlayBitmap, /* border= */ 0);
 
@@ -125,7 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     String text =
         String.format(Locale.US, "%.02f", presentationTimeUs / (float) C.MICROS_PER_SECOND);
     overlayBitmap.eraseColor(Color.TRANSPARENT);
-    overlayCanvas.drawBitmap(logoBitmap, /* left= */ 3, /* top= */ 378, paint);
+    overlayCanvas.drawBitmap(checkStateNotNull(logoBitmap), /* left= */ 3, /* top= */ 378, paint);
     overlayCanvas.drawText(text, /* x= */ 160, /* y= */ 466, paint);
     GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTexId);
     GLUtils.texSubImage2D(

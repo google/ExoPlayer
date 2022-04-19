@@ -111,7 +111,6 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
     return matrix4x4Array;
   }
 
-  private final Context context;
   private final GlMatrixProvider matrixProvider;
 
   private @MonotonicNonNull Size size;
@@ -120,37 +119,33 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param transformationMatrix The transformation {@link android.graphics.Matrix} to apply to each
    *     frame. Operations are done on normalized device coordinates (-1 to 1 on x and y), and no
    *     automatic adjustments are applied on the transformation matrix.
    */
-  public AdvancedFrameProcessor(Context context, android.graphics.Matrix transformationMatrix) {
-    this(context, getGlMatrixArray(transformationMatrix));
+  public AdvancedFrameProcessor(android.graphics.Matrix transformationMatrix) {
+    this(getGlMatrixArray(transformationMatrix));
   }
 
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param matrixProvider A {@link MatrixProvider} that provides the transformation matrix to apply
    *     to each frame.
    */
-  public AdvancedFrameProcessor(Context context, MatrixProvider matrixProvider) {
-    this.context = context;
+  public AdvancedFrameProcessor(MatrixProvider matrixProvider) {
     this.matrixProvider = matrixProvider;
   }
 
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param transformationMatrix The 4x4 transformation {@link android.opengl.Matrix} to apply to
    *     each frame. Operations are done on normalized device coordinates (-1 to 1 on x and y), and
    *     no automatic adjustments are applied on the transformation matrix.
    */
-  public AdvancedFrameProcessor(Context context, float[] transformationMatrix) {
-    this(context, /* matrixProvider= */ (long presentationTimeUs) -> transformationMatrix.clone());
+  public AdvancedFrameProcessor(float[] transformationMatrix) {
+    this(/* matrixProvider= */ (long presentationTimeUs) -> transformationMatrix.clone());
     checkArgument(
         transformationMatrix.length == 16, "A 4x4 transformation matrix must have 16 elements.");
   }
@@ -158,17 +153,16 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param matrixProvider A {@link GlMatrixProvider} that updates the transformation matrix for
    *     each frame.
    */
-  public AdvancedFrameProcessor(Context context, GlMatrixProvider matrixProvider) {
-    this.context = context;
+  public AdvancedFrameProcessor(GlMatrixProvider matrixProvider) {
     this.matrixProvider = matrixProvider;
   }
 
   @Override
-  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 

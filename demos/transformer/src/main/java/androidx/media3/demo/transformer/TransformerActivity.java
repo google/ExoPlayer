@@ -246,13 +246,11 @@ public final class TransformerActivity extends AppCompatActivity {
           bundle.getBooleanArray(ConfigurationActivity.DEMO_FRAME_PROCESSORS_SELECTIONS);
       if (selectedFrameProcessors != null) {
         if (selectedFrameProcessors[0]) {
-          frameProcessors.add(
-              AdvancedFrameProcessorFactory.createDizzyCropFrameProcessor(/* context= */ this));
+          frameProcessors.add(AdvancedFrameProcessorFactory.createDizzyCropFrameProcessor());
         }
         if (selectedFrameProcessors[1]) {
           frameProcessors.add(
               new PeriodicVignetteFrameProcessor(
-                  /* context= */ this,
                   bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
                   bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
                   /* minInnerRadius= */ bundle.getFloat(
@@ -262,16 +260,13 @@ public final class TransformerActivity extends AppCompatActivity {
                   bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
         if (selectedFrameProcessors[2]) {
-          frameProcessors.add(
-              AdvancedFrameProcessorFactory.createSpin3dFrameProcessor(/* context= */ this));
+          frameProcessors.add(AdvancedFrameProcessorFactory.createSpin3dFrameProcessor());
         }
         if (selectedFrameProcessors[3]) {
-          frameProcessors.add(new BitmapOverlayFrameProcessor(/* context= */ this));
+          frameProcessors.add(new BitmapOverlayFrameProcessor());
         }
         if (selectedFrameProcessors[4]) {
-          frameProcessors.add(
-              AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor(
-                  /* context= */ this));
+          frameProcessors.add(AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor());
         }
         transformerBuilder.setFrameProcessors(frameProcessors.build());
       }

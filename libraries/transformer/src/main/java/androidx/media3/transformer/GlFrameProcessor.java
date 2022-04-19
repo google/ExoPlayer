@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import android.content.Context;
 import android.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.io.IOException;
  *
  * <ol>
  *   <li>The constructor, for implementation-specific arguments.
- *   <li>{@link #initialize(int,int,int)}, to set up graphics initialization.
+ *   <li>{@link #initialize(Context, int, int, int)}, to set up graphics initialization.
  *   <li>{@link #drawFrame(long)}, to process one frame.
  *   <li>{@link #release()}, upon conclusion of processing.
  * </ol>
@@ -40,17 +41,19 @@ public interface GlFrameProcessor {
    *
    * <p>This method may only be called if there is a current OpenGL context.
    *
+   * @param context The {@link Context}.
    * @param inputTexId Identifier of a 2D OpenGL texture.
    * @param inputWidth The input width, in pixels.
    * @param inputHeight The input height, in pixels.
    */
-  void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException;
+  void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException;
 
   /**
    * Returns the output {@link Size} of frames processed through {@link #drawFrame(long)}.
    *
    * <p>This method may only be called after the frame processor has been {@link
-   * #initialize(int,int,int) initialized}.
+   * #initialize(Context, int, int, int) initialized}.
    */
   Size getOutputSize();
 
@@ -58,8 +61,8 @@ public interface GlFrameProcessor {
    * Draws one frame.
    *
    * <p>This method may only be called after the frame processor has been {@link
-   * #initialize(int,int,int) initialized}. The caller is responsible for focussing the correct
-   * render target before calling this method.
+   * #initialize(Context, int, int, int) initialized}. The caller is responsible for focussing the
+   * correct render target before calling this method.
    *
    * <p>A minimal implementation should tell OpenGL to use its shader program, bind the shader
    * program's vertex attributes and uniforms, and issue a drawing command.

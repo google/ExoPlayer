@@ -101,9 +101,9 @@ public final class PresentationFrameProcessorPixelTest {
   @Test
   public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_noEdits";
-    presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor = new PresentationFrameProcessor.Builder().build();
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
@@ -126,10 +126,11 @@ public final class PresentationFrameProcessorPixelTest {
   public void drawFrame_cropSmaller_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_cropSmaller";
     GlFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setCrop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_SMALLER_PNG_ASSET_PATH);
@@ -152,10 +153,11 @@ public final class PresentationFrameProcessorPixelTest {
   public void drawFrame_cropLarger_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_cropSmaller";
     GlFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setCrop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_PNG_ASSET_PATH);
@@ -179,10 +181,11 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(1f, PresentationFrameProcessor.SCALE_TO_FIT)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -207,10 +210,11 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(2f, PresentationFrameProcessor.SCALE_TO_FIT)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -235,10 +239,11 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(1f, PresentationFrameProcessor.SCALE_TO_FIT_WITH_CROP)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -263,10 +268,11 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(2f, PresentationFrameProcessor.SCALE_TO_FIT_WITH_CROP)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -291,10 +297,11 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(1f, PresentationFrameProcessor.STRETCH_TO_FIT)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -319,10 +326,11 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(2f, PresentationFrameProcessor.STRETCH_TO_FIT)
             .build();
-    presentationFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    presentationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
