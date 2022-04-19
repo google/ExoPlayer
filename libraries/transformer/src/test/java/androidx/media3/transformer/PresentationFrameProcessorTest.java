@@ -175,7 +175,7 @@ public final class PresentationFrameProcessorTest {
     float aspectRatio = 2f;
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(aspectRatio, PresentationFrameProcessor.SCALE_TO_FIT)
+            .setAspectRatio(aspectRatio, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
             .build();
 
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
@@ -194,7 +194,7 @@ public final class PresentationFrameProcessorTest {
     int requestedHeight = 100;
     PresentationFrameProcessor presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(aspectRatio, PresentationFrameProcessor.SCALE_TO_FIT)
+            .setAspectRatio(aspectRatio, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
             .setResolution(requestedHeight)
             .build();
 
@@ -210,7 +210,7 @@ public final class PresentationFrameProcessorTest {
   public void getOutputSize_setAspectRatioAndCrop_throwsIllegalStateException() {
     PresentationFrameProcessor.Builder presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(/* aspectRatio= */ 2f, PresentationFrameProcessor.SCALE_TO_FIT);
+            .setAspectRatio(/* aspectRatio= */ 2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT);
 
     assertThrows(
         IllegalStateException.class,
@@ -229,7 +229,7 @@ public final class PresentationFrameProcessorTest {
         IllegalStateException.class,
         () ->
             presentationFrameProcessor.setAspectRatio(
-                /* aspectRatio= */ 2f, PresentationFrameProcessor.SCALE_TO_FIT));
+                /* aspectRatio= */ 2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT));
   }
 
   @Test

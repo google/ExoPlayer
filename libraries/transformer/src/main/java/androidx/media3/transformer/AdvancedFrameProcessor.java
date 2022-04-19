@@ -28,11 +28,14 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Applies a transformation matrix in the vertex shader.
+ * Applies a transformation matrix in the vertex shader, and copies input pixels into an output
+ * frame based on their locations after applying this matrix.
  *
  * <p>Operations are done on normalized device coordinates (-1 to 1 on x and y axes). No automatic
  * adjustments (like done in {@link ScaleToFitFrameProcessor}) are applied on the transformation.
- * Width and height are not modified. The background color will default to black.
+ * Width and height are not modified.
+ *
+ * <p>The background color of the output frame will be black.
  */
 @UnstableApi
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298

@@ -21,7 +21,8 @@ import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 
 /**
- * Manages a GLSL shader program for processing a frame.
+ * Manages a GLSL shader program for processing a frame. Implementations generally copy input pixels
+ * into an output frame, with changes to pixels specific to the implementation.
  *
  * <p>Methods must be called in the following order:
  *

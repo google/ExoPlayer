@@ -182,7 +182,7 @@ public final class PresentationFrameProcessorPixelTest {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(1f, PresentationFrameProcessor.SCALE_TO_FIT)
+            .setAspectRatio(1f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
             .build();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
@@ -211,7 +211,7 @@ public final class PresentationFrameProcessorPixelTest {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(2f, PresentationFrameProcessor.SCALE_TO_FIT)
+            .setAspectRatio(2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
             .build();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
@@ -240,7 +240,7 @@ public final class PresentationFrameProcessorPixelTest {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(1f, PresentationFrameProcessor.SCALE_TO_FIT_WITH_CROP)
+            .setAspectRatio(1f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             .build();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
@@ -269,7 +269,7 @@ public final class PresentationFrameProcessorPixelTest {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(2f, PresentationFrameProcessor.SCALE_TO_FIT_WITH_CROP)
+            .setAspectRatio(2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             .build();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
@@ -298,7 +298,7 @@ public final class PresentationFrameProcessorPixelTest {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(1f, PresentationFrameProcessor.STRETCH_TO_FIT)
+            .setAspectRatio(1f, PresentationFrameProcessor.LAYOUT_STRETCH_TO_FIT)
             .build();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
@@ -327,7 +327,7 @@ public final class PresentationFrameProcessorPixelTest {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationFrameProcessor =
         new PresentationFrameProcessor.Builder()
-            .setAspectRatio(2f, PresentationFrameProcessor.STRETCH_TO_FIT)
+            .setAspectRatio(2f, PresentationFrameProcessor.LAYOUT_STRETCH_TO_FIT)
             .build();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
