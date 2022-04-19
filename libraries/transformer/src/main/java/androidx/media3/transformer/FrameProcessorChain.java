@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -36,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -183,7 +185,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         enableExperimentalHdrEditing);
   }
 
+  private static final String TAG = "FrameProcessorChain";
   private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
+  private static final long RELEASE_WAIT_TIME_MS = 100;
 
   private final boolean enableExperimentalHdrEditing;
   private final EGLDisplay eglDisplay;
@@ -373,6 +377,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * <p>If the frame processor chain is released before it has {@linkplain #isEnded() ended}, it
    * will attempt to cancel processing any input frames that have already become available. Input
    * frames that become available after release are ignored.
+   *
+   * <p>This method blocks until all OpenGL resources are released or releasing times out.
    */
   public void release() {
     releaseRequested = true;
@@ -394,6 +400,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       inputSurface.release();
     }
     singleThreadExecutorService.shutdown();
+    try {
+      if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
+        Log.d(TAG, "Failed to release FrameProcessorChain");
+      }
+    } catch (InterruptedException e) {
+      Log.d(TAG, "FrameProcessorChain release was interrupted", e);
+    }
   }
 
   /**
