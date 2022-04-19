@@ -46,8 +46,10 @@ import org.junit.runners.Parameterized.Parameters;
 public class BitrateAnalysisTest {
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
-          AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
-          AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
+          AndroidTestUtil.MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION,
+          AndroidTestUtil.MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION,
+          AndroidTestUtil.MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION,
+          AndroidTestUtil.MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION);
   private static final ImmutableList<Integer> INPUT_BITRATE_MODES =
       ImmutableList.of(BITRATE_MODE_VBR, BITRATE_MODE_CBR);
 
