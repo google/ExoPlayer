@@ -99,6 +99,15 @@ public final class AndroidTestUtil {
           .setFrameRate(57.39f)
           .build();
 
+  // The 4 HIGHMOTION files are H264 and AAC.
+  public static final String MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1280w_720h_highmotion.mp4";
+  public static final String MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1440w_1440h_highmotion.mp4";
+  public static final String MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_highmotion.mp4";
+  public static final String MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/3840w_2160h_highmotion.mp4";
   /**
    * Log in logcat and in an analysis file that this test was skipped.
    *
