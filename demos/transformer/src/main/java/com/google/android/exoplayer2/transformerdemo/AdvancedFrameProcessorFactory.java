@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformerdemo;
 
-import android.content.Context;
 import android.graphics.Matrix;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.transformer.AdvancedFrameProcessor;
@@ -32,27 +31,26 @@ import com.google.android.exoplayer2.util.Util;
    * #ZOOM_DURATION_SECONDS} seconds, such that the rectangle filled with the input frame increases
    * linearly in size from a single point to filling the full output frame.
    */
-  public static GlFrameProcessor createZoomInTransitionFrameProcessor(Context context) {
+  public static GlFrameProcessor createZoomInTransitionFrameProcessor() {
     return new AdvancedFrameProcessor(
-        context,
         /* matrixProvider= */ AdvancedFrameProcessorFactory::calculateZoomInTransitionMatrix);
   }
 
   /**
    * Returns a {@link GlFrameProcessor} that crops frames to a rectangle that moves on an ellipse.
    */
-  public static GlFrameProcessor createDizzyCropFrameProcessor(Context context) {
+  public static GlFrameProcessor createDizzyCropFrameProcessor() {
     return new AdvancedFrameProcessor(
-        context, /* matrixProvider= */ AdvancedFrameProcessorFactory::calculateDizzyCropMatrix);
+        /* matrixProvider= */ AdvancedFrameProcessorFactory::calculateDizzyCropMatrix);
   }
 
   /**
    * Returns a {@link GlFrameProcessor} that rotates a frame in 3D around the y-axis and applies
    * perspective projection to 2D.
    */
-  public static GlFrameProcessor createSpin3dFrameProcessor(Context context) {
+  public static GlFrameProcessor createSpin3dFrameProcessor() {
     return new AdvancedFrameProcessor(
-        context, /* matrixProvider= */ AdvancedFrameProcessorFactory::calculate3dSpinMatrix);
+        /* matrixProvider= */ AdvancedFrameProcessorFactory::calculate3dSpinMatrix);
   }
 
   private static final float ZOOM_DURATION_SECONDS = 2f;

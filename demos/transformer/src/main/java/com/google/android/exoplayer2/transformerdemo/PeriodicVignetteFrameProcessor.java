@@ -40,7 +40,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String FRAGMENT_SHADER_PATH = "fragment_shader_vignette_es2.glsl";
   private static final float DIMMING_PERIOD_US = 5_600_000f;
 
-  private final Context context;
   private float centerX;
   private float centerY;
   private float minInnerRadius;
@@ -69,15 +68,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param outerRadius The radius after which all pixels are black.
    */
   public PeriodicVignetteFrameProcessor(
-      Context context,
-      float centerX,
-      float centerY,
-      float minInnerRadius,
-      float maxInnerRadius,
-      float outerRadius) {
+      float centerX, float centerY, float minInnerRadius, float maxInnerRadius, float outerRadius) {
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
-    this.context = context;
     this.centerX = centerX;
     this.centerY = centerY;
     this.minInnerRadius = minInnerRadius;
@@ -86,7 +79,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
     outputSize = new Size(inputWidth, inputHeight);
     glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);

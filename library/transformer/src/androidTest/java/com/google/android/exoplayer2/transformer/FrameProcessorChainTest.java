@@ -138,7 +138,7 @@ public final class FrameProcessorChainTest {
     }
 
     @Override
-    public void initialize(int inputTexId, int inputWidth, int inputHeight) {}
+    public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight) {}
 
     @Override
     public Size getOutputSize() {

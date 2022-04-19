@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -38,7 +37,7 @@ public final class PresentationFrameProcessorTest {
     int inputWidth = 200;
     int inputHeight = 150;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).build();
+        new PresentationFrameProcessor.Builder().build();
 
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -53,7 +52,7 @@ public final class PresentationFrameProcessorTest {
     int inputWidth = 150;
     int inputHeight = 150;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).build();
+        new PresentationFrameProcessor.Builder().build();
 
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -68,7 +67,7 @@ public final class PresentationFrameProcessorTest {
     int inputWidth = 150;
     int inputHeight = 200;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).build();
+        new PresentationFrameProcessor.Builder().build();
 
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -84,9 +83,7 @@ public final class PresentationFrameProcessorTest {
     int inputHeight = 150;
     int requestedHeight = 300;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
-            .setResolution(requestedHeight)
-            .build();
+        new PresentationFrameProcessor.Builder().setResolution(requestedHeight).build();
 
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -105,9 +102,7 @@ public final class PresentationFrameProcessorTest {
     float bottom = .5f;
     float top = 1f;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
-            .setCrop(left, right, bottom, top)
-            .build();
+        new PresentationFrameProcessor.Builder().setCrop(left, right, bottom, top).build();
 
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -129,7 +124,7 @@ public final class PresentationFrameProcessorTest {
     float top = 1f;
     int requestedHeight = 100;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setCrop(left, right, bottom, top)
             .setResolution(requestedHeight)
             .build();
@@ -156,7 +151,7 @@ public final class PresentationFrameProcessorTest {
     float top = 1f;
     int requestedHeight = 100;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setResolution(requestedHeight)
             .setCrop(left, right, bottom, top)
             .build();
@@ -179,7 +174,7 @@ public final class PresentationFrameProcessorTest {
     int inputHeight = 200;
     float aspectRatio = 2f;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(aspectRatio, PresentationFrameProcessor.SCALE_TO_FIT)
             .build();
 
@@ -198,7 +193,7 @@ public final class PresentationFrameProcessorTest {
     float aspectRatio = 2f;
     int requestedHeight = 100;
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(aspectRatio, PresentationFrameProcessor.SCALE_TO_FIT)
             .setResolution(requestedHeight)
             .build();
@@ -214,7 +209,7 @@ public final class PresentationFrameProcessorTest {
   @Test
   public void getOutputSize_setAspectRatioAndCrop_throwsIllegalStateException() {
     PresentationFrameProcessor.Builder presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setAspectRatio(/* aspectRatio= */ 2f, PresentationFrameProcessor.SCALE_TO_FIT);
 
     assertThrows(
@@ -227,7 +222,7 @@ public final class PresentationFrameProcessorTest {
   @Test
   public void getOutputSize_setCropAndAspectRatio_throwsIllegalStateException() {
     PresentationFrameProcessor.Builder presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext())
+        new PresentationFrameProcessor.Builder()
             .setCrop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ .5f, /* top= */ 1f);
 
     assertThrows(
@@ -240,7 +235,7 @@ public final class PresentationFrameProcessorTest {
   @Test
   public void getOutputRotationDegreesBeforeConfigure_throwsIllegalStateException() {
     PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).build();
+        new PresentationFrameProcessor.Builder().build();
 
     // configureOutputSize not called before getOutputRotationDegrees.
     assertThrows(IllegalStateException.class, presentationFrameProcessor::getOutputRotationDegrees);

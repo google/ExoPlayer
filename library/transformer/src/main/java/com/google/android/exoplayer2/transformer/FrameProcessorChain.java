@@ -104,13 +104,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
     ExternalCopyFrameProcessor externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
+        new ExternalCopyFrameProcessor(enableExperimentalHdrEditing);
 
     try {
       return singleThreadExecutorService
           .submit(
               () ->
                   createOpenGlObjectsAndFrameProcessorChain(
+                      context,
                       inputWidth,
                       inputHeight,
                       frameProcessors,
@@ -136,6 +137,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @WorkerThread
   private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
+      Context context,
       int inputWidth,
       int inputHeight,
       List<GlFrameProcessor> frameProcessors,
@@ -162,14 +164,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     int inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.initialize(inputExternalTexId, inputWidth, inputHeight);
+    externalCopyFrameProcessor.initialize(context, inputExternalTexId, inputWidth, inputHeight);
 
     int[] framebuffers = new int[frameProcessors.size()];
     Size inputSize = externalCopyFrameProcessor.getOutputSize();
     for (int i = 0; i < frameProcessors.size(); i++) {
       int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
       framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
-      frameProcessors.get(i).initialize(inputTexId, inputSize.getWidth(), inputSize.getHeight());
+      frameProcessors
+          .get(i)
+          .initialize(context, inputTexId, inputSize.getWidth(), inputSize.getHeight());
       inputSize = frameProcessors.get(i).getOutputSize();
     }
     return new FrameProcessorChain(

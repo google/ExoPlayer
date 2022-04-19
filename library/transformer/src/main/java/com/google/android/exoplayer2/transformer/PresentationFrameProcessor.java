@@ -69,9 +69,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   /** A builder for {@link PresentationFrameProcessor} instances. */
   public static final class Builder {
 
-    // Mandatory field.
-    private final Context context;
-
     // Optional fields.
     private int heightPixels;
     private float cropLeft;
@@ -81,13 +78,8 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     private float aspectRatio;
     private @PresentationStrategy int presentationStrategy;
 
-    /**
-     * Creates a builder with default values.
-     *
-     * @param context The {@link Context}.
-     */
-    public Builder(Context context) {
-      this.context = context;
+    /** Creates a builder with default values. */
+    public Builder() {
       heightPixels = C.LENGTH_UNSET;
       cropLeft = -1f;
       cropRight = 1f;
@@ -180,7 +172,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
     public PresentationFrameProcessor build() {
       return new PresentationFrameProcessor(
-          context,
           heightPixels,
           cropLeft,
           cropRight,
@@ -195,7 +186,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     GlUtil.glAssertionsEnabled = true;
   }
 
-  private final Context context;
   private final int requestedHeightPixels;
   private final float cropLeft;
   private final float cropRight;
@@ -212,7 +202,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   /** Creates a new instance. */
   private PresentationFrameProcessor(
-      Context context,
       int requestedHeightPixels,
       float cropLeft,
       float cropRight,
@@ -220,7 +209,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       float cropTop,
       float requestedAspectRatio,
       @PresentationStrategy int presentationStrategy) {
-    this.context = context;
     this.requestedHeightPixels = requestedHeightPixels;
     this.cropLeft = cropLeft;
     this.cropRight = cropRight;
@@ -236,10 +224,11 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void initialize(int inputTexId, int inputWidth, int inputHeight) throws IOException {
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
     configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    advancedFrameProcessor = new AdvancedFrameProcessor(context, transformationMatrix);
-    advancedFrameProcessor.initialize(inputTexId, inputWidth, inputHeight);
+    advancedFrameProcessor = new AdvancedFrameProcessor(transformationMatrix);
+    advancedFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
   }
 
   @Override
@@ -255,7 +244,8 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
    *
    * <p>Return values may be {@code 0} or {@code 90} degrees.
    *
-   * <p>The frame processor must be {@linkplain #initialize(int,int,int) initialized}.
+   * <p>The frame processor must be {@linkplain GlFrameProcessor#initialize(Context, int, int, int)
+   * initialized}.
    */
   public int getOutputRotationDegrees() {
     checkState(

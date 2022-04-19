@@ -93,8 +93,8 @@ public final class AdvancedFrameProcessorPixelTest {
   public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
-    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
-    advancedFrameProcessor.initialize(inputTexId, width, height);
+    advancedFrameProcessor = new AdvancedFrameProcessor(identityMatrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
@@ -115,9 +115,8 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "drawFrame_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    advancedFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
-    advancedFrameProcessor.initialize(inputTexId, width, height);
+    advancedFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
@@ -138,8 +137,8 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "drawFrame_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
-    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
-    advancedFrameProcessor.initialize(inputTexId, width, height);
+    advancedFrameProcessor = new AdvancedFrameProcessor(scaleNarrowMatrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
@@ -160,8 +159,8 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "drawFrame_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
-    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
-    advancedFrameProcessor.initialize(inputTexId, width, height);
+    advancedFrameProcessor = new AdvancedFrameProcessor(rotate90Matrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
     advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
