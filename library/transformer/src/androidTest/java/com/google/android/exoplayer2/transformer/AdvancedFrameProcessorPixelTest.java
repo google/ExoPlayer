@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.SurfaceTexture;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
@@ -70,15 +69,13 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     width = inputBitmap.getWidth();
     height = inputBitmap.getHeight();
-    // This surface is needed for focussing a render target, but the tests don't write output to it.
-    // The frame processor's output is written to a framebuffer instead.
-    EGLSurface eglSurface =
-        GlUtil.getEglSurface(eglDisplay, new SurfaceTexture(/* singleBufferMode= */ false));
-    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
+    EGLSurface placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
+    GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, width, height);
     inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
     outputTexId = GlUtil.createTexture(width, height);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
-    GlUtil.focusFramebuffer(eglDisplay, eglContext, eglSurface, frameBuffer, width, height);
+    GlUtil.focusFramebuffer(
+        eglDisplay, eglContext, placeholderEglSurface, frameBuffer, width, height);
   }
 
   @After
