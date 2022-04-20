@@ -103,7 +103,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
-  private boolean audioSinkNeedsReset;
+  private boolean audioSinkNeedsConfigure;
 
   private boolean experimentalKeepAudioTrackOnSeek;
 
@@ -254,6 +254,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     this.audioSink = audioSink;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
+    audioSinkNeedsConfigure = true;
   }
 
   @Override
@@ -500,50 +501,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat)
       throws ExoPlaybackException {
-    Format audioSinkInputFormat;
-    @Nullable int[] channelMap = null;
-    if (decryptOnlyCodecFormat != null) { // Direct playback with a codec for decryption.
-      audioSinkInputFormat = decryptOnlyCodecFormat;
-    } else if (getCodec() == null) { // Direct playback with codec bypass.
-      audioSinkInputFormat = format;
-    } else {
-      @C.PcmEncoding int pcmEncoding;
-      if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
-        // For PCM streams, the encoder passes through int samples despite set to float mode.
-        pcmEncoding = format.pcmEncoding;
-      } else if (Util.SDK_INT >= 24 && mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
-        pcmEncoding = mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING);
-      } else if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
-        pcmEncoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
-      } else {
-        // If the format is anything other than PCM then we assume that the audio decoder will
-        // output 16-bit PCM.
-        pcmEncoding = C.ENCODING_PCM_16BIT;
-      }
-      audioSinkInputFormat =
-          new Format.Builder()
-              .setSampleMimeType(MimeTypes.AUDIO_RAW)
-              .setPcmEncoding(pcmEncoding)
-              .setEncoderDelay(format.encoderDelay)
-              .setEncoderPadding(format.encoderPadding)
-              .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
-              .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
-              .build();
-      if (codecNeedsDiscardChannelsWorkaround
-          && audioSinkInputFormat.channelCount == 6
-          && format.channelCount < 6) {
-        channelMap = new int[format.channelCount];
-        for (int i = 0; i < format.channelCount; i++) {
-          channelMap[i] = i;
-        }
-      }
-    }
-    try {
-      audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
-    } catch (AudioSink.ConfigurationException e) {
-      throw createRendererException(
-          e, e.format, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
-    }
+    audioSinkNeedsConfigure = true;
   }
 
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
@@ -595,26 +553,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onDisabled() {
-    audioSinkNeedsReset = true;
+    audioSinkNeedsConfigure = true;
     try {
-      audioSink.flush();
+      audioSink.reset();
     } finally {
       try {
         super.onDisabled();
       } finally {
         eventDispatcher.disabled(decoderCounters);
-      }
-    }
-  }
-
-  @Override
-  protected void onReset() {
-    try {
-      super.onReset();
-    } finally {
-      if (audioSinkNeedsReset) {
-        audioSinkNeedsReset = false;
-        audioSink.reset();
       }
     }
   }
@@ -688,6 +634,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       checkNotNull(codec).releaseOutputBuffer(bufferIndex, false);
       return true;
     }
+
+    maybeConfigureAudioSink(format, getCodecOutputMediaFormat());
 
     if (isDecodeOnlyBuffer) {
       if (codec != null) {
@@ -868,6 +816,58 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               ? newCurrentPositionUs
               : max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
+    }
+  }
+
+  private void maybeConfigureAudioSink(Format format, @Nullable MediaFormat mediaFormat)
+      throws ExoPlaybackException {
+    if (!audioSinkNeedsConfigure) {
+      return;
+    }
+    Format audioSinkInputFormat;
+    @Nullable int[] channelMap = null;
+    if (decryptOnlyCodecFormat != null) { // Direct playback with a codec for decryption.
+      audioSinkInputFormat = decryptOnlyCodecFormat;
+    } else if (getCodec() == null) { // Direct playback with codec bypass.
+      audioSinkInputFormat = format;
+    } else {
+      @C.PcmEncoding int pcmEncoding;
+      if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
+        // For PCM streams, the encoder passes through int samples despite set to float mode.
+        pcmEncoding = format.pcmEncoding;
+      } else if (Util.SDK_INT >= 24 && mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
+        pcmEncoding = mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING);
+      } else if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
+        pcmEncoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
+      } else {
+        // If the format is anything other than PCM then we assume that the audio decoder will
+        // output 16-bit PCM.
+        pcmEncoding = C.ENCODING_PCM_16BIT;
+      }
+      audioSinkInputFormat =
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.AUDIO_RAW)
+              .setPcmEncoding(pcmEncoding)
+              .setEncoderDelay(format.encoderDelay)
+              .setEncoderPadding(format.encoderPadding)
+              .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
+              .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
+              .build();
+      if (codecNeedsDiscardChannelsWorkaround
+          && audioSinkInputFormat.channelCount == 6
+          && format.channelCount < 6) {
+        channelMap = new int[format.channelCount];
+        for (int i = 0; i < format.channelCount; i++) {
+          channelMap[i] = i;
+        }
+      }
+    }
+    try {
+      audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
+      audioSinkNeedsConfigure = false;
+    } catch (AudioSink.ConfigurationException e) {
+      throw createRendererException(
+          e, e.format, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
     }
   }
 
