@@ -215,6 +215,39 @@ public final class GlUtil {
   }
 
   /**
+   * Creates a new {@link EGLSurface} wrapping a pixel buffer.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @param width The width of the pixel buffer.
+   * @param height The height of the pixel buffer.
+   */
+  @RequiresApi(17)
+  private static EGLSurface createPbufferSurface(EGLDisplay eglDisplay, int width, int height) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH, width,
+          EGL14.EGL_HEIGHT, height,
+          EGL14.EGL_NONE
+        };
+    return Api17.createEglPbufferSurface(
+        eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888, pbufferAttributes);
+  }
+
+  /**
+   * Returns a placeholder {@link EGLSurface} to use when reading and writing to the surface is not
+   * required.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @return {@link EGL14#EGL_NO_SURFACE} if supported and a 1x1 pixel buffer surface otherwise.
+   */
+  @RequiresApi(17)
+  public static EGLSurface createPlaceholderEglSurface(EGLDisplay eglDisplay) {
+    return isSurfacelessContextExtensionSupported()
+        ? EGL14.EGL_NO_SURFACE
+        : createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
    * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer.
    *
    * @param eglContext The {@link EGLContext} to make current.
@@ -222,15 +255,7 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay) {
-    int[] pbufferAttributes =
-        new int[] {
-          EGL14.EGL_WIDTH, /* width= */ 1,
-          EGL14.EGL_HEIGHT, /* height= */ 1,
-          EGL14.EGL_NONE
-        };
-    EGLSurface eglSurface =
-        Api17.createEglPbufferSurface(
-            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888, pbufferAttributes);
+    EGLSurface eglSurface = createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
     focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
   }
 

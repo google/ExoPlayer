@@ -15,17 +15,16 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
-import android.graphics.SurfaceTexture;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.util.Size;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.GlUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
@@ -71,7 +70,7 @@ public final class PresentationFrameProcessorPixelTest {
   private final EGLDisplay eglDisplay = GlUtil.createEglDisplay();
   private final EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
   private @MonotonicNonNull GlFrameProcessor presentationFrameProcessor;
-  private @MonotonicNonNull EGLSurface eglSurface;
+  private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int outputTexId;
   private int inputWidth;
@@ -82,11 +81,8 @@ public final class PresentationFrameProcessorPixelTest {
     Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
-    // This surface is needed for focussing a render target, but the tests don't write output to it.
-    // The frame processor's output is written to a framebuffer instead.
-    eglSurface =
-        GlUtil.getEglSurface(eglDisplay, new SurfaceTexture(/* singleBufferMode= */ false));
-    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, inputWidth, inputHeight);
+    placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
+    GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, inputWidth, inputHeight);
     inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
   }
 
@@ -356,7 +352,7 @@ public final class PresentationFrameProcessorPixelTest {
     GlUtil.focusFramebuffer(
         eglDisplay,
         eglContext,
-        Assertions.checkNotNull(eglSurface),
+        checkNotNull(placeholderEglSurface),
         frameBuffer,
         outputWidth,
         outputHeight);
