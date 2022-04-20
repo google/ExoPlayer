@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.round;
 
+import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
@@ -66,24 +67,27 @@ public final class EncoderUtil {
     return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).keySet();
   }
 
-  /**
-   * Returns whether the {@linkplain MediaCodecInfo encoder} supports the given resolution and frame
-   * rate.
-   */
-  public static boolean areSizeAndRateSupported(
-      MediaCodecInfo encoderInfo, String mimeType, int width, int height, double frameRate) {
-    // VideoCapabilities.areSizeAndRateSupported incorrectly returns false if frameRate < 1 on all
-    // current versions of Android, so only checks the width and height in this case [b/153940404].
-    if (frameRate == Format.NO_VALUE || frameRate < 1) {
-      return encoderInfo
-          .getCapabilitiesForType(mimeType)
-          .getVideoCapabilities()
-          .isSizeSupported(width, height);
-    }
-    return encoderInfo
+  /** Returns whether the {@linkplain MediaCodecInfo encoder} supports the given resolution. */
+  public static boolean isSizeSupported(
+      MediaCodecInfo encoderInfo, String mimeType, int width, int height) {
+    if (encoderInfo
         .getCapabilitiesForType(mimeType)
         .getVideoCapabilities()
-        .areSizeAndRateSupported(width, height, frameRate);
+        .isSizeSupported(width, height)) {
+      return true;
+    }
+
+    // Some devices (Samsung, Huawei, and Pixel 6. See b/222095724) under-report their encoding
+    // capabilities. The supported height reported for H265@3840x2160 is 2144, and
+    // H264@1920x1080 is 1072. See b/229825948.
+    // Cross reference with CamcorderProfile to ensure a resolution is supported.
+    if (width == 1920 && height == 1080) {
+      return CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P);
+    }
+    if (width == 3840 && height == 2160) {
+      return CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_2160P);
+    }
+    return false;
   }
 
   /**
@@ -142,35 +146,35 @@ public final class EncoderUtil {
     // Fix size alignment.
     width = alignResolution(width, widthAlignment);
     height = alignResolution(height, heightAlignment);
-    if (videoEncoderCapabilities.isSizeSupported(width, height)) {
+    if (isSizeSupported(encoderInfo, mimeType, width, height)) {
       return new Size(width, height);
     }
 
     // Try three-fourths (e.g. 1440 -> 1080).
     int newWidth = alignResolution(width * 3 / 4, widthAlignment);
     int newHeight = alignResolution(height * 3 / 4, heightAlignment);
-    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
       return new Size(newWidth, newHeight);
     }
 
     // Try two-thirds (e.g. 4k -> 1440).
     newWidth = alignResolution(width * 2 / 3, widthAlignment);
     newHeight = alignResolution(height * 2 / 3, heightAlignment);
-    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+    if (isSizeSupported(encoderInfo, mimeType, width, height)) {
       return new Size(newWidth, newHeight);
     }
 
     // Try half (e.g. 4k -> 1080).
     newWidth = alignResolution(width / 2, widthAlignment);
     newHeight = alignResolution(height / 2, heightAlignment);
-    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
       return new Size(newWidth, newHeight);
     }
 
     // Try one-third (e.g. 4k -> 720).
     newWidth = alignResolution(width / 3, widthAlignment);
     newHeight = alignResolution(height / 3, heightAlignment);
-    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
       return new Size(newWidth, newHeight);
     }
 
@@ -183,7 +187,7 @@ public final class EncoderUtil {
       height = alignResolution(adjustedHeight, heightAlignment);
     }
 
-    return videoEncoderCapabilities.isSizeSupported(width, height) ? new Size(width, height) : null;
+    return isSizeSupported(encoderInfo, mimeType, width, height) ? new Size(width, height) : null;
   }
 
   /**

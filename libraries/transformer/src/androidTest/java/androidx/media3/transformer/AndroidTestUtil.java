@@ -256,8 +256,9 @@ public final class AndroidTestUtil {
     if (decoderInfo == null) {
       return false;
     }
+    // Use Format.NO_VALUE for frame rate to only check whether size is supported.
     return decoderInfo.isVideoSizeAndRateSupportedV21(
-        format.width, format.height, format.frameRate);
+        format.width, format.height, /* frameRate= */ Format.NO_VALUE);
   }
 
   private static boolean canEncode(Format format) {
@@ -267,8 +268,8 @@ public final class AndroidTestUtil {
     if (supportedEncoders.isEmpty()) {
       return false;
     }
-    return EncoderUtil.areSizeAndRateSupported(
-        supportedEncoders.get(0), mimeType, format.width, format.height, format.frameRate);
+    return EncoderUtil.isSizeSupported(
+        supportedEncoders.get(0), mimeType, format.width, format.height);
   }
 
   /**
