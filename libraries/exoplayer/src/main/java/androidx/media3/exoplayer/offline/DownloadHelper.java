@@ -622,9 +622,13 @@ public final class DownloadHelper {
    */
   public void replaceTrackSelections(
       int periodIndex, TrackSelectionParameters trackSelectionParameters) {
-    assertPreparedWithMedia();
-    clearTrackSelections(periodIndex);
-    addTrackSelectionInternal(periodIndex, trackSelectionParameters);
+    try {
+      assertPreparedWithMedia();
+      clearTrackSelections(periodIndex);
+      addTrackSelectionInternal(periodIndex, trackSelectionParameters);
+    } catch (ExoPlaybackException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   /**
@@ -637,8 +641,12 @@ public final class DownloadHelper {
    */
   public void addTrackSelection(
       int periodIndex, TrackSelectionParameters trackSelectionParameters) {
-    assertPreparedWithMedia();
-    addTrackSelectionInternal(periodIndex, trackSelectionParameters);
+    try {
+      assertPreparedWithMedia();
+      addTrackSelectionInternal(periodIndex, trackSelectionParameters);
+    } catch (ExoPlaybackException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   /**
@@ -650,27 +658,31 @@ public final class DownloadHelper {
    *     selection, as IETF BCP 47 conformant tags.
    */
   public void addAudioLanguagesToSelection(String... languages) {
-    assertPreparedWithMedia();
+    try {
+      assertPreparedWithMedia();
 
-    TrackSelectionParameters.Builder parametersBuilder =
-        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT.buildUpon();
-    // Prefer highest supported bitrate for downloads.
-    parametersBuilder.setForceHighestSupportedBitrate(true);
-    // Disable all non-audio track types supported by the renderers.
-    for (RendererCapabilities capabilities : rendererCapabilities) {
-      @C.TrackType int trackType = capabilities.getTrackType();
-      parametersBuilder.setTrackTypeDisabled(
-          trackType, /* disabled= */ trackType != C.TRACK_TYPE_AUDIO);
-    }
-
-    // Add a track selection to each period for each of the languages.
-    int periodCount = getPeriodCount();
-    for (String language : languages) {
-      TrackSelectionParameters parameters =
-          parametersBuilder.setPreferredAudioLanguage(language).build();
-      for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
-        addTrackSelectionInternal(periodIndex, parameters);
+      TrackSelectionParameters.Builder parametersBuilder =
+          DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT.buildUpon();
+      // Prefer highest supported bitrate for downloads.
+      parametersBuilder.setForceHighestSupportedBitrate(true);
+      // Disable all non-audio track types supported by the renderers.
+      for (RendererCapabilities capabilities : rendererCapabilities) {
+        @C.TrackType int trackType = capabilities.getTrackType();
+        parametersBuilder.setTrackTypeDisabled(
+            trackType, /* disabled= */ trackType != C.TRACK_TYPE_AUDIO);
       }
+
+      // Add a track selection to each period for each of the languages.
+      int periodCount = getPeriodCount();
+      for (String language : languages) {
+        TrackSelectionParameters parameters =
+            parametersBuilder.setPreferredAudioLanguage(language).build();
+        for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
+          addTrackSelectionInternal(periodIndex, parameters);
+        }
+      }
+    } catch (ExoPlaybackException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -686,28 +698,32 @@ public final class DownloadHelper {
    */
   public void addTextLanguagesToSelection(
       boolean selectUndeterminedTextLanguage, String... languages) {
-    assertPreparedWithMedia();
+    try {
+      assertPreparedWithMedia();
 
-    TrackSelectionParameters.Builder parametersBuilder =
-        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT.buildUpon();
-    parametersBuilder.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
-    // Prefer highest supported bitrate for downloads.
-    parametersBuilder.setForceHighestSupportedBitrate(true);
-    // Disable all non-text track types supported by the renderers.
-    for (RendererCapabilities capabilities : rendererCapabilities) {
-      @C.TrackType int trackType = capabilities.getTrackType();
-      parametersBuilder.setTrackTypeDisabled(
-          trackType, /* disabled= */ trackType != C.TRACK_TYPE_TEXT);
-    }
-
-    // Add a track selection to each period for each of the languages.
-    int periodCount = getPeriodCount();
-    for (String language : languages) {
-      TrackSelectionParameters parameters =
-          parametersBuilder.setPreferredTextLanguage(language).build();
-      for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
-        addTrackSelectionInternal(periodIndex, parameters);
+      TrackSelectionParameters.Builder parametersBuilder =
+          DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT.buildUpon();
+      parametersBuilder.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
+      // Prefer highest supported bitrate for downloads.
+      parametersBuilder.setForceHighestSupportedBitrate(true);
+      // Disable all non-text track types supported by the renderers.
+      for (RendererCapabilities capabilities : rendererCapabilities) {
+        @C.TrackType int trackType = capabilities.getTrackType();
+        parametersBuilder.setTrackTypeDisabled(
+            trackType, /* disabled= */ trackType != C.TRACK_TYPE_TEXT);
       }
+
+      // Add a track selection to each period for each of the languages.
+      int periodCount = getPeriodCount();
+      for (String language : languages) {
+        TrackSelectionParameters parameters =
+            parametersBuilder.setPreferredTextLanguage(language).build();
+        for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
+          addTrackSelectionInternal(periodIndex, parameters);
+        }
+      }
+    } catch (ExoPlaybackException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -727,19 +743,24 @@ public final class DownloadHelper {
       int rendererIndex,
       DefaultTrackSelector.Parameters trackSelectorParameters,
       List<SelectionOverride> overrides) {
-    assertPreparedWithMedia();
-    DefaultTrackSelector.ParametersBuilder builder = trackSelectorParameters.buildUpon();
-    for (int i = 0; i < mappedTrackInfos[periodIndex].getRendererCount(); i++) {
-      builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ i != rendererIndex);
-    }
-    if (overrides.isEmpty()) {
-      addTrackSelectionInternal(periodIndex, builder.build());
-    } else {
-      TrackGroupArray trackGroupArray = mappedTrackInfos[periodIndex].getTrackGroups(rendererIndex);
-      for (int i = 0; i < overrides.size(); i++) {
-        builder.setSelectionOverride(rendererIndex, trackGroupArray, overrides.get(i));
-        addTrackSelectionInternal(periodIndex, builder.build());
+    try {
+      assertPreparedWithMedia();
+      DefaultTrackSelector.ParametersBuilder builder = trackSelectorParameters.buildUpon();
+      for (int i = 0; i < mappedTrackInfos[periodIndex].getRendererCount(); i++) {
+        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ i != rendererIndex);
       }
+      if (overrides.isEmpty()) {
+        addTrackSelectionInternal(periodIndex, builder.build());
+      } else {
+        TrackGroupArray trackGroupArray =
+            mappedTrackInfos[periodIndex].getTrackGroups(rendererIndex);
+        for (int i = 0; i < overrides.size(); i++) {
+          builder.setSelectionOverride(rendererIndex, trackGroupArray, overrides.get(i));
+          addTrackSelectionInternal(periodIndex, builder.build());
+        }
+      }
+    } catch (ExoPlaybackException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -797,7 +818,8 @@ public final class DownloadHelper {
     "mediaPreparer.timeline"
   })
   private void addTrackSelectionInternal(
-      int periodIndex, TrackSelectionParameters trackSelectionParameters) {
+      int periodIndex, TrackSelectionParameters trackSelectionParameters)
+      throws ExoPlaybackException {
     trackSelector.setParameters(trackSelectionParameters);
     runTrackSelection(periodIndex);
     // TrackSelectionParameters can contain multiple overrides for each track type. The track
@@ -812,7 +834,7 @@ public final class DownloadHelper {
   }
 
   @SuppressWarnings("unchecked") // Initialization of array of Lists.
-  private void onMediaPrepared() {
+  private void onMediaPrepared() throws ExoPlaybackException {
     checkNotNull(mediaPreparer);
     checkNotNull(mediaPreparer.mediaPeriods);
     checkNotNull(mediaPreparer.timeline);
@@ -882,52 +904,47 @@ public final class DownloadHelper {
     "mediaPreparer",
     "mediaPreparer.timeline"
   })
-  private TrackSelectorResult runTrackSelection(int periodIndex) {
-    try {
-      TrackSelectorResult trackSelectorResult =
-          trackSelector.selectTracks(
-              rendererCapabilities,
-              trackGroupArrays[periodIndex],
-              new MediaPeriodId(mediaPreparer.timeline.getUidOfPeriod(periodIndex)),
-              mediaPreparer.timeline);
-      for (int i = 0; i < trackSelectorResult.length; i++) {
-        @Nullable ExoTrackSelection newSelection = trackSelectorResult.selections[i];
-        if (newSelection == null) {
-          continue;
-        }
-        List<ExoTrackSelection> existingSelectionList =
-            trackSelectionsByPeriodAndRenderer[periodIndex][i];
-        boolean mergedWithExistingSelection = false;
-        for (int j = 0; j < existingSelectionList.size(); j++) {
-          ExoTrackSelection existingSelection = existingSelectionList.get(j);
-          if (existingSelection.getTrackGroup().equals(newSelection.getTrackGroup())) {
-            // Merge with existing selection.
-            scratchSet.clear();
-            for (int k = 0; k < existingSelection.length(); k++) {
-              scratchSet.put(existingSelection.getIndexInTrackGroup(k), 0);
-            }
-            for (int k = 0; k < newSelection.length(); k++) {
-              scratchSet.put(newSelection.getIndexInTrackGroup(k), 0);
-            }
-            int[] mergedTracks = new int[scratchSet.size()];
-            for (int k = 0; k < scratchSet.size(); k++) {
-              mergedTracks[k] = scratchSet.keyAt(k);
-            }
-            existingSelectionList.set(
-                j, new DownloadTrackSelection(existingSelection.getTrackGroup(), mergedTracks));
-            mergedWithExistingSelection = true;
-            break;
+  private TrackSelectorResult runTrackSelection(int periodIndex) throws ExoPlaybackException {
+    TrackSelectorResult trackSelectorResult =
+        trackSelector.selectTracks(
+            rendererCapabilities,
+            trackGroupArrays[periodIndex],
+            new MediaPeriodId(mediaPreparer.timeline.getUidOfPeriod(periodIndex)),
+            mediaPreparer.timeline);
+    for (int i = 0; i < trackSelectorResult.length; i++) {
+      @Nullable ExoTrackSelection newSelection = trackSelectorResult.selections[i];
+      if (newSelection == null) {
+        continue;
+      }
+      List<ExoTrackSelection> existingSelectionList =
+          trackSelectionsByPeriodAndRenderer[periodIndex][i];
+      boolean mergedWithExistingSelection = false;
+      for (int j = 0; j < existingSelectionList.size(); j++) {
+        ExoTrackSelection existingSelection = existingSelectionList.get(j);
+        if (existingSelection.getTrackGroup().equals(newSelection.getTrackGroup())) {
+          // Merge with existing selection.
+          scratchSet.clear();
+          for (int k = 0; k < existingSelection.length(); k++) {
+            scratchSet.put(existingSelection.getIndexInTrackGroup(k), 0);
           }
-        }
-        if (!mergedWithExistingSelection) {
-          existingSelectionList.add(newSelection);
+          for (int k = 0; k < newSelection.length(); k++) {
+            scratchSet.put(newSelection.getIndexInTrackGroup(k), 0);
+          }
+          int[] mergedTracks = new int[scratchSet.size()];
+          for (int k = 0; k < scratchSet.size(); k++) {
+            mergedTracks[k] = scratchSet.keyAt(k);
+          }
+          existingSelectionList.set(
+              j, new DownloadTrackSelection(existingSelection.getTrackGroup(), mergedTracks));
+          mergedWithExistingSelection = true;
+          break;
         }
       }
-      return trackSelectorResult;
-    } catch (ExoPlaybackException e) {
-      // DefaultTrackSelector does not throw exceptions during track selection.
-      throw new UnsupportedOperationException(e);
+      if (!mergedWithExistingSelection) {
+        existingSelectionList.add(newSelection);
+      }
     }
+    return trackSelectorResult;
   }
 
   private static MediaSource createMediaSourceInternal(
@@ -1098,7 +1115,14 @@ public final class DownloadHelper {
       }
       switch (msg.what) {
         case DOWNLOAD_HELPER_CALLBACK_MESSAGE_PREPARED:
-          downloadHelper.onMediaPrepared();
+          try {
+            downloadHelper.onMediaPrepared();
+          } catch (ExoPlaybackException e) {
+            downloadHelperHandler
+                .obtainMessage(
+                    DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED, /* obj= */ new IOException(e))
+                .sendToTarget();
+          }
           return true;
         case DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED:
           release();
