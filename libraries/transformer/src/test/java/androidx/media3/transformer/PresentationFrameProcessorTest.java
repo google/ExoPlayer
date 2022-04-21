@@ -27,13 +27,13 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link PresentationFrameProcessor}.
  *
- * <p>See {@code AdvancedFrameProcessorPixelTest} for pixel tests testing {@link
- * AdvancedFrameProcessor} given a transformation matrix.
+ * <p>See {@code PresentationFrameProcessorPixelTest} for pixel tests testing {@link
+ * PresentationFrameProcessor}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class PresentationFrameProcessorTest {
   @Test
-  public void getOutputSize_noEditsLandscape_leavesFramesUnchanged() {
+  public void getOutputSize_noEdits_leavesFramesUnchanged() {
     int inputWidth = 200;
     int inputHeight = 150;
     PresentationFrameProcessor presentationFrameProcessor =
@@ -42,39 +42,8 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
-  }
-
-  @Test
-  public void getOutputSize_noEditsSquare_leavesFramesUnchanged() {
-    int inputWidth = 150;
-    int inputHeight = 150;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder().build();
-
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
-
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
-    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
-  }
-
-  @Test
-  public void getOutputSize_noEditsPortrait_flipsOrientation() {
-    int inputWidth = 150;
-    int inputHeight = 200;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder().build();
-
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
-
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(90);
-    assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
-    assertThat(outputSize.getHeight()).isEqualTo(inputWidth);
   }
 
   @Test
@@ -88,7 +57,6 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
@@ -107,7 +75,6 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
     assertThat(outputSize.getWidth()).isEqualTo(expectedPostCropWidth);
@@ -132,7 +99,6 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
     assertThat(outputSize.getWidth())
@@ -159,7 +125,6 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
     assertThat(outputSize.getWidth())
@@ -181,7 +146,6 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * inputHeight));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
@@ -201,7 +165,6 @@ public final class PresentationFrameProcessorTest {
     presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
 
-    assertThat(presentationFrameProcessor.getOutputRotationDegrees()).isEqualTo(0);
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * requestedHeight));
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
@@ -230,14 +193,5 @@ public final class PresentationFrameProcessorTest {
         () ->
             presentationFrameProcessor.setAspectRatio(
                 /* aspectRatio= */ 2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT));
-  }
-
-  @Test
-  public void getOutputRotationDegreesBeforeConfigure_throwsIllegalStateException() {
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder().build();
-
-    // configureOutputSize not called before getOutputRotationDegrees.
-    assertThrows(IllegalStateException.class, presentationFrameProcessor::getOutputRotationDegrees);
   }
 }
