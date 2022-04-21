@@ -27,7 +27,6 @@ import android.util.Size;
 import androidx.annotation.IntDef;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -232,7 +231,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private final float requestedAspectRatio;
   private final @Layout int layout;
 
-  private int outputRotationDegrees;
   private int outputWidth;
   private int outputHeight;
   private @MonotonicNonNull Matrix transformationMatrix;
@@ -257,7 +255,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
     outputWidth = C.LENGTH_UNSET;
     outputHeight = C.LENGTH_UNSET;
-    outputRotationDegrees = C.LENGTH_UNSET;
     transformationMatrix = new Matrix();
   }
 
@@ -275,22 +272,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
         outputWidth != C.LENGTH_UNSET && outputHeight != C.LENGTH_UNSET,
         "configureOutputSizeAndTransformationMatrix must be called before getOutputSize");
     return new Size(outputWidth, outputHeight);
-  }
-
-  /**
-   * Returns {@link Format#rotationDegrees} for the output frame.
-   *
-   * <p>Return values may be {@code 0} or {@code 90} degrees.
-   *
-   * <p>The frame processor must be {@linkplain GlFrameProcessor#initialize(Context, int, int, int)
-   * initialized}.
-   */
-  public int getOutputRotationDegrees() {
-    checkState(
-        outputRotationDegrees != C.LENGTH_UNSET,
-        "configureOutputSizeAndTransformationMatrix must be called before"
-            + " getOutputRotationDegrees");
-    return outputRotationDegrees;
   }
 
   @Override
@@ -328,20 +309,6 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     if (requestedHeightPixels != C.LENGTH_UNSET && requestedHeightPixels != outputHeight) {
       outputWidth = Math.round((float) requestedHeightPixels * outputWidth / outputHeight);
       outputHeight = requestedHeightPixels;
-    }
-
-    // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
-    // frame before encoding, so the encoded frame's width >= height, and set
-    // outputRotationDegrees to ensure the frame is displayed in the correct orientation.
-    if (outputHeight > outputWidth) {
-      outputRotationDegrees = 90;
-      // TODO(b/201293185): Put postRotate in a later GlFrameProcessor.
-      transformationMatrix.postRotate(outputRotationDegrees);
-      int swap = outputWidth;
-      outputWidth = outputHeight;
-      outputHeight = swap;
-    } else {
-      outputRotationDegrees = 0;
     }
   }
 

@@ -70,7 +70,8 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
+    // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset,
+    // and don't create a PresentationFrameProcessor if resolution is unset.
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
         new ScaleToFitFrameProcessor.Builder()
             .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
@@ -80,6 +81,8 @@ import org.checkerframework.dataflow.qual.Pure;
         new PresentationFrameProcessor.Builder()
             .setResolution(transformationRequest.outputHeight)
             .build();
+    EncoderCompatibilityFrameProcessor encoderCompatibilityFrameProcessor =
+        new EncoderCompatibilityFrameProcessor();
     frameProcessorChain =
         FrameProcessorChain.create(
             context,
@@ -90,10 +93,11 @@ import org.checkerframework.dataflow.qual.Pure;
                 .addAll(frameProcessors)
                 .add(scaleToFitFrameProcessor)
                 .add(presentationFrameProcessor)
+                .add(encoderCompatibilityFrameProcessor)
                 .build(),
             transformationRequest.enableHdrEditing);
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
-    outputRotationDegrees = presentationFrameProcessor.getOutputRotationDegrees();
+    outputRotationDegrees = encoderCompatibilityFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
