@@ -20,7 +20,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackSelection;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.chunk.Chunk;
@@ -48,6 +48,8 @@ public interface ExoTrackSelection extends TrackSelection {
     /** The type that will be returned from {@link TrackSelection#getType()}. */
     public final @Type int type;
 
+    private static final String TAG = "ETSDefinition";
+
     /**
      * @param group The {@link TrackGroup}. Must not be null.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
@@ -64,6 +66,10 @@ public interface ExoTrackSelection extends TrackSelection {
      * @param type The type that will be returned from {@link TrackSelection#getType()}.
      */
     public Definition(TrackGroup group, int[] tracks, @Type int type) {
+      if (tracks.length == 0) {
+        // TODO: Turn this into an assertion.
+        Log.e(TAG, "Empty tracks are not allowed", new IllegalArgumentException());
+      }
       this.group = group;
       this.tracks = tracks;
       this.type = type;

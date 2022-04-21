@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.maxValue;
 import static androidx.media3.common.util.Util.minValue;
 
 import android.util.SparseIntArray;
@@ -47,6 +48,7 @@ import java.nio.ByteBuffer;
   private final Muxer muxer;
   private final Muxer.Factory muxerFactory;
   private final SparseIntArray trackTypeToIndex;
+  private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
   private final SparseLongArray trackTypeToBytesWritten;
   private final String containerMimeType;
@@ -61,7 +63,9 @@ import java.nio.ByteBuffer;
     this.muxer = muxer;
     this.muxerFactory = muxerFactory;
     this.containerMimeType = containerMimeType;
+
     trackTypeToIndex = new SparseIntArray();
+    trackTypeToSampleCount = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
     trackTypeToBytesWritten = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
@@ -70,10 +74,10 @@ import java.nio.ByteBuffer;
   /**
    * Registers an output track.
    *
-   * <p>All tracks must be registered before any track format is {@link #addTrackFormat(Format)
+   * <p>All tracks must be registered before any track format is {@linkplain #addTrackFormat(Format)
    * added}.
    *
-   * @throws IllegalStateException If a track format was {@link #addTrackFormat(Format) added}
+   * @throws IllegalStateException If a track format was {@linkplain #addTrackFormat(Format) added}
    *     before calling this method.
    */
   public void registerTrack() {
@@ -82,14 +86,14 @@ import java.nio.ByteBuffer;
     trackCount++;
   }
 
-  /** Returns whether the sample {@link MimeTypes MIME type} is supported. */
+  /** Returns whether the sample {@linkplain MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
     return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
   }
 
   /**
-   * Returns the supported {@link MimeTypes MIME types} for the given {@link C.TrackType track
-   * type}.
+   * Returns the supported {@linkplain MimeTypes MIME types} for the given {@linkplain C.TrackType
+   * track type}.
    */
   public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
     return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
@@ -98,9 +102,9 @@ import java.nio.ByteBuffer;
   /**
    * Adds a track format to the muxer.
    *
-   * <p>The tracks must all be {@link #registerTrack() registered} before any format is added and
-   * all the formats must be added before samples are {@link #writeSample(int, ByteBuffer, boolean,
-   * long) written}.
+   * <p>The tracks must all be {@linkplain #registerTrack() registered} before any format is added
+   * and all the formats must be added before samples are {@linkplain #writeSample(int, ByteBuffer,
+   * boolean, long) written}.
    *
    * @param format The {@link Format} to be added.
    * @throws IllegalStateException If the format is unsupported or if there is already a track
@@ -122,6 +126,7 @@ import java.nio.ByteBuffer;
 
     int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
+    trackTypeToSampleCount.put(trackType, 0);
     trackTypeToTimeUs.put(trackType, 0L);
     trackTypeToBytesWritten.put(trackType, 0L);
     trackFormatCount++;
@@ -133,16 +138,16 @@ import java.nio.ByteBuffer;
   /**
    * Attempts to write a sample to the muxer.
    *
-   * @param trackType The {@link C.TrackType track type} of the sample.
+   * @param trackType The {@linkplain C.TrackType track type} of the sample.
    * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
-   *     {@link #addTrackFormat(Format) received a format} for every {@link #registerTrack()
-   *     registered track}, or if it should write samples of other track types first to ensure a
-   *     good interleaving.
-   * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
-   *     track of the given track type.
+   *     {@linkplain #addTrackFormat(Format) received a format} for every {@linkplain
+   *     #registerTrack() registered track}, or if it should write samples of other track types
+   *     first to ensure a good interleaving.
+   * @throws IllegalStateException If the muxer doesn't have any {@linkplain #endTrack(int)
+   *     non-ended} track of the given track type.
    * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
    */
   public boolean writeSample(
@@ -157,9 +162,12 @@ import java.nio.ByteBuffer;
       return false;
     }
 
+    trackTypeToSampleCount.put(trackType, trackTypeToSampleCount.get(trackType) + 1);
     trackTypeToBytesWritten.put(
         trackType, trackTypeToBytesWritten.get(trackType) + data.remaining());
-    trackTypeToTimeUs.put(trackType, presentationTimeUs);
+    if (trackTypeToTimeUs.get(trackType) < presentationTimeUs) {
+      trackTypeToTimeUs.put(trackType, presentationTimeUs);
+    }
 
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
@@ -213,6 +221,16 @@ import java.nio.ByteBuffer;
             /* timestamp= */ trackBytes,
             /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
             /* divisor= */ trackDurationUs);
+  }
+
+  /** Returns the number of samples written to the track of the provided {@code trackType}. */
+  public int getTrackSampleCount(@C.TrackType int trackType) {
+    return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
+  }
+
+  /** Returns the duration of the longest track in milliseconds. */
+  public long getDurationMs() {
+    return Util.usToMs(maxValue(trackTypeToTimeUs));
   }
 
   /**

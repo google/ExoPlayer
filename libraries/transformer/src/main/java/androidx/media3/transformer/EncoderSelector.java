@@ -36,8 +36,8 @@ public interface EncoderSelector {
    * Returns a list of encoders that can encode media in the specified {@code mimeType}, in priority
    * order.
    *
-   * @param mimeType The {@link MimeTypes MIME type} for which an encoder is required.
-   * @return An unmodifiable list of {@link MediaCodecInfo encoders} that supports the {@code
+   * @param mimeType The {@linkplain MimeTypes MIME type} for which an encoder is required.
+   * @return An unmodifiable list of {@linkplain MediaCodecInfo encoders} that support the {@code
    *     mimeType}. The list may be empty.
    */
   List<MediaCodecInfo> selectEncoderInfos(String mimeType);

@@ -24,12 +24,12 @@
   <string name="audio_mime" translatable="false">Output audio MIME type</string>
   <string name="video_mime" translatable="false">Output video MIME type</string>
   <string name="resolution_height" translatable="false">Output video resolution</string>
-  <string name="translate" translatable="false">Translate video</string>
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
-  <string name="transform" translatable="false">Transform</string>
+  <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
+  <string name="transform" translatable="false">Transform</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
   <string name="transformation_started" translatable="false">Transformation started</string>

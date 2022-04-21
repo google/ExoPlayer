@@ -24,7 +24,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.chunk.BaseMediaChunkIterator;

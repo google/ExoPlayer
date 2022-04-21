@@ -141,17 +141,6 @@
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView
-          android:id="@+id/translate"
-          android:text="@string/translate"/>
-        <Spinner
-          android:id="@+id/translate_spinner"
-          android:layout_gravity="right|center_vertical"
-          android:gravity="right" />
-      </TableRow>
-      <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
-        <TextView
           android:id="@+id/scale"
           android:text="@string/scale"/>
         <Spinner
@@ -179,6 +168,16 @@
           android:id="@+id/enable_fallback_checkbox"
           android:layout_gravity="right"
           android:checked="true"/>
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/request_sdr_tone_mapping"
+          android:text="@string/request_sdr_tone_mapping" />
+        <CheckBox
+          android:id="@+id/request_sdr_tone_mapping_checkbox"
+          android:layout_gravity="right" />
       </TableRow>
       <TableRow
         android:layout_weight="1"

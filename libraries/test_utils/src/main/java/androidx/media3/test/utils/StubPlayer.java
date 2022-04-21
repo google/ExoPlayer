@@ -30,8 +30,6 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
@@ -189,16 +187,6 @@ public class StubPlayer extends BasePlayer {
 
   @Override
   public void release() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
     throw new UnsupportedOperationException();
   }
 

@@ -32,6 +32,8 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_ITEM_WITH_METADATA;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_PLAYABLE_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_ERROR;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_NO_CHILDREN;
@@ -59,6 +61,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SearchCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import androidx.media3.test.session.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -299,6 +302,47 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
           }
         });
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  public void getChildren_authErrorResult() throws InterruptedException {
+    String testParentId = PARENT_ID_AUTH_EXPIRED_ERROR;
+    connectAndWait();
+    CountDownLatch errorLatch = new CountDownLatch(1);
+    browserCompat.subscribe(
+        testParentId,
+        new SubscriptionCallback() {
+          @Override
+          public void onError(String parentId) {
+            assertThat(parentId).isEqualTo(testParentId);
+            errorLatch.countDown();
+          }
+        });
+    assertThat(errorLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(lastReportedPlaybackStateCompat).isNotNull();
+    assertThat(lastReportedPlaybackStateCompat.getState())
+        .isEqualTo(PlaybackStateCompat.STATE_ERROR);
+    assertThat(
+            lastReportedPlaybackStateCompat
+                .getExtras()
+                .getString(MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT))
+        .isEqualTo(PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL);
+
+    CountDownLatch successLatch = new CountDownLatch(1);
+    browserCompat.subscribe(
+        PARENT_ID,
+        new SubscriptionCallback() {
+          @Override
+          public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            assertThat(parentId).isEqualTo(PARENT_ID);
+            successLatch.countDown();
+          }
+        });
+    assertThat(successLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    // Any successful calls remove the error state,
+    assertThat(lastReportedPlaybackStateCompat.getState())
+        .isNotEqualTo(PlaybackStateCompat.STATE_ERROR);
+    assertThat(lastReportedPlaybackStateCompat.getExtras()).isNull();
   }
 
   @Test

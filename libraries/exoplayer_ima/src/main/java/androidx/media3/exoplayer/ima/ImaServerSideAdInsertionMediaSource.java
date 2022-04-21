@@ -18,11 +18,12 @@ package androidx.media3.exoplayer.ima;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.msToUs;
-import static androidx.media3.common.util.Util.secToUs;
 import static androidx.media3.common.util.Util.sum;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.exoplayer.ima.ImaUtil.expandAdGroupPlaceholder;
 import static androidx.media3.exoplayer.ima.ImaUtil.getAdGroupAndIndexInMultiPeriodWindow;
+import static androidx.media3.exoplayer.ima.ImaUtil.secToMsRounded;
+import static androidx.media3.exoplayer.ima.ImaUtil.secToUsRounded;
 import static androidx.media3.exoplayer.ima.ImaUtil.splitAdPlaybackStateForPeriods;
 import static androidx.media3.exoplayer.ima.ImaUtil.updateAdDurationAndPropagate;
 import static androidx.media3.exoplayer.ima.ImaUtil.updateAdDurationInAdGroup;
@@ -105,11 +106,7 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * MediaSource for IMA server side inserted ad streams.
- *
- * <p>TODO(bachinger) add code snippet from PlayerActivity
- */
+/** MediaSource for IMA server side inserted ad streams. */
 @UnstableApi
 public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
 
@@ -119,8 +116,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
    *
    * <p>Apps can use the {@link ImaServerSideAdInsertionMediaSource.Factory} to customized the
    * {@link DefaultMediaSourceFactory} that is used to build a player:
-   *
-   * <p>TODO(bachinger) add code snippet from PlayerActivity
    */
   public static final class Factory implements MediaSource.Factory {
 
@@ -333,23 +328,31 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       @Override
       public Bundle toBundle() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable(keyForField(FIELD_AD_PLAYBACK_STATES), adPlaybackStates);
+        Bundle adPlaybackStatesBundle = new Bundle();
+        for (Map.Entry<String, AdPlaybackState> entry : adPlaybackStates.entrySet()) {
+          adPlaybackStatesBundle.putBundle(entry.getKey(), entry.getValue().toBundle());
+        }
+        bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATES), adPlaybackStatesBundle);
         return bundle;
       }
 
       /** Object that can restore {@link AdsLoader.State} from a {@link Bundle}. */
       public static final Bundleable.Creator<State> CREATOR = State::fromBundle;
 
-      @SuppressWarnings("unchecked")
       private static State fromBundle(Bundle bundle) {
         @Nullable
-        Map<String, AdPlaybackState> adPlaybackStateMap =
-            (Map<String, AdPlaybackState>)
-                bundle.getSerializable(keyForField(FIELD_AD_PLAYBACK_STATES));
-        return new State(
-            adPlaybackStateMap != null
-                ? ImmutableMap.copyOf(adPlaybackStateMap)
-                : ImmutableMap.of());
+        ImmutableMap.Builder<String, AdPlaybackState> adPlaybackStateMap =
+            new ImmutableMap.Builder<>();
+        Bundle adPlaybackStateBundle =
+            checkNotNull(bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATES)));
+        for (String key : adPlaybackStateBundle.keySet()) {
+          AdPlaybackState adPlaybackState =
+              AdPlaybackState.CREATOR.fromBundle(
+                  checkNotNull(adPlaybackStateBundle.getBundle(key)));
+          adPlaybackStateMap.put(
+              key, AdPlaybackState.fromAdPlaybackState(/* adsId= */ key, adPlaybackState));
+        }
+        return new State(adPlaybackStateMap.buildOrThrow());
       }
 
       private static String keyForField(@FieldNumber int field) {
@@ -461,6 +464,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @Nullable private IOException loadError;
   private @MonotonicNonNull Timeline contentTimeline;
   private AdPlaybackState adPlaybackState;
+  private int firstSeenAdIndexInAdGroup;
 
   private ImaServerSideAdInsertionMediaSource(
       MediaItem mediaItem,
@@ -658,17 +662,27 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   private static AdPlaybackState setVodAdGroupPlaceholders(
       List<CuePoint> cuePoints, AdPlaybackState adPlaybackState) {
+    // TODO(b/192231683) Use getEndTimeMs()/getStartTimeMs() after jar target was removed
     for (int i = 0; i < cuePoints.size(); i++) {
       CuePoint cuePoint = cuePoints.get(i);
+      long fromPositionUs = msToUs(secToMsRounded(cuePoint.getStartTime()));
       adPlaybackState =
           addAdGroupToAdPlaybackState(
               adPlaybackState,
-              /* fromPositionUs= */ secToUs(cuePoint.getStartTime()),
+              /* fromPositionUs= */ fromPositionUs,
               /* contentResumeOffsetUs= */ 0,
-              // TODO(b/192231683) Use getEndTimeMs()/getStartTimeMs() after jar target was removed
-              /* adDurationsUs...= */ secToUs(cuePoint.getEndTime() - cuePoint.getStartTime()));
+              /* adDurationsUs...= */ getAdDuration(
+                  /* startTimeSeconds= */ cuePoint.getStartTime(),
+                  /* endTimeSeconds= */ cuePoint.getEndTime()));
     }
     return adPlaybackState;
+  }
+
+  private static long getAdDuration(double startTimeSeconds, double endTimeSeconds) {
+    // startTimeSeconds and endTimeSeconds that are coming from the SDK, only have a precision of
+    // milliseconds so everything that is below a millisecond can be safely considered as coming
+    // from rounding issues.
+    return msToUs(secToMsRounded(endTimeSeconds - startTimeSeconds));
   }
 
   private static AdPlaybackState setVodAdInPlaceholder(Ad ad, AdPlaybackState adPlaybackState) {
@@ -682,9 +696,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       adPlaybackState =
           expandAdGroupPlaceholder(
               adGroupIndex,
-              /* adGroupDurationUs= */ secToUs(adPodInfo.getMaxDuration()),
+              /* adGroupDurationUs= */ msToUs(secToMsRounded(adPodInfo.getMaxDuration())),
               adIndexInAdGroup,
-              /* adDurationUs= */ secToUs(ad.getDuration()),
+              /* adDurationUs= */ msToUs(secToMsRounded(ad.getDuration())),
               /* adsInAdGroupCount= */ adPodInfo.getTotalAds(),
               adPlaybackState);
     } else if (adIndexInAdGroup < adGroup.count - 1) {
@@ -692,27 +706,30 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           updateAdDurationInAdGroup(
               adGroupIndex,
               adIndexInAdGroup,
-              /* adDurationUs= */ secToUs(ad.getDuration()),
+              /* adDurationUs= */ msToUs(secToMsRounded(ad.getDuration())),
               adPlaybackState);
     }
     return adPlaybackState;
   }
 
-  private static AdPlaybackState addLiveAdBreak(
+  private AdPlaybackState addLiveAdBreak(
       Ad ad, long currentPeriodPositionUs, AdPlaybackState adPlaybackState) {
     AdPodInfo adPodInfo = ad.getAdPodInfo();
-    long adDurationUs = secToUs(ad.getDuration());
+    long adDurationUs = secToUsRounded(ad.getDuration());
     int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
-
     // TODO(b/208398934) Support seeking backwards.
     if (adIndexInAdGroup == 0 || adPlaybackState.adGroupCount == 1) {
+      firstSeenAdIndexInAdGroup = adIndexInAdGroup;
+      // Adjust count and ad index in case we joined the live stream within an ad group.
+      int adCount = adPodInfo.getTotalAds() - firstSeenAdIndexInAdGroup;
+      adIndexInAdGroup -= firstSeenAdIndexInAdGroup;
       // First ad of group. Create a new group with all ads.
       long[] adDurationsUs =
           updateAdDurationAndPropagate(
-              new long[adPodInfo.getTotalAds()],
+              new long[adCount],
               adIndexInAdGroup,
               adDurationUs,
-              secToUs(adPodInfo.getMaxDuration()));
+              msToUs(secToMsRounded(adPodInfo.getMaxDuration())));
       adPlaybackState =
           addAdGroupToAdPlaybackState(
               adPlaybackState,
@@ -721,6 +738,11 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               /* adDurationsUs...= */ adDurationsUs);
     } else {
       int adGroupIndex = adPlaybackState.adGroupCount - 2;
+      adIndexInAdGroup -= firstSeenAdIndexInAdGroup;
+      if (adPodInfo.getTotalAds() == adPodInfo.getAdPosition()) {
+        // Reset the ad index whe we are at the last ad in the group.
+        firstSeenAdIndexInAdGroup = 0;
+      }
       adPlaybackState =
           updateAdDurationInAdGroup(adGroupIndex, adIndexInAdGroup, adDurationUs, adPlaybackState);
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
@@ -857,7 +879,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
             long positionInWindowUs =
                 timeline.getPeriod(player.getCurrentPeriodIndex(), new Timeline.Period())
                     .positionInWindowUs;
-            long currentPeriodPosition = msToUs(player.getCurrentPosition()) - positionInWindowUs;
+            long currentPeriodPosition = msToUs(player.getContentPosition()) - positionInWindowUs;
             newAdPlaybackState =
                 addLiveAdBreak(
                     event.getAd(),

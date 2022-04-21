@@ -18,7 +18,6 @@ package androidx.media3.test.utils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
@@ -27,6 +26,7 @@ import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSourceEventListener;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.upstream.Allocator;
 
 /**

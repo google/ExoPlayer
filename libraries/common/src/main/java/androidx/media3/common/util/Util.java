@@ -1122,6 +1122,25 @@ public final class Util {
   }
 
   /**
+   * Returns the maximum value in the given {@link SparseLongArray}.
+   *
+   * @param sparseLongArray The {@link SparseLongArray}.
+   * @return The maximum value.
+   * @throws NoSuchElementException If the array is empty.
+   */
+  @RequiresApi(18)
+  public static long maxValue(SparseLongArray sparseLongArray) {
+    if (sparseLongArray.size() == 0) {
+      throw new NoSuchElementException();
+    }
+    long max = Long.MIN_VALUE;
+    for (int i = 0; i < sparseLongArray.size(); i++) {
+      max = max(max, sparseLongArray.valueAt(i));
+    }
+    return max;
+  }
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
    * C#TIME_UNSET} and {@link C#TIME_END_OF_SOURCE} values.
    *
@@ -1141,18 +1160,6 @@ public final class Util {
    */
   public static long msToUs(long timeMs) {
     return (timeMs == C.TIME_UNSET || timeMs == C.TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
-  }
-
-  /**
-   * Converts a time in seconds to the corresponding time in microseconds.
-   *
-   * @param timeSec The time in seconds.
-   * @return The corresponding time in microseconds.
-   */
-  public static long secToUs(double timeSec) {
-    return BigDecimal.valueOf(timeSec)
-        .multiply(BigDecimal.valueOf(C.MICROS_PER_SECOND))
-        .longValue();
   }
 
   /**
@@ -1897,10 +1904,10 @@ public final class Util {
 
   /**
    * Returns the MIME type corresponding to the given adaptive {@link ContentType}, or {@code null}
-   * if the content type is {@link C#TYPE_OTHER}.
+   * if the content type is not adaptive.
    */
   @Nullable
-  public static String getAdaptiveMimeTypeForContentType(int contentType) {
+  public static String getAdaptiveMimeTypeForContentType(@ContentType int contentType) {
     switch (contentType) {
       case C.TYPE_DASH:
         return MimeTypes.APPLICATION_MPD;
@@ -1908,6 +1915,7 @@ public final class Util {
         return MimeTypes.APPLICATION_M3U8;
       case C.TYPE_SS:
         return MimeTypes.APPLICATION_SS;
+      case C.TYPE_RTSP:
       case C.TYPE_OTHER:
       default:
         return null;

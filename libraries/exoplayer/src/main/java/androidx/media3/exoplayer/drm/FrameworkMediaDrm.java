@@ -192,7 +192,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   @Override
   public void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {
     if (Util.SDK_INT >= 31) {
-      Api31.setLogSessionIdOnMediaDrmSession(mediaDrm, sessionId, playerId);
+      try {
+        Api31.setLogSessionIdOnMediaDrmSession(mediaDrm, sessionId, playerId);
+      } catch (UnsupportedOperationException e) {
+        Log.w(TAG, "setLogSessionId failed.");
+      }
     }
   }
 

@@ -129,7 +129,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
 
   @Nullable private Surface surface;
-  @Nullable private DummySurface dummySurface;
+  @Nullable private PlaceholderSurface placeholderSurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   private @C.VideoScalingMode int scalingMode;
   private boolean renderedFirstFrameAfterReset;
@@ -515,7 +515,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public boolean isReady() {
     if (super.isReady()
         && (renderedFirstFrameAfterReset
-            || (dummySurface != null && surface == dummySurface)
+            || (placeholderSurface != null && surface == placeholderSurface)
             || getCodec() == null
             || tunneling)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
@@ -567,14 +567,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  @TargetApi(17) // Needed for dummySurface usage. dummySurface is always null on API level 16.
+  @TargetApi(17) // Needed for placeholderSurface usage, as it is always null on API level 16.
   @Override
   protected void onReset() {
     try {
       super.onReset();
     } finally {
-      if (dummySurface != null) {
-        releaseDummySurface();
+      if (placeholderSurface != null) {
+        releasePlaceholderSurface();
       }
     }
   }
@@ -624,14 +624,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     @Nullable Surface surface = output instanceof Surface ? (Surface) output : null;
 
     if (surface == null) {
-      // Use a dummy surface if possible.
-      if (dummySurface != null) {
-        surface = dummySurface;
+      // Use a placeholder surface if possible.
+      if (placeholderSurface != null) {
+        surface = placeholderSurface;
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
         if (codecInfo != null && shouldUseDummySurface(codecInfo)) {
-          dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
-          surface = dummySurface;
+          placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
+          surface = placeholderSurface;
         }
       }
     }
@@ -652,7 +652,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           maybeInitCodecOrBypass();
         }
       }
-      if (surface != null && surface != dummySurface) {
+      if (surface != null && surface != placeholderSurface) {
         // If we know the video size, report it again immediately.
         maybeRenotifyVideoSizeChanged();
         // We haven't rendered to the new surface yet.
@@ -665,7 +665,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         clearReportedVideoSize();
         clearRenderedFirstFrame();
       }
-    } else if (surface != null && surface != dummySurface) {
+    } else if (surface != null && surface != placeholderSurface) {
       // The surface is set and unchanged. If we know the video size and/or have already rendered to
       // the surface, report these again immediately.
       maybeRenotifyVideoSizeChanged();
@@ -684,16 +684,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return tunneling && Util.SDK_INT < 23;
   }
 
-  @TargetApi(17) // Needed for dummySurface usage. dummySurface is always null on API level 16.
+  @TargetApi(17) // Needed for placeHolderSurface usage, as it is always null on API level 16.
   @Override
   protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
-    if (dummySurface != null && dummySurface.secure != codecInfo.secure) {
+    if (placeholderSurface != null && placeholderSurface.secure != codecInfo.secure) {
       // We can't re-use the current DummySurface instance with the new decoder.
-      releaseDummySurface();
+      releasePlaceholderSurface();
     }
     String codecMimeType = codecInfo.codecMimeType;
     codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
@@ -709,10 +709,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       if (!shouldUseDummySurface(codecInfo)) {
         throw new IllegalStateException();
       }
-      if (dummySurface == null) {
-        dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
+      if (placeholderSurface == null) {
+        placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
       }
-      surface = dummySurface;
+      surface = placeholderSurface;
     }
     return MediaCodecAdapter.Configuration.createForVideoDecoding(
         codecInfo, mediaFormat, format, surface, crypto);
@@ -949,7 +949,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       earlyUs -= elapsedRealtimeNowUs - elapsedRealtimeUs;
     }
 
-    if (surface == dummySurface) {
+    if (surface == placeholderSurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
@@ -1259,16 +1259,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return Util.SDK_INT >= 23
         && !tunneling
         && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
-        && (!codecInfo.secure || DummySurface.isSecureSupported(context));
+        && (!codecInfo.secure || PlaceholderSurface.isSecureSupported(context));
   }
 
   @RequiresApi(17)
-  private void releaseDummySurface() {
-    if (surface == dummySurface) {
+  private void releasePlaceholderSurface() {
+    if (surface == placeholderSurface) {
       surface = null;
     }
-    dummySurface.release();
-    dummySurface = null;
+    placeholderSurface.release();
+    placeholderSurface = null;
   }
 
   private void setJoiningDeadlineMs() {

@@ -26,7 +26,7 @@ import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceInputStream;
 import androidx.media3.datasource.DataSourceUtil;
 import androidx.media3.datasource.DataSpec;
-import androidx.media3.datasource.DummyDataSource;
+import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.test.utils.FakeDataSet.FakeData;
@@ -129,7 +129,7 @@ public final class CacheAsserts {
    */
   public static void assertDataCached(Cache cache, DataSpec dataSpec, byte[] expected)
       throws IOException {
-    DataSource dataSource = new CacheDataSource(cache, DummyDataSource.INSTANCE, 0);
+    DataSource dataSource = new CacheDataSource(cache, PlaceholderDataSource.INSTANCE, 0);
     byte[] bytes;
     try {
       dataSource.open(dataSpec);

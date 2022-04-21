@@ -38,8 +38,6 @@ import androidx.media3.common.Player.PlaybackSuppressionReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.Window;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
@@ -482,13 +480,6 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         eventTime,
         AnalyticsListener.EVENT_MEDIA_ITEM_TRANSITION,
         listener -> listener.onMediaItemTransition(eventTime, mediaItem, reason));
-  }
-
-  @SuppressWarnings("deprecation") // Implementing deprecated method.
-  @Override
-  public final void onTracksChanged(
-      TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    // Do nothing. Handled by non-deprecated onTracksInfoChanged.
   }
 
   @Override

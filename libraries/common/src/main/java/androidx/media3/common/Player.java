@@ -676,24 +676,6 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
-     *     concrete implementation may include null elements if it has a fixed number of renderer
-     *     components, wishes to report a TrackSelection for each of them, and has one or more
-     *     renderer components that is not assigned any selected tracks.
-     * @deprecated Use {@link #onTracksInfoChanged(TracksInfo)} instead.
-     */
-    @UnstableApi
-    @Deprecated
-    default void onTracksChanged(
-        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
-
-    /**
-     * Called when the available or selected tracks change.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
      * @param tracksInfo The available tracks information. Never null, but may be of length zero.
      */
     default void onTracksInfoChanged(TracksInfo tracksInfo) {}
@@ -701,11 +683,12 @@ public interface Player {
     /**
      * Called when the combined {@link MediaMetadata} changes.
      *
-     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
-     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
-     * static or dynamic metadata.
+     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata
+     * MediaItem metadata}, the static metadata in the media's {@link Format#metadata Format}, and
+     * any timed metadata that has been parsed from the media and output via {@link
+     * Listener#onMetadata(Metadata)}. If a field is populated in the {@link
+     * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
+     * timed metadata.
      *
      * <p>This method may be called multiple times in quick succession.
      *
@@ -2105,33 +2088,9 @@ public interface Player {
   void release();
 
   /**
-   * Returns the available track groups.
+   * Returns information about the current tracks.
    *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
-   */
-  @UnstableApi
-  @Deprecated
-  TrackGroupArray getCurrentTrackGroups();
-
-  /**
-   * Returns the current track selections.
-   *
-   * <p>A concrete implementation may include null elements if it has a fixed number of renderer
-   * components, wishes to report a TrackSelection for each of them, and has one or more renderer
-   * components that is not assigned any selected tracks.
-   *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
-   */
-  @UnstableApi
-  @Deprecated
-  TrackSelectionArray getCurrentTrackSelections();
-
-  /**
-   * Returns the available tracks, as well as the tracks' support, type, and selection status.
-   *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   * @see Listener#onTracksInfoChanged(TracksInfo)
    */
   TracksInfo getCurrentTracksInfo();
 
@@ -2165,11 +2124,11 @@ public interface Player {
    * Returns the current combined {@link MediaMetadata}, or {@link MediaMetadata#EMPTY} if not
    * supported.
    *
-   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in the {@link
-   * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
-   * dynamic metadata.
+   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata MediaItem
+   * metadata}, the static metadata in the media's {@link Format#metadata Format}, and any timed
+   * metadata that has been parsed from the media and output via {@link
+   * Listener#onMetadata(Metadata)}. If a field is populated in the {@link MediaItem#mediaMetadata},
+   * it will be prioritised above the same field coming from static or timed metadata.
    */
   MediaMetadata getMediaMetadata();
 

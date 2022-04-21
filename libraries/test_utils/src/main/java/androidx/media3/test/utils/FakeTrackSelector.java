@@ -17,11 +17,11 @@ package androidx.media3.test.utils;
 
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.RendererCapabilities.AdaptiveSupport;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.trackselection.MappingTrackSelector;
@@ -67,7 +67,10 @@ public class FakeTrackSelector extends DefaultTrackSelector {
     for (int i = 0; i < rendererCount; i++) {
       TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
       boolean hasTracks = trackGroupArray.length > 0;
-      definitions[i] = hasTracks ? new ExoTrackSelection.Definition(trackGroupArray.get(0)) : null;
+      definitions[i] =
+          hasTracks
+              ? new ExoTrackSelection.Definition(trackGroupArray.get(0), /* tracks...= */ 0)
+              : null;
     }
     return definitions;
   }

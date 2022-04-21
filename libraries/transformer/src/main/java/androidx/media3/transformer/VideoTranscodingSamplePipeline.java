@@ -17,20 +17,15 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Util.SDK_INT;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.media.MediaCodec;
-import android.media.MediaFormat;
+import android.util.Size;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -39,21 +34,25 @@ import org.checkerframework.dataflow.qual.Pure;
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
 
+  private static final int FRAME_COUNT_UNLIMITED = -1;
+
   private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
+  private final int maxPendingFrameCount;
 
-  @Nullable private final FrameEditor frameEditor;
+  private final FrameProcessorChain frameProcessorChain;
 
   private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
 
-  private boolean waitingForFrameEditorInput;
+  private boolean signaledEndOfStreamToEncoder;
 
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
       TransformationRequest transformationRequest,
+      ImmutableList<GlFrameProcessor> frameProcessors,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
@@ -70,114 +69,66 @@ import org.checkerframework.dataflow.qual.Pure;
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
-    float decodedAspectRatio = (float) decodedWidth / decodedHeight;
 
-    Matrix transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
-
-    int outputWidth = decodedWidth;
-    int outputHeight = decodedHeight;
-    if (!transformationMatrix.isIdentity()) {
-      // Scale frames by decodedAspectRatio, to account for FrameEditor's normalized device
-      // coordinates (NDC) (a square from -1 to 1 for both x and y) and preserve rectangular display
-      // of input pixels during transformations (ex. rotations). With scaling, transformationMatrix
-      // operations operate on a rectangle for x from -decodedAspectRatio to decodedAspectRatio, and
-      // y from -1 to 1.
-      transformationMatrix.preScale(/* sx= */ decodedAspectRatio, /* sy= */ 1f);
-      transformationMatrix.postScale(/* sx= */ 1f / decodedAspectRatio, /* sy= */ 1f);
-
-      float[][] transformOnNdcPoints = {{-1, -1, 0, 1}, {-1, 1, 0, 1}, {1, -1, 0, 1}, {1, 1, 0, 1}};
-      float xMin = Float.MAX_VALUE;
-      float xMax = Float.MIN_VALUE;
-      float yMin = Float.MAX_VALUE;
-      float yMax = Float.MIN_VALUE;
-      for (float[] transformOnNdcPoint : transformOnNdcPoints) {
-        transformationMatrix.mapPoints(transformOnNdcPoint);
-        xMin = min(xMin, transformOnNdcPoint[0]);
-        xMax = max(xMax, transformOnNdcPoint[0]);
-        yMin = min(yMin, transformOnNdcPoint[1]);
-        yMax = max(yMax, transformOnNdcPoint[1]);
-      }
-
-      float xCenter = (xMax + xMin) / 2f;
-      float yCenter = (yMax + yMin) / 2f;
-      transformationMatrix.postTranslate(-xCenter, -yCenter);
-
-      float ndcWidthAndHeight = 2f; // Length from -1 to 1.
-      float xScale = (xMax - xMin) / ndcWidthAndHeight;
-      float yScale = (yMax - yMin) / ndcWidthAndHeight;
-      transformationMatrix.postScale(1f / xScale, 1f / yScale);
-      outputWidth = Math.round(decodedWidth * xScale);
-      outputHeight = Math.round(decodedHeight * yScale);
-    }
-    // Scale width and height to desired transformationRequest.outputHeight, preserving
-    // aspect ratio.
-    if (transformationRequest.outputHeight != C.LENGTH_UNSET
-        && transformationRequest.outputHeight != outputHeight) {
-      outputWidth =
-          Math.round((float) transformationRequest.outputHeight * outputWidth / outputHeight);
-      outputHeight = transformationRequest.outputHeight;
-    }
-
-    // Encoders commonly support higher maximum widths than maximum heights. Rotate the decoded
-    // video before encoding, so the encoded video's width >= height, and set outputRotationDegrees
-    // to ensure the video is displayed in the correct orientation.
-    int requestedEncoderWidth;
-    int requestedEncoderHeight;
-    boolean swapEncodingDimensions = outputHeight > outputWidth;
-    if (swapEncodingDimensions) {
-      outputRotationDegrees = 90;
-      requestedEncoderWidth = outputHeight;
-      requestedEncoderHeight = outputWidth;
-      // TODO(b/201293185): After fragment shader transformations are implemented, put
-      // postRotate in a later vertex shader.
-      transformationMatrix.postRotate(outputRotationDegrees);
-    } else {
-      outputRotationDegrees = 0;
-      requestedEncoderWidth = outputWidth;
-      requestedEncoderHeight = outputHeight;
-    }
+    // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
+    ScaleToFitFrameProcessor scaleToFitFrameProcessor =
+        new ScaleToFitFrameProcessor.Builder(context)
+            .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
+            .setRotationDegrees(transformationRequest.rotationDegrees)
+            .build();
+    PresentationFrameProcessor presentationFrameProcessor =
+        new PresentationFrameProcessor.Builder(context)
+            .setResolution(transformationRequest.outputHeight)
+            .build();
+    frameProcessorChain =
+        FrameProcessorChain.create(
+            context,
+            inputFormat.pixelWidthHeightRatio,
+            /* inputWidth= */ decodedWidth,
+            /* inputHeight= */ decodedHeight,
+            new ImmutableList.Builder<GlFrameProcessor>()
+                .addAll(frameProcessors)
+                .add(scaleToFitFrameProcessor)
+                .add(presentationFrameProcessor)
+                .build(),
+            transformationRequest.enableHdrEditing);
+    Size requestedEncoderSize = frameProcessorChain.getOutputSize();
+    outputRotationDegrees = presentationFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
-            .setWidth(requestedEncoderWidth)
-            .setHeight(requestedEncoderHeight)
+            .setWidth(requestedEncoderSize.getWidth())
+            .setHeight(requestedEncoderSize.getHeight())
             .setRotationDegrees(0)
+            .setFrameRate(inputFormat.frameRate)
             .setSampleMimeType(
                 transformationRequest.videoMimeType != null
                     ? transformationRequest.videoMimeType
                     : inputFormat.sampleMimeType)
             .build();
+
     encoder = encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
     Format encoderSupportedFormat = encoder.getConfigurationFormat();
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
             transformationRequest,
-            /* resolutionIsHeight= */ !swapEncodingDimensions,
+            /* hasOutputFormatRotation= */ outputRotationDegrees == 0,
             requestedEncoderFormat,
             encoderSupportedFormat));
 
-    if (transformationRequest.enableHdrEditing
-        || inputFormat.height != encoderSupportedFormat.height
-        || inputFormat.width != encoderSupportedFormat.width
-        || !transformationMatrix.isIdentity()) {
-      frameEditor =
-          FrameEditor.create(
-              context,
-              encoderSupportedFormat.width,
-              encoderSupportedFormat.height,
-              inputFormat.pixelWidthHeightRatio,
-              transformationMatrix,
-              /* outputSurface= */ encoder.getInputSurface(),
-              transformationRequest.enableHdrEditing,
-              debugViewProvider);
-    } else {
-      frameEditor = null;
-    }
+    frameProcessorChain.setOutputSurface(
+        /* outputSurface= */ encoder.getInputSurface(),
+        /* outputWidth= */ encoderSupportedFormat.width,
+        /* outputHeight= */ encoderSupportedFormat.height,
+        debugViewProvider.getDebugPreviewSurfaceView(
+            encoderSupportedFormat.width, encoderSupportedFormat.height));
 
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
-            frameEditor == null ? encoder.getInputSurface() : frameEditor.getInputSurface());
+            frameProcessorChain.getInputSurface(),
+            transformationRequest.enableRequestSdrToneMapping);
+    maxPendingFrameCount = getMaxPendingFrameCount();
   }
 
   @Override
@@ -193,79 +144,27 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    if (hasProcessedAllInputData()) {
+    frameProcessorChain.getAndRethrowBackgroundExceptions();
+    if (frameProcessorChain.isEnded()) {
+      if (!signaledEndOfStreamToEncoder) {
+        encoder.signalEndOfInputStream();
+        signaledEndOfStreamToEncoder = true;
+      }
+      return false;
+    }
+    if (decoder.isEnded()) {
       return false;
     }
 
-    if (SDK_INT >= 29) {
-      return processDataV29();
-    } else {
-      return processDataDefault();
-    }
-  }
-
-  /**
-   * Processes input data from API 29.
-   *
-   * <p>In this method the decoder could decode multiple frames in one invocation; as compared to
-   * {@link #processDataDefault()}, in which one frame is decoded in each invocation. Consequently,
-   * if {@link FrameEditor} processes frames slower than the decoder, decoded frames are queued up
-   * in the decoder's output surface.
-   *
-   * <p>Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-   * bound; while after API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
-   * dropping even when the surface is full. As dropping random frames is not acceptable in {@code
-   * Transformer}, using this method requires API level 29 or higher.
-   */
-  @RequiresApi(29)
-  private boolean processDataV29() throws TransformationException {
-    if (frameEditor != null) {
-      // Processes as many frames as possible. FrameEditor's output surface will block when it's
-      // full, so there will be no frame drop and the surface will not grow out of bound.
-      while (frameEditor.canProcessData()) {
-        frameEditor.processData();
-      }
-    }
-
-    while (decoder.getOutputBufferInfo() != null) {
-      if (frameEditor != null) {
-        frameEditor.registerInputFrame();
-      }
-      decoder.releaseOutputBuffer(/* render= */ true);
+    boolean processedData = false;
+    while (maybeProcessDecoderOutput()) {
+      processedData = true;
     }
     if (decoder.isEnded()) {
-      signalEndOfInputStream();
+      frameProcessorChain.signalEndOfInputStream();
     }
-
-    return frameEditor != null && frameEditor.canProcessData();
-  }
-
-  /** Processes input data. */
-  private boolean processDataDefault() throws TransformationException {
-    if (frameEditor != null) {
-      if (frameEditor.canProcessData()) {
-        waitingForFrameEditorInput = false;
-        frameEditor.processData();
-        return true;
-      }
-      if (waitingForFrameEditorInput) {
-        return false;
-      }
-    }
-
-    boolean decoderHasOutputBuffer = decoder.getOutputBufferInfo() != null;
-    if (decoderHasOutputBuffer) {
-      if (frameEditor != null) {
-        frameEditor.registerInputFrame();
-        waitingForFrameEditorInput = true;
-      }
-      decoder.releaseOutputBuffer(/* render= */ true);
-    }
-    if (decoder.isEnded()) {
-      signalEndOfInputStream();
-      return false;
-    }
-    return decoderHasOutputBuffer && !waitingForFrameEditorInput;
+    // If the decoder produced output, signal that it may be possible to process data again.
+    return processedData;
   }
 
   @Override
@@ -302,43 +201,86 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void release() {
-    if (frameEditor != null) {
-      frameEditor.release();
-    }
+    frameProcessorChain.release();
     decoder.release();
     encoder.release();
   }
 
+  /**
+   * Creates a fallback transformation request to execute, based on device-specific support.
+   *
+   * @param transformationRequest The requested transformation.
+   * @param hasOutputFormatRotation Whether the input video will be rotated to landscape during
+   *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
+   * @param requestedFormat The requested format.
+   * @param supportedFormat A format supported by the device.
+   */
   @Pure
   private static TransformationRequest createFallbackTransformationRequest(
       TransformationRequest transformationRequest,
-      boolean resolutionIsHeight,
+      boolean hasOutputFormatRotation,
       Format requestedFormat,
-      Format actualFormat) {
+      Format supportedFormat) {
     // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
     // implemented.
-    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)
-        && ((!resolutionIsHeight && requestedFormat.width == actualFormat.width)
-            || (resolutionIsHeight && requestedFormat.height == actualFormat.height))) {
+    if (Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
+        && (hasOutputFormatRotation
+            ? requestedFormat.width == supportedFormat.width
+            : requestedFormat.height == supportedFormat.height)) {
       return transformationRequest;
     }
     return transformationRequest
         .buildUpon()
-        .setVideoMimeType(actualFormat.sampleMimeType)
-        .setResolution(resolutionIsHeight ? requestedFormat.height : requestedFormat.width)
+        .setVideoMimeType(supportedFormat.sampleMimeType)
+        .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
         .build();
   }
 
-  private boolean hasProcessedAllInputData() {
-    return decoder.isEnded() && (frameEditor == null || frameEditor.isEnded());
+  /**
+   * Feeds at most one decoder output frame to the next step of the pipeline.
+   *
+   * @return Whether a frame was processed.
+   * @throws TransformationException If a problem occurs while processing the frame.
+   */
+  private boolean maybeProcessDecoderOutput() throws TransformationException {
+    if (decoder.getOutputBufferInfo() == null) {
+      return false;
+    }
+
+    if (maxPendingFrameCount != FRAME_COUNT_UNLIMITED
+        && frameProcessorChain.getPendingFrameCount() == maxPendingFrameCount) {
+      return false;
+    }
+
+    frameProcessorChain.registerInputFrame();
+    decoder.releaseOutputBuffer(/* render= */ true);
+    return true;
   }
 
-  private void signalEndOfInputStream() throws TransformationException {
-    if (frameEditor != null) {
-      frameEditor.signalEndOfInputStream();
+  /**
+   * Returns the maximum number of frames that may be pending in the output {@link
+   * FrameProcessorChain} at a time, or {@link #FRAME_COUNT_UNLIMITED} if it's not necessary to
+   * enforce a limit.
+   */
+  private static int getMaxPendingFrameCount() {
+    if (Util.SDK_INT < 29) {
+      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+      // bounds, while from API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
+      // dropping even when the surface is full. We never want frame dropping so allow a maximum of
+      // one frame to be pending at a time.
+      // TODO(b/226330223): Investigate increasing this limit.
+      return 1;
     }
-    if (frameEditor == null || frameEditor.isEnded()) {
-      encoder.signalEndOfInputStream();
+    if (Util.SDK_INT < 31
+        && ("OnePlus".equals(Util.MANUFACTURER) || "samsung".equals(Util.MANUFACTURER))) {
+      // Some OMX decoders don't correctly track their number of output buffers available, and get
+      // stuck if too many frames are rendered without being processed, so we limit the number of
+      // pending frames to avoid getting stuck. This value is experimentally determined. See also
+      // b/213455700.
+      return 10;
     }
+    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
+    // throughput.
+    return FRAME_COUNT_UNLIMITED;
   }
 }

@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -120,20 +121,21 @@ public final class DefaultMediaNotificationProvider implements MediaNotification
             IconCompat.createWithResource(context, R.drawable.media3_notification_seek_to_previous),
             context.getString(R.string.media3_controls_seek_to_previous_description),
             MediaNotification.ActionFactory.COMMAND_SKIP_TO_PREVIOUS));
-    if (mediaController.getPlayWhenReady()) {
-      // Pause action.
-      builder.addAction(
-          actionFactory.createMediaAction(
-              IconCompat.createWithResource(context, R.drawable.media3_notification_pause),
-              context.getString(R.string.media3_controls_pause_description),
-              MediaNotification.ActionFactory.COMMAND_PAUSE));
-    } else {
+    if (mediaController.getPlaybackState() == Player.STATE_ENDED
+        || !mediaController.getPlayWhenReady()) {
       // Play action.
       builder.addAction(
           actionFactory.createMediaAction(
               IconCompat.createWithResource(context, R.drawable.media3_notification_play),
               context.getString(R.string.media3_controls_play_description),
               MediaNotification.ActionFactory.COMMAND_PLAY));
+    } else {
+      // Pause action.
+      builder.addAction(
+          actionFactory.createMediaAction(
+              IconCompat.createWithResource(context, R.drawable.media3_notification_pause),
+              context.getString(R.string.media3_controls_pause_description),
+              MediaNotification.ActionFactory.COMMAND_PAUSE));
     }
     // Skip to next action.
     builder.addAction(

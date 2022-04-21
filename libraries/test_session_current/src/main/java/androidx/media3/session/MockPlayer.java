@@ -15,11 +15,15 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
 import androidx.media3.common.AudioAttributes;
@@ -31,26 +35,166 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 
 /** A mock implementation of {@link Player} for testing. */
 @UnstableApi
 public class MockPlayer implements Player {
 
-  public final CountDownLatch countDownLatch;
+  /** Player methods. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    METHOD_ADD_MEDIA_ITEM,
+    METHOD_ADD_MEDIA_ITEMS,
+    METHOD_ADD_MEDIA_ITEM_WITH_INDEX,
+    METHOD_ADD_MEDIA_ITEMS_WITH_INDEX,
+    METHOD_CLEAR_MEDIA_ITEMS,
+    METHOD_DECREASE_DEVICE_VOLUME,
+    METHOD_INCREASE_DEVICE_VOLUME,
+    METHOD_MOVE_MEDIA_ITEM,
+    METHOD_MOVE_MEDIA_ITEMS,
+    METHOD_PAUSE,
+    METHOD_PLAY,
+    METHOD_PREPARE,
+    METHOD_RELEASE,
+    METHOD_REMOVE_MEDIA_ITEM,
+    METHOD_REMOVE_MEDIA_ITEMS,
+    METHOD_SEEK_BACK,
+    METHOD_SEEK_FORWARD,
+    METHOD_SEEK_TO,
+    METHOD_SEEK_TO_DEFAULT_POSITION,
+    METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX,
+    METHOD_SEEK_TO_NEXT,
+    METHOD_SEEK_TO_NEXT_MEDIA_ITEM,
+    METHOD_SEEK_TO_PREVIOUS,
+    METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+    METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX,
+    METHOD_SET_DEVICE_MUTED,
+    METHOD_SET_DEVICE_VOLUME,
+    METHOD_SET_MEDIA_ITEM,
+    METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION,
+    METHOD_SET_MEDIA_ITEM_WITH_START_POSITION,
+    METHOD_SET_MEDIA_ITEMS,
+    METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION,
+    METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX,
+    METHOD_SET_PLAY_WHEN_READY,
+    METHOD_SET_PLAYBACK_PARAMETERS,
+    METHOD_SET_PLAYBACK_SPEED,
+    METHOD_SET_PLAYLIST_METADATA,
+    METHOD_SET_REPEAT_MODE,
+    METHOD_SET_SHUFFLE_MODE,
+    METHOD_SET_TRACK_SELECTION_PARAMETERS,
+    METHOD_SET_VOLUME,
+    METHOD_STOP
+  })
+  public @interface Method {}
+
+  /** Maps to {@link Player#addMediaItem(MediaItem)}. */
+  public static final int METHOD_ADD_MEDIA_ITEM = 0;
+  /** Maps to {@link Player#addMediaItems(List)}. */
+  public static final int METHOD_ADD_MEDIA_ITEMS = 1;
+  /** Maps to {@link Player#addMediaItem(int, MediaItem)}. */
+  public static final int METHOD_ADD_MEDIA_ITEM_WITH_INDEX = 2;
+  /** Maps to {@link Player#addMediaItems(int, List)}. */
+  public static final int METHOD_ADD_MEDIA_ITEMS_WITH_INDEX = 3;
+  /** Maps to {@link Player#clearMediaItems()}. */
+  public static final int METHOD_CLEAR_MEDIA_ITEMS = 4;
+  /** Maps to {@link Player#decreaseDeviceVolume()}. */
+  public static final int METHOD_DECREASE_DEVICE_VOLUME = 5;
+  /** Maps to {@link Player#increaseDeviceVolume()}. */
+  public static final int METHOD_INCREASE_DEVICE_VOLUME = 6;
+  /** Maps to {@link Player#moveMediaItem(int, int)}. */
+  public static final int METHOD_MOVE_MEDIA_ITEM = 7;
+  /** Maps to {@link Player#moveMediaItems(int, int, int)}. */
+  public static final int METHOD_MOVE_MEDIA_ITEMS = 8;
+  /** Maps to {@link Player#pause()}. */
+  public static final int METHOD_PAUSE = 9;
+  /** Maps to {@link Player#play()}. */
+  public static final int METHOD_PLAY = 10;
+  /** Maps to {@link Player#prepare()}. */
+  public static final int METHOD_PREPARE = 11;
+  /** Maps to {@link Player#release()}. */
+  public static final int METHOD_RELEASE = 12;
+  /** Maps to {@link Player#removeMediaItem(int)}. */
+  public static final int METHOD_REMOVE_MEDIA_ITEM = 13;
+  /** Maps to {@link Player#removeMediaItems(int, int)}. */
+  public static final int METHOD_REMOVE_MEDIA_ITEMS = 14;
+  /** Maps to {@link Player#seekBack()}. */
+  public static final int METHOD_SEEK_BACK = 15;
+  /** Maps to {@link Player#seekForward()}. */
+  public static final int METHOD_SEEK_FORWARD = 16;
+  /** Maps to {@link Player#seekTo(long)}. */
+  public static final int METHOD_SEEK_TO = 17;
+  /** Maps to {@link Player#seekToDefaultPosition()}. */
+  public static final int METHOD_SEEK_TO_DEFAULT_POSITION = 18;
+  /** Maps to {@link Player#seekToDefaultPosition(int)}. */
+  public static final int METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX = 19;
+  /** Maps to {@link Player#seekToNext()}. */
+  public static final int METHOD_SEEK_TO_NEXT = 20;
+  /** Maps to {@link Player#seekToNextMediaItem()}. */
+  public static final int METHOD_SEEK_TO_NEXT_MEDIA_ITEM = 21;
+  /** Maps to {@link Player#seekToPrevious()}. */
+  public static final int METHOD_SEEK_TO_PREVIOUS = 22;
+  /** Maps to {@link Player#seekToPreviousMediaItem()}. */
+  public static final int METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM = 23;
+  /** Maps to {@link Player#seekTo(int, long)}. */
+  public static final int METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX = 24;
+  /** Maps to {@link Player#setDeviceMuted(boolean)}. */
+  public static final int METHOD_SET_DEVICE_MUTED = 25;
+  /** Maps to {@link Player#setDeviceVolume(int)}. */
+  public static final int METHOD_SET_DEVICE_VOLUME = 26;
+  /** Maps to {@link Player#setMediaItem(MediaItem)}. */
+  public static final int METHOD_SET_MEDIA_ITEM = 27;
+  /** Maps to {@link Player#setMediaItem(MediaItem, boolean)}. */
+  public static final int METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION = 28;
+  /** Maps to {@link Player#setMediaItem(MediaItem, long)}. */
+  public static final int METHOD_SET_MEDIA_ITEM_WITH_START_POSITION = 29;
+  /** Maps to {@link Player#setMediaItems(List)}. */
+  public static final int METHOD_SET_MEDIA_ITEMS = 30;
+  /** Maps to {@link Player#setMediaItems(List, boolean)}. */
+  public static final int METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION = 31;
+  /** Maps to {@link Player#setMediaItems(List, int, long)}. */
+  public static final int METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX = 32;
+  /** Maps to {@link Player#setPlayWhenReady(boolean)}. */
+  public static final int METHOD_SET_PLAY_WHEN_READY = 33;
+  /** Maps to {@link Player#setPlaybackParameters(PlaybackParameters)}. */
+  public static final int METHOD_SET_PLAYBACK_PARAMETERS = 34;
+  /** Maps to {@link Player#setPlaybackSpeed(float)}. */
+  public static final int METHOD_SET_PLAYBACK_SPEED = 35;
+  /** Maps to {@link Player#setPlaylistMetadata(MediaMetadata)}. */
+  public static final int METHOD_SET_PLAYLIST_METADATA = 36;
+  /** Maps to {@link Player#setRepeatMode(int)}. */
+  public static final int METHOD_SET_REPEAT_MODE = 37;
+  /** Maps to {@link Player#setShuffleModeEnabled(boolean)}. */
+  public static final int METHOD_SET_SHUFFLE_MODE = 38;
+  /** Maps to {@link Player#setTrackSelectionParameters(TrackSelectionParameters)}. */
+  public static final int METHOD_SET_TRACK_SELECTION_PARAMETERS = 39;
+  /** Maps to {@link Player#setVolume(float)}. */
+  public static final int METHOD_SET_VOLUME = 40;
+  /** Maps to {@link Player#stop()}. */
+  public static final int METHOD_STOP = 41;
+
   private final boolean changePlayerStateWithTransportControl;
   private final Looper applicationLooper;
   private final ArraySet<Listener> listeners = new ArraySet<>();
+  private final ImmutableMap<@Method Integer, ConditionVariable> conditionVariables =
+      createMethodConditionVariables();
 
   @Nullable PlaybackException playerError;
   public AudioAttributes audioAttributes;
@@ -106,51 +250,7 @@ public class MockPlayer implements Player {
   public long maxSeekToPreviousPositionMs;
   public TrackSelectionParameters trackSelectionParameters;
 
-  public boolean playCalled;
-  public boolean pauseCalled;
-  public boolean prepareCalled;
-  public boolean stopCalled;
-  public boolean releaseCalled;
-  public boolean seekToDefaultPositionCalled;
-  public boolean seekToDefaultPositionWithMediaItemIndexCalled;
-  public boolean seekToCalled;
-  public boolean seekToWithMediaItemIndexCalled;
-  public boolean setPlaybackSpeedCalled;
-  public boolean setPlaybackParametersCalled;
-  public boolean setMediaItemCalled;
-  public boolean setMediaItemWithStartPositionCalled;
-  public boolean setMediaItemWithResetPositionCalled;
-  public boolean setMediaItemsCalled;
-  public boolean setMediaItemsWithResetPositionCalled;
-  public boolean setMediaItemsWithStartIndexCalled;
-  public boolean setPlaylistMetadataCalled;
-  public boolean addMediaItemCalled;
-  public boolean addMediaItemWithIndexCalled;
-  public boolean addMediaItemsCalled;
-  public boolean addMediaItemsWithIndexCalled;
-  public boolean removeMediaItemCalled;
-  public boolean removeMediaItemsCalled;
-  public boolean clearMediaItemsCalled;
-  public boolean moveMediaItemCalled;
-  public boolean moveMediaItemsCalled;
-  public boolean seekToPreviousMediaItemCalled;
-  public boolean seekToNextMediaItemCalled;
-  public boolean seekToPreviousCalled;
-  public boolean seekToNextCalled;
-  public boolean setRepeatModeCalled;
-  public boolean setShuffleModeCalled;
-  public boolean setVolumeCalled;
-  public boolean setDeviceVolumeCalled;
-  public boolean increaseDeviceVolumeCalled;
-  public boolean decreaseDeviceVolumeCalled;
-  public boolean setDeviceMutedCalled;
-  public boolean setPlayWhenReadyCalled;
-  public boolean seekBackCalled;
-  public boolean seekForwardCalled;
-  public boolean setTrackSelectionParametersCalled;
-
   private MockPlayer(Builder builder) {
-    countDownLatch = new CountDownLatch(builder.latchCount);
     changePlayerStateWithTransportControl = builder.changePlayerStateWithTransportControl;
     applicationLooper = builder.applicationLooper;
 
@@ -203,13 +303,12 @@ public class MockPlayer implements Player {
 
   @Override
   public void release() {
-    releaseCalled = true;
+    checkNotNull(conditionVariables.get(METHOD_RELEASE)).open();
   }
 
   @Override
   public void stop() {
-    stopCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_STOP)).open();
   }
 
   @Deprecated
@@ -236,8 +335,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void play() {
-    playCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_PLAY)).open();
     if (changePlayerStateWithTransportControl) {
       notifyPlayWhenReadyChanged(
           /* playWhenReady= */ true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
@@ -246,8 +344,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void pause() {
-    pauseCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_PAUSE)).open();
     if (changePlayerStateWithTransportControl) {
       notifyPlayWhenReadyChanged(
           /* playWhenReady= */ false, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
@@ -256,8 +353,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void prepare() {
-    prepareCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_PREPARE)).open();
     if (changePlayerStateWithTransportControl) {
       notifyPlaybackStateChanged(Player.STATE_READY);
     }
@@ -265,30 +361,27 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekToDefaultPosition() {
-    seekToDefaultPositionCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_DEFAULT_POSITION)).open();
   }
 
   @Override
   public void seekToDefaultPosition(int mediaItemIndex) {
-    seekToDefaultPositionWithMediaItemIndexCalled = true;
     seekMediaItemIndex = mediaItemIndex;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX))
+        .open();
   }
 
   @Override
   public void seekTo(long positionMs) {
-    seekToCalled = true;
     seekPositionMs = positionMs;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO)).open();
   }
 
   @Override
   public void seekTo(int mediaItemIndex, long positionMs) {
-    seekToWithMediaItemIndexCalled = true;
     seekMediaItemIndex = mediaItemIndex;
     seekPositionMs = positionMs;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX)).open();
   }
 
   @Override
@@ -298,8 +391,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekBack() {
-    seekBackCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_BACK)).open();
   }
 
   @Override
@@ -309,8 +401,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekForward() {
-    seekForwardCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_FORWARD)).open();
   }
 
   @Override
@@ -508,16 +599,14 @@ public class MockPlayer implements Player {
 
   @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    setPlaybackParametersCalled = true;
     this.playbackParameters = playbackParameters;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_PLAYBACK_PARAMETERS)).open();
   }
 
   @Override
   public void setPlaybackSpeed(float speed) {
-    setPlaybackSpeedCalled = true;
     playbackParameters = new PlaybackParameters(speed);
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_PLAYBACK_SPEED)).open();
   }
 
   @Override
@@ -527,9 +616,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void setVolume(float volume) {
-    setVolumeCalled = true;
     this.volume = volume;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_VOLUME)).open();
   }
 
   @Override
@@ -554,35 +642,30 @@ public class MockPlayer implements Player {
 
   @Override
   public void setDeviceVolume(int volume) {
-    setDeviceVolumeCalled = true;
     deviceVolume = volume;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_DEVICE_VOLUME)).open();
   }
 
   @Override
   public void increaseDeviceVolume() {
-    increaseDeviceVolumeCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_INCREASE_DEVICE_VOLUME)).open();
   }
 
   @Override
   public void decreaseDeviceVolume() {
-    decreaseDeviceVolumeCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_DECREASE_DEVICE_VOLUME)).open();
   }
 
   @Override
   public void setDeviceMuted(boolean muted) {
-    setDeviceMutedCalled = true;
     deviceMuted = muted;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_DEVICE_MUTED)).open();
   }
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
-    this.setPlayWhenReadyCalled = true;
     this.playWhenReady = playWhenReady;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_PLAY_WHEN_READY)).open();
   }
 
   @Override
@@ -626,49 +709,43 @@ public class MockPlayer implements Player {
 
   @Override
   public void setMediaItem(MediaItem mediaItem) {
-    setMediaItemCalled = true;
     this.mediaItem = mediaItem;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM)).open();
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    setMediaItemWithStartPositionCalled = true;
     this.mediaItem = mediaItem;
     this.startPositionMs = startPositionMs;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM_WITH_START_POSITION)).open();
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    setMediaItemWithResetPositionCalled = true;
     this.mediaItem = mediaItem;
     this.resetPosition = resetPosition;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems) {
-    setMediaItemsCalled = true;
     this.mediaItems = mediaItems;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    setMediaItemsWithResetPositionCalled = true;
     this.mediaItems = mediaItems;
     this.resetPosition = resetPosition;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    setMediaItemsWithStartIndexCalled = true;
     this.mediaItems = mediaItems;
     this.startMediaItemIndex = startIndex;
     this.startPositionMs = startPositionMs;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX)).open();
   }
 
   @Override
@@ -678,9 +755,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
-    setPlaylistMetadataCalled = true;
     this.playlistMetadata = playlistMetadata;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_PLAYLIST_METADATA)).open();
   }
 
   @Deprecated
@@ -775,70 +851,61 @@ public class MockPlayer implements Player {
 
   @Override
   public void addMediaItem(MediaItem mediaItem) {
-    addMediaItemCalled = true;
     this.mediaItem = mediaItem;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEM)).open();
   }
 
   @Override
   public void addMediaItem(int index, MediaItem mediaItem) {
-    addMediaItemWithIndexCalled = true;
     this.index = index;
     this.mediaItem = mediaItem;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEM_WITH_INDEX)).open();
   }
 
   @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
-    addMediaItemsCalled = true;
     this.mediaItems = mediaItems;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
-    addMediaItemsWithIndexCalled = true;
     this.index = index;
     this.mediaItems = mediaItems;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).open();
   }
 
   @Override
   public void removeMediaItem(int index) {
-    removeMediaItemCalled = true;
     this.index = index;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_REMOVE_MEDIA_ITEM)).open();
   }
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
-    removeMediaItemsCalled = true;
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_REMOVE_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void clearMediaItems() {
-    clearMediaItemsCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_CLEAR_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void moveMediaItem(int currentIndex, int newIndex) {
-    moveMediaItemCalled = true;
     this.index = currentIndex;
     this.newIndex = newIndex;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEM)).open();
   }
 
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    moveMediaItemsCalled = true;
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
     this.newIndex = newIndex;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEMS)).open();
   }
 
   @Deprecated
@@ -901,20 +968,17 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekToPreviousMediaItem() {
-    seekToPreviousMediaItemCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM)).open();
   }
 
   @Override
   public void seekToNextMediaItem() {
-    seekToNextMediaItemCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_NEXT_MEDIA_ITEM)).open();
   }
 
   @Override
   public void seekToPrevious() {
-    seekToPreviousCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_PREVIOUS)).open();
   }
 
   @Override
@@ -924,8 +988,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekToNext() {
-    seekToNextCalled = true;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SEEK_TO_NEXT)).open();
   }
 
   @Override
@@ -935,9 +998,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void setRepeatMode(int repeatMode) {
-    setRepeatModeCalled = true;
     this.repeatMode = repeatMode;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_REPEAT_MODE)).open();
   }
 
   @Override
@@ -947,9 +1009,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
-    setShuffleModeCalled = true;
     this.shuffleModeEnabled = shuffleModeEnabled;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_SHUFFLE_MODE)).open();
   }
 
   @Override
@@ -1001,9 +1062,6 @@ public class MockPlayer implements Player {
 
   @Override
   public VideoSize getVideoSize() {
-    if (videoSize == null) {
-      videoSize = VideoSize.UNKNOWN;
-    }
     return videoSize;
   }
 
@@ -1113,16 +1171,6 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public TracksInfo getCurrentTracksInfo() {
     throw new UnsupportedOperationException();
   }
@@ -1134,9 +1182,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
-    setTrackSelectionParametersCalled = true;
     trackSelectionParameters = parameters;
-    countDownLatch.countDown();
+    checkNotNull(conditionVariables.get(METHOD_SET_TRACK_SELECTION_PARAMETERS)).open();
   }
 
   @Override
@@ -1144,21 +1191,79 @@ public class MockPlayer implements Player {
     return applicationLooper;
   }
 
+  /** Returns whether {@code method} has been called at least once. */
+  public boolean hasMethodBeenCalled(@Method int method) {
+    return checkNotNull(conditionVariables.get(method)).isOpen();
+  }
+
+  /**
+   * Awaits up to {@code timeOutMs} until {@code method} is called, otherwise throws a {@link
+   * TimeoutException}.
+   */
+  public void awaitMethodCalled(@Method int method, long timeOutMs)
+      throws TimeoutException, InterruptedException {
+    if (!checkNotNull(conditionVariables.get(method)).block(timeOutMs)) {
+      throw new TimeoutException(
+          Util.formatInvariant("Method %d not called after %f ms", method, timeOutMs));
+    }
+  }
+
+  private static ImmutableMap<@Method Integer, ConditionVariable> createMethodConditionVariables() {
+    return new ImmutableMap.Builder<@Method Integer, ConditionVariable>()
+        .put(METHOD_ADD_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_ADD_MEDIA_ITEMS, new ConditionVariable())
+        .put(METHOD_ADD_MEDIA_ITEM_WITH_INDEX, new ConditionVariable())
+        .put(METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, new ConditionVariable())
+        .put(METHOD_CLEAR_MEDIA_ITEMS, new ConditionVariable())
+        .put(METHOD_DECREASE_DEVICE_VOLUME, new ConditionVariable())
+        .put(METHOD_INCREASE_DEVICE_VOLUME, new ConditionVariable())
+        .put(METHOD_MOVE_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_MOVE_MEDIA_ITEMS, new ConditionVariable())
+        .put(METHOD_PAUSE, new ConditionVariable())
+        .put(METHOD_PLAY, new ConditionVariable())
+        .put(METHOD_PREPARE, new ConditionVariable())
+        .put(METHOD_RELEASE, new ConditionVariable())
+        .put(METHOD_REMOVE_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_REMOVE_MEDIA_ITEMS, new ConditionVariable())
+        .put(METHOD_SEEK_BACK, new ConditionVariable())
+        .put(METHOD_SEEK_FORWARD, new ConditionVariable())
+        .put(METHOD_SEEK_TO, new ConditionVariable())
+        .put(METHOD_SEEK_TO_DEFAULT_POSITION, new ConditionVariable())
+        .put(METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX, new ConditionVariable())
+        .put(METHOD_SEEK_TO_NEXT, new ConditionVariable())
+        .put(METHOD_SEEK_TO_NEXT_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_SEEK_TO_PREVIOUS, new ConditionVariable())
+        .put(METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, new ConditionVariable())
+        .put(METHOD_SET_DEVICE_MUTED, new ConditionVariable())
+        .put(METHOD_SET_DEVICE_VOLUME, new ConditionVariable())
+        .put(METHOD_SET_MEDIA_ITEM, new ConditionVariable())
+        .put(METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION, new ConditionVariable())
+        .put(METHOD_SET_MEDIA_ITEM_WITH_START_POSITION, new ConditionVariable())
+        .put(METHOD_SET_MEDIA_ITEMS, new ConditionVariable())
+        .put(METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, new ConditionVariable())
+        .put(METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, new ConditionVariable())
+        .put(METHOD_SET_PLAY_WHEN_READY, new ConditionVariable())
+        .put(METHOD_SET_PLAYBACK_PARAMETERS, new ConditionVariable())
+        .put(METHOD_SET_PLAYBACK_SPEED, new ConditionVariable())
+        .put(METHOD_SET_PLAYLIST_METADATA, new ConditionVariable())
+        .put(METHOD_SET_REPEAT_MODE, new ConditionVariable())
+        .put(METHOD_SET_SHUFFLE_MODE, new ConditionVariable())
+        .put(METHOD_SET_TRACK_SELECTION_PARAMETERS, new ConditionVariable())
+        .put(METHOD_SET_VOLUME, new ConditionVariable())
+        .put(METHOD_STOP, new ConditionVariable())
+        .buildOrThrow();
+  }
+
   /** Builder for {@link MockPlayer}. */
   public static final class Builder {
 
-    private int latchCount;
     private boolean changePlayerStateWithTransportControl;
     private Looper applicationLooper;
     private int itemCount;
 
     public Builder() {
       applicationLooper = Util.getCurrentOrMainLooper();
-    }
-
-    public Builder setLatchCount(int latchCount) {
-      this.latchCount = latchCount;
-      return this;
     }
 
     public Builder setChangePlayerStateWithTransportControl(

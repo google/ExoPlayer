@@ -38,6 +38,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Clock;
@@ -54,8 +55,10 @@ import androidx.media3.exoplayer.metadata.MetadataRenderer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ShuffleOrder;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.text.TextRenderer;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
+import androidx.media3.exoplayer.trackselection.TrackSelectionArray;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
@@ -1215,6 +1218,27 @@ public interface ExoPlayer extends Player {
   @UnstableApi
   @Nullable
   TrackSelector getTrackSelector();
+
+  /**
+   * Returns the available track groups.
+   *
+   * @see Listener#onTracksInfoChanged(TracksInfo)
+   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   */
+  @UnstableApi
+  @Deprecated
+  TrackGroupArray getCurrentTrackGroups();
+
+  /**
+   * Returns the current track selections for each renderer, which may include {@code null} elements
+   * if some renderers do not have any selected tracks.
+   *
+   * @see Listener#onTracksInfoChanged(TracksInfo)
+   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   */
+  @UnstableApi
+  @Deprecated
+  TrackSelectionArray getCurrentTrackSelections();
 
   /** Returns the {@link Looper} associated with the playback thread. */
   @UnstableApi

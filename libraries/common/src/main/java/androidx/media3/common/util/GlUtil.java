@@ -119,7 +119,8 @@ public final class GlUtil {
 
   /**
    * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.
-   * If {@code true}, the device supports a protected output path for DRM content when using GL.
+   *
+   * <p>If {@code true}, the device supports a protected output path for DRM content when using GL.
    */
   public static boolean isProtectedContentExtensionSupported(Context context) {
     if (Util.SDK_INT < 24) {
@@ -146,7 +147,11 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether creating a GL context with {@value #EXTENSION_SURFACELESS_CONTEXT} is possible.
+   * Returns whether the {@value #EXTENSION_SURFACELESS_CONTEXT} extension is supported.
+   *
+   * <p>This extension allows passing {@link EGL14#EGL_NO_SURFACE} for both the write and read
+   * surfaces in a call to {@link EGL14#eglMakeCurrent(EGLDisplay, EGLSurface, EGLSurface,
+   * EGLContext)}.
    */
   public static boolean isSurfacelessContextExtensionSupported() {
     if (Util.SDK_INT < 17) {
@@ -207,6 +212,52 @@ public final class GlUtil {
   }
 
   /**
+   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   */
+  @RequiresApi(17)
+  public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH, /* width= */ 1,
+          EGL14.EGL_HEIGHT, /* height= */ 1,
+          EGL14.EGL_NONE
+        };
+    EGLSurface eglSurface =
+        Api17.createEglPbufferSurface(
+            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888, pbufferAttributes);
+    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
+   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer, for HDR rendering
+   * with Rec. 2020 color primaries and using the PQ transfer function.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   */
+  @RequiresApi(17)
+  public static void focusPlaceholderEglSurfaceBt2020Pq(
+      EGLContext eglContext, EGLDisplay eglDisplay) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH,
+          /* width= */ 1,
+          EGL14.EGL_HEIGHT,
+          /* height= */ 1,
+          EGL_GL_COLORSPACE_KHR,
+          EGL_GL_COLORSPACE_BT2020_PQ_EXT,
+          EGL14.EGL_NONE
+        };
+    EGLSurface eglSurface =
+        Api17.createEglPbufferSurface(
+            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_1010102, pbufferAttributes);
+    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
    * If there is an OpenGl error, logs the error and if {@link #glAssertionsEnabled} is true throws
    * a {@link GlException}.
    */
@@ -219,6 +270,30 @@ public final class GlUtil {
     }
     if (lastError != GLES20.GL_NO_ERROR) {
       throwGlException("glError: " + gluErrorString(lastError));
+    }
+  }
+
+  /**
+   * Asserts the texture size is valid.
+   *
+   * @param width The width for a texture.
+   * @param height The height for a texture.
+   * @throws GlException If the texture width or height is invalid.
+   */
+  public static void assertValidTextureSize(int width, int height) {
+    // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
+    //  (ex. downscaling appropriately) in a FrameProcessor instead of asserting incorrect values.
+
+    // For valid GL sizes, see:
+    // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
+    int[] maxTextureSizeBuffer = new int[1];
+    GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSizeBuffer, 0);
+    int maxTextureSize = maxTextureSizeBuffer[0];
+    if (width < 0 || height < 0) {
+      throwGlException("width or height is less than 0");
+    }
+    if (width > maxTextureSize || height > maxTextureSize) {
+      throwGlException("width or height is greater than GL_MAX_TEXTURE_SIZE " + maxTextureSize);
     }
   }
 
@@ -320,6 +395,7 @@ public final class GlUtil {
    * @param height of the new texture in pixels
    */
   public static int createTexture(int width, int height) {
+    assertValidTextureSize(width, height);
     int texId = generateAndBindTexture(GLES20.GL_TEXTURE_2D);
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * 4);
     GLES20.glTexImage2D(
@@ -345,6 +421,9 @@ public final class GlUtil {
    *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
    */
   private static int generateAndBindTexture(int textureTarget) {
+    checkEglException(
+        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
     int[] texId = new int[1];
     GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
     checkGlError();
@@ -365,6 +444,9 @@ public final class GlUtil {
    * @param texId The identifier of the texture to attach to the framebuffer.
    */
   public static int createFboForTexture(int texId) {
+    checkEglException(
+        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
     int[] fboId = new int[1];
     GLES20.glGenFramebuffers(/* n= */ 1, fboId, /* offset= */ 0);
     checkGlError();
@@ -377,9 +459,10 @@ public final class GlUtil {
   }
 
   /* package */ static void throwGlException(String errorMsg) {
-    Log.e(TAG, errorMsg);
     if (glAssertionsEnabled) {
       throw new GlException(errorMsg);
+    } else {
+      Log.e(TAG, errorMsg);
     }
   }
 
@@ -387,6 +470,11 @@ public final class GlUtil {
     if (!expression) {
       throwGlException(errorMessage);
     }
+  }
+
+  private static void checkEglException(String errorMessage) {
+    int error = EGL14.eglGetError();
+    checkEglException(error == EGL14.EGL_SUCCESS, errorMessage + ", error code: " + error);
   }
 
   @RequiresApi(17)
@@ -437,12 +525,28 @@ public final class GlUtil {
         Object surface,
         int[] configAttributes,
         int[] windowSurfaceAttributes) {
-      return EGL14.eglCreateWindowSurface(
-          eglDisplay,
-          getEglConfig(eglDisplay, configAttributes),
-          surface,
-          windowSurfaceAttributes,
-          /* offset= */ 0);
+      EGLSurface eglSurface =
+          EGL14.eglCreateWindowSurface(
+              eglDisplay,
+              getEglConfig(eglDisplay, configAttributes),
+              surface,
+              windowSurfaceAttributes,
+              /* offset= */ 0);
+      checkEglException("Error creating surface");
+      return eglSurface;
+    }
+
+    @DoNotInline
+    public static EGLSurface createEglPbufferSurface(
+        EGLDisplay eglDisplay, int[] configAttributes, int[] pbufferAttributes) {
+      EGLSurface eglSurface =
+          EGL14.eglCreatePbufferSurface(
+              eglDisplay,
+              getEglConfig(eglDisplay, configAttributes),
+              pbufferAttributes,
+              /* offset= */ 0);
+      checkEglException("Error creating surface");
+      return eglSurface;
     }
 
     @DoNotInline
@@ -458,8 +562,11 @@ public final class GlUtil {
       if (boundFramebuffer[0] != framebuffer) {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
       }
+      checkGlError();
       EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+      checkEglException("Error making context current");
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
+      checkGlError();
     }
 
     @DoNotInline
@@ -470,19 +577,15 @@ public final class GlUtil {
       }
       EGL14.eglMakeCurrent(
           eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
-      int error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error releasing context: " + error);
+      checkEglException("Error releasing context");
       if (eglContext != null) {
         EGL14.eglDestroyContext(eglDisplay, eglContext);
-        error = EGL14.eglGetError();
-        checkEglException(error == EGL14.EGL_SUCCESS, "Error destroying context: " + error);
+        checkEglException("Error destroying context");
       }
       EGL14.eglReleaseThread();
-      error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error releasing thread: " + error);
+      checkEglException("Error releasing thread");
       EGL14.eglTerminate(eglDisplay);
-      error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error terminating display: " + error);
+      checkEglException("Error terminating display");
     }
 
     @DoNotInline

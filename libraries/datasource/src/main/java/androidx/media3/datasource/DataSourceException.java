@@ -21,7 +21,6 @@ import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 
 /** Used to specify reason of a DataSource error. */
-@UnstableApi
 public class DataSourceException extends IOException {
 
   /**
@@ -29,6 +28,7 @@ public class DataSourceException extends IOException {
    * {@link #reason} is {@link PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE} in its
    * cause stack.
    */
+  @UnstableApi
   public static boolean isCausedByPositionOutOfRange(IOException e) {
     @Nullable Throwable cause = e;
     while (cause != null) {
@@ -49,7 +49,7 @@ public class DataSourceException extends IOException {
    *
    * @deprecated Use {@link PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE}.
    */
-  @Deprecated
+  @UnstableApi @Deprecated
   public static final int POSITION_OUT_OF_RANGE =
       PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE;
 
@@ -65,6 +65,7 @@ public class DataSourceException extends IOException {
    * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
    *     PlaybackException.ErrorCode}.
    */
+  @UnstableApi
   public DataSourceException(@PlaybackException.ErrorCode int reason) {
     this.reason = reason;
   }
@@ -76,6 +77,7 @@ public class DataSourceException extends IOException {
    * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
    *     PlaybackException.ErrorCode}.
    */
+  @UnstableApi
   public DataSourceException(@Nullable Throwable cause, @PlaybackException.ErrorCode int reason) {
     super(cause);
     this.reason = reason;
@@ -88,6 +90,7 @@ public class DataSourceException extends IOException {
    * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
    *     PlaybackException.ErrorCode}.
    */
+  @UnstableApi
   public DataSourceException(@Nullable String message, @PlaybackException.ErrorCode int reason) {
     super(message);
     this.reason = reason;
@@ -101,6 +104,7 @@ public class DataSourceException extends IOException {
    * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
    *     PlaybackException.ErrorCode}.
    */
+  @UnstableApi
   public DataSourceException(
       @Nullable String message,
       @Nullable Throwable cause,

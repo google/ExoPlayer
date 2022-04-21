@@ -18,7 +18,7 @@ package androidx.media3.exoplayer.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import androidx.media3.datasource.DummyDataSource;
+import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -35,7 +35,7 @@ public final class DefaultDownloaderFactoryTest {
     CacheDataSource.Factory cacheDataSourceFactory =
         new CacheDataSource.Factory()
             .setCache(Mockito.mock(Cache.class))
-            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+            .setUpstreamDataSourceFactory(PlaceholderDataSource.FACTORY);
     DownloaderFactory factory =
         new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 

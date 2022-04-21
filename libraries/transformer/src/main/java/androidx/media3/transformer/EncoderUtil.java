@@ -22,12 +22,14 @@ import static java.lang.Math.round;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
-import android.util.Pair;
+import android.media.MediaFormat;
+import android.util.Size;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
@@ -45,8 +47,8 @@ public final class EncoderUtil {
   private static final List<MediaCodecInfo> encoders = new ArrayList<>();
 
   /**
-   * Returns a list of {@link MediaCodecInfo encoders} that support the given {@code mimeType}, or
-   * an empty list if there is none.
+   * Returns a list of {@linkplain MediaCodecInfo encoders} that support the given {@code mimeType},
+   * or an empty list if there is none.
    */
   public static ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
     maybePopulateEncoderInfos();
@@ -65,59 +67,76 @@ public final class EncoderUtil {
   }
 
   /**
-   * Finds the {@link MediaCodecInfo encoder}'s closest supported resolution from the given
-   * resolution.
+   * Finds an {@linkplain MediaCodecInfo encoder}'s supported resolution from a given resolution.
    *
-   * <p>The input resolution is returned, if it is supported by the {@link MediaCodecInfo encoder}.
+   * <p>The input resolution is returned, if it (after aligning to the encoder's requirement) is
+   * supported by the {@linkplain MediaCodecInfo encoder}.
    *
-   * <p>The resolution will be clamped to the {@link MediaCodecInfo encoder}'s range of supported
-   * resolutions, and adjusted to the {@link MediaCodecInfo encoder}'s size alignment. The
-   * adjustment process takes into account the original aspect ratio. But the fixed resolution may
-   * not preserve the original aspect ratio, depending on the encoder's required size alignment.
+   * <p>The resolution will be adjusted to be within the {@linkplain MediaCodecInfo encoder}'s range
+   * of supported resolutions, and will be aligned to the {@linkplain MediaCodecInfo encoder}'s
+   * alignment requirement. The adjustment process takes into account the original aspect ratio. But
+   * the fixed resolution may not preserve the original aspect ratio, depending on the encoder's
+   * required size alignment.
    *
    * @param encoderInfo The {@link MediaCodecInfo} of the encoder.
    * @param mimeType The output MIME type.
    * @param width The original width.
    * @param height The original height.
-   * @return A {@link Pair} of width and height, or {@code null} if unable to find a fix.
+   * @return A {@linkplain Size supported resolution}, or {@code null} if unable to find a fallback.
    */
   @Nullable
-  public static Pair<Integer, Integer> getClosestSupportedResolution(
+  public static Size getSupportedResolution(
       MediaCodecInfo encoderInfo, String mimeType, int width, int height) {
     MediaCodecInfo.VideoCapabilities videoEncoderCapabilities =
         encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
+    int widthAlignment = videoEncoderCapabilities.getWidthAlignment();
+    int heightAlignment = videoEncoderCapabilities.getHeightAlignment();
 
+    // Fix size alignment.
+    width = alignResolution(width, widthAlignment);
+    height = alignResolution(height, heightAlignment);
     if (videoEncoderCapabilities.isSizeSupported(width, height)) {
-      return Pair.create(width, height);
+      return new Size(width, height);
+    }
+
+    // Try three-fourths (e.g. 1440 -> 1080).
+    int newWidth = alignResolution(width * 3 / 4, widthAlignment);
+    int newHeight = alignResolution(height * 3 / 4, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return new Size(newWidth, newHeight);
+    }
+
+    // Try two-thirds (e.g. 4k -> 1440).
+    newWidth = alignResolution(width * 2 / 3, widthAlignment);
+    newHeight = alignResolution(height * 2 / 3, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return new Size(newWidth, newHeight);
+    }
+
+    // Try half (e.g. 4k -> 1080).
+    newWidth = alignResolution(width / 2, widthAlignment);
+    newHeight = alignResolution(height / 2, heightAlignment);
+    if (videoEncoderCapabilities.isSizeSupported(newWidth, newHeight)) {
+      return new Size(newWidth, newHeight);
     }
 
     // Fix frame being too wide or too tall.
-    int adjustedHeight = videoEncoderCapabilities.getSupportedHeights().clamp(height);
+    width = videoEncoderCapabilities.getSupportedWidths().clamp(width);
+    int adjustedHeight = videoEncoderCapabilities.getSupportedHeightsFor(width).clamp(height);
     if (adjustedHeight != height) {
-      width = (int) round((double) width * adjustedHeight / height);
-      height = adjustedHeight;
+      width =
+          alignResolution((int) round((double) width * adjustedHeight / height), widthAlignment);
+      height = alignResolution(adjustedHeight, heightAlignment);
     }
 
-    int adjustedWidth = videoEncoderCapabilities.getSupportedWidths().clamp(width);
-    if (adjustedWidth != width) {
-      height = (int) round((double) height * adjustedWidth / width);
-      width = adjustedWidth;
-    }
-
-    // Fix pixel alignment.
-    width = alignResolution(width, videoEncoderCapabilities.getWidthAlignment());
-    height = alignResolution(height, videoEncoderCapabilities.getHeightAlignment());
-
-    return videoEncoderCapabilities.isSizeSupported(width, height)
-        ? Pair.create(width, height)
-        : null;
+    return videoEncoderCapabilities.isSizeSupported(width, height) ? new Size(width, height) : null;
   }
 
   /**
    * Finds the highest supported encoding level given a profile.
    *
    * @param encoderInfo The {@link MediaCodecInfo encoderInfo}.
-   * @param mimeType The {@link MimeTypes MIME type}.
+   * @param mimeType The {@linkplain MimeTypes MIME type}.
    * @param profile The encoding profile.
    * @return The highest supported encoding level, as documented in {@link
    *     MediaCodecInfo.CodecProfileLevel}, or {@link #LEVEL_UNSET} if the profile is not supported.
@@ -138,7 +157,34 @@ public final class EncoderUtil {
   }
 
   /**
-   * Finds the {@link MediaCodecInfo encoder}'s closest supported bitrate from the given bitrate.
+   * Finds a {@link MediaCodec} that supports the {@link MediaFormat}, or {@code null} if none is
+   * found.
+   */
+  @Nullable
+  public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    // Format must not include KEY_FRAME_RATE on API21.
+    // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
+    @Nullable String frameRate = null;
+    if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+      frameRate = format.getString(MediaFormat.KEY_FRAME_RATE);
+      format.setString(MediaFormat.KEY_FRAME_RATE, null);
+    }
+
+    String mediaCodecName =
+        isDecoder
+            ? mediaCodecList.findDecoderForFormat(format)
+            : mediaCodecList.findEncoderForFormat(format);
+
+    if (Util.SDK_INT == 21) {
+      MediaFormatUtil.maybeSetString(format, MediaFormat.KEY_FRAME_RATE, frameRate);
+    }
+    return mediaCodecName;
+  }
+
+  /**
+   * Finds the {@linkplain MediaCodecInfo encoder}'s closest supported bitrate from the given
+   * bitrate.
    */
   public static int getClosestSupportedBitrate(
       MediaCodecInfo encoderInfo, String mimeType, int bitrate) {
@@ -149,7 +195,16 @@ public final class EncoderUtil {
         .clamp(bitrate);
   }
 
-  /** Checks if a {@link MediaCodecInfo codec} is hardware-accelerated. */
+  /** Returns whether the bitrate mode is supported by the encoder. */
+  public static boolean isBitrateModeSupported(
+      MediaCodecInfo encoderInfo, String mimeType, int bitrateMode) {
+    return encoderInfo
+        .getCapabilitiesForType(mimeType)
+        .getEncoderCapabilities()
+        .isBitrateModeSupported(bitrateMode);
+  }
+
+  /** Checks if a {@linkplain MediaCodecInfo codec} is hardware-accelerated. */
   public static boolean isHardwareAccelerated(MediaCodecInfo encoderInfo, String mimeType) {
     // TODO(b/214964116): Merge into MediaCodecUtil.
     if (Util.SDK_INT >= 29) {
@@ -192,7 +247,15 @@ public final class EncoderUtil {
    * aligned to 48.
    */
   private static int alignResolution(int size, int alignment) {
-    return alignment * Math.round((float) size / alignment);
+    // Aligning to resolutions that are multiples of 10, like from 1081 to 1080, assuming alignment
+    // is 2 in most encoders.
+    boolean shouldRoundDown = false;
+    if (size % 10 == 1) {
+      shouldRoundDown = true;
+    }
+    return shouldRoundDown
+        ? (int) (alignment * Math.floor((float) size / alignment))
+        : alignment * Math.round((float) size / alignment);
   }
 
   private static synchronized void maybePopulateEncoderInfos() {

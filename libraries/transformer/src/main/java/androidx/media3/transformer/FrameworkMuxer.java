@@ -209,13 +209,48 @@ import java.nio.ByteBuffer;
 
     isStarted = false;
     try {
+      stopMuxer(mediaMuxer);
+    } catch (RuntimeException e) {
+      // It doesn't matter that stopping the muxer throws if the transformation is being cancelled.
+      if (!forCancellation) {
+        throw new MuxerException("Failed to stop the muxer", e);
+      }
+    } finally {
+      mediaMuxer.release();
+    }
+  }
+
+  /**
+   * Converts a {@linkplain MimeTypes MIME type} into a {@linkplain MediaMuxer.OutputFormat
+   * MediaMuxer output format}.
+   *
+   * @param mimeType The {@linkplain MimeTypes MIME type} to convert.
+   * @return The corresponding {@linkplain MediaMuxer.OutputFormat MediaMuxer output format}.
+   * @throws IllegalArgumentException If the {@linkplain MimeTypes MIME type} is not supported as
+   *     output format.
+   */
+  private static int mimeTypeToMuxerOutputFormat(String mimeType) {
+    if (mimeType.equals(MimeTypes.VIDEO_MP4)) {
+      return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
+    } else if (SDK_INT >= 21 && mimeType.equals(MimeTypes.VIDEO_WEBM)) {
+      return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
+    } else {
+      throw new IllegalArgumentException("Unsupported output MIME type: " + mimeType);
+    }
+  }
+
+  // Accesses MediaMuxer state via reflection to ensure that muxer resources can be released even
+  // if stopping fails.
+  @SuppressLint("PrivateApi")
+  private static void stopMuxer(MediaMuxer mediaMuxer) {
+    try {
       mediaMuxer.stop();
     } catch (RuntimeException e) {
       if (SDK_INT < 30) {
         // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
         // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
         // same exception without releasing its resources. This is already implemented in MediaMuxer
-        // from API level 30.
+        // from API level 30. See also b/80338884.
         try {
           Field muxerStoppedStateField = MediaMuxer.class.getDeclaredField("MUXER_STATE_STOPPED");
           muxerStoppedStateField.setAccessible(true);
@@ -227,31 +262,8 @@ import java.nio.ByteBuffer;
           // Do nothing.
         }
       }
-      // It doesn't matter that stopping the muxer throws if the transformation is being cancelled.
-      if (!forCancellation) {
-        throw new MuxerException("Failed to stop the muxer", e);
-      }
-    } finally {
-      mediaMuxer.release();
-    }
-  }
-
-  /**
-   * Converts a {@link MimeTypes MIME type} into a {@link MediaMuxer.OutputFormat MediaMuxer output
-   * format}.
-   *
-   * @param mimeType The {@link MimeTypes MIME type} to convert.
-   * @return The corresponding {@link MediaMuxer.OutputFormat MediaMuxer output format}.
-   * @throws IllegalArgumentException If the {@link MimeTypes MIME type} is not supported as output
-   *     format.
-   */
-  private static int mimeTypeToMuxerOutputFormat(String mimeType) {
-    if (mimeType.equals(MimeTypes.VIDEO_MP4)) {
-      return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
-    } else if (SDK_INT >= 21 && mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-      return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
-    } else {
-      throw new IllegalArgumentException("Unsupported output MIME type: " + mimeType);
+      // Rethrow the original error.
+      throw e;
     }
   }
 }

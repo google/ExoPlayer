@@ -26,7 +26,7 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.TrackGroupArray;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.extractor.metadata.mp4.MdtaMetadataEntry;
 import androidx.media3.extractor.metadata.mp4.MotionPhotoMetadata;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;

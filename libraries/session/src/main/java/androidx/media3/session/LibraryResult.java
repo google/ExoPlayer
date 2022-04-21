@@ -218,11 +218,24 @@ public final class LibraryResult<V> implements Bundleable {
    * @param errorCode The error code.
    */
   public static <V> LibraryResult<V> ofError(@Code int errorCode) {
+    return ofError(errorCode, /* params= */ null);
+  }
+
+  /**
+   * Creates an instance with an unsuccessful {@link Code result code} and {@link LibraryParams} to
+   * describe the error.
+   *
+   * <p>{@code errorCode} must not be {@link #RESULT_SUCCESS}.
+   *
+   * @param errorCode The error code.
+   * @param params The optional parameters to describe the error.
+   */
+  public static <V> LibraryResult<V> ofError(@Code int errorCode, @Nullable LibraryParams params) {
     checkArgument(errorCode != RESULT_SUCCESS);
     return new LibraryResult<>(
-        errorCode,
+        /* resultCode= */ errorCode,
         SystemClock.elapsedRealtime(),
-        /* params= */ null,
+        /* params= */ params,
         /* value= */ null,
         VALUE_TYPE_ERROR);
   }
@@ -266,6 +279,8 @@ public final class LibraryResult<V> implements Bundleable {
   private static final int FIELD_VALUE = 3;
   private static final int FIELD_VALUE_TYPE = 4;
 
+  // Casting V to ImmutableList<MediaItem> is safe if valueType == VALUE_TYPE_ITEM_LIST.
+  @SuppressWarnings("unchecked")
   @UnstableApi
   @Override
   public Bundle toBundle() {

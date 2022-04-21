@@ -113,6 +113,33 @@ public final class MediaConstants {
    */
   public static final String MEDIA_URI_QUERY_URI = "uri";
 
+  /**
+   * The extras key for the localized error resolution string.
+   *
+   * <p>See {@link
+   * androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL}.
+   */
+  public static final String EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT =
+      "android.media.extras.ERROR_RESOLUTION_ACTION_LABEL";
+  /**
+   * The extras key for the error resolution intent.
+   *
+   * <p>See {@link
+   * androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT}.
+   */
+  public static final String EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT =
+      "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
+
+  /** The legacy status code for successful execution. */
+  public static final int STATUS_CODE_SUCCESS_COMPAT = -1;
+
+  /**
+   * The legacy error code for expired authentication.
+   *
+   * <p>See {@code PlaybackStateCompat#ERROR_CODE_AUTHENTICATION_EXPIRED}.
+   */
+  public static final int ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT = 3;
+
   /* package */ static final String SESSION_COMMAND_ON_EXTRAS_CHANGED =
       "androidx.media3.session.SESSION_COMMAND_ON_EXTRAS_CHANGED";
   /* package */ static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =

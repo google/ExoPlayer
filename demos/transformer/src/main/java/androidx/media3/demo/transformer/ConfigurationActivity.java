@@ -50,12 +50,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String AUDIO_MIME_TYPE = "audio_mime_type";
   public static final String VIDEO_MIME_TYPE = "video_mime_type";
   public static final String RESOLUTION_HEIGHT = "resolution_height";
-  public static final String TRANSLATE_X = "translate_x";
-  public static final String TRANSLATE_Y = "translate_y";
   public static final String SCALE_X = "scale_x";
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
   public static final String ENABLE_FALLBACK = "enable_fallback";
+  public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   private static final String[] INPUT_URIS = {
     "https://html5demos.com/assets/dizzy.mp4",
@@ -63,6 +62,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
     "https://html5demos.com/assets/dizzy.webm",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/8k24fps_4s.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_avc_aac.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_rotated_avc_aac.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-hdr-hdr10.mp4",
   };
   private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
     "MP4 with H264 video and AAC audio",
@@ -70,6 +74,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Long MP4 with H264 video and AAC audio",
     "WebM with VP8 video and Vorbis audio",
     "4K 60fps MP4 with H264 video and AAC audio (portrait, timestamps always increase)",
+    "8k 24fps MP4 with H265 video and AAC audio",
+    "MP4 with H264 video and AAC audio (portrait, H > W, 0\u00B0)",
+    "MP4 with H264 video and AAC audio (portrait, H < W, 90\u00B0)",
+    "SEF slow motion with 240 fps",
+    "MP4 with HDR (HDR10) H265 video (encoding may fail)",
   };
   private static final String SAME_AS_INPUT_OPTION = "same as input";
 
@@ -81,10 +90,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner audioMimeSpinner;
   private @MonotonicNonNull Spinner videoMimeSpinner;
   private @MonotonicNonNull Spinner resolutionHeightSpinner;
-  private @MonotonicNonNull Spinner translateSpinner;
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
+  private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private int inputUriPosition;
 
@@ -136,14 +145,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightAdapter.addAll(
         SAME_AS_INPUT_OPTION, "144", "240", "360", "480", "720", "1080", "1440", "2160");
 
-    ArrayAdapter<String> translateAdapter =
-        new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
-    translateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    translateSpinner = findViewById(R.id.translate_spinner);
-    translateSpinner.setAdapter(translateAdapter);
-    translateAdapter.addAll(
-        SAME_AS_INPUT_OPTION, "-.1, -.1", "0, 0", ".5, 0", "0, .5", "1, 1", "1.9, 0", "0, 1.9");
-
     ArrayAdapter<String> scaleAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
     scaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -159,6 +160,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
+    enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
+    enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
+    findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
   }
 
@@ -185,10 +189,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
     "enableFallbackCheckBox",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void startTransformation(View view) {
@@ -209,13 +213,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (!SAME_AS_INPUT_OPTION.equals(selectedResolutionHeight)) {
       bundle.putInt(RESOLUTION_HEIGHT, Integer.parseInt(selectedResolutionHeight));
     }
-    String selectedTranslate = String.valueOf(translateSpinner.getSelectedItem());
-    if (!SAME_AS_INPUT_OPTION.equals(selectedTranslate)) {
-      List<String> translateXY = Arrays.asList(selectedTranslate.split(", "));
-      checkState(translateXY.size() == 2);
-      bundle.putFloat(TRANSLATE_X, Float.parseFloat(translateXY.get(0)));
-      bundle.putFloat(TRANSLATE_Y, Float.parseFloat(translateXY.get(1)));
-    }
     String selectedScale = String.valueOf(scaleSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedScale)) {
       List<String> scaleXY = Arrays.asList(selectedScale.split(", "));
@@ -228,6 +225,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
+    bundle.putBoolean(
+        ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     transformerIntent.putExtras(bundle);
 
@@ -258,9 +257,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void onRemoveAudio(View view) {
@@ -277,9 +276,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void onRemoveVideo(View view) {
@@ -295,26 +294,32 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "audioMimeSpinner",
     "videoMimeSpinner",
     "resolutionHeightSpinner",
-    "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     audioMimeSpinner.setEnabled(isAudioEnabled);
     videoMimeSpinner.setEnabled(isVideoEnabled);
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
-    translateSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
+    enableRequestSdrToneMappingCheckBox.setEnabled(
+        isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.resolution_height_text_view).setEnabled(isVideoEnabled);
-    findViewById(R.id.translate).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
+    findViewById(R.id.request_sdr_tone_mapping)
+        .setEnabled(isRequestSdrToneMappingSupported() && isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
+  }
+
+  private static boolean isRequestSdrToneMappingSupported() {
+    return Util.SDK_INT >= 31;
   }
 }

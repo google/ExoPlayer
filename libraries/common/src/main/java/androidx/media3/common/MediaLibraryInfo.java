@@ -27,23 +27,27 @@ public final class MediaLibraryInfo {
   /** A tag to use when logging library information. */
   public static final String TAG = "AndroidXMedia3";
 
-  /** The version of the library expressed as a string, for example "1.2.3". */
+  /** The version of the library expressed as a string, for example "1.2.3" or "1.2.3-beta01". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "1.0.0-alpha01";
+  public static final String VERSION = "1.0.0-alpha03";
 
   /** The version of the library expressed as {@code TAG + "/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "AndroidXMedia3/1.0.0-alpha01";
+  public static final String VERSION_SLASHY = "AndroidXMedia3/1.0.0-alpha03";
 
   /**
-   * The version of the library expressed as an integer, for example 1002003.
+   * The version of the library expressed as an integer, for example 1002003300.
    *
-   * <p>Three digits are used for each component of {@link #VERSION}. For example "1.2.3" has the
-   * corresponding integer version 1002003 (001-002-003), and "123.45.6" has the corresponding
-   * integer version 123045006 (123-045-006).
+   * <p>Three digits are used for each of the first three components of {@link #VERSION}, then a
+   * single digit represents the cycle of this version: alpha (0), beta (1), rc (2) or stable (3).
+   * Finally two digits are used for the cycle number (always 00 for stable releases).
+   *
+   * <p>For example "1.2.3-alpha05" has the corresponding integer version 1002003005
+   * (001-002-003-0-05), and "123.45.6" has the corresponding integer version 123045006300
+   * (123-045-006-3-00).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final int VERSION_INT = 1000000;
+  public static final int VERSION_INT = 1_000_000_0_03;
 
   /** Whether the library was compiled with {@link Assertions} checks enabled. */
   public static final boolean ASSERTIONS_ENABLED = true;

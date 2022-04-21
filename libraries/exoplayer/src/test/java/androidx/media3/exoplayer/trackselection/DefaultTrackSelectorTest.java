@@ -40,8 +40,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Util;
@@ -50,6 +48,7 @@ import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.Parameters;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.ParametersBuilder;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.SelectionOverride;
@@ -302,7 +301,7 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
+            .setOverrideForType(new TrackSelectionOverride(videoGroupH264, /* trackIndex= */ 0))
             .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -319,7 +318,7 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
+            .setOverrideForType(new TrackSelectionOverride(videoGroupAv1, /* trackIndex= */ 0))
             .build());
     result =
         trackSelector.selectTracks(
@@ -350,7 +349,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
+            .setOverrideForType(
+                new TrackSelectionOverride(audioGroupUnsupported, /* trackIndex= */ 0))
             .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -392,7 +392,9 @@ public final class DefaultTrackSelectorTest {
   public void selectVideoAudioTracks_withDisabledAudioType_onlyVideoIsSelected()
       throws ExoPlaybackException {
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO)));
+        defaultParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -407,11 +409,12 @@ public final class DefaultTrackSelectorTest {
 
   /** Tests that a disabled track type can be enabled again. */
   @Test
+  @SuppressWarnings("deprecation")
   public void selectTracks_withClearedDisabledTrackType_selectsAll() throws ExoPlaybackException {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
             .setDisabledTrackTypes(ImmutableSet.of()));
 
     TrackSelectorResult result =
@@ -426,7 +429,9 @@ public final class DefaultTrackSelectorTest {
   public void selectTracks_withDisabledNoneTracksAndNoSampleRenderer_disablesNoSampleRenderer()
       throws ExoPlaybackException {
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_NONE)));
+        defaultParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_NONE, /* disabled= */ true));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -1125,7 +1130,7 @@ public final class DefaultTrackSelectorTest {
     // selected.
     trackGroups = wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault);
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+        defaultParameters.buildUpon().setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
 
@@ -1136,8 +1141,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(
-                C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
 
@@ -1155,7 +1159,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, noFlag);
   }
@@ -2366,7 +2370,7 @@ public final class DefaultTrackSelectorTest {
         .setPreferredTextLanguages("de", "en")
         .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
         .setSelectUndeterminedTextLanguage(true)
-        .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
+        .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
         // General
         .setForceLowestBitrate(false)
         .setForceHighestSupportedBitrate(true)

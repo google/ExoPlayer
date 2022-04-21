@@ -21,11 +21,15 @@ import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.MediaFormatUtil;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.DecoderFactory}. */
 /* package */ final class DefaultDecoderFactory implements Codec.DecoderFactory {
+
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
     MediaFormat mediaFormat =
@@ -35,16 +39,18 @@ import androidx.media3.common.util.MediaFormatUtil;
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
 
+    @Nullable
+    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
+    if (mediaCodecName == null) {
+      throw createTransformationException(format);
+    }
     return new DefaultCodec(
-        format,
-        mediaFormat,
-        /* mediaCodecName= */ null,
-        /* isDecoder= */ true,
-        /* outputSurface= */ null);
+        format, mediaFormat, mediaCodecName, /* isDecoder= */ true, /* outputSurface= */ null);
   }
 
   @Override
-  public Codec createForVideoDecoding(Format format, Surface outputSurface)
+  public Codec createForVideoDecoding(
+      Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
       throws TransformationException {
     MediaFormat mediaFormat =
         MediaFormat.createVideoFormat(
@@ -58,8 +64,28 @@ import androidx.media3.common.util.MediaFormatUtil;
       // cycle. This key ensures no frame dropping when the decoder's output surface is full.
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
+    if (SDK_INT >= 31 && enableRequestSdrToneMapping) {
+      mediaFormat.setInteger(
+          MediaFormat.KEY_COLOR_TRANSFER_REQUEST, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
+    }
 
+    @Nullable
+    String mediaCodecName = EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true);
+    if (mediaCodecName == null) {
+      throw createTransformationException(format);
+    }
     return new DefaultCodec(
-        format, mediaFormat, /* mediaCodecName= */ null, /* isDecoder= */ true, outputSurface);
+        format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
+  }
+
+  @RequiresNonNull("#1.sampleMimeType")
+  private static TransformationException createTransformationException(Format format) {
+    return TransformationException.createForCodec(
+        new IllegalArgumentException("The requested decoding format is not supported."),
+        MimeTypes.isVideo(format.sampleMimeType),
+        /* isDecoder= */ true,
+        format,
+        /* mediaCodecName= */ null,
+        TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
   }
 }

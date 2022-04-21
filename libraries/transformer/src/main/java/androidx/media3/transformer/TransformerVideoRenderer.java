@@ -25,6 +25,7 @@ import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -34,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TVideoRenderer";
 
   private final Context context;
+  private final ImmutableList<GlFrameProcessor> frameProcessors;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
@@ -46,12 +48,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
+      ImmutableList<GlFrameProcessor> frameProcessors,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.context = context;
+    this.frameProcessors = frameProcessors;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
@@ -86,6 +90,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               context,
               inputFormat,
               transformationRequest,
+              frameProcessors,
               decoderFactory,
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
@@ -99,6 +104,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    if (encoderFactory.videoNeedsEncoding()) {
+      return false;
+    }
+    if (transformationRequest.enableRequestSdrToneMapping) {
+      return false;
+    }
     if (transformationRequest.enableHdrEditing) {
       return false;
     }
@@ -110,14 +121,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
+    if (transformationRequest.rotationDegrees != 0f) {
+      return false;
+    }
+    if (transformationRequest.scaleX != 1f) {
+      return false;
+    }
+    if (transformationRequest.scaleY != 1f) {
+      return false;
+    }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
         && transformationRequest.outputHeight != inputFormat.height) {
       return false;
     }
-    if (!transformationRequest.transformationMatrix.isIdentity()) {
-      // TODO(b/201293185, b/214010296): Move FrameProcessor transformationMatrix calculation /
-      // adjustments out of the VideoTranscodingSamplePipeline, so that we can skip transcoding when
-      // adjustments result in identity matrices.
+    if (!frameProcessors.isEmpty()) {
       return false;
     }
     return true;

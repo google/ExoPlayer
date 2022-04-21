@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,6 +56,7 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredAudioMimeTypes).isEmpty();
     assertThat(parameters.preferredTextLanguages).isEmpty();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(0);
+    assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(0);
     assertThat(parameters.selectUndeterminedTextLanguage).isFalse();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
@@ -68,7 +68,8 @@ public final class TrackSelectionParametersTest {
   @Test
   public void parametersSet_fromDefault_isAsExpected() {
     TrackSelectionOverride override1 =
-        new TrackSelectionOverride(new TrackGroup(new Format.Builder().build()));
+        new TrackSelectionOverride(
+            new TrackGroup(new Format.Builder().build()), /* trackIndex= */ 0);
     TrackSelectionOverride override2 =
         new TrackSelectionOverride(
             new TrackGroup(
@@ -98,18 +99,22 @@ public final class TrackSelectionParametersTest {
             // Text
             .setPreferredTextLanguages("de", "en")
             .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
             .setSelectUndeterminedTextLanguage(true)
             // General
             .setForceLowestBitrate(false)
             .setForceHighestSupportedBitrate(true)
-            .addOverride(new TrackSelectionOverride(new TrackGroup(new Format.Builder().build())))
+            .addOverride(
+                new TrackSelectionOverride(
+                    new TrackGroup(new Format.Builder().build()), /* trackIndex= */ 0))
             .addOverride(
                 new TrackSelectionOverride(
                     new TrackGroup(
                         new Format.Builder().setId(4).build(),
                         new Format.Builder().setId(5).build()),
                     /* trackIndices= */ ImmutableList.of(1)))
-            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT))
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
+            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, /* disabled= */ true)
             .build();
 
     // Video
@@ -138,6 +143,7 @@ public final class TrackSelectionParametersTest {
     // Text
     assertThat(parameters.preferredTextLanguages).containsExactly("de", "en").inOrder();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(C.ROLE_FLAG_CAPTION);
+    assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(C.SELECTION_FLAG_AUTOSELECT);
     assertThat(parameters.selectUndeterminedTextLanguage).isTrue();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
@@ -202,8 +208,10 @@ public final class TrackSelectionParametersTest {
 
   @Test
   public void addOverride_onDifferentGroups_addsOverride() {
-    TrackSelectionOverride override1 = new TrackSelectionOverride(newTrackGroupWithIds(1));
-    TrackSelectionOverride override2 = new TrackSelectionOverride(newTrackGroupWithIds(2));
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(2), /* trackIndex= */ 0);
 
     TrackSelectionParameters trackSelectionParameters =
         new TrackSelectionParameters.Builder(getApplicationContext())
@@ -234,8 +242,10 @@ public final class TrackSelectionParametersTest {
 
   @Test
   public void setOverrideForType_onSameType_replacesOverride() {
-    TrackSelectionOverride override1 = new TrackSelectionOverride(newTrackGroupWithIds(1));
-    TrackSelectionOverride override2 = new TrackSelectionOverride(newTrackGroupWithIds(2));
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(2), /* trackIndex= */ 0);
 
     TrackSelectionParameters trackSelectionParameters =
         new TrackSelectionParameters.Builder(getApplicationContext())
@@ -248,8 +258,10 @@ public final class TrackSelectionParametersTest {
 
   @Test
   public void clearOverridesOfType_ofTypeAudio_removesAudioOverride() {
-    TrackSelectionOverride override1 = new TrackSelectionOverride(AAC_TRACK_GROUP);
-    TrackSelectionOverride override2 = new TrackSelectionOverride(newTrackGroupWithIds(1));
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(AAC_TRACK_GROUP, /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
     TrackSelectionParameters trackSelectionParameters =
         new TrackSelectionParameters.Builder(getApplicationContext())
             .addOverride(override1)
@@ -262,8 +274,10 @@ public final class TrackSelectionParametersTest {
 
   @Test
   public void clearOverride_ofTypeGroup_removesOverride() {
-    TrackSelectionOverride override1 = new TrackSelectionOverride(AAC_TRACK_GROUP);
-    TrackSelectionOverride override2 = new TrackSelectionOverride(newTrackGroupWithIds(1));
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(AAC_TRACK_GROUP, /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
     TrackSelectionParameters trackSelectionParameters =
         new TrackSelectionParameters.Builder(getApplicationContext())
             .addOverride(override1)

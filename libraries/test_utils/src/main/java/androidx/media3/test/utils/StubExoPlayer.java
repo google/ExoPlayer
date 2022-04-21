@@ -33,6 +33,8 @@ import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ShuffleOrder;
+import androidx.media3.exoplayer.source.TrackGroupArray;
+import androidx.media3.exoplayer.trackselection.TrackSelectionArray;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
 import androidx.media3.exoplayer.video.spherical.CameraMotionListener;
@@ -291,6 +293,16 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   @Override
   @Nullable
   public TrackSelector getTrackSelector() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
     throw new UnsupportedOperationException();
   }
 

@@ -732,17 +732,17 @@ public final class C {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
   public @interface ContentType {}
-  /** Value returned by {@link Util#inferContentType(String)} for DASH manifests. */
+  /** Value returned by {@link Util#inferContentType} for DASH manifests. */
   @UnstableApi public static final int TYPE_DASH = 0;
-  /** Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests. */
+  /** Value returned by {@link Util#inferContentType} for Smooth Streaming manifests. */
   @UnstableApi public static final int TYPE_SS = 1;
-  /** Value returned by {@link Util#inferContentType(String)} for HLS manifests. */
+  /** Value returned by {@link Util#inferContentType} for HLS manifests. */
   @UnstableApi public static final int TYPE_HLS = 2;
-  /** Value returned by {@link Util#inferContentType(String)} for RTSP. */
+  /** Value returned by {@link Util#inferContentType} for RTSP. */
   @UnstableApi public static final int TYPE_RTSP = 3;
   /**
-   * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
-   * Smooth Streaming manifests, or RTSP URIs.
+   * Value returned by {@link Util#inferContentType} for files other than DASH, HLS or Smooth
+   * Streaming manifests, or RTSP URIs.
    */
   @UnstableApi public static final int TYPE_OTHER = 4;
 

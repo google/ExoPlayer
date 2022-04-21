@@ -15,162 +15,85 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import androidx.media3.common.C;
-import androidx.media3.common.MediaItem;
+import androidx.media3.common.Format;
 import androidx.media3.common.util.Log;
-import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
+import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
-  public static final String SEF_ASSET_URI_STRING = "asset:///media/mp4/sample_sef_slow_motion.mp4";
-  public static final String REMOTE_MP4_10_SECONDS_URI_STRING =
+  public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING =
+      "asset:///media/mp4/sample_with_increasing_timestamps.mp4";
+  public static final String MP4_ASSET_SEF_URI_STRING =
+      "asset:///media/mp4/sample_sef_slow_motion.mp4";
+  public static final String MP4_REMOTE_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
+  /** Test clip transcoded from {@link #MP4_REMOTE_10_SECONDS_URI_STRING} with H264 and MP3. */
+  public static final String MP4_REMOTE_H264_MP3_URI_STRING =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/%20android-screens-10s-h264-mp3.mp4";
+
+  public static final String MP4_REMOTE_4K60_PORTRAIT_URI_STRING =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4";
 
   /**
-   * Transforms the {@code uriString} with the {@link Transformer}, saving a summary of the
-   * transformation to the application cache.
+   * Log in logcat and in an analysis file that this test was skipped.
    *
-   * @param context The {@link Context}.
-   * @param testId An identifier for the test.
-   * @param transformer The {@link Transformer} that performs the transformation.
-   * @param uriString The uri (as a {@link String}) that will be transformed.
-   * @param timeoutSeconds The transformer timeout. An exception is thrown if this is exceeded.
-   * @return The {@link TestTransformationResult}.
-   * @throws Exception The cause of the transformation not completing.
+   * <p>Analysis file is a JSON summarising the test, saved to the application cache.
+   *
+   * <p>The analysis json will contain a {@code skipReason} key, with the reason for skipping the
+   * test case.
    */
-  public static TestTransformationResult runTransformer(
-      Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
-      throws Exception {
-    JSONObject resultJson = new JSONObject();
-    try {
-      TestTransformationResult testTransformationResult =
-          runTransformerInternal(context, testId, transformer, uriString, timeoutSeconds);
-      resultJson.put(
-          "transformationResult",
-          getTransformationResultJson(testTransformationResult.transformationResult));
-      return testTransformationResult;
-    } catch (Exception e) {
-      resultJson.put("exception", getExceptionJson(e));
-      throw e;
-    } finally {
-      writeTestSummaryToFile(context, testId, resultJson);
-    }
+  public static void recordTestSkipped(Context context, String testId, String reason)
+      throws JSONException, IOException {
+    Log.i(testId, reason);
+    JSONObject testJson = new JSONObject();
+    testJson.put("skipReason", reason);
+
+    writeTestSummaryToFile(context, testId, testJson);
   }
 
-  private static TestTransformationResult runTransformerInternal(
-      Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
-      throws Exception {
-    AtomicReference<@NullableType TransformationException> transformationExceptionReference =
-        new AtomicReference<>();
-    AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
-    AtomicReference<@NullableType TransformationResult> transformationResultReference =
-        new AtomicReference<>();
-    CountDownLatch countDownLatch = new CountDownLatch(1);
+  /**
+   * A {@link Codec.EncoderFactory} that forces encoding, wrapping {@link DefaultEncoderFactory}.
+   */
+  public static final Codec.EncoderFactory FORCE_ENCODE_ENCODER_FACTORY =
+      new Codec.EncoderFactory() {
+        @Override
+        public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+            throws TransformationException {
+          return Codec.EncoderFactory.DEFAULT.createForAudioEncoding(format, allowedMimeTypes);
+        }
 
-    Transformer testTransformer =
-        transformer
-            .buildUpon()
-            .addListener(
-                new Transformer.Listener() {
-                  @Override
-                  public void onTransformationCompleted(
-                      MediaItem inputMediaItem, TransformationResult result) {
-                    transformationResultReference.set(result);
-                    countDownLatch.countDown();
-                  }
+        @Override
+        public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+            throws TransformationException {
+          return Codec.EncoderFactory.DEFAULT.createForVideoEncoding(format, allowedMimeTypes);
+        }
 
-                  @Override
-                  public void onTransformationError(
-                      MediaItem inputMediaItem, TransformationException exception) {
-                    transformationExceptionReference.set(exception);
-                    countDownLatch.countDown();
-                  }
-                })
-            .build();
+        @Override
+        public boolean audioNeedsEncoding() {
+          return true;
+        }
 
-    Uri uri = Uri.parse(uriString);
-    File outputVideoFile = createExternalCacheFile(context, /* fileName= */ testId + "-output.mp4");
-    InstrumentationRegistry.getInstrumentation()
-        .runOnMainSync(
-            () -> {
-              try {
-                testTransformer.startTransformation(
-                    MediaItem.fromUri(uri), outputVideoFile.getAbsolutePath());
-                // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
-                // propagate.
-              } catch (Exception e) {
-                unexpectedExceptionReference.set(e);
-                countDownLatch.countDown();
-              }
-            });
+        @Override
+        public boolean videoNeedsEncoding() {
+          return true;
+        }
+      };
 
-    if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
-      throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
-    }
-
-    @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
-    if (unexpectedException != null) {
-      throw unexpectedException;
-    }
-
-    @Nullable
-    TransformationException transformationException = transformationExceptionReference.get();
-    if (transformationException != null) {
-      throw transformationException;
-    }
-
-    // If both exceptions are null, the Transformation must have succeeded, and a
-    // transformationResult will be available.
-    TransformationResult transformationResult =
-        checkNotNull(transformationResultReference.get())
-            .buildUpon()
-            .setFileSizeBytes(outputVideoFile.length())
-            .build();
-
-    return new TestTransformationResult(transformationResult, outputVideoFile.getPath());
-  }
-
-  private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
-      throws IOException, JSONException {
-    resultJson.put("testId", testId).put("device", getDeviceJson());
-
-    String analysisContents = resultJson.toString(/* indentSpaces= */ 2);
-
-    // Log contents as well as writing to file, for easier visibility on individual device testing.
-    Log.i("TransformerAndroidTest_" + testId, analysisContents);
-
-    File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
-    try (FileWriter fileWriter = new FileWriter(analysisFile)) {
-      fileWriter.write(analysisContents);
-    }
-  }
-
-  private static File createExternalCacheFile(Context context, String fileName) throws IOException {
-    File file = new File(context.getExternalCacheDir(), fileName);
-    checkState(!file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
-    checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
-    return file;
-  }
-
-  private static JSONObject getDeviceJson() throws JSONException {
+  /**
+   * Returns a {@link JSONObject} containing device specific details from {@link Build}, including
+   * manufacturer, model, SDK version and build fingerprint.
+   */
+  public static JSONObject getDeviceDetailsAsJsonObject() throws JSONException {
     return new JSONObject()
         .put("manufacturer", Build.MANUFACTURER)
         .put("model", Build.MODEL)
@@ -178,22 +101,12 @@ public final class AndroidTestUtil {
         .put("fingerprint", Build.FINGERPRINT);
   }
 
-  private static JSONObject getTransformationResultJson(TransformationResult transformationResult)
-      throws JSONException {
-    JSONObject transformationResultJson = new JSONObject();
-    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
-      transformationResultJson.put("fileSizeBytes", transformationResult.fileSizeBytes);
-    }
-    if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
-      transformationResultJson.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
-    }
-    if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
-      transformationResultJson.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
-    }
-    return transformationResultJson;
-  }
-
-  private static JSONObject getExceptionJson(Exception exception) throws JSONException {
+  /**
+   * Converts an exception to a {@link JSONObject}.
+   *
+   * <p>If the exception is a {@link TransformationException}, {@code errorCode} is included.
+   */
+  public static JSONObject exceptionAsJsonObject(Exception exception) throws JSONException {
     JSONObject exceptionJson = new JSONObject();
     exceptionJson.put("message", exception.getMessage());
     exceptionJson.put("type", exception.getClass());
@@ -202,6 +115,43 @@ public final class AndroidTestUtil {
     }
     exceptionJson.put("stackTrace", Log.getThrowableString(exception));
     return exceptionJson;
+  }
+
+  /**
+   * Writes the summary of a test run to the application cache file.
+   *
+   * <p>The cache filename follows the pattern {@code <testId>-result.txt}.
+   *
+   * @param context The {@link Context}.
+   * @param testId A unique identifier for the transformer test run.
+   * @param testJson A {@link JSONObject} containing a summary of the test run.
+   */
+  /* package */ static void writeTestSummaryToFile(
+      Context context, String testId, JSONObject testJson) throws IOException, JSONException {
+    testJson.put("testId", testId).put("device", getDeviceDetailsAsJsonObject());
+
+    String analysisContents = testJson.toString(/* indentSpaces= */ 2);
+
+    // Log contents as well as writing to file, for easier visibility on individual device testing.
+    Log.i(testId, analysisContents);
+
+    File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
+    try (FileWriter fileWriter = new FileWriter(analysisFile)) {
+      fileWriter.write(analysisContents);
+    }
+  }
+
+  /**
+   * Creates a {@link File} of the {@code fileName} in the application cache directory.
+   *
+   * <p>If a file of that name already exists, it is overwritten.
+   */
+  /* package */ static File createExternalCacheFile(Context context, String fileName)
+      throws IOException {
+    File file = new File(context.getExternalCacheDir(), fileName);
+    checkState(!file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
+    checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
+    return file;
   }
 
   private AndroidTestUtil() {}

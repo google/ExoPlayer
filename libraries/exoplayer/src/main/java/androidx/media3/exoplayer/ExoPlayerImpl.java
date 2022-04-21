@@ -69,8 +69,6 @@ import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
@@ -93,8 +91,10 @@ import androidx.media3.exoplayer.metadata.MetadataOutput;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.ShuffleOrder;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
+import androidx.media3.exoplayer.trackselection.TrackSelectionArray;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelectorResult;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
@@ -1896,11 +1896,6 @@ import java.util.concurrent.TimeoutException;
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
-      TrackSelectionArray newSelection =
-          new TrackSelectionArray(newPlaybackInfo.trackSelectorResult.selections);
-      listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksInfoChanged(newPlaybackInfo.trackSelectorResult.tracksInfo));

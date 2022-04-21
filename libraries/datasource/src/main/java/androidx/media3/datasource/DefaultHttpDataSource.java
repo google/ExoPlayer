@@ -60,7 +60,6 @@ import java.util.zip.GZIPInputStream;
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default properties that can
  * be passed to {@link HttpDataSource.Factory#setDefaultRequestProperties(Map)}.
  */
-@UnstableApi
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   /** {@link DataSource.Factory} for {@link DefaultHttpDataSource} instances. */
@@ -83,6 +82,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
     }
 
+    @UnstableApi
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
@@ -99,6 +99,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      *     agent of the underlying platform.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
@@ -112,6 +113,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param connectTimeoutMs The connect timeout, in milliseconds, that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setConnectTimeoutMs(int connectTimeoutMs) {
       this.connectTimeoutMs = connectTimeoutMs;
       return this;
@@ -125,6 +127,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param readTimeoutMs The connect timeout, in milliseconds, that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setReadTimeoutMs(int readTimeoutMs) {
       this.readTimeoutMs = readTimeoutMs;
       return this;
@@ -138,6 +141,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param allowCrossProtocolRedirects Whether to allow cross protocol redirects.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setAllowCrossProtocolRedirects(boolean allowCrossProtocolRedirects) {
       this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
       return this;
@@ -154,6 +158,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      *     predicate that was previously set.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
       return this;
@@ -169,6 +174,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
@@ -178,11 +184,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
      * Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
      * POST request.
      */
+    @UnstableApi
     public Factory setKeepPostFor302Redirects(boolean keepPostFor302Redirects) {
       this.keepPostFor302Redirects = keepPostFor302Redirects;
       return this;
     }
 
+    @UnstableApi
     @Override
     public DefaultHttpDataSource createDataSource() {
       DefaultHttpDataSource dataSource =
@@ -202,9 +210,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /** The default connection timeout, in milliseconds. */
-  public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
+  @UnstableApi public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
   /** The default read timeout, in milliseconds. */
-  public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
+  @UnstableApi public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
   private static final String TAG = "DefaultHttpDataSource";
   private static final int MAX_REDIRECTS = 20; // Same limit as okhttp.
@@ -232,6 +240,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   /**
    * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
    */
+  @UnstableApi
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource() {
@@ -241,6 +250,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   /**
    * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
    */
+  @UnstableApi
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(@Nullable String userAgent) {
@@ -250,6 +260,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   /**
    * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
    */
+  @UnstableApi
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(
@@ -265,6 +276,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   /**
    * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
    */
+  @UnstableApi
   @Deprecated
   public DefaultHttpDataSource(
       @Nullable String userAgent,
@@ -305,22 +317,26 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @deprecated Use {@link DefaultHttpDataSource.Factory#setContentTypePredicate(Predicate)}
    *     instead.
    */
+  @UnstableApi
   @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
     this.contentTypePredicate = contentTypePredicate;
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public Uri getUri() {
     return connection == null ? null : Uri.parse(connection.getURL().toString());
   }
 
+  @UnstableApi
   @Override
   public int getResponseCode() {
     return connection == null || responseCode <= 0 ? -1 : responseCode;
   }
 
+  @UnstableApi
   @Override
   public Map<String, List<String>> getResponseHeaders() {
     if (connection == null) {
@@ -337,6 +353,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     return new NullFilteringHeadersMap(connection.getHeaderFields());
   }
 
+  @UnstableApi
   @Override
   public void setRequestProperty(String name, String value) {
     checkNotNull(name);
@@ -344,18 +361,21 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     requestProperties.set(name, value);
   }
 
+  @UnstableApi
   @Override
   public void clearRequestProperty(String name) {
     checkNotNull(name);
     requestProperties.remove(name);
   }
 
+  @UnstableApi
   @Override
   public void clearAllRequestProperties() {
     requestProperties.clear();
   }
 
   /** Opens the source to read the specified data. */
+  @UnstableApi
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -474,6 +494,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     return bytesToRead;
   }
 
+  @UnstableApi
   @Override
   public int read(byte[] buffer, int offset, int length) throws HttpDataSourceException {
     try {
@@ -484,6 +505,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
+  @UnstableApi
   @Override
   public void close() throws HttpDataSourceException {
     try {

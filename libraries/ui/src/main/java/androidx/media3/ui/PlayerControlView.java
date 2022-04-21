@@ -56,6 +56,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
@@ -74,15 +75,12 @@ import androidx.media3.common.util.Util;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Formatter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -1127,8 +1125,11 @@ public class PlayerControlView extends FrameLayout {
         if (!trackGroupInfo.isTrackSupported(trackIndex)) {
           continue;
         }
-        String trackName =
-            trackNameProvider.getTrackName(trackGroupInfo.getTrackFormat(trackIndex));
+        Format trackFormat = trackGroupInfo.getTrackFormat(trackIndex);
+        if ((trackFormat.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
+          continue;
+        }
+        String trackName = trackNameProvider.getTrackName(trackFormat);
         tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
       }
     }
@@ -1867,11 +1868,8 @@ public class PlayerControlView extends FrameLayout {
               player.setTrackSelectionParameters(
                   trackSelectionParameters
                       .buildUpon()
-                      .setDisabledTrackTypes(
-                          new ImmutableSet.Builder<@C.TrackType Integer>()
-                              .addAll(trackSelectionParameters.disabledTrackTypes)
-                              .add(C.TRACK_TYPE_TEXT)
-                              .build())
+                      .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+                      .setIgnoredTextSelectionFlags(~C.SELECTION_FLAG_FORCED)
                       .build());
               settingsWindow.dismiss();
             }
@@ -1910,15 +1908,12 @@ public class PlayerControlView extends FrameLayout {
             }
             TrackSelectionParameters trackSelectionParameters =
                 player.getTrackSelectionParameters();
-            Set<@C.TrackType Integer> disabledTrackTypes =
-                new HashSet<>(trackSelectionParameters.disabledTrackTypes);
-            disabledTrackTypes.remove(C.TRACK_TYPE_AUDIO);
             castNonNull(player)
                 .setTrackSelectionParameters(
                     trackSelectionParameters
                         .buildUpon()
                         .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-                        .setDisabledTrackTypes(disabledTrackTypes)
+                        .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ false)
                         .build());
             settingsAdapter.setSubTextAtPosition(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
@@ -1995,6 +1990,7 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
+      @Nullable Player player = PlayerControlView.this.player;
       if (player == null) {
         return;
       }
@@ -2003,29 +1999,23 @@ public class PlayerControlView extends FrameLayout {
       } else {
         TrackInformation track = tracks.get(position - 1);
         TrackGroup trackGroup = track.trackGroupInfo.getTrackGroup();
-        TrackSelectionParameters params = checkNotNull(player).getTrackSelectionParameters();
+        TrackSelectionParameters params = player.getTrackSelectionParameters();
         boolean explicitlySelected = params.overrides.get(trackGroup) != null && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
             v -> {
-              if (player == null) {
-                return;
-              }
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
-              Set<@C.TrackType Integer> disabledTrackTypes =
-                  new HashSet<>(trackSelectionParameters.disabledTrackTypes);
-              disabledTrackTypes.remove(track.trackGroupInfo.getTrackType());
-              checkNotNull(player)
-                  .setTrackSelectionParameters(
-                      trackSelectionParameters
-                          .buildUpon()
-                          .setOverrideForType(
-                              new TrackSelectionOverride(
-                                  trackGroup, ImmutableList.of(track.trackIndex)))
-                          .setDisabledTrackTypes(disabledTrackTypes)
-                          .build());
+              player.setTrackSelectionParameters(
+                  trackSelectionParameters
+                      .buildUpon()
+                      .setOverrideForType(
+                          new TrackSelectionOverride(
+                              trackGroup, ImmutableList.of(track.trackIndex)))
+                      .setTrackTypeDisabled(
+                          track.trackGroupInfo.getTrackType(), /* disabled= */ false)
+                      .build());
               onTrackSelection(track.trackName);
               settingsWindow.dismiss();
             });

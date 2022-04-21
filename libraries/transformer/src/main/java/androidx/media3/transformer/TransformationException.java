@@ -147,7 +147,7 @@ public final class TransformationException extends Exception {
   /**
    * Caused by the output format for a track not being supported.
    *
-   * <p>Supported output formats are limited by the muxer's capabilities and the {@link
+   * <p>Supported output formats are limited by the muxer's capabilities and the {@linkplain
    * Codec.DecoderFactory encoders} available.
    */
   public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
@@ -274,15 +274,15 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for a {@link FrameEditor} related exception.
+   * Creates an instance for a {@link FrameProcessorChain} related exception.
    *
    * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  /* package */ static TransformationException createForFrameEditor(
+  /* package */ static TransformationException createForFrameProcessorChain(
       Throwable cause, int errorCode) {
-    return new TransformationException("FrameEditor error", cause, errorCode);
+    return new TransformationException("FrameProcessorChain error", cause, errorCode);
   }
 
   /**

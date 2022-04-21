@@ -22,7 +22,7 @@ import androidx.media3.common.DrmInitData;
 import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.datasource.DummyDataSource;
+import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.exoplayer.dash.manifest.AdaptationSet;
 import androidx.media3.exoplayer.dash.manifest.BaseUrl;
 import androidx.media3.exoplayer.dash.manifest.Period;
@@ -43,28 +43,28 @@ public final class DashUtilTest {
   @Test
   public void loadDrmInitDataFromManifest() throws Exception {
     Period period = newPeriod(newAdaptationSet(newRepresentation(newDrmInitData())));
-    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    Format format = DashUtil.loadFormatWithDrmInitData(PlaceholderDataSource.INSTANCE, period);
     assertThat(format.drmInitData).isEqualTo(newDrmInitData());
   }
 
   @Test
   public void loadDrmInitDataMissing() throws Exception {
     Period period = newPeriod(newAdaptationSet(newRepresentation(null /* no init data */)));
-    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    Format format = DashUtil.loadFormatWithDrmInitData(PlaceholderDataSource.INSTANCE, period);
     assertThat(format.drmInitData).isNull();
   }
 
   @Test
   public void loadDrmInitDataNoRepresentations() throws Exception {
     Period period = newPeriod(newAdaptationSet(/* no representation */ ));
-    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    Format format = DashUtil.loadFormatWithDrmInitData(PlaceholderDataSource.INSTANCE, period);
     assertThat(format).isNull();
   }
 
   @Test
   public void loadDrmInitDataNoAdaptationSets() throws Exception {
     Period period = newPeriod(/* no adaptation set */ );
-    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    Format format = DashUtil.loadFormatWithDrmInitData(PlaceholderDataSource.INSTANCE, period);
     assertThat(format).isNull();
   }
 

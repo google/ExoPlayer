@@ -16,12 +16,12 @@
 package androidx.media3.demo.main;
 
 import android.content.Context;
+import androidx.annotation.OptIn;
 import androidx.media3.database.DatabaseProvider;
 import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.datasource.cache.NoOpCacheEvictor;
@@ -59,7 +59,7 @@ public final class DemoUtil {
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
-  private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
+  private static DataSource.@MonotonicNonNull Factory httpDataSourceFactory;
   private static @MonotonicNonNull DatabaseProvider databaseProvider;
   private static @MonotonicNonNull File downloadDirectory;
   private static @MonotonicNonNull Cache downloadCache;
@@ -72,6 +72,7 @@ public final class DemoUtil {
     return BuildConfig.USE_DECODER_EXTENSIONS;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   public static RenderersFactory buildRenderersFactory(
       Context context, boolean preferExtensionRenderer) {
     @DefaultRenderersFactory.ExtensionRendererMode
@@ -85,7 +86,7 @@ public final class DemoUtil {
         .setExtensionRendererMode(extensionRendererMode);
   }
 
-  public static synchronized HttpDataSource.Factory getHttpDataSourceFactory(Context context) {
+  public static synchronized DataSource.Factory getHttpDataSourceFactory(Context context) {
     if (httpDataSourceFactory == null) {
       if (USE_CRONET_FOR_NETWORKING) {
         context = context.getApplicationContext();
@@ -117,6 +118,7 @@ public final class DemoUtil {
     return dataSourceFactory;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   public static synchronized DownloadNotificationHelper getDownloadNotificationHelper(
       Context context) {
     if (downloadNotificationHelper == null) {
@@ -136,6 +138,7 @@ public final class DemoUtil {
     return downloadTracker;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static synchronized Cache getDownloadCache(Context context) {
     if (downloadCache == null) {
       File downloadContentDirectory =
@@ -147,6 +150,7 @@ public final class DemoUtil {
     return downloadCache;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static synchronized void ensureDownloadManagerInitialized(Context context) {
     if (downloadManager == null) {
       downloadManager =
@@ -161,6 +165,7 @@ public final class DemoUtil {
     }
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static synchronized DatabaseProvider getDatabaseProvider(Context context) {
     if (databaseProvider == null) {
       databaseProvider = new StandaloneDatabaseProvider(context);
@@ -178,6 +183,7 @@ public final class DemoUtil {
     return downloadDirectory;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static CacheDataSource.Factory buildReadOnlyCacheDataSource(
       DataSource.Factory upstreamFactory, Cache cache) {
     return new CacheDataSource.Factory()

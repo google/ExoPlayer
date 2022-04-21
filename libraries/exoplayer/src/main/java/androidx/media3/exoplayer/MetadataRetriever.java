@@ -26,7 +26,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.UnstableApi;
@@ -34,6 +33,7 @@ import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.extractor.DefaultExtractorsFactory;
@@ -157,7 +157,7 @@ public final class MetadataRetriever {
                 mediaPeriod.maybeThrowPrepareError();
               }
               mediaSourceHandler.sendEmptyMessageDelayed(
-                  MESSAGE_CHECK_FOR_FAILURE, /* delayMillis= */ ERROR_POLL_INTERVAL_MS);
+                  MESSAGE_CHECK_FOR_FAILURE, /* delayMs= */ ERROR_POLL_INTERVAL_MS);
             } catch (Exception e) {
               trackGroupsFuture.setException(e);
               mediaSourceHandler.obtainMessage(MESSAGE_RELEASE).sendToTarget();
