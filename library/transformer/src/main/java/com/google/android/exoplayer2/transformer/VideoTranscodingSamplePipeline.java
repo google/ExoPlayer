@@ -271,7 +271,7 @@ import org.checkerframework.dataflow.qual.Pure;
       // TODO(b/226330223): Investigate increasing this limit.
       return 1;
     }
-    if (Util.SDK_INT < 31
+    if (Util.SDK_INT < 33
         && ("OnePlus".equals(Util.MANUFACTURER) || "samsung".equals(Util.MANUFACTURER))) {
       // Some OMX decoders don't correctly track their number of output buffers available, and get
       // stuck if too many frames are rendered without being processed, so we limit the number of
