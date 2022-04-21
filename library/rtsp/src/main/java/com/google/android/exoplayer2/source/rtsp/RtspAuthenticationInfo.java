@@ -45,9 +45,14 @@ import java.security.NoSuchAlgorithmException;
   /** HTTP digest authentication (RFC2069). */
   public static final int DIGEST = 2;
 
-  private static final String DIGEST_FORMAT =
+  /** Basic authorization header format, see RFC7617. */
+  private static final String BASIC_AUTHORIZATION_HEADER_FORMAT = "Basic %s";
+
+  /** Digest authorization header format, see RFC7616. */
+  private static final String DIGEST_AUTHORIZATION_HEADER_FORMAT =
       "Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"";
-  private static final String DIGEST_FORMAT_WITH_OPAQUE =
+
+  private static final String DIGEST_AUTHORIZATION_HEADER_FORMAT_WITH_OPAQUE =
       "Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\","
           + " opaque=\"%s\"";
 
@@ -107,9 +112,11 @@ import java.security.NoSuchAlgorithmException;
   }
 
   private String getBasicAuthorizationHeaderValue(RtspAuthUserInfo authUserInfo) {
-    return Base64.encodeToString(
-        RtspMessageUtil.getStringBytes(authUserInfo.username + ":" + authUserInfo.password),
-        Base64.DEFAULT);
+    return Util.formatInvariant(
+        BASIC_AUTHORIZATION_HEADER_FORMAT,
+        Base64.encodeToString(
+            RtspMessageUtil.getStringBytes(authUserInfo.username + ":" + authUserInfo.password),
+            Base64.DEFAULT));
   }
 
   private String getDigestAuthorizationHeaderValue(
@@ -137,10 +144,16 @@ import java.security.NoSuchAlgorithmException;
 
       if (opaque.isEmpty()) {
         return Util.formatInvariant(
-            DIGEST_FORMAT, authUserInfo.username, realm, nonce, uri, response);
+            DIGEST_AUTHORIZATION_HEADER_FORMAT, authUserInfo.username, realm, nonce, uri, response);
       } else {
         return Util.formatInvariant(
-            DIGEST_FORMAT_WITH_OPAQUE, authUserInfo.username, realm, nonce, uri, response, opaque);
+            DIGEST_AUTHORIZATION_HEADER_FORMAT_WITH_OPAQUE,
+            authUserInfo.username,
+            realm,
+            nonce,
+            uri,
+            response,
+            opaque);
       }
     } catch (NoSuchAlgorithmException e) {
       throw ParserException.createForManifestWithUnsupportedFeature(/* message= */ null, e);
