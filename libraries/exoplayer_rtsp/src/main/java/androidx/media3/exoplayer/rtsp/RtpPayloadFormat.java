@@ -46,9 +46,9 @@ public final class RtpPayloadFormat {
   private static final String RTP_MEDIA_MPEG4_VIDEO = "MP4V-ES";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
+  private static final String RTP_MEDIA_OPUS = "OPUS";
   private static final String RTP_MEDIA_PCM_L8 = "L8";
   private static final String RTP_MEDIA_PCM_L16 = "L16";
-  private static final String RTP_MEDIA_OPUS = "OPUS";
   private static final String RTP_MEDIA_PCMA = "PCMA";
   private static final String RTP_MEDIA_PCMU = "PCMU";
   private static final String RTP_MEDIA_VP8 = "VP8";

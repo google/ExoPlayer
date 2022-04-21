@@ -189,6 +189,7 @@ import com.google.common.collect.ImmutableMap;
         // the RTP timestamp is incremented with a 48000 Hz clock rate
         // for all modes of Opus and all sampling rates.
         checkArgument(clockRate == OPUS_SAMPLING_RATE, "Invalid sampling rate");
+        break;
       case MimeTypes.VIDEO_MP4V:
         checkArgument(!fmtpParameters.isEmpty());
         processMPEG4FmtpAttribute(formatBuilder, fmtpParameters);
