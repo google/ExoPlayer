@@ -65,6 +65,8 @@
         ([#47](https://github.com/androidx/media/pull/47)).
     *   Add RTP reader for WAV
         ([#56](https://github.com/androidx/media/pull/56)).
+    *   Fix RTSP basic authorization header.
+        ([#9544](https://github.com/google/ExoPlayer/issues/9544)).
 *   Session:
     *   Fix NPE in MediaControllerImplLegacy
         ([#59](https://github.com/androidx/media/pull/59))
