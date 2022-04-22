@@ -22,6 +22,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static java.lang.Math.abs;
+import static java.lang.Math.floor;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -182,8 +183,20 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     mediaFormat.setInteger(
         MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
-    mediaFormat.setFloat(
-        MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
+
+    if (Util.SDK_INT >= 25) {
+      mediaFormat.setFloat(
+          MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
+    } else {
+      float iFrameIntervalSeconds = supportedVideoEncoderSettings.iFrameIntervalSeconds;
+      // Only integer I-frame intervals are supported before API 25.
+      // Round up values in (0, 1] to avoid the special 'all keyframes' behavior when passing 0.
+      mediaFormat.setInteger(
+          MediaFormat.KEY_I_FRAME_INTERVAL,
+          (iFrameIntervalSeconds > 0f && iFrameIntervalSeconds <= 1f)
+              ? 1
+              : (int) floor(iFrameIntervalSeconds));
+    }
 
     if (Util.SDK_INT >= 23) {
       // Setting operating rate and priority is supported from API 23.
@@ -402,12 +415,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
       mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
       mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedLevel);
-    } else {
-      // For API levels below 24, setting profile and level can lead to failures in MediaCodec
-      // configuration. The encoder selects the profile/level when we don't set them.
-      mediaFormat.setString(MediaFormat.KEY_PROFILE, null);
-      mediaFormat.setString(MediaFormat.KEY_LEVEL, null);
     }
+    // For API levels below 24, setting profile and level can lead to failures in MediaCodec
+    // configuration. The encoder selects the profile/level when we don't set them.
   }
 
   private interface EncoderFallbackCost {
