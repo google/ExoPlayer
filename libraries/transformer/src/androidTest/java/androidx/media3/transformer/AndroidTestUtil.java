@@ -57,6 +57,10 @@ public final class AndroidTestUtil {
           .setFrameRate(30.00f)
           .build();
 
+  /** Baseline profile level 3.0 H.264 stream, which should be supported on all devices. */
+  public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING =
+      "asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4";
+
   public static final String MP4_ASSET_SEF_URI_STRING =
       "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final Format MP4_ASSET_SEF_FORMAT =
