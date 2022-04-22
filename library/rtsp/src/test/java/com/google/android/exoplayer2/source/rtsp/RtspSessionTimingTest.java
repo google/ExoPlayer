@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,8 +63,7 @@ public class RtspSessionTimingTest {
   }
 
   @Test
-  public void parseTiming_withInvalidRangeTiming_throwsIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class, () -> RtspSessionTiming.parseTiming("npt=10.000-2.054"));
+  public void parseTiming_withInvalidRangeTiming_throwsParserException() {
+    assertThrows(ParserException.class, () -> RtspSessionTiming.parseTiming("npt=10.000-2.054"));
   }
 }
