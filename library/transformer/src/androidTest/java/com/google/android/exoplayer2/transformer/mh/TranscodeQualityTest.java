@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 /** Checks transcoding quality. */
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
-  // TODO(b/228455984) Add test that calculates SSIM for transcoding to H265.
   @Test
   public void transformWithDecodeEncode_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
