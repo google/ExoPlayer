@@ -22,6 +22,7 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.util.Size;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -70,31 +71,33 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset,
-    // and don't create a PresentationFrameProcessor if resolution is unset.
-    ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder()
-            .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
-            .setRotationDegrees(transformationRequest.rotationDegrees)
-            .build();
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setResolution(transformationRequest.outputHeight)
-            .build();
+    ImmutableList.Builder<GlFrameProcessor> frameProcessorsListBuilder =
+        new ImmutableList.Builder<GlFrameProcessor>().addAll(frameProcessors);
+    if (transformationRequest.scaleX != 1f
+        || transformationRequest.scaleY != 1f
+        || transformationRequest.rotationDegrees != 0f) {
+      frameProcessorsListBuilder.add(
+          new ScaleToFitFrameProcessor.Builder()
+              .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
+              .setRotationDegrees(transformationRequest.rotationDegrees)
+              .build());
+    }
+    if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
+      frameProcessorsListBuilder.add(
+          new PresentationFrameProcessor.Builder()
+              .setResolution(transformationRequest.outputHeight)
+              .build());
+    }
     EncoderCompatibilityFrameProcessor encoderCompatibilityFrameProcessor =
         new EncoderCompatibilityFrameProcessor();
+    frameProcessorsListBuilder.add(encoderCompatibilityFrameProcessor);
     frameProcessorChain =
         FrameProcessorChain.create(
             context,
             inputFormat.pixelWidthHeightRatio,
             /* inputWidth= */ decodedWidth,
             /* inputHeight= */ decodedHeight,
-            new ImmutableList.Builder<GlFrameProcessor>()
-                .addAll(frameProcessors)
-                .add(scaleToFitFrameProcessor)
-                .add(presentationFrameProcessor)
-                .add(encoderCompatibilityFrameProcessor)
-                .build(),
+            frameProcessorsListBuilder.build(),
             transformationRequest.enableHdrEditing);
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
     outputRotationDegrees = encoderCompatibilityFrameProcessor.getOutputRotationDegrees();
