@@ -1463,6 +1463,13 @@ public class DashManifestParser extends DefaultHandler
       case "urn:mpeg:mpegB:cicp:ChannelConfiguration":
         audioChannels = parseMpegChannelConfiguration(xpp);
         break;
+      case "urn:dts:dash:audio_channel_configuration:2012":
+      case "tag:dts.com,2014:dash:audio_channel_configuration:2012":
+        audioChannels = parseDtsChannelConfiguration(xpp);
+        break;
+      case "tag:dts.com,2018:uhd:audio_channel_configuration":
+        audioChannels = parseDtsxChannelConfiguration(xpp);
+        break;
       case "tag:dolby.com,2014:dash:audio_channel_configuration:2011":
       case "urn:dolby:dash:audio_channel_configuration:2011":
         audioChannels = parseDolbyChannelConfiguration(xpp);
@@ -1878,6 +1885,58 @@ public class DashManifestParser extends DefaultHandler
     return 0 <= index && index < MPEG_CHANNEL_CONFIGURATION_MAPPING.length
         ? MPEG_CHANNEL_CONFIGURATION_MAPPING[index]
         : Format.NO_VALUE;
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
+   * schemeIdUri as defined by Annex G (3.2) in ETSI TS 102 114 V1.6.1
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   * not be parsed.
+   */
+  protected static int parseDtsChannelConfiguration(XmlPullParser xpp) {
+    @Nullable String value = xpp.getAttributeValue(null, "value");
+    if (value == null) {
+      return Format.NO_VALUE;
+    } else {
+      int channelCount = Integer.decode(value);
+      if ((channelCount > 0) && (channelCount < 33)) {
+        return channelCount;
+      } else {
+        return Format.NO_VALUE;
+      }
+    }
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
+   * schemeIdUri as defined by table B-5 in ETSI TS 103 491 v1.2.1.
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   * not be parsed.
+   */
+  protected static int parseDtsxChannelConfiguration(XmlPullParser xpp) {
+    @Nullable String value = xpp.getAttributeValue(null, "value");
+    if (value == null) {
+      return Format.NO_VALUE;
+    }
+
+    int channelMask = Integer.parseInt(value, 16);
+
+    if (channelMask == 0) {
+      return Format.NO_VALUE;
+    } else {
+      // Determines Channel Count by summing the number of bits
+      // set in the channelMask.
+      int channelCount; // c accumulates the total bits set in v
+
+      for (channelCount = 0; channelMask > 0; channelMask >>= 1) {
+        channelCount += channelMask & 1;
+      }
+      return channelCount;
+    }
   }
 
   /**
