@@ -15,8 +15,8 @@
  */
 package androidx.media3.exoplayer.rtsp;
 
-import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.castNonNull;
+import static androidx.media3.exoplayer.rtsp.RtspMessageUtil.checkManifestExpression;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -50,10 +50,11 @@ import java.util.regex.Pattern;
     long startTimeMs;
     long stopTimeMs;
     Matcher matcher = NPT_RANGE_PATTERN.matcher(sdpRangeAttribute);
-    checkArgument(matcher.matches());
+    checkManifestExpression(matcher.matches(), /* message= */ sdpRangeAttribute);
 
-    String startTimeString = checkNotNull(matcher.group(1));
-    if (startTimeString.equals("now")) {
+    @Nullable String startTimeString = matcher.group(1);
+    checkManifestExpression(startTimeString != null, /* message= */ sdpRangeAttribute);
+    if (castNonNull(startTimeString).equals("now")) {
       startTimeMs = LIVE_START_TIME;
     } else {
       startTimeMs = (long) (Float.parseFloat(startTimeString) * C.MILLIS_PER_SECOND);
@@ -66,7 +67,7 @@ import java.util.regex.Pattern;
       } catch (NumberFormatException e) {
         throw ParserException.createForMalformedManifest(stopTimeString, e);
       }
-      checkArgument(stopTimeMs > startTimeMs);
+      checkManifestExpression(stopTimeMs >= startTimeMs, /* message= */ sdpRangeAttribute);
     } else {
       stopTimeMs = C.TIME_UNSET;
     }
