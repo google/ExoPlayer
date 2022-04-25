@@ -124,8 +124,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   @Nullable private PlayerListener playerListener;
 
   private PlayerInfo playerInfo;
-  private PlayerInfo lastPlayerInfo;
-
   private PlayerWrapper playerWrapper;
 
   @GuardedBy("lock")
@@ -162,7 +160,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     this.mediaItemFiller = mediaItemFiller;
 
     playerInfo = PlayerInfo.DEFAULT;
-    lastPlayerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
 
     sessionId = id;
@@ -370,7 +367,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   private void dispatchOnPlayerInfoChanged(boolean excludeTimeline) {
-    lastPlayerInfo = playerInfo;
 
     List<ControllerInfo> controllers =
         sessionStub.getConnectedControllersManager().getConnectedControllers();
