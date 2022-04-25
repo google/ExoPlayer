@@ -105,8 +105,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean allowPositionDiscontinuity;
   private boolean audioSinkNeedsConfigure;
 
-  private boolean experimentalKeepAudioTrackOnSeek;
-
   @Nullable private WakeupListener wakeupListener;
 
   /**
@@ -260,19 +258,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   public String getName() {
     return TAG;
-  }
-
-  /**
-   * Sets whether to enable the experimental feature that keeps and flushes the {@link
-   * android.media.AudioTrack} when a seek occurs, as opposed to releasing and reinitialising. Off
-   * by default.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param enableKeepAudioTrackOnSeek Whether to keep the {@link android.media.AudioTrack} on seek.
-   */
-  public void experimentalSetEnableKeepAudioTrackOnSeek(boolean enableKeepAudioTrackOnSeek) {
-    this.experimentalKeepAudioTrackOnSeek = enableKeepAudioTrackOnSeek;
   }
 
   @Override
@@ -527,11 +512,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
-    if (experimentalKeepAudioTrackOnSeek) {
-      audioSink.experimentalFlushWithoutAudioTrackRelease();
-    } else {
-      audioSink.flush();
-    }
+    audioSink.flush();
 
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
