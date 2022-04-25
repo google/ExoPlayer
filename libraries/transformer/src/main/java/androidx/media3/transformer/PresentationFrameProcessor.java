@@ -233,8 +233,9 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private final float requestedAspectRatio;
   private final @Layout int layout;
 
-  private int outputWidth;
-  private int outputHeight;
+  private float outputWidth;
+  private float outputHeight;
+  private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix transformationMatrix;
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
 
@@ -270,10 +271,10 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   @Override
   public Size getOutputSize() {
-    checkState(
-        outputWidth != C.LENGTH_UNSET && outputHeight != C.LENGTH_UNSET,
+    checkStateNotNull(
+        outputSize,
         "configureOutputSizeAndTransformationMatrix must be called before getOutputSize");
-    return new Size(outputWidth, outputHeight);
+    return outputSize;
   }
 
   @Override
@@ -309,9 +310,10 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
     // Scale width and height to desired requestedHeightPixels, preserving aspect ratio.
     if (requestedHeightPixels != C.LENGTH_UNSET && requestedHeightPixels != outputHeight) {
-      outputWidth = Math.round((float) requestedHeightPixels * outputWidth / outputHeight);
+      outputWidth = requestedHeightPixels * outputWidth / outputHeight;
       outputHeight = requestedHeightPixels;
     }
+    outputSize = new Size(Math.round(outputWidth), Math.round(outputHeight));
   }
 
   @RequiresNonNull("transformationMatrix")
@@ -324,34 +326,34 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
     transformationMatrix.postTranslate(-centerX, -centerY);
     transformationMatrix.postScale(1f / scaleX, 1f / scaleY);
 
-    outputWidth = Math.round(outputWidth * scaleX);
-    outputHeight = Math.round(outputHeight * scaleY);
+    outputWidth = outputWidth * scaleX;
+    outputHeight = outputHeight * scaleY;
   }
 
   @RequiresNonNull("transformationMatrix")
   private void applyAspectRatio() {
-    float inputAspectRatio = (float) outputWidth / outputHeight;
+    float inputAspectRatio = outputWidth / outputHeight;
     if (layout == LAYOUT_SCALE_TO_FIT) {
       if (requestedAspectRatio > inputAspectRatio) {
         transformationMatrix.setScale(inputAspectRatio / requestedAspectRatio, 1f);
-        outputWidth = Math.round(outputHeight * requestedAspectRatio);
+        outputWidth = outputHeight * requestedAspectRatio;
       } else {
         transformationMatrix.setScale(1f, requestedAspectRatio / inputAspectRatio);
-        outputHeight = Math.round(outputWidth / requestedAspectRatio);
+        outputHeight = outputWidth / requestedAspectRatio;
       }
     } else if (layout == LAYOUT_SCALE_TO_FIT_WITH_CROP) {
       if (requestedAspectRatio > inputAspectRatio) {
         transformationMatrix.setScale(1f, requestedAspectRatio / inputAspectRatio);
-        outputHeight = Math.round(outputWidth / requestedAspectRatio);
+        outputHeight = outputWidth / requestedAspectRatio;
       } else {
         transformationMatrix.setScale(inputAspectRatio / requestedAspectRatio, 1f);
-        outputWidth = Math.round(outputHeight * requestedAspectRatio);
+        outputWidth = outputHeight * requestedAspectRatio;
       }
     } else if (layout == LAYOUT_STRETCH_TO_FIT) {
       if (requestedAspectRatio > inputAspectRatio) {
-        outputWidth = Math.round(outputHeight * requestedAspectRatio);
+        outputWidth = outputHeight * requestedAspectRatio;
       } else {
-        outputHeight = Math.round(outputWidth / requestedAspectRatio);
+        outputHeight = outputWidth / requestedAspectRatio;
       }
     }
   }
