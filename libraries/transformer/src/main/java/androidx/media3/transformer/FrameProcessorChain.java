@@ -481,8 +481,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       GlUtil.focusEglSurface(
           eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
       clearOutputFrame();
-      // The four-vertex triangle strip forms a quad.
-      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      getLast(frameProcessors).drawFrame(presentationTimeUs);
       EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
     }
 
