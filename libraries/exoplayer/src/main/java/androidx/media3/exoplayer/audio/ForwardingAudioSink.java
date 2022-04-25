@@ -164,6 +164,11 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
+  public void experimentalFlushWithoutAudioTrackRelease() {
+    sink.experimentalFlushWithoutAudioTrackRelease();
+  }
+
+  @Override
   public void reset() {
     sink.reset();
   }

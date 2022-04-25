@@ -907,7 +907,7 @@ public final class DefaultAudioSink implements AudioSink {
           // We're waiting for playout on the current audio track to finish.
           return false;
         }
-        flushAndReleaseAudioTrack();
+        flush();
       } else {
         // The current audio track can be reused for the new configuration.
         configuration = pendingConfiguration;
@@ -1034,7 +1034,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (audioTrackPositionTracker.isStalled(getWrittenFrames())) {
       Log.w(TAG, "Resetting stalled audio track");
-      flushAndReleaseAudioTrack();
+      flush();
       return true;
     }
 
@@ -1324,8 +1324,7 @@ public final class DefaultAudioSink implements AudioSink {
       // The audio attributes are ignored in tunneling mode, so no need to reset.
       return;
     }
-    // audioAttributes change requires the audioTrack to be recreated.
-    flushAndReleaseAudioTrack();
+    flush();
   }
 
   @Override
@@ -1338,8 +1337,7 @@ public final class DefaultAudioSink implements AudioSink {
     if (this.audioSessionId != audioSessionId) {
       this.audioSessionId = audioSessionId;
       externalAudioSessionIdProvided = audioSessionId != C.AUDIO_SESSION_ID_UNSET;
-      // audioSessionId change requires the audioTrack to be recreated.
-      flushAndReleaseAudioTrack();
+      flush();
     }
   }
 
@@ -1367,7 +1365,7 @@ public final class DefaultAudioSink implements AudioSink {
     Assertions.checkState(externalAudioSessionIdProvided);
     if (!tunneling) {
       tunneling = true;
-      flushAndReleaseAudioTrack();
+      flush();
     }
   }
 
@@ -1375,7 +1373,7 @@ public final class DefaultAudioSink implements AudioSink {
   public void disableTunneling() {
     if (tunneling) {
       tunneling = false;
-      flushAndReleaseAudioTrack();
+      flush();
     }
   }
 
@@ -1407,26 +1405,70 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void flush() {
-    if (!isAudioTrackInitialized()) {
-      return;
-    }
+    if (isAudioTrackInitialized()) {
+      resetSinkStateForFlush();
 
-    // Prior to SDK 25, AudioTrack flush does not work as intended, so it must be released and
-    // reinitialized. (Internal reference: b/143500232)
+      if (audioTrackPositionTracker.isPlaying()) {
+        audioTrack.pause();
+      }
+      if (isOffloadedPlayback(audioTrack)) {
+        checkNotNull(offloadStreamEventCallbackV29).unregister(audioTrack);
+      }
+      // AudioTrack.release can take some time, so we call it on a background thread.
+      final AudioTrack toRelease = audioTrack;
+      audioTrack = null;
+      if (Util.SDK_INT < 21 && !externalAudioSessionIdProvided) {
+        // Prior to API level 21, audio sessions are not kept alive once there are no components
+        // associated with them. If we generated the session ID internally, the only component
+        // associated with the session is the audio track that's being released, and therefore
+        // the session will not be kept alive. As a result, we need to generate a new session when
+        // we next create an audio track.
+        audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+      }
+      if (pendingConfiguration != null) {
+        configuration = pendingConfiguration;
+        pendingConfiguration = null;
+      }
+      audioTrackPositionTracker.reset();
+      releasingConditionVariable.close();
+      new Thread("ExoPlayer:AudioTrackReleaseThread") {
+        @Override
+        public void run() {
+          try {
+            toRelease.flush();
+            toRelease.release();
+          } finally {
+            releasingConditionVariable.open();
+          }
+        }
+      }.start();
+    }
+    writeExceptionPendingExceptionHolder.clear();
+    initializationExceptionPendingExceptionHolder.clear();
+  }
+
+  @Override
+  public void experimentalFlushWithoutAudioTrackRelease() {
+    // Prior to SDK 25, AudioTrack flush does not work as intended, and therefore it must be
+    // released and reinitialized. (Internal reference: b/143500232)
     if (Util.SDK_INT < 25) {
-      flushAndReleaseAudioTrack();
+      flush();
       return;
     }
 
     writeExceptionPendingExceptionHolder.clear();
     initializationExceptionPendingExceptionHolder.clear();
 
+    if (!isAudioTrackInitialized()) {
+      return;
+    }
+
     resetSinkStateForFlush();
     if (audioTrackPositionTracker.isPlaying()) {
       audioTrack.pause();
     }
-
     audioTrack.flush();
+
     audioTrackPositionTracker.reset();
     audioTrackPositionTracker.setAudioTrack(
         audioTrack,
@@ -1434,12 +1476,13 @@ public final class DefaultAudioSink implements AudioSink {
         configuration.outputEncoding,
         configuration.outputPcmFrameSize,
         configuration.bufferSize);
+
     startMediaTimeUsNeedsInit = true;
   }
 
   @Override
   public void reset() {
-    flushAndReleaseAudioTrack();
+    flush();
     for (AudioProcessor audioProcessor : toIntPcmAvailableAudioProcessors) {
       audioProcessor.reset();
     }
@@ -1451,51 +1494,6 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   // Internal methods.
-
-  private void flushAndReleaseAudioTrack() {
-    if (!isAudioTrackInitialized()) {
-      return;
-    }
-
-    writeExceptionPendingExceptionHolder.clear();
-    initializationExceptionPendingExceptionHolder.clear();
-
-    resetSinkStateForFlush();
-    if (audioTrackPositionTracker.isPlaying()) {
-      audioTrack.pause();
-    }
-    if (isOffloadedPlayback(audioTrack)) {
-      checkNotNull(offloadStreamEventCallbackV29).unregister(audioTrack);
-    }
-    // AudioTrack.release can take some time, so we call it on a background thread.
-    final AudioTrack toRelease = audioTrack;
-    audioTrack = null;
-    if (Util.SDK_INT < 21 && !externalAudioSessionIdProvided) {
-      // Prior to API level 21, audio sessions are not kept alive once there are no components
-      // associated with them. If we generated the session ID internally, the only component
-      // associated with the session is the audio track that's being released, and therefore
-      // the session will not be kept alive. As a result, we need to generate a new session when
-      // we next create an audio track.
-      audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-    }
-    if (pendingConfiguration != null) {
-      configuration = pendingConfiguration;
-      pendingConfiguration = null;
-    }
-    audioTrackPositionTracker.reset();
-    releasingConditionVariable.close();
-    new Thread("ExoPlayer:AudioTrackReleaseThread") {
-      @Override
-      public void run() {
-        try {
-          toRelease.flush();
-          toRelease.release();
-        } finally {
-          releasingConditionVariable.open();
-        }
-      }
-    }.start();
-  }
 
   private void resetSinkStateForFlush() {
     submittedPcmBytes = 0;
