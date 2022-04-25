@@ -137,7 +137,7 @@ public abstract class DecoderAudioRenderer<
 
   private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
-  private boolean audioSinkNeedsConfigure;
+  private boolean audioTrackNeedsConfigure;
 
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
@@ -202,7 +202,7 @@ public abstract class DecoderAudioRenderer<
     audioSink.setListener(new AudioSinkListener());
     flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
-    audioSinkNeedsConfigure = true;
+    audioTrackNeedsConfigure = true;
   }
 
   /**
@@ -397,7 +397,7 @@ public abstract class DecoderAudioRenderer<
         releaseDecoder();
         maybeInitDecoder();
         // The audio track may need to be recreated once the new output format is known.
-        audioSinkNeedsConfigure = true;
+        audioTrackNeedsConfigure = true;
       } else {
         outputBuffer.release();
         outputBuffer = null;
@@ -411,7 +411,7 @@ public abstract class DecoderAudioRenderer<
       return false;
     }
 
-    if (audioSinkNeedsConfigure) {
+    if (audioTrackNeedsConfigure) {
       Format outputFormat =
           getOutputFormat(decoder)
               .buildUpon()
@@ -419,7 +419,7 @@ public abstract class DecoderAudioRenderer<
               .setEncoderPadding(encoderPadding)
               .build();
       audioSink.configure(outputFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
-      audioSinkNeedsConfigure = false;
+      audioTrackNeedsConfigure = false;
     }
 
     if (audioSink.handleBuffer(
@@ -581,7 +581,7 @@ public abstract class DecoderAudioRenderer<
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    audioSinkNeedsConfigure = true;
+    audioTrackNeedsConfigure = true;
     try {
       setSourceDrmSession(null);
       releaseDecoder();
@@ -734,7 +734,7 @@ public abstract class DecoderAudioRenderer<
         // There aren't any final output buffers, so release the decoder immediately.
         releaseDecoder();
         maybeInitDecoder();
-        audioSinkNeedsConfigure = true;
+        audioTrackNeedsConfigure = true;
       }
     }
     eventDispatcher.inputFormatChanged(inputFormat, evaluation);
