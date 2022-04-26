@@ -36,14 +36,27 @@ import com.google.common.base.Ascii;
   public final int endTimeIndex;
   public final int styleIndex;
   public final int textIndex;
+  public final int marginLeftIndex;
+  public final int marginRightIndex;
+  public final int marginVerticalIndex;
   public final int length;
 
   private SsaDialogueFormat(
-      int startTimeIndex, int endTimeIndex, int styleIndex, int textIndex, int length) {
+      int startTimeIndex,
+      int endTimeIndex,
+      int styleIndex,
+      int textIndex,
+      int marginLeftIndex,
+      int marginRightIndex,
+      int marginVerticalIndex,
+      int length) {
     this.startTimeIndex = startTimeIndex;
     this.endTimeIndex = endTimeIndex;
     this.styleIndex = styleIndex;
     this.textIndex = textIndex;
+    this.marginLeftIndex = marginLeftIndex;
+    this.marginRightIndex = marginRightIndex;
+    this.marginVerticalIndex = marginVerticalIndex;
     this.length = length;
   }
 
@@ -58,6 +71,9 @@ import com.google.common.base.Ascii;
     int endTimeIndex = C.INDEX_UNSET;
     int styleIndex = C.INDEX_UNSET;
     int textIndex = C.INDEX_UNSET;
+    int marginLeftIndex = C.INDEX_UNSET;
+    int marginRightIndex = C.INDEX_UNSET;
+    int marginVerticalIndex = C.INDEX_UNSET;
     Assertions.checkArgument(formatLine.startsWith(FORMAT_LINE_PREFIX));
     String[] keys = TextUtils.split(formatLine.substring(FORMAT_LINE_PREFIX.length()), ",");
     for (int i = 0; i < keys.length; i++) {
@@ -74,12 +90,29 @@ import com.google.common.base.Ascii;
         case "text":
           textIndex = i;
           break;
+        case "marginl":
+          marginLeftIndex = i;
+          break;
+        case "marginr":
+          marginRightIndex = i;
+          break;
+        case "marginv":
+          marginVerticalIndex = i;
+          break;
       }
     }
     return (startTimeIndex != C.INDEX_UNSET
             && endTimeIndex != C.INDEX_UNSET
             && textIndex != C.INDEX_UNSET)
-        ? new SsaDialogueFormat(startTimeIndex, endTimeIndex, styleIndex, textIndex, keys.length)
+        ? new SsaDialogueFormat(
+            startTimeIndex,
+            endTimeIndex,
+            styleIndex,
+            textIndex,
+            marginLeftIndex,
+            marginRightIndex,
+            marginVerticalIndex,
+            keys.length)
         : null;
   }
 }
