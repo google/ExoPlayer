@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.transformer;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 import android.util.Size;
@@ -36,46 +35,13 @@ import org.junit.runner.RunWith;
 public final class FrameProcessorChainTest {
 
   @Test
-  public void create_withSupportedPixelWidthHeightRatio_completesSuccessfully()
-      throws TransformationException {
-    Context context = getApplicationContext();
-
-    FrameProcessorChain.create(
-        context,
-        /* pixelWidthHeightRatio= */ 1,
-        /* inputWidth= */ 200,
-        /* inputHeight= */ 100,
-        /* frameProcessors= */ ImmutableList.of(),
-        /* enableExperimentalHdrEditing= */ false);
-  }
-
-  @Test
-  public void create_withUnsupportedPixelWidthHeightRatio_throwsException() {
-    Context context = getApplicationContext();
-
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class,
-            () ->
-                FrameProcessorChain.create(
-                    context,
-                    /* pixelWidthHeightRatio= */ 2,
-                    /* inputWidth= */ 200,
-                    /* inputHeight= */ 100,
-                    /* frameProcessors= */ ImmutableList.of(),
-                    /* enableExperimentalHdrEditing= */ false));
-
-    assertThat(exception).hasCauseThat().isInstanceOf(UnsupportedOperationException.class);
-    assertThat(exception).hasCauseThat().hasMessageThat().contains("pixelWidthHeightRatio");
-  }
-
-  @Test
-  public void getOutputSize_withoutFrameProcessors_returnsInputSize()
-      throws TransformationException {
+  public void getOutputSize_noOperation_returnsInputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     FrameProcessorChain frameProcessorChain =
         createFrameProcessorChainWithFakeFrameProcessors(
-            inputSize, /* frameProcessorOutputSizes= */ ImmutableList.of());
+            /* pixelWidthHeightRatio= */ 1f,
+            inputSize,
+            /* frameProcessorOutputSizes= */ ImmutableList.of());
 
     Size outputSize = frameProcessorChain.getOutputSize();
 
@@ -83,13 +49,42 @@ public final class FrameProcessorChainTest {
   }
 
   @Test
-  public void getOutputSize_withOneFrameProcessor_returnsItsOutputSize()
-      throws TransformationException {
+  public void getOutputSize_withWidePixels_returnsWiderOutputSize() throws Exception {
+    Size inputSize = new Size(200, 100);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeFrameProcessors(
+            /* pixelWidthHeightRatio= */ 2f,
+            inputSize,
+            /* frameProcessorOutputSizes= */ ImmutableList.of());
+
+    Size outputSize = frameProcessorChain.getOutputSize();
+
+    assertThat(outputSize).isEqualTo(new Size(400, 100));
+  }
+
+  @Test
+  public void getOutputSize_withTallPixels_returnsTallerOutputSize() throws Exception {
+    Size inputSize = new Size(200, 100);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeFrameProcessors(
+            /* pixelWidthHeightRatio= */ .5f,
+            inputSize,
+            /* frameProcessorOutputSizes= */ ImmutableList.of());
+
+    Size outputSize = frameProcessorChain.getOutputSize();
+
+    assertThat(outputSize).isEqualTo(new Size(200, 200));
+  }
+
+  @Test
+  public void getOutputSize_withOneFrameProcessor_returnsItsOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     Size frameProcessorOutputSize = new Size(300, 250);
     FrameProcessorChain frameProcessorChain =
         createFrameProcessorChainWithFakeFrameProcessors(
-            inputSize, /* frameProcessorOutputSizes= */ ImmutableList.of(frameProcessorOutputSize));
+            /* pixelWidthHeightRatio= */ 1f,
+            inputSize,
+            /* frameProcessorOutputSizes= */ ImmutableList.of(frameProcessorOutputSize));
 
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
@@ -97,14 +92,14 @@ public final class FrameProcessorChainTest {
   }
 
   @Test
-  public void getOutputSize_withThreeFrameProcessors_returnsLastOutputSize()
-      throws TransformationException {
+  public void getOutputSize_withThreeFrameProcessors_returnsLastOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     Size outputSize1 = new Size(300, 250);
     Size outputSize2 = new Size(400, 244);
     Size outputSize3 = new Size(150, 160);
     FrameProcessorChain frameProcessorChain =
         createFrameProcessorChainWithFakeFrameProcessors(
+            /* pixelWidthHeightRatio= */ 1f,
             inputSize,
             /* frameProcessorOutputSizes= */ ImmutableList.of(
                 outputSize1, outputSize2, outputSize3));
@@ -115,14 +110,15 @@ public final class FrameProcessorChainTest {
   }
 
   private static FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
-      Size inputSize, List<Size> frameProcessorOutputSizes) throws TransformationException {
+      float pixelWidthHeightRatio, Size inputSize, List<Size> frameProcessorOutputSizes)
+      throws TransformationException {
     ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
     for (Size element : frameProcessorOutputSizes) {
       frameProcessors.add(new FakeFrameProcessor(element));
     }
     return FrameProcessorChain.create(
         getApplicationContext(),
-        /* pixelWidthHeightRatio= */ 1,
+        pixelWidthHeightRatio,
         inputSize.getWidth(),
         inputSize.getHeight(),
         frameProcessors.build(),

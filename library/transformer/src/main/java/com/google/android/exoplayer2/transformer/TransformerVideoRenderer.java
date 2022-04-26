@@ -121,6 +121,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
+    if (inputFormat.pixelWidthHeightRatio != 1f) {
+      return false;
+    }
     if (transformationRequest.rotationDegrees != 0f) {
       return false;
     }

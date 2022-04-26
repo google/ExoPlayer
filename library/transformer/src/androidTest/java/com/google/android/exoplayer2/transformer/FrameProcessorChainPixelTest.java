@@ -53,6 +53,8 @@ import org.junit.runner.RunWith;
 public final class FrameProcessorChainPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String SCALE_WIDE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/scale_wide.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/translate_right.png";
   public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
@@ -74,7 +76,7 @@ public final class FrameProcessorChainPixelTest {
    */
   private static final int FRAME_PROCESSING_WAIT_MS = 5000;
   /** The ratio of width over height, for each pixel in a frame. */
-  private static final float PIXEL_WIDTH_HEIGHT_RATIO = 1;
+  private static final float DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO = 1;
 
   private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
   private @MonotonicNonNull ImageReader outputImageReader;
@@ -90,8 +92,25 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     String testId = "processData_noEdits";
-    setUpAndPrepareFirstFrame();
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_withPixelWidthHeightRatio_producesExpectedOutput() throws Exception {
+    String testId = "processData_withPixelWidthHeightRatio";
+    setUpAndPrepareFirstFrame(/* pixelWidthHeightRatio= */ 2f);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_WIDE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
@@ -111,7 +130,7 @@ public final class FrameProcessorChainPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor glFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -135,7 +154,8 @@ public final class FrameProcessorChainPixelTest {
         new AdvancedFrameProcessor(translateRightMatrix);
     GlFrameProcessor rotate45FrameProcessor =
         new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
-    setUpAndPrepareFirstFrame(translateRightFrameProcessor, rotate45FrameProcessor);
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, translateRightFrameProcessor, rotate45FrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -159,7 +179,8 @@ public final class FrameProcessorChainPixelTest {
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor translateRightFrameProcessor =
         new AdvancedFrameProcessor(translateRightMatrix);
-    setUpAndPrepareFirstFrame(rotate45FrameProcessor, translateRightFrameProcessor);
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, rotate45FrameProcessor, translateRightFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -179,7 +200,7 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withPresentationFrameProcessor_setResolution";
     GlFrameProcessor glFrameProcessor =
         new PresentationFrameProcessor.Builder().setResolution(480).build();
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -199,7 +220,7 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withScaleToFitFrameProcessor_rotate45";
     GlFrameProcessor glFrameProcessor =
         new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -218,10 +239,12 @@ public final class FrameProcessorChainPixelTest {
    * infrastructure. The frame will be sent towards the {@link FrameProcessorChain}, and may be
    * accessed on the {@link FrameProcessorChain}'s output {@code outputImageReader}.
    *
+   * @param pixelWidthHeightRatio The ratio of width over height for each pixel.
    * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} that will apply changes
    *     to the input frame.
    */
-  private void setUpAndPrepareFirstFrame(GlFrameProcessor... frameProcessors) throws Exception {
+  private void setUpAndPrepareFirstFrame(
+      float pixelWidthHeightRatio, GlFrameProcessor... frameProcessors) throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
@@ -241,7 +264,7 @@ public final class FrameProcessorChainPixelTest {
       frameProcessorChain =
           FrameProcessorChain.create(
               context,
-              PIXEL_WIDTH_HEIGHT_RATIO,
+              pixelWidthHeightRatio,
               inputWidth,
               inputHeight,
               asList(frameProcessors),
