@@ -71,15 +71,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Creates a new instance.
    *
    * @param context A {@link Context}.
-   * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
+   * @param pixelWidthHeightRatio The ratio of width over height for each pixel. Pixels are expanded
+   *     by this ratio so that the output frame's pixels have a ratio of 1.
    * @param inputWidth The input frame width, in pixels.
    * @param inputHeight The input frame height, in pixels.
    * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @return A new instance.
-   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1, reading shader
-   *     files fails, or an OpenGL error occurs while creating and configuring the OpenGL
-   *     components.
+   * @throws TransformationException If reading shader files fails, or an OpenGL error occurs while
+   *     creating and configuring the OpenGL components.
    */
   public static FrameProcessorChain create(
       Context context,
@@ -92,19 +92,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
-    if (pixelWidthHeightRatio != 1.0f) {
-      // TODO(b/211782176): Consider implementing support for non-square pixels.
-      throw TransformationException.createForFrameProcessorChain(
-          new UnsupportedOperationException(
-              "Transformer's FrameProcessorChain currently does not support frame edits on"
-                  + " non-square pixels. The pixelWidthHeightRatio is: "
-                  + pixelWidthHeightRatio),
-          TransformationException.ERROR_CODE_GL_INIT_FAILED);
-    }
-
     ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
-    ExternalCopyFrameProcessor externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(enableExperimentalHdrEditing);
 
     try {
       return singleThreadExecutorService
@@ -112,12 +100,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               () ->
                   createOpenGlObjectsAndFrameProcessorChain(
                       context,
+                      pixelWidthHeightRatio,
                       inputWidth,
                       inputHeight,
                       frameProcessors,
                       enableExperimentalHdrEditing,
-                      singleThreadExecutorService,
-                      externalCopyFrameProcessor))
+                      singleThreadExecutorService))
           .get();
     } catch (ExecutionException e) {
       throw TransformationException.createForFrameProcessorChain(
@@ -138,16 +126,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @WorkerThread
   private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
       Context context,
+      float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
       List<GlFrameProcessor> frameProcessors,
       boolean enableExperimentalHdrEditing,
-      ExecutorService singleThreadExecutorService,
-      ExternalCopyFrameProcessor externalCopyFrameProcessor)
+      ExecutorService singleThreadExecutorService)
       throws IOException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
+    ExternalCopyFrameProcessor externalCopyFrameProcessor =
+        new ExternalCopyFrameProcessor(enableExperimentalHdrEditing);
     EGLContext eglContext =
         enableExperimentalHdrEditing
             ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
@@ -163,18 +153,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
+    ImmutableList<GlFrameProcessor> expandedFrameProcessors =
+        getExpandedFrameProcessors(
+            externalCopyFrameProcessor, pixelWidthHeightRatio, frameProcessors);
+
+    // Initialize frame processors.
     int inputExternalTexId = GlUtil.createExternalTexture();
     externalCopyFrameProcessor.initialize(context, inputExternalTexId, inputWidth, inputHeight);
 
-    int[] framebuffers = new int[frameProcessors.size()];
+    int[] framebuffers = new int[expandedFrameProcessors.size() - 1];
     Size inputSize = externalCopyFrameProcessor.getOutputSize();
-    for (int i = 0; i < frameProcessors.size(); i++) {
+    for (int i = 1; i < expandedFrameProcessors.size(); i++) {
       int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
-      framebuffers[i] = GlUtil.createFboForTexture(inputTexId);
-      frameProcessors
-          .get(i)
-          .initialize(context, inputTexId, inputSize.getWidth(), inputSize.getHeight());
-      inputSize = frameProcessors.get(i).getOutputSize();
+      framebuffers[i - 1] = GlUtil.createFboForTexture(inputTexId);
+      GlFrameProcessor frameProcessor = expandedFrameProcessors.get(i);
+      frameProcessor.initialize(context, inputTexId, inputSize.getWidth(), inputSize.getHeight());
+      inputSize = frameProcessor.getOutputSize();
     }
     return new FrameProcessorChain(
         eglDisplay,
@@ -182,11 +176,31 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         singleThreadExecutorService,
         inputExternalTexId,
         framebuffers,
-        new ImmutableList.Builder<GlFrameProcessor>()
-            .add(externalCopyFrameProcessor)
-            .addAll(frameProcessors)
-            .build(),
+        expandedFrameProcessors,
         enableExperimentalHdrEditing);
+  }
+
+  private static ImmutableList<GlFrameProcessor> getExpandedFrameProcessors(
+      ExternalCopyFrameProcessor externalCopyFrameProcessor,
+      float pixelWidthHeightRatio,
+      List<GlFrameProcessor> frameProcessors) {
+    ImmutableList.Builder<GlFrameProcessor> frameProcessorListBuilder =
+        new ImmutableList.Builder<GlFrameProcessor>().add(externalCopyFrameProcessor);
+
+    // Scale to expand the frame to apply the pixelWidthHeightRatio.
+    if (pixelWidthHeightRatio > 1f) {
+      frameProcessorListBuilder.add(
+          new ScaleToFitFrameProcessor.Builder()
+              .setScale(/* scaleX= */ pixelWidthHeightRatio, /* scaleY= */ 1f)
+              .build());
+    } else if (pixelWidthHeightRatio < 1f) {
+      frameProcessorListBuilder.add(
+          new ScaleToFitFrameProcessor.Builder()
+              .setScale(/* scaleX= */ 1f, /* scaleY= */ 1f / pixelWidthHeightRatio)
+              .build());
+    }
+    frameProcessorListBuilder.addAll(frameProcessors);
+    return frameProcessorListBuilder.build();
   }
 
   private static final String TAG = "FrameProcessorChain";
