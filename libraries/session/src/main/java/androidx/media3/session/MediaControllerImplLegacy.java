@@ -846,7 +846,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         calculateCurrentItemIndexAfterRemoveItems(currentMediaItemIndex, fromIndex, toIndex);
     if (currentMediaItemIndexAfterRemove == C.INDEX_UNSET) {
       currentMediaItemIndexAfterRemove =
-          Util.constrainValue(fromIndex, /* min= */ 0, /* toIndex= */ lastItemIndexAfterRemove);
+          Util.constrainValue(fromIndex, /* min= */ 0, /* max= */ lastItemIndexAfterRemove);
       Log.w(
           TAG,
           "Currently playing item will be removed and added back to mimic move."
@@ -1550,8 +1550,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         pendingLegacyPlayerInfo =
             pendingLegacyPlayerInfo.copyWithExtraBinderGetters(
                 convertToSafePlaybackStateCompat(controllerCompat.getPlaybackState()),
-                controllerCompat.getShuffleMode(),
-                controllerCompat.getRepeatMode());
+                controllerCompat.getRepeatMode(),
+                controllerCompat.getShuffleMode());
         boolean isCaptioningEnabled = controllerCompat.isCaptioningEnabled();
         onCaptioningEnabledChanged(isCaptioningEnabled);
 
