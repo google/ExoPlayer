@@ -108,6 +108,8 @@ public class BitmapTestUtil {
    * of pixels in the image. The bitmap resolutions must match and they must use configuration
    * {@link Bitmap.Config#ARGB_8888}.
    *
+   * <p>Tries to save a difference bitmap between expected and actual bitmaps.
+   *
    * @param expected The expected {@link Bitmap}.
    * @param actual The actual {@link Bitmap} produced by the test.
    * @param testId The name of the test that produced the {@link Bitmap}, or {@code null} if the
@@ -148,41 +150,30 @@ public class BitmapTestUtil {
       }
     }
     if (testId != null) {
-      try {
-        saveTestBitmapToCacheDirectory(
-            testId, "diff", differencesBitmap, /* throwOnFailure= */ false);
-      } catch (IOException impossible) {
-        throw new IllegalStateException(impossible);
-      }
+      maybeSaveTestBitmapToCacheDirectory(testId, "diff", differencesBitmap);
     }
     return (float) sumMaximumAbsoluteDifferences / (width * height);
   }
 
   /**
-   * Saves the {@link Bitmap} to the {@link Context#getCacheDir() cache directory} as a PNG.
+   * Tries to save the {@link Bitmap} to the {@link Context#getCacheDir() cache directory} as a PNG.
    *
-   * <p>File name will be {@code <testId>_<bitmapLabel>.png}. If {@code throwOnFailure} is {@code
-   * false}, any {@link IOException} will be caught and logged.
+   * <p>File name will be {@code <testId>_<bitmapLabel>.png}. If the file failed to write, any
+   * {@link IOException} will be caught and logged.
    *
    * @param testId Name of the test that produced the {@link Bitmap}.
    * @param bitmapLabel Label to identify the bitmap.
    * @param bitmap The {@link Bitmap} to save.
-   * @param throwOnFailure Whether to throw an exception if the bitmap can't be saved.
-   * @throws IOException If the bitmap can't be saved and {@code throwOnFailure} is {@code true}.
    */
-  public static void saveTestBitmapToCacheDirectory(
-      String testId, String bitmapLabel, Bitmap bitmap, boolean throwOnFailure) throws IOException {
+  public static void maybeSaveTestBitmapToCacheDirectory(
+      String testId, String bitmapLabel, Bitmap bitmap) {
     File file =
         new File(
             getApplicationContext().getExternalCacheDir(), testId + "_" + bitmapLabel + ".png");
     try (FileOutputStream outputStream = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, outputStream);
     } catch (IOException e) {
-      if (throwOnFailure) {
-        throw e;
-      } else {
-        Log.e(TAG, "Could not write Bitmap to file path: " + file.getAbsolutePath(), e);
-      }
+      Log.e(TAG, "Could not write Bitmap to file path: " + file.getAbsolutePath(), e);
     }
   }
 
