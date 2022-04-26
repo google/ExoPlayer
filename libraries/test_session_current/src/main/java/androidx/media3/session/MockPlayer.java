@@ -1204,7 +1204,7 @@ public class MockPlayer implements Player {
       throws TimeoutException, InterruptedException {
     if (!checkNotNull(conditionVariables.get(method)).block(timeOutMs)) {
       throw new TimeoutException(
-          Util.formatInvariant("Method %d not called after %f ms", method, timeOutMs));
+          Util.formatInvariant("Method %d not called after %d ms", method, timeOutMs));
     }
   }
 
