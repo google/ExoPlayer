@@ -98,12 +98,12 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.saveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -120,12 +120,12 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.saveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -142,12 +142,12 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.saveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -164,12 +164,12 @@ public final class AdvancedFrameProcessorPixelTest {
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.saveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 }
