@@ -68,7 +68,7 @@ public class TransformationTest {
 
   @Test
   public void transformToSpecificBitrate() throws Exception {
-    String testId = TAG + "_transformWithSpecificBitrate";
+    String testId = TAG + "_transformToSpecificBitrate";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
