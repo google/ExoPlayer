@@ -192,7 +192,7 @@ public class MediaControllerTest {
   }
 
   @Test
-  public void isConnected_afterDisconnection_returnsFalse() throws Exception {
+  public void isConnected_afterDisconnectionBySessionRelease_returnsFalse() throws Exception {
     CountDownLatch disconnectedLatch = new CountDownLatch(1);
     MediaController controller =
         controllerTestRule.createController(
@@ -207,6 +207,43 @@ public class MediaControllerTest {
     remoteSession.release();
 
     assertThat(disconnectedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.isConnected()).isFalse();
+  }
+
+  @Test
+  public void isConnected_afterDisconnectionByControllerRelease_returnsFalse() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(),
+            /* connectionHints= */ null,
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            });
+    threadTestRule.getHandler().postAndSync(controller::release);
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.isConnected()).isFalse();
+  }
+
+  @Test
+  public void isConnected_afterDisconnectionByControllerReleaseRightAfterCreated_returnsFalse()
+      throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(),
+            /* connectionHints= */ null,
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            },
+            /* controllerCreationListener= */ MediaController::release);
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controller.isConnected()).isFalse();
   }
 

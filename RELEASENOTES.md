@@ -65,6 +65,9 @@
         ([#47](https://github.com/androidx/media/pull/47)).
     *   Add RTP reader for WAV
         ([#56](https://github.com/androidx/media/pull/56)).
+*   Session:
+    *   Fix NPE in MediaControllerImplLegacy
+        ([#59](https://github.com/androidx/media/pull/59))
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
 *   Remove deprecated symbols:

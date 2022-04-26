@@ -415,6 +415,7 @@ public class MediaController implements Player {
       return;
     }
     released = true;
+    applicationHandler.removeCallbacksAndMessages(null);
     try {
       impl.release();
     } catch (Exception e) {

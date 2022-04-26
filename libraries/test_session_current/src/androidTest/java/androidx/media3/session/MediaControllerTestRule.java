@@ -22,13 +22,16 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
+import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media3.common.util.Log;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -43,6 +46,13 @@ public final class MediaControllerTestRule extends ExternalResource {
   private volatile Context context;
   private volatile Class<? extends MediaController> controllerType;
   private volatile long timeoutMs;
+
+  /** Listener to get notified when a controller has been created. */
+  public interface MediaControllerCreationListener {
+    /** Called immediately after the given controller has been created. */
+    @MainThread
+    void onCreated(MediaController controller);
+  }
 
   public MediaControllerTestRule(HandlerThreadTestRule handlerThreadTestRule) {
     this.handlerThreadTestRule = handlerThreadTestRule;
@@ -96,17 +106,31 @@ public final class MediaControllerTestRule extends ExternalResource {
   public MediaController createController(
       MediaSessionCompat.Token token, @Nullable MediaController.Listener listener)
       throws Exception {
+    return createController(token, listener, /* controllerCreateListener= */ null);
+  }
+
+  /** Creates {@link MediaController} from {@link MediaSessionCompat.Token}. */
+  public MediaController createController(
+      MediaSessionCompat.Token token,
+      @Nullable MediaController.Listener listener,
+      @Nullable MediaControllerCreationListener controllerCreationListener)
+      throws Exception {
     TestMediaBrowserListener testListener = new TestMediaBrowserListener(listener);
-    MediaController controller = createControllerOnHandler(token, testListener);
+    MediaController controller =
+        createControllerOnHandler(token, testListener, controllerCreationListener);
     controllers.put(controller, testListener);
     return controller;
   }
 
   private MediaController createControllerOnHandler(
-      MediaSessionCompat.Token token, TestMediaBrowserListener listener) throws Exception {
+      MediaSessionCompat.Token token,
+      TestMediaBrowserListener listener,
+      @Nullable MediaControllerCreationListener controllerCreationListener)
+      throws Exception {
     SessionToken sessionToken =
         SessionToken.createSessionToken(context, token).get(TIMEOUT_MS, MILLISECONDS);
-    return createControllerOnHandler(sessionToken, /* connectionHints= */ null, listener);
+    return createControllerOnHandler(
+        sessionToken, /* connectionHints= */ null, listener, controllerCreationListener);
   }
 
   /** Creates {@link MediaController} from {@link SessionToken} with default options. */
@@ -120,14 +144,29 @@ public final class MediaControllerTestRule extends ExternalResource {
       @Nullable Bundle connectionHints,
       @Nullable MediaController.Listener listener)
       throws Exception {
+    return createController(
+        token, connectionHints, listener, /* controllerCreationListener= */ null);
+  }
+
+  /** Creates {@link MediaController} from {@link SessionToken}. */
+  public MediaController createController(
+      SessionToken token,
+      @Nullable Bundle connectionHints,
+      @Nullable MediaController.Listener listener,
+      @Nullable MediaControllerCreationListener controllerCreationListener)
+      throws Exception {
     TestMediaBrowserListener testListener = new TestMediaBrowserListener(listener);
-    MediaController controller = createControllerOnHandler(token, connectionHints, testListener);
+    MediaController controller =
+        createControllerOnHandler(token, connectionHints, testListener, controllerCreationListener);
     controllers.put(controller, testListener);
     return controller;
   }
 
   private MediaController createControllerOnHandler(
-      SessionToken token, @Nullable Bundle connectionHints, TestMediaBrowserListener listener)
+      SessionToken token,
+      @Nullable Bundle connectionHints,
+      TestMediaBrowserListener listener,
+      @Nullable MediaControllerCreationListener controllerCreationListener)
       throws Exception {
     // Create controller on the test handler, for changing MediaBrowserCompat's Handler
     // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
@@ -153,6 +192,22 @@ public final class MediaControllerTestRule extends ExternalResource {
                     return builder.buildAsync();
                   }
                 });
+
+    if (controllerCreationListener != null) {
+      future.addListener(
+          () -> {
+            @Nullable MediaController mediaController = null;
+            try {
+              mediaController = future.get();
+            } catch (ExecutionException | InterruptedException e) {
+              Log.e(TAG, "failed getting a controller", e);
+            }
+            if (mediaController != null) {
+              controllerCreationListener.onCreated(mediaController);
+            }
+          },
+          MoreExecutors.directExecutor());
+    }
     return future.get(timeoutMs, MILLISECONDS);
   }
 
