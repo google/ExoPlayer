@@ -1740,9 +1740,9 @@ public class MatroskaExtractor implements Extractor {
     checkArgument(timeUs != C.TIME_UNSET);
     byte[] timeCodeData;
     int hours = (int) (timeUs / (3600 * C.MICROS_PER_SECOND));
-    timeUs -= (hours * 3600 * C.MICROS_PER_SECOND);
+    timeUs -= (hours * 3600L * C.MICROS_PER_SECOND);
     int minutes = (int) (timeUs / (60 * C.MICROS_PER_SECOND));
-    timeUs -= (minutes * 60 * C.MICROS_PER_SECOND);
+    timeUs -= (minutes * 60L * C.MICROS_PER_SECOND);
     int seconds = (int) (timeUs / C.MICROS_PER_SECOND);
     timeUs -= (seconds * C.MICROS_PER_SECOND);
     int lastValue = (int) (timeUs / lastTimecodeValueScalingFactor);
