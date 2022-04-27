@@ -137,7 +137,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
   /**
    * Sets the format of the stream request.
    *
-   * @param format VOD or live stream type.
+   * @param format {@link C#TYPE_DASH} or {@link C#TYPE_HLS}.
    * @return This instance, for convenience.
    */
   public ImaServerSideAdInsertionUriBuilder setFormat(@ContentType int format) {
