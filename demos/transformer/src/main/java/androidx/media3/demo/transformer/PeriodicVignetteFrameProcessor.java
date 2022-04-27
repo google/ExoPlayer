@@ -60,7 +60,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>The parameters are given in normalized texture coordinates from 0 to 1.
    *
-   * @param context The {@link Context}.
    * @param centerX The x-coordinate of the center of the effect.
    * @param centerY The y-coordinate of the center of the effect.
    * @param minInnerRadius The lower bound of the radius that is unaffected by the effect.
