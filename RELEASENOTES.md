@@ -77,6 +77,8 @@
         ([#56](https://github.com/androidx/media/pull/56)).
     *   Fix RTSP basic authorization header.
         ([#9544](https://github.com/google/ExoPlayer/issues/9544)).
+    *   Stop checking mandatory SDP fields as ExoPlayer doesn't need them
+        ([#10049](https://github.com/google/ExoPlayer/issues/10049)).
     *   Throw checked exception when parsing RTSP timing
         ([#10165](https://github.com/google/ExoPlayer/issues/10165)).
 *   Session:
