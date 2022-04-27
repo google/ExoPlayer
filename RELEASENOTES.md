@@ -80,6 +80,9 @@
 *   Session:
     *   Fix NPE in MediaControllerImplLegacy
         ([#59](https://github.com/androidx/media/pull/59))
+    *   Update session position info on timeline
+        change([#51](https://github.com/androidx/media/issues/51))
+
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
 *   Remove deprecated symbols:

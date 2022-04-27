@@ -44,6 +44,7 @@ import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -271,6 +272,9 @@ import java.util.List;
     }
 
     public PlayerInfo build() {
+      Assertions.checkState(
+          timeline.isEmpty()
+              || sessionPositionInfo.positionInfo.mediaItemIndex < timeline.getWindowCount());
       return new PlayerInfo(
           playerError,
           mediaItemTransitionReason,
@@ -344,7 +348,7 @@ import java.util.List;
           MediaMetadata.EMPTY,
           /* seekBackIncrementMs= */ 0,
           /* seekForwardIncrementMs= */ 0,
-          /* maxSeekToPreviousPosition= */ 0,
+          /* maxSeekToPreviousPositionMs= */ 0,
           TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT);
 
   @Nullable public final PlaybackException playerError;
@@ -430,11 +434,6 @@ import java.util.List;
   }
 
   @CheckResult
-  public PlayerInfo copyWithSessionPositionInfo(SessionPositionInfo sessionPositionInfo) {
-    return new Builder(this).setSessionPositionInfo(sessionPositionInfo).build();
-  }
-
-  @CheckResult
   public PlayerInfo copyWithPlaybackState(
       @Player.State int playbackState, @Nullable PlaybackException playerError) {
     return new Builder(this)
@@ -455,6 +454,11 @@ import java.util.List;
   }
 
   @CheckResult
+  public PlayerInfo copyWithPlaybackParameters(PlaybackParameters playbackParameters) {
+    return new Builder(this).setPlaybackParameters(playbackParameters).build();
+  }
+
+  @CheckResult
   public PlayerInfo copyWithPositionInfos(
       PositionInfo oldPositionInfo,
       PositionInfo newPositionInfo,
@@ -467,8 +471,8 @@ import java.util.List;
   }
 
   @CheckResult
-  public PlayerInfo copyWithPlaybackParameters(PlaybackParameters playbackParameters) {
-    return new Builder(this).setPlaybackParameters(playbackParameters).build();
+  public PlayerInfo copyWithSessionPositionInfo(SessionPositionInfo sessionPositionInfo) {
+    return new Builder(this).setSessionPositionInfo(sessionPositionInfo).build();
   }
 
   @CheckResult
@@ -477,14 +481,23 @@ import java.util.List;
   }
 
   @CheckResult
-  public PlayerInfo copyWithTimeline(Timeline timeline, int windowIndex) {
+  public PlayerInfo copyWithTimelineAndSessionPositionInfo(
+      Timeline timeline, SessionPositionInfo sessionPositionInfo) {
+    return new Builder(this)
+        .setTimeline(timeline)
+        .setSessionPositionInfo(sessionPositionInfo)
+        .build();
+  }
+
+  @CheckResult
+  public PlayerInfo copyWithTimelineAndMediaItemIndex(Timeline timeline, int mediaItemIndex) {
     return new Builder(this)
         .setTimeline(timeline)
         .setSessionPositionInfo(
             new SessionPositionInfo(
                 new PositionInfo(
                     sessionPositionInfo.positionInfo.windowUid,
-                    windowIndex,
+                    mediaItemIndex,
                     sessionPositionInfo.positionInfo.mediaItem,
                     sessionPositionInfo.positionInfo.periodUid,
                     sessionPositionInfo.positionInfo.periodIndex,

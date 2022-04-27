@@ -753,7 +753,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int newCurrentMediaItemIndex =
         calculateCurrentItemIndexAfterAddItems(currentMediaItemIndex, index, mediaItems.size());
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
+        controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
+            newQueueTimeline, newCurrentMediaItemIndex);
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
             maskedPlayerInfo,
@@ -801,7 +802,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               + " new current item");
     }
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
+        controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
+            newQueueTimeline, newCurrentMediaItemIndex);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -861,7 +863,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     QueueTimeline newQueueTimeline =
         queueTimeline.copyWithMovedMediaItems(fromIndex, toIndex, newIndex);
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
+        controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
+            newQueueTimeline, newCurrentMediaItemIndex);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(

@@ -366,7 +366,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         (controller, seq) -> controller.sendCustomCommand(seq, command, args));
   }
 
-  private void dispatchOnPlayerInfoChanged(boolean excludeTimeline) {
+  private void dispatchOnPlayerInfoChanged(PlayerInfo playerInfo, boolean excludeTimeline) {
 
     List<ControllerInfo> controllers =
         sessionStub.getConnectedControllersManager().getConnectedControllers();
@@ -910,7 +910,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      session.playerInfo = session.playerInfo.copyWithTimeline(timeline);
+      session.playerInfo =
+          session.playerInfo.copyWithTimelineAndSessionPositionInfo(
+              timeline, player.createSessionPositionInfoForBundling());
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onTimelineChanged(seq, timeline, reason));
@@ -1177,9 +1179,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     public void handleMessage(Message msg) {
       if (msg.what == MSG_PLAYER_INFO_CHANGED) {
         playerInfo =
-            playerInfo.copyWithSessionPositionInfo(
+            playerInfo.copyWithTimelineAndSessionPositionInfo(
+                getPlayerWrapper().getCurrentTimeline(),
                 getPlayerWrapper().createSessionPositionInfoForBundling());
-        dispatchOnPlayerInfoChanged(excludeTimeline);
+        dispatchOnPlayerInfoChanged(playerInfo, excludeTimeline);
         excludeTimeline = true;
       } else {
         throw new IllegalStateException("Invalid message what=" + msg.what);
