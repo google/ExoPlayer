@@ -1245,7 +1245,7 @@ public final class Util {
 
     long time = dateTime.getTimeInMillis();
     if (timezoneShift != 0) {
-      time -= timezoneShift * 60000;
+      time -= timezoneShift * 60000L;
     }
 
     return time;
