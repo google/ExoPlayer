@@ -158,8 +158,9 @@ public final class Util {
               + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
-  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
-  private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
+  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs
+  private static final Pattern ISM_PATH_PATTERN =
+      Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?", Pattern.CASE_INSENSITIVE);
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
   private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
@@ -1820,16 +1821,14 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
-   *
-   * @param uri The {@link Uri}.
-   * @param overrideExtension If not null, used to infer the type.
-   * @return The content type.
+   * @deprecated Use {@link #inferContentTypeForExtension(String)} when {@code overrideExtension} is
+   *     non-empty, and {@link #inferContentType(Uri)} otherwise.
    */
+  @Deprecated
   public static @ContentType int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
-        : inferContentType("." + overrideExtension);
+        : inferContentTypeForExtension(overrideExtension);
   }
 
   /**
@@ -1845,23 +1844,19 @@ public final class Util {
     }
 
     @Nullable String path = uri.getPath();
-    return path == null ? C.TYPE_OTHER : inferContentType(path);
-  }
-
-  /**
-   * Makes a best guess to infer the {@link ContentType} from a file name.
-   *
-   * @param fileName Name of the file. It can include the path of the file.
-   * @return The content type.
-   */
-  public static @ContentType int inferContentType(String fileName) {
-    fileName = Ascii.toLowerCase(fileName);
-    if (fileName.endsWith(".mpd")) {
-      return C.TYPE_DASH;
-    } else if (fileName.endsWith(".m3u8")) {
-      return C.TYPE_HLS;
+    if (path == null) {
+      return C.TYPE_OTHER;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(fileName);
+    int lastDotIndex = path.lastIndexOf('.');
+    if (lastDotIndex >= 0) {
+      @C.ContentType
+      int contentType = inferContentTypeForExtension(path.substring(lastDotIndex + 1));
+      if (contentType != C.TYPE_OTHER) {
+        return contentType;
+      }
+    }
+
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(path);
     if (ismMatcher.matches()) {
       @Nullable String extensions = ismMatcher.group(2);
       if (extensions != null) {
@@ -1872,6 +1867,31 @@ public final class Util {
         }
       }
       return C.TYPE_SS;
+    }
+
+    return C.TYPE_OTHER;
+  }
+
+  /**
+   * @deprecated Use {@link Uri#parse(String)} and {@link #inferContentType(Uri)} for full file
+   *     paths or {@link #inferContentTypeForExtension(String)} for extensions.
+   */
+  @Deprecated
+  public static @ContentType int inferContentType(String fileName) {
+    return inferContentType(Uri.parse("file:///" + fileName));
+  }
+
+  /**
+   * Makes a best guess to infer the {@link ContentType} from a file extension.
+   *
+   * @param fileExtension The extension of the file (excluding the '.').
+   * @return The content type.
+   */
+  public static @ContentType int inferContentTypeForExtension(String fileExtension) {
+    if (Ascii.equalsIgnoreCase("mpd", fileExtension)) {
+      return C.TYPE_DASH;
+    } else if (Ascii.equalsIgnoreCase("m3u8", fileExtension)) {
+      return C.TYPE_HLS;
     }
     return C.TYPE_OTHER;
   }
@@ -1935,7 +1955,7 @@ public final class Util {
     if (path == null) {
       return uri;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(Ascii.toLowerCase(path));
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(path);
     if (ismMatcher.matches() && ismMatcher.group(1) == null) {
       // Add missing "Manifest" suffix.
       return Uri.withAppendedPath(uri, "Manifest");
