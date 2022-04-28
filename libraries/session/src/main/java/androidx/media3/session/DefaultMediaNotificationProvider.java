@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.Consumer;
@@ -197,6 +198,13 @@ public final class DefaultMediaNotificationProvider implements MediaNotification
       mediaStyle.setShowActionsInCompactView(skipToPreviousAdded ? 1 : 0);
     }
 
+    long playbackStartTimeMs = getPlaybackStartTimeEpochMs(mediaController);
+    boolean displayElapsedTimeWithChronometer = playbackStartTimeMs != C.TIME_UNSET;
+    builder
+        .setWhen(playbackStartTimeMs)
+        .setShowWhen(displayElapsedTimeWithChronometer)
+        .setUsesChronometer(displayElapsedTimeWithChronometer);
+
     Notification notification =
         builder
             .setContentIntent(mediaController.getSessionActivity())
@@ -269,6 +277,19 @@ public final class DefaultMediaNotificationProvider implements MediaNotification
       return appIcon;
     } else {
       return Util.SDK_INT >= 21 ? R.drawable.media_session_service_notification_ic_music_note : 0;
+    }
+  }
+
+  private static long getPlaybackStartTimeEpochMs(MediaController controller) {
+    // Changing "showWhen" causes notification flicker if SDK_INT < 21.
+    if (Util.SDK_INT >= 21
+        && controller.isPlaying()
+        && !controller.isPlayingAd()
+        && !controller.isCurrentMediaItemDynamic()
+        && controller.getPlaybackParameters().speed == 1f) {
+      return System.currentTimeMillis() - controller.getContentPosition();
+    } else {
+      return C.TIME_UNSET;
     }
   }
 
