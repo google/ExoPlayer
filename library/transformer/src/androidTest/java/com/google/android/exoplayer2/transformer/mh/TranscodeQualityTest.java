@@ -41,8 +41,8 @@ public final class TranscodeQualityTest {
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT)) {
+        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
       return;
     }
 
@@ -58,7 +58,7 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_URI_STRING);
+            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
 
     assertThat(result.ssim).isGreaterThan(0.90);
   }
@@ -71,8 +71,8 @@ public final class TranscodeQualityTest {
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT
+        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT
             .buildUpon()
             .setSampleMimeType(MimeTypes.VIDEO_H265)
             .build())) {
@@ -90,7 +90,7 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_URI_STRING);
+            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
 
     assertThat(result.ssim).isGreaterThan(0.90);
   }
