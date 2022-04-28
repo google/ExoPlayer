@@ -267,7 +267,10 @@ with `ImaServerSideAdInsertionUriBuilder`:
 
 ```
 Uri ssaiUri =
-    new ImaServerSideAdInsertionUriBuilder().setAssetKey(assetKey).build();
+    new ImaServerSideAdInsertionUriBuilder()
+        .setAssetKey(assetKey)
+        .setFormat(C.TYPE_HLS)
+        .build();
 player.setMediaItem(MediaItem.fromUri(ssaiUri));
 ```
 
