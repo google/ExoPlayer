@@ -223,7 +223,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "demoFrameProcessorsSelections"
   })
   private void startTransformation(View view) {
-    Intent transformerIntent = new Intent(this, TransformerActivity.class);
+    Intent transformerIntent = new Intent(/* packageContext= */ this, TransformerActivity.class);
     Bundle bundle = new Bundle();
     bundle.putBoolean(SHOULD_REMOVE_AUDIO, removeAudioCheckbox.isChecked());
     bundle.putBoolean(SHOULD_REMOVE_VIDEO, removeVideoCheckbox.isChecked());
