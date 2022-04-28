@@ -134,7 +134,7 @@ public final class DefaultCodec implements Codec {
       // Some OMX decoders don't correctly track their number of output buffers available, and get
       // stuck if too many frames are rendered without being processed, so limit the number of
       // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, and b/229978305,.
+      // b/213455700, b/230097284, and b/229978305.
       // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
       return 10;
     }
@@ -376,7 +376,7 @@ public final class DefaultCodec implements Codec {
           .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
           .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
     } else if (MimeTypes.isAudio(mimeType)) {
-      // TODO(internal b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
+      // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
       // simulate more realistic codec input/output formats in tests.
       formatBuilder
           .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
