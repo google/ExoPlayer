@@ -36,6 +36,16 @@ public final class TranscodeQualityTest {
   @Test
   public void transformWithDecodeEncode_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
+    String testId = "transformWithDecodeEncode_ssim";
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT,
+        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT)) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
@@ -48,9 +58,7 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(
-                /* testId= */ "transformWithDecodeEncode_ssim",
-                AndroidTestUtil.MP4_ASSET_URI_STRING);
+            .run(testId, AndroidTestUtil.MP4_ASSET_URI_STRING);
 
     assertThat(result.ssim).isGreaterThan(0.90);
   }
