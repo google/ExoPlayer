@@ -18,7 +18,6 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.postOrRun;
-import static androidx.media3.session.MediaConstants.STATUS_CODE_SUCCESS_COMPAT;
 
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -54,6 +53,8 @@ import java.util.List;
  * overriding the behavior.
  */
 /* package */ class PlayerWrapper extends ForwardingPlayer {
+
+  private static final int STATUS_CODE_SUCCESS_COMPAT = -1;
 
   private int legacyStatusCode;
   @Nullable private String legacyErrorMessage;

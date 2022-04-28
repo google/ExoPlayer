@@ -16,6 +16,8 @@
 package androidx.media3.session;
 
 import android.net.Uri;
+import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.media3.session.MediaLibraryService.LibraryParams;
 
 /** Constants that can be shared between media session and controller. */
 public final class MediaConstants {
@@ -116,27 +118,36 @@ public final class MediaConstants {
   /**
    * The extras key for the localized error resolution string.
    *
-   * <p>See {@link
-   * androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL}.
+   * <p>Use this key to populate the extras bundle of the {@link LibraryParams} when {@link
+   * LibraryResult#ofError(int, LibraryParams) creating a LibraryResult} for an unsuccessful service
+   * call.
+   *
+   * @see
+   *     androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL
    */
   public static final String EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT =
       "android.media.extras.ERROR_RESOLUTION_ACTION_LABEL";
   /**
    * The extras key for the error resolution intent.
    *
-   * <p>See {@link
-   * androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT}.
+   * <p>Use this key to populate the extras bundle of the {@link LibraryParams} when {@link
+   * LibraryResult#ofError(int, LibraryParams) creating a LibraryResult} for an unsuccessful service
+   * call.
+   *
+   * @see
+   *     androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT
    */
   public static final String EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT =
       "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
 
-  /** The legacy status code for successful execution. */
-  public static final int STATUS_CODE_SUCCESS_COMPAT = -1;
-
   /**
    * The legacy error code for expired authentication.
    *
-   * <p>See {@code PlaybackStateCompat#ERROR_CODE_AUTHENTICATION_EXPIRED}.
+   * <p>Use this error code to indicate an expired authentication when {@link
+   * LibraryResult#ofError(int, LibraryParams) creating a LibraryResult} for an unsuccessful service
+   * call.
+   *
+   * @see PlaybackStateCompat#ERROR_CODE_AUTHENTICATION_EXPIRED
    */
   public static final int ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT = 3;
 
