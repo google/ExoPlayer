@@ -34,9 +34,6 @@ import org.checkerframework.dataflow.qual.Pure;
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
-
-  private static final int FRAME_COUNT_UNLIMITED = -1;
-
   private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
@@ -135,7 +132,7 @@ import org.checkerframework.dataflow.qual.Pure;
             inputFormat,
             frameProcessorChain.getInputSurface(),
             transformationRequest.enableRequestSdrToneMapping);
-    maxPendingFrameCount = getMaxPendingFrameCount();
+    maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
 
   @Override
@@ -254,7 +251,7 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
-    if (maxPendingFrameCount != FRAME_COUNT_UNLIMITED
+    if (maxPendingFrameCount != Codec.UNLIMITED_PENDING_FRAME_COUNT
         && frameProcessorChain.getPendingFrameCount() == maxPendingFrameCount) {
       return false;
     }
@@ -262,32 +259,5 @@ import org.checkerframework.dataflow.qual.Pure;
     frameProcessorChain.registerInputFrame();
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;
-  }
-
-  /**
-   * Returns the maximum number of frames that may be pending in the output {@link
-   * FrameProcessorChain} at a time, or {@link #FRAME_COUNT_UNLIMITED} if it's not necessary to
-   * enforce a limit.
-   */
-  private static int getMaxPendingFrameCount() {
-    if (Util.SDK_INT < 29) {
-      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-      // bounds, while from API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
-      // dropping even when the surface is full. We never want frame dropping so allow a maximum of
-      // one frame to be pending at a time.
-      // TODO(b/226330223): Investigate increasing this limit.
-      return 1;
-    }
-    if (Util.SDK_INT < 33
-        && ("OnePlus".equals(Util.MANUFACTURER) || "samsung".equals(Util.MANUFACTURER))) {
-      // Some OMX decoders don't correctly track their number of output buffers available, and get
-      // stuck if too many frames are rendered without being processed, so we limit the number of
-      // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700.
-      return 10;
-    }
-    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
-    // throughput.
-    return FRAME_COUNT_UNLIMITED;
   }
 }
