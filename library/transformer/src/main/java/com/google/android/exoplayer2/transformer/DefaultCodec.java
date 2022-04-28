@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -116,6 +118,29 @@ public final class DefaultCodec implements Codec {
   @Override
   public Surface getInputSurface() {
     return checkStateNotNull(inputSurface);
+  }
+
+  @Override
+  public int getMaxPendingFrameCount() {
+    if (Util.SDK_INT < 29) {
+      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+      // bounds. From API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
+      // dropping even when the surface is full. Frame dropping is never desired, so allow a maximum
+      // of one frame to be pending at a time.
+      // TODO(b/226330223): Investigate increasing this limit.
+      return 1;
+    }
+    if (Ascii.toUpperCase(mediaCodec.getCodecInfo().getCanonicalName()).startsWith("OMX.")) {
+      // Some OMX decoders don't correctly track their number of output buffers available, and get
+      // stuck if too many frames are rendered without being processed, so limit the number of
+      // pending frames to avoid getting stuck. This value is experimentally determined. See also
+      // b/213455700, b/230097284, and b/229978305,.
+      // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
+      return 10;
+    }
+    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
+    // throughput.
+    return UNLIMITED_PENDING_FRAME_COUNT;
   }
 
   @Override
