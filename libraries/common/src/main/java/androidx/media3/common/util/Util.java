@@ -160,7 +160,7 @@ public final class Util {
 
   // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs
   private static final Pattern ISM_PATH_PATTERN =
-      Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?", Pattern.CASE_INSENSITIVE);
+      Pattern.compile("(?:.*\\.)?isml?(?:/(manifest(.*))?)?", Pattern.CASE_INSENSITIVE);
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
   private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
@@ -1843,20 +1843,24 @@ public final class Util {
       return C.TYPE_RTSP;
     }
 
-    @Nullable String path = uri.getPath();
-    if (path == null) {
+    @Nullable String lastPathSegment = uri.getLastPathSegment();
+    if (lastPathSegment == null) {
       return C.TYPE_OTHER;
     }
-    int lastDotIndex = path.lastIndexOf('.');
+    int lastDotIndex = lastPathSegment.lastIndexOf('.');
     if (lastDotIndex >= 0) {
       @C.ContentType
-      int contentType = inferContentTypeForExtension(path.substring(lastDotIndex + 1));
+      int contentType = inferContentTypeForExtension(lastPathSegment.substring(lastDotIndex + 1));
       if (contentType != C.TYPE_OTHER) {
+        // If contentType is TYPE_SS that indicates the extension is .ism or .isml and shows the ISM
+        // URI is missing the "/manifest" suffix, which contains the information used to
+        // disambiguate between Smooth Streaming, HLS and DASH below - so we can just return TYPE_SS
+        // here without further checks.
         return contentType;
       }
     }
 
-    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(path);
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(checkNotNull(uri.getPath()));
     if (ismMatcher.matches()) {
       @Nullable String extensions = ismMatcher.group(2);
       if (extensions != null) {
@@ -1888,12 +1892,18 @@ public final class Util {
    * @return The content type.
    */
   public static @ContentType int inferContentTypeForExtension(String fileExtension) {
-    if (Ascii.equalsIgnoreCase("mpd", fileExtension)) {
-      return C.TYPE_DASH;
-    } else if (Ascii.equalsIgnoreCase("m3u8", fileExtension)) {
-      return C.TYPE_HLS;
+    fileExtension = Ascii.toLowerCase(fileExtension);
+    switch (fileExtension) {
+      case "mpd":
+        return C.TYPE_DASH;
+      case "m3u8":
+        return C.TYPE_HLS;
+      case "ism":
+      case "isml":
+        return C.TYPE_SS;
+      default:
+        return C.TYPE_OTHER;
     }
-    return C.TYPE_OTHER;
   }
 
   /**

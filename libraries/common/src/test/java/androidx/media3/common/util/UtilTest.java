@@ -174,6 +174,8 @@ public class UtilTest {
   public void inferContentType_extensionAsPath() {
     assertThat(Util.inferContentType(".m3u8")).isEqualTo(C.TYPE_HLS);
     assertThat(Util.inferContentType(".mpd")).isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentType(".ism")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType(".isml")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType(".mp4")).isEqualTo(C.TYPE_OTHER);
   }
 
@@ -199,6 +201,8 @@ public class UtilTest {
   public void inferContentTypeForExtension() {
     assertThat(Util.inferContentTypeForExtension("m3u8")).isEqualTo(C.TYPE_HLS);
     assertThat(Util.inferContentTypeForExtension("mpd")).isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentTypeForExtension("ism")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentTypeForExtension("isml")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentTypeForExtension("mp4")).isEqualTo(C.TYPE_OTHER);
   }
 
