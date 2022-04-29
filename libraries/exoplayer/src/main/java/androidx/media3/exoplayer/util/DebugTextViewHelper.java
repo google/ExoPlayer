@@ -30,13 +30,13 @@ import java.util.Locale;
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * an {@link ExoPlayer}.
  */
-@UnstableApi
-public class DebugTextViewHelper implements Player.Listener, Runnable {
+public class DebugTextViewHelper {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
   private final ExoPlayer player;
   private final TextView textView;
+  private final Updater updater;
 
   private boolean started;
 
@@ -50,6 +50,7 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
     Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     this.player = player;
     this.textView = textView;
+    this.updater = new Updater();
   }
 
   /**
@@ -61,7 +62,7 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
       return;
     }
     started = true;
-    player.addListener(this);
+    player.addListener(updater);
     updateAndPost();
   }
 
@@ -74,53 +75,28 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
       return;
     }
     started = false;
-    player.removeListener(this);
-    textView.removeCallbacks(this);
-  }
-
-  // Player.Listener implementation.
-
-  @Override
-  public final void onPlaybackStateChanged(@Player.State int playbackState) {
-    updateAndPost();
-  }
-
-  @Override
-  public final void onPlayWhenReadyChanged(
-      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
-    updateAndPost();
-  }
-
-  @Override
-  public final void onPositionDiscontinuity(
-      Player.PositionInfo oldPosition,
-      Player.PositionInfo newPosition,
-      @Player.DiscontinuityReason int reason) {
-    updateAndPost();
-  }
-
-  // Runnable implementation.
-
-  @Override
-  public final void run() {
-    updateAndPost();
+    player.removeListener(updater);
+    textView.removeCallbacks(updater);
   }
 
   // Protected methods.
 
+  @UnstableApi
   @SuppressLint("SetTextI18n")
   protected final void updateAndPost() {
     textView.setText(getDebugString());
-    textView.removeCallbacks(this);
-    textView.postDelayed(this, REFRESH_INTERVAL_MS);
+    textView.removeCallbacks(updater);
+    textView.postDelayed(updater, REFRESH_INTERVAL_MS);
   }
 
   /** Returns the debugging information string to be shown by the target {@link TextView}. */
+  @UnstableApi
   protected String getDebugString() {
     return getPlayerStateString() + getVideoString() + getAudioString();
   }
 
   /** Returns a string containing player state debugging information. */
+  @UnstableApi
   protected String getPlayerStateString() {
     String playbackStateString;
     switch (player.getPlaybackState()) {
@@ -146,6 +122,7 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
   }
 
   /** Returns a string containing video debugging information. */
+  @UnstableApi
   protected String getVideoString() {
     Format format = player.getVideoFormat();
     DecoderCounters decoderCounters = player.getVideoDecoderCounters();
@@ -170,6 +147,7 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
   }
 
   /** Returns a string containing audio debugging information. */
+  @UnstableApi
   protected String getAudioString() {
     Format format = player.getAudioFormat();
     DecoderCounters decoderCounters = player.getAudioDecoderCounters();
@@ -220,6 +198,37 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
     } else {
       long averageUs = (long) ((double) totalOffsetUs / frameCount);
       return String.valueOf(averageUs);
+    }
+  }
+
+  private final class Updater implements Player.Listener, Runnable {
+
+    // Player.Listener implementation.
+
+    @Override
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      updateAndPost();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+      updateAndPost();
+    }
+
+    @Override
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @Player.DiscontinuityReason int reason) {
+      updateAndPost();
+    }
+
+    // Runnable implementation.
+
+    @Override
+    public void run() {
+      updateAndPost();
     }
   }
 }
