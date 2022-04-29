@@ -728,26 +728,59 @@ public final class C {
   public static final String LANGUAGE_UNDETERMINED = "und";
 
   /**
-   * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
-   * #TYPE_HLS}, {@link #TYPE_RTSP} or {@link #TYPE_OTHER}.
+   * Represents a streaming or other media type. One of:
+   *
+   * <ul>
+   *   <li>{@link #CONTENT_TYPE_DASH}
+   *   <li>{@link #CONTENT_TYPE_SS}
+   *   <li>{@link #CONTENT_TYPE_HLS}
+   *   <li>{@link #CONTENT_TYPE_RTSP}
+   *   <li>{@link #CONTENT_TYPE_OTHER}
+   * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
-  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
+  @IntDef({
+    CONTENT_TYPE_DASH,
+    CONTENT_TYPE_SS,
+    CONTENT_TYPE_HLS,
+    CONTENT_TYPE_RTSP,
+    CONTENT_TYPE_OTHER
+  })
   public @interface ContentType {}
   /** Value representing a DASH manifest. */
-  public static final int TYPE_DASH = 0;
+  public static final int CONTENT_TYPE_DASH = 0;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_DASH} instead.
+   */
+  @Deprecated public static final int TYPE_DASH = CONTENT_TYPE_DASH;
   /** Value representing a Smooth Streaming manifest. */
-  public static final int TYPE_SS = 1;
+  public static final int CONTENT_TYPE_SS = 1;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_SS} instead.
+   */
+  @Deprecated public static final int TYPE_SS = CONTENT_TYPE_SS;
   /** Value representing an HLS manifest. */
-  public static final int TYPE_HLS = 2;
+  public static final int CONTENT_TYPE_HLS = 2;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_HLS} instead.
+   */
+  @Deprecated public static final int TYPE_HLS = CONTENT_TYPE_HLS;
   /** Value representing an RTSP stream. */
-  public static final int TYPE_RTSP = 3;
+  public static final int CONTENT_TYPE_RTSP = 3;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_RTSP} instead.
+   */
+  @Deprecated public static final int TYPE_RTSP = CONTENT_TYPE_RTSP;
   /** Value representing files other than DASH, HLS or Smooth Streaming manifests, or RTSP URIs. */
-  public static final int TYPE_OTHER = 4;
+  public static final int CONTENT_TYPE_OTHER = 4;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_OTHER} instead.
+   */
+  @Deprecated public static final int TYPE_OTHER = CONTENT_TYPE_OTHER;
 
   /** A return value for methods where the end of an input was encountered. */
   public static final int RESULT_END_OF_INPUT = -1;
