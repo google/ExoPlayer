@@ -53,7 +53,6 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ads.AdsLoader;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.exoplayer.util.EventLogger;
-import androidx.media3.ui.PlayerControlView;
 import androidx.media3.ui.PlayerView;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +61,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, PlayerControlView.VisibilityListener {
+    implements OnClickListener, PlayerView.ControllerVisibilityListener {
 
   // Saved instance state keys.
 
@@ -246,10 +245,10 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  // PlayerControlView.VisibilityListener implementation
+  // PlayerView.ControllerVisibilityListener implementation
 
   @Override
-  public void onVisibilityChange(int visibility) {
+  public void onVisibilityChanged(int visibility) {
     debugRootView.setVisibility(visibility);
   }
 
