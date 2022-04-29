@@ -274,7 +274,7 @@ public final class Tracks implements Bundleable {
   }
 
   /** Empty tracks. */
-  @UnstableApi public static final Tracks EMPTY = new Tracks(ImmutableList.of());
+  public static final Tracks EMPTY = new Tracks(ImmutableList.of());
 
   private final ImmutableList<Group> groups;
 

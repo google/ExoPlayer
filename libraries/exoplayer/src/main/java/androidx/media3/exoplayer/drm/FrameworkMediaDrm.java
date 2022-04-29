@@ -53,7 +53,6 @@ import java.util.UUID;
 
 /** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
 @RequiresApi(18)
-@UnstableApi
 public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   private static final String TAG = "FrameworkMediaDrm";
@@ -63,6 +62,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
    * is not supported by the device.
    */
+  @UnstableApi
   public static final Provider DEFAULT_PROVIDER =
       uuid -> {
         try {
@@ -99,6 +99,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * @return The created instance.
    * @throws UnsupportedDrmException If the DRM scheme is unsupported or cannot be instantiated.
    */
+  @UnstableApi
   public static FrameworkMediaDrm newInstance(UUID uuid) throws UnsupportedDrmException {
     try {
       return new FrameworkMediaDrm(uuid);
@@ -121,6 +122,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     }
   }
 
+  @UnstableApi
   @Override
   public void setOnEventListener(@Nullable ExoMediaDrm.OnEventListener listener) {
     mediaDrm.setOnEventListener(
@@ -136,6 +138,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * @param listener The listener to receive events, or {@code null} to stop receiving events.
    * @throws UnsupportedOperationException on API levels lower than 23.
    */
+  @UnstableApi
   @Override
   @RequiresApi(23)
   public void setOnKeyStatusChangeListener(
@@ -164,6 +167,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * @param listener The listener to receive events, or {@code null} to stop receiving events.
    * @throws UnsupportedOperationException on API levels lower than 23.
    */
+  @UnstableApi
   @Override
   @RequiresApi(23)
   public void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener) {
@@ -179,16 +183,19 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         /* handler= */ null);
   }
 
+  @UnstableApi
   @Override
   public byte[] openSession() throws MediaDrmException {
     return mediaDrm.openSession();
   }
 
+  @UnstableApi
   @Override
   public void closeSession(byte[] sessionId) {
     mediaDrm.closeSession(sessionId);
   }
 
+  @UnstableApi
   @Override
   public void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {
     if (Util.SDK_INT >= 31) {
@@ -202,6 +209,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   // Return values of MediaDrm.KeyRequest.getRequestType are equal to KeyRequest.RequestType.
   @SuppressLint("WrongConstant")
+  @UnstableApi
   @Override
   public KeyRequest getKeyRequest(
       byte[] scope,
@@ -239,6 +247,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     return new KeyRequest(requestData, licenseServerUrl, requestType);
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
@@ -250,22 +259,26 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     return mediaDrm.provideKeyResponse(scope, response);
   }
 
+  @UnstableApi
   @Override
   public ProvisionRequest getProvisionRequest() {
     final MediaDrm.ProvisionRequest request = mediaDrm.getProvisionRequest();
     return new ProvisionRequest(request.getData(), request.getDefaultUrl());
   }
 
+  @UnstableApi
   @Override
   public void provideProvisionResponse(byte[] response) throws DeniedByServerException {
     mediaDrm.provideProvisionResponse(response);
   }
 
+  @UnstableApi
   @Override
   public Map<String, String> queryKeyStatus(byte[] sessionId) {
     return mediaDrm.queryKeyStatus(sessionId);
   }
 
+  @UnstableApi
   @Override
   public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
     if (Util.SDK_INT >= 31) {
@@ -286,12 +299,14 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     }
   }
 
+  @UnstableApi
   @Override
   public synchronized void acquire() {
     Assertions.checkState(referenceCount > 0);
     referenceCount++;
   }
 
+  @UnstableApi
   @Override
   public synchronized void release() {
     if (--referenceCount == 0) {
@@ -299,11 +314,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     }
   }
 
+  @UnstableApi
   @Override
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     mediaDrm.restoreKeys(sessionId, keySetId);
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public PersistableBundle getMetrics() {
@@ -313,26 +330,31 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     return mediaDrm.getMetrics();
   }
 
+  @UnstableApi
   @Override
   public String getPropertyString(String propertyName) {
     return mediaDrm.getPropertyString(propertyName);
   }
 
+  @UnstableApi
   @Override
   public byte[] getPropertyByteArray(String propertyName) {
     return mediaDrm.getPropertyByteArray(propertyName);
   }
 
+  @UnstableApi
   @Override
   public void setPropertyString(String propertyName, String value) {
     mediaDrm.setPropertyString(propertyName, value);
   }
 
+  @UnstableApi
   @Override
   public void setPropertyByteArray(String propertyName, byte[] value) {
     mediaDrm.setPropertyByteArray(propertyName, value);
   }
 
+  @UnstableApi
   @Override
   public FrameworkCryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
@@ -345,6 +367,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         adjustUuid(uuid), sessionId, forceAllowInsecureDecoderComponents);
   }
 
+  @UnstableApi
   @Override
   public @C.CryptoType int getCryptoType() {
     return C.CRYPTO_TYPE_FRAMEWORK;

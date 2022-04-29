@@ -633,7 +633,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /** Returns whether the playback controls can be shown. */
-  @UnstableApi
   public boolean getUseController() {
     return useController;
   }
@@ -647,7 +646,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param useController Whether the playback controls can be shown.
    */
-  @UnstableApi
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
     setClickable(useController || hasOnClickListeners());
@@ -724,7 +722,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param errorMessageProvider The error message provider.
    */
-  @UnstableApi
   public void setErrorMessageProvider(
       @Nullable ErrorMessageProvider<? super PlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {

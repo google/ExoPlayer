@@ -94,12 +94,15 @@ public interface ExoMediaDrm {
   }
 
   /** Event indicating that keys need to be requested from the license server. */
+  @UnstableApi
   @SuppressWarnings("InlinedApi")
   int EVENT_KEY_REQUIRED = MediaDrm.EVENT_KEY_REQUIRED;
   /** Event indicating that keys have expired, and are no longer usable. */
+  @UnstableApi
   @SuppressWarnings("InlinedApi")
   int EVENT_KEY_EXPIRED = MediaDrm.EVENT_KEY_EXPIRED;
   /** Event indicating that a certificate needs to be requested from the provisioning server. */
+  @UnstableApi
   @SuppressWarnings("InlinedApi")
   int EVENT_PROVISION_REQUIRED = MediaDrm.EVENT_PROVISION_REQUIRED;
 
@@ -107,15 +110,18 @@ public interface ExoMediaDrm {
    * Key request type for keys that will be used for online use. Streaming keys will not be saved to
    * the device for subsequent use when the device is not connected to a network.
    */
+  @UnstableApi
   @SuppressWarnings("InlinedApi")
   int KEY_TYPE_STREAMING = MediaDrm.KEY_TYPE_STREAMING;
   /**
    * Key request type for keys that will be used for offline use. They will be saved to the device
    * for subsequent use when the device is not connected to a network.
    */
+  @UnstableApi
   @SuppressWarnings("InlinedApi")
   int KEY_TYPE_OFFLINE = MediaDrm.KEY_TYPE_OFFLINE;
   /** Key request type indicating that saved offline keys should be released. */
+  @UnstableApi
   @SuppressWarnings("InlinedApi")
   int KEY_TYPE_RELEASE = MediaDrm.KEY_TYPE_RELEASE;
 
