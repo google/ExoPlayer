@@ -391,9 +391,15 @@ public final class C {
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
   /**
-   * Content types for audio attributes. One of {@link #CONTENT_TYPE_MOVIE}, {@link
-   * #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link #CONTENT_TYPE_SPEECH} or
-   * {@link #CONTENT_TYPE_UNKNOWN}.
+   * Content types for audio attributes. One of:
+   *
+   * <ul>
+   *   <li>{@link #AUDIO_CONTENT_TYPE_MOVIE}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_MUSIC}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_SONIFICATION}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_SPEECH}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_UNKNOWN}
+   * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -401,34 +407,44 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
-    CONTENT_TYPE_MOVIE,
-    CONTENT_TYPE_MUSIC,
-    CONTENT_TYPE_SONIFICATION,
-    CONTENT_TYPE_SPEECH,
-    CONTENT_TYPE_UNKNOWN
+    AUDIO_CONTENT_TYPE_MOVIE,
+    AUDIO_CONTENT_TYPE_MUSIC,
+    AUDIO_CONTENT_TYPE_SONIFICATION,
+    AUDIO_CONTENT_TYPE_SPEECH,
+    AUDIO_CONTENT_TYPE_UNKNOWN
   })
   public @interface AudioContentType {}
+  /** See {@link AudioAttributes#CONTENT_TYPE_MOVIE}. */
+  public static final int AUDIO_CONTENT_TYPE_MOVIE = AudioAttributes.CONTENT_TYPE_MOVIE;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_MOVIE
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_MOVIE} instead.
    */
-  public static final int CONTENT_TYPE_MOVIE = android.media.AudioAttributes.CONTENT_TYPE_MOVIE;
+  @Deprecated public static final int CONTENT_TYPE_MOVIE = AUDIO_CONTENT_TYPE_MOVIE;
+  /** See {@link AudioAttributes#CONTENT_TYPE_MUSIC}. */
+  public static final int AUDIO_CONTENT_TYPE_MUSIC = AudioAttributes.CONTENT_TYPE_MUSIC;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_MUSIC
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_MUSIC} instead.
    */
-  public static final int CONTENT_TYPE_MUSIC = android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+  @Deprecated public static final int CONTENT_TYPE_MUSIC = AUDIO_CONTENT_TYPE_MUSIC;
+  /** See {@link AudioAttributes#CONTENT_TYPE_SONIFICATION}. */
+  public static final int AUDIO_CONTENT_TYPE_SONIFICATION =
+      AudioAttributes.CONTENT_TYPE_SONIFICATION;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_SONIFICATION} instead.
    */
-  public static final int CONTENT_TYPE_SONIFICATION =
-      android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION;
+  @Deprecated public static final int CONTENT_TYPE_SONIFICATION = AUDIO_CONTENT_TYPE_SONIFICATION;
+  /** See {@link AudioAttributes#CONTENT_TYPE_SPEECH}. */
+  public static final int AUDIO_CONTENT_TYPE_SPEECH = AudioAttributes.CONTENT_TYPE_SPEECH;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_SPEECH
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_SPEECH} instead.
    */
-  public static final int CONTENT_TYPE_SPEECH = android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+  @Deprecated public static final int CONTENT_TYPE_SPEECH = AUDIO_CONTENT_TYPE_SPEECH;
+  /** See {@link AudioAttributes#CONTENT_TYPE_UNKNOWN}. */
+  public static final int AUDIO_CONTENT_TYPE_UNKNOWN = AudioAttributes.CONTENT_TYPE_UNKNOWN;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_UNKNOWN} instead.
    */
-  public static final int CONTENT_TYPE_UNKNOWN = android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
+  @Deprecated public static final int CONTENT_TYPE_UNKNOWN = AUDIO_CONTENT_TYPE_UNKNOWN;
 
   /**
    * Flags for audio attributes. Possible flag value is {@link #FLAG_AUDIBILITY_ENFORCED}.
