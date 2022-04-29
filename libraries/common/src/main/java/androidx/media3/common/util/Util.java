@@ -112,39 +112,39 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /** Miscellaneous utility methods. */
-@UnstableApi
 public final class Util {
 
   /**
    * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
    * overridden for local testing.
    */
-  public static final int SDK_INT = Build.VERSION.SDK_INT;
+  @UnstableApi public static final int SDK_INT = Build.VERSION.SDK_INT;
 
   /**
    * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden for local
    * testing.
    */
-  public static final String DEVICE = Build.DEVICE;
+  @UnstableApi public static final String DEVICE = Build.DEVICE;
 
   /**
    * Like {@link Build#MANUFACTURER}, but in a place where it can be conveniently overridden for
    * local testing.
    */
-  public static final String MANUFACTURER = Build.MANUFACTURER;
+  @UnstableApi public static final String MANUFACTURER = Build.MANUFACTURER;
 
   /**
    * Like {@link Build#MODEL}, but in a place where it can be conveniently overridden for local
    * testing.
    */
-  public static final String MODEL = Build.MODEL;
+  @UnstableApi public static final String MODEL = Build.MODEL;
 
   /** A concise description of the device that it can be useful to log for debugging purposes. */
+  @UnstableApi
   public static final String DEVICE_DEBUG_INFO =
       DEVICE + ", " + MODEL + ", " + MANUFACTURER + ", " + SDK_INT;
 
   /** An empty byte array. */
-  public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+  @UnstableApi public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
   private static final String TAG = "Util";
   private static final Pattern XS_DATE_TIME_PATTERN =
@@ -177,6 +177,7 @@ public final class Util {
    * @return a byte array containing all of the inputStream's bytes.
    * @throws IOException if an error occurs reading from the stream.
    */
+  @UnstableApi
   public static byte[] toByteArray(InputStream inputStream) throws IOException {
     byte[] buffer = new byte[1024 * 4];
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -195,6 +196,7 @@ public final class Util {
    * @param intent The intent to pass to the called method.
    * @return The result of the called method.
    */
+  @UnstableApi
   @Nullable
   public static ComponentName startForegroundService(Context context, Intent intent) {
     if (Util.SDK_INT >= 26) {
@@ -288,6 +290,7 @@ public final class Util {
    *
    * @param uri The uri to test.
    */
+  @UnstableApi
   public static boolean isLocalFileUri(Uri uri) {
     String scheme = uri.getScheme();
     return TextUtils.isEmpty(scheme) || "file".equals(scheme);
@@ -301,6 +304,7 @@ public final class Util {
    * @param o2 The second object.
    * @return {@code o1 == null ? o2 == null : o1.equals(o2)}.
    */
+  @UnstableApi
   public static boolean areEqual(@Nullable Object o1, @Nullable Object o2) {
     return o1 == null ? o2 == null : o1.equals(o2);
   }
@@ -315,6 +319,7 @@ public final class Util {
    * @param item The item to search for.
    * @return True if the array contains an object equal to the item being searched for.
    */
+  @UnstableApi
   public static boolean contains(@NullableType Object[] items, @Nullable Object item) {
     for (Object arrayItem : items) {
       if (areEqual(arrayItem, item)) {
@@ -335,6 +340,7 @@ public final class Util {
    * @throws IllegalArgumentException If {@code fromIndex} &lt; 0, {@code toIndex} &gt; {@code
    *     list.size()}, or {@code fromIndex} &gt; {@code toIndex}.
    */
+  @UnstableApi
   public static <T> void removeRange(List<T> list, int fromIndex, int toIndex) {
     if (fromIndex < 0 || toIndex > list.size() || fromIndex > toIndex) {
       throw new IllegalArgumentException();
@@ -349,6 +355,7 @@ public final class Util {
    *
    * <p>Use {@link Assertions#checkNotNull(Object)} to throw if the value is null.
    */
+  @UnstableApi
   @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull("#1")
   public static <T> T castNonNull(@Nullable T value) {
@@ -356,6 +363,7 @@ public final class Util {
   }
 
   /** Casts a nullable type array to a non-null type array without runtime null check. */
+  @UnstableApi
   @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull("#1")
   public static <T> T[] castNonNullTypeArray(@NullableType T[] value) {
@@ -370,6 +378,7 @@ public final class Util {
    * @param length The output array length. Must be less or equal to the length of the input array.
    * @return The copied array.
    */
+  @UnstableApi
   @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
     Assertions.checkArgument(length <= input.length);
@@ -384,6 +393,7 @@ public final class Util {
    * @param to The end of the range to be copied, exclusive.
    * @return The copied array.
    */
+  @UnstableApi
   @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static <T> T[] nullSafeArrayCopyOfRange(T[] input, int from, int to) {
     Assertions.checkArgument(0 <= from);
@@ -398,6 +408,7 @@ public final class Util {
    * @param newElement The element to append.
    * @return The new array.
    */
+  @UnstableApi
   public static <T> T[] nullSafeArrayAppend(T[] original, T newElement) {
     @NullableType T[] result = Arrays.copyOf(original, original.length + 1);
     result[original.length] = newElement;
@@ -411,6 +422,7 @@ public final class Util {
    * @param second The second array.
    * @return The concatenated result.
    */
+  @UnstableApi
   @SuppressWarnings("nullness:assignment")
   public static <T> T[] nullSafeArrayConcatenation(T[] first, T[] second) {
     T[] concatenation = Arrays.copyOf(first, first.length + second.length);
@@ -432,6 +444,7 @@ public final class Util {
    * @param list The list to copy items from.
    * @param array The array to copy items to.
    */
+  @UnstableApi
   @SuppressWarnings("nullness:toArray.nullable.elements.not.newarray")
   public static <T> void nullSafeListToArray(List<T> list, T[] array) {
     Assertions.checkState(list.size() == array.length);
@@ -443,6 +456,7 @@ public final class Util {
    *
    * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
    */
+  @UnstableApi
   public static Handler createHandlerForCurrentLooper() {
     return createHandlerForCurrentLooper(/* callback= */ null);
   }
@@ -459,6 +473,7 @@ public final class Util {
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
    */
+  @UnstableApi
   public static Handler createHandlerForCurrentLooper(
       @Nullable Handler.@UnknownInitialization Callback callback) {
     return createHandler(Assertions.checkStateNotNull(Looper.myLooper()), callback);
@@ -470,6 +485,7 @@ public final class Util {
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
    */
+  @UnstableApi
   public static Handler createHandlerForCurrentOrMainLooper() {
     return createHandlerForCurrentOrMainLooper(/* callback= */ null);
   }
@@ -488,6 +504,7 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
+  @UnstableApi
   public static Handler createHandlerForCurrentOrMainLooper(
       @Nullable Handler.@UnknownInitialization Callback callback) {
     return createHandler(getCurrentOrMainLooper(), callback);
@@ -505,6 +522,7 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
+  @UnstableApi
   @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static Handler createHandler(
       Looper looper, @Nullable Handler.@UnknownInitialization Callback callback) {
@@ -520,6 +538,7 @@ public final class Util {
    * @return {@code true} if the {@link Runnable} was successfully posted to the {@link Handler} or
    *     run. {@code false} otherwise.
    */
+  @UnstableApi
   public static boolean postOrRun(Handler handler, Runnable runnable) {
     Looper looper = handler.getLooper();
     if (!looper.getThread().isAlive()) {
@@ -537,6 +556,7 @@ public final class Util {
    * Returns the {@link Looper} associated with the current thread, or the {@link Looper} of the
    * application's main thread if the current thread doesn't have a {@link Looper}.
    */
+  @UnstableApi
   public static Looper getCurrentOrMainLooper() {
     @Nullable Looper myLooper = Looper.myLooper();
     return myLooper != null ? myLooper : Looper.getMainLooper();
@@ -548,6 +568,7 @@ public final class Util {
    * @param threadName The name of the thread.
    * @return The executor.
    */
+  @UnstableApi
   public static ExecutorService newSingleThreadExecutor(String threadName) {
     return Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
   }
@@ -558,6 +579,7 @@ public final class Util {
    *
    * @param closeable The {@link Closeable} to close.
    */
+  @UnstableApi
   public static void closeQuietly(@Nullable Closeable closeable) {
     try {
       if (closeable != null) {
@@ -575,6 +597,7 @@ public final class Util {
    * @param parcel The {@link Parcel} to read from.
    * @return The read value.
    */
+  @UnstableApi
   public static boolean readBoolean(Parcel parcel) {
     return parcel.readInt() != 0;
   }
@@ -586,6 +609,7 @@ public final class Util {
    * @param parcel The {@link Parcel} to write to.
    * @param value The value to write.
    */
+  @UnstableApi
   public static void writeBoolean(Parcel parcel, boolean value) {
     parcel.writeInt(value ? 1 : 0);
   }
@@ -600,6 +624,7 @@ public final class Util {
    * @param locale A {@link Locale}.
    * @return The language tag.
    */
+  @UnstableApi
   public static String getLocaleLanguageTag(Locale locale) {
     return SDK_INT >= 21 ? getLocaleLanguageTagV21(locale) : locale.toString();
   }
@@ -612,6 +637,7 @@ public final class Util {
    * @return The all-lowercase normalized code, or null if the input was null, or {@code
    *     language.toLowerCase()} if the language could not be normalized.
    */
+  @UnstableApi
   public static @PolyNull String normalizeLanguageCode(@PolyNull String language) {
     if (language == null) {
       return null;
@@ -646,6 +672,7 @@ public final class Util {
    * @param bytes The UTF-8 encoded bytes to decode.
    * @return The string.
    */
+  @UnstableApi
   public static String fromUtf8Bytes(byte[] bytes) {
     return new String(bytes, Charsets.UTF_8);
   }
@@ -658,6 +685,7 @@ public final class Util {
    * @param length The number of bytes to decode.
    * @return The string.
    */
+  @UnstableApi
   public static String fromUtf8Bytes(byte[] bytes, int offset, int length) {
     return new String(bytes, offset, length, Charsets.UTF_8);
   }
@@ -668,6 +696,7 @@ public final class Util {
    * @param value The {@link String} whose bytes should be obtained.
    * @return The code points encoding using UTF-8.
    */
+  @UnstableApi
   public static byte[] getUtf8Bytes(String value) {
     return value.getBytes(Charsets.UTF_8);
   }
@@ -681,6 +710,7 @@ public final class Util {
    * @param regex A delimiting regular expression.
    * @return The array of strings resulting from splitting the string.
    */
+  @UnstableApi
   public static String[] split(String value, String regex) {
     return value.split(regex, /* limit= */ -1);
   }
@@ -695,6 +725,7 @@ public final class Util {
    * @param regex A delimiting regular expression.
    * @return The string split by the first occurrence of the delimiter.
    */
+  @UnstableApi
   public static String[] splitAtFirst(String value, String regex) {
     return value.split(regex, /* limit= */ 2);
   }
@@ -705,6 +736,7 @@ public final class Util {
    * @param c The character.
    * @return Whether the given character is a linebreak.
    */
+  @UnstableApi
   public static boolean isLinebreak(int c) {
     return c == '\n' || c == '\r';
   }
@@ -714,6 +746,7 @@ public final class Util {
    *
    * @see String#format(String, Object...)
    */
+  @UnstableApi
   public static String formatInvariant(String format, Object... args) {
     return String.format(Locale.US, format, args);
   }
@@ -725,6 +758,7 @@ public final class Util {
    * @param denominator The denominator to divide by.
    * @return The ceiled result of the division.
    */
+  @UnstableApi
   public static int ceilDivide(int numerator, int denominator) {
     return (numerator + denominator - 1) / denominator;
   }
@@ -736,6 +770,7 @@ public final class Util {
    * @param denominator The denominator to divide by.
    * @return The ceiled result of the division.
    */
+  @UnstableApi
   public static long ceilDivide(long numerator, long denominator) {
     return (numerator + denominator - 1) / denominator;
   }
@@ -748,6 +783,7 @@ public final class Util {
    * @param max The upper bound.
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
+  @UnstableApi
   public static int constrainValue(int value, int min, int max) {
     return max(min, min(value, max));
   }
@@ -760,6 +796,7 @@ public final class Util {
    * @param max The upper bound.
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
+  @UnstableApi
   public static long constrainValue(long value, long min, long max) {
     return max(min, min(value, max));
   }
@@ -772,6 +809,7 @@ public final class Util {
    * @param max The upper bound.
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
+  @UnstableApi
   public static float constrainValue(float value, float min, float max) {
     return max(min, min(value, max));
   }
@@ -784,6 +822,7 @@ public final class Util {
    * @param overflowResult The return value if {@code x + y} overflows.
    * @return {@code x + y}, or {@code overflowResult} if the result overflows.
    */
+  @UnstableApi
   public static long addWithOverflowDefault(long x, long y, long overflowResult) {
     long result = x + y;
     // See Hacker's Delight 2-13 (H. Warren Jr).
@@ -801,6 +840,7 @@ public final class Util {
    * @param overflowResult The return value if {@code x - y} overflows.
    * @return {@code x - y}, or {@code overflowResult} if the result overflows.
    */
+  @UnstableApi
   public static long subtractWithOverflowDefault(long x, long y, long overflowResult) {
     long result = x - y;
     // See Hacker's Delight 2-13 (H. Warren Jr).
@@ -819,6 +859,7 @@ public final class Util {
    * @return The index of the first occurrence of value in {@code array}, or {@link C#INDEX_UNSET}
    *     if {@code value} is not contained in {@code array}.
    */
+  @UnstableApi
   public static int linearSearch(int[] array, int value) {
     for (int i = 0; i < array.length; i++) {
       if (array[i] == value) {
@@ -837,6 +878,7 @@ public final class Util {
    * @return The index of the first occurrence of value in {@code array}, or {@link C#INDEX_UNSET}
    *     if {@code value} is not contained in {@code array}.
    */
+  @UnstableApi
   public static int linearSearch(long[] array, long value) {
     for (int i = 0; i < array.length; i++) {
       if (array[i] == value) {
@@ -864,6 +906,7 @@ public final class Util {
    * @return The index of the largest element in {@code array} that is less than (or optionally
    *     equal to) {@code value}.
    */
+  @UnstableApi
   public static int binarySearchFloor(
       int[] array, int value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
@@ -896,6 +939,7 @@ public final class Util {
    * @return The index of the largest element in {@code array} that is less than (or optionally
    *     equal to) {@code value}.
    */
+  @UnstableApi
   public static int binarySearchFloor(
       long[] array, long value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
@@ -929,6 +973,7 @@ public final class Util {
    * @return The index of the largest element in {@code list} that is less than (or optionally equal
    *     to) {@code value}.
    */
+  @UnstableApi
   public static <T extends Comparable<? super T>> int binarySearchFloor(
       List<? extends Comparable<? super T>> list,
       T value,
@@ -964,6 +1009,7 @@ public final class Util {
    * @return The index of the largest element in {@code array} that is less than (or optionally
    *     equal to) {@code value}.
    */
+  @UnstableApi
   public static int binarySearchFloor(
       LongArray longArray, long value, boolean inclusive, boolean stayInBounds) {
     int lowIndex = 0;
@@ -1006,6 +1052,7 @@ public final class Util {
    * @return The index of the smallest element in {@code array} that is greater than (or optionally
    *     equal to) {@code value}.
    */
+  @UnstableApi
   public static int binarySearchCeil(
       int[] array, int value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
@@ -1039,6 +1086,7 @@ public final class Util {
    * @return The index of the smallest element in {@code array} that is greater than (or optionally
    *     equal to) {@code value}.
    */
+  @UnstableApi
   public static int binarySearchCeil(
       long[] array, long value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
@@ -1073,6 +1121,7 @@ public final class Util {
    * @return The index of the smallest element in {@code list} that is greater than (or optionally
    *     equal to) {@code value}.
    */
+  @UnstableApi
   public static <T extends Comparable<? super T>> int binarySearchCeil(
       List<? extends Comparable<? super T>> list,
       T value,
@@ -1099,6 +1148,7 @@ public final class Util {
    * @return 0, if left == right, a negative value if left &lt; right, or a positive value if left
    *     &gt; right.
    */
+  @UnstableApi
   public static int compareLong(long left, long right) {
     return left < right ? -1 : left == right ? 0 : 1;
   }
@@ -1110,6 +1160,7 @@ public final class Util {
    * @return The minimum value.
    * @throws NoSuchElementException If the array is empty.
    */
+  @UnstableApi
   @RequiresApi(18)
   public static long minValue(SparseLongArray sparseLongArray) {
     if (sparseLongArray.size() == 0) {
@@ -1129,6 +1180,7 @@ public final class Util {
    * @return The maximum value.
    * @throws NoSuchElementException If the array is empty.
    */
+  @UnstableApi
   @RequiresApi(18)
   public static long maxValue(SparseLongArray sparseLongArray) {
     if (sparseLongArray.size() == 0) {
@@ -1148,6 +1200,7 @@ public final class Util {
    * @param timeUs The time in microseconds.
    * @return The corresponding time in milliseconds.
    */
+  @UnstableApi
   public static long usToMs(long timeUs) {
     return (timeUs == C.TIME_UNSET || timeUs == C.TIME_END_OF_SOURCE) ? timeUs : (timeUs / 1000);
   }
@@ -1159,6 +1212,7 @@ public final class Util {
    * @param timeMs The time in milliseconds.
    * @return The corresponding time in microseconds.
    */
+  @UnstableApi
   public static long msToUs(long timeMs) {
     return (timeMs == C.TIME_UNSET || timeMs == C.TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
   }
@@ -1169,6 +1223,7 @@ public final class Util {
    * @param value The attribute value to decode.
    * @return The parsed duration in milliseconds.
    */
+  @UnstableApi
   public static long parseXsDuration(String value) {
     Matcher matcher = XS_DURATION_PATTERN.matcher(value);
     if (matcher.matches()) {
@@ -1205,6 +1260,7 @@ public final class Util {
   // incompatible types in argument.
   // dereference of possibly-null reference matcher.group(9)
   @SuppressWarnings({"nullness:argument", "nullness:dereference.of.nullable"})
+  @UnstableApi
   public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {
@@ -1262,6 +1318,7 @@ public final class Util {
    * @param divisor The divisor.
    * @return The scaled timestamp.
    */
+  @UnstableApi
   public static long scaleLargeTimestamp(long timestamp, long multiplier, long divisor) {
     if (divisor >= multiplier && (divisor % multiplier) == 0) {
       long divisionFactor = divisor / multiplier;
@@ -1283,6 +1340,7 @@ public final class Util {
    * @param divisor The divisor.
    * @return The scaled timestamps.
    */
+  @UnstableApi
   public static long[] scaleLargeTimestamps(List<Long> timestamps, long multiplier, long divisor) {
     long[] scaledTimestamps = new long[timestamps.size()];
     if (divisor >= multiplier && (divisor % multiplier) == 0) {
@@ -1311,6 +1369,7 @@ public final class Util {
    * @param multiplier The multiplier.
    * @param divisor The divisor.
    */
+  @UnstableApi
   public static void scaleLargeTimestampsInPlace(long[] timestamps, long multiplier, long divisor) {
     if (divisor >= multiplier && (divisor % multiplier) == 0) {
       long divisionFactor = divisor / multiplier;
@@ -1337,6 +1396,7 @@ public final class Util {
    * @param speed The factor by which playback is sped up.
    * @return The scaled duration, in the same units as {@code playoutDuration}.
    */
+  @UnstableApi
   public static long getMediaDurationForPlayoutDuration(long playoutDuration, float speed) {
     if (speed == 1f) {
       return playoutDuration;
@@ -1350,6 +1410,7 @@ public final class Util {
    * @param mediaDuration The duration to scale.
    * @return The scaled duration, in the same units as {@code mediaDuration}.
    */
+  @UnstableApi
   public static long getPlayoutDurationForMediaDuration(long mediaDuration, float speed) {
     if (speed == 1f) {
       return mediaDuration;
@@ -1363,6 +1424,7 @@ public final class Util {
    *
    * @param string A string no more than four characters long.
    */
+  @UnstableApi
   public static int getIntegerCodeForString(String string) {
     int length = string.length();
     Assertions.checkArgument(length <= 4);
@@ -1379,6 +1441,7 @@ public final class Util {
    *
    * <p>This method is equivalent to {@link Integer#toUnsignedLong(int)} for API 26+.
    */
+  @UnstableApi
   public static long toUnsignedLong(int x) {
     // x is implicitly casted to a long before the bit operation is executed but this does not
     // impact the method correctness.
@@ -1393,6 +1456,7 @@ public final class Util {
    * @return a long where its 32 most significant bits are {@code mostSignificantBits} bits and its
    *     32 least significant bits are {@code leastSignificantBits}.
    */
+  @UnstableApi
   public static long toLong(int mostSignificantBits, int leastSignificantBits) {
     return (toUnsignedLong(mostSignificantBits) << 32) | toUnsignedLong(leastSignificantBits);
   }
@@ -1411,6 +1475,7 @@ public final class Util {
    * @return {@code sequence} directly if {@code sequence.length() <= maxLength}, otherwise {@code
    *     sequence.subsequence(0, maxLength}.
    */
+  @UnstableApi
   public static CharSequence truncateAscii(CharSequence sequence, int maxLength) {
     return sequence.length() <= maxLength ? sequence : sequence.subSequence(0, maxLength);
   }
@@ -1421,6 +1486,7 @@ public final class Util {
    * @param hexString The hex string to convert to bytes.
    * @return A byte array containing values parsed from the hex string provided.
    */
+  @UnstableApi
   public static byte[] getBytesFromHexString(String hexString) {
     byte[] data = new byte[hexString.length() / 2];
     for (int i = 0; i < data.length; i++) {
@@ -1439,6 +1505,7 @@ public final class Util {
    * @param bytes The byte data to convert to hex.
    * @return A String containing the hex representation of {@code bytes}.
    */
+  @UnstableApi
   public static String toHexString(byte[] bytes) {
     StringBuilder result = new StringBuilder(bytes.length * 2);
     for (int i = 0; i < bytes.length; i++) {
@@ -1455,6 +1522,7 @@ public final class Util {
    * @param objects The objects whose simple class names should be comma delimited and returned.
    * @return A string with comma delimited simple names of each object's class.
    */
+  @UnstableApi
   public static String getCommaDelimitedSimpleClassNames(Object[] objects) {
     StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < objects.length; i++) {
@@ -1473,6 +1541,7 @@ public final class Util {
    * @param applicationName String that will be prefix'ed to the generated user agent.
    * @return A user agent string generated using the applicationName and the library version.
    */
+  @UnstableApi
   public static String getUserAgent(Context context, String applicationName) {
     String versionName;
     try {
@@ -1492,6 +1561,7 @@ public final class Util {
   }
 
   /** Returns the number of codec strings in {@code codecs} whose type matches {@code trackType}. */
+  @UnstableApi
   public static int getCodecCountOfType(@Nullable String codecs, @C.TrackType int trackType) {
     String[] codecArray = splitCodecs(codecs);
     int count = 0;
@@ -1512,6 +1582,7 @@ public final class Util {
    * @return A copy of {@code codecs} without the codecs whose track type doesn't match {@code
    *     trackType}. If this ends up empty, or {@code codecs} is null, returns null.
    */
+  @UnstableApi
   @Nullable
   public static String getCodecsOfType(@Nullable String codecs, @C.TrackType int trackType) {
     String[] codecArray = splitCodecs(codecs);
@@ -1536,6 +1607,7 @@ public final class Util {
    * @param codecs A codec sequence string, as defined in RFC 6381.
    * @return The split codecs, or an array of length zero if the input was empty or null.
    */
+  @UnstableApi
   public static String[] splitCodecs(@Nullable String codecs) {
     if (TextUtils.isEmpty(codecs)) {
       return new String[0];
@@ -1551,6 +1623,7 @@ public final class Util {
    * @param sampleRate The sample rate in Hz, or {@link Format#NO_VALUE} if unknown.
    * @return The PCM format.
    */
+  @UnstableApi
   public static Format getPcmFormat(@C.PcmEncoding int pcmEncoding, int channels, int sampleRate) {
     return new Format.Builder()
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
@@ -1568,6 +1641,7 @@ public final class Util {
    *     C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and {@link C#ENCODING_PCM_32BIT}. If
    *     the bit depth is unsupported then {@link C#ENCODING_INVALID} is returned.
    */
+  @UnstableApi
   public static @C.PcmEncoding int getPcmEncoding(int bitDepth) {
     switch (bitDepth) {
       case 8:
@@ -1589,6 +1663,7 @@ public final class Util {
    * @param encoding The encoding of the audio data.
    * @return Whether the encoding is one of the PCM encodings.
    */
+  @UnstableApi
   public static boolean isEncodingLinearPcm(@C.Encoding int encoding) {
     return encoding == C.ENCODING_PCM_8BIT
         || encoding == C.ENCODING_PCM_16BIT
@@ -1604,6 +1679,7 @@ public final class Util {
    * @param encoding The encoding of the audio data.
    * @return Whether the encoding is high resolution PCM.
    */
+  @UnstableApi
   public static boolean isEncodingHighResolutionPcm(@C.PcmEncoding int encoding) {
     return encoding == C.ENCODING_PCM_24BIT
         || encoding == C.ENCODING_PCM_32BIT
@@ -1618,6 +1694,7 @@ public final class Util {
    * @return The channel configuration or {@link AudioFormat#CHANNEL_INVALID} if output is not
    *     possible.
    */
+  @UnstableApi
   public static int getAudioTrackChannelConfig(int channelCount) {
     switch (channelCount) {
       case 1:
@@ -1658,6 +1735,7 @@ public final class Util {
    * @param channelCount The channel count.
    * @return The size of one audio frame in bytes.
    */
+  @UnstableApi
   public static int getPcmFrameSize(@C.PcmEncoding int pcmEncoding, int channelCount) {
     switch (pcmEncoding) {
       case C.ENCODING_PCM_8BIT:
@@ -1678,6 +1756,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.AudioUsage} corresponding to the specified {@link C.StreamType}. */
+  @UnstableApi
   public static @C.AudioUsage int getAudioUsageForStreamType(@C.StreamType int streamType) {
     switch (streamType) {
       case C.STREAM_TYPE_ALARM:
@@ -1699,6 +1778,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}. */
+  @UnstableApi
   public static @C.AudioContentType int getAudioContentTypeForStreamType(
       @C.StreamType int streamType) {
     switch (streamType) {
@@ -1717,6 +1797,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.StreamType} corresponding to the specified {@link C.AudioUsage}. */
+  @UnstableApi
   public static @C.StreamType int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
     switch (usage) {
       case C.USAGE_MEDIA:
@@ -1753,6 +1834,7 @@ public final class Util {
    *
    * @see AudioManager#generateAudioSessionId()
    */
+  @UnstableApi
   @RequiresApi(21)
   public static int generateAudioSessionIdV21(Context context) {
     @Nullable
@@ -1790,6 +1872,7 @@ public final class Util {
    * MediaDrm.ErrorCodes} value. Returns {@link PlaybackException#ERROR_CODE_DRM_SYSTEM_ERROR} if
    * the provided error code isn't recognised.
    */
+  @UnstableApi
   public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmErrorCode(
       int mediaDrmErrorCode) {
     switch (mediaDrmErrorCode) {
@@ -1824,6 +1907,7 @@ public final class Util {
    * @deprecated Use {@link #inferContentTypeForExtension(String)} when {@code overrideExtension} is
    *     non-empty, and {@link #inferContentType(Uri)} otherwise.
    */
+  @UnstableApi
   @Deprecated
   public static @ContentType int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
@@ -1880,6 +1964,7 @@ public final class Util {
    * @deprecated Use {@link Uri#parse(String)} and {@link #inferContentType(Uri)} for full file
    *     paths or {@link #inferContentTypeForExtension(String)} for extensions.
    */
+  @UnstableApi
   @Deprecated
   public static @ContentType int inferContentType(String fileName) {
     return inferContentType(Uri.parse("file:///" + fileName));
@@ -1960,6 +2045,7 @@ public final class Util {
    * @param uri The original URI.
    * @return The fixed URI.
    */
+  @UnstableApi
   public static Uri fixSmoothStreamingIsmManifestUri(Uri uri) {
     @Nullable String path = uri.getPath();
     if (path == null) {
@@ -1981,6 +2067,7 @@ public final class Util {
    * @param timeMs The time to format as a string, in milliseconds.
    * @return The time formatted as a string.
    */
+  @UnstableApi
   public static String getStringForTime(StringBuilder builder, Formatter formatter, long timeMs) {
     if (timeMs == C.TIME_UNSET) {
       timeMs = 0;
@@ -2009,6 +2096,7 @@ public final class Util {
    * @param fileName File name to be escaped.
    * @return An escaped file name which will be safe for use on at least FAT32 filesystems.
    */
+  @UnstableApi
   public static String escapeFileName(String fileName) {
     int length = fileName.length();
     int charactersToEscapeCount = 0;
@@ -2065,6 +2153,7 @@ public final class Util {
    * @return The original value of the file name before it was escaped, or null if the escaped
    *     fileName seems invalid.
    */
+  @UnstableApi
   @Nullable
   public static String unescapeFileName(String fileName) {
     int length = fileName.length();
@@ -2098,6 +2187,7 @@ public final class Util {
   }
 
   /** Returns a data URI with the specified MIME type and data. */
+  @UnstableApi
   public static Uri getDataUriForString(String mimeType, String data) {
     return Uri.parse(
         "data:" + mimeType + ";base64," + Base64.encodeToString(data.getBytes(), Base64.NO_WRAP));
@@ -2107,6 +2197,7 @@ public final class Util {
    * A hacky method that always throws {@code t} even if {@code t} is a checked exception, and is
    * not declared to be thrown.
    */
+  @UnstableApi
   public static void sneakyThrow(Throwable t) {
     sneakyThrowInternal(t);
   }
@@ -2117,6 +2208,7 @@ public final class Util {
   }
 
   /** Recursively deletes a directory and its content. */
+  @UnstableApi
   public static void recursiveDelete(File fileOrDirectory) {
     File[] directoryFiles = fileOrDirectory.listFiles();
     if (directoryFiles != null) {
@@ -2128,6 +2220,7 @@ public final class Util {
   }
 
   /** Creates an empty directory in the directory returned by {@link Context#getCacheDir()}. */
+  @UnstableApi
   public static File createTempDirectory(Context context, String prefix) throws IOException {
     File tempFile = createTempFile(context, prefix);
     tempFile.delete(); // Delete the temp file.
@@ -2136,6 +2229,7 @@ public final class Util {
   }
 
   /** Creates a new empty file in the directory returned by {@link Context#getCacheDir()}. */
+  @UnstableApi
   public static File createTempFile(Context context, String prefix) throws IOException {
     return File.createTempFile(prefix, null, checkNotNull(context.getCacheDir()));
   }
@@ -2150,6 +2244,7 @@ public final class Util {
    * @param initialValue The initial value for the crc calculation.
    * @return The result of updating the initial value with the specified bytes.
    */
+  @UnstableApi
   public static int crc32(byte[] bytes, int start, int end, int initialValue) {
     for (int i = start; i < end; i++) {
       initialValue =
@@ -2169,6 +2264,7 @@ public final class Util {
    * @param initialValue The initial value for the crc calculation.
    * @return The result of updating the initial value with the specified bytes.
    */
+  @UnstableApi
   public static int crc8(byte[] bytes, int start, int end, int initialValue) {
     for (int i = start; i < end; i++) {
       initialValue = CRC8_BYTES_MSBF[initialValue ^ (bytes[i] & 0xFF)];
@@ -2177,6 +2273,7 @@ public final class Util {
   }
 
   /** Compresses {@code input} using gzip and returns the result in a newly allocated byte array. */
+  @UnstableApi
   public static byte[] gzip(byte[] input) {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try (GZIPOutputStream os = new GZIPOutputStream(output)) {
@@ -2199,6 +2296,7 @@ public final class Util {
    * @return The int value at the given index with the buffer bytes ordered most significant to
    *     least significant.
    */
+  @UnstableApi
   public static int getBigEndianInt(ByteBuffer buffer, int index) {
     int value = buffer.getInt(index);
     return buffer.order() == ByteOrder.BIG_ENDIAN ? value : Integer.reverseBytes(value);
@@ -2211,6 +2309,7 @@ public final class Util {
    * @param context A context to access the telephony service. If null, only the Locale can be used.
    * @return The upper-case ISO 3166-1 alpha-2 country code, or an empty String if unavailable.
    */
+  @UnstableApi
   public static String getCountryCode(@Nullable Context context) {
     if (context != null) {
       @Nullable
@@ -2230,6 +2329,7 @@ public final class Util {
    * Returns a non-empty array of normalized IETF BCP 47 language tags for the system languages
    * ordered by preference.
    */
+  @UnstableApi
   public static String[] getSystemLanguageCodes() {
     String[] systemLocales = getSystemLocales();
     for (int i = 0; i < systemLocales.length; i++) {
@@ -2239,6 +2339,7 @@ public final class Util {
   }
 
   /** Returns the default {@link Locale.Category#DISPLAY DISPLAY} {@link Locale}. */
+  @UnstableApi
   public static Locale getDefaultDisplayLocale() {
     return Util.SDK_INT >= 24 ? Locale.getDefault(Locale.Category.DISPLAY) : Locale.getDefault();
   }
@@ -2255,6 +2356,7 @@ public final class Util {
    *     is created.
    * @return Whether the input is uncompressed successfully.
    */
+  @UnstableApi
   public static boolean inflate(
       ParsableByteArray input, ParsableByteArray output, @Nullable Inflater inflater) {
     if (input.bytesLeft() <= 0) {
@@ -2296,6 +2398,7 @@ public final class Util {
    * @param context Any context.
    * @return Whether the app is running on a TV device.
    */
+  @UnstableApi
   public static boolean isTv(Context context) {
     // See https://developer.android.com/training/tv/start/hardware.html#runtime-check.
     @Nullable
@@ -2311,6 +2414,7 @@ public final class Util {
    * @param context Any context.
    * @return Whether the app is running on an automotive device.
    */
+  @UnstableApi
   public static boolean isAutomotive(Context context) {
     return Util.SDK_INT >= 23
         && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
@@ -2328,6 +2432,7 @@ public final class Util {
    * @param context Any context.
    * @return The size of the current mode, in pixels.
    */
+  @UnstableApi
   public static Point getCurrentDisplayModeSize(Context context) {
     @Nullable Display defaultDisplay = null;
     if (Util.SDK_INT >= 17) {
@@ -2361,6 +2466,7 @@ public final class Util {
    * @param display The display whose size is to be returned.
    * @return The size of the current mode, in pixels.
    */
+  @UnstableApi
   public static Point getCurrentDisplayModeSize(Context context, Display display) {
     if (display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
       // On Android TVs it's common for the UI to be driven at a lower resolution than the physical
@@ -2423,6 +2529,7 @@ public final class Util {
    * @param trackType A {@link C.TrackType} constant,
    * @return A string representation of this constant.
    */
+  @UnstableApi
   public static String getTrackTypeString(@C.TrackType int trackType) {
     switch (trackType) {
       case C.TRACK_TYPE_DEFAULT:
@@ -2455,6 +2562,7 @@ public final class Util {
    *     and the time since the Unix epoch, or {@link C#TIME_UNSET} if unknown.
    * @return The Unix time in milliseconds since the epoch.
    */
+  @UnstableApi
   public static long getNowUnixTimeMs(long elapsedRealtimeEpochOffsetMs) {
     return elapsedRealtimeEpochOffsetMs == C.TIME_UNSET
         ? System.currentTimeMillis()
@@ -2469,6 +2577,7 @@ public final class Util {
    * @param toIndex The index up to which elements should be moved (exclusive).
    * @param newFromIndex The new from index.
    */
+  @UnstableApi
   public static <T extends Object> void moveItems(
       List<T> items, int fromIndex, int toIndex, int newFromIndex) {
     ArrayDeque<T> removedItems = new ArrayDeque<>();
@@ -2480,6 +2589,7 @@ public final class Util {
   }
 
   /** Returns whether the table exists in the database. */
+  @UnstableApi
   public static boolean tableExists(SQLiteDatabase database, String tableName) {
     long count =
         DatabaseUtils.queryNumEntries(
@@ -2495,6 +2605,7 @@ public final class Util {
    * @param diagnosticsInfo A string from which to parse the error code.
    * @return The parser error code, or 0 if an error code could not be parsed.
    */
+  @UnstableApi
   public static int getErrorCodeFromPlatformDiagnosticsInfo(@Nullable String diagnosticsInfo) {
     // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
     if (diagnosticsInfo == null) {
@@ -2521,6 +2632,7 @@ public final class Util {
    * @param formatSupport A {@link C.FormatSupport} flag.
    * @return A string representation of the flag.
    */
+  @UnstableApi
   public static String getFormatSupportString(@C.FormatSupport int formatSupport) {
     switch (formatSupport) {
       case C.FORMAT_HANDLED:
@@ -2545,6 +2657,7 @@ public final class Util {
    * @param permanentAvailableCommands The commands permanently available in the player.
    * @return The available {@link Commands}.
    */
+  @UnstableApi
   public static Commands getAvailableCommands(Player player, Commands permanentAvailableCommands) {
     boolean isPlayingAd = player.isPlayingAd();
     boolean isCurrentMediaItemSeekable = player.isCurrentMediaItemSeekable();
@@ -2581,6 +2694,7 @@ public final class Util {
    * @param summands The summands to calculate the sum from.
    * @return The sum of all summands.
    */
+  @UnstableApi
   public static long sum(long... summands) {
     long sum = 0;
     for (long summand : summands) {

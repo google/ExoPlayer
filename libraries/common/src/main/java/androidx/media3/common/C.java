@@ -755,7 +755,6 @@ public final class C {
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
-  @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -768,31 +767,31 @@ public final class C {
   })
   public @interface ContentType {}
   /** Value representing a DASH manifest. */
-  @UnstableApi public static final int CONTENT_TYPE_DASH = 0;
+  public static final int CONTENT_TYPE_DASH = 0;
   /**
    * @deprecated Use {@link #CONTENT_TYPE_DASH} instead.
    */
   @Deprecated @UnstableApi public static final int TYPE_DASH = CONTENT_TYPE_DASH;
   /** Value representing a Smooth Streaming manifest. */
-  @UnstableApi public static final int CONTENT_TYPE_SS = 1;
+  public static final int CONTENT_TYPE_SS = 1;
   /**
    * @deprecated Use {@link #CONTENT_TYPE_SS} instead.
    */
   @Deprecated @UnstableApi public static final int TYPE_SS = CONTENT_TYPE_SS;
   /** Value representing an HLS manifest. */
-  @UnstableApi public static final int CONTENT_TYPE_HLS = 2;
+  public static final int CONTENT_TYPE_HLS = 2;
   /**
    * @deprecated Use {@link #CONTENT_TYPE_HLS} instead.
    */
   @Deprecated @UnstableApi public static final int TYPE_HLS = CONTENT_TYPE_HLS;
   /** Value representing an RTSP stream. */
-  @UnstableApi public static final int CONTENT_TYPE_RTSP = 3;
+  public static final int CONTENT_TYPE_RTSP = 3;
   /**
    * @deprecated Use {@link #CONTENT_TYPE_RTSP} instead.
    */
   @Deprecated @UnstableApi public static final int TYPE_RTSP = CONTENT_TYPE_RTSP;
   /** Value representing files other than DASH, HLS or Smooth Streaming manifests, or RTSP URIs. */
-  @UnstableApi public static final int CONTENT_TYPE_OTHER = 4;
+  public static final int CONTENT_TYPE_OTHER = 4;
   /**
    * @deprecated Use {@link #CONTENT_TYPE_OTHER} instead.
    */
