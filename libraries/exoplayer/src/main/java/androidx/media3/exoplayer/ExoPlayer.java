@@ -1175,7 +1175,6 @@ public interface ExoPlayer extends Player {
    *
    * @param listener The listener to be added.
    */
-  @UnstableApi
   void addAnalyticsListener(AnalyticsListener listener);
 
   /**
@@ -1183,7 +1182,6 @@ public interface ExoPlayer extends Player {
    *
    * @param listener The listener to be removed.
    */
-  @UnstableApi
   void removeAnalyticsListener(AnalyticsListener listener);
 
   /** Returns the number of renderers. */
