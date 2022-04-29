@@ -236,7 +236,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private final int[] framebuffers;
 
-  private Size outputSize;
+  private int outputWidth;
+  private int outputHeight;
   /**
    * Wraps the output {@link Surface} that is populated with the output of the final {@link
    * GlFrameProcessor} for each frame.
@@ -277,20 +278,27 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurface = new Surface(inputSurfaceTexture);
     textureTransformMatrix = new float[16];
-    outputSize = getLast(frameProcessors).getOutputSize();
+    outputWidth = C.LENGTH_UNSET;
+    outputHeight = C.LENGTH_UNSET;
     debugPreviewWidth = C.LENGTH_UNSET;
     debugPreviewHeight = C.LENGTH_UNSET;
   }
 
-  /** Returns the output {@link Size}. */
+  /**
+   * Returns the recommended output size.
+   *
+   * <p>This is the recommended size to use for the {@linkplain #setOutputSurface(Surface, int, int,
+   * SurfaceView) output surface}.
+   */
   public Size getOutputSize() {
-    return outputSize;
+    return getLast(frameProcessors).getOutputSize();
   }
 
   /**
    * Sets the output {@link Surface}.
    *
-   * <p>This method may override the output size of the final {@link GlFrameProcessor}.
+   * <p>The recommended output size is given by {@link #getOutputSize()}. Setting a different output
+   * size may cause poor quality or distortion.
    *
    * @param outputSurface The output {@link Surface}.
    * @param outputWidth The output width, in pixels.
@@ -304,7 +312,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable SurfaceView debugSurfaceView) {
     // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
     //  GlFrameProcessor to be re-configured or append another GlFrameProcessor.
-    outputSize = new Size(outputWidth, outputHeight);
+    this.outputWidth = outputWidth;
+    this.outputHeight = outputHeight;
 
     if (debugSurfaceView != null) {
       debugPreviewWidth = debugSurfaceView.getWidth();
@@ -483,8 +492,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       clearOutputFrame();
       frameProcessors.get(i).drawFrame(presentationTimeUs);
     }
-    GlUtil.focusEglSurface(
-        eglDisplay, eglContext, eglSurface, outputSize.getWidth(), outputSize.getHeight());
+    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
     clearOutputFrame();
     getLast(frameProcessors).drawFrame(presentationTimeUs);
 
