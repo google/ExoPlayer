@@ -172,7 +172,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
   /** Listener to be notified about changes of the visibility of the UI controls. */
-  @UnstableApi
   public interface ControllerVisibilityListener {
 
     /**
@@ -187,7 +186,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * Listener invoked when the fullscreen button is clicked. The implementation is responsible for
    * changing the UI layout.
    */
-  @UnstableApi
   public interface FullscreenButtonClickListener {
 
     /**
@@ -896,7 +894,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *     current listener.
    */
   @SuppressWarnings("deprecation") // Clearing the legacy listener.
-  @UnstableApi
   public void setControllerVisibilityListener(@Nullable ControllerVisibilityListener listener) {
     this.controllerVisibilityListener = listener;
     setControllerVisibilityListener((PlayerControlView.VisibilityListener) null);
@@ -940,7 +937,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *     remove the current listener and hide the fullscreen button.
    */
   @SuppressWarnings("deprecation") // Calling the deprecated method on PlayerControlView for now.
-  @UnstableApi
   public void setFullscreenButtonClickListener(@Nullable FullscreenButtonClickListener listener) {
     Assertions.checkStateNotNull(controller);
     this.fullscreenButtonClickListener = listener;
