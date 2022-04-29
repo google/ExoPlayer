@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
-import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
@@ -61,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, StyledPlayerControlView.VisibilityListener {
+    implements OnClickListener, StyledPlayerView.ControllerVisibilityListener {
 
   // Saved instance state keys.
 
@@ -245,10 +244,10 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  // StyledPlayerControlView.VisibilityListener implementation
+  // StyledPlayerView.ControllerVisibilityListener implementation
 
   @Override
-  public void onVisibilityChange(int visibility) {
+  public void onVisibilityChanged(int visibility) {
     debugRootView.setVisibility(visibility);
   }
 

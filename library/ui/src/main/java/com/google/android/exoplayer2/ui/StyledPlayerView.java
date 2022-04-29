@@ -168,6 +168,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
+  /** Listener to be notified about changes of the visibility of the UI controls. */
+  public interface ControllerVisibilityListener {
+
+    /**
+     * Called when the visibility changes.
+     *
+     * @param visibility The new visibility. Either {@link View#VISIBLE} or {@link View#GONE}.
+     */
+    void onVisibilityChanged(int visibility);
+  }
+
+  /**
+   * Listener invoked when the fullscreen button is clicked. The implementation is responsible for
+   * changing the UI layout.
+   */
+  public interface FullscreenButtonClickListener {
+
+    /**
+     * Called when the fullscreen button is clicked.
+     *
+     * @param isFullScreen {@code true} if the video rendering surface should be fullscreen, {@code
+     *     false} otherwise.
+     */
+    void onFullscreenButtonClick(boolean isFullScreen);
+  }
+
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
    * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
@@ -211,7 +237,16 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   @Nullable private Player player;
   private boolean useController;
-  @Nullable private StyledPlayerControlView.VisibilityListener controllerVisibilityListener;
+
+  // At most one of controllerVisibilityListener and legacyControllerVisibilityListener is non-null.
+  @Nullable private ControllerVisibilityListener controllerVisibilityListener;
+
+  @SuppressWarnings("deprecation")
+  @Nullable
+  private StyledPlayerControlView.VisibilityListener legacyControllerVisibilityListener;
+
+  @Nullable private FullscreenButtonClickListener fullscreenButtonClickListener;
+
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -833,33 +868,78 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   /**
    * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
+   * <p>Removes any listener set by {@link
+   * #setControllerVisibilityListener(StyledPlayerControlView.VisibilityListener)}.
+   *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
    */
+  @SuppressWarnings("deprecation") // Clearing the legacy listener.
+  public void setControllerVisibilityListener(@Nullable ControllerVisibilityListener listener) {
+    this.controllerVisibilityListener = listener;
+    setControllerVisibilityListener((StyledPlayerControlView.VisibilityListener) null);
+  }
+
+  /**
+   * Sets the {@link StyledPlayerControlView.VisibilityListener}.
+   *
+   * <p>Removes any listener set by {@link
+   * #setControllerVisibilityListener(ControllerVisibilityListener)}.
+   *
+   * @deprecated Use {@link #setControllerVisibilityListener(ControllerVisibilityListener)} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setControllerVisibilityListener(
       @Nullable StyledPlayerControlView.VisibilityListener listener) {
     Assertions.checkStateNotNull(controller);
-    if (this.controllerVisibilityListener == listener) {
+    if (this.legacyControllerVisibilityListener == listener) {
       return;
     }
-    if (this.controllerVisibilityListener != null) {
-      controller.removeVisibilityListener(this.controllerVisibilityListener);
+
+    if (this.legacyControllerVisibilityListener != null) {
+      controller.removeVisibilityListener(this.legacyControllerVisibilityListener);
     }
-    this.controllerVisibilityListener = listener;
+    this.legacyControllerVisibilityListener = listener;
     if (listener != null) {
       controller.addVisibilityListener(listener);
     }
+    setControllerVisibilityListener((ControllerVisibilityListener) null);
+  }
+
+  /**
+   * Sets the {@link FullscreenButtonClickListener}.
+   *
+   * <p>Clears any listener set by {@link
+   * #setControllerOnFullScreenModeChangedListener(StyledPlayerControlView.OnFullScreenModeChangedListener)}.
+   *
+   * @param listener The listener to be notified when the fullscreen button is clicked, or null to
+   *     remove the current listener and hide the fullscreen button.
+   */
+  @SuppressWarnings(
+      "deprecation") // Calling the deprecated method on StyledPlayerControlView for now.
+  public void setFullscreenButtonClickListener(@Nullable FullscreenButtonClickListener listener) {
+    Assertions.checkStateNotNull(controller);
+    this.fullscreenButtonClickListener = listener;
+    controller.setOnFullScreenModeChangedListener(componentListener);
   }
 
   /**
    * Sets the {@link StyledPlayerControlView.OnFullScreenModeChangedListener}.
    *
+   * <p>Clears any listener set by {@link
+   * #setFullscreenButtonClickListener(FullscreenButtonClickListener)}.
+   *
    * @param listener The listener to be notified when the fullscreen button is clicked, or null to
    *     remove the current listener and hide the fullscreen button.
+   * @deprecated Use {@link #setFullscreenButtonClickListener(FullscreenButtonClickListener)}
+   *     instead.
    */
+  @Deprecated
   public void setControllerOnFullScreenModeChangedListener(
       @Nullable StyledPlayerControlView.OnFullScreenModeChangedListener listener) {
     Assertions.checkStateNotNull(controller);
+    this.fullscreenButtonClickListener = null;
     controller.setOnFullScreenModeChangedListener(listener);
   }
 
@@ -1387,11 +1467,15 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
   }
 
+  // Implementing the deprecated StyledPlayerControlView.VisibilityListener and
+  // StyledPlayerControlView.OnFullScreenModeChangedListener for now.
+  @SuppressWarnings("deprecation")
   private final class ComponentListener
       implements Player.Listener,
           OnLayoutChangeListener,
           OnClickListener,
-          StyledPlayerControlView.VisibilityListener {
+          StyledPlayerControlView.VisibilityListener,
+          StyledPlayerControlView.OnFullScreenModeChangedListener {
 
     private final Period period;
     private @Nullable Object lastPeriodUidWithTracks;
@@ -1501,6 +1585,18 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     @Override
     public void onVisibilityChange(int visibility) {
       updateContentDescription();
+      if (controllerVisibilityListener != null) {
+        controllerVisibilityListener.onVisibilityChanged(visibility);
+      }
+    }
+
+    // StyledPlayerControlView.OnFullScreenModeChangedListener implementation
+
+    @Override
+    public void onFullScreenModeChanged(boolean isFullScreen) {
+      if (fullscreenButtonClickListener != null) {
+        fullscreenButtonClickListener.onFullscreenButtonClick(isFullScreen);
+      }
     }
   }
 }

@@ -190,7 +190,13 @@ public class StyledPlayerControlView extends FrameLayout {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ui");
   }
 
-  /** Listener to be notified about changes of the visibility of the UI control. */
+  /**
+   * @deprecated Register a {@link StyledPlayerView.ControllerVisibilityListener} via {@link
+   *     StyledPlayerView#setControllerVisibilityListener(StyledPlayerView.ControllerVisibilityListener)}
+   *     instead. Using {@link StyledPlayerControlView} as a standalone class without {@link
+   *     StyledPlayerView} is deprecated.
+   */
+  @Deprecated
   public interface VisibilityListener {
 
     /**
@@ -214,9 +220,12 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * Listener to be invoked to inform the fullscreen mode is changed. Application should handle the
-   * fullscreen mode accordingly.
+   * @deprecated Register a {@link StyledPlayerView.FullscreenButtonClickListener} via {@link
+   *     StyledPlayerView#setFullscreenButtonClickListener(StyledPlayerView.FullscreenButtonClickListener)}
+   *     instead. Using {@link StyledPlayerControlView} as a standalone class without {@link
+   *     StyledPlayerView} is deprecated.
    */
+  @Deprecated
   public interface OnFullScreenModeChangedListener {
     /**
      * Called to indicate a fullscreen mode change.
@@ -246,7 +255,10 @@ public class StyledPlayerControlView extends FrameLayout {
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
 
   private final ComponentListener componentListener;
+
+  @SuppressWarnings("deprecation") // Using the deprecated type for now.
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
+
   @Nullable private final View previousButton;
   @Nullable private final View nextButton;
   @Nullable private final View playPauseButton;
@@ -680,20 +692,26 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * Adds a {@link VisibilityListener}.
-   *
-   * @param listener The listener to be notified about visibility changes.
+   * @deprecated Register a {@link StyledPlayerView.ControllerVisibilityListener} via {@link
+   *     StyledPlayerView#setControllerVisibilityListener(StyledPlayerView.ControllerVisibilityListener)}
+   *     instead. Using {@link StyledPlayerControlView} as a standalone class without {@link
+   *     StyledPlayerView} is deprecated.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void addVisibilityListener(VisibilityListener listener) {
     checkNotNull(listener);
     visibilityListeners.add(listener);
   }
 
   /**
-   * Removes a {@link VisibilityListener}.
-   *
-   * @param listener The listener to be removed.
+   * @deprecated Register a {@link StyledPlayerView.ControllerVisibilityListener} via {@link
+   *     StyledPlayerView#setControllerVisibilityListener(StyledPlayerView.ControllerVisibilityListener)}
+   *     instead. Using {@link StyledPlayerControlView} as a standalone class without {@link
+   *     StyledPlayerView} is deprecated.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void removeVisibilityListener(VisibilityListener listener) {
     visibilityListeners.remove(listener);
   }
@@ -892,12 +910,13 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * Sets a listener to be called when the fullscreen mode should be changed. A non-null listener
-   * needs to be set in order to display the fullscreen button.
-   *
-   * @param listener The listener to be called. A value of <code>null</code> removes any existing
-   *     listener and hides the fullscreen button.
+   * @deprecated Register a {@link StyledPlayerView.FullscreenButtonClickListener} via {@link
+   *     StyledPlayerView#setFullscreenButtonClickListener(StyledPlayerView.FullscreenButtonClickListener)}
+   *     instead. Using {@link StyledPlayerControlView} as a standalone class without {@link
+   *     StyledPlayerView} is deprecated.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setOnFullScreenModeChangedListener(
       @Nullable OnFullScreenModeChangedListener listener) {
     onFullScreenModeChangedListener = listener;
@@ -933,6 +952,7 @@ public class StyledPlayerControlView extends FrameLayout {
     return getVisibility() == VISIBLE;
   }
 
+  @SuppressWarnings("deprecation") // Calling the deprecated listener for now.
   /* package */ void notifyOnVisibilityChange() {
     for (VisibilityListener visibilityListener : visibilityListeners) {
       visibilityListener.onVisibilityChange(getVisibility());
