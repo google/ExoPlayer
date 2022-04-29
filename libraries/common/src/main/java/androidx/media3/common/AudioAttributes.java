@@ -44,9 +44,9 @@ import java.lang.reflect.Method;
 public final class AudioAttributes implements Bundleable {
 
   /**
-   * The default audio attributes, where the content type is {@link C#CONTENT_TYPE_UNKNOWN}, usage
-   * is {@link C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags are
-   * set.
+   * The default audio attributes, where the content type is {@link C#AUDIO_CONTENT_TYPE_UNKNOWN},
+   * usage is {@link C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags
+   * are set.
    */
   public static final AudioAttributes DEFAULT = new Builder().build();
 
@@ -62,11 +62,11 @@ public final class AudioAttributes implements Bundleable {
     /**
      * Creates a new builder for {@link AudioAttributes}.
      *
-     * <p>By default the content type is {@link C#CONTENT_TYPE_UNKNOWN}, usage is {@link
+     * <p>By default the content type is {@link C#AUDIO_CONTENT_TYPE_UNKNOWN}, usage is {@link
      * C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags are set.
      */
     public Builder() {
-      contentType = C.CONTENT_TYPE_UNKNOWN;
+      contentType = C.AUDIO_CONTENT_TYPE_UNKNOWN;
       flags = 0;
       usage = C.USAGE_MEDIA;
       allowedCapturePolicy = C.ALLOW_CAPTURE_BY_ALL;

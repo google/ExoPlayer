@@ -1707,12 +1707,12 @@ public final class Util {
       case C.STREAM_TYPE_NOTIFICATION:
       case C.STREAM_TYPE_RING:
       case C.STREAM_TYPE_SYSTEM:
-        return C.CONTENT_TYPE_SONIFICATION;
+        return C.AUDIO_CONTENT_TYPE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
-        return C.CONTENT_TYPE_SPEECH;
+        return C.AUDIO_CONTENT_TYPE_SPEECH;
       case C.STREAM_TYPE_MUSIC:
       default:
-        return C.CONTENT_TYPE_MUSIC;
+        return C.AUDIO_CONTENT_TYPE_MUSIC;
     }
   }
 

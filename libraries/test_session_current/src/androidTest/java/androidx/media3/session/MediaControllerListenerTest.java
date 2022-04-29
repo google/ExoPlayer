@@ -1811,7 +1811,7 @@ public class MediaControllerListenerTest {
     AudioAttributes testAttributes =
         new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_MOVIE)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
             .build();
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
