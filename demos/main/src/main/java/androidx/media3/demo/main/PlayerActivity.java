@@ -42,6 +42,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.RenderersFactory;
+import androidx.media3.exoplayer.drm.DefaultDrmSessionManagerProvider;
 import androidx.media3.exoplayer.drm.FrameworkMediaDrm;
 import androidx.media3.exoplayer.ima.ImaAdsLoader;
 import androidx.media3.exoplayer.ima.ImaServerSideAdInsertionMediaSource;
@@ -302,6 +303,10 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource.Factory createMediaSourceFactory() {
+    DefaultDrmSessionManagerProvider drmSessionManagerProvider =
+        new DefaultDrmSessionManagerProvider();
+    drmSessionManagerProvider.setDrmHttpDataSourceFactory(
+        DemoUtil.getHttpDataSourceFactory(/* context= */ this));
     ImaServerSideAdInsertionMediaSource.AdsLoader.Builder serverSideAdLoaderBuilder =
         new ImaServerSideAdInsertionMediaSource.AdsLoader.Builder(/* context= */ this, playerView);
     if (serverSideAdsLoaderState != null) {
@@ -312,6 +317,7 @@ public class PlayerActivity extends AppCompatActivity
         new ImaServerSideAdInsertionMediaSource.Factory(
             serverSideAdsLoader, new DefaultMediaSourceFactory(dataSourceFactory));
     return new DefaultMediaSourceFactory(dataSourceFactory)
+        .setDrmSessionManagerProvider(drmSessionManagerProvider)
         .setAdsLoaderProvider(this::getClientSideAdsLoader)
         .setAdViewProvider(playerView)
         .setServerSideAdInsertionMediaSourceFactory(imaServerSideAdInsertionMediaSourceFactory);
