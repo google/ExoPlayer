@@ -21,6 +21,7 @@
         `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
 *   Video:
     *   Rename `DummySurface` to `PlaceHolderSurface`.
+    *   Add AV1 support to the `MediaCodecVideoRenderer.getCodecMaxInputSize`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
 *   Ad playback / IMA:

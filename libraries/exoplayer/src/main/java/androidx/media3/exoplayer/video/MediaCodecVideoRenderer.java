@@ -811,6 +811,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
         minCompressionRatio = 2;
         break;
+      case MimeTypes.VIDEO_AV1:
+        // AV1 does not specify a ratio so use the values from the platform's C2SoftAomDec.cpp.
       case MimeTypes.VIDEO_VP8:
         // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
         maxPixels = width * height;
