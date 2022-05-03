@@ -329,12 +329,16 @@ public final class C {
   @IntDef({SPATIALIZATION_BEHAVIOR_AUTO, SPATIALIZATION_BEHAVIOR_NEVER})
   public @interface SpatializationBehavior {}
 
-  // TODO[b/190759307]: Update constant values and javadoc to use SDK once compile SDK target is set
-  //  to 32.
-  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO */
-  public static final int SPATIALIZATION_BEHAVIOR_AUTO = 0;
-  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER */
-  public static final int SPATIALIZATION_BEHAVIOR_NEVER = 1;
+  /**
+   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO
+   */
+  public static final int SPATIALIZATION_BEHAVIOR_AUTO =
+      AudioAttributes.SPATIALIZATION_BEHAVIOR_AUTO;
+  /**
+   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER
+   */
+  public static final int SPATIALIZATION_BEHAVIOR_NEVER =
+      AudioAttributes.SPATIALIZATION_BEHAVIOR_NEVER;
 
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
