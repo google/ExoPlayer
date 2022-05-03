@@ -246,7 +246,7 @@ public final class TransformerActivity extends AppCompatActivity {
           bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
       if (selectedEffects != null) {
         if (selectedEffects[0]) {
-          effects.add(AdvancedFrameProcessorFactory::createDizzyCropFrameProcessor);
+          effects.add(MatrixTransformationFactory.createDizzyCropEffect());
         }
         if (selectedEffects[1]) {
           effects.add(
@@ -261,13 +261,13 @@ public final class TransformerActivity extends AppCompatActivity {
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
         if (selectedEffects[2]) {
-          effects.add(AdvancedFrameProcessorFactory::createSpin3dFrameProcessor);
+          effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
         if (selectedEffects[3]) {
           effects.add(BitmapOverlayFrameProcessor::new);
         }
         if (selectedEffects[4]) {
-          effects.add(AdvancedFrameProcessorFactory::createZoomInTransitionFrameProcessor);
+          effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
         transformerBuilder.setVideoFrameEffects(effects.build());
       }

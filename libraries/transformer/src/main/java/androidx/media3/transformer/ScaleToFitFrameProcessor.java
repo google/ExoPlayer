@@ -39,6 +39,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>The background color of the output frame will be black.
  */
 @UnstableApi
+// TODO(b/227625423): Implement MatrixTransformation instead of wrapping
+//  MatrixTransformationFrameProcessor.
 public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link ScaleToFitFrameProcessor} instances. */
@@ -95,7 +97,7 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   private final Matrix transformationMatrix;
 
-  private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
+  private @MonotonicNonNull MatrixTransformationFrameProcessor matrixTransformationFrameProcessor;
   private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
@@ -116,8 +118,11 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
   public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
       throws IOException {
     configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    advancedFrameProcessor = new AdvancedFrameProcessor(adjustedTransformationMatrix);
-    advancedFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
+    matrixTransformationFrameProcessor =
+        new MatrixTransformationFrameProcessor(
+            /* matrixTransformation= */ (long presentationTimeUs) ->
+                checkStateNotNull(adjustedTransformationMatrix));
+    matrixTransformationFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
   }
 
   @Override
@@ -127,13 +132,13 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   @Override
   public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(advancedFrameProcessor).drawFrame(presentationTimeUs);
+    checkStateNotNull(matrixTransformationFrameProcessor).drawFrame(presentationTimeUs);
   }
 
   @Override
   public void release() {
-    if (advancedFrameProcessor != null) {
-      advancedFrameProcessor.release();
+    if (matrixTransformationFrameProcessor != null) {
+      matrixTransformationFrameProcessor.release();
     }
   }
 

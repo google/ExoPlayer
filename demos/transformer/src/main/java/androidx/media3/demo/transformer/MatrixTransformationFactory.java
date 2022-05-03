@@ -18,39 +18,38 @@ package androidx.media3.demo.transformer;
 import android.graphics.Matrix;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Util;
-import androidx.media3.transformer.AdvancedFrameProcessor;
-import androidx.media3.transformer.GlFrameProcessor;
+import androidx.media3.transformer.GlMatrixTransformation;
+import androidx.media3.transformer.MatrixTransformation;
 
 /**
- * Factory for {@link GlFrameProcessor GlFrameProcessors} that create video effects by applying
- * transformation matrices to the individual video frames using {@link AdvancedFrameProcessor}.
+ * Factory for {@link GlMatrixTransformation GlMatrixTransformations} and {@link
+ * MatrixTransformation MatrixTransformations} that create video effects by applying transformation
+ * matrices to the individual video frames.
  */
-/* package */ final class AdvancedFrameProcessorFactory {
+/* package */ final class MatrixTransformationFactory {
   /**
-   * Returns a {@link GlFrameProcessor} that rescales the frames over the first {@value
+   * Returns a {@link MatrixTransformation} that rescales the frames over the first {@value
    * #ZOOM_DURATION_SECONDS} seconds, such that the rectangle filled with the input frame increases
    * linearly in size from a single point to filling the full output frame.
    */
-  public static GlFrameProcessor createZoomInTransitionFrameProcessor() {
-    return new AdvancedFrameProcessor(
-        /* matrixProvider= */ AdvancedFrameProcessorFactory::calculateZoomInTransitionMatrix);
+  public static MatrixTransformation createZoomInTransition() {
+    return MatrixTransformationFactory::calculateZoomInTransitionMatrix;
   }
 
   /**
-   * Returns a {@link GlFrameProcessor} that crops frames to a rectangle that moves on an ellipse.
+   * Returns a {@link MatrixTransformation} that crops frames to a rectangle that moves on an
+   * ellipse.
    */
-  public static GlFrameProcessor createDizzyCropFrameProcessor() {
-    return new AdvancedFrameProcessor(
-        /* matrixProvider= */ AdvancedFrameProcessorFactory::calculateDizzyCropMatrix);
+  public static MatrixTransformation createDizzyCropEffect() {
+    return MatrixTransformationFactory::calculateDizzyCropMatrix;
   }
 
   /**
-   * Returns a {@link GlFrameProcessor} that rotates a frame in 3D around the y-axis and applies
-   * perspective projection to 2D.
+   * Returns a {@link GlMatrixTransformation} that rotates a frame in 3D around the y-axis and
+   * applies perspective projection to 2D.
    */
-  public static GlFrameProcessor createSpin3dFrameProcessor() {
-    return new AdvancedFrameProcessor(
-        /* matrixProvider= */ AdvancedFrameProcessorFactory::calculate3dSpinMatrix);
+  public static GlMatrixTransformation createSpin3dEffect() {
+    return MatrixTransformationFactory::calculate3dSpinMatrix;
   }
 
   private static final float ZOOM_DURATION_SECONDS = 2f;

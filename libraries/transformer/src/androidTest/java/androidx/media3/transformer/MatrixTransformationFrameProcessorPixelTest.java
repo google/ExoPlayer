@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link AdvancedFrameProcessor}.
+ * Pixel test for frame processing via {@link MatrixTransformationFrameProcessor}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
  * as recommended in {@link FrameProcessorChainPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
-public final class AdvancedFrameProcessorPixelTest {
+public final class MatrixTransformationFrameProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
@@ -58,7 +58,7 @@ public final class AdvancedFrameProcessorPixelTest {
 
   private final EGLDisplay eglDisplay = GlUtil.createEglDisplay();
   private final EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
-  private @MonotonicNonNull GlFrameProcessor advancedFrameProcessor;
+  private @MonotonicNonNull GlFrameProcessor matrixTransformationFrameProcessor;
   private int inputTexId;
   private int outputTexId;
   private int width;
@@ -80,8 +80,8 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @After
   public void release() {
-    if (advancedFrameProcessor != null) {
-      advancedFrameProcessor.release();
+    if (matrixTransformationFrameProcessor != null) {
+      matrixTransformationFrameProcessor.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -90,11 +90,13 @@ public final class AdvancedFrameProcessorPixelTest {
   public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
-    advancedFrameProcessor = new AdvancedFrameProcessor(identityMatrix);
-    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    matrixTransformationFrameProcessor =
+        new MatrixTransformationFrameProcessor((long presentationTimeUs) -> identityMatrix);
+    matrixTransformationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
+    matrixTransformationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -112,11 +114,13 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "drawFrame_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    advancedFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
-    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    matrixTransformationFrameProcessor =
+        new MatrixTransformationFrameProcessor((long presentationTimeUs) -> translateRightMatrix);
+    matrixTransformationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
+    matrixTransformationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -134,11 +138,13 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "drawFrame_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
-    advancedFrameProcessor = new AdvancedFrameProcessor(scaleNarrowMatrix);
-    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    matrixTransformationFrameProcessor =
+        new MatrixTransformationFrameProcessor((long presentationTimeUs) -> scaleNarrowMatrix);
+    matrixTransformationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
+    matrixTransformationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -156,11 +162,13 @@ public final class AdvancedFrameProcessorPixelTest {
     String testId = "drawFrame_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
-    advancedFrameProcessor = new AdvancedFrameProcessor(rotate90Matrix);
-    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    matrixTransformationFrameProcessor =
+        new MatrixTransformationFrameProcessor((long presentationTimeUs) -> rotate90Matrix);
+    matrixTransformationFrameProcessor.initialize(
+        getApplicationContext(), inputTexId, width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
+    matrixTransformationFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
