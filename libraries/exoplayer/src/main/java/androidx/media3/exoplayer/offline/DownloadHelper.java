@@ -960,7 +960,7 @@ public final class DownloadHelper {
   private static boolean isProgressive(MediaItem.LocalConfiguration localConfiguration) {
     return Util.inferContentTypeForUriAndMimeType(
             localConfiguration.uri, localConfiguration.mimeType)
-        == C.TYPE_OTHER;
+        == C.CONTENT_TYPE_OTHER;
   }
 
   private static final class MediaPreparer

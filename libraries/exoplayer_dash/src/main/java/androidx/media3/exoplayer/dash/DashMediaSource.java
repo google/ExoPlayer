@@ -292,7 +292,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
     @Override
     public int[] getSupportedTypes() {
-      return new int[] {C.TYPE_DASH};
+      return new int[] {C.CONTENT_TYPE_DASH};
     }
   }
 

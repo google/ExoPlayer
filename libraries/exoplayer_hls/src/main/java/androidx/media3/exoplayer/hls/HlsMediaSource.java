@@ -331,7 +331,7 @@ public final class HlsMediaSource extends BaseMediaSource
 
     @Override
     public int[] getSupportedTypes() {
-      return new int[] {C.TYPE_HLS};
+      return new int[] {C.CONTENT_TYPE_HLS};
     }
   }
 

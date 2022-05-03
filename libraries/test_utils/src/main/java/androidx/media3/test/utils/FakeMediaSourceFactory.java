@@ -51,7 +51,7 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public int[] getSupportedTypes() {
-    return new int[] {C.TYPE_OTHER};
+    return new int[] {C.CONTENT_TYPE_OTHER};
   }
 
   @Override

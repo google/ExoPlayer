@@ -1924,18 +1924,18 @@ public final class Util {
   public static @ContentType int inferContentType(Uri uri) {
     @Nullable String scheme = uri.getScheme();
     if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
-      return C.TYPE_RTSP;
+      return C.CONTENT_TYPE_RTSP;
     }
 
     @Nullable String lastPathSegment = uri.getLastPathSegment();
     if (lastPathSegment == null) {
-      return C.TYPE_OTHER;
+      return C.CONTENT_TYPE_OTHER;
     }
     int lastDotIndex = lastPathSegment.lastIndexOf('.');
     if (lastDotIndex >= 0) {
       @C.ContentType
       int contentType = inferContentTypeForExtension(lastPathSegment.substring(lastDotIndex + 1));
-      if (contentType != C.TYPE_OTHER) {
+      if (contentType != C.CONTENT_TYPE_OTHER) {
         // If contentType is TYPE_SS that indicates the extension is .ism or .isml and shows the ISM
         // URI is missing the "/manifest" suffix, which contains the information used to
         // disambiguate between Smooth Streaming, HLS and DASH below - so we can just return TYPE_SS
@@ -1949,15 +1949,15 @@ public final class Util {
       @Nullable String extensions = ismMatcher.group(2);
       if (extensions != null) {
         if (extensions.contains(ISM_DASH_FORMAT_EXTENSION)) {
-          return C.TYPE_DASH;
+          return C.CONTENT_TYPE_DASH;
         } else if (extensions.contains(ISM_HLS_FORMAT_EXTENSION)) {
-          return C.TYPE_HLS;
+          return C.CONTENT_TYPE_HLS;
         }
       }
-      return C.TYPE_SS;
+      return C.CONTENT_TYPE_SS;
     }
 
-    return C.TYPE_OTHER;
+    return C.CONTENT_TYPE_OTHER;
   }
 
   /**
@@ -1980,14 +1980,14 @@ public final class Util {
     fileExtension = Ascii.toLowerCase(fileExtension);
     switch (fileExtension) {
       case "mpd":
-        return C.TYPE_DASH;
+        return C.CONTENT_TYPE_DASH;
       case "m3u8":
-        return C.TYPE_HLS;
+        return C.CONTENT_TYPE_HLS;
       case "ism":
       case "isml":
         return C.TYPE_SS;
       default:
-        return C.TYPE_OTHER;
+        return C.CONTENT_TYPE_OTHER;
     }
   }
 
@@ -2005,15 +2005,15 @@ public final class Util {
     }
     switch (mimeType) {
       case MimeTypes.APPLICATION_MPD:
-        return C.TYPE_DASH;
+        return C.CONTENT_TYPE_DASH;
       case MimeTypes.APPLICATION_M3U8:
-        return C.TYPE_HLS;
+        return C.CONTENT_TYPE_HLS;
       case MimeTypes.APPLICATION_SS:
-        return C.TYPE_SS;
+        return C.CONTENT_TYPE_SS;
       case MimeTypes.APPLICATION_RTSP:
-        return C.TYPE_RTSP;
+        return C.CONTENT_TYPE_RTSP;
       default:
-        return C.TYPE_OTHER;
+        return C.CONTENT_TYPE_OTHER;
     }
   }
 
@@ -2024,14 +2024,14 @@ public final class Util {
   @Nullable
   public static String getAdaptiveMimeTypeForContentType(@ContentType int contentType) {
     switch (contentType) {
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         return MimeTypes.APPLICATION_MPD;
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         return MimeTypes.APPLICATION_M3U8;
-      case C.TYPE_SS:
+      case C.CONTENT_TYPE_SS:
         return MimeTypes.APPLICATION_SS;
-      case C.TYPE_RTSP:
-      case C.TYPE_OTHER:
+      case C.CONTENT_TYPE_RTSP:
+      case C.CONTENT_TYPE_OTHER:
       default:
         return null;
     }
