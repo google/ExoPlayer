@@ -654,7 +654,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       // Allow the position to jump if the first presentable input buffer has a timestamp that
       // differs significantly from what was expected.
       if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
-        currentPositionUs = buffer.timeUs;
+            // Allowing this position to be negative will cause playback to stall on video
+            // start (see issue #8220)
+            currentPositionUs = Math.max(buffer.timeUs, 0);
       }
       allowFirstBufferPositionDiscontinuity = false;
     }
@@ -689,7 +691,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
-    if (isDecodeOnlyBuffer) {
+    // as we don't allow playback position to become negative we should skip the buffers with 
+    // negative presentation time as well (or audio will get out of sync)
+    if (isDecodeOnlyBuffer || bufferPresentationTimeUs < 0) {
       if (codec != null) {
         codec.releaseOutputBuffer(bufferIndex, false);
       }
