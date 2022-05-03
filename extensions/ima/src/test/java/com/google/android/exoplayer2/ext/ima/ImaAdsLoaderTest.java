@@ -296,8 +296,8 @@ public final class ImaAdsLoaderTest {
         /* periodIndex= */ 0,
         /* adGroupIndex= */ 0,
         /* adIndexInAdGroup= */ 0,
-        /* position= */ 0,
-        /* contentPosition= */ 0);
+        /* positionMs= */ 0,
+        /* contentPositionMs= */ 0);
     fakePlayer.setState(Player.STATE_READY, /* playWhenReady= */ true);
     adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
     adEventListener.onAdEvent(getAdEvent(AdEventType.FIRST_QUARTILE, mockPrerollSingleAd));
@@ -1096,8 +1096,8 @@ public final class ImaAdsLoaderTest {
         /* periodIndex= */ 0,
         /* adGroupIndex= */ 0,
         /* adIndexInAdGroup= */ 0,
-        /* position= */ 0,
-        /* contentPosition= */ 0);
+        /* positionMs= */ 0,
+        /* contentPositionMs= */ 0);
     fakePlayer.setState(Player.STATE_READY, /* playWhenReady= */ true);
     adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
     adEventListener.onAdEvent(getAdEvent(AdEventType.FIRST_QUARTILE, mockPrerollSingleAd));
@@ -1155,8 +1155,8 @@ public final class ImaAdsLoaderTest {
         /* periodIndex= */ 0,
         /* adGroupIndex= */ 0,
         /* adIndexInAdGroup= */ 0,
-        /* position= */ 0,
-        /* contentPosition= */ 0);
+        /* positionMs= */ 0,
+        /* contentPositionMs= */ 0);
     fakePlayer.setState(Player.STATE_READY, /* playWhenReady= */ true);
     adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
     adEventListener.onAdEvent(getAdEvent(AdEventType.FIRST_QUARTILE, mockPrerollSingleAd));
