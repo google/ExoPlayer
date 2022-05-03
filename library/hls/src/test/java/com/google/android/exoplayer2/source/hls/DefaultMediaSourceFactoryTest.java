@@ -95,6 +95,6 @@ public class DefaultMediaSourceFactoryTest {
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .getSupportedTypes();
 
-    assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER, C.TYPE_HLS);
+    assertThat(supportedTypes).asList().containsExactly(C.CONTENT_TYPE_OTHER, C.CONTENT_TYPE_HLS);
   }
 }

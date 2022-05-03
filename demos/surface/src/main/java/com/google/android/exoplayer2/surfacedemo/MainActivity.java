@@ -208,12 +208,12 @@ public final class MainActivity extends Activity {
         TextUtils.isEmpty(fileExtension)
             ? Util.inferContentType(uri)
             : Util.inferContentTypeForExtension(fileExtension);
-    if (type == C.TYPE_DASH) {
+    if (type == C.CONTENT_TYPE_DASH) {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
-    } else if (type == C.TYPE_OTHER) {
+    } else if (type == C.CONTENT_TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)

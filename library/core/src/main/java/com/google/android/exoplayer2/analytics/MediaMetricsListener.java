@@ -677,13 +677,13 @@ public final class MediaMetricsListener
         Util.inferContentTypeForUriAndMimeType(
             mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
     switch (contentType) {
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         return PlaybackMetrics.STREAM_TYPE_HLS;
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         return PlaybackMetrics.STREAM_TYPE_DASH;
-      case C.TYPE_SS:
+      case C.CONTENT_TYPE_SS:
         return PlaybackMetrics.STREAM_TYPE_SS;
-      case C.TYPE_RTSP:
+      case C.CONTENT_TYPE_RTSP:
       default:
         return PlaybackMetrics.STREAM_TYPE_OTHER;
     }

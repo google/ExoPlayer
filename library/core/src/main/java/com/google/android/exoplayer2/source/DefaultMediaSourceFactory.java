@@ -504,11 +504,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
 
     private void ensureAllSuppliersAreLoaded() {
-      maybeLoadSupplier(C.TYPE_DASH);
-      maybeLoadSupplier(C.TYPE_SS);
-      maybeLoadSupplier(C.TYPE_HLS);
-      maybeLoadSupplier(C.TYPE_RTSP);
-      maybeLoadSupplier(C.TYPE_OTHER);
+      maybeLoadSupplier(C.CONTENT_TYPE_DASH);
+      maybeLoadSupplier(C.CONTENT_TYPE_SS);
+      maybeLoadSupplier(C.CONTENT_TYPE_HLS);
+      maybeLoadSupplier(C.CONTENT_TYPE_RTSP);
+      maybeLoadSupplier(C.CONTENT_TYPE_OTHER);
     }
 
     @Nullable
@@ -521,32 +521,32 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       try {
         Class<? extends MediaSource.Factory> clazz;
         switch (contentType) {
-          case C.TYPE_DASH:
+          case C.CONTENT_TYPE_DASH:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
             mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
             break;
-          case C.TYPE_SS:
+          case C.CONTENT_TYPE_SS:
             clazz =
                 Class.forName(
                         "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
             mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
             break;
-          case C.TYPE_HLS:
+          case C.CONTENT_TYPE_HLS:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
             mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
             break;
-          case C.TYPE_RTSP:
+          case C.CONTENT_TYPE_RTSP:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
             mediaSourceFactorySupplier = () -> newInstance(clazz);
             break;
-          case C.TYPE_OTHER:
+          case C.CONTENT_TYPE_OTHER:
             mediaSourceFactorySupplier =
                 () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
             break;

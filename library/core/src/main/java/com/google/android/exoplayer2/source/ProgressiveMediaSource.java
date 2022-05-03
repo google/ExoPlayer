@@ -196,7 +196,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
 
     @Override
     public int[] getSupportedTypes() {
-      return new int[] {C.TYPE_OTHER};
+      return new int[] {C.CONTENT_TYPE_OTHER};
     }
   }
 

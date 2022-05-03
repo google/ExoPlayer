@@ -962,7 +962,7 @@ public final class ImaAdsLoaderTest {
 
   @Test
   public void setsDefaultMimeTypes() throws Exception {
-    imaAdsLoader.setSupportedContentTypes(C.TYPE_DASH, C.TYPE_OTHER);
+    imaAdsLoader.setSupportedContentTypes(C.CONTENT_TYPE_DASH, C.CONTENT_TYPE_OTHER);
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
@@ -996,7 +996,7 @@ public final class ImaAdsLoaderTest {
             adViewProvider);
     when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
 
-    imaAdsLoader.setSupportedContentTypes(C.TYPE_OTHER);
+    imaAdsLoader.setSupportedContentTypes(C.CONTENT_TYPE_OTHER);
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
@@ -1257,7 +1257,7 @@ public final class ImaAdsLoaderTest {
             adViewProvider);
     when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
 
-    imaAdsLoader.setSupportedContentTypes(C.TYPE_OTHER);
+    imaAdsLoader.setSupportedContentTypes(C.CONTENT_TYPE_OTHER);
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
@@ -1283,7 +1283,7 @@ public final class ImaAdsLoaderTest {
             adViewProvider);
     when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
 
-    imaAdsLoader.setSupportedContentTypes(C.TYPE_OTHER);
+    imaAdsLoader.setSupportedContentTypes(C.CONTENT_TYPE_OTHER);
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 

@@ -161,7 +161,7 @@ public final class RtspMediaSource extends BaseMediaSource {
 
     @Override
     public int[] getSupportedTypes() {
-      return new int[] {C.TYPE_RTSP};
+      return new int[] {C.CONTENT_TYPE_RTSP};
     }
 
     /**
