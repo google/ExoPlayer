@@ -50,7 +50,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format inputFormat,
       TransformationRequest transformationRequest,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      ImmutableList<GlEffect> effects,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
@@ -68,33 +68,35 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    ImmutableList.Builder<GlFrameProcessor> frameProcessorsListBuilder =
-        new ImmutableList.Builder<GlFrameProcessor>().addAll(frameProcessors);
+    ImmutableList.Builder<GlEffect> effectsListBuilder =
+        new ImmutableList.Builder<GlEffect>().addAll(effects);
     if (transformationRequest.scaleX != 1f
         || transformationRequest.scaleY != 1f
         || transformationRequest.rotationDegrees != 0f) {
-      frameProcessorsListBuilder.add(
-          new ScaleToFitFrameProcessor.Builder()
-              .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
-              .setRotationDegrees(transformationRequest.rotationDegrees)
-              .build());
+      effectsListBuilder.add(
+          () ->
+              new ScaleToFitFrameProcessor.Builder()
+                  .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
+                  .setRotationDegrees(transformationRequest.rotationDegrees)
+                  .build());
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
-      frameProcessorsListBuilder.add(
-          new PresentationFrameProcessor.Builder()
-              .setResolution(transformationRequest.outputHeight)
-              .build());
+      effectsListBuilder.add(
+          () ->
+              new PresentationFrameProcessor.Builder()
+                  .setResolution(transformationRequest.outputHeight)
+                  .build());
     }
     EncoderCompatibilityFrameProcessor encoderCompatibilityFrameProcessor =
         new EncoderCompatibilityFrameProcessor();
-    frameProcessorsListBuilder.add(encoderCompatibilityFrameProcessor);
+    effectsListBuilder.add(() -> encoderCompatibilityFrameProcessor);
     frameProcessorChain =
         FrameProcessorChain.create(
             context,
             inputFormat.pixelWidthHeightRatio,
             /* inputWidth= */ decodedWidth,
             /* inputHeight= */ decodedHeight,
-            frameProcessorsListBuilder.build(),
+            effectsListBuilder.build(),
             transformationRequest.enableHdrEditing);
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
     outputRotationDegrees = encoderCompatibilityFrameProcessor.getOutputRotationDegrees();

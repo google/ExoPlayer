@@ -112,16 +112,16 @@ public final class FrameProcessorChainTest {
   private static FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
       float pixelWidthHeightRatio, Size inputSize, List<Size> frameProcessorOutputSizes)
       throws TransformationException {
-    ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
+    ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
     for (Size element : frameProcessorOutputSizes) {
-      frameProcessors.add(new FakeFrameProcessor(element));
+      effects.add(() -> new FakeFrameProcessor(element));
     }
     return FrameProcessorChain.create(
         getApplicationContext(),
         pixelWidthHeightRatio,
         inputSize.getWidth(),
         inputSize.getHeight(),
-        frameProcessors.build(),
+        effects.build(),
         /* enableExperimentalHdrEditing= */ false);
   }
 

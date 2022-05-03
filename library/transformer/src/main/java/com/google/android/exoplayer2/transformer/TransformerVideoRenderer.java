@@ -35,7 +35,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TVideoRenderer";
 
   private final Context context;
-  private final ImmutableList<GlFrameProcessor> frameProcessors;
+  private final ImmutableList<GlEffect> effects;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
@@ -48,14 +48,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      ImmutableList<GlEffect> effects,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.context = context;
-    this.frameProcessors = frameProcessors;
+    this.effects = effects;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
@@ -90,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               context,
               inputFormat,
               transformationRequest,
-              frameProcessors,
+              effects,
               decoderFactory,
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
@@ -137,7 +137,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && transformationRequest.outputHeight != inputFormat.height) {
       return false;
     }
-    if (!frameProcessors.isEmpty()) {
+    if (!effects.isEmpty()) {
       return false;
     }
     return true;
