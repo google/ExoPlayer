@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -36,6 +37,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.ui.TrackSelectionView;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Dialog to select tracks. */
+@OptIn(markerClass = UnstableApi.class)
 public final class TrackSelectionDialog extends DialogFragment {
 
   /** Called when tracks are selected. */

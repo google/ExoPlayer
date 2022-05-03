@@ -38,6 +38,7 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -91,7 +92,12 @@ public class PlayerActivity extends AppCompatActivity
   // For ad playback only.
 
   @Nullable private AdsLoader clientSideAdsLoader;
+
+  // TODO: Annotate this and serverSideAdsLoaderState below with @OptIn when it can be applied to
+  // fields (needs http://r.android.com/2004032 to be released into a version of
+  // androidx.annotation:annotation-experimental).
   @Nullable private ImaServerSideAdInsertionMediaSource.AdsLoader serverSideAdsLoader;
+
   private ImaServerSideAdInsertionMediaSource.AdsLoader.@MonotonicNonNull State
       serverSideAdsLoaderState;
 
@@ -120,12 +126,7 @@ public class PlayerActivity extends AppCompatActivity
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
-      Bundle adsLoaderStateBundle = savedInstanceState.getBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE);
-      if (adsLoaderStateBundle != null) {
-        serverSideAdsLoaderState =
-            ImaServerSideAdInsertionMediaSource.AdsLoader.State.CREATOR.fromBundle(
-                adsLoaderStateBundle);
-      }
+      restoreServerSideAdsLoaderState(savedInstanceState);
     } else {
       trackSelectionParameters = new TrackSelectionParameters.Builder(/* context= */ this).build();
       clearStartPosition();
@@ -217,9 +218,7 @@ public class PlayerActivity extends AppCompatActivity
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
     outState.putInt(KEY_ITEM_INDEX, startItemIndex);
     outState.putLong(KEY_POSITION, startPosition);
-    if (serverSideAdsLoaderState != null) {
-      outState.putBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE, serverSideAdsLoaderState.toBundle());
-    }
+    saveServerSideAdsLoaderState(outState);
   }
 
   // Activity input
@@ -271,24 +270,20 @@ public class PlayerActivity extends AppCompatActivity
         return false;
       }
 
-      boolean preferExtensionDecoders =
-          intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
-      RenderersFactory renderersFactory =
-          DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
-
       lastSeenTracks = Tracks.EMPTY;
-      player =
+      ExoPlayer.Builder playerBuilder =
           new ExoPlayer.Builder(/* context= */ this)
-              .setRenderersFactory(renderersFactory)
-              .setMediaSourceFactory(createMediaSourceFactory())
-              .build();
+              .setMediaSourceFactory(createMediaSourceFactory());
+      setRenderersFactory(
+          playerBuilder, intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false));
+      player = playerBuilder.build();
       player.setTrackSelectionParameters(trackSelectionParameters);
       player.addListener(new PlayerEventListener());
       player.addAnalyticsListener(new EventLogger());
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
-      serverSideAdsLoader.setPlayer(player);
+      configurePlayerWithServerSideAdsLoader();
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
@@ -302,6 +297,7 @@ public class PlayerActivity extends AppCompatActivity
     return true;
   }
 
+  @OptIn(markerClass = UnstableApi.class) // SSAI configuration
   private MediaSource.Factory createMediaSourceFactory() {
     DefaultDrmSessionManagerProvider drmSessionManagerProvider =
         new DefaultDrmSessionManagerProvider();
@@ -321,6 +317,19 @@ public class PlayerActivity extends AppCompatActivity
         .setAdsLoaderProvider(this::getClientSideAdsLoader)
         .setAdViewProvider(playerView)
         .setServerSideAdInsertionMediaSourceFactory(imaServerSideAdInsertionMediaSourceFactory);
+  }
+
+  @OptIn(markerClass = UnstableApi.class)
+  private void setRenderersFactory(
+      ExoPlayer.Builder playerBuilder, boolean preferExtensionDecoders) {
+    RenderersFactory renderersFactory =
+        DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
+    playerBuilder.setRenderersFactory(renderersFactory);
+  }
+
+  @OptIn(markerClass = UnstableApi.class)
+  private void configurePlayerWithServerSideAdsLoader() {
+    serverSideAdsLoader.setPlayer(player);
   }
 
   private List<MediaItem> createMediaItems(Intent intent) {
@@ -376,8 +385,7 @@ public class PlayerActivity extends AppCompatActivity
     if (player != null) {
       updateTrackSelectorParameters();
       updateStartPosition();
-      serverSideAdsLoaderState = serverSideAdsLoader.release();
-      serverSideAdsLoader = null;
+      releaseServerSideAdsLoader();
       debugViewHelper.stop();
       debugViewHelper = null;
       player.release();
@@ -392,11 +400,34 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
+  @OptIn(markerClass = UnstableApi.class)
+  private void releaseServerSideAdsLoader() {
+    serverSideAdsLoaderState = serverSideAdsLoader.release();
+    serverSideAdsLoader = null;
+  }
+
   private void releaseClientSideAdsLoader() {
     if (clientSideAdsLoader != null) {
       clientSideAdsLoader.release();
       clientSideAdsLoader = null;
       playerView.getAdViewGroup().removeAllViews();
+    }
+  }
+
+  @OptIn(markerClass = UnstableApi.class)
+  private void saveServerSideAdsLoaderState(Bundle outState) {
+    if (serverSideAdsLoaderState != null) {
+      outState.putBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE, serverSideAdsLoaderState.toBundle());
+    }
+  }
+
+  @OptIn(markerClass = UnstableApi.class)
+  private void restoreServerSideAdsLoaderState(Bundle savedInstanceState) {
+    Bundle adsLoaderStateBundle = savedInstanceState.getBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE);
+    if (adsLoaderStateBundle != null) {
+      serverSideAdsLoaderState =
+          ImaServerSideAdInsertionMediaSource.AdsLoader.State.CREATOR.fromBundle(
+              adsLoaderStateBundle);
     }
   }
 
