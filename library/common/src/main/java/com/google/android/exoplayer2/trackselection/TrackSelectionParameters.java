@@ -1177,9 +1177,17 @@ public class TrackSelectionParameters implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@code TrackSelectionParameters} from a {@link Bundle}. */
+  /** Construct an instance from a {@link Bundle} produced by {@link #toBundle()}. */
+  public static TrackSelectionParameters fromBundle(Bundle bundle) {
+    return new Builder(bundle).build();
+  }
+
+  /**
+   * @deprecated Use {@link #fromBundle(Bundle)} instead.
+   */
+  @Deprecated
   public static final Creator<TrackSelectionParameters> CREATOR =
-      bundle -> new Builder(bundle).build();
+      TrackSelectionParameters::fromBundle;
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
