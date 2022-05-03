@@ -46,6 +46,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *
  * <p>The background color of the output frame will be black.
  */
+// TODO(b/227625423): Implement MatrixTransformation instead of wrapping
+//  MatrixTransformationFrameProcessor.
 public final class PresentationFrameProcessor implements GlFrameProcessor {
   /**
    * Strategies controlling the layout of input pixels in the output frame.
@@ -235,7 +237,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   private float outputHeight;
   private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix transformationMatrix;
-  private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
+  private @MonotonicNonNull MatrixTransformationFrameProcessor matrixTransformationFrameProcessor;
 
   /** Creates a new instance. */
   private PresentationFrameProcessor(
@@ -263,8 +265,11 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
       throws IOException {
     configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    advancedFrameProcessor = new AdvancedFrameProcessor(transformationMatrix);
-    advancedFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
+    matrixTransformationFrameProcessor =
+        new MatrixTransformationFrameProcessor(
+            /* matrixTransformation= */ (long presentationTimeUs) ->
+                checkStateNotNull(transformationMatrix));
+    matrixTransformationFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
   }
 
   @Override
@@ -277,13 +282,13 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   @Override
   public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(advancedFrameProcessor).drawFrame(presentationTimeUs);
+    checkStateNotNull(matrixTransformationFrameProcessor).drawFrame(presentationTimeUs);
   }
 
   @Override
   public void release() {
-    if (advancedFrameProcessor != null) {
-      advancedFrameProcessor.release();
+    if (matrixTransformationFrameProcessor != null) {
+      matrixTransformationFrameProcessor.release();
     }
   }
 
