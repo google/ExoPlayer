@@ -1134,7 +1134,6 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_PREFERRED_VIDEO_ROLE_FLAGS = 25;
   private static final int FIELD_IGNORED_TEXT_SELECTION_FLAGS = 26;
 
-  @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
@@ -1184,10 +1183,17 @@ public class TrackSelectionParameters implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@code TrackSelectionParameters} from a {@link Bundle}. */
-  @UnstableApi
+  /** Construct an instance from a {@link Bundle} produced by {@link #toBundle()}. */
+  public static TrackSelectionParameters fromBundle(Bundle bundle) {
+    return new Builder(bundle).build();
+  }
+
+  /**
+   * @deprecated Use {@link #fromBundle(Bundle)} instead.
+   */
+  @UnstableApi @Deprecated
   public static final Creator<TrackSelectionParameters> CREATOR =
-      bundle -> new Builder(bundle).build();
+      TrackSelectionParameters::fromBundle;
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
