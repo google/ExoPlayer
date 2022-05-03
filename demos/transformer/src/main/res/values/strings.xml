@@ -29,7 +29,7 @@
   <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
-  <string name="select_demo_frameprocessors" translatable="false">Add demo effects</string>
+  <string name="select_demo_effects" translatable="false">Add demo effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
   <string name="transform" translatable="false">Transform</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>

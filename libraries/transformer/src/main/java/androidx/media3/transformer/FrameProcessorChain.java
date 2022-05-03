@@ -75,7 +75,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     by this ratio so that the output frame's pixels have a ratio of 1.
    * @param inputWidth The input frame width, in pixels.
    * @param inputHeight The input frame height, in pixels.
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} to apply to each frame.
+   * @param effects The {@link GlEffect GlEffects} to apply to each frame.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @return A new instance.
    * @throws TransformationException If reading shader files fails, or an OpenGL error occurs while
@@ -86,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
-      List<GlFrameProcessor> frameProcessors,
+      List<GlEffect> effects,
       boolean enableExperimentalHdrEditing)
       throws TransformationException {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
@@ -103,7 +103,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                       pixelWidthHeightRatio,
                       inputWidth,
                       inputHeight,
-                      frameProcessors,
+                      effects,
                       enableExperimentalHdrEditing,
                       singleThreadExecutorService))
           .get();
@@ -118,8 +118,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Creates the OpenGL textures, framebuffers, initializes the {@link GlFrameProcessor
-   * GlFrameProcessors} and returns a new {@code FrameProcessorChain}.
+   * Creates the OpenGL textures and framebuffers, initializes the {@link GlFrameProcessor
+   * GlFrameProcessors} corresponding to the {@link GlEffect GlEffects}, and returns a new {@code
+   * FrameProcessorChain}.
    *
    * <p>This method must be executed using the {@code singleThreadExecutorService}.
    */
@@ -129,15 +130,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
-      List<GlFrameProcessor> frameProcessors,
+      List<GlEffect> effects,
       boolean enableExperimentalHdrEditing,
       ExecutorService singleThreadExecutorService)
       throws IOException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-    ExternalCopyFrameProcessor externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(enableExperimentalHdrEditing);
     EGLContext eglContext =
         enableExperimentalHdrEditing
             ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
@@ -153,20 +152,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
-    ImmutableList<GlFrameProcessor> expandedFrameProcessors =
-        getExpandedFrameProcessors(
-            externalCopyFrameProcessor, pixelWidthHeightRatio, frameProcessors);
+    ExternalCopyFrameProcessor externalCopyFrameProcessor =
+        new ExternalCopyFrameProcessor(enableExperimentalHdrEditing);
+    ImmutableList<GlFrameProcessor> frameProcessors =
+        getFrameProcessors(externalCopyFrameProcessor, pixelWidthHeightRatio, effects);
 
     // Initialize frame processors.
     int inputExternalTexId = GlUtil.createExternalTexture();
     externalCopyFrameProcessor.initialize(context, inputExternalTexId, inputWidth, inputHeight);
 
-    int[] framebuffers = new int[expandedFrameProcessors.size() - 1];
+    int[] framebuffers = new int[frameProcessors.size() - 1];
     Size inputSize = externalCopyFrameProcessor.getOutputSize();
-    for (int i = 1; i < expandedFrameProcessors.size(); i++) {
+    for (int i = 1; i < frameProcessors.size(); i++) {
       int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
       framebuffers[i - 1] = GlUtil.createFboForTexture(inputTexId);
-      GlFrameProcessor frameProcessor = expandedFrameProcessors.get(i);
+      GlFrameProcessor frameProcessor = frameProcessors.get(i);
       frameProcessor.initialize(context, inputTexId, inputSize.getWidth(), inputSize.getHeight());
       inputSize = frameProcessor.getOutputSize();
     }
@@ -176,31 +176,34 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         singleThreadExecutorService,
         inputExternalTexId,
         framebuffers,
-        expandedFrameProcessors,
+        frameProcessors,
         enableExperimentalHdrEditing);
   }
 
-  private static ImmutableList<GlFrameProcessor> getExpandedFrameProcessors(
+  private static ImmutableList<GlFrameProcessor> getFrameProcessors(
       ExternalCopyFrameProcessor externalCopyFrameProcessor,
       float pixelWidthHeightRatio,
-      List<GlFrameProcessor> frameProcessors) {
-    ImmutableList.Builder<GlFrameProcessor> frameProcessorListBuilder =
+      List<GlEffect> effects) {
+    ImmutableList.Builder<GlFrameProcessor> frameProcessors =
         new ImmutableList.Builder<GlFrameProcessor>().add(externalCopyFrameProcessor);
 
     // Scale to expand the frame to apply the pixelWidthHeightRatio.
     if (pixelWidthHeightRatio > 1f) {
-      frameProcessorListBuilder.add(
+      frameProcessors.add(
           new ScaleToFitFrameProcessor.Builder()
               .setScale(/* scaleX= */ pixelWidthHeightRatio, /* scaleY= */ 1f)
               .build());
     } else if (pixelWidthHeightRatio < 1f) {
-      frameProcessorListBuilder.add(
+      frameProcessors.add(
           new ScaleToFitFrameProcessor.Builder()
               .setScale(/* scaleX= */ 1f, /* scaleY= */ 1f / pixelWidthHeightRatio)
               .build());
     }
-    frameProcessorListBuilder.addAll(frameProcessors);
-    return frameProcessorListBuilder.build();
+
+    for (int i = 0; i < effects.size(); i++) {
+      frameProcessors.add(effects.get(i).toGlFrameProcessor());
+    }
+    return frameProcessors.build();
   }
 
   private static final String TAG = "FrameProcessorChain";

@@ -58,7 +58,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
-  public static final String DEMO_FRAME_PROCESSORS_SELECTIONS = "demo_frame_processors_selections";
+  public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
   public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
@@ -91,7 +91,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "DASH stream with non-square pixels",
     "MP4 with HDR (HDR10) H265 video (encoding may fail)",
   };
-  private static final String[] DEMO_FRAME_PROCESSORS = {
+  private static final String[] DEMO_EFFECTS = {
     "Dizzy crop", "Periodic vignette", "3D spin", "Overlay logo & timer", "Zoom in start"
   };
   private static final int PERIODIC_VIGNETTE_INDEX = 1;
@@ -111,8 +111,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
-  private @MonotonicNonNull Button selectDemoFrameProcessorsButton;
-  private boolean @MonotonicNonNull [] demoFrameProcessorsSelections;
+  private @MonotonicNonNull Button selectDemoEffectsButton;
+  private boolean @MonotonicNonNull [] demoEffectsSelections;
   private int inputUriPosition;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
@@ -187,9 +187,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
 
-    demoFrameProcessorsSelections = new boolean[DEMO_FRAME_PROCESSORS.length];
-    selectDemoFrameProcessorsButton = findViewById(R.id.select_demo_frameprocessors_button);
-    selectDemoFrameProcessorsButton.setOnClickListener(this::selectFrameProcessors);
+    demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
+    selectDemoEffectsButton = findViewById(R.id.select_demo_effects_button);
+    selectDemoEffectsButton.setOnClickListener(this::selectDemoEffects);
   }
 
   @Override
@@ -220,7 +220,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "enableFallbackCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "demoFrameProcessorsSelections"
+    "demoEffectsSelections"
   })
   private void startTransformation(View view) {
     Intent transformerIntent = new Intent(/* packageContext= */ this, TransformerActivity.class);
@@ -255,7 +255,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
-    bundle.putBooleanArray(DEMO_FRAME_PROCESSORS_SELECTIONS, demoFrameProcessorsSelections);
+    bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
@@ -278,13 +278,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .show();
   }
 
-  private void selectFrameProcessors(View view) {
+  private void selectDemoEffects(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.select_demo_frameprocessors)
+        .setTitle(R.string.select_demo_effects)
         .setMultiChoiceItems(
-            DEMO_FRAME_PROCESSORS,
-            checkNotNull(demoFrameProcessorsSelections),
-            this::selectFrameProcessor)
+            DEMO_EFFECTS, checkNotNull(demoEffectsSelections), this::selectDemoEffect)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
         .create()
         .show();
@@ -296,9 +294,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
   }
 
-  @RequiresNonNull("demoFrameProcessorsSelections")
-  private void selectFrameProcessor(DialogInterface dialog, int which, boolean isChecked) {
-    demoFrameProcessorsSelections[which] = isChecked;
+  @RequiresNonNull("demoEffectsSelections")
+  private void selectDemoEffect(DialogInterface dialog, int which, boolean isChecked) {
+    demoEffectsSelections[which] = isChecked;
     if (!isChecked || which != PERIODIC_VIGNETTE_INDEX) {
       return;
     }
@@ -337,7 +335,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "selectDemoFrameProcessorsButton"
+    "selectDemoEffectsButton"
   })
   private void onRemoveAudio(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -357,7 +355,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "selectDemoFrameProcessorsButton"
+    "selectDemoEffectsButton"
   })
   private void onRemoveVideo(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -376,7 +374,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "selectDemoFrameProcessorsButton"
+    "selectDemoEffectsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     audioMimeSpinner.setEnabled(isAudioEnabled);
@@ -387,7 +385,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableRequestSdrToneMappingCheckBox.setEnabled(
         isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
-    selectDemoFrameProcessorsButton.setEnabled(isVideoEnabled);
+    selectDemoEffectsButton.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);

@@ -40,7 +40,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EncoderSelector;
-import androidx.media3.transformer.GlFrameProcessor;
+import androidx.media3.transformer.GlEffect;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
@@ -240,35 +240,36 @@ public final class TransformerActivity extends AppCompatActivity {
                   EncoderSelector.DEFAULT,
                   /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
 
-      ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
+      ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
       @Nullable
-      boolean[] selectedFrameProcessors =
-          bundle.getBooleanArray(ConfigurationActivity.DEMO_FRAME_PROCESSORS_SELECTIONS);
-      if (selectedFrameProcessors != null) {
-        if (selectedFrameProcessors[0]) {
-          frameProcessors.add(AdvancedFrameProcessorFactory.createDizzyCropFrameProcessor());
+      boolean[] selectedEffects =
+          bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
+      if (selectedEffects != null) {
+        if (selectedEffects[0]) {
+          effects.add(AdvancedFrameProcessorFactory::createDizzyCropFrameProcessor);
         }
-        if (selectedFrameProcessors[1]) {
-          frameProcessors.add(
-              new PeriodicVignetteFrameProcessor(
-                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
-                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
-                  /* minInnerRadius= */ bundle.getFloat(
-                      ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
-                  /* maxInnerRadius= */ bundle.getFloat(
-                      ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
-                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
+        if (selectedEffects[1]) {
+          effects.add(
+              () ->
+                  new PeriodicVignetteFrameProcessor(
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                      /* minInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                      /* maxInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedFrameProcessors[2]) {
-          frameProcessors.add(AdvancedFrameProcessorFactory.createSpin3dFrameProcessor());
+        if (selectedEffects[2]) {
+          effects.add(AdvancedFrameProcessorFactory::createSpin3dFrameProcessor);
         }
-        if (selectedFrameProcessors[3]) {
-          frameProcessors.add(new BitmapOverlayFrameProcessor());
+        if (selectedEffects[3]) {
+          effects.add(BitmapOverlayFrameProcessor::new);
         }
-        if (selectedFrameProcessors[4]) {
-          frameProcessors.add(AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor());
+        if (selectedEffects[4]) {
+          effects.add(AdvancedFrameProcessorFactory::createZoomInTransitionFrameProcessor);
         }
-        transformerBuilder.setFrameProcessors(frameProcessors.build());
+        transformerBuilder.setVideoFrameEffects(effects.build());
       }
     }
     return transformerBuilder

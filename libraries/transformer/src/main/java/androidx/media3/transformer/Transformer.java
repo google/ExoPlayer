@@ -104,7 +104,7 @@ public final class Transformer {
     private boolean removeVideo;
     private String containerMimeType;
     private TransformationRequest transformationRequest;
-    private ImmutableList<GlFrameProcessor> frameProcessors;
+    private ImmutableList<GlEffect> videoFrameEffects;
     private ListenerSet<Transformer.Listener> listeners;
     private DebugViewProvider debugViewProvider;
     private Looper looper;
@@ -124,7 +124,7 @@ public final class Transformer {
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
-      frameProcessors = ImmutableList.of();
+      videoFrameEffects = ImmutableList.of();
     }
 
     /**
@@ -142,7 +142,7 @@ public final class Transformer {
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
-      frameProcessors = ImmutableList.of();
+      videoFrameEffects = ImmutableList.of();
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
@@ -154,7 +154,7 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.containerMimeType = transformer.containerMimeType;
       this.transformationRequest = transformer.transformationRequest;
-      this.frameProcessors = transformer.frameProcessors;
+      this.videoFrameEffects = transformer.videoFrameEffects;
       this.listeners = transformer.listeners;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
@@ -187,20 +187,20 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@linkplain GlFrameProcessor frame processors} to apply to each frame.
+     * Sets the {@linkplain GlEffect effects} to apply to each video frame.
      *
-     * <p>The {@linkplain GlFrameProcessor frame processors} are applied before any {@linkplain
+     * <p>The {@linkplain GlEffect effects} are applied before any {@linkplain
      * TransformationRequest.Builder#setScale(float, float) scale}, {@linkplain
      * TransformationRequest.Builder#setRotationDegrees(float) rotation}, or {@linkplain
      * TransformationRequest.Builder#setResolution(int) resolution} changes specified in the {@link
      * #setTransformationRequest(TransformationRequest) TransformationRequest} but after {@linkplain
      * TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
      *
-     * @param frameProcessors The {@linkplain GlFrameProcessor frame processors}.
+     * @param effects The {@linkplain GlEffect effects} to apply to each video frame.
      * @return This builder.
      */
-    public Builder setFrameProcessors(List<GlFrameProcessor> frameProcessors) {
-      this.frameProcessors = ImmutableList.copyOf(frameProcessors);
+    public Builder setVideoFrameEffects(List<GlEffect> effects) {
+      this.videoFrameEffects = ImmutableList.copyOf(effects);
       return this;
     }
 
@@ -432,7 +432,7 @@ public final class Transformer {
           removeVideo,
           containerMimeType,
           transformationRequest,
-          frameProcessors,
+          videoFrameEffects,
           listeners,
           looper,
           clock,
@@ -554,7 +554,7 @@ public final class Transformer {
   private final boolean removeVideo;
   private final String containerMimeType;
   private final TransformationRequest transformationRequest;
-  private final ImmutableList<GlFrameProcessor> frameProcessors;
+  private final ImmutableList<GlEffect> videoFrameEffects;
   private final Looper looper;
   private final Clock clock;
   private final Codec.EncoderFactory encoderFactory;
@@ -575,7 +575,7 @@ public final class Transformer {
       boolean removeVideo,
       String containerMimeType,
       TransformationRequest transformationRequest,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      ImmutableList<GlEffect> videoFrameEffects,
       ListenerSet<Transformer.Listener> listeners,
       Looper looper,
       Clock clock,
@@ -590,7 +590,7 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.containerMimeType = containerMimeType;
     this.transformationRequest = transformationRequest;
-    this.frameProcessors = frameProcessors;
+    this.videoFrameEffects = videoFrameEffects;
     this.listeners = listeners;
     this.looper = looper;
     this.clock = clock;
@@ -730,7 +730,7 @@ public final class Transformer {
                     removeAudio,
                     removeVideo,
                     transformationRequest,
-                    frameProcessors,
+                    videoFrameEffects,
                     encoderFactory,
                     decoderFactory,
                     new FallbackListener(mediaItem, listeners, transformationRequest),
@@ -842,7 +842,7 @@ public final class Transformer {
     private final boolean removeAudio;
     private final boolean removeVideo;
     private final TransformationRequest transformationRequest;
-    private final ImmutableList<GlFrameProcessor> frameProcessors;
+    private final ImmutableList<GlEffect> videoFrameEffects;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final FallbackListener fallbackListener;
@@ -854,7 +854,7 @@ public final class Transformer {
         boolean removeAudio,
         boolean removeVideo,
         TransformationRequest transformationRequest,
-        ImmutableList<GlFrameProcessor> frameProcessors,
+        ImmutableList<GlEffect> videoFrameEffects,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         FallbackListener fallbackListener,
@@ -864,7 +864,7 @@ public final class Transformer {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
       this.transformationRequest = transformationRequest;
-      this.frameProcessors = frameProcessors;
+      this.videoFrameEffects = videoFrameEffects;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.fallbackListener = fallbackListener;
@@ -900,7 +900,7 @@ public final class Transformer {
                 muxerWrapper,
                 mediaClock,
                 transformationRequest,
-                frameProcessors,
+                videoFrameEffects,
                 encoderFactory,
                 decoderFactory,
                 fallbackListener,

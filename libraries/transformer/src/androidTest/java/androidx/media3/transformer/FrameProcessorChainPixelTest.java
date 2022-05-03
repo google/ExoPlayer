@@ -130,7 +130,7 @@ public final class FrameProcessorChainPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor glFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, glFrameProcessor);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, () -> glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -155,7 +155,9 @@ public final class FrameProcessorChainPixelTest {
     GlFrameProcessor rotate45FrameProcessor =
         new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, translateRightFrameProcessor, rotate45FrameProcessor);
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        () -> translateRightFrameProcessor,
+        () -> rotate45FrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -180,7 +182,9 @@ public final class FrameProcessorChainPixelTest {
     GlFrameProcessor translateRightFrameProcessor =
         new AdvancedFrameProcessor(translateRightMatrix);
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, rotate45FrameProcessor, translateRightFrameProcessor);
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        () -> rotate45FrameProcessor,
+        () -> translateRightFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -200,7 +204,7 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withPresentationFrameProcessor_setResolution";
     GlFrameProcessor glFrameProcessor =
         new PresentationFrameProcessor.Builder().setResolution(480).build();
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, glFrameProcessor);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, () -> glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -220,7 +224,7 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withScaleToFitFrameProcessor_rotate45";
     GlFrameProcessor glFrameProcessor =
         new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, glFrameProcessor);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, () -> glFrameProcessor);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -240,11 +244,10 @@ public final class FrameProcessorChainPixelTest {
    * accessed on the {@link FrameProcessorChain}'s output {@code outputImageReader}.
    *
    * @param pixelWidthHeightRatio The ratio of width over height for each pixel.
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} that will apply changes
-   *     to the input frame.
+   * @param effects The {@link GlEffect GlEffects} to apply to the input frame.
    */
-  private void setUpAndPrepareFirstFrame(
-      float pixelWidthHeightRatio, GlFrameProcessor... frameProcessors) throws Exception {
+  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, GlEffect... effects)
+      throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
@@ -267,7 +270,7 @@ public final class FrameProcessorChainPixelTest {
               pixelWidthHeightRatio,
               inputWidth,
               inputHeight,
-              asList(frameProcessors),
+              asList(effects),
               /* enableExperimentalHdrEditing= */ false);
       Size outputSize = frameProcessorChain.getOutputSize();
       outputImageReader =
