@@ -28,7 +28,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
 /**
  * Attributes for audio playback, which configure the underlying platform {@link
@@ -97,9 +96,7 @@ public final class AudioAttributes implements Bundleable {
       return this;
     }
 
-    // TODO[b/190759307] Update javadoc to link to AudioAttributes.Builder#setSpatializationBehavior
-    //  once compile SDK target is set to 32.
-    /** See {@code android.media.AudioAttributes.Builder.setSpatializationBehavior(int)}. */
+    /** See {@link android.media.AudioAttributes.Builder#setSpatializationBehavior(int)}. */
     public Builder setSpatializationBehavior(@C.SpatializationBehavior int spatializationBehavior) {
       this.spatializationBehavior = spatializationBehavior;
       return this;
@@ -269,14 +266,7 @@ public final class AudioAttributes implements Bundleable {
     public static void setSpatializationBehavior(
         android.media.AudioAttributes.Builder builder,
         @C.SpatializationBehavior int spatializationBehavior) {
-      try {
-        // TODO[b/190759307]: Remove reflection once compile SDK target is set to 32.
-        Method setSpatializationBehavior =
-            builder.getClass().getMethod("setSpatializationBehavior", Integer.TYPE);
-        setSpatializationBehavior.invoke(builder, spatializationBehavior);
-      } catch (Exception e) {
-        // Do nothing if reflection fails.
-      }
+      builder.setSpatializationBehavior(spatializationBehavior);
     }
   }
 }

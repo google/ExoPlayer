@@ -856,9 +856,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       mediaFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, AudioFormat.ENCODING_PCM_FLOAT);
     }
     if (Util.SDK_INT >= 32) {
-      // TODO[b/190759307] Use MediaFormat.KEY_MAX_OUTPUT_CHANNEL_COUNT once the
-      //  compile SDK target is set to 32.
-      mediaFormat.setInteger("max-output-channel-count", 99);
+      mediaFormat.setInteger(MediaFormat.KEY_MAX_OUTPUT_CHANNEL_COUNT, 99);
     }
 
     return mediaFormat;
