@@ -154,7 +154,7 @@ public final class FrameProcessorChainPixelTest {
     setUpAndPrepareFirstFrame(
         DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix,
-        () -> new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build());
+        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -176,7 +176,7 @@ public final class FrameProcessorChainPixelTest {
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     setUpAndPrepareFirstFrame(
         DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
-        () -> new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build(),
+        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build(),
         (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
@@ -195,8 +195,7 @@ public final class FrameProcessorChainPixelTest {
   public void processData_withPresentation_setResolution_producesExpectedOutput() throws Exception {
     String testId = "processData_withPresentation_setResolution";
     setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
-        () -> new PresentationFrameProcessor.Builder().setResolution(480).build());
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, new Presentation.Builder().setResolution(480).build());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -216,7 +215,7 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withScaleToFitTransformation_rotate45";
     setUpAndPrepareFirstFrame(
         DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
-        () -> new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build());
+        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();

@@ -21,36 +21,30 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
 import androidx.annotation.IntDef;
-import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
-import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Controls how a frame is presented, by copying input pixels into an output frame, with options to
- * set the output resolution, crop the input, and choose how to map the input pixels onto the output
- * frame geometry (for example, by stretching the input frame to match the specified output frame,
- * or fitting the input frame using letterboxing).
+ * Controls how a frame is presented with options to set the output resolution, crop the input, and
+ * choose how to map the input pixels onto the output frame geometry (for example, by stretching the
+ * input frame to match the specified output frame, or fitting the input frame using letterboxing).
  *
  * <p>Cropping or aspect ratio is applied before setting resolution.
  *
  * <p>The background color of the output frame will be black.
  */
 @UnstableApi
-// TODO(b/227625423): Implement MatrixTransformation instead of wrapping
-//  MatrixTransformationFrameProcessor.
-public final class PresentationFrameProcessor implements GlFrameProcessor {
+public final class Presentation implements MatrixTransformation {
+
   /**
    * Strategies controlling the layout of input pixels in the output frame.
    *
@@ -108,7 +102,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
    */
   public static final int LAYOUT_STRETCH_TO_FIT = 2;
 
-  /** A builder for {@link PresentationFrameProcessor} instances. */
+  /** A builder for {@link Presentation} instances. */
   public static final class Builder {
 
     // Optional fields.
@@ -161,7 +155,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
      * applied after cropping changes.
      *
      * <p>Only one of {@code setCrop} or {@link #setAspectRatio(float, int)} can be called for one
-     * {@link PresentationFrameProcessor}.
+     * {@link Presentation}.
      *
      * @param left The left edge of the output frame, in NDC. Must be less than {@code right}.
      * @param right The right edge of the output frame, in NDC. Must be greater than {@code left}.
@@ -196,7 +190,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
      * applied after aspect ratio changes.
      *
      * <p>Only one of {@link #setCrop(float, float, float, float)} or {@code setAspectRatio} can be
-     * called for one {@link PresentationFrameProcessor}.
+     * called for one {@link Presentation}.
      *
      * @param aspectRatio The aspect ratio (width/height ratio) of the output frame. Must be
      *     positive.
@@ -217,8 +211,8 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       return this;
     }
 
-    public PresentationFrameProcessor build() {
-      return new PresentationFrameProcessor(
+    public Presentation build() {
+      return new Presentation(
           heightPixels, cropLeft, cropRight, cropBottom, cropTop, aspectRatio, layout);
     }
   }
@@ -237,12 +231,10 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
 
   private float outputWidth;
   private float outputHeight;
-  private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix transformationMatrix;
-  private @MonotonicNonNull MatrixTransformationFrameProcessor matrixTransformationFrameProcessor;
 
   /** Creates a new instance. */
-  private PresentationFrameProcessor(
+  private Presentation(
       int requestedHeightPixels,
       float cropLeft,
       float cropRight,
@@ -264,39 +256,7 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
   }
 
   @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
-      throws IOException {
-    configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    matrixTransformationFrameProcessor =
-        new MatrixTransformationFrameProcessor(
-            /* matrixTransformation= */ (long presentationTimeUs) ->
-                checkStateNotNull(transformationMatrix));
-    matrixTransformationFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
-  }
-
-  @Override
-  public Size getOutputSize() {
-    checkStateNotNull(
-        outputSize,
-        "configureOutputSizeAndTransformationMatrix must be called before getOutputSize");
-    return outputSize;
-  }
-
-  @Override
-  public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(matrixTransformationFrameProcessor).drawFrame(presentationTimeUs);
-  }
-
-  @Override
-  public void release() {
-    if (matrixTransformationFrameProcessor != null) {
-      matrixTransformationFrameProcessor.release();
-    }
-  }
-
-  @EnsuresNonNull("transformationMatrix")
-  @VisibleForTesting // Allows robolectric testing of output size calculation without OpenGL.
-  /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
+  public Size configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
@@ -318,7 +278,12 @@ public final class PresentationFrameProcessor implements GlFrameProcessor {
       outputWidth = requestedHeightPixels * outputWidth / outputHeight;
       outputHeight = requestedHeightPixels;
     }
-    outputSize = new Size(Math.round(outputWidth), Math.round(outputHeight));
+    return new Size(Math.round(outputWidth), Math.round(outputHeight));
+  }
+
+  @Override
+  public Matrix getMatrix(long presentationTimeUs) {
+    return checkStateNotNull(transformationMatrix, "configure must be called first");
   }
 
   @RequiresNonNull("transformationMatrix")

@@ -74,22 +74,18 @@ import org.checkerframework.dataflow.qual.Pure;
         || transformationRequest.scaleY != 1f
         || transformationRequest.rotationDegrees != 0f) {
       effectsListBuilder.add(
-          () ->
-              new ScaleToFitFrameProcessor.Builder()
-                  .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
-                  .setRotationDegrees(transformationRequest.rotationDegrees)
-                  .build());
+          new ScaleToFitTransformation.Builder()
+              .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
+              .setRotationDegrees(transformationRequest.rotationDegrees)
+              .build());
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
       effectsListBuilder.add(
-          () ->
-              new PresentationFrameProcessor.Builder()
-                  .setResolution(transformationRequest.outputHeight)
-                  .build());
+          new Presentation.Builder().setResolution(transformationRequest.outputHeight).build());
     }
-    EncoderCompatibilityFrameProcessor encoderCompatibilityFrameProcessor =
-        new EncoderCompatibilityFrameProcessor();
-    effectsListBuilder.add(() -> encoderCompatibilityFrameProcessor);
+    EncoderCompatibilityTransformation encoderCompatibilityTransformation =
+        new EncoderCompatibilityTransformation();
+    effectsListBuilder.add(encoderCompatibilityTransformation);
     frameProcessorChain =
         FrameProcessorChain.create(
             context,
@@ -99,7 +95,7 @@ import org.checkerframework.dataflow.qual.Pure;
             effectsListBuilder.build(),
             transformationRequest.enableHdrEditing);
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
-    outputRotationDegrees = encoderCompatibilityFrameProcessor.getOutputRotationDegrees();
+    outputRotationDegrees = encoderCompatibilityTransformation.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()

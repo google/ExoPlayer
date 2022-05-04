@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link PresentationFrameProcessor}.
+ * Pixel test for frame processing via {@link Presentation}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -43,7 +43,7 @@ import org.junit.runner.RunWith;
  * as recommended in {@link FrameProcessorChainPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
-public final class PresentationFrameProcessorPixelTest {
+public final class PresentationPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
   public static final String CROP_SMALLER_PNG_ASSET_PATH =
@@ -97,7 +97,7 @@ public final class PresentationFrameProcessorPixelTest {
   @Test
   public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_noEdits";
-    presentationFrameProcessor = new PresentationFrameProcessor.Builder().build();
+    presentationFrameProcessor = new Presentation.Builder().build().toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -122,9 +122,10 @@ public final class PresentationFrameProcessorPixelTest {
   public void drawFrame_cropSmaller_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_cropSmaller";
     GlFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
+        new Presentation.Builder()
             .setCrop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
-            .build();
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -149,9 +150,10 @@ public final class PresentationFrameProcessorPixelTest {
   public void drawFrame_cropLarger_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_cropSmaller";
     GlFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
+        new Presentation.Builder()
             .setCrop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
-            .build();
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -177,9 +179,10 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(1f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
-            .build();
+        new Presentation.Builder()
+            .setAspectRatio(1f, Presentation.LAYOUT_SCALE_TO_FIT)
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -206,9 +209,10 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
-            .build();
+        new Presentation.Builder()
+            .setAspectRatio(2f, Presentation.LAYOUT_SCALE_TO_FIT)
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -235,9 +239,10 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(1f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .build();
+        new Presentation.Builder()
+            .setAspectRatio(1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -264,9 +269,10 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .build();
+        new Presentation.Builder()
+            .setAspectRatio(2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -293,9 +299,10 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(1f, PresentationFrameProcessor.LAYOUT_STRETCH_TO_FIT)
-            .build();
+        new Presentation.Builder()
+            .setAspectRatio(1f, Presentation.LAYOUT_STRETCH_TO_FIT)
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -322,9 +329,10 @@ public final class PresentationFrameProcessorPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(2f, PresentationFrameProcessor.LAYOUT_STRETCH_TO_FIT)
-            .build();
+        new Presentation.Builder()
+            .setAspectRatio(2f, Presentation.LAYOUT_STRETCH_TO_FIT)
+            .build()
+            .toGlFrameProcessor();
     presentationFrameProcessor.initialize(
         getApplicationContext(), inputTexId, inputWidth, inputHeight);
     Size outputSize = presentationFrameProcessor.getOutputSize();
@@ -346,7 +354,7 @@ public final class PresentationFrameProcessorPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  private void setupOutputTexture(int outputWidth, int outputHeight) throws IOException {
+  private void setupOutputTexture(int outputWidth, int outputHeight) {
     outputTexId = GlUtil.createTexture(outputWidth, outputHeight);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(

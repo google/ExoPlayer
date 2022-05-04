@@ -25,55 +25,49 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Unit tests for {@link PresentationFrameProcessor}.
+ * Unit tests for {@link Presentation}.
  *
- * <p>See {@code PresentationFrameProcessorPixelTest} for pixel tests testing {@link
- * PresentationFrameProcessor}.
+ * <p>See {@code PresentationFrameProcessorPixelTest} for pixel tests testing {@link Presentation}.
  */
 @RunWith(AndroidJUnit4.class)
-public final class PresentationFrameProcessorTest {
+public final class PresentationTest {
   @Test
-  public void getOutputSize_noEdits_leavesFramesUnchanged() {
+  public void configure_noEdits_leavesFramesUnchanged() {
     int inputWidth = 200;
     int inputHeight = 150;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder().build();
+    Presentation presentation = new Presentation.Builder().build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
-  public void getOutputSize_setResolution_changesDimensions() {
+  public void configure_setResolution_changesDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
     int requestedHeight = 300;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder().setResolution(requestedHeight).build();
+    Presentation presentation = new Presentation.Builder().setResolution(requestedHeight).build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
 
   @Test
-  public void getOutputSize_setCrop_changesDimensions() {
+  public void configure_setCrop_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
     float left = -.5f;
     float right = .5f;
     float bottom = .5f;
     float top = 1f;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder().setCrop(left, right, bottom, top).build();
+    Presentation presentation =
+        new Presentation.Builder().setCrop(left, right, bottom, top).build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
@@ -82,7 +76,7 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void getOutputSize_setCropAndSetResolution_changesDimensions() {
+  public void configure_setCropAndSetResolution_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
     float left = -.5f;
@@ -90,14 +84,13 @@ public final class PresentationFrameProcessorTest {
     float bottom = .5f;
     float top = 1f;
     int requestedHeight = 100;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
+    Presentation presentation =
+        new Presentation.Builder()
             .setCrop(left, right, bottom, top)
             .setResolution(requestedHeight)
             .build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
@@ -108,7 +101,7 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void getOutputSize_setResolutionAndCrop_changesDimensions() {
+  public void configure_setResolutionAndCrop_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
     float left = -.5f;
@@ -116,14 +109,13 @@ public final class PresentationFrameProcessorTest {
     float bottom = .5f;
     float top = 1f;
     int requestedHeight = 100;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
+    Presentation presentation =
+        new Presentation.Builder()
             .setResolution(requestedHeight)
             .setCrop(left, right, bottom, top)
             .build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
@@ -134,46 +126,44 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void getOutputSize_setAspectRatio_changesDimensions() {
+  public void configure_setAspectRatio_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
     float aspectRatio = 2f;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(aspectRatio, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
+    Presentation presentation =
+        new Presentation.Builder()
+            .setAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT)
             .build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * inputHeight));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
-  public void getOutputSize_setAspectRatioAndResolution_changesDimensions() {
+  public void configure_setAspectRatioAndResolution_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
     float aspectRatio = 2f;
     int requestedHeight = 100;
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(aspectRatio, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT)
+    Presentation presentation =
+        new Presentation.Builder()
+            .setAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT)
             .setResolution(requestedHeight)
             .build();
 
-    presentationFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
-    Size outputSize = presentationFrameProcessor.getOutputSize();
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
 
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * requestedHeight));
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
 
   @Test
-  public void getOutputSize_setAspectRatioAndCrop_throwsIllegalStateException() {
-    PresentationFrameProcessor.Builder presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
-            .setAspectRatio(/* aspectRatio= */ 2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT);
+  public void configure_setAspectRatioAndCrop_throwsIllegalStateException() {
+    Presentation.Builder presentationFrameProcessor =
+        new Presentation.Builder()
+            .setAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT);
 
     assertThrows(
         IllegalStateException.class,
@@ -183,15 +173,15 @@ public final class PresentationFrameProcessorTest {
   }
 
   @Test
-  public void getOutputSize_setCropAndAspectRatio_throwsIllegalStateException() {
-    PresentationFrameProcessor.Builder presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder()
+  public void configure_setCropAndAspectRatio_throwsIllegalStateException() {
+    Presentation.Builder presentationFrameProcessor =
+        new Presentation.Builder()
             .setCrop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ .5f, /* top= */ 1f);
 
     assertThrows(
         IllegalStateException.class,
         () ->
             presentationFrameProcessor.setAspectRatio(
-                /* aspectRatio= */ 2f, PresentationFrameProcessor.LAYOUT_SCALE_TO_FIT));
+                /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT));
   }
 }
