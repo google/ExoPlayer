@@ -31,15 +31,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Applies a transformation matrix in the vertex shader, and copies input pixels into an output
  * frame based on their locations after applying this matrix.
  *
- * <p>Operations are done on normalized device coordinates (-1 to 1 on x and y axes). No automatic
- * adjustments (like done in {@link ScaleToFitFrameProcessor}) are applied on the transformation.
+ * <p>Operations are done on normalized device coordinates (-1 to 1 on x and y axes).
  *
  * <p>The background color of the output frame will be black.
  */
 // TODO(b/227625423): Compose multiple transformation matrices in a single shader with clipping
 //  after each matrix.
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
-public final class MatrixTransformationFrameProcessor implements GlFrameProcessor {
+/* package */ final class MatrixTransformationFrameProcessor implements GlFrameProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;

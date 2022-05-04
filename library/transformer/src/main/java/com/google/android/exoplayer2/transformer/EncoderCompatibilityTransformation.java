@@ -20,23 +20,22 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.util.Size;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
-import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Copies frames from a texture and applies {@link Format#rotationDegrees} for encoder
- * compatibility, if needed.
+ * Specifies a {@link Format#rotationDegrees} to apply to each frame for encoder compatibility, if
+ * needed.
  *
  * <p>Encoders commonly support higher maximum widths than maximum heights. This may rotate the
  * decoded frame before encoding, so the encoded frame's width >= height, and set {@link
  * Format#rotationDegrees} to ensure the frame is displayed in the correct orientation.
  */
-/* package */ class EncoderCompatibilityFrameProcessor implements GlFrameProcessor {
+/* package */ class EncoderCompatibilityTransformation implements MatrixTransformation {
   // TODO(b/218488308): Allow reconfiguration of the output size, as encoders may not support the
   //  requested output resolution.
 
@@ -45,26 +44,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private int outputRotationDegrees;
-  private @MonotonicNonNull ScaleToFitFrameProcessor rotateFrameProcessor;
+  private @MonotonicNonNull Matrix transformationMatrix;
 
   /** Creates a new instance. */
-  /* package */ EncoderCompatibilityFrameProcessor() {
-
+  public EncoderCompatibilityTransformation() {
     outputRotationDegrees = C.LENGTH_UNSET;
   }
 
   @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
-      throws IOException {
-    configureOutputSizeAndRotation(inputWidth, inputHeight);
-    rotateFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(outputRotationDegrees).build();
-    rotateFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
+  public Size configure(int inputWidth, int inputHeight) {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
+    transformationMatrix = new Matrix();
+    if (inputHeight > inputWidth) {
+      outputRotationDegrees = 90;
+      transformationMatrix.postRotate(outputRotationDegrees);
+      return new Size(inputHeight, inputWidth);
+    } else {
+      outputRotationDegrees = 0;
+      return new Size(inputWidth, inputHeight);
+    }
   }
 
   @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(rotateFrameProcessor).getOutputSize();
+  public Matrix getMatrix(long presentationTimeUs) {
+    return checkStateNotNull(transformationMatrix, "configure must be called first");
   }
 
   /**
@@ -78,28 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public int getOutputRotationDegrees() {
     checkState(
         outputRotationDegrees != C.LENGTH_UNSET,
-        "configureOutputSizeAndTransformationMatrix must be called before"
-            + " getOutputRotationDegrees");
+        "configure must be called before getOutputRotationDegrees");
     return outputRotationDegrees;
-  }
-
-  @Override
-  public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(rotateFrameProcessor).drawFrame(presentationTimeUs);
-  }
-
-  @Override
-  public void release() {
-    if (rotateFrameProcessor != null) {
-      rotateFrameProcessor.release();
-    }
-  }
-
-  @VisibleForTesting // Allows robolectric testing of output size calculation without OpenGL.
-  /* package */ void configureOutputSizeAndRotation(int inputWidth, int inputHeight) {
-    checkArgument(inputWidth > 0, "inputWidth must be positive");
-    checkArgument(inputHeight > 0, "inputHeight must be positive");
-
-    outputRotationDegrees = (inputHeight > inputWidth) ? 90 : 0;
   }
 }

@@ -190,14 +190,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // Scale to expand the frame to apply the pixelWidthHeightRatio.
     if (pixelWidthHeightRatio > 1f) {
       frameProcessors.add(
-          new ScaleToFitFrameProcessor.Builder()
+          new ScaleToFitTransformation.Builder()
               .setScale(/* scaleX= */ pixelWidthHeightRatio, /* scaleY= */ 1f)
-              .build());
+              .build()
+              .toGlFrameProcessor());
     } else if (pixelWidthHeightRatio < 1f) {
       frameProcessors.add(
-          new ScaleToFitFrameProcessor.Builder()
+          new ScaleToFitTransformation.Builder()
               .setScale(/* scaleX= */ 1f, /* scaleY= */ 1f / pixelWidthHeightRatio)
-              .build());
+              .build()
+              .toGlFrameProcessor());
     }
 
     for (int i = 0; i < effects.size(); i++) {
