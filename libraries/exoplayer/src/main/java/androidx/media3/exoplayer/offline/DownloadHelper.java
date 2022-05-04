@@ -516,6 +516,7 @@ public final class DownloadHelper {
     if (mediaPreparer != null) {
       mediaPreparer.release();
     }
+    trackSelector.release();
   }
 
   /**
