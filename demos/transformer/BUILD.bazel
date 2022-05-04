@@ -1,0 +1,22 @@
+# Build targets for a demo MediaPipe graph.
+# See README.md for instructions on using MediaPipe in the demo.
+
+load("//mediapipe/java/com/google/mediapipe:mediapipe_aar.bzl", "mediapipe_aar")
+load(
+    "//mediapipe/framework/tool:mediapipe_graph.bzl",
+    "mediapipe_binary_graph",
+)
+
+mediapipe_aar(
+    name = "edge_detector_mediapipe_aar",
+    calculators = [
+        "//mediapipe/calculators/image:luminance_calculator",
+        "//mediapipe/calculators/image:sobel_edges_calculator",
+    ],
+)
+
+mediapipe_binary_graph(
+    name = "edge_detector_binary_graph",
+    graph = "edge_detector_mediapipe_graph.pbtxt",
+    output_name = "edge_detector_mediapipe_graph.binarypb",
+)

@@ -92,9 +92,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "MP4 with HDR (HDR10) H265 video (encoding may fail)",
   };
   private static final String[] DEMO_EFFECTS = {
-    "Dizzy crop", "Periodic vignette", "3D spin", "Overlay logo & timer", "Zoom in start"
+    "Dizzy crop",
+    "Edge detector (Media Pipe)",
+    "Periodic vignette",
+    "3D spin",
+    "Overlay logo & timer",
+    "Zoom in start",
   };
-  private static final int PERIODIC_VIGNETTE_INDEX = 1;
+  private static final int PERIODIC_VIGNETTE_INDEX = 2;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 

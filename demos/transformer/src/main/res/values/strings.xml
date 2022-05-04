@@ -31,6 +31,7 @@
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
   <string name="select_demo_effects" translatable="false">Add demo effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
+  <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
   <string name="transform" translatable="false">Transform</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>

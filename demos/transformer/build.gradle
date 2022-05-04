@@ -45,6 +45,17 @@ android {
         // This demo app isn't indexed and doesn't have translations.
         disable 'GoogleAppIndexingWarning','MissingTranslation'
     }
+
+    flavorDimensions "mediaPipe"
+
+    productFlavors {
+        noMediaPipe {
+            dimension "mediaPipe"
+        }
+        withMediaPipe {
+            dimension "mediaPipe"
+        }
+    }
 }
 
 dependencies {
@@ -59,4 +70,11 @@ dependencies {
     implementation project(modulePrefix + 'lib-exoplayer-dash')
     implementation project(modulePrefix + 'lib-transformer')
     implementation project(modulePrefix + 'lib-ui')
+
+    // For MediaPipe and its dependencies:
+    withMediaPipeImplementation fileTree(dir: 'libs', include: ['*.aar'])
+    withMediaPipeImplementation 'com.google.flogger:flogger:latest.release'
+    withMediaPipeImplementation 'com.google.flogger:flogger-system-backend:latest.release'
+    withMediaPipeImplementation 'com.google.code.findbugs:jsr305:latest.release'
+    withMediaPipeImplementation 'com.google.protobuf:protobuf-javalite:3.19.1'
 }
