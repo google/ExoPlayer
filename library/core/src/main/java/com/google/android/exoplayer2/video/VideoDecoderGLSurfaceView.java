@@ -298,19 +298,11 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
     @RequiresNonNull("program")
     private void setupTextures() {
-      GLES20.glGenTextures(3, yuvTextures, /* offset= */ 0);
+      GLES20.glGenTextures(/* n= */ 3, yuvTextures, /* offset= */ 0);
       for (int i = 0; i < 3; i++) {
         GLES20.glUniform1i(program.getUniformLocation(TEXTURE_UNIFORMS[i]), i);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+        GlUtil.bindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
       }
       GlUtil.checkGlError();
     }

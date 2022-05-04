@@ -462,7 +462,7 @@ public final class GlUtil {
    *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
    *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
    */
-  /* package */ static void bindTexture(int textureTarget, int texId) {
+  public static void bindTexture(int textureTarget, int texId) {
     GLES20.glBindTexture(textureTarget, texId);
     checkGlError();
     GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
