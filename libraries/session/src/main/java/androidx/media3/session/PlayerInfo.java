@@ -890,11 +890,13 @@ import java.util.List;
         bundle.getLong(keyForField(FIELD_SEEK_FORWARD_INCREMENT_MS), /* defaultValue= */ 0);
     long maxSeekToPreviousPosition =
         bundle.getLong(keyForField(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS), /* defaultValue= */ 0);
+    @Nullable
+    Bundle trackSelectionParametersBundle =
+        bundle.getBundle(keyForField(FIELD_TRACK_SELECTION_PARAMETERS));
     TrackSelectionParameters trackSelectionParameters =
-        BundleableUtil.fromNullableBundle(
-            TrackSelectionParameters.CREATOR,
-            bundle.getBundle(keyForField(FIELD_TRACK_SELECTION_PARAMETERS)),
-            TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT);
+        trackSelectionParametersBundle == null
+            ? TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
+            : TrackSelectionParameters.fromBundle(trackSelectionParametersBundle);
     return new PlayerInfo(
         playerError,
         mediaItemTransitionReason,

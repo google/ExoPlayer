@@ -332,11 +332,12 @@ public class MediaSessionProviderService extends Service {
               MediaMetadata.CREATOR, config.getBundle(KEY_MEDIA_METADATA), player.mediaMetadata);
       player.maxSeekToPreviousPositionMs =
           config.getLong(KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS, player.maxSeekToPreviousPositionMs);
-      player.trackSelectionParameters =
-          BundleableUtil.fromNullableBundle(
-              TrackSelectionParameters.CREATOR,
-              config.getBundle(KEY_TRACK_SELECTION_PARAMETERS),
-              player.trackSelectionParameters);
+      @Nullable
+      Bundle trackSelectionParametersBundle = config.getBundle(KEY_TRACK_SELECTION_PARAMETERS);
+      if (trackSelectionParametersBundle != null) {
+        player.trackSelectionParameters =
+            TrackSelectionParameters.fromBundle(trackSelectionParametersBundle);
+      }
       return player;
     }
 
@@ -770,8 +771,7 @@ public class MediaSessionProviderService extends Service {
           () -> {
             MediaSession session = sessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            player.trackSelectionParameters =
-                TrackSelectionParameters.CREATOR.fromBundle(parameters);
+            player.trackSelectionParameters = TrackSelectionParameters.fromBundle(parameters);
           });
     }
 
@@ -951,8 +951,7 @@ public class MediaSessionProviderService extends Service {
     @Override
     public void notifyTrackSelectionParametersChanged(String sessionId, Bundle parametersBundle)
         throws RemoteException {
-      TrackSelectionParameters parameters =
-          TrackSelectionParameters.CREATOR.fromBundle(parametersBundle);
+      TrackSelectionParameters parameters = TrackSelectionParameters.fromBundle(parametersBundle);
       runOnHandler(
           () -> {
             MediaSession session = sessionMap.get(sessionId);

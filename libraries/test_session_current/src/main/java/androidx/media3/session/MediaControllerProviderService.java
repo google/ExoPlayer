@@ -664,8 +664,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setTrackSelectionParameters(
-                TrackSelectionParameters.CREATOR.fromBundle(parameters));
+            controller.setTrackSelectionParameters(TrackSelectionParameters.fromBundle(parameters));
           });
     }
 

@@ -1492,7 +1492,7 @@ import java.util.concurrent.ExecutionException;
     TrackSelectionParameters trackSelectionParameters;
     try {
       trackSelectionParameters =
-          TrackSelectionParameters.CREATOR.fromBundle(trackSelectionParametersBundle);
+          TrackSelectionParameters.fromBundle(trackSelectionParametersBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for TrackSelectionParameters", e);
       return;

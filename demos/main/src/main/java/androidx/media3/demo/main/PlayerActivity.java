@@ -121,7 +121,7 @@ public class PlayerActivity extends AppCompatActivity
 
     if (savedInstanceState != null) {
       trackSelectionParameters =
-          TrackSelectionParameters.CREATOR.fromBundle(
+          TrackSelectionParameters.fromBundle(
               savedInstanceState.getBundle(KEY_TRACK_SELECTION_PARAMETERS));
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
