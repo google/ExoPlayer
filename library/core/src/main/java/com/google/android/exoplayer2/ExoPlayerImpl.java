@@ -969,6 +969,7 @@ import java.util.concurrent.TimeoutException;
     playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
     playbackInfo.totalBufferedDurationUs = 0;
     analyticsCollector.release();
+    trackSelector.release();
     removeSurfaceCallbacks();
     if (ownedSurface != null) {
       ownedSurface.release();

@@ -61,6 +61,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -143,6 +144,11 @@ public final class DefaultTrackSelectorTest {
     defaultParameters = Parameters.getDefaults(context);
     trackSelector = new DefaultTrackSelector(context);
     trackSelector.init(invalidationListener, bandwidthMeter);
+  }
+
+  @After
+  public void tearDown() {
+    trackSelector.release();
   }
 
   @Test
