@@ -21,6 +21,7 @@ import static org.robolectric.Shadows.shadowOf;
 import android.app.PendingIntent;
 import android.content.Intent;
 import androidx.annotation.Nullable;
+import androidx.media3.common.Player;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,7 @@ public class DefaultActionFactoryTest {
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
     PendingIntent pendingIntent =
-        actionFactory.createMediaActionPendingIntent(MediaNotification.ActionFactory.COMMAND_PLAY);
+        actionFactory.createMediaActionPendingIntent(Player.COMMAND_PLAY_PAUSE);
 
     ShadowPendingIntent shadowPendingIntent = shadowOf(pendingIntent);
     assertThat(actionFactory.isMediaAction(shadowPendingIntent.getSavedIntent())).isTrue();
