@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.GlEffect;
+import com.google.android.exoplayer2.transformer.GlFrameProcessor;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
@@ -54,6 +56,7 @@ import com.google.common.base.Ticker;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -249,6 +252,30 @@ public final class TransformerActivity extends AppCompatActivity {
           effects.add(MatrixTransformationFactory.createDizzyCropEffect());
         }
         if (selectedEffects[1]) {
+          try {
+            Class<?> clazz =
+                Class.forName(
+                    "com.google.android.exoplayer2.transformerdemo.MediaPipeFrameProcessor");
+            Constructor<?> constructor =
+                clazz.getConstructor(String.class, String.class, String.class);
+            effects.add(
+                () -> {
+                  try {
+                    return (GlFrameProcessor)
+                        constructor.newInstance(
+                            /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
+                            /* inputStreamName= */ "input_video",
+                            /* outputStreamName= */ "output_video");
+                  } catch (Exception e) {
+                    showToast(R.string.no_media_pipe_error);
+                    throw new RuntimeException("Failed to load MediaPipe processor", e);
+                  }
+                });
+          } catch (Exception e) {
+            showToast(R.string.no_media_pipe_error);
+          }
+        }
+        if (selectedEffects[2]) {
           effects.add(
               () ->
                   new PeriodicVignetteFrameProcessor(
@@ -260,13 +287,13 @@ public final class TransformerActivity extends AppCompatActivity {
                           ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedEffects[2]) {
+        if (selectedEffects[3]) {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
-        if (selectedEffects[3]) {
+        if (selectedEffects[4]) {
           effects.add(BitmapOverlayFrameProcessor::new);
         }
-        if (selectedEffects[4]) {
+        if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
         transformerBuilder.setVideoFrameEffects(effects.build());
@@ -361,6 +388,10 @@ public final class TransformerActivity extends AppCompatActivity {
     if (checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
       requestPermissions(new String[] {READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
     }
+  }
+
+  private void showToast(@StringRes int messageResource) {
+    Toast.makeText(getApplicationContext(), getString(messageResource), Toast.LENGTH_LONG).show();
   }
 
   private final class DemoDebugViewProvider implements Transformer.DebugViewProvider {
