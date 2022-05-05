@@ -145,10 +145,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           "aFramePosition",
           GlUtil.getNormalizedCoordinateBounds(),
           GlUtil.RECTANGLE_VERTICES_COUNT);
-      glProgram.setBufferAttribute(
-          "aTexSamplingCoord",
-          GlUtil.getTextureCoordinateBounds(),
-          GlUtil.RECTANGLE_VERTICES_COUNT);
       glProgram.bindAttributesAndUniforms();
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       GlUtil.checkGlError();

@@ -17,10 +17,9 @@
 // uTransformationMatrix.
 
 attribute vec4 aFramePosition;
-attribute vec4 aTexSamplingCoord;
 uniform mat4 uTransformationMatrix;
 varying vec2 vTexSamplingCoord;
 void main() {
   gl_Position = uTransformationMatrix * aFramePosition;
-  vTexSamplingCoord = aTexSamplingCoord.xy;
+  vTexSamplingCoord = vec2(aFramePosition.x * 0.5 + 0.5, aFramePosition.y * 0.5 + 0.5);
 }
