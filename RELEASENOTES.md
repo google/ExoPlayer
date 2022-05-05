@@ -89,6 +89,7 @@
 
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
+    *   Workaround OkHttp interrupt handling.
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
