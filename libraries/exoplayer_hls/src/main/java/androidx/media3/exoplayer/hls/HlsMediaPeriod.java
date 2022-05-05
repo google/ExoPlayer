@@ -646,7 +646,8 @@ public final class HlsMediaPeriod
     int numberOfVideoCodecs = Util.getCodecCountOfType(codecs, C.TRACK_TYPE_VIDEO);
     int numberOfAudioCodecs = Util.getCodecCountOfType(codecs, C.TRACK_TYPE_AUDIO);
     boolean codecsStringAllowsChunklessPreparation =
-        numberOfAudioCodecs <= 1
+        (numberOfAudioCodecs == 1
+                || (numberOfAudioCodecs == 0 && multivariantPlaylist.audios.isEmpty()))
             && numberOfVideoCodecs <= 1
             && numberOfAudioCodecs + numberOfVideoCodecs > 0;
     @C.TrackType

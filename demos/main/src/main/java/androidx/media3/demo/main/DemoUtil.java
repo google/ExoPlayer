@@ -16,6 +16,7 @@
 package androidx.media3.demo.main;
 
 import android.content.Context;
+import androidx.annotation.OptIn;
 import androidx.media3.database.DatabaseProvider;
 import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
@@ -71,6 +72,7 @@ public final class DemoUtil {
     return BuildConfig.USE_DECODER_EXTENSIONS;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   public static RenderersFactory buildRenderersFactory(
       Context context, boolean preferExtensionRenderer) {
     @DefaultRenderersFactory.ExtensionRendererMode
@@ -116,6 +118,7 @@ public final class DemoUtil {
     return dataSourceFactory;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   public static synchronized DownloadNotificationHelper getDownloadNotificationHelper(
       Context context) {
     if (downloadNotificationHelper == null) {
@@ -135,6 +138,7 @@ public final class DemoUtil {
     return downloadTracker;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static synchronized Cache getDownloadCache(Context context) {
     if (downloadCache == null) {
       File downloadContentDirectory =
@@ -146,6 +150,7 @@ public final class DemoUtil {
     return downloadCache;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static synchronized void ensureDownloadManagerInitialized(Context context) {
     if (downloadManager == null) {
       downloadManager =
@@ -160,6 +165,7 @@ public final class DemoUtil {
     }
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static synchronized DatabaseProvider getDatabaseProvider(Context context) {
     if (databaseProvider == null) {
       databaseProvider = new StandaloneDatabaseProvider(context);
@@ -177,6 +183,7 @@ public final class DemoUtil {
     return downloadDirectory;
   }
 
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private static CacheDataSource.Factory buildReadOnlyCacheDataSource(
       DataSource.Factory upstreamFactory, Cache cache) {
     return new CacheDataSource.Factory()

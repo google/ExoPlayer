@@ -37,19 +37,19 @@ import java.util.Arrays;
 import java.util.List;
 
 /** Information about groups of tracks. */
-public final class TracksInfo implements Bundleable {
+public final class Tracks implements Bundleable {
 
   /**
    * Information about a single group of tracks, including the underlying {@link TrackGroup}, the
    * level to which each track is supported by the player, and whether any of the tracks are
    * selected.
    */
-  public static final class TrackGroupInfo implements Bundleable {
+  public static final class Group implements Bundleable {
 
     /** The number of tracks in the group. */
     public final int length;
 
-    private final TrackGroup trackGroup;
+    private final TrackGroup mediaTrackGroup;
     private final boolean adaptiveSupported;
     private final @C.FormatSupport int[] trackSupport;
     private final boolean[] trackSelected;
@@ -57,45 +57,52 @@ public final class TracksInfo implements Bundleable {
     /**
      * Constructs an instance.
      *
-     * @param trackGroup The underlying {@link TrackGroup}.
+     * @param mediaTrackGroup The underlying {@link TrackGroup} defined by the media.
      * @param adaptiveSupported Whether the player supports adaptive selections containing more than
      *     one track in the group.
      * @param trackSupport The {@link C.FormatSupport} of each track in the group.
      * @param trackSelected Whether each track in the {@code trackGroup} is selected.
      */
     @UnstableApi
-    public TrackGroupInfo(
-        TrackGroup trackGroup,
+    public Group(
+        TrackGroup mediaTrackGroup,
         boolean adaptiveSupported,
         @C.FormatSupport int[] trackSupport,
         boolean[] trackSelected) {
-      length = trackGroup.length;
+      length = mediaTrackGroup.length;
       checkArgument(length == trackSupport.length && length == trackSelected.length);
-      this.trackGroup = trackGroup;
+      this.mediaTrackGroup = mediaTrackGroup;
       this.adaptiveSupported = adaptiveSupported && length > 1;
       this.trackSupport = trackSupport.clone();
       this.trackSelected = trackSelected.clone();
     }
 
-    /** Returns the underlying {@link TrackGroup}. */
-    public TrackGroup getTrackGroup() {
-      return trackGroup;
+    /**
+     * Returns the underlying {@link TrackGroup} defined by the media.
+     *
+     * <p>Unlike this class, {@link TrackGroup} only contains information defined by the media
+     * itself, and does not contain runtime information such as which tracks are supported and
+     * currently selected. This makes it suitable for use as a {@code key} in certain {@code (key,
+     * value)} data structures.
+     */
+    public TrackGroup getMediaTrackGroup() {
+      return mediaTrackGroup;
     }
 
     /**
      * Returns the {@link Format} for a specified track.
      *
-     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @param trackIndex The index of the track in the group.
      * @return The {@link Format} of the track.
      */
     public Format getTrackFormat(int trackIndex) {
-      return trackGroup.getFormat(trackIndex);
+      return mediaTrackGroup.getFormat(trackIndex);
     }
 
     /**
      * Returns the level of support for a specified track.
      *
-     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @param trackIndex The index of the track in the group.
      * @return The {@link C.FormatSupport} of the track.
      */
     @UnstableApi
@@ -107,7 +114,7 @@ public final class TracksInfo implements Bundleable {
      * Returns whether a specified track is supported for playback, without exceeding the advertised
      * capabilities of the device. Equivalent to {@code isTrackSupported(trackIndex, false)}.
      *
-     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @param trackIndex The index of the track in the group.
      * @return True if the track's format can be played, false otherwise.
      */
     public boolean isTrackSupported(int trackIndex) {
@@ -117,7 +124,7 @@ public final class TracksInfo implements Bundleable {
     /**
      * Returns whether a specified track is supported for playback.
      *
-     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @param trackIndex The index of the track in the group.
      * @param allowExceedsCapabilities Whether to consider the track as supported if it has a
      *     supported {@link Format#sampleMimeType MIME type}, but otherwise exceeds the advertised
      *     capabilities of the device. For example, a video track for which there's a corresponding
@@ -178,7 +185,7 @@ public final class TracksInfo implements Bundleable {
      * playing, however some player implementations have ways of getting such information. For
      * example, ExoPlayer provides this information via {@code ExoTrackSelection.getSelectedFormat}.
      *
-     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @param trackIndex The index of the track in the group.
      * @return True if the track is selected, false otherwise.
      */
     public boolean isTrackSelected(int trackIndex) {
@@ -186,8 +193,8 @@ public final class TracksInfo implements Bundleable {
     }
 
     /** Returns the {@link C.TrackType} of the group. */
-    public @C.TrackType int getTrackType() {
-      return trackGroup.type;
+    public @C.TrackType int getType() {
+      return mediaTrackGroup.type;
     }
 
     @Override
@@ -198,16 +205,16 @@ public final class TracksInfo implements Bundleable {
       if (other == null || getClass() != other.getClass()) {
         return false;
       }
-      TrackGroupInfo that = (TrackGroupInfo) other;
+      Group that = (Group) other;
       return adaptiveSupported == that.adaptiveSupported
-          && trackGroup.equals(that.trackGroup)
+          && mediaTrackGroup.equals(that.mediaTrackGroup)
           && Arrays.equals(trackSupport, that.trackSupport)
           && Arrays.equals(trackSelected, that.trackSelected);
     }
 
     @Override
     public int hashCode() {
-      int result = trackGroup.hashCode();
+      int result = mediaTrackGroup.hashCode();
       result = 31 * result + (adaptiveSupported ? 1 : 0);
       result = 31 * result + Arrays.hashCode(trackSupport);
       result = 31 * result + Arrays.hashCode(trackSelected);
@@ -234,16 +241,16 @@ public final class TracksInfo implements Bundleable {
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putBundle(keyForField(FIELD_TRACK_GROUP), trackGroup.toBundle());
+      bundle.putBundle(keyForField(FIELD_TRACK_GROUP), mediaTrackGroup.toBundle());
       bundle.putIntArray(keyForField(FIELD_TRACK_SUPPORT), trackSupport);
       bundle.putBooleanArray(keyForField(FIELD_TRACK_SELECTED), trackSelected);
       bundle.putBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), adaptiveSupported);
       return bundle;
     }
 
-    /** Object that can restores a {@code TracksInfo} from a {@link Bundle}. */
+    /** Object that can restore a group of tracks from a {@link Bundle}. */
     @UnstableApi
-    public static final Creator<TrackGroupInfo> CREATOR =
+    public static final Creator<Group> CREATOR =
         bundle -> {
           TrackGroup trackGroup =
               fromNullableBundle(
@@ -258,7 +265,7 @@ public final class TracksInfo implements Bundleable {
                   new boolean[trackGroup.length]);
           boolean adaptiveSupported =
               bundle.getBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), false);
-          return new TrackGroupInfo(trackGroup, adaptiveSupported, trackSupport, selected);
+          return new Group(trackGroup, adaptiveSupported, trackSupport, selected);
         };
 
     private static String keyForField(@FieldNumber int field) {
@@ -266,31 +273,35 @@ public final class TracksInfo implements Bundleable {
     }
   }
 
-  /** An {@code TrackInfo} that contains no tracks. */
-  @UnstableApi public static final TracksInfo EMPTY = new TracksInfo(ImmutableList.of());
+  /** Empty tracks. */
+  @UnstableApi public static final Tracks EMPTY = new Tracks(ImmutableList.of());
 
-  private final ImmutableList<TrackGroupInfo> trackGroupInfos;
+  private final ImmutableList<Group> groups;
 
   /**
    * Constructs an instance.
    *
-   * @param trackGroupInfos The {@link TrackGroupInfo TrackGroupInfos} describing the groups of
-   *     tracks.
+   * @param groups The {@link Group groups} of tracks.
    */
   @UnstableApi
-  public TracksInfo(List<TrackGroupInfo> trackGroupInfos) {
-    this.trackGroupInfos = ImmutableList.copyOf(trackGroupInfos);
+  public Tracks(List<Group> groups) {
+    this.groups = ImmutableList.copyOf(groups);
   }
 
-  /** Returns the {@link TrackGroupInfo TrackGroupInfos} describing the groups of tracks. */
-  public ImmutableList<TrackGroupInfo> getTrackGroupInfos() {
-    return trackGroupInfos;
+  /** Returns the {@link Group groups} of tracks. */
+  public ImmutableList<Group> getGroups() {
+    return groups;
+  }
+
+  /** Returns {@code true} if there are no tracks, and {@code false} otherwise. */
+  public boolean isEmpty() {
+    return groups.isEmpty();
   }
 
   /** Returns true if there are tracks of type {@code trackType}, and false otherwise. */
   public boolean containsType(@C.TrackType int trackType) {
-    for (int i = 0; i < trackGroupInfos.size(); i++) {
-      if (trackGroupInfos.get(i).getTrackType() == trackType) {
+    for (int i = 0; i < groups.size(); i++) {
+      if (groups.get(i).getType() == trackType) {
         return true;
       }
     }
@@ -299,7 +310,7 @@ public final class TracksInfo implements Bundleable {
 
   /**
    * Returns true if at least one track of type {@code trackType} is {@link
-   * TrackGroupInfo#isTrackSupported(int) supported}.
+   * Group#isTrackSupported(int) supported}.
    */
   public boolean isTypeSupported(@C.TrackType int trackType) {
     return isTypeSupported(trackType, /* allowExceedsCapabilities= */ false);
@@ -307,7 +318,7 @@ public final class TracksInfo implements Bundleable {
 
   /**
    * Returns true if at least one track of type {@code trackType} is {@link
-   * TrackGroupInfo#isTrackSupported(int, boolean) supported}.
+   * Group#isTrackSupported(int, boolean) supported}.
    *
    * @param allowExceedsCapabilities Whether to consider the track as supported if it has a
    *     supported {@link Format#sampleMimeType MIME type}, but otherwise exceeds the advertised
@@ -316,9 +327,9 @@ public final class TracksInfo implements Bundleable {
    *     Such tracks may be playable in some cases.
    */
   public boolean isTypeSupported(@C.TrackType int trackType, boolean allowExceedsCapabilities) {
-    for (int i = 0; i < trackGroupInfos.size(); i++) {
-      if (trackGroupInfos.get(i).getTrackType() == trackType) {
-        if (trackGroupInfos.get(i).isSupported(allowExceedsCapabilities)) {
+    for (int i = 0; i < groups.size(); i++) {
+      if (groups.get(i).getType() == trackType) {
+        if (groups.get(i).isSupported(allowExceedsCapabilities)) {
           return true;
         }
       }
@@ -348,9 +359,9 @@ public final class TracksInfo implements Bundleable {
 
   /** Returns true if at least one track of the type {@code trackType} is selected for playback. */
   public boolean isTypeSelected(@C.TrackType int trackType) {
-    for (int i = 0; i < trackGroupInfos.size(); i++) {
-      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(i);
-      if (trackGroupInfo.isSelected() && trackGroupInfo.getTrackType() == trackType) {
+    for (int i = 0; i < groups.size(); i++) {
+      Group group = groups.get(i);
+      if (group.isSelected() && group.getType() == trackType) {
         return true;
       }
     }
@@ -365,13 +376,13 @@ public final class TracksInfo implements Bundleable {
     if (other == null || getClass() != other.getClass()) {
       return false;
     }
-    TracksInfo that = (TracksInfo) other;
-    return trackGroupInfos.equals(that.trackGroupInfos);
+    Tracks that = (Tracks) other;
+    return groups.equals(that.groups);
   }
 
   @Override
   public int hashCode() {
-    return trackGroupInfos.hashCode();
+    return groups.hashCode();
   }
   // Bundleable implementation.
 
@@ -379,31 +390,30 @@ public final class TracksInfo implements Bundleable {
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
-    FIELD_TRACK_GROUP_INFOS,
+    FIELD_TRACK_GROUPS,
   })
   private @interface FieldNumber {}
 
-  private static final int FIELD_TRACK_GROUP_INFOS = 0;
+  private static final int FIELD_TRACK_GROUPS = 0;
 
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putParcelableArrayList(
-        keyForField(FIELD_TRACK_GROUP_INFOS), toBundleArrayList(trackGroupInfos));
+    bundle.putParcelableArrayList(keyForField(FIELD_TRACK_GROUPS), toBundleArrayList(groups));
     return bundle;
   }
 
-  /** Object that can restore a {@code TracksInfo} from a {@link Bundle}. */
+  /** Object that can restore tracks from a {@link Bundle}. */
   @UnstableApi
-  public static final Creator<TracksInfo> CREATOR =
+  public static final Creator<Tracks> CREATOR =
       bundle -> {
-        List<TrackGroupInfo> trackGroupInfos =
+        List<Group> groups =
             fromBundleNullableList(
-                TrackGroupInfo.CREATOR,
-                bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUP_INFOS)),
+                Group.CREATOR,
+                bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS)),
                 /* defaultValue= */ ImmutableList.of());
-        return new TracksInfo(trackGroupInfos);
+        return new Tracks(groups);
       };
 
   private static String keyForField(@FieldNumber int field) {

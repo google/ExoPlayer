@@ -25,6 +25,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.annotation.Nullable;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.test.core.app.ApplicationProvider;
@@ -56,7 +58,9 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
   Context context;
   TestHandler handler;
   MediaBrowserCompat browserCompat;
+  @Nullable MediaControllerCompat controllerCompat;
   TestConnectionCallback connectionCallback;
+  @Nullable PlaybackStateCompat lastReportedPlaybackStateCompat;
 
   @Before
   public void setUp() throws Exception {
@@ -117,6 +121,8 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
     public final CountDownLatch suspendedLatch = new CountDownLatch(1);
     public final CountDownLatch failedLatch = new CountDownLatch(1);
 
+    @Nullable MediaControllerCompat.Callback controllerCompatCallback;
+
     TestConnectionCallback() {
       super();
     }
@@ -124,19 +130,38 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
     @Override
     public void onConnected() {
       super.onConnected();
+      // Make browser's internal handler to be initialized with test thread.
+      controllerCompat = new MediaControllerCompat(context, browserCompat.getSessionToken());
+      controllerCompatCallback =
+          new MediaControllerCompat.Callback() {
+            @Override
+            public void onPlaybackStateChanged(PlaybackStateCompat state) {
+              lastReportedPlaybackStateCompat = state;
+            }
+          };
+      controllerCompat.registerCallback(controllerCompatCallback);
       connectedLatch.countDown();
     }
 
     @Override
     public void onConnectionSuspended() {
       super.onConnectionSuspended();
+      unregisterControllerCallback();
       suspendedLatch.countDown();
     }
 
     @Override
     public void onConnectionFailed() {
       super.onConnectionFailed();
+      unregisterControllerCallback();
       failedLatch.countDown();
+    }
+
+    private void unregisterControllerCallback() {
+      if (controllerCompat != null && controllerCompatCallback != null) {
+        controllerCompat.unregisterCallback(controllerCompatCallback);
+      }
+      controllerCompatCallback = null;
     }
   }
 }

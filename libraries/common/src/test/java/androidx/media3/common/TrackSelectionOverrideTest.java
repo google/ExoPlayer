@@ -33,7 +33,7 @@ public final class TrackSelectionOverrideTest {
     TrackSelectionOverride trackSelectionOverride =
         new TrackSelectionOverride(newTrackGroupWithIds(1, 2), /* trackIndex= */ 1);
 
-    assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
+    assertThat(trackSelectionOverride.mediaTrackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
     assertThat(trackSelectionOverride.trackIndices).containsExactly(1).inOrder();
   }
 
@@ -42,7 +42,7 @@ public final class TrackSelectionOverrideTest {
     TrackSelectionOverride trackSelectionOverride =
         new TrackSelectionOverride(newTrackGroupWithIds(1, 2), ImmutableList.of(1));
 
-    assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
+    assertThat(trackSelectionOverride.mediaTrackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
     assertThat(trackSelectionOverride.trackIndices).containsExactly(1);
   }
 
@@ -51,7 +51,7 @@ public final class TrackSelectionOverrideTest {
     TrackSelectionOverride trackSelectionOverride =
         new TrackSelectionOverride(newTrackGroupWithIds(1, 2), ImmutableList.of());
 
-    assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
+    assertThat(trackSelectionOverride.mediaTrackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
     assertThat(trackSelectionOverride.trackIndices).isEmpty();
   }
 

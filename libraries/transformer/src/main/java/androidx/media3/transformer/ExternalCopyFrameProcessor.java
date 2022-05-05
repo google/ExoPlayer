@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
@@ -48,23 +49,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     1.683f, -0.652f, 0.0f,
   };
 
-  private final Context context;
   private final boolean enableExperimentalHdrEditing;
 
+  private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
 
-  public ExternalCopyFrameProcessor(Context context, boolean enableExperimentalHdrEditing) {
-    this.context = context;
+  public ExternalCopyFrameProcessor(boolean enableExperimentalHdrEditing) {
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
-    return new Size(inputWidth, inputHeight);
-  }
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
 
-  @Override
-  public void initialize(int inputTexId) throws IOException {
+    size = new Size(inputWidth, inputHeight);
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.
     String vertexShaderFilePath =
@@ -88,11 +88,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(size);
+  }
+
   /**
    * Sets the texture transform matrix for converting an external surface texture's coordinates to
    * sampling locations.
    *
-   * @param textureTransformMatrix The external surface texture's {@link
+   * @param textureTransformMatrix The external surface texture's {@linkplain
    *     android.graphics.SurfaceTexture#getTransformMatrix(float[]) transform matrix}.
    */
   public void setTextureTransformMatrix(float[] textureTransformMatrix) {
@@ -101,12 +106,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeNs) {
+  public void drawFrame(long presentationTimeUs) {
     checkStateNotNull(glProgram);
     glProgram.use();
     glProgram.bindAttributesAndUniforms();
-    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
   }

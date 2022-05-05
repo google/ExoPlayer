@@ -15,11 +15,8 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
-import android.graphics.Matrix;
-import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,38 +24,21 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link AdvancedFrameProcessor}.
  *
- * <p>See {@link AdvancedFrameProcessorPixelTest} for pixel tests testing {@link
+ * <p>See {@code AdvancedFrameProcessorPixelTest} for pixel tests testing {@link
  * AdvancedFrameProcessor} given a transformation matrix.
  */
 @RunWith(AndroidJUnit4.class)
 public final class AdvancedFrameProcessorTest {
+
   @Test
-  public void getOutputDimensions_withIdentityMatrix_leavesDimensionsUnchanged() {
-    Matrix identityMatrix = new Matrix();
-    int inputWidth = 200;
-    int inputHeight = 150;
-    AdvancedFrameProcessor advancedFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
-
-    Size outputSize = advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
-
-    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
+  public void construct_withInvalidMatrixSize_throwsException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new AdvancedFrameProcessor(/* transformationMatrix= */ new float[4]));
   }
 
   @Test
-  public void getOutputDimensions_withTransformationMatrix_leavesDimensionsUnchanged() {
-    Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postRotate(/* degrees= */ 90);
-    transformationMatrix.postScale(/* sx= */ .5f, /* sy= */ 1.2f);
-    int inputWidth = 200;
-    int inputHeight = 150;
-    AdvancedFrameProcessor advancedFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), transformationMatrix);
-
-    Size outputSize = advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
-
-    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
+  public void construct_withValidMatrixSize_completesSuccessfully() {
+    new AdvancedFrameProcessor(/* transformationMatrix= */ new float[16]);
   }
 }

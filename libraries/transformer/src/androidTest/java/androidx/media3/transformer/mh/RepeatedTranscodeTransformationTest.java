@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationTestResult;
@@ -40,13 +39,14 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscode_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setRotationDegrees(45)
-                    // Video MIME type is H264.
-                    .setAudioMimeType(MimeTypes.AUDIO_AAC)
+
+    TransformerAndroidTestRunner transformerRunner =
+        new TransformerAndroidTestRunner.Builder(
+                context,
+                new Transformer.Builder(context)
+                    .setTransformationRequest(
+                        new TransformationRequest.Builder().setRotationDegrees(45).build())
+                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
                     .build())
             .build();
 
@@ -54,11 +54,9 @@ public final class RepeatedTranscodeTransformationTest {
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
       TransformationTestResult testResult =
-          new TransformerAndroidTestRunner.Builder(context, transformer)
-              .build()
-              .run(
-                  /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
-                  AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING);
+          transformerRunner.run(
+              /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
+              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -71,13 +69,14 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscodeNoAudio_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setRemoveAudio(true)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    // Video MIME type is H264.
-                    .setRotationDegrees(45)
+    TransformerAndroidTestRunner transformerRunner =
+        new TransformerAndroidTestRunner.Builder(
+                context,
+                new Transformer.Builder(context)
+                    .setRemoveAudio(true)
+                    .setTransformationRequest(
+                        new TransformationRequest.Builder().setRotationDegrees(45).build())
+                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
                     .build())
             .build();
 
@@ -85,11 +84,9 @@ public final class RepeatedTranscodeTransformationTest {
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
       TransformationTestResult testResult =
-          new TransformerAndroidTestRunner.Builder(context, transformer)
-              .build()
-              .run(
-                  /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
-                  AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING);
+          transformerRunner.run(
+              /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
+              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -102,22 +99,23 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscodeNoVideo_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setRemoveVideo(true)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
+    TransformerAndroidTestRunner transformerRunner =
+        new TransformerAndroidTestRunner.Builder(
+                context,
+                new Transformer.Builder(context)
+                    .setRemoveVideo(true)
+                    .setTransformationRequest(new TransformationRequest.Builder().build())
+                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .build())
             .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
       TransformationTestResult testResult =
-          new TransformerAndroidTestRunner.Builder(context, transformer)
-              .build()
-              .run(
-                  /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
-                  AndroidTestUtil.MP4_REMOTE_H264_MP3_URI_STRING);
+          transformerRunner.run(
+              /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
+              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 

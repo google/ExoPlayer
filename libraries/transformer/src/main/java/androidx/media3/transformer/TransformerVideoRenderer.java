@@ -107,6 +107,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (encoderFactory.videoNeedsEncoding()) {
       return false;
     }
+    if (transformationRequest.enableRequestSdrToneMapping) {
+      return false;
+    }
     if (transformationRequest.enableHdrEditing) {
       return false;
     }

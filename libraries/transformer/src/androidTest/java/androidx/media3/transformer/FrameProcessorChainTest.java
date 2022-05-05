@@ -28,20 +28,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Robolectric tests for {@link FrameProcessorChain}.
+ * Tests for creating and configuring a {@link FrameProcessorChain}.
  *
- * <p>See {@code FrameProcessorChainPixelTest} in the androidTest directory for instrumentation
- * tests.
+ * <p>See {@link FrameProcessorChainPixelTest} for data processing tests.
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainTest {
 
   @Test
-  public void construct_withSupportedPixelWidthHeightRatio_completesSuccessfully()
+  public void create_withSupportedPixelWidthHeightRatio_completesSuccessfully()
       throws TransformationException {
     Context context = getApplicationContext();
 
-    new FrameProcessorChain(
+    FrameProcessorChain.create(
         context,
         /* pixelWidthHeightRatio= */ 1,
         /* inputWidth= */ 200,
@@ -51,14 +50,14 @@ public final class FrameProcessorChainTest {
   }
 
   @Test
-  public void construct_withUnsupportedPixelWidthHeightRatio_throwsException() {
+  public void create_withUnsupportedPixelWidthHeightRatio_throwsException() {
     Context context = getApplicationContext();
 
     TransformationException exception =
         assertThrows(
             TransformationException.class,
             () ->
-                new FrameProcessorChain(
+                FrameProcessorChain.create(
                     context,
                     /* pixelWidthHeightRatio= */ 2,
                     /* inputWidth= */ 200,
@@ -121,7 +120,7 @@ public final class FrameProcessorChainTest {
     for (Size element : frameProcessorOutputSizes) {
       frameProcessors.add(new FakeFrameProcessor(element));
     }
-    return new FrameProcessorChain(
+    return FrameProcessorChain.create(
         getApplicationContext(),
         /* pixelWidthHeightRatio= */ 1,
         inputSize.getWidth(),
@@ -139,15 +138,15 @@ public final class FrameProcessorChainTest {
     }
 
     @Override
-    public Size configureOutputSize(int inputWidth, int inputHeight) {
+    public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight) {}
+
+    @Override
+    public Size getOutputSize() {
       return outputSize;
     }
 
     @Override
-    public void initialize(int inputTexId) {}
-
-    @Override
-    public void updateProgramAndDraw(long presentationTimeNs) {}
+    public void drawFrame(long presentationTimeNs) {}
 
     @Override
     public void release() {}

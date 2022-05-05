@@ -43,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -57,7 +58,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
@@ -168,30 +169,30 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * by drawables with the same names defined in your application. See the {@link PlayerControlView}
  * documentation for a list of drawables that can be overridden.
  */
-@UnstableApi
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
    * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
    */
+  @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
   /** The buffering view is never shown. */
-  public static final int SHOW_BUFFERING_NEVER = 0;
+  @UnstableApi public static final int SHOW_BUFFERING_NEVER = 0;
   /**
    * The buffering view is shown when the player is in the {@link Player#STATE_BUFFERING buffering}
    * state and {@link Player#getPlayWhenReady() playWhenReady} is {@code true}.
    */
-  public static final int SHOW_BUFFERING_WHEN_PLAYING = 1;
+  @UnstableApi public static final int SHOW_BUFFERING_WHEN_PLAYING = 1;
   /**
    * The buffering view is always shown when the player is in the {@link Player#STATE_BUFFERING
    * buffering} state.
    */
-  public static final int SHOW_BUFFERING_ALWAYS = 2;
+  @UnstableApi public static final int SHOW_BUFFERING_ALWAYS = 2;
 
   private static final int SURFACE_TYPE_NONE = 0;
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
@@ -444,6 +445,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param oldPlayerView The old view to detach from the player.
    * @param newPlayerView The new view to attach to the player.
    */
+  @UnstableApi
   public static void switchTargetView(
       Player player, @Nullable PlayerView oldPlayerView, @Nullable PlayerView newPlayerView) {
     if (oldPlayerView == newPlayerView) {
@@ -539,18 +541,21 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param resizeMode The {@link ResizeMode}.
    */
+  @UnstableApi
   public void setResizeMode(@ResizeMode int resizeMode) {
     Assertions.checkStateNotNull(contentFrame);
     contentFrame.setResizeMode(resizeMode);
   }
 
   /** Returns the {@link ResizeMode}. */
+  @UnstableApi
   public @ResizeMode int getResizeMode() {
     Assertions.checkStateNotNull(contentFrame);
     return contentFrame.getResizeMode();
   }
 
   /** Returns whether artwork is displayed if present in the media. */
+  @UnstableApi
   public boolean getUseArtwork() {
     return useArtwork;
   }
@@ -560,6 +565,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param useArtwork Whether artwork is displayed.
    */
+  @UnstableApi
   public void setUseArtwork(boolean useArtwork) {
     Assertions.checkState(!useArtwork || artworkView != null);
     if (this.useArtwork != useArtwork) {
@@ -569,6 +575,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /** Returns the default artwork to display. */
+  @UnstableApi
   @Nullable
   public Drawable getDefaultArtwork() {
     return defaultArtwork;
@@ -580,6 +587,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param defaultArtwork the default artwork to display
    */
+  @UnstableApi
   public void setDefaultArtwork(@Nullable Drawable defaultArtwork) {
     if (this.defaultArtwork != defaultArtwork) {
       this.defaultArtwork = defaultArtwork;
@@ -588,6 +596,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /** Returns whether the playback controls can be shown. */
+  @UnstableApi
   public boolean getUseController() {
     return useController;
   }
@@ -601,6 +610,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param useController Whether the playback controls can be shown.
    */
+  @UnstableApi
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
     setClickable(useController || hasOnClickListeners());
@@ -622,7 +632,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param color The background color.
    */
-  public void setShutterBackgroundColor(int color) {
+  @UnstableApi
+  public void setShutterBackgroundColor(@ColorInt int color) {
     if (shutterView != null) {
       shutterView.setBackgroundColor(color);
     }
@@ -647,6 +658,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param keepContentOnPlayerReset Whether the currently displayed video frame or media artwork is
    *     kept visible when the player is reset.
    */
+  @UnstableApi
   public void setKeepContentOnPlayerReset(boolean keepContentOnPlayerReset) {
     if (this.keepContentOnPlayerReset != keepContentOnPlayerReset) {
       this.keepContentOnPlayerReset = keepContentOnPlayerReset;
@@ -662,6 +674,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and {@link
    *     #SHOW_BUFFERING_ALWAYS}.
    */
+  @UnstableApi
   public void setShowBuffering(@ShowBuffering int showBuffering) {
     if (this.showBuffering != showBuffering) {
       this.showBuffering = showBuffering;
@@ -674,6 +687,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param errorMessageProvider The error message provider.
    */
+  @UnstableApi
   public void setErrorMessageProvider(
       @Nullable ErrorMessageProvider<? super PlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {
@@ -688,6 +702,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param message The message to display, or {@code null} to clear a previously set message.
    */
+  @UnstableApi
   public void setCustomErrorMessage(@Nullable CharSequence message) {
     Assertions.checkState(errorMessageView != null);
     customErrorMessage = message;
@@ -725,11 +740,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param event A key event.
    * @return Whether the key event was handled.
    */
+  @UnstableApi
   public boolean dispatchMediaKeyEvent(KeyEvent event) {
     return useController() && controller.dispatchMediaKeyEvent(event);
   }
 
   /** Returns whether the controller is currently fully visible. */
+  @UnstableApi
   public boolean isControllerFullyVisible() {
     return controller != null && controller.isFullyVisible();
   }
@@ -741,11 +758,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * #getControllerShowTimeoutMs()}}. They are shown indefinitely when playback has not started yet,
    * is paused, has ended or failed.
    */
+  @UnstableApi
   public void showController() {
     showController(shouldShowControllerIndefinitely());
   }
 
   /** Hides the playback controls. Does nothing if playback controls are disabled. */
+  @UnstableApi
   public void hideController() {
     if (controller != null) {
       controller.hide();
@@ -760,6 +779,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @return The timeout in milliseconds. A non-positive value will cause the controller to remain
    *     visible indefinitely.
    */
+  @UnstableApi
   public int getControllerShowTimeoutMs() {
     return controllerShowTimeoutMs;
   }
@@ -771,6 +791,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param controllerShowTimeoutMs The timeout in milliseconds. A non-positive value will cause the
    *     controller to remain visible indefinitely.
    */
+  @UnstableApi
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
     Assertions.checkStateNotNull(controller);
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
@@ -781,6 +802,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /** Returns whether the playback controls are hidden by touch events. */
+  @UnstableApi
   public boolean getControllerHideOnTouch() {
     return controllerHideOnTouch;
   }
@@ -790,6 +812,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param controllerHideOnTouch Whether the playback controls are hidden by touch events.
    */
+  @UnstableApi
   public void setControllerHideOnTouch(boolean controllerHideOnTouch) {
     Assertions.checkStateNotNull(controller);
     this.controllerHideOnTouch = controllerHideOnTouch;
@@ -801,6 +824,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * ends, or fails. If set to false, the playback controls can be manually operated with {@link
    * #showController()} and {@link #hideController()}.
    */
+  @UnstableApi
   public boolean getControllerAutoShow() {
     return controllerAutoShow;
   }
@@ -812,6 +836,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param controllerAutoShow Whether the playback controls are allowed to show automatically.
    */
+  @UnstableApi
   public void setControllerAutoShow(boolean controllerAutoShow) {
     this.controllerAutoShow = controllerAutoShow;
   }
@@ -822,6 +847,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param controllerHideDuringAds Whether the playback controls are hidden when ads are playing.
    */
+  @UnstableApi
   public void setControllerHideDuringAds(boolean controllerHideDuringAds) {
     this.controllerHideDuringAds = controllerHideDuringAds;
   }
@@ -832,6 +858,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
    */
+  @UnstableApi
   public void setControllerVisibilityListener(
       @Nullable PlayerControlView.VisibilityListener listener) {
     Assertions.checkStateNotNull(controller);
@@ -853,6 +880,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param listener The listener to be notified when the fullscreen button is clicked, or null to
    *     remove the current listener and hide the fullscreen button.
    */
+  @UnstableApi
   public void setControllerOnFullScreenModeChangedListener(
       @Nullable PlayerControlView.OnFullScreenModeChangedListener listener) {
     Assertions.checkStateNotNull(controller);
@@ -864,6 +892,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showRewindButton Whether the rewind button is shown.
    */
+  @UnstableApi
   public void setShowRewindButton(boolean showRewindButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowRewindButton(showRewindButton);
@@ -874,6 +903,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showFastForwardButton Whether the fast forward button is shown.
    */
+  @UnstableApi
   public void setShowFastForwardButton(boolean showFastForwardButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowFastForwardButton(showFastForwardButton);
@@ -884,6 +914,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showPreviousButton Whether the previous button is shown.
    */
+  @UnstableApi
   public void setShowPreviousButton(boolean showPreviousButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowPreviousButton(showPreviousButton);
@@ -894,6 +925,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showNextButton Whether the next button is shown.
    */
+  @UnstableApi
   public void setShowNextButton(boolean showNextButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowNextButton(showNextButton);
@@ -904,6 +936,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param repeatToggleModes A set of {@link RepeatModeUtil.RepeatToggleModes}.
    */
+  @UnstableApi
   public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     Assertions.checkStateNotNull(controller);
     controller.setRepeatToggleModes(repeatToggleModes);
@@ -914,6 +947,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showShuffleButton Whether the shuffle button is shown.
    */
+  @UnstableApi
   public void setShowShuffleButton(boolean showShuffleButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowShuffleButton(showShuffleButton);
@@ -924,6 +958,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showSubtitleButton Whether the subtitle button is shown.
    */
+  @UnstableApi
   public void setShowSubtitleButton(boolean showSubtitleButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowSubtitleButton(showSubtitleButton);
@@ -934,6 +969,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showVrButton Whether the vr button is shown.
    */
+  @UnstableApi
   public void setShowVrButton(boolean showVrButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowVrButton(showVrButton);
@@ -944,6 +980,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param showMultiWindowTimeBar Whether to show all windows.
    */
+  @UnstableApi
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
     Assertions.checkStateNotNull(controller);
     controller.setShowMultiWindowTimeBar(showMultiWindowTimeBar);
@@ -959,6 +996,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param extraPlayedAdGroups Whether each ad has been played, or {@code null} to show no extra ad
    *     markers.
    */
+  @UnstableApi
   public void setExtraAdGroupMarkers(
       @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
     Assertions.checkStateNotNull(controller);
@@ -971,6 +1009,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param listener The listener to be notified about aspect ratios changes of the video content or
    *     the content frame.
    */
+  @UnstableApi
   public void setAspectRatioListener(
       @Nullable AspectRatioFrameLayout.AspectRatioListener listener) {
     Assertions.checkStateNotNull(contentFrame);
@@ -994,6 +1033,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @return The {@link SurfaceView}, {@link TextureView}, {@code SphericalGLSurfaceView}, {@code
    *     VideoDecoderGLSurfaceView} or {@code null}.
    */
+  @UnstableApi
   @Nullable
   public View getVideoSurfaceView() {
     return surfaceView;
@@ -1006,6 +1046,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @return The overlay {@link FrameLayout}, or {@code null} if the layout has been customized and
    *     the overlay is not present.
    */
+  @UnstableApi
   @Nullable
   public FrameLayout getOverlayFrameLayout() {
     return overlayFrameLayout;
@@ -1017,6 +1058,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @return The {@link SubtitleView}, or {@code null} if the layout has been customized and the
    *     subtitle view is not present.
    */
+  @UnstableApi
   @Nullable
   public SubtitleView getSubtitleView() {
     return subtitleView;
@@ -1070,6 +1112,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param contentFrame The content frame, or {@code null}.
    * @param aspectRatio The aspect ratio to apply.
    */
+  @UnstableApi
   protected void onContentAspectRatioChanged(
       @Nullable AspectRatioFrameLayout contentFrame, float aspectRatio) {
     if (contentFrame != null) {
@@ -1173,7 +1216,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
     @Nullable Player player = this.player;
-    if (player == null || player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
+    if (player == null || player.getCurrentTracks().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
         closeShutter();
@@ -1186,7 +1229,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       closeShutter();
     }
 
-    if (player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+    if (player.getCurrentTracks().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
       // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
       // in onRenderedFirstFrame().
       hideArtwork();
@@ -1418,7 +1461,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     @Override
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
@@ -1426,7 +1469,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
-      } else if (!player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
+      } else if (!player.getCurrentTracks().isEmpty()) {
         lastPeriodUidWithTracks =
             timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
       } else if (lastPeriodUidWithTracks != null) {

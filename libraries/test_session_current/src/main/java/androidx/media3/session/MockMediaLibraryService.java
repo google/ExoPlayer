@@ -16,6 +16,8 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT;
 import static androidx.media3.session.MediaTestUtils.assertLibraryParamsEquals;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION;
@@ -30,6 +32,8 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_ERROR;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
@@ -47,8 +51,10 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIB
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
@@ -232,6 +238,21 @@ public class MockMediaLibraryService extends MediaLibraryService {
         return Futures.immediateFuture(LibraryResult.ofItemList(list, params));
       } else if (PARENT_ID_ERROR.equals(parentId)) {
         return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
+      } else if (PARENT_ID_AUTH_EXPIRED_ERROR.equals(parentId)) {
+        Bundle bundle = new Bundle();
+        Intent signInIntent = new Intent("action");
+        int flags = Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0;
+        bundle.putParcelable(
+            EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT,
+            PendingIntent.getActivity(
+                getApplicationContext(), /* requestCode= */ 0, signInIntent, flags));
+        bundle.putString(
+            EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT,
+            PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL);
+        return Futures.immediateFuture(
+            LibraryResult.ofError(
+                LibraryResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED,
+                new LibraryParams.Builder().setExtras(bundle).build()));
       }
       // Includes the case of PARENT_ID_NO_CHILDREN.
       return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));

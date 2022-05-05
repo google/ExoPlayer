@@ -15,10 +15,13 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.postOrRun;
+import static androidx.media3.session.MediaConstants.STATUS_CODE_SUCCESS_COMPAT;
 
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -52,8 +55,46 @@ import java.util.List;
  */
 /* package */ class PlayerWrapper extends ForwardingPlayer {
 
+  private int legacyStatusCode;
+  @Nullable private String legacyErrorMessage;
+  @Nullable private Bundle legacyErrorExtras;
+
   public PlayerWrapper(Player player) {
     super(player);
+    legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
+  }
+
+  /**
+   * Sets the legacy error code.
+   *
+   * <p>This sets the legacy {@link PlaybackStateCompat} to {@link PlaybackStateCompat#STATE_ERROR}
+   * and calls {@link PlaybackStateCompat.Builder#setErrorMessage(int, CharSequence)} and {@link
+   * PlaybackStateCompat.Builder#setExtras(Bundle)} with the given arguments.
+   *
+   * <p>Use {@link #clearLegacyErrorStatus()} to clear the error state and to resume to the actual
+   * playback state reflecting the player.
+   *
+   * @param errorCode The legacy error code.
+   * @param errorMessage The legacy error message.
+   * @param extras The extras.
+   */
+  public void setLegacyErrorStatus(int errorCode, String errorMessage, Bundle extras) {
+    checkState(errorCode != STATUS_CODE_SUCCESS_COMPAT);
+    legacyStatusCode = errorCode;
+    legacyErrorMessage = errorMessage;
+    legacyErrorExtras = extras;
+  }
+
+  /** Returns the legacy status code. */
+  public int getLegacyStatusCode() {
+    return legacyStatusCode;
+  }
+
+  /** Clears the legacy error status. */
+  public void clearLegacyErrorStatus() {
+    legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
+    legacyErrorMessage = null;
+    legacyErrorExtras = null;
   }
 
   @Override
@@ -702,6 +743,19 @@ import java.util.List;
   }
 
   public PlaybackStateCompat createPlaybackStateCompat() {
+    if (legacyStatusCode != STATUS_CODE_SUCCESS_COMPAT) {
+      return new PlaybackStateCompat.Builder()
+          .setState(
+              PlaybackStateCompat.STATE_ERROR,
+              /* position= */ PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+              /* playbackSpeed= */ 0,
+              /* updateTime= */ SystemClock.elapsedRealtime())
+          .setActions(0)
+          .setBufferedPosition(0)
+          .setErrorMessage(legacyStatusCode, checkNotNull(legacyErrorMessage))
+          .setExtras(checkNotNull(legacyErrorExtras))
+          .build();
+    }
     @Nullable PlaybackException playerError = getPlayerError();
     int state =
         MediaUtils.convertToPlaybackStateCompatState(

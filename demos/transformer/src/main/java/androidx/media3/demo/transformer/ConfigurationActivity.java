@@ -34,6 +34,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import com.google.android.material.slider.RangeSlider;
+import com.google.android.material.slider.Slider;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -54,25 +56,48 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
   public static final String ENABLE_FALLBACK = "enable_fallback";
+  public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
+  public static final String DEMO_FRAME_PROCESSORS_SELECTIONS = "demo_frame_processors_selections";
+  public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
+  public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
+  public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
+  public static final String PERIODIC_VIGNETTE_OUTER_RADIUS = "periodic_vignette_outer_radius";
   private static final String[] INPUT_URIS = {
     "https://html5demos.com/assets/dizzy.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_4s.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
     "https://html5demos.com/assets/dizzy.webm",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/8k24fps_4s.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_avc_aac.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_rotated_avc_aac.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-hdr-hdr10.mp4",
   };
   private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
     "MP4 with H264 video and AAC audio",
+    "Short MP4 with H265 video and AAC audio",
     "MP4 with H265 video and AAC audio",
     "Long MP4 with H264 video and AAC audio",
     "WebM with VP8 video and Vorbis audio",
     "4K 60fps MP4 with H264 video and AAC audio (portrait, timestamps always increase)",
+    "8k 24fps MP4 with H265 video and AAC audio",
+    "MP4 with H264 video and AAC audio (portrait, H > W, 0\u00B0)",
+    "MP4 with H264 video and AAC audio (portrait, H < W, 90\u00B0)",
+    "SEF slow motion with 240 fps",
+    "MP4 with HDR (HDR10) H265 video (encoding may fail)",
   };
+  private static final String[] DEMO_FRAME_PROCESSORS = {
+    "Dizzy crop", "Periodic vignette", "3D spin", "Overlay logo & timer", "Zoom in start"
+  };
+  private static final int PERIODIC_VIGNETTE_INDEX = 1;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
+  private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
-  private @MonotonicNonNull Button chooseFileButton;
-  private @MonotonicNonNull TextView chosenFileTextView;
+  private @MonotonicNonNull Button selectFileButton;
+  private @MonotonicNonNull TextView selectedFileTextView;
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
   private @MonotonicNonNull CheckBox flattenForSlowMotionCheckbox;
@@ -82,8 +107,15 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
+  private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
+  private @MonotonicNonNull Button selectDemoFrameProcessorsButton;
+  private boolean @MonotonicNonNull [] demoFrameProcessorsSelections;
   private int inputUriPosition;
+  private float periodicVignetteCenterX;
+  private float periodicVignetteCenterY;
+  private float periodicVignetteInnerRadius;
+  private float periodicVignetteOuterRadius;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,11 +124,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     findViewById(R.id.transform_button).setOnClickListener(this::startTransformation);
 
-    chooseFileButton = findViewById(R.id.choose_file_button);
-    chooseFileButton.setOnClickListener(this::chooseFile);
+    selectFileButton = findViewById(R.id.select_file_button);
+    selectFileButton.setOnClickListener(this::selectFile);
 
-    chosenFileTextView = findViewById(R.id.chosen_file_text_view);
-    chosenFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+    selectedFileTextView = findViewById(R.id.selected_file_text_view);
+    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
 
     removeAudioCheckbox = findViewById(R.id.remove_audio_checkbox);
     removeAudioCheckbox.setOnClickListener(this::onRemoveAudio);
@@ -148,7 +180,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
+    enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
+    enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
+    findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
+
+    demoFrameProcessorsSelections = new boolean[DEMO_FRAME_PROCESSORS.length];
+    selectDemoFrameProcessorsButton = findViewById(R.id.select_demo_frameprocessors_button);
+    selectDemoFrameProcessorsButton.setOnClickListener(this::selectFrameProcessors);
   }
 
   @Override
@@ -156,8 +195,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     super.onResume();
     @Nullable Uri intentUri = getIntent().getData();
     if (intentUri != null) {
-      checkNotNull(chooseFileButton).setEnabled(false);
-      checkNotNull(chosenFileTextView).setText(intentUri.toString());
+      checkNotNull(selectFileButton).setEnabled(false);
+      checkNotNull(selectedFileTextView).setText(intentUri.toString());
     }
   }
 
@@ -177,7 +216,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableFallbackCheckBox",
-    "enableHdrEditingCheckBox"
+    "enableRequestSdrToneMappingCheckBox",
+    "enableHdrEditingCheckBox",
+    "demoFrameProcessorsSelections"
   })
   private void startTransformation(View view) {
     Intent transformerIntent = new Intent(this, TransformerActivity.class);
@@ -209,7 +250,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
+    bundle.putBoolean(
+        ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
+    bundle.putBooleanArray(DEMO_FRAME_PROCESSORS_SELECTIONS, demoFrameProcessorsSelections);
+    bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
+    bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
+    bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
+    bundle.putFloat(PERIODIC_VIGNETTE_OUTER_RADIUS, periodicVignetteOuterRadius);
     transformerIntent.putExtras(bundle);
 
     @Nullable Uri intentUri = getIntent().getData();
@@ -219,19 +267,63 @@ public final class ConfigurationActivity extends AppCompatActivity {
     startActivity(transformerIntent);
   }
 
-  private void chooseFile(View view) {
+  private void selectFile(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.choose_file_title)
+        .setTitle(R.string.select_file_title)
         .setSingleChoiceItems(URI_DESCRIPTIONS, inputUriPosition, this::selectFileInDialog)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
         .create()
         .show();
   }
 
-  @RequiresNonNull("chosenFileTextView")
+  private void selectFrameProcessors(View view) {
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.select_demo_frameprocessors)
+        .setMultiChoiceItems(
+            DEMO_FRAME_PROCESSORS,
+            checkNotNull(demoFrameProcessorsSelections),
+            this::selectFrameProcessor)
+        .setPositiveButton(android.R.string.ok, /* listener= */ null)
+        .create()
+        .show();
+  }
+
+  @RequiresNonNull("selectedFileTextView")
   private void selectFileInDialog(DialogInterface dialog, int which) {
     inputUriPosition = which;
-    chosenFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+  }
+
+  @RequiresNonNull("demoFrameProcessorsSelections")
+  private void selectFrameProcessor(DialogInterface dialog, int which, boolean isChecked) {
+    demoFrameProcessorsSelections[which] = isChecked;
+    if (!isChecked || which != PERIODIC_VIGNETTE_INDEX) {
+      return;
+    }
+
+    View dialogView =
+        getLayoutInflater().inflate(R.layout.periodic_vignette_options, /* root= */ null);
+    Slider centerXSlider =
+        checkNotNull(dialogView.findViewById(R.id.periodic_vignette_center_x_slider));
+    Slider centerYSlider =
+        checkNotNull(dialogView.findViewById(R.id.periodic_vignette_center_y_slider));
+    RangeSlider radiusRangeSlider =
+        checkNotNull(dialogView.findViewById(R.id.periodic_vignette_radius_range_slider));
+    radiusRangeSlider.setValues(0f, HALF_DIAGONAL);
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.periodic_vignette_options)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              periodicVignetteCenterX = centerXSlider.getValue();
+              periodicVignetteCenterY = centerYSlider.getValue();
+              List<Float> radiusRange = radiusRangeSlider.getValues();
+              periodicVignetteInnerRadius = radiusRange.get(0);
+              periodicVignetteOuterRadius = radiusRange.get(1);
+            })
+        .create()
+        .show();
   }
 
   @RequiresNonNull({
@@ -241,7 +333,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
-    "enableHdrEditingCheckBox"
+    "enableRequestSdrToneMappingCheckBox",
+    "enableHdrEditingCheckBox",
+    "selectDemoFrameProcessorsButton"
   })
   private void onRemoveAudio(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -259,7 +353,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
-    "enableHdrEditingCheckBox"
+    "enableRequestSdrToneMappingCheckBox",
+    "enableHdrEditingCheckBox",
+    "selectDemoFrameProcessorsButton"
   })
   private void onRemoveVideo(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -276,7 +372,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
-    "enableHdrEditingCheckBox"
+    "enableRequestSdrToneMappingCheckBox",
+    "enableHdrEditingCheckBox",
+    "selectDemoFrameProcessorsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     audioMimeSpinner.setEnabled(isAudioEnabled);
@@ -284,13 +382,22 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
+    enableRequestSdrToneMappingCheckBox.setEnabled(
+        isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
+    selectDemoFrameProcessorsButton.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.resolution_height_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
+    findViewById(R.id.request_sdr_tone_mapping)
+        .setEnabled(isRequestSdrToneMappingSupported() && isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
+  }
+
+  private static boolean isRequestSdrToneMappingSupported() {
+    return Util.SDK_INT >= 31;
   }
 }

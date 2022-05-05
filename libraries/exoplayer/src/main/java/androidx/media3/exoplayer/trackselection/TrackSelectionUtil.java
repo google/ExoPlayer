@@ -19,8 +19,7 @@ import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TracksInfo;
-import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.source.TrackGroupArray;
@@ -136,16 +135,16 @@ public final class TrackSelectionUtil {
   }
 
   /**
-   * Returns {@link TracksInfo} built from {@link MappingTrackSelector.MappedTrackInfo} and {@link
+   * Returns {@link Tracks} built from {@link MappingTrackSelector.MappedTrackInfo} and {@link
    * TrackSelection TrackSelections} for each renderer.
    *
    * @param mappedTrackInfo The {@link MappingTrackSelector.MappedTrackInfo}
    * @param selections The track selections, indexed by renderer. A null entry indicates that a
    *     renderer does not have any selected tracks.
-   * @return The corresponding {@link TracksInfo}.
+   * @return The corresponding {@link Tracks}.
    */
   @SuppressWarnings({"unchecked", "rawtypes"}) // Initialization of array of Lists.
-  public static TracksInfo buildTracksInfo(
+  public static Tracks buildTracks(
       MappingTrackSelector.MappedTrackInfo mappedTrackInfo,
       @NullableType TrackSelection[] selections) {
     List<? extends TrackSelection>[] listSelections = new List[selections.length];
@@ -153,22 +152,22 @@ public final class TrackSelectionUtil {
       @Nullable TrackSelection selection = selections[i];
       listSelections[i] = selection != null ? ImmutableList.of(selection) : ImmutableList.of();
     }
-    return buildTracksInfo(mappedTrackInfo, listSelections);
+    return buildTracks(mappedTrackInfo, listSelections);
   }
 
   /**
-   * Returns {@link TracksInfo} built from {@link MappingTrackSelector.MappedTrackInfo} and {@link
+   * Returns {@link Tracks} built from {@link MappingTrackSelector.MappedTrackInfo} and {@link
    * TrackSelection TrackSelections} for each renderer.
    *
    * @param mappedTrackInfo The {@link MappingTrackSelector.MappedTrackInfo}
    * @param selections The track selections, indexed by renderer. Null entries are not permitted. An
    *     empty list indicates that a renderer does not have any selected tracks.
-   * @return The corresponding {@link TracksInfo}.
+   * @return The corresponding {@link Tracks}.
    */
-  public static TracksInfo buildTracksInfo(
+  public static Tracks buildTracks(
       MappingTrackSelector.MappedTrackInfo mappedTrackInfo,
       List<? extends TrackSelection>[] selections) {
-    ImmutableList.Builder<TrackGroupInfo> trackGroupInfos = new ImmutableList.Builder<>();
+    ImmutableList.Builder<Tracks.Group> trackGroups = new ImmutableList.Builder<>();
     for (int rendererIndex = 0;
         rendererIndex < mappedTrackInfo.getRendererCount();
         rendererIndex++) {
@@ -196,8 +195,7 @@ public final class TrackSelectionUtil {
           }
           selected[trackIndex] = isTrackSelected;
         }
-        trackGroupInfos.add(
-            new TrackGroupInfo(trackGroup, adaptiveSupported, trackSupport, selected));
+        trackGroups.add(new Tracks.Group(trackGroup, adaptiveSupported, trackSupport, selected));
       }
     }
     TrackGroupArray unmappedTrackGroups = mappedTrackInfo.getUnmappedTrackGroups();
@@ -206,9 +204,9 @@ public final class TrackSelectionUtil {
       @C.FormatSupport int[] trackSupport = new int[trackGroup.length];
       Arrays.fill(trackSupport, C.FORMAT_UNSUPPORTED_TYPE);
       boolean[] selected = new boolean[trackGroup.length];
-      trackGroupInfos.add(
-          new TrackGroupInfo(trackGroup, /* adaptiveSupported= */ false, trackSupport, selected));
+      trackGroups.add(
+          new Tracks.Group(trackGroup, /* adaptiveSupported= */ false, trackSupport, selected));
     }
-    return new TracksInfo(trackGroupInfos.build());
+    return new Tracks(trackGroups.build());
   }
 }

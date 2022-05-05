@@ -56,6 +56,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
@@ -65,8 +66,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
-import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.RepeatModeUtil;
 import androidx.media3.common.util.UnstableApi;
@@ -1096,40 +1096,41 @@ public class PlayerControlView extends FrameLayout {
     textTrackSelectionAdapter.clear();
     audioTrackSelectionAdapter.clear();
     if (player == null
-        || !player.isCommandAvailable(Player.COMMAND_GET_TRACK_INFOS)
+        || !player.isCommandAvailable(Player.COMMAND_GET_TRACKS)
         || !player.isCommandAvailable(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
       return;
     }
-    TracksInfo tracksInfo = player.getCurrentTracksInfo();
-    audioTrackSelectionAdapter.init(
-        gatherSupportedTrackInfosOfType(tracksInfo, C.TRACK_TYPE_AUDIO));
+    Tracks tracks = player.getCurrentTracks();
+    audioTrackSelectionAdapter.init(gatherSupportedTrackInfosOfType(tracks, C.TRACK_TYPE_AUDIO));
     if (controlViewLayoutManager.getShowButton(subtitleButton)) {
-      textTrackSelectionAdapter.init(
-          gatherSupportedTrackInfosOfType(tracksInfo, C.TRACK_TYPE_TEXT));
+      textTrackSelectionAdapter.init(gatherSupportedTrackInfosOfType(tracks, C.TRACK_TYPE_TEXT));
     } else {
       textTrackSelectionAdapter.init(ImmutableList.of());
     }
   }
 
   private ImmutableList<TrackInformation> gatherSupportedTrackInfosOfType(
-      TracksInfo tracksInfo, @C.TrackType int trackType) {
-    ImmutableList.Builder<TrackInformation> tracks = new ImmutableList.Builder<>();
-    List<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    for (int trackGroupIndex = 0; trackGroupIndex < trackGroupInfos.size(); trackGroupIndex++) {
-      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(trackGroupIndex);
-      if (trackGroupInfo.getTrackType() != trackType) {
+      Tracks tracks, @C.TrackType int trackType) {
+    ImmutableList.Builder<TrackInformation> trackInfos = new ImmutableList.Builder<>();
+    List<Tracks.Group> trackGroups = tracks.getGroups();
+    for (int trackGroupIndex = 0; trackGroupIndex < trackGroups.size(); trackGroupIndex++) {
+      Tracks.Group trackGroup = trackGroups.get(trackGroupIndex);
+      if (trackGroup.getType() != trackType) {
         continue;
       }
-      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
-        if (!trackGroupInfo.isTrackSupported(trackIndex)) {
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        if (!trackGroup.isTrackSupported(trackIndex)) {
           continue;
         }
-        String trackName =
-            trackNameProvider.getTrackName(trackGroupInfo.getTrackFormat(trackIndex));
-        tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
+        Format trackFormat = trackGroup.getTrackFormat(trackIndex);
+        if ((trackFormat.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
+          continue;
+        }
+        String trackName = trackNameProvider.getTrackName(trackFormat);
+        trackInfos.add(new TrackInformation(tracks, trackGroupIndex, trackIndex, trackName));
       }
     }
-    return tracks.build();
+    return trackInfos.build();
   }
 
   private void updateTimeline() {
@@ -1808,19 +1809,18 @@ public class PlayerControlView extends FrameLayout {
 
   private static final class TrackInformation {
 
-    public final TrackGroupInfo trackGroupInfo;
+    public final Tracks.Group trackGroup;
     public final int trackIndex;
     public final String trackName;
 
-    public TrackInformation(
-        TracksInfo tracksInfo, int trackGroupIndex, int trackIndex, String trackName) {
-      this.trackGroupInfo = tracksInfo.getTrackGroupInfos().get(trackGroupIndex);
+    public TrackInformation(Tracks tracks, int trackGroupIndex, int trackIndex, String trackName) {
+      this.trackGroup = tracks.getGroups().get(trackGroupIndex);
       this.trackIndex = trackIndex;
       this.trackName = trackName;
     }
 
     public boolean isSelected() {
-      return trackGroupInfo.isTrackSelected(trackIndex);
+      return trackGroup.isTrackSelected(trackIndex);
     }
   }
 
@@ -1864,7 +1864,8 @@ public class PlayerControlView extends FrameLayout {
               player.setTrackSelectionParameters(
                   trackSelectionParameters
                       .buildUpon()
-                      .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, /* disabled= */ true)
+                      .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+                      .setIgnoredTextSelectionFlags(~C.SELECTION_FLAG_FORCED)
                       .build());
               settingsWindow.dismiss();
             }
@@ -1919,7 +1920,7 @@ public class PlayerControlView extends FrameLayout {
 
     private boolean hasSelectionOverride(TrackSelectionParameters trackSelectionParameters) {
       for (int i = 0; i < tracks.size(); i++) {
-        TrackGroup trackGroup = tracks.get(i).trackGroupInfo.getTrackGroup();
+        TrackGroup trackGroup = tracks.get(i).trackGroup.getMediaTrackGroup();
         if (trackSelectionParameters.overrides.containsKey(trackGroup)) {
           return true;
         }
@@ -1993,9 +1994,10 @@ public class PlayerControlView extends FrameLayout {
         onBindViewHolderAtZeroPosition(holder);
       } else {
         TrackInformation track = tracks.get(position - 1);
-        TrackGroup trackGroup = track.trackGroupInfo.getTrackGroup();
+        TrackGroup mediaTrackGroup = track.trackGroup.getMediaTrackGroup();
         TrackSelectionParameters params = player.getTrackSelectionParameters();
-        boolean explicitlySelected = params.overrides.get(trackGroup) != null && track.isSelected();
+        boolean explicitlySelected =
+            params.overrides.get(mediaTrackGroup) != null && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
@@ -2007,9 +2009,8 @@ public class PlayerControlView extends FrameLayout {
                       .buildUpon()
                       .setOverrideForType(
                           new TrackSelectionOverride(
-                              trackGroup, ImmutableList.of(track.trackIndex)))
-                      .setTrackTypeDisabled(
-                          track.trackGroupInfo.getTrackType(), /* disabled= */ false)
+                              mediaTrackGroup, ImmutableList.of(track.trackIndex)))
+                      .setTrackTypeDisabled(track.trackGroup.getType(), /* disabled= */ false)
                       .build());
               onTrackSelection(track.trackName);
               settingsWindow.dismiss();

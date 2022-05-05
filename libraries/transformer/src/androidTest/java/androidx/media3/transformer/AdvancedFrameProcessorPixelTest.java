@@ -15,17 +15,12 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.transformer.BitmapTestUtil.ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.SurfaceTexture;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
@@ -48,6 +43,14 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class AdvancedFrameProcessorPixelTest {
+  public static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/translate_right.png";
+  public static final String SCALE_NARROW_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/scale_narrow.png";
+  public static final String ROTATE_90_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate90.png";
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -63,19 +66,16 @@ public final class AdvancedFrameProcessorPixelTest {
 
   @Before
   public void createTextures() throws IOException {
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     width = inputBitmap.getWidth();
     height = inputBitmap.getHeight();
-    // This surface is needed for focussing a render target, but the tests don't write output to it.
-    // The frame processor's output is written to a framebuffer instead.
-    EGLSurface eglSurface = GlUtil.getEglSurface(eglDisplay, new SurfaceTexture(false));
-    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
-    inputTexId =
-        BitmapTestUtil.createGlTextureFromBitmap(
-            BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING));
+    EGLSurface placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
+    GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, width, height);
+    inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
     outputTexId = GlUtil.createTexture(width, height);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
-    GlUtil.focusFramebuffer(eglDisplay, eglContext, eglSurface, frameBuffer, width, height);
+    GlUtil.focusFramebuffer(
+        eglDisplay, eglContext, placeholderEglSurface, frameBuffer, width, height);
   }
 
   @After
@@ -87,92 +87,89 @@ public final class AdvancedFrameProcessorPixelTest {
   }
 
   @Test
-  public void updateProgramAndDraw_noEdits_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_noEdits";
+  public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
-    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), identityMatrix);
-    advancedFrameProcessor.initialize(inputTexId);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    advancedFrameProcessor = new AdvancedFrameProcessor(identityMatrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
-  public void updateProgramAndDraw_translateRight_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_translateRight";
+  public void drawFrame_translateRight_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    advancedFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
-    advancedFrameProcessor.initialize(inputTexId);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    advancedFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
-  public void updateProgramAndDraw_scaleNarrow_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_scaleNarrow";
+  public void drawFrame_scaleNarrow_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_scaleNarrow";
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
-    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), scaleNarrowMatrix);
-    advancedFrameProcessor.initialize(inputTexId);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    advancedFrameProcessor = new AdvancedFrameProcessor(scaleNarrowMatrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
-  public void updateProgramAndDraw_rotate90_producesExpectedOutput() throws Exception {
-    String testId = "updateProgramAndDraw_rotate90";
+  public void drawFrame_rotate90_producesExpectedOutput() throws Exception {
+    String testId = "drawFrame_rotate90";
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
-    advancedFrameProcessor = new AdvancedFrameProcessor(getApplicationContext(), rotate90Matrix);
-    advancedFrameProcessor.initialize(inputTexId);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    advancedFrameProcessor = new AdvancedFrameProcessor(rotate90Matrix);
+    advancedFrameProcessor.initialize(getApplicationContext(), inputTexId, width, height);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
-    advancedFrameProcessor.updateProgramAndDraw(/* presentationTimeNs= */ 0);
+    advancedFrameProcessor.drawFrame(/* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 }

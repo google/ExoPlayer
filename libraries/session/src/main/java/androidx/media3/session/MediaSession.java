@@ -852,7 +852,7 @@ public class MediaSession {
      * @see Player.Command#COMMAND_SET_VIDEO_SURFACE
      * @see Player.Command#COMMAND_GET_TEXT
      * @see Player.Command#COMMAND_SET_TRACK_SELECTION_PARAMETERS
-     * @see Player.Command#COMMAND_GET_TRACK_INFOS
+     * @see Player.Command#COMMAND_GET_TRACKS
      */
     default @SessionResult.Code int onPlayerCommandRequest(
         MediaSession session, ControllerInfo controller, @Player.Command int playerCommand) {

@@ -35,8 +35,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
-import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.ui.TrackSelectionView;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
@@ -79,16 +78,16 @@ public final class TrackSelectionDialog extends DialogFragment {
    * specified {@link Player}.
    */
   public static boolean willHaveContent(Player player) {
-    return willHaveContent(player.getCurrentTracksInfo());
+    return willHaveContent(player.getCurrentTracks());
   }
 
   /**
    * Returns whether a track selection dialog will have content to display if initialized with the
-   * specified {@link TracksInfo}.
+   * specified {@link Tracks}.
    */
-  public static boolean willHaveContent(TracksInfo tracksInfo) {
-    for (TrackGroupInfo trackGroupInfo : tracksInfo.getTrackGroupInfos()) {
-      if (SUPPORTED_TRACK_TYPES.contains(trackGroupInfo.getTrackType())) {
+  public static boolean willHaveContent(Tracks tracks) {
+    for (Tracks.Group trackGroup : tracks.getGroups()) {
+      if (SUPPORTED_TRACK_TYPES.contains(trackGroup.getType())) {
         return true;
       }
     }
@@ -105,9 +104,9 @@ public final class TrackSelectionDialog extends DialogFragment {
    */
   public static TrackSelectionDialog createForPlayer(
       Player player, DialogInterface.OnDismissListener onDismissListener) {
-    return createForTracksInfoAndParameters(
+    return createForTracksAndParameters(
         R.string.track_selection_title,
-        player.getCurrentTracksInfo(),
+        player.getCurrentTracks(),
         player.getTrackSelectionParameters(),
         /* allowAdaptiveSelections= */ true,
         /* allowMultipleOverrides= */ false,
@@ -116,10 +115,10 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   /**
-   * Creates a dialog for given {@link TracksInfo} and {@link TrackSelectionParameters}.
+   * Creates a dialog for given {@link Tracks} and {@link TrackSelectionParameters}.
    *
    * @param titleId The resource id of the dialog title.
-   * @param tracksInfo The {@link TracksInfo} describing the tracks to display.
+   * @param tracks The {@link Tracks} describing the tracks to display.
    * @param trackSelectionParameters The initial {@link TrackSelectionParameters}.
    * @param allowAdaptiveSelections Whether adaptive selections (consisting of more than one track)
    *     can be made.
@@ -128,9 +127,9 @@ public final class TrackSelectionDialog extends DialogFragment {
    * @param onDismissListener {@link DialogInterface.OnDismissListener} called when the dialog is
    *     dismissed.
    */
-  public static TrackSelectionDialog createForTracksInfoAndParameters(
+  public static TrackSelectionDialog createForTracksAndParameters(
       int titleId,
-      TracksInfo tracksInfo,
+      Tracks tracks,
       TrackSelectionParameters trackSelectionParameters,
       boolean allowAdaptiveSelections,
       boolean allowMultipleOverrides,
@@ -138,7 +137,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       DialogInterface.OnDismissListener onDismissListener) {
     TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
     trackSelectionDialog.init(
-        tracksInfo,
+        tracks,
         trackSelectionParameters,
         titleId,
         allowAdaptiveSelections,
@@ -169,7 +168,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   private void init(
-      TracksInfo tracksInfo,
+      Tracks tracks,
       TrackSelectionParameters trackSelectionParameters,
       int titleId,
       boolean allowAdaptiveSelections,
@@ -182,16 +181,16 @@ public final class TrackSelectionDialog extends DialogFragment {
 
     for (int i = 0; i < SUPPORTED_TRACK_TYPES.size(); i++) {
       @C.TrackType int trackType = SUPPORTED_TRACK_TYPES.get(i);
-      ArrayList<TrackGroupInfo> trackGroupInfos = new ArrayList<>();
-      for (TrackGroupInfo trackGroupInfo : tracksInfo.getTrackGroupInfos()) {
-        if (trackGroupInfo.getTrackType() == trackType) {
-          trackGroupInfos.add(trackGroupInfo);
+      ArrayList<Tracks.Group> trackGroups = new ArrayList<>();
+      for (Tracks.Group trackGroup : tracks.getGroups()) {
+        if (trackGroup.getType() == trackType) {
+          trackGroups.add(trackGroup);
         }
       }
-      if (!trackGroupInfos.isEmpty()) {
+      if (!trackGroups.isEmpty()) {
         TrackSelectionViewFragment tabFragment = new TrackSelectionViewFragment();
         tabFragment.init(
-            trackGroupInfos,
+            trackGroups,
             trackSelectionParameters.disabledTrackTypes.contains(trackType),
             trackSelectionParameters.overrides,
             allowAdaptiveSelections,
@@ -300,7 +299,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   public static final class TrackSelectionViewFragment extends Fragment
       implements TrackSelectionView.TrackSelectionListener {
 
-    private List<TrackGroupInfo> trackGroupInfos;
+    private List<Tracks.Group> trackGroups;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
 
@@ -313,12 +312,12 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
 
     public void init(
-        List<TrackGroupInfo> trackGroupInfos,
+        List<Tracks.Group> trackGroups,
         boolean isDisabled,
         Map<TrackGroup, TrackSelectionOverride> overrides,
         boolean allowAdaptiveSelections,
         boolean allowMultipleOverrides) {
-      this.trackGroupInfos = trackGroupInfos;
+      this.trackGroups = trackGroups;
       this.isDisabled = isDisabled;
       this.allowAdaptiveSelections = allowAdaptiveSelections;
       this.allowMultipleOverrides = allowMultipleOverrides;
@@ -326,8 +325,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       // handle the case where the TrackSelectionView is never created.
       this.overrides =
           new HashMap<>(
-              TrackSelectionView.filterOverrides(
-                  overrides, trackGroupInfos, allowMultipleOverrides));
+              TrackSelectionView.filterOverrides(overrides, trackGroups, allowMultipleOverrides));
     }
 
     @Override
@@ -343,7 +341,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides);
       trackSelectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
       trackSelectionView.init(
-          trackGroupInfos,
+          trackGroups,
           isDisabled,
           overrides,
           /* trackFormatComparator= */ null,

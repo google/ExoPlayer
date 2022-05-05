@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Util.escapeFileName;
 import static androidx.media3.common.util.Util.getCodecsOfType;
 import static androidx.media3.common.util.Util.getStringForTime;
 import static androidx.media3.common.util.Util.gzip;
+import static androidx.media3.common.util.Util.maxValue;
 import static androidx.media3.common.util.Util.minValue;
 import static androidx.media3.common.util.Util.parseXsDateTime;
 import static androidx.media3.common.util.Util.parseXsDuration;
@@ -745,6 +746,21 @@ public class UtilTest {
   @Test
   public void sparseLongArrayMinValue_emptyArray_throws() {
     assertThrows(NoSuchElementException.class, () -> minValue(new SparseLongArray()));
+  }
+
+  @Test
+  public void sparseLongArrayMaxValue_returnsMaxValue() {
+    SparseLongArray sparseLongArray = new SparseLongArray();
+    sparseLongArray.put(0, 2);
+    sparseLongArray.put(25, 10);
+    sparseLongArray.put(42, 1);
+
+    assertThat(maxValue(sparseLongArray)).isEqualTo(10);
+  }
+
+  @Test
+  public void sparseLongArrayMaxValue_emptyArray_throws() {
+    assertThrows(NoSuchElementException.class, () -> maxValue(new SparseLongArray()));
   }
 
   @Test

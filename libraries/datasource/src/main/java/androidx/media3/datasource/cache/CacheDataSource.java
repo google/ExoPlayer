@@ -36,8 +36,8 @@ import androidx.media3.datasource.DataSink;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceException;
 import androidx.media3.datasource.DataSpec;
-import androidx.media3.datasource.DummyDataSource;
 import androidx.media3.datasource.FileDataSource;
+import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.datasource.PriorityDataSource;
 import androidx.media3.datasource.TeeDataSource;
 import androidx.media3.datasource.TransferListener;
@@ -541,7 +541,7 @@ public final class CacheDataSource implements DataSource {
               ? new TeeDataSource(upstreamDataSource, cacheWriteDataSink)
               : null;
     } else {
-      this.upstreamDataSource = DummyDataSource.INSTANCE;
+      this.upstreamDataSource = PlaceholderDataSource.INSTANCE;
       this.cacheWriteDataSource = null;
     }
     this.eventListener = eventListener;

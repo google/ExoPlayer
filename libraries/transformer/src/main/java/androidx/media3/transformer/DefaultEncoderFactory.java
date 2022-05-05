@@ -22,6 +22,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static java.lang.Math.abs;
+import static java.lang.Math.floor;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -182,8 +183,31 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     mediaFormat.setInteger(
         MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
-    mediaFormat.setFloat(
-        MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
+
+    if (Util.SDK_INT >= 25) {
+      mediaFormat.setFloat(
+          MediaFormat.KEY_I_FRAME_INTERVAL, supportedVideoEncoderSettings.iFrameIntervalSeconds);
+    } else {
+      float iFrameIntervalSeconds = supportedVideoEncoderSettings.iFrameIntervalSeconds;
+      // Only integer I-frame intervals are supported before API 25.
+      // Round up values in (0, 1] to avoid the special 'all keyframes' behavior when passing 0.
+      mediaFormat.setInteger(
+          MediaFormat.KEY_I_FRAME_INTERVAL,
+          (iFrameIntervalSeconds > 0f && iFrameIntervalSeconds <= 1f)
+              ? 1
+              : (int) floor(iFrameIntervalSeconds));
+    }
+
+    if (Util.SDK_INT >= 23) {
+      // Setting operating rate and priority is supported from API 23.
+      if (supportedVideoEncoderSettings.operatingRate != VideoEncoderSettings.NO_VALUE) {
+        mediaFormat.setInteger(
+            MediaFormat.KEY_OPERATING_RATE, supportedVideoEncoderSettings.operatingRate);
+      }
+      if (supportedVideoEncoderSettings.priority != VideoEncoderSettings.NO_VALUE) {
+        mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, supportedVideoEncoderSettings.priority);
+      }
+    }
 
     return new DefaultCodec(
         format,
@@ -199,9 +223,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds an {@link MediaCodecInfo encoder} that supports the requested format most closely.
+   * Finds an {@linkplain MediaCodecInfo encoder} that supports the requested format most closely.
    *
-   * <p>Returns the {@link MediaCodecInfo encoder} and the supported {@link Format} in a {@link
+   * <p>Returns the {@linkplain MediaCodecInfo encoder} and the supported {@link Format} in a {@link
    * Pair}, or {@code null} if none is found.
    */
   @RequiresNonNull("#1.sampleMimeType")
@@ -258,7 +282,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     MediaCodecInfo pickedEncoder = filteredEncoders.get(0);
     int closestSupportedBitrate =
-        EncoderUtil.getClosestSupportedBitrate(pickedEncoder, mimeType, requestedBitrate);
+        EncoderUtil.getSupportedBitrateRange(pickedEncoder, mimeType).clamp(requestedBitrate);
     VideoEncoderSettings.Builder supportedEncodingSettingBuilder =
         videoEncoderSettings.buildUpon().setBitrate(closestSupportedBitrate);
 
@@ -311,7 +335,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         encoders,
         /* cost= */ (encoderInfo) -> {
           int achievableBitrate =
-              EncoderUtil.getClosestSupportedBitrate(encoderInfo, mimeType, requestedBitrate);
+              EncoderUtil.getSupportedBitrateRange(encoderInfo, mimeType).clamp(requestedBitrate);
           return abs(achievableBitrate - requestedBitrate);
         },
         /* filterName= */ "bitrate");
@@ -391,33 +415,30 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
       mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
       mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedLevel);
-    } else {
-      // For API levels below 24, setting profile and level can lead to failures in MediaCodec
-      // configuration. The encoder selects the profile/level when we don't set them.
-      mediaFormat.setString(MediaFormat.KEY_PROFILE, null);
-      mediaFormat.setString(MediaFormat.KEY_LEVEL, null);
     }
+    // For API levels below 24, setting profile and level can lead to failures in MediaCodec
+    // configuration. The encoder selects the profile/level when we don't set them.
   }
 
   private interface EncoderFallbackCost {
     /**
      * Returns a cost that represents the gap between the requested encoding parameter(s) and the
-     * {@link MediaCodecInfo encoder}'s support for them.
+     * {@linkplain MediaCodecInfo encoder}'s support for them.
      *
-     * <p>The method must return {@link Integer#MAX_VALUE} when the {@link MediaCodecInfo encoder}
-     * does not support the encoding parameters.
+     * <p>The method must return {@link Integer#MAX_VALUE} when the {@linkplain MediaCodecInfo
+     * encoder} does not support the encoding parameters.
      */
     int getParameterSupportGap(MediaCodecInfo encoderInfo);
   }
 
   /**
-   * Filters a list of {@link MediaCodecInfo encoders} by a {@link EncoderFallbackCost cost
-   * function}.
+   * Filters a list of {@linkplain MediaCodecInfo encoders} by a {@linkplain EncoderFallbackCost
+   * cost function}.
    *
-   * @param encoders A list of {@link MediaCodecInfo encoders}.
-   * @param cost A {@link EncoderFallbackCost cost function}.
-   * @return A list of {@link MediaCodecInfo encoders} with the lowest costs, empty if the costs of
-   *     all encoders are {@link Integer#MAX_VALUE}.
+   * @param encoders A list of {@linkplain MediaCodecInfo encoders}.
+   * @param cost A {@linkplain EncoderFallbackCost cost function}.
+   * @return A list of {@linkplain MediaCodecInfo encoders} with the lowest costs, empty if the
+   *     costs of all encoders are {@link Integer#MAX_VALUE}.
    */
   private static ImmutableList<MediaCodecInfo> filterEncoders(
       List<MediaCodecInfo> encoders, EncoderFallbackCost cost, String filterName) {
@@ -454,7 +475,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds a {@link MimeTypes MIME type} that is supported by the encoder and in the {@code
+   * Finds a {@linkplain MimeTypes MIME type} that is supported by the encoder and in the {@code
    * allowedMimeTypes}.
    */
   @Nullable

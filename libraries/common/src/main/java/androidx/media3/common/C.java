@@ -585,8 +585,9 @@ public final class C {
 
   /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
-   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
-   * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.
+   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_FIRST_SAMPLE},
+   * {@link #BUFFER_FLAG_LAST_SAMPLE}, {@link #BUFFER_FLAG_ENCRYPTED} and {@link
+   * #BUFFER_FLAG_DECODE_ONLY}.
    */
   @UnstableApi
   @Documented
@@ -597,6 +598,7 @@ public final class C {
       value = {
         BUFFER_FLAG_KEY_FRAME,
         BUFFER_FLAG_END_OF_STREAM,
+        BUFFER_FLAG_FIRST_SAMPLE,
         BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA,
         BUFFER_FLAG_LAST_SAMPLE,
         BUFFER_FLAG_ENCRYPTED,
@@ -608,6 +610,8 @@ public final class C {
   /** Flag for empty buffers that signal that the end of the stream was reached. */
   @UnstableApi
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  /** Indicates that a buffer is known to contain the first media sample of the stream. */
+  @UnstableApi public static final int BUFFER_FLAG_FIRST_SAMPLE = 1 << 27; // 0x08000000
   /** Indicates that a buffer has supplemental data. */
   @UnstableApi public static final int BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA = 1 << 28; // 0x10000000
   /** Indicates that a buffer is known to contain the last media sample of the stream. */
@@ -732,17 +736,17 @@ public final class C {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
   public @interface ContentType {}
-  /** Value returned by {@link Util#inferContentType(String)} for DASH manifests. */
+  /** Value returned by {@link Util#inferContentType} for DASH manifests. */
   @UnstableApi public static final int TYPE_DASH = 0;
-  /** Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests. */
+  /** Value returned by {@link Util#inferContentType} for Smooth Streaming manifests. */
   @UnstableApi public static final int TYPE_SS = 1;
-  /** Value returned by {@link Util#inferContentType(String)} for HLS manifests. */
+  /** Value returned by {@link Util#inferContentType} for HLS manifests. */
   @UnstableApi public static final int TYPE_HLS = 2;
-  /** Value returned by {@link Util#inferContentType(String)} for RTSP. */
+  /** Value returned by {@link Util#inferContentType} for RTSP. */
   @UnstableApi public static final int TYPE_RTSP = 3;
   /**
-   * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
-   * Smooth Streaming manifests, or RTSP URIs.
+   * Value returned by {@link Util#inferContentType} for files other than DASH, HLS or Smooth
+   * Streaming manifests, or RTSP URIs.
    */
   @UnstableApi public static final int TYPE_OTHER = 4;
 

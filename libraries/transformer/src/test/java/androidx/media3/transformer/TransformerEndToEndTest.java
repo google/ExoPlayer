@@ -30,7 +30,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.media.MediaCodecInfo;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
@@ -83,8 +82,8 @@ public final class TransformerEndToEndTest {
   private static final String FILE_AUDIO_UNSUPPORTED_BY_ENCODER = "amr/sample_nb.amr";
   private static final String FILE_AUDIO_UNSUPPORTED_BY_MUXER = "mp4/sample_ac3.mp4";
   private static final String FILE_UNKNOWN_DURATION = "mp4/sample_fragmented.mp4";
-  public static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
-  public static final String DUMP_FILE_EXTENSION = "dump";
+  private static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
+  private static final String DUMP_FILE_EXTENSION = "dump";
 
   private Context context;
   private String outputPath;
@@ -403,26 +402,6 @@ public final class TransformerEndToEndTest {
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
         .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-  }
-
-  @Test
-  public void startTransformation_withVideoEncoderFormatUnsupported_completesWithError()
-      throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(/* enableFallback= */ false)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setVideoMimeType(MimeTypes.VIDEO_H263) // unsupported encoder MIME type
-                    .build())
-            .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
-
-    transformer.startTransformation(mediaItem, outputPath);
-    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
-
-    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-    assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -801,11 +780,6 @@ public final class TransformerEndToEndTest {
         throwingCodecConfig,
         /* colorFormats= */ ImmutableList.of(),
         /* isDecoder= */ true);
-    addCodec(
-        MimeTypes.VIDEO_H263,
-        throwingCodecConfig,
-        ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible),
-        /* isDecoder= */ false);
     addCodec(
         MimeTypes.AUDIO_AMR_NB,
         throwingCodecConfig,

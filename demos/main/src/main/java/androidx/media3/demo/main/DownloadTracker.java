@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentManager;
 import androidx.media3.common.DrmInitData;
@@ -30,7 +31,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
@@ -53,6 +54,7 @@ import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /** Tracks media that has been downloaded. */
+@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
 public class DownloadTracker {
 
   /** Listens for changes in the tracked downloads. */
@@ -301,17 +303,17 @@ public class DownloadTracker {
         return;
       }
 
-      TracksInfo tracksInfo = downloadHelper.getTracksInfo(/* periodIndex= */ 0);
-      if (!TrackSelectionDialog.willHaveContent(tracksInfo)) {
+      Tracks tracks = downloadHelper.getTracks(/* periodIndex= */ 0);
+      if (!TrackSelectionDialog.willHaveContent(tracks)) {
         Log.d(TAG, "No dialog content. Downloading entire stream.");
         startDownload();
         downloadHelper.release();
         return;
       }
       trackSelectionDialog =
-          TrackSelectionDialog.createForTracksInfoAndParameters(
+          TrackSelectionDialog.createForTracksAndParameters(
               /* titleId= */ R.string.exo_download_description,
-              tracksInfo,
+              tracks,
               DownloadHelper.getDefaultTrackSelectorParameters(context),
               /* allowAdaptiveSelections= */ false,
               /* allowMultipleOverrides= */ true,

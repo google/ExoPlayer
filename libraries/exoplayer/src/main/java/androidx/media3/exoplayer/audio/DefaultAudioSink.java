@@ -887,7 +887,6 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void handleDiscontinuity() {
-    // Force resynchronization after a skipped buffer.
     startMediaTimeUsNeedsSync = true;
   }
 
@@ -1018,7 +1017,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (configuration.outputMode == OUTPUT_MODE_PCM) {
         submittedPcmBytes += buffer.remaining();
       } else {
-        submittedEncodedFrames += framesPerEncodedSample * encodedAccessUnitCount;
+        submittedEncodedFrames += (long) framesPerEncodedSample * encodedAccessUnitCount;
       }
 
       inputBuffer = buffer;
@@ -1213,7 +1212,7 @@ public final class DefaultAudioSink implements AudioSink {
         // When playing non-PCM, the inputBuffer is never processed, thus the last inputBuffer
         // must be the current input buffer.
         Assertions.checkState(buffer == inputBuffer);
-        writtenEncodedFrames += framesPerEncodedSample * inputBufferAccessUnitCount;
+        writtenEncodedFrames += (long) framesPerEncodedSample * inputBufferAccessUnitCount;
       }
       outputBuffer = null;
     }

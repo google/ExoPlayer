@@ -20,6 +20,7 @@ import static androidx.media3.demo.main.DemoUtil.DOWNLOAD_NOTIFICATION_CHANNEL_I
 import android.app.Notification;
 import android.content.Context;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.util.NotificationUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.offline.Download;
@@ -32,6 +33,7 @@ import androidx.media3.exoplayer.scheduler.Scheduler;
 import java.util.List;
 
 /** A service for downloading media. */
+@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
 public class DemoDownloadService extends DownloadService {
 
   private static final int JOB_ID = 1;

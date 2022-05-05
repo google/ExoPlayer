@@ -15,10 +15,21 @@
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
+    *   Rename `TracksInfo` to `Tracks` and `TracksInfo.TrackGroupInfo` to
+        `Tracks.Group`. `Player.getCurrentTracksInfo` and
+        `Player.Listener.onTracksInfoChanged` have also been renamed to
+        `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
+*   Video:
+    *   Rename `DummySurface` to `PlaceHolderSurface`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
+*   Ad playback / IMA:
+    *   Decrease ad polling rate from every 100ms to every 200ms, to line up with
+        Media Rating Council (MRC) recommendations.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
+    *   Parse bitrates from `esds` boxes.
+    *   MP4: Parse initialization data from AV1 tracks.
 *   UI:
     *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
         `LegacyPlayerView`, in the case that `useController=false`
@@ -35,9 +46,34 @@
         views to be used with other `Player` implementations, and removes the
         dependency from the UI module to the ExoPlayer module. This is a
         breaking change.
+    *   Don't show forced text tracks in the `PlayerView` track selector, and
+        keep a suitable forced text track selected if "None" is selected
+        ([#9432](https://github.com/google/ExoPlayer/issues/9432)).
+*   HLS:
+    *   Fallback to chunkful preparation if the playlist CODECS attribute
+        does not contain the audio codec
+        ([#10065](https://github.com/google/ExoPlayer/issues/10065)).
 *   RTSP:
+    *   Add RTP reader for MPEG4
+        ([#35](https://github.com/androidx/media/pull/35))
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
+    *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved
+        AMR streams are supported. Compound AMR RTP payload is not supported.
+        ([#46](https://github.com/androidx/media/pull/46))
+    *   Add RTP reader for VP8
+        ([#47](https://github.com/androidx/media/pull/47)).
+    *   Add RTP reader for WAV
+        ([#56](https://github.com/androidx/media/pull/56)).
+    *   Fix RTSP basic authorization header.
+        ([#9544](https://github.com/google/ExoPlayer/issues/9544)).
+    *   Throw checked exception when parsing RTSP timing
+        ([#10165](https://github.com/google/ExoPlayer/issues/10165)).
+*   Session:
+    *   Fix NPE in MediaControllerImplLegacy
+        ([#59](https://github.com/androidx/media/pull/59))
+*   Data sources:
+    *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
