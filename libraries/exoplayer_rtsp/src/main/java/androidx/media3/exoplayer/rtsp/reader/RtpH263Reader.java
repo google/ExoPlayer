@@ -39,6 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** I-frame VOP unit type. */
   private static final int I_VOP = 0;
+  private static final int PICTURE_START_CODE = 128;
 
   private final RtpPayloadFormat payloadFormat;
 
@@ -71,7 +72,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void createTracks(ExtractorOutput extractorOutput, int trackId) {
     trackOutput = extractorOutput.track(trackId, C.TRACK_TYPE_VIDEO);
-    castNonNull(trackOutput).format(payloadFormat.format);
+    trackOutput.format(payloadFormat.format);
   }
 
   @Override
@@ -90,24 +91,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     int currPosition = data.getPosition();
     int header = data.readUnsignedShort();
-    boolean pBit = ((header & 0x400) == 0x400);
+    boolean pBitIsSet = ((header & 0x400) > 0);
 
-    // Check if optional Video Redundancy Coding or PLEN or PEBIT is present, RFC4629 Section 5.1.
+    // Check if optional V (Video Redundancy Coding), PLEN or PEBIT is present, RFC4629 Section 5.1.
     if ((header & 0x200) != 0 || (header & 0x1f8) != 0 || (header & 0x7) != 0) {
       Log.w(TAG, "Packet discarded due to (VRC != 0) or (PLEN != 0) or (PEBIT != 0)");
       return;
     }
-    int startCodePayload = data.peekUnsignedByte() & 0xfc;
-    if (pBit == true) {
-      if (startCodePayload < 128) {
+
+    if (pBitIsSet == true) {
+      int startCodePayload = data.peekUnsignedByte() & 0xfc;
+      // Packets that begin with a Picture Start Code(100000). Refer RFC4629 Section 6.1.1.
+      if (startCodePayload < PICTURE_START_CODE) {
         Log.w(TAG, "Picture start Code (PSC) missing, Dropping packet.");
         return;
-      } else {
-        // Setting first two bytes of the start code. Refer RFC4629 Section 5.1.
-        data.getData()[currPosition] = 0;
-        data.getData()[currPosition + 1] = 0;
-        data.setPosition(currPosition);
       }
+      // Setting first two bytes of the start code. Refer RFC4629 Section 6.1.1.
+      data.getData()[currPosition] = 0;
+      data.getData()[currPosition + 1] = 0;
+      data.setPosition(currPosition);
     } else {
       // Check that this packet is in the sequence of the previous packet.
       int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
@@ -124,7 +126,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     if (fragmentedSampleSizeBytes == 0) {
       getBufferFlagsAndResolutionFromVop(data, isOutputFormatSet);
-      if (!isOutputFormatSet && isKeyFrame == true) {
+      if (!isOutputFormatSet && isKeyFrame) {
         if (width != payloadFormat.format.width || height != payloadFormat.format.height) {
           trackOutput.format(
               payloadFormat.format.buildUpon().setWidth(width).setHeight(height).build());
@@ -168,7 +170,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void getBufferFlagsAndResolutionFromVop(ParsableByteArray data, boolean gotResolution) {
     // Picture Segment Packets (RFC4629 Section 6.1).
     // Search for SHORT_VIDEO_START_MARKER (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0).
-    int currPosition = data.getPosition();
+    int currDataOffset = data.getPosition();
     long shortHeader = data.readUnsignedInt();
     if ((shortHeader & 0xffff) >> 10 == 0x20) {
       int header = data.peekUnsignedByte();
@@ -190,11 +192,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           height = (short) (144 << (sourceFormat - 2));
         }
       }
-      data.setPosition(currPosition);
+      data.setPosition(currDataOffset);
       isKeyFrame = (vopType == I_VOP ? true : false);
       return;
     }
-    data.setPosition(currPosition);
+    data.setPosition(currDataOffset);
     isKeyFrame = false;
   }
 
