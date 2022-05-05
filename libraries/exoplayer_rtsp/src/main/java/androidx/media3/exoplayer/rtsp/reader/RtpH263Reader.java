@@ -30,28 +30,31 @@ import androidx.media3.extractor.TrackOutput;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Parses a H263 byte stream carried on RTP packets, and extracts H263 individual video frames as
- * defined in RFC4629.
+ * Parses a H263 byte stream carried on RTP packets, and extracts H263 frames as defined in RFC4629.
  */
 /* package */ final class RtpH263Reader implements RtpPayloadReader {
   private static final String TAG = "RtpH263Reader";
 
   private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
 
-  /** VOP unit type. */
+  /** I-frame VOP unit type. */
   private static final int I_VOP = 0;
 
   private final RtpPayloadFormat payloadFormat;
 
   private @MonotonicNonNull TrackOutput trackOutput;
 
+  /**
+   * First received RTP timestamp. All RTP timestamps are dimension-less, the time base is defined
+   * by {@link #MEDIA_CLOCK_FREQUENCY}.
+   */
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
-  private static int width;
-  private static int height;
-  private static boolean isKeyFrame;
+  private int width;
+  private int height;
+  private boolean isKeyFrame;
   private boolean isOutputFormatSet;
   private long startTimeOffsetUs;
 
@@ -144,7 +147,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
           fragmentedSampleSizeBytes,
           /* offset= */ 0,
-          /* encryptionData= */ null);
+          /* cryptoData= */ null);
       fragmentedSampleSizeBytes = 0;
       isKeyFrame = false;
     }
@@ -163,12 +166,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Parses VOP Coding type and resolution.
    */
   private void getBufferFlagsAndResolutionFromVop(ParsableByteArray data, boolean gotResolution) {
+    // Picture Segment Packets (RFC4629 Section 6.1).
     // Search for SHORT_VIDEO_START_MARKER (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0).
     int currPosition = data.getPosition();
-    if (data.readUnsignedInt() >> 10 == 0x20) {
+    long shortHeader = data.readUnsignedInt();
+    if ((shortHeader & 0xffff) >> 10 == 0x20) {
       int header = data.peekUnsignedByte();
       int vopType = ((header >> 1) & 0x01);
       if (!gotResolution && vopType == I_VOP) {
+        /**
+         * Parsing resolution from source format.
+         *
+         * <p> These values are taken from <a
+         * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codecs/m4v_h263/dec/src/vop.cpp;l=1126
+         * >Android's software H263 decoder</a>.
+         */
         int sourceFormat  = ((header >> 2) & 0x07);
         if (sourceFormat == 1) {
           width = 128;
