@@ -21,18 +21,12 @@ import static java.lang.Math.min;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.media.ApplicationMediaCapabilities;
-import android.media.MediaFeature;
-import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.util.Util;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -76,6 +70,7 @@ public final class ContentDataSource extends BaseDataSource {
   }
 
   @Override
+  @SuppressWarnings("InlinedApi") // We are inlining EXTRA_ACCEPT_ORIGINAL_MEDIA_FORMAT.
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
       Uri uri = dataSpec.uri;
@@ -86,9 +81,8 @@ public final class ContentDataSource extends BaseDataSource {
       AssetFileDescriptor assetFileDescriptor;
       if ("content".equals(dataSpec.uri.getScheme())) {
         Bundle providerOptions = new Bundle();
-        if (Util.SDK_INT >= 31) {
-          Api31.disableTranscoding(providerOptions);
-        }
+        // We don't want compatible media transcoding.
+        providerOptions.putBoolean(MediaStore.EXTRA_ACCEPT_ORIGINAL_MEDIA_FORMAT, true);
         assetFileDescriptor =
             resolver.openTypedAssetFileDescriptor(uri, /* mimeType= */ "*/*", providerOptions);
       } else {
@@ -228,23 +222,6 @@ public final class ContentDataSource extends BaseDataSource {
           transferEnded();
         }
       }
-    }
-  }
-
-  @RequiresApi(31)
-  private static final class Api31 {
-
-    @DoNotInline
-    public static void disableTranscoding(Bundle providerOptions) {
-      ApplicationMediaCapabilities mediaCapabilities =
-          new ApplicationMediaCapabilities.Builder()
-              .addSupportedVideoMimeType(MediaFormat.MIMETYPE_VIDEO_HEVC)
-              .addSupportedHdrType(MediaFeature.HdrType.DOLBY_VISION)
-              .addSupportedHdrType(MediaFeature.HdrType.HDR10)
-              .addSupportedHdrType(MediaFeature.HdrType.HDR10_PLUS)
-              .addSupportedHdrType(MediaFeature.HdrType.HLG)
-              .build();
-      providerOptions.putParcelable(MediaStore.EXTRA_MEDIA_CAPABILITIES, mediaCapabilities);
     }
   }
 }
