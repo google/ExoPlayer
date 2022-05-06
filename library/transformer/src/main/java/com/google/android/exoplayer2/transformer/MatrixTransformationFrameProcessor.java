@@ -80,8 +80,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
     outputSize = matrixTransformation.configure(inputWidth, inputHeight);
-    // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
-    //  expected in the code.
     glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
     glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
