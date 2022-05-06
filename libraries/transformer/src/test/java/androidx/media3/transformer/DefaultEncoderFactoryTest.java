@@ -74,8 +74,8 @@ public class DefaultEncoderFactoryTest {
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
     assertThat(actualVideoFormat.width).isEqualTo(1920);
     assertThat(actualVideoFormat.height).isEqualTo(1080);
-    // 1920 * 1080 * 30 * 0.1
-    assertThat(actualVideoFormat.averageBitrate).isEqualTo(6_220_800);
+    // 1920 * 1080 * 30 * 0.07 * 2.
+    assertThat(actualVideoFormat.averageBitrate).isEqualTo(8_709_120);
   }
 
   @Test
@@ -92,8 +92,8 @@ public class DefaultEncoderFactoryTest {
     assertThat(actualVideoFormat.sampleMimeType).isEqualTo(MimeTypes.VIDEO_H264);
     assertThat(actualVideoFormat.width).isEqualTo(1920);
     assertThat(actualVideoFormat.height).isEqualTo(1080);
-    // 1920 * 1080 * 30 * 0.1
-    assertThat(actualVideoFormat.averageBitrate).isEqualTo(6_220_800);
+    // 1920 * 1080 * 30 * 0.07 * 2.
+    assertThat(actualVideoFormat.averageBitrate).isEqualTo(8_709_120);
   }
 
   @Test
