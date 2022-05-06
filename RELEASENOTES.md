@@ -25,14 +25,16 @@
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
 *   Ad playback / IMA:
-    *   Decrease ad polling rate from every 100ms to every 200ms, to line up with
-        Media Rating Council (MRC) recommendations.
+    *   Decrease ad polling rate from every 100ms to every 200ms, to line up
+        with Media Rating Council (MRC) recommendations.
 *   Text:
     *   SSA: Support `OutlineColour` style setting when `BorderStyle == 3` (i.e.
         `OutlineColour` sets the background of the cue)
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
     *   CEA-708: Parse data into multiple service blocks and ignore blocks not
         associated with the currently selected service number.
+    *   Remove `RawCcExtractor`, which was only used to handle a Google-internal
+        subtitle format.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
     *   Parse bitrates from `esds` boxes.
@@ -60,16 +62,16 @@
         re-enables audio passthrough for DTS streams
         ([#10159](https://github.com/google/ExoPlayer/issues/10159)).
 *   HLS:
-    *   Fallback to chunkful preparation if the playlist CODECS attribute
-        does not contain the audio codec
+    *   Fallback to chunkful preparation if the playlist CODECS attribute does
+        not contain the audio codec
         ([#10065](https://github.com/google/ExoPlayer/issues/10065)).
 *   RTSP:
     *   Add RTP reader for MPEG4
         ([#35](https://github.com/androidx/media/pull/35)).
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
-    *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved
-        AMR streams are supported. Compound AMR RTP payload is not supported.
+    *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved AMR
+        streams are supported. Compound AMR RTP payload is not supported.
         ([#46](https://github.com/androidx/media/pull/46))
     *   Add RTP reader for VP8
         ([#47](https://github.com/androidx/media/pull/47)).
@@ -82,15 +84,19 @@
     *   Throw checked exception when parsing RTSP timing
         ([#10165](https://github.com/google/ExoPlayer/issues/10165)).
 *   Session:
+
     *   Fix NPE in MediaControllerImplLegacy
         ([#59](https://github.com/androidx/media/pull/59))
     *   Update session position info on timeline
         change([#51](https://github.com/androidx/media/issues/51))
 
 *   Data sources:
+
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
     *   Workaround OkHttp interrupt handling.
+
 *   Remove deprecated symbols:
+
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
     *   Remove `Player.getCurrentTrackGroups` and

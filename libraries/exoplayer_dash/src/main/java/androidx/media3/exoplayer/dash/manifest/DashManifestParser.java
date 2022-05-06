@@ -1675,11 +1675,7 @@ public class DashManifestParser extends DefaultHandler
     } else if (MimeTypes.isVideo(containerMimeType)) {
       return MimeTypes.getVideoMediaMimeType(codecs);
     } else if (MimeTypes.isText(containerMimeType)) {
-      if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-        // RawCC is special because it's a text specific container format.
-        return MimeTypes.getTextMediaMimeType(codecs);
-      }
-      // All other text types are raw formats.
+      // Text types are raw formats.
       return containerMimeType;
     } else if (MimeTypes.isImage(containerMimeType)) {
       // Image types are raw formats.

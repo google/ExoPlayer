@@ -36,7 +36,6 @@ import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
-import androidx.media3.extractor.rawcc.RawCcExtractor;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -58,13 +57,8 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
         @Nullable String containerMimeType = format.containerMimeType;
         Extractor extractor;
         if (MimeTypes.isText(containerMimeType)) {
-          if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-            // RawCC is special because it's a text specific container format.
-            extractor = new RawCcExtractor(format);
-          } else {
-            // All other text types are raw formats that do not need an extractor.
-            return null;
-          }
+          // Text types do not need an extractor.
+          return null;
         } else if (MimeTypes.isMatroska(containerMimeType)) {
           extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
         } else {
