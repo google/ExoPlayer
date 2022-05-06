@@ -502,11 +502,24 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         && allowedMimeTypes.contains(mimeType);
   }
 
-  /** Computes the video bit rate using the Kush Gauge. */
+  /**
+   * Computes the video bit rate using the Kush Gauge.
+   *
+   * <p>{@code kushGaugeBitrate = height * width * frameRate * 0.07 * motionFactor}.
+   *
+   * <p>Motion factors:
+   *
+   * <ul>
+   *   <li>Low motion video - 1
+   *   <li>Medium motion video - 2
+   *   <li>High motion video - 4
+   * </ul>
+   */
   private static int getSuggestedBitrate(int width, int height, float frameRate) {
     // TODO(b/210591626) Implement bitrate estimation.
-    // 1080p30 -> 6.2Mbps, 720p30 -> 2.7Mbps.
-    return (int) (width * height * frameRate * 0.1);
+    // Assume medium motion factor.
+    // 1080p60 -> 16.6Mbps, 720p30 -> 3.7Mbps.
+    return (int) (width * height * frameRate * 0.07 * 2);
   }
 
   @RequiresNonNull("#1.sampleMimeType")
