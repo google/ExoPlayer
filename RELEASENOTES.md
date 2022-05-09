@@ -26,6 +26,10 @@
 *   Ad playback / IMA:
     *   Decrease ad polling rate from every 100ms to every 200ms, to line up with
         Media Rating Council (MRC) recommendations.
+*   Text:
+    *   SSA: Support `OutlineColour` style setting when `BorderStyle == 3` (i.e.
+        `OutlineColour` sets the background of the cue)
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
     *   Parse bitrates from `esds` boxes.
