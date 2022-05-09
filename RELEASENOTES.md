@@ -30,6 +30,8 @@
     *   SSA: Support `OutlineColour` style setting when `BorderStyle == 3` (i.e.
         `OutlineColour` sets the background of the cue)
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+    *   CEA-708: Parse data into multiple service blocks and ignore blocks not
+        associated with the currently selected service number.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
     *   Parse bitrates from `esds` boxes.
