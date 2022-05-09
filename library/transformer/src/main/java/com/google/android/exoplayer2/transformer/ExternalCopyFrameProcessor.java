@@ -77,7 +77,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
-        "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aFramePosition",
+        GlUtil.getNormalizedCoordinateBounds(),
+        GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
     if (enableExperimentalHdrEditing) {
       // In HDR editing mode the decoder output is sampled in YUV.
       glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);

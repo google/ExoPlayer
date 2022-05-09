@@ -101,7 +101,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
-        "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aFramePosition",
+        GlUtil.getNormalizedCoordinateBounds(),
+        GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
     glProgram.setSamplerTexIdUniform("uTexSampler0", inputTexId, /* texUnitIndex= */ 0);
     glProgram.setSamplerTexIdUniform("uTexSampler1", bitmapTexId, /* texUnitIndex= */ 1);
     glProgram.setFloatUniform("uScaleX", bitmapScaleX);
