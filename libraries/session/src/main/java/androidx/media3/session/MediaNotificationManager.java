@@ -19,13 +19,17 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.app.Notification;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -43,6 +47,8 @@ import java.util.concurrent.TimeoutException;
  * foreground/background according to the player state.
  */
 /* package */ final class MediaNotificationManager {
+
+  private static final String TAG = "MediaNtfMng";
 
   private final MediaSessionService mediaSessionService;
   private final MediaNotification.Provider mediaNotificationProvider;
@@ -170,8 +176,12 @@ import java.util.concurrent.TimeoutException;
     Player player = session.getPlayer();
     if (player.getPlayWhenReady() && canStartPlayback(player)) {
       ContextCompat.startForegroundService(mediaSessionService, startSelfIntent);
-      mediaSessionService.startForeground(
-          mediaNotification.notificationId, mediaNotification.notification);
+      if (Util.SDK_INT >= 29) {
+        Api29.startForeground(mediaSessionService, mediaNotification);
+      } else {
+        mediaSessionService.startForeground(
+            mediaNotification.notificationId, mediaNotification.notification);
+      }
     } else {
       maybeStopForegroundService(/* removeNotifications= */ false);
       notificationManagerCompat.notify(
@@ -250,5 +260,30 @@ import java.util.concurrent.TimeoutException;
       // We may need to hide the notification.
       mediaSessionService.onUpdateNotification(session);
     }
+  }
+
+  @RequiresApi(29)
+  private static class Api29 {
+
+    @DoNotInline
+    public static void startForeground(
+        MediaSessionService mediaSessionService, MediaNotification mediaNotification) {
+      try {
+        // startForeground() will throw if the service's foregroundServiceType is not defined in the
+        // manifest to include mediaPlayback.
+        mediaSessionService.startForeground(
+            mediaNotification.notificationId,
+            mediaNotification.notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+      } catch (RuntimeException e) {
+        Log.e(
+            TAG,
+            "The service must be declared with a foregroundServiceType that includes "
+                + " mediaPlayback");
+        throw e;
+      }
+    }
+
+    private Api29() {}
   }
 }

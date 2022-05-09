@@ -60,7 +60,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>To extend this class, declare the intent filter in your {@code AndroidManifest.xml}:
  *
  * <pre>{@code
- * <service android:name="NameOfYourService">
+ * <service
+ *   android:name="NameOfYourService"
+ *   android:foregroundServiceType="mediaPlayback">
  *   <intent-filter>
  *     <action android:name="androidx.media3.session.MediaSessionService"/>
  *   </intent-filter>
@@ -85,9 +87,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2 id="ServiceLifecycle">Service Lifecycle</h2>
  *
- * <p>A media session service is a bound service. When a {@link MediaController} is created for the
- * service, the controller binds to the service. {@link #onGetSession(ControllerInfo)} will be
- * called from {@link #onBind(Intent)}.
+ * <p>A media session service is a bound service and its <a
+ * href="https://developer.android.com/guide/topics/manifest/service-element#foregroundservicetype">foreground
+ * service type</a> must include <em>mediaPlayback</em>. When a {@link MediaController} is created
+ * for the service, the controller binds to the service. {@link #onGetSession(ControllerInfo)} will
+ * be called from {@link #onBind(Intent)}.
  *
  * <p>After binding, the session's {@link MediaSession.SessionCallback#onConnect(MediaSession,
  * MediaSession.ControllerInfo)} will be called to accept or reject the connection request from the
