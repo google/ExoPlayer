@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.rtsp.reader;
 
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.castNonNull;
 
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
@@ -99,9 +98,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
 
-    if (pBitIsSet == true) {
+    if (pBitIsSet) {
       int startCodePayload = data.peekUnsignedByte() & 0xfc;
-      // Packets that begin with a Picture Start Code(100000). Refer RFC4629 Section 6.1.1.
+      // Packets that begin with a Picture Start Code(100000). Refer RFC4629 Section 6.1.
       if (startCodePayload < PICTURE_START_CODE) {
         Log.w(TAG, "Picture start Code (PSC) missing, Dropping packet.");
         return;
@@ -125,7 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (fragmentedSampleSizeBytes == 0) {
-      getBufferFlagsAndResolutionFromVop(data, isOutputFormatSet);
+      parseVopHeader(data, isOutputFormatSet);
       if (!isOutputFormatSet && isKeyFrame) {
         if (width != payloadFormat.format.width || height != payloadFormat.format.height) {
           trackOutput.format(
@@ -167,14 +166,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Parses VOP Coding type and resolution.
    */
-  private void getBufferFlagsAndResolutionFromVop(ParsableByteArray data, boolean gotResolution) {
+  private void parseVopHeader(ParsableByteArray data, boolean gotResolution) {
     // Picture Segment Packets (RFC4629 Section 6.1).
     // Search for SHORT_VIDEO_START_MARKER (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0).
     int currDataOffset = data.getPosition();
+    /**
+     * Parsing short header.
+     *
+     * <p> These values are taken from <a
+     * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codecs/m4v_h263/dec/src/mp4def.h;l=115
+     * >Android's software H263 decoder</a>.
+     */
     long shortHeader = data.readUnsignedInt();
-    if ((shortHeader & 0xffff) >> 10 == 0x20) {
+    if (((shortHeader >> 10) & 0xffff) == 0x20) {
       int header = data.peekUnsignedByte();
-      int vopType = ((header >> 1) & 0x01);
+      int vopType = ((header >> 1) & 0x1);
       if (!gotResolution && vopType == I_VOP) {
         /**
          * Parsing resolution from source format.
