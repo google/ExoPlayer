@@ -24,7 +24,7 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Util;
@@ -266,8 +266,8 @@ import androidx.media3.test.utils.StubExoPlayer;
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return TracksInfo.EMPTY;
+  public Tracks getCurrentTracks() {
+    return Tracks.EMPTY;
   }
 
   @Override

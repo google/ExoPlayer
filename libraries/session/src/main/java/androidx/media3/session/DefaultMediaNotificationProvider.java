@@ -30,6 +30,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.media.app.NotificationCompat.MediaStyle;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.Consumer;
@@ -114,35 +115,48 @@ public final class DefaultMediaNotificationProvider implements MediaNotification
 
     NotificationCompat.Builder builder =
         new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
-    // TODO(b/193193926): Filter actions depending on the player's available commands.
+    Player.Commands availableCommands = mediaController.getAvailableCommands();
     // Skip to previous action.
-    builder.addAction(
-        actionFactory.createMediaAction(
-            IconCompat.createWithResource(context, R.drawable.media3_notification_seek_to_previous),
-            context.getString(R.string.media3_controls_seek_to_previous_description),
-            MediaNotification.ActionFactory.COMMAND_SKIP_TO_PREVIOUS));
-    if (mediaController.getPlaybackState() == Player.STATE_ENDED
-        || !mediaController.getPlayWhenReady()) {
-      // Play action.
+    boolean skipToPreviousAdded = false;
+    if (availableCommands.containsAny(
+        Player.COMMAND_SEEK_TO_PREVIOUS, Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
+      skipToPreviousAdded = true;
       builder.addAction(
           actionFactory.createMediaAction(
-              IconCompat.createWithResource(context, R.drawable.media3_notification_play),
-              context.getString(R.string.media3_controls_play_description),
-              MediaNotification.ActionFactory.COMMAND_PLAY));
-    } else {
-      // Pause action.
-      builder.addAction(
-          actionFactory.createMediaAction(
-              IconCompat.createWithResource(context, R.drawable.media3_notification_pause),
-              context.getString(R.string.media3_controls_pause_description),
-              MediaNotification.ActionFactory.COMMAND_PAUSE));
+              IconCompat.createWithResource(
+                  context, R.drawable.media3_notification_seek_to_previous),
+              context.getString(R.string.media3_controls_seek_to_previous_description),
+              MediaNotification.ActionFactory.COMMAND_SKIP_TO_PREVIOUS));
+    }
+    boolean playPauseAdded = false;
+    if (availableCommands.contains(Player.COMMAND_PLAY_PAUSE)) {
+      playPauseAdded = true;
+      if (mediaController.getPlaybackState() == Player.STATE_ENDED
+          || !mediaController.getPlayWhenReady()) {
+        // Play action.
+        builder.addAction(
+            actionFactory.createMediaAction(
+                IconCompat.createWithResource(context, R.drawable.media3_notification_play),
+                context.getString(R.string.media3_controls_play_description),
+                MediaNotification.ActionFactory.COMMAND_PLAY));
+      } else {
+        // Pause action.
+        builder.addAction(
+            actionFactory.createMediaAction(
+                IconCompat.createWithResource(context, R.drawable.media3_notification_pause),
+                context.getString(R.string.media3_controls_pause_description),
+                MediaNotification.ActionFactory.COMMAND_PAUSE));
+      }
     }
     // Skip to next action.
-    builder.addAction(
-        actionFactory.createMediaAction(
-            IconCompat.createWithResource(context, R.drawable.media3_notification_seek_to_next),
-            context.getString(R.string.media3_controls_seek_to_next_description),
-            MediaNotification.ActionFactory.COMMAND_SKIP_TO_NEXT));
+    if (availableCommands.containsAny(
+        Player.COMMAND_SEEK_TO_NEXT, Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
+      builder.addAction(
+          actionFactory.createMediaAction(
+              IconCompat.createWithResource(context, R.drawable.media3_notification_seek_to_next),
+              context.getString(R.string.media3_controls_seek_to_next_description),
+              MediaNotification.ActionFactory.COMMAND_SKIP_TO_NEXT));
+    }
 
     // Set metadata info in the notification.
     MediaMetadata metadata = mediaController.getMediaMetadata();
@@ -171,12 +185,17 @@ public final class DefaultMediaNotificationProvider implements MediaNotification
       }
     }
 
-    androidx.media.app.NotificationCompat.MediaStyle mediaStyle =
-        new androidx.media.app.NotificationCompat.MediaStyle()
-            .setCancelButtonIntent(
-                actionFactory.createMediaActionPendingIntent(
-                    MediaNotification.ActionFactory.COMMAND_STOP))
-            .setShowActionsInCompactView(1 /* Show play/pause button only in compact view */);
+    MediaStyle mediaStyle = new MediaStyle();
+    if (mediaController.isCommandAvailable(Player.COMMAND_STOP) || Util.SDK_INT < 21) {
+      // We must include a cancel intent for pre-L devices.
+      mediaStyle.setCancelButtonIntent(
+          actionFactory.createMediaActionPendingIntent(
+              MediaNotification.ActionFactory.COMMAND_STOP));
+    }
+    if (playPauseAdded) {
+      // Show play/pause button only in compact view.
+      mediaStyle.setShowActionsInCompactView(skipToPreviousAdded ? 1 : 0);
+    }
 
     Notification notification =
         builder

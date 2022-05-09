@@ -139,6 +139,8 @@ track 1:
   total output bytes = 10107
   sample count = 45
   format 0:
+    averageBitrate = 1254
+    peakBitrate = 69000
     id = 2
     sampleMimeType = audio/mp4a-latm
     codecs = mp4a.40.2

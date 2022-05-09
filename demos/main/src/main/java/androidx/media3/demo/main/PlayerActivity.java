@@ -17,6 +17,7 @@ package androidx.media3.demo.main;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -27,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -35,7 +37,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -81,7 +83,7 @@ public class PlayerActivity extends AppCompatActivity
   private List<MediaItem> mediaItems;
   private TrackSelectionParameters trackSelectionParameters;
   private DebugTextViewHelper debugViewHelper;
-  private TracksInfo lastSeenTracksInfo;
+  private Tracks lastSeenTracks;
   private boolean startAutoPlay;
   private int startItemIndex;
   private long startPosition;
@@ -142,7 +144,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStart() {
     super.onStart();
-    if (Util.SDK_INT > 23) {
+    if (Build.VERSION.SDK_INT > 23) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -153,7 +155,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
-    if (Util.SDK_INT <= 23 || player == null) {
+    if (Build.VERSION.SDK_INT <= 23 || player == null) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -164,7 +166,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onPause() {
     super.onPause();
-    if (Util.SDK_INT <= 23) {
+    if (Build.VERSION.SDK_INT <= 23) {
       if (playerView != null) {
         playerView.onPause();
       }
@@ -175,7 +177,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStop() {
     super.onStop();
-    if (Util.SDK_INT > 23) {
+    if (Build.VERSION.SDK_INT > 23) {
       if (playerView != null) {
         playerView.onPause();
       }
@@ -274,7 +276,7 @@ public class PlayerActivity extends AppCompatActivity
       RenderersFactory renderersFactory =
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
 
-      lastSeenTracksInfo = TracksInfo.EMPTY;
+      lastSeenTracks = Tracks.EMPTY;
       player =
           new ExoPlayer.Builder(/* context= */ this)
               .setRenderersFactory(renderersFactory)
@@ -342,7 +344,7 @@ public class PlayerActivity extends AppCompatActivity
 
       MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
       if (drmConfiguration != null) {
-        if (Util.SDK_INT < 18) {
+        if (Build.VERSION.SDK_INT < 18) {
           showToast(R.string.error_drm_unsupported_before_api_18);
           finish();
           return Collections.emptyList();
@@ -454,22 +456,20 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       updateButtonVisibility();
-      if (tracksInfo == lastSeenTracksInfo) {
+      if (tracks == lastSeenTracks) {
         return;
       }
-      if (tracksInfo.containsType(C.TRACK_TYPE_VIDEO)
-          && !tracksInfo.isTypeSupported(
-              C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
+      if (tracks.containsType(C.TRACK_TYPE_VIDEO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_video);
       }
-      if (tracksInfo.containsType(C.TRACK_TYPE_AUDIO)
-          && !tracksInfo.isTypeSupported(
-              C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
+      if (tracks.containsType(C.TRACK_TYPE_AUDIO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_audio);
       }
-      lastSeenTracksInfo = tracksInfo;
+      lastSeenTracks = tracks;
     }
   }
 
@@ -508,29 +508,32 @@ public class PlayerActivity extends AppCompatActivity
   private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
     List<MediaItem> mediaItems = new ArrayList<>();
     for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
-      @Nullable
-      DownloadRequest downloadRequest =
-          downloadTracker.getDownloadRequest(item.localConfiguration.uri);
-      if (downloadRequest != null) {
-        MediaItem.Builder builder = item.buildUpon();
-        builder
-            .setMediaId(downloadRequest.id)
-            .setUri(downloadRequest.uri)
-            .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(downloadRequest.mimeType)
-            .setStreamKeys(downloadRequest.streamKeys);
-        @Nullable
-        MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
-        if (drmConfiguration != null) {
-          builder.setDrmConfiguration(
-              drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
-        }
-
-        mediaItems.add(builder.build());
-      } else {
-        mediaItems.add(item);
-      }
+      mediaItems.add(
+          maybeSetDownloadProperties(
+              item, downloadTracker.getDownloadRequest(item.localConfiguration.uri)));
     }
     return mediaItems;
+  }
+
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
+  private static MediaItem maybeSetDownloadProperties(
+      MediaItem item, @Nullable DownloadRequest downloadRequest) {
+    if (downloadRequest == null) {
+      return item;
+    }
+    MediaItem.Builder builder = item.buildUpon();
+    builder
+        .setMediaId(downloadRequest.id)
+        .setUri(downloadRequest.uri)
+        .setCustomCacheKey(downloadRequest.customCacheKey)
+        .setMimeType(downloadRequest.mimeType)
+        .setStreamKeys(downloadRequest.streamKeys);
+    @Nullable
+    MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
+    if (drmConfiguration != null) {
+      builder.setDrmConfiguration(
+          drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
+    }
+    return builder.build();
   }
 }

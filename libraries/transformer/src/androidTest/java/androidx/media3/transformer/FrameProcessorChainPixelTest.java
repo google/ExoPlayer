@@ -16,13 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.transformer.BitmapTestUtil.FIRST_FRAME_PNG_ASSET_STRING;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.transformer.BitmapTestUtil.REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING;
-import static androidx.media3.transformer.BitmapTestUtil.TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
@@ -57,6 +51,18 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainPixelTest {
+  public static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/translate_right.png";
+  public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate_then_translate.png";
+  public static final String TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/translate_then_rotate.png";
+  public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/request_output_height.png";
+  public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate_45_scale_to_fit.png";
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
@@ -85,16 +91,16 @@ public final class FrameProcessorChainPixelTest {
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     String testId = "processData_noEdits";
     setUpAndPrepareFirstFrame();
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(FIRST_FRAME_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -104,20 +110,18 @@ public final class FrameProcessorChainPixelTest {
     String testId = "processData_withAdvancedFrameProcessor_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    GlFrameProcessor glFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+    GlFrameProcessor glFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
     setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -128,23 +132,20 @@ public final class FrameProcessorChainPixelTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor translateRightFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+        new AdvancedFrameProcessor(translateRightMatrix);
     GlFrameProcessor rotate45FrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     setUpAndPrepareFirstFrame(translateRightFrameProcessor, rotate45FrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -153,47 +154,42 @@ public final class FrameProcessorChainPixelTest {
       throws Exception {
     String testId = "processData_withScaleToFitAndAdvancedFrameProcessors";
     GlFrameProcessor rotate45FrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     GlFrameProcessor translateRightFrameProcessor =
-        new AdvancedFrameProcessor(getApplicationContext(), translateRightMatrix);
+        new AdvancedFrameProcessor(translateRightMatrix);
     setUpAndPrepareFirstFrame(rotate45FrameProcessor, translateRightFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
-  public void
-      processData_withPresentationFrameProcessor_requestOutputHeight_producesExpectedOutput()
-          throws Exception {
-    String testId = "processData_withPresentationFrameProcessor_requestOutputHeight";
+  public void processData_withPresentationFrameProcessor_setResolution_producesExpectedOutput()
+      throws Exception {
+    String testId = "processData_withPresentationFrameProcessor_setResolution";
     GlFrameProcessor glFrameProcessor =
-        new PresentationFrameProcessor.Builder(getApplicationContext()).setResolution(480).build();
+        new PresentationFrameProcessor.Builder().setResolution(480).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -202,21 +198,18 @@ public final class FrameProcessorChainPixelTest {
       throws Exception {
     String testId = "processData_withScaleToFitFrameProcessor_rotate45";
     GlFrameProcessor glFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     setUpAndPrepareFirstFrame(glFrameProcessor);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
 
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
-    BitmapTestUtil.saveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap, /* throwOnFailure= */ false);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -246,7 +239,7 @@ public final class FrameProcessorChainPixelTest {
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       frameProcessorChain =
-          new FrameProcessorChain(
+          FrameProcessorChain.create(
               context,
               PIXEL_WIDTH_HEIGHT_RATIO,
               inputWidth,
@@ -260,7 +253,7 @@ public final class FrameProcessorChainPixelTest {
               outputSize.getHeight(),
               PixelFormat.RGBA_8888,
               /* maxImages= */ 1);
-      frameProcessorChain.configure(
+      frameProcessorChain.setOutputSurface(
           outputImageReader.getSurface(),
           outputSize.getWidth(),
           outputSize.getHeight(),

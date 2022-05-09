@@ -46,7 +46,7 @@ import androidx.media3.common.Player.PlaybackSuppressionReason;
 import androidx.media3.common.Player.TimelineChangeReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.UnstableApi;
@@ -238,7 +238,7 @@ public interface AnalyticsListener {
    * {@link Player#getCurrentMediaItem()} changed or the player started repeating the current item.
    */
   int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
-  /** {@link Player#getCurrentTracksInfo()} changed. */
+  /** {@link Player#getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
@@ -706,12 +706,12 @@ public interface AnalyticsListener {
   default void onPlayerErrorChanged(EventTime eventTime, @Nullable PlaybackException error) {}
 
   /**
-   * Called when the available or selected tracks change.
+   * Called when the tracks change.
    *
    * @param eventTime The event time.
-   * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+   * @param tracks The tracks. Never null, but may be of length zero.
    */
-  default void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {}
+  default void onTracksChanged(EventTime eventTime, Tracks tracks) {}
 
   /**
    * Called when track selection parameters change.

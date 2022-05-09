@@ -41,6 +41,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaItem.ClippingConfiguration;
@@ -53,6 +54,7 @@ import androidx.media3.datasource.DataSourceUtil;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.offline.DownloadService;
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -120,6 +122,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   /** Start the download service if it should be running but it's not currently. */
+  @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
   private void startDownloadService() {
     // Starting the service in the foreground causes notification flicker if there is no scheduled
     // action. Starting it in the background throws an exception if the app is in the background too
@@ -274,6 +277,7 @@ public class SampleChooserActivity extends AppCompatActivity
 
     private boolean sawError;
 
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
     @Override
     protected List<PlaylistGroup> doInBackground(String... uris) {
       List<PlaylistGroup> result = new ArrayList<>();
@@ -484,7 +488,7 @@ public class SampleChooserActivity extends AppCompatActivity
 
     private PlaylistGroup getGroup(String groupName, List<PlaylistGroup> groups) {
       for (int i = 0; i < groups.size(); i++) {
-        if (Util.areEqual(groupName, groups.get(i).title)) {
+        if (Objects.equal(groupName, groups.get(i).title)) {
           return groups.get(i);
         }
       }

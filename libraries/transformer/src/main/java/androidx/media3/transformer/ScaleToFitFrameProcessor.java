@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -22,38 +23,34 @@ import static java.lang.Math.min;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
-import androidx.media3.common.C;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Applies a simple rotation and/or scale in the vertex shader. All input frames' pixels will be
- * preserved, potentially changing the width and height of the frame by scaling dimensions to fit.
- * The background color will default to black.
+ * Applies a simple rotation and/or scale in the vertex shader.
+ *
+ * <p>All input frames' pixels will be preserved and copied into an output frame, potentially
+ * changing the width and height of the frame by scaling dimensions to fit.
+ *
+ * <p>The background color of the output frame will be black.
  */
 @UnstableApi
 public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
   /** A builder for {@link ScaleToFitFrameProcessor} instances. */
   public static final class Builder {
-    // Mandatory field.
-    private final Context context;
 
     // Optional fields.
     private float scaleX;
     private float scaleY;
     private float rotationDegrees;
 
-    /**
-     * Creates a builder with default values.
-     *
-     * @param context The {@link Context}.
-     */
-    public Builder(Context context) {
-      this.context = context;
-
+    /** Creates a builder with default values. */
+    public Builder() {
       scaleX = 1;
       scaleY = 1;
       rotationDegrees = 0;
@@ -88,7 +85,7 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     }
 
     public ScaleToFitFrameProcessor build() {
-      return new ScaleToFitFrameProcessor(context, scaleX, scaleY, rotationDegrees);
+      return new ScaleToFitFrameProcessor(scaleX, scaleY, rotationDegrees);
     }
   }
 
@@ -96,42 +93,61 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
     GlUtil.glAssertionsEnabled = true;
   }
 
-  private final Context context;
   private final Matrix transformationMatrix;
 
   private @MonotonicNonNull AdvancedFrameProcessor advancedFrameProcessor;
-  private int inputWidth;
-  private int inputHeight;
+  private @MonotonicNonNull Size outputSize;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
    * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
    * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
    */
-  private ScaleToFitFrameProcessor(
-      Context context, float scaleX, float scaleY, float rotationDegrees) {
-
-    this.context = context;
+  private ScaleToFitFrameProcessor(float scaleX, float scaleY, float rotationDegrees) {
     this.transformationMatrix = new Matrix();
     this.transformationMatrix.postScale(scaleX, scaleY);
     this.transformationMatrix.postRotate(rotationDegrees);
-
-    inputWidth = C.LENGTH_UNSET;
-    inputHeight = C.LENGTH_UNSET;
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
+    configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    advancedFrameProcessor = new AdvancedFrameProcessor(adjustedTransformationMatrix);
+    advancedFrameProcessor.initialize(context, inputTexId, inputWidth, inputHeight);
+  }
+
+  @Override
+  public Size getOutputSize() {
+    return checkStateNotNull(outputSize);
+  }
+
+  @Override
+  public void drawFrame(long presentationTimeUs) {
+    checkStateNotNull(advancedFrameProcessor).drawFrame(presentationTimeUs);
+  }
+
+  @Override
+  public void release() {
+    if (advancedFrameProcessor != null) {
+      advancedFrameProcessor.release();
+    }
+  }
+
+  @EnsuresNonNull("adjustedTransformationMatrix")
+  @VisibleForTesting // Allows robolectric testing of output size calculation without OpenGL.
+  /* package */ void configureOutputSizeAndTransformationMatrix(int inputWidth, int inputHeight) {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
     if (transformationMatrix.isIdentity()) {
-      return new Size(inputWidth, inputHeight);
+      outputSize = new Size(inputWidth, inputHeight);
+      return;
     }
 
     float inputAspectRatio = (float) inputWidth / inputHeight;
@@ -145,45 +161,21 @@ public final class ScaleToFitFrameProcessor implements GlFrameProcessor {
 
     // Modify transformationMatrix to keep input pixels.
     float[][] transformOnNdcPoints = {{-1, -1, 0, 1}, {-1, 1, 0, 1}, {1, -1, 0, 1}, {1, 1, 0, 1}};
-    float xMin = Float.MAX_VALUE;
-    float xMax = Float.MIN_VALUE;
-    float yMin = Float.MAX_VALUE;
-    float yMax = Float.MIN_VALUE;
+    float minX = Float.MAX_VALUE;
+    float maxX = Float.MIN_VALUE;
+    float minY = Float.MAX_VALUE;
+    float maxY = Float.MIN_VALUE;
     for (float[] transformOnNdcPoint : transformOnNdcPoints) {
       adjustedTransformationMatrix.mapPoints(transformOnNdcPoint);
-      xMin = min(xMin, transformOnNdcPoint[0]);
-      xMax = max(xMax, transformOnNdcPoint[0]);
-      yMin = min(yMin, transformOnNdcPoint[1]);
-      yMax = max(yMax, transformOnNdcPoint[1]);
+      minX = min(minX, transformOnNdcPoint[0]);
+      maxX = max(maxX, transformOnNdcPoint[0]);
+      minY = min(minY, transformOnNdcPoint[1]);
+      maxY = max(maxY, transformOnNdcPoint[1]);
     }
 
-    float ndcWidthAndHeight = 2f; // Length from -1 to 1.
-    float xScale = (xMax - xMin) / ndcWidthAndHeight;
-    float yScale = (yMax - yMin) / ndcWidthAndHeight;
-    adjustedTransformationMatrix.postScale(1f / xScale, 1f / yScale);
-
-    int outputWidth = Math.round(inputWidth * xScale);
-    int outputHeight = Math.round(inputHeight * yScale);
-    return new Size(outputWidth, outputHeight);
-  }
-
-  @Override
-  public void initialize(int inputTexId) throws IOException {
-    checkStateNotNull(adjustedTransformationMatrix);
-    advancedFrameProcessor = new AdvancedFrameProcessor(context, adjustedTransformationMatrix);
-    advancedFrameProcessor.configureOutputSize(inputWidth, inputHeight);
-    advancedFrameProcessor.initialize(inputTexId);
-  }
-
-  @Override
-  public void updateProgramAndDraw(long presentationTimeNs) {
-    checkStateNotNull(advancedFrameProcessor).updateProgramAndDraw(presentationTimeNs);
-  }
-
-  @Override
-  public void release() {
-    if (advancedFrameProcessor != null) {
-      advancedFrameProcessor.release();
-    }
+    float scaleX = (maxX - minX) / GlUtil.LENGTH_NDC;
+    float scaleY = (maxY - minY) / GlUtil.LENGTH_NDC;
+    adjustedTransformationMatrix.postScale(1f / scaleX, 1f / scaleY);
+    outputSize = new Size(Math.round(inputWidth * scaleX), Math.round(inputHeight * scaleY));
   }
 }

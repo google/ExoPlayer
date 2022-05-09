@@ -70,7 +70,7 @@ import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
@@ -277,7 +277,7 @@ import java.util.concurrent.TimeoutException;
           new TrackSelectorResult(
               new RendererConfiguration[renderers.length],
               new ExoTrackSelection[renderers.length],
-              TracksInfo.EMPTY,
+              Tracks.EMPTY,
               /* info= */ null);
       period = new Timeline.Period();
       permanentAvailableCommands =
@@ -294,7 +294,7 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_MEDIA_ITEMS_METADATA,
                   COMMAND_SET_MEDIA_ITEMS_METADATA,
                   COMMAND_CHANGE_MEDIA_ITEMS,
-                  COMMAND_GET_TRACK_INFOS,
+                  COMMAND_GET_TRACKS,
                   COMMAND_GET_AUDIO_ATTRIBUTES,
                   COMMAND_GET_VOLUME,
                   COMMAND_GET_DEVICE_VOLUME,
@@ -1147,9 +1147,9 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
+  public Tracks getCurrentTracks() {
     verifyApplicationThread();
-    return playbackInfo.trackSelectorResult.tracksInfo;
+    return playbackInfo.trackSelectorResult.tracks;
   }
 
   @Override
@@ -1898,7 +1898,7 @@ import java.util.concurrent.TimeoutException;
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksInfoChanged(newPlaybackInfo.trackSelectorResult.tracksInfo));
+          listener -> listener.onTracksChanged(newPlaybackInfo.trackSelectorResult.tracks));
     }
     if (metadataChanged) {
       final MediaMetadata finalMediaMetadata = mediaMetadata;

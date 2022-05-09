@@ -57,8 +57,8 @@ import java.util.List;
  * <ul>
  *   <li>They can provide a {@link Timeline} representing the structure of the media being played,
  *       which can be obtained by calling {@link #getCurrentTimeline()}.
- *   <li>They can provide a {@link TracksInfo} defining the currently available tracks and which are
- *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracksInfo()}.
+ *   <li>They can provide a {@link Tracks} defining the currently available tracks and which are
+ *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracks()}.
  * </ul>
  */
 public interface Player {
@@ -381,7 +381,7 @@ public interface Player {
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-        COMMAND_GET_TRACK_INFOS,
+        COMMAND_GET_TRACKS,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -521,6 +521,11 @@ public interface Player {
     /** Returns whether the set of commands contains the specified {@link Command}. */
     public boolean contains(@Command int command) {
       return flags.contains(command);
+    }
+
+    /** Returns whether the set of commands contains at least one of the given {@code commands}. */
+    public boolean containsAny(@Command int... commands) {
+      return flags.containsAny(commands);
     }
 
     /** Returns the number of commands in this set. */
@@ -671,14 +676,14 @@ public interface Player {
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
     /**
-     * Called when the available or selected tracks change.
+     * Called when the tracks change.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+     * @param tracks The available tracks information. Never null, but may be of length zero.
      */
-    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
+    default void onTracksChanged(Tracks tracks) {}
 
     /**
      * Called when the combined {@link MediaMetadata} changes.
@@ -1303,7 +1308,7 @@ public interface Player {
   int EVENT_TIMELINE_CHANGED = 0;
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
-  /** {@link #getCurrentTracksInfo()} changed. */
+  /** {@link #getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 3;
@@ -1382,7 +1387,7 @@ public interface Player {
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
    * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
-   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACK_INFOS}.
+   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACKS}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1420,7 +1425,7 @@ public interface Player {
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-    COMMAND_GET_TRACK_INFOS,
+    COMMAND_GET_TRACKS,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1498,8 +1503,8 @@ public interface Player {
   int COMMAND_GET_TEXT = 28;
   /** Command to set the player's track selection parameters. */
   int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 29;
-  /** Command to get track infos. */
-  int COMMAND_GET_TRACK_INFOS = 30;
+  /** Command to get details of the current track selection. */
+  int COMMAND_GET_TRACKS = 30;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -2088,11 +2093,11 @@ public interface Player {
   void release();
 
   /**
-   * Returns information about the current tracks.
+   * Returns the current tracks.
    *
-   * @see Listener#onTracksInfoChanged(TracksInfo)
+   * @see Listener#onTracksChanged(Tracks)
    */
-  TracksInfo getCurrentTracksInfo();
+  Tracks getCurrentTracks();
 
   /**
    * Returns the parameters constraining the track selection.

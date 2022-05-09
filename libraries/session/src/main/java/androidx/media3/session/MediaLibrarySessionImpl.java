@@ -18,7 +18,10 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.session.LibraryResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
+import static androidx.media3.session.MediaConstants.ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -118,19 +121,17 @@ import java.util.concurrent.Future;
 
   public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRootOnHandler(
       ControllerInfo browser, @Nullable LibraryParams params) {
-    // onGetLibraryRoot is defined to return a non-null result but it's implemented by applications,
-    // so we explicitly null-check the result to fail early if an app accidentally returns null.
-    return checkNotNull(
-        callback.onGetLibraryRoot(instance, browser, params),
-        "onGetLibraryRoot must return non-null future");
-  }
-
-  public ListenableFuture<LibraryResult<MediaItem>> onGetItemOnHandler(
-      ControllerInfo browser, String mediaId) {
-    // onGetItem is defined to return a non-null result but it's implemented by applications,
-    // so we explicitly null-check the result to fail early if an app accidentally returns null.
-    return checkNotNull(
-        callback.onGetItem(instance, browser, mediaId), "onGetItem must return non-null future");
+    ListenableFuture<LibraryResult<MediaItem>> future =
+        callback.onGetLibraryRoot(instance, browser, params);
+    future.addListener(
+        () -> {
+          @Nullable LibraryResult<MediaItem> result = tryGetFutureResult(future);
+          if (result != null) {
+            maybeUpdateLegacyErrorState(result);
+          }
+        },
+        MoreExecutors.directExecutor());
+    return future;
   }
 
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetChildrenOnHandler(
@@ -139,17 +140,29 @@ import java.util.concurrent.Future;
       int page,
       int pageSize,
       @Nullable LibraryParams params) {
-    // onGetChildren is defined to return a non-null result but it's implemented by applications,
-    // so we explicitly null-check the result to fail early if an app accidentally returns null.
     ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-        checkNotNull(
-            callback.onGetChildren(instance, browser, parentId, page, pageSize, params),
-            "onGetChildren must return non-null future");
+        callback.onGetChildren(instance, browser, parentId, page, pageSize, params);
     future.addListener(
         () -> {
           @Nullable LibraryResult<ImmutableList<MediaItem>> result = tryGetFutureResult(future);
           if (result != null) {
+            maybeUpdateLegacyErrorState(result);
             verifyResultItems(result, pageSize);
+          }
+        },
+        MoreExecutors.directExecutor());
+    return future;
+  }
+
+  public ListenableFuture<LibraryResult<MediaItem>> onGetItemOnHandler(
+      ControllerInfo browser, String mediaId) {
+    ListenableFuture<LibraryResult<MediaItem>> future =
+        callback.onGetItem(instance, browser, mediaId);
+    future.addListener(
+        () -> {
+          @Nullable LibraryResult<MediaItem> result = tryGetFutureResult(future);
+          if (result != null) {
+            maybeUpdateLegacyErrorState(result);
           }
         },
         MoreExecutors.directExecutor());
@@ -193,12 +206,8 @@ import java.util.concurrent.Future;
 
   public ListenableFuture<LibraryResult<Void>> onUnsubscribeOnHandler(
       ControllerInfo browser, String parentId) {
-    // onUnsubscribe is defined to return a non-null result but it's implemented by applications,
-    // so we explicitly null-check the result to fail early if an app accidentally returns null.
     ListenableFuture<LibraryResult<Void>> future =
-        checkNotNull(
-            callback.onUnsubscribe(instance, browser, parentId),
-            "onUnsubscribe must return non-null future");
+        callback.onUnsubscribe(instance, browser, parentId);
 
     future.addListener(
         () -> removeSubscription(checkStateNotNull(browser.getControllerCb()), parentId),
@@ -209,11 +218,17 @@ import java.util.concurrent.Future;
 
   public ListenableFuture<LibraryResult<Void>> onSearchOnHandler(
       ControllerInfo browser, String query, @Nullable LibraryParams params) {
-    // onSearch is defined to return a non-null result but it's implemented by applications,
-    // so we explicitly null-check the result to fail early if an app accidentally returns null.
-    return checkNotNull(
-        callback.onSearch(instance, browser, query, params),
-        "onSearch must return non-null future");
+    ListenableFuture<LibraryResult<Void>> future =
+        callback.onSearch(instance, browser, query, params);
+    future.addListener(
+        () -> {
+          @Nullable LibraryResult<Void> result = tryGetFutureResult(future);
+          if (result != null) {
+            maybeUpdateLegacyErrorState(result);
+          }
+        },
+        MoreExecutors.directExecutor());
+    return future;
   }
 
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetSearchResultOnHandler(
@@ -222,17 +237,13 @@ import java.util.concurrent.Future;
       int page,
       int pageSize,
       @Nullable LibraryParams params) {
-    // onGetSearchResult is defined to return a non-null result but it's implemented by
-    // applications, so we explicitly null-check the result to fail early if an app accidentally
-    // returns null.
     ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-        checkNotNull(
-            callback.onGetSearchResult(instance, browser, query, page, pageSize, params),
-            "onGetSearchResult must return non-null future");
+        callback.onGetSearchResult(instance, browser, query, page, pageSize, params);
     future.addListener(
         () -> {
           @Nullable LibraryResult<ImmutableList<MediaItem>> result = tryGetFutureResult(future);
           if (result != null) {
+            maybeUpdateLegacyErrorState(result);
             verifyResultItems(result, pageSize);
           }
         },
@@ -275,6 +286,27 @@ import java.util.concurrent.Future;
       }
     }
     return true;
+  }
+
+  private void maybeUpdateLegacyErrorState(LibraryResult<?> result) {
+    PlayerWrapper playerWrapper = getPlayerWrapper();
+    if (result.resultCode == RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED
+        && result.params != null
+        && result.params.extras.containsKey(EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT)) {
+      // Mapping this error to the legacy error state provides backwards compatibility for the
+      // Automotive OS sign-in.
+      MediaSessionCompat mediaSessionCompat = getSessionCompat();
+      if (playerWrapper.getLegacyStatusCode() != RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED) {
+        playerWrapper.setLegacyErrorStatus(
+            ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT,
+            getContext().getString(R.string.authentication_required),
+            result.params.extras);
+        mediaSessionCompat.setPlaybackState(playerWrapper.createPlaybackStateCompat());
+      }
+    } else if (playerWrapper.getLegacyStatusCode() != RESULT_SUCCESS) {
+      playerWrapper.clearLegacyErrorStatus();
+      getSessionCompat().setPlaybackState(playerWrapper.createPlaybackStateCompat());
+    }
   }
 
   @Nullable

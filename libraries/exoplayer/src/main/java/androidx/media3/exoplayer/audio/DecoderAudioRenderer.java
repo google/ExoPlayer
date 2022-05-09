@@ -130,6 +130,7 @@ public abstract class DecoderAudioRenderer<
   private int encoderPadding;
 
   private boolean experimentalKeepAudioTrackOnSeek;
+  private boolean firstStreamSampleRead;
 
   @Nullable private T decoder;
 
@@ -389,6 +390,9 @@ public abstract class DecoderAudioRenderer<
         decoderCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
         audioSink.handleDiscontinuity();
       }
+      if (outputBuffer.isFirstSample()) {
+        audioSink.handleDiscontinuity();
+      }
     }
 
     if (outputBuffer.isEndOfStream()) {
@@ -469,6 +473,10 @@ public abstract class DecoderAudioRenderer<
           decoder.queueInputBuffer(inputBuffer);
           inputBuffer = null;
           return false;
+        }
+        if (!firstStreamSampleRead) {
+          firstStreamSampleRead = true;
+          inputBuffer.addFlag(C.BUFFER_FLAG_FIRST_SAMPLE);
         }
         inputBuffer.flip();
         inputBuffer.format = inputFormat;
@@ -585,6 +593,13 @@ public abstract class DecoderAudioRenderer<
     } finally {
       eventDispatcher.disabled(decoderCounters);
     }
+  }
+
+  @Override
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
+    super.onStreamChanged(formats, startPositionUs, offsetUs);
+    firstStreamSampleRead = false;
   }
 
   @Override

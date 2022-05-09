@@ -34,7 +34,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector;
@@ -1141,7 +1141,7 @@ public final class MediaPeriodQueueTest {
         new TrackSelectorResult(
             new RendererConfiguration[0],
             new ExoTrackSelection[0],
-            TracksInfo.EMPTY,
+            Tracks.EMPTY,
             /* info= */ null));
   }
 

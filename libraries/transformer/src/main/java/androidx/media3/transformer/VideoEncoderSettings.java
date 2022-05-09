@@ -21,8 +21,10 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
@@ -76,6 +78,8 @@ public final class VideoEncoderSettings {
     private int level;
     private int colorProfile;
     private float iFrameIntervalSeconds;
+    private int operatingRate;
+    private int priority;
 
     /** Creates a new instance. */
     public Builder() {
@@ -85,6 +89,8 @@ public final class VideoEncoderSettings {
       this.level = NO_VALUE;
       this.colorProfile = DEFAULT_COLOR_PROFILE;
       this.iFrameIntervalSeconds = DEFAULT_I_FRAME_INTERVAL_SECONDS;
+      this.operatingRate = NO_VALUE;
+      this.priority = NO_VALUE;
     }
 
     private Builder(VideoEncoderSettings videoEncoderSettings) {
@@ -94,6 +100,8 @@ public final class VideoEncoderSettings {
       this.level = videoEncoderSettings.level;
       this.colorProfile = videoEncoderSettings.colorProfile;
       this.iFrameIntervalSeconds = videoEncoderSettings.iFrameIntervalSeconds;
+      this.operatingRate = videoEncoderSettings.operatingRate;
+      this.priority = videoEncoderSettings.priority;
     }
 
     /**
@@ -172,16 +180,37 @@ public final class VideoEncoderSettings {
       return this;
     }
 
+    /**
+     * Sets encoding operating rate and priority. The default values are {@link #NO_VALUE}.
+     *
+     * @param operatingRate The {@link MediaFormat#KEY_OPERATING_RATE operating rate}.
+     * @param priority The {@link MediaFormat#KEY_PRIORITY priority}.
+     * @return This builder.
+     */
+    @VisibleForTesting
+    public Builder setEncoderPerformanceParameters(int operatingRate, int priority) {
+      this.operatingRate = operatingRate;
+      this.priority = priority;
+      return this;
+    }
+
     /** Builds the instance. */
     public VideoEncoderSettings build() {
       return new VideoEncoderSettings(
-          bitrate, bitrateMode, profile, level, colorProfile, iFrameIntervalSeconds);
+          bitrate,
+          bitrateMode,
+          profile,
+          level,
+          colorProfile,
+          iFrameIntervalSeconds,
+          operatingRate,
+          priority);
     }
   }
 
   /** The encoding bitrate. */
   public final int bitrate;
-  /** One of {@link BitrateMode the allowed modes}. */
+  /** One of {@linkplain BitrateMode the allowed modes}. */
   public final @BitrateMode int bitrateMode;
   /** The encoding profile. */
   public final int profile;
@@ -191,6 +220,10 @@ public final class VideoEncoderSettings {
   public final int colorProfile;
   /** The encoding I-Frame interval in seconds. */
   public final float iFrameIntervalSeconds;
+  /** The encoder {@link MediaFormat#KEY_OPERATING_RATE operating rate}. */
+  public final int operatingRate;
+  /** The encoder {@link MediaFormat#KEY_PRIORITY priority}. */
+  public final int priority;
 
   private VideoEncoderSettings(
       int bitrate,
@@ -198,13 +231,17 @@ public final class VideoEncoderSettings {
       int profile,
       int level,
       int colorProfile,
-      float iFrameIntervalSeconds) {
+      float iFrameIntervalSeconds,
+      int operatingRate,
+      int priority) {
     this.bitrate = bitrate;
     this.bitrateMode = bitrateMode;
     this.profile = profile;
     this.level = level;
     this.colorProfile = colorProfile;
     this.iFrameIntervalSeconds = iFrameIntervalSeconds;
+    this.operatingRate = operatingRate;
+    this.priority = priority;
   }
 
   /**
@@ -228,7 +265,9 @@ public final class VideoEncoderSettings {
         && profile == that.profile
         && level == that.level
         && colorProfile == that.colorProfile
-        && iFrameIntervalSeconds == that.iFrameIntervalSeconds;
+        && iFrameIntervalSeconds == that.iFrameIntervalSeconds
+        && operatingRate == that.operatingRate
+        && priority == that.priority;
   }
 
   @Override
@@ -240,6 +279,8 @@ public final class VideoEncoderSettings {
     result = 31 * result + level;
     result = 31 * result + colorProfile;
     result = 31 * result + Float.floatToIntBits(iFrameIntervalSeconds);
+    result = 31 * result + operatingRate;
+    result = 31 * result + priority;
     return result;
   }
 }

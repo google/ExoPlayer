@@ -20,21 +20,18 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import androidx.annotation.Nullable;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
@@ -51,6 +48,7 @@ public class TransformerAndroidTestRunner {
     private boolean calculateSsim;
     private int timeoutSeconds;
     private boolean suppressAnalysisExceptions;
+    @Nullable private Map<String, Object> inputValues;
 
     /**
      * Creates a {@link Builder}.
@@ -96,8 +94,8 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets whether the runner should suppress any {@link Exception} that occurs as a result of
-     * post-transformation analysis, such as SSIM calculation.
+     * Sets whether to suppress failures that occurs as a result of post-transformation analysis,
+     * such as SSIM calculation.
      *
      * <p>Regardless of this value, analysis exceptions are attached to the analysis file.
      *
@@ -114,10 +112,30 @@ public class TransformerAndroidTestRunner {
       return this;
     }
 
+    /**
+     * Sets a {@link Map} of transformer input values, which are propagated to the transformation
+     * summary JSON file.
+     *
+     * <p>Values in the map should be convertible according to {@link JSONObject#wrap(Object)} to be
+     * recorded properly in the summary file.
+     *
+     * @param inputValues A {@link Map} of values to be written to the transformation summary.
+     * @return This {@link Builder}.
+     */
+    public Builder setInputValues(@Nullable Map<String, Object> inputValues) {
+      this.inputValues = inputValues;
+      return this;
+    }
+
     /** Builds the {@link TransformerAndroidTestRunner}. */
     public TransformerAndroidTestRunner build() {
       return new TransformerAndroidTestRunner(
-          context, transformer, timeoutSeconds, calculateSsim, suppressAnalysisExceptions);
+          context,
+          transformer,
+          timeoutSeconds,
+          calculateSsim,
+          suppressAnalysisExceptions,
+          inputValues);
     }
   }
 
@@ -126,43 +144,49 @@ public class TransformerAndroidTestRunner {
   private final int timeoutSeconds;
   private final boolean calculateSsim;
   private final boolean suppressAnalysisExceptions;
+  @Nullable private final Map<String, Object> inputValues;
 
   private TransformerAndroidTestRunner(
       Context context,
       Transformer transformer,
       int timeoutSeconds,
       boolean calculateSsim,
-      boolean suppressAnalysisExceptions) {
+      boolean suppressAnalysisExceptions,
+      @Nullable Map<String, Object> inputValues) {
     this.context = context;
     this.transformer = transformer;
     this.timeoutSeconds = timeoutSeconds;
     this.calculateSsim = calculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
+    this.inputValues = inputValues;
   }
 
   /**
    * Transforms the {@code uriString}, saving a summary of the transformation to the application
    * cache.
    *
-   * @param testId An identifier for the test.
+   * @param testId A unique identifier for the transformer test run.
    * @param uriString The uri (as a {@link String}) of the file to transform.
    * @return The {@link TransformationTestResult}.
    * @throws Exception The cause of the transformation not completing.
    */
   public TransformationTestResult run(String testId, String uriString) throws Exception {
     JSONObject resultJson = new JSONObject();
+    if (inputValues != null) {
+      resultJson.put("inputValues", JSONObject.wrap(inputValues));
+    }
     try {
       TransformationTestResult transformationTestResult = runInternal(testId, uriString);
-      resultJson.put("transformationResult", getTestResultJson(transformationTestResult));
+      resultJson.put("transformationResult", transformationTestResult.asJsonObject());
       if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
         throw transformationTestResult.analysisException;
       }
       return transformationTestResult;
     } catch (Exception e) {
-      resultJson.put("exception", getExceptionJson(e));
+      resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
       throw e;
     } finally {
-      writeTestSummaryToFile(context, testId, resultJson);
+      AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
 
@@ -270,75 +294,17 @@ public class TransformerAndroidTestRunner {
       // calculation, so it should be thrown, rather than processed as part of the
       // TransformationTestResult.
       throw interruptedException;
-    } catch (Exception analysisException) {
-      // Catch all (checked and unchecked) exceptions throw by the SsimHelper and process them as
+    } catch (Throwable analysisFailure) {
+      // Catch all (checked and unchecked) failures throw by the SsimHelper and process them as
       // part of the TransformationTestResult.
+      Exception analysisException =
+          analysisFailure instanceof Exception
+              ? (Exception) analysisFailure
+              : new IllegalStateException(analysisFailure);
+
       resultBuilder.setAnalysisException(analysisException);
       Log.e(TAG_PREFIX + testId, "SSIM calculation failed.", analysisException);
     }
-
     return resultBuilder.build();
-  }
-
-  private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
-      throws IOException, JSONException {
-    resultJson.put("testId", testId).put("device", getDeviceJson());
-
-    String analysisContents = resultJson.toString(/* indentSpaces= */ 2);
-
-    // Log contents as well as writing to file, for easier visibility on individual device testing.
-    Log.i(TAG_PREFIX + testId, analysisContents);
-
-    File analysisFile =
-        AndroidTestUtil.createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
-    try (FileWriter fileWriter = new FileWriter(analysisFile)) {
-      fileWriter.write(analysisContents);
-    }
-  }
-
-  private static JSONObject getDeviceJson() throws JSONException {
-    return new JSONObject()
-        .put("manufacturer", Build.MANUFACTURER)
-        .put("model", Build.MODEL)
-        .put("sdkVersion", Build.VERSION.SDK_INT)
-        .put("fingerprint", Build.FINGERPRINT);
-  }
-
-  private static JSONObject getTestResultJson(TransformationTestResult testResult)
-      throws JSONException {
-    TransformationResult transformationResult = testResult.transformationResult;
-
-    JSONObject transformationResultJson = new JSONObject();
-    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
-      transformationResultJson.put("fileSizeBytes", transformationResult.fileSizeBytes);
-    }
-    if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
-      transformationResultJson.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
-    }
-    if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
-      transformationResultJson.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
-    }
-    if (testResult.elapsedTimeMs != C.TIME_UNSET) {
-      transformationResultJson.put("elapsedTimeMs", testResult.elapsedTimeMs);
-    }
-    if (testResult.ssim != TransformationTestResult.SSIM_UNSET) {
-      transformationResultJson.put("ssim", testResult.ssim);
-    }
-    if (testResult.analysisException != null) {
-      transformationResultJson.put(
-          "analysisException", getExceptionJson(testResult.analysisException));
-    }
-    return transformationResultJson;
-  }
-
-  private static JSONObject getExceptionJson(Exception exception) throws JSONException {
-    JSONObject exceptionJson = new JSONObject();
-    exceptionJson.put("message", exception.getMessage());
-    exceptionJson.put("type", exception.getClass());
-    if (exception instanceof TransformationException) {
-      exceptionJson.put("errorCode", ((TransformationException) exception).errorCode);
-    }
-    exceptionJson.put("stackTrace", Log.getThrowableString(exception));
-    return exceptionJson;
   }
 }

@@ -40,6 +40,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EncoderSelector;
+import androidx.media3.transformer.GlFrameProcessor;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
@@ -50,6 +51,7 @@ import androidx.media3.ui.PlayerView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -225,6 +227,8 @@ public final class TransformerActivity extends AppCompatActivity {
           bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
       requestBuilder.setRotationDegrees(rotateDegrees);
 
+      requestBuilder.setEnableRequestSdrToneMapping(
+          bundle.getBoolean(ConfigurationActivity.ENABLE_REQUEST_SDR_TONE_MAPPING));
       requestBuilder.experimental_setEnableHdrEditing(
           bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder
@@ -235,6 +239,37 @@ public final class TransformerActivity extends AppCompatActivity {
               new DefaultEncoderFactory(
                   EncoderSelector.DEFAULT,
                   /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
+
+      ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
+      @Nullable
+      boolean[] selectedFrameProcessors =
+          bundle.getBooleanArray(ConfigurationActivity.DEMO_FRAME_PROCESSORS_SELECTIONS);
+      if (selectedFrameProcessors != null) {
+        if (selectedFrameProcessors[0]) {
+          frameProcessors.add(AdvancedFrameProcessorFactory.createDizzyCropFrameProcessor());
+        }
+        if (selectedFrameProcessors[1]) {
+          frameProcessors.add(
+              new PeriodicVignetteFrameProcessor(
+                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                  /* minInnerRadius= */ bundle.getFloat(
+                      ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                  /* maxInnerRadius= */ bundle.getFloat(
+                      ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
+        }
+        if (selectedFrameProcessors[2]) {
+          frameProcessors.add(AdvancedFrameProcessorFactory.createSpin3dFrameProcessor());
+        }
+        if (selectedFrameProcessors[3]) {
+          frameProcessors.add(new BitmapOverlayFrameProcessor());
+        }
+        if (selectedFrameProcessors[4]) {
+          frameProcessors.add(AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor());
+        }
+        transformerBuilder.setFrameProcessors(frameProcessors.build());
+      }
     }
     return transformerBuilder
         .addListener(

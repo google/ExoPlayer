@@ -96,6 +96,7 @@ public class TrackSelectionParameters implements Bundleable {
     // Text
     private ImmutableList<String> preferredTextLanguages;
     private @C.RoleFlags int preferredTextRoleFlags;
+    private @C.SelectionFlags int ignoredTextSelectionFlags;
     private boolean selectUndeterminedTextLanguage;
     // General
     private boolean forceLowestBitrate;
@@ -129,6 +130,7 @@ public class TrackSelectionParameters implements Bundleable {
       // Text
       preferredTextLanguages = ImmutableList.of();
       preferredTextRoleFlags = 0;
+      ignoredTextSelectionFlags = 0;
       selectUndeterminedTextLanguage = false;
       // General
       forceLowestBitrate = false;
@@ -229,6 +231,10 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getInt(
               keyForField(FIELD_PREFERRED_TEXT_ROLE_FLAGS),
               DEFAULT_WITHOUT_CONTEXT.preferredTextRoleFlags);
+      ignoredTextSelectionFlags =
+          bundle.getInt(
+              keyForField(FIELD_IGNORED_TEXT_SELECTION_FLAGS),
+              DEFAULT_WITHOUT_CONTEXT.ignoredTextSelectionFlags);
       selectUndeterminedTextLanguage =
           bundle.getBoolean(
               keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE),
@@ -249,7 +255,7 @@ public class TrackSelectionParameters implements Bundleable {
       overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);
-        overrides.put(override.trackGroup, override);
+        overrides.put(override.mediaTrackGroup, override);
       }
       int[] disabledTrackTypeArray =
           firstNonNull(bundle.getIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE)), new int[0]);
@@ -292,6 +298,7 @@ public class TrackSelectionParameters implements Bundleable {
       // Text
       preferredTextLanguages = parameters.preferredTextLanguages;
       preferredTextRoleFlags = parameters.preferredTextRoleFlags;
+      ignoredTextSelectionFlags = parameters.ignoredTextSelectionFlags;
       selectUndeterminedTextLanguage = parameters.selectUndeterminedTextLanguage;
       // General
       forceLowestBitrate = parameters.forceLowestBitrate;
@@ -616,6 +623,18 @@ public class TrackSelectionParameters implements Bundleable {
     }
 
     /**
+     * Sets a bitmask of selection flags that are ignored for text track selections.
+     *
+     * @param ignoredTextSelectionFlags A bitmask of {@link C.SelectionFlags} that are ignored for
+     *     text track selections.
+     * @return This builder.
+     */
+    public Builder setIgnoredTextSelectionFlags(@C.SelectionFlags int ignoredTextSelectionFlags) {
+      this.ignoredTextSelectionFlags = ignoredTextSelectionFlags;
+      return this;
+    }
+
+    /**
      * Sets whether a text track with undetermined language should be selected if no track with
      * {@link #setPreferredTextLanguages(String...) a preferred language} is available, or if the
      * preferred language is unset.
@@ -659,20 +678,20 @@ public class TrackSelectionParameters implements Bundleable {
 
     /** Adds an override, replacing any override for the same {@link TrackGroup}. */
     public Builder addOverride(TrackSelectionOverride override) {
-      overrides.put(override.trackGroup, override);
+      overrides.put(override.mediaTrackGroup, override);
       return this;
     }
 
     /** Sets an override, replacing all existing overrides with the same track type. */
     public Builder setOverrideForType(TrackSelectionOverride override) {
-      clearOverridesOfType(override.getTrackType());
-      overrides.put(override.trackGroup, override);
+      clearOverridesOfType(override.getType());
+      overrides.put(override.mediaTrackGroup, override);
       return this;
     }
 
-    /** Removes the override for the provided {@link TrackGroup}, if there is one. */
-    public Builder clearOverride(TrackGroup trackGroup) {
-      overrides.remove(trackGroup);
+    /** Removes the override for the provided media {@link TrackGroup}, if there is one. */
+    public Builder clearOverride(TrackGroup mediaTrackGroup) {
+      overrides.remove(mediaTrackGroup);
       return this;
     }
 
@@ -681,7 +700,7 @@ public class TrackSelectionParameters implements Bundleable {
       Iterator<TrackSelectionOverride> it = overrides.values().iterator();
       while (it.hasNext()) {
         TrackSelectionOverride override = it.next();
-        if (override.getTrackType() == trackType) {
+        if (override.getType() == trackType) {
           it.remove();
         }
       }
@@ -901,6 +920,11 @@ public class TrackSelectionParameters implements Bundleable {
    */
   public final @C.RoleFlags int preferredTextRoleFlags;
   /**
+   * Bitmask of selection flags that are ignored for text track selections. See {@link
+   * C.SelectionFlags}. The default value is {@code 0} (i.e., no flags are ignored).
+   */
+  public final @C.SelectionFlags int ignoredTextSelectionFlags;
+  /**
    * Whether a text track with undetermined language should be selected if no track with {@link
    * #preferredTextLanguages} is available, or if {@link #preferredTextLanguages} is unset. The
    * default value is {@code false}.
@@ -953,6 +977,7 @@ public class TrackSelectionParameters implements Bundleable {
     // Text
     this.preferredTextLanguages = builder.preferredTextLanguages;
     this.preferredTextRoleFlags = builder.preferredTextRoleFlags;
+    this.ignoredTextSelectionFlags = builder.ignoredTextSelectionFlags;
     this.selectUndeterminedTextLanguage = builder.selectUndeterminedTextLanguage;
     // General
     this.forceLowestBitrate = builder.forceLowestBitrate;
@@ -996,8 +1021,10 @@ public class TrackSelectionParameters implements Bundleable {
         && maxAudioChannelCount == other.maxAudioChannelCount
         && maxAudioBitrate == other.maxAudioBitrate
         && preferredAudioMimeTypes.equals(other.preferredAudioMimeTypes)
+        // Text
         && preferredTextLanguages.equals(other.preferredTextLanguages)
         && preferredTextRoleFlags == other.preferredTextRoleFlags
+        && ignoredTextSelectionFlags == other.ignoredTextSelectionFlags
         && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
         // General
         && forceLowestBitrate == other.forceLowestBitrate
@@ -1032,6 +1059,7 @@ public class TrackSelectionParameters implements Bundleable {
     // Text
     result = 31 * result + preferredTextLanguages.hashCode();
     result = 31 * result + preferredTextRoleFlags;
+    result = 31 * result + ignoredTextSelectionFlags;
     result = 31 * result + (selectUndeterminedTextLanguage ? 1 : 0);
     // General
     result = 31 * result + (forceLowestBitrate ? 1 : 0);
@@ -1046,11 +1074,7 @@ public class TrackSelectionParameters implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    FIELD_PREFERRED_AUDIO_LANGUAGES,
-    FIELD_PREFERRED_AUDIO_ROLE_FLAGS,
-    FIELD_PREFERRED_TEXT_LANGUAGES,
-    FIELD_PREFERRED_TEXT_ROLE_FLAGS,
-    FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
+    // Video
     FIELD_MAX_VIDEO_WIDTH,
     FIELD_MAX_VIDEO_HEIGHT,
     FIELD_MAX_VIDEO_FRAMERATE,
@@ -1063,14 +1087,23 @@ public class TrackSelectionParameters implements Bundleable {
     FIELD_VIEWPORT_HEIGHT,
     FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE,
     FIELD_PREFERRED_VIDEO_MIMETYPES,
+    FIELD_PREFERRED_VIDEO_ROLE_FLAGS,
+    // Audio
+    FIELD_PREFERRED_AUDIO_LANGUAGES,
+    FIELD_PREFERRED_AUDIO_ROLE_FLAGS,
     FIELD_MAX_AUDIO_CHANNEL_COUNT,
     FIELD_MAX_AUDIO_BITRATE,
     FIELD_PREFERRED_AUDIO_MIME_TYPES,
+    // Text
+    FIELD_PREFERRED_TEXT_LANGUAGES,
+    FIELD_PREFERRED_TEXT_ROLE_FLAGS,
+    FIELD_IGNORED_TEXT_SELECTION_FLAGS,
+    FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
+    // General
     FIELD_FORCE_LOWEST_BITRATE,
     FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
     FIELD_SELECTION_OVERRIDES,
     FIELD_DISABLED_TRACK_TYPE,
-    FIELD_PREFERRED_VIDEO_ROLE_FLAGS
   })
   private @interface FieldNumber {}
 
@@ -1099,6 +1132,7 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_SELECTION_OVERRIDES = 23;
   private static final int FIELD_DISABLED_TRACK_TYPE = 24;
   private static final int FIELD_PREFERRED_VIDEO_ROLE_FLAGS = 25;
+  private static final int FIELD_IGNORED_TEXT_SELECTION_FLAGS = 26;
 
   @UnstableApi
   @Override
@@ -1136,6 +1170,7 @@ public class TrackSelectionParameters implements Bundleable {
     bundle.putStringArray(
         keyForField(FIELD_PREFERRED_TEXT_LANGUAGES), preferredTextLanguages.toArray(new String[0]));
     bundle.putInt(keyForField(FIELD_PREFERRED_TEXT_ROLE_FLAGS), preferredTextRoleFlags);
+    bundle.putInt(keyForField(FIELD_IGNORED_TEXT_SELECTION_FLAGS), ignoredTextSelectionFlags);
     bundle.putBoolean(
         keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE), selectUndeterminedTextLanguage);
     // General

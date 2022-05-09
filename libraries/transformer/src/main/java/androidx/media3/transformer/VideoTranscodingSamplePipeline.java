@@ -22,6 +22,7 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.util.Size;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -70,30 +71,36 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    // TODO(b/213190310): Don't create a ScaleToFitFrameProcessor if scale and rotation are unset.
-    ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(context)
-            .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
-            .setRotationDegrees(transformationRequest.rotationDegrees)
-            .build();
-    PresentationFrameProcessor presentationFrameProcessor =
-        new PresentationFrameProcessor.Builder(context)
-            .setResolution(transformationRequest.outputHeight)
-            .build();
+    ImmutableList.Builder<GlFrameProcessor> frameProcessorsListBuilder =
+        new ImmutableList.Builder<GlFrameProcessor>().addAll(frameProcessors);
+    if (transformationRequest.scaleX != 1f
+        || transformationRequest.scaleY != 1f
+        || transformationRequest.rotationDegrees != 0f) {
+      frameProcessorsListBuilder.add(
+          new ScaleToFitFrameProcessor.Builder()
+              .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
+              .setRotationDegrees(transformationRequest.rotationDegrees)
+              .build());
+    }
+    if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
+      frameProcessorsListBuilder.add(
+          new PresentationFrameProcessor.Builder()
+              .setResolution(transformationRequest.outputHeight)
+              .build());
+    }
+    EncoderCompatibilityFrameProcessor encoderCompatibilityFrameProcessor =
+        new EncoderCompatibilityFrameProcessor();
+    frameProcessorsListBuilder.add(encoderCompatibilityFrameProcessor);
     frameProcessorChain =
-        new FrameProcessorChain(
+        FrameProcessorChain.create(
             context,
             inputFormat.pixelWidthHeightRatio,
             /* inputWidth= */ decodedWidth,
             /* inputHeight= */ decodedHeight,
-            new ImmutableList.Builder<GlFrameProcessor>()
-                .addAll(frameProcessors)
-                .add(scaleToFitFrameProcessor)
-                .add(presentationFrameProcessor)
-                .build(),
+            frameProcessorsListBuilder.build(),
             transformationRequest.enableHdrEditing);
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
-    outputRotationDegrees = presentationFrameProcessor.getOutputRotationDegrees();
+    outputRotationDegrees = encoderCompatibilityFrameProcessor.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
@@ -116,7 +123,7 @@ import org.checkerframework.dataflow.qual.Pure;
             requestedEncoderFormat,
             encoderSupportedFormat));
 
-    frameProcessorChain.configure(
+    frameProcessorChain.setOutputSurface(
         /* outputSurface= */ encoder.getInputSurface(),
         /* outputWidth= */ encoderSupportedFormat.width,
         /* outputHeight= */ encoderSupportedFormat.height,
@@ -124,7 +131,10 @@ import org.checkerframework.dataflow.qual.Pure;
             encoderSupportedFormat.width, encoderSupportedFormat.height));
 
     decoder =
-        decoderFactory.createForVideoDecoding(inputFormat, frameProcessorChain.getInputSurface());
+        decoderFactory.createForVideoDecoding(
+            inputFormat,
+            frameProcessorChain.getInputSurface(),
+            transformationRequest.enableRequestSdrToneMapping);
     maxPendingFrameCount = getMaxPendingFrameCount();
   }
 
@@ -268,7 +278,7 @@ import org.checkerframework.dataflow.qual.Pure;
       // TODO(b/226330223): Investigate increasing this limit.
       return 1;
     }
-    if (Util.SDK_INT < 31
+    if (Util.SDK_INT < 33
         && ("OnePlus".equals(Util.MANUFACTURER) || "samsung".equals(Util.MANUFACTURER))) {
       // Some OMX decoders don't correctly track their number of output buffers available, and get
       // stuck if too many frames are rendered without being processed, so we limit the number of

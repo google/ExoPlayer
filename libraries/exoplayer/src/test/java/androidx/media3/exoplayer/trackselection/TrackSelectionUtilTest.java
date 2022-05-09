@@ -32,8 +32,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.Format;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TracksInfo;
-import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -73,32 +72,32 @@ public class TrackSelectionUtilTest {
           new FixedTrackSelection(mappedTrackInfo.getTrackGroups(1).get(0), 1)
         };
 
-    TracksInfo tracksInfo = TrackSelectionUtil.buildTracksInfo(mappedTrackInfo, selections);
+    Tracks tracks = TrackSelectionUtil.buildTracks(mappedTrackInfo, selections);
 
-    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    assertThat(trackGroupInfos).hasSize(4);
-    assertThat(trackGroupInfos.get(0).getTrackGroup())
+    ImmutableList<Tracks.Group> trackGroups = tracks.getGroups();
+    assertThat(trackGroups).hasSize(4);
+    assertThat(trackGroups.get(0).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(0));
-    assertThat(trackGroupInfos.get(1).getTrackGroup())
+    assertThat(trackGroups.get(1).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(1));
-    assertThat(trackGroupInfos.get(2).getTrackGroup())
+    assertThat(trackGroups.get(2).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(1).get(0));
-    assertThat(trackGroupInfos.get(3).getTrackGroup())
+    assertThat(trackGroups.get(3).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getUnmappedTrackGroups().get(0));
-    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
-    assertThat(trackGroupInfos.get(1).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_SUBTYPE);
-    assertThat(trackGroupInfos.get(2).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_DRM);
-    assertThat(trackGroupInfos.get(2).getTrackSupport(1)).isEqualTo(FORMAT_EXCEEDS_CAPABILITIES);
-    assertThat(trackGroupInfos.get(3).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_TYPE);
-    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(1).isTrackSelected(0)).isTrue();
-    assertThat(trackGroupInfos.get(2).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(2).isTrackSelected(1)).isTrue();
-    assertThat(trackGroupInfos.get(3).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(0).getTrackType()).isEqualTo(TRACK_TYPE_AUDIO);
-    assertThat(trackGroupInfos.get(1).getTrackType()).isEqualTo(TRACK_TYPE_AUDIO);
-    assertThat(trackGroupInfos.get(2).getTrackType()).isEqualTo(TRACK_TYPE_VIDEO);
-    assertThat(trackGroupInfos.get(3).getTrackType()).isEqualTo(TRACK_TYPE_UNKNOWN);
+    assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
+    assertThat(trackGroups.get(1).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_SUBTYPE);
+    assertThat(trackGroups.get(2).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_DRM);
+    assertThat(trackGroups.get(2).getTrackSupport(1)).isEqualTo(FORMAT_EXCEEDS_CAPABILITIES);
+    assertThat(trackGroups.get(3).getTrackSupport(0)).isEqualTo(FORMAT_UNSUPPORTED_TYPE);
+    assertThat(trackGroups.get(0).isTrackSelected(0)).isFalse();
+    assertThat(trackGroups.get(1).isTrackSelected(0)).isTrue();
+    assertThat(trackGroups.get(2).isTrackSelected(0)).isFalse();
+    assertThat(trackGroups.get(2).isTrackSelected(1)).isTrue();
+    assertThat(trackGroups.get(3).isTrackSelected(0)).isFalse();
+    assertThat(trackGroups.get(0).getType()).isEqualTo(TRACK_TYPE_AUDIO);
+    assertThat(trackGroups.get(1).getType()).isEqualTo(TRACK_TYPE_AUDIO);
+    assertThat(trackGroups.get(2).getType()).isEqualTo(TRACK_TYPE_VIDEO);
+    assertThat(trackGroups.get(3).getType()).isEqualTo(TRACK_TYPE_UNKNOWN);
   }
 
   @Test
@@ -132,21 +131,21 @@ public class TrackSelectionUtilTest {
           ImmutableList.of()
         };
 
-    TracksInfo tracksInfo = TrackSelectionUtil.buildTracksInfo(mappedTrackInfo, selections);
+    Tracks tracks = TrackSelectionUtil.buildTracks(mappedTrackInfo, selections);
 
-    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    assertThat(trackGroupInfos).hasSize(2);
-    assertThat(trackGroupInfos.get(0).getTrackGroup())
+    ImmutableList<Tracks.Group> trackGroups = tracks.getGroups();
+    assertThat(trackGroups).hasSize(2);
+    assertThat(trackGroups.get(0).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(0));
-    assertThat(trackGroupInfos.get(1).getTrackGroup())
+    assertThat(trackGroups.get(1).getMediaTrackGroup())
         .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(1));
-    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
-    assertThat(trackGroupInfos.get(1).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
-    assertThat(trackGroupInfos.get(1).getTrackSupport(1)).isEqualTo(FORMAT_HANDLED);
-    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isTrue();
-    assertThat(trackGroupInfos.get(1).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(1).isTrackSelected(1)).isTrue();
-    assertThat(trackGroupInfos.get(0).getTrackType()).isEqualTo(TRACK_TYPE_AUDIO);
-    assertThat(trackGroupInfos.get(1).getTrackType()).isEqualTo(TRACK_TYPE_AUDIO);
+    assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
+    assertThat(trackGroups.get(1).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
+    assertThat(trackGroups.get(1).getTrackSupport(1)).isEqualTo(FORMAT_HANDLED);
+    assertThat(trackGroups.get(0).isTrackSelected(0)).isTrue();
+    assertThat(trackGroups.get(1).isTrackSelected(0)).isFalse();
+    assertThat(trackGroups.get(1).isTrackSelected(1)).isTrue();
+    assertThat(trackGroups.get(0).getType()).isEqualTo(TRACK_TYPE_AUDIO);
+    assertThat(trackGroups.get(1).getType()).isEqualTo(TRACK_TYPE_AUDIO);
   }
 }

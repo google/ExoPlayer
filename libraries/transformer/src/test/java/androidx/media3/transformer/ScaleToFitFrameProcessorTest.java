@@ -15,9 +15,7 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,100 +32,87 @@ import org.junit.runner.RunWith;
 public final class ScaleToFitFrameProcessorTest {
 
   @Test
-  public void configureOutputSize_noEdits_leavesFramesUnchanged() {
+  public void getOutputSize_noEdits_leavesFramesUnchanged() {
     int inputWidth = 200;
     int inputHeight = 150;
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext()).build();
+        new ScaleToFitFrameProcessor.Builder().build();
 
-    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    scaleToFitFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
-  public void initializeBeforeConfigure_throwsIllegalStateException() {
-    ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext()).build();
-
-    // configureOutputSize not called before initialize.
-    assertThrows(
-        IllegalStateException.class,
-        () -> scaleToFitFrameProcessor.initialize(/* inputTexId= */ 0));
-  }
-
-  @Test
-  public void configureOutputSize_scaleNarrow_decreasesWidth() {
+  public void getOutputSize_scaleNarrow_decreasesWidth() {
     int inputWidth = 200;
     int inputHeight = 150;
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
+        new ScaleToFitFrameProcessor.Builder()
             .setScale(/* scaleX= */ .5f, /* scaleY= */ 1f)
             .build();
 
-    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    scaleToFitFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(inputWidth * .5f));
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
-  public void configureOutputSize_scaleWide_increasesWidth() {
+  public void getOutputSize_scaleWide_increasesWidth() {
     int inputWidth = 200;
     int inputHeight = 150;
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setScale(/* scaleX= */ 2f, /* scaleY= */ 1f)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setScale(/* scaleX= */ 2f, /* scaleY= */ 1f).build();
 
-    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    scaleToFitFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth * 2);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
-  public void configureOutputDimensions_scaleTall_increasesHeight() {
+  public void getOutputSize_scaleTall_increasesHeight() {
     int inputWidth = 200;
     int inputHeight = 150;
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setScale(/* scaleX= */ 1f, /* scaleY= */ 2f)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setScale(/* scaleX= */ 1f, /* scaleY= */ 2f).build();
 
-    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    scaleToFitFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
     assertThat(outputSize.getHeight()).isEqualTo(inputHeight * 2);
   }
 
   @Test
-  public void configureOutputSize_rotate90_swapsDimensions() {
+  public void getOutputSize_rotate90_swapsDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(90)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(90).build();
 
-    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    scaleToFitFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(inputHeight);
     assertThat(outputSize.getHeight()).isEqualTo(inputWidth);
   }
 
   @Test
-  public void configureOutputSize_rotate45_changesDimensions() {
+  public void getOutputSize_rotate45_changesDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
     ScaleToFitFrameProcessor scaleToFitFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder(getApplicationContext())
-            .setRotationDegrees(45)
-            .build();
+        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
     long expectedOutputWidthHeight = 247;
 
-    Size outputSize = scaleToFitFrameProcessor.configureOutputSize(inputWidth, inputHeight);
+    scaleToFitFrameProcessor.configureOutputSizeAndTransformationMatrix(inputWidth, inputHeight);
+    Size outputSize = scaleToFitFrameProcessor.getOutputSize();
 
     assertThat(outputSize.getWidth()).isEqualTo(expectedOutputWidthHeight);
     assertThat(outputSize.getHeight()).isEqualTo(expectedOutputWidthHeight);

@@ -39,7 +39,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Clock;
@@ -483,12 +483,12 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
   }
 
   @Override
-  public void onTracksInfoChanged(TracksInfo tracksInfo) {
+  public void onTracksChanged(Tracks tracks) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksInfoChanged(eventTime, tracksInfo));
+        listener -> listener.onTracksChanged(eventTime, tracks));
   }
 
   @SuppressWarnings("deprecation") // Implementing deprecated method.

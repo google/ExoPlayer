@@ -15,10 +15,10 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.util.Size;
 import androidx.media3.common.util.GlProgram;
@@ -28,16 +28,44 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Applies a transformation matrix in the vertex shader. Operations are done on normalized device
- * coordinates (-1 to 1 on x and y axes). No automatic adjustments (like done in {@link
- * ScaleToFitFrameProcessor}) are applied on the transformation. Width and height are not modified.
- * The background color will default to black.
+ * Applies a transformation matrix in the vertex shader, and copies input pixels into an output
+ * frame based on their locations after applying this matrix.
+ *
+ * <p>Operations are done on normalized device coordinates (-1 to 1 on x and y axes). No automatic
+ * adjustments (like done in {@link ScaleToFitFrameProcessor}) are applied on the transformation.
+ * Width and height are not modified.
+ *
+ * <p>The background color of the output frame will be black.
  */
 @UnstableApi
+@SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 public final class AdvancedFrameProcessor implements GlFrameProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
+  }
+
+  /** Updates the transformation {@link android.opengl.Matrix} for each frame. */
+  public interface GlMatrixProvider {
+    /**
+     * Updates the transformation {@link android.opengl.Matrix} to apply to the frame with the given
+     * timestamp in place.
+     */
+    float[] getGlMatrixArray(long presentationTimeUs);
+  }
+
+  /** Provides a {@link android.graphics.Matrix} for each frame. */
+  public interface MatrixProvider extends GlMatrixProvider {
+    /**
+     * Returns the transformation {@link android.graphics.Matrix} to apply to the frame with the
+     * given timestamp.
+     */
+    android.graphics.Matrix getMatrix(long presentationTimeUs);
+
+    @Override
+    default float[] getGlMatrixArray(long presentationTimeUs) {
+      return AdvancedFrameProcessor.getGlMatrixArray(getMatrix(presentationTimeUs));
+    }
   }
 
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
@@ -45,11 +73,12 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
 
   /**
-   * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}.
+   * Returns a 4x4, column-major {@link android.opengl.Matrix} float array, from an input {@link
+   * android.graphics.Matrix}.
    *
    * <p>This is useful for converting to the 4x4 column-major format commonly used in OpenGL.
    */
-  private static float[] getGlMatrixArray(Matrix matrix) {
+  private static float[] getGlMatrixArray(android.graphics.Matrix matrix) {
     float[] matrix3x3Array = new float[9];
     matrix.getValues(matrix3x3Array);
     float[] matrix4x4Array = getMatrix4x4Array(matrix3x3Array);
@@ -85,31 +114,62 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
     return matrix4x4Array;
   }
 
-  private final Context context;
-  private final Matrix transformationMatrix;
+  private final GlMatrixProvider matrixProvider;
 
+  private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
 
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
-   * @param transformationMatrix The transformation matrix to apply to each frame. Operations are
-   *     done on normalized device coordinates (-1 to 1 on x and y), and no automatic adjustments
-   *     are applied on the transformation matrix.
+   * @param transformationMatrix The transformation {@link android.graphics.Matrix} to apply to each
+   *     frame. Operations are done on normalized device coordinates (-1 to 1 on x and y), and no
+   *     automatic adjustments are applied on the transformation matrix.
    */
-  public AdvancedFrameProcessor(Context context, Matrix transformationMatrix) {
-    this.context = context;
-    this.transformationMatrix = new Matrix(transformationMatrix);
+  public AdvancedFrameProcessor(android.graphics.Matrix transformationMatrix) {
+    this(getGlMatrixArray(transformationMatrix));
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param matrixProvider A {@link MatrixProvider} that provides the transformation matrix to apply
+   *     to each frame.
+   */
+  public AdvancedFrameProcessor(MatrixProvider matrixProvider) {
+    this.matrixProvider = matrixProvider;
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param transformationMatrix The 4x4 transformation {@link android.opengl.Matrix} to apply to
+   *     each frame. Operations are done on normalized device coordinates (-1 to 1 on x and y), and
+   *     no automatic adjustments are applied on the transformation matrix.
+   */
+  public AdvancedFrameProcessor(float[] transformationMatrix) {
+    this(/* matrixProvider= */ (long presentationTimeUs) -> transformationMatrix.clone());
+    checkArgument(
+        transformationMatrix.length == 16, "A 4x4 transformation matrix must have 16 elements.");
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param matrixProvider A {@link GlMatrixProvider} that updates the transformation matrix for
+   *     each frame.
+   */
+  public AdvancedFrameProcessor(GlMatrixProvider matrixProvider) {
+    this.matrixProvider = matrixProvider;
   }
 
   @Override
-  public Size configureOutputSize(int inputWidth, int inputHeight) {
-    return new Size(inputWidth, inputHeight);
-  }
+  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+      throws IOException {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
 
-  @Override
-  public void initialize(int inputTexId) throws IOException {
+    size = new Size(inputWidth, inputHeight);
     // TODO(b/205002913): check the loaded program is consistent with the attributes and uniforms
     //  expected in the code.
     glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
@@ -119,17 +179,19 @@ public final class AdvancedFrameProcessor implements GlFrameProcessor {
         "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setBufferAttribute(
         "aTexSamplingCoord", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
-    glProgram.setFloatsUniform("uTransformationMatrix", getGlMatrixArray(transformationMatrix));
   }
 
   @Override
-  public void updateProgramAndDraw(long presentationTimeNs) {
-    checkStateNotNull(glProgram);
-    glProgram.use();
+  public Size getOutputSize() {
+    return checkStateNotNull(size);
+  }
+
+  @Override
+  public void drawFrame(long presentationTimeUs) {
+    checkStateNotNull(glProgram).use();
+    glProgram.setFloatsUniform(
+        "uTransformationMatrix", matrixProvider.getGlMatrixArray(presentationTimeUs));
     glProgram.bindAttributesAndUniforms();
-    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-    GlUtil.checkGlError();
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     GlUtil.checkGlError();

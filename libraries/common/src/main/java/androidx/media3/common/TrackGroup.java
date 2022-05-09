@@ -35,8 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * An immutable group of tracks. All tracks in a group present the same content, but their formats
- * may differ.
+ * An immutable group of tracks available within a media stream. All tracks in a group present the
+ * same content, but their formats may differ.
  *
  * <p>As an example of how tracks can be grouped, consider an adaptive playback where a main video
  * feed is provided in five resolutions, and an alternative video feed (e.g., a different camera
@@ -48,17 +48,21 @@ import java.util.List;
  * languages is not considered to be the same. Conversely, audio tracks in the same language that
  * only differ in properties such as bitrate, sampling rate, channel count and so on can be grouped.
  * This also applies to text tracks.
+ *
+ * <p>Note also that this class only contains information derived from the media itself. Unlike
+ * {@link Tracks.Group}, it does not include runtime information such as the extent to which
+ * playback of each track is supported by the device, or which tracks are currently selected.
  */
 public final class TrackGroup implements Bundleable {
 
   private static final String TAG = "TrackGroup";
 
   /** The number of tracks in the group. */
-  public final int length;
+  @UnstableApi public final int length;
   /** An identifier for the track group. */
-  public final String id;
+  @UnstableApi public final String id;
   /** The type of tracks in the group. */
-  public final @C.TrackType int type;
+  @UnstableApi public final @C.TrackType int type;
 
   private final Format[] formats;
 
@@ -113,6 +117,7 @@ public final class TrackGroup implements Bundleable {
    * @param index The index of the track.
    * @return The track's format.
    */
+  @UnstableApi
   public Format getFormat(int index) {
     return formats[index];
   }
@@ -126,6 +131,7 @@ public final class TrackGroup implements Bundleable {
    * @return The index of the track, or {@link C#INDEX_UNSET} if no such track exists.
    */
   @SuppressWarnings("ReferenceEquality")
+  @UnstableApi
   public int indexOf(Format format) {
     for (int i = 0; i < formats.length; i++) {
       if (format == formats[i]) {

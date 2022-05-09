@@ -49,7 +49,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public Codec createForVideoDecoding(Format format, Surface outputSurface)
+  public Codec createForVideoDecoding(
+      Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
       throws TransformationException {
     MediaFormat mediaFormat =
         MediaFormat.createVideoFormat(
@@ -62,6 +63,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // On API levels over 29, Transformer decodes as many frames as possible in one render
       // cycle. This key ensures no frame dropping when the decoder's output surface is full.
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
+    }
+    if (SDK_INT >= 31 && enableRequestSdrToneMapping) {
+      mediaFormat.setInteger(
+          MediaFormat.KEY_COLOR_TRANSFER_REQUEST, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
     }
 
     @Nullable

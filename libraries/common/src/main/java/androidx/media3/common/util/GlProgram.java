@@ -364,45 +364,48 @@ public final class GlProgram {
      * <p>Should be called before each drawing call.
      */
     public void bind() {
-      if (type == GLES20.GL_FLOAT) {
-        GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);
-        GlUtil.checkGlError();
-        return;
+      switch (type) {
+        case GLES20.GL_FLOAT:
+          GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GlUtil.checkGlError();
+          break;
+        case GLES20.GL_FLOAT_VEC2:
+          GLES20.glUniform2fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GlUtil.checkGlError();
+          break;
+        case GLES20.GL_FLOAT_VEC3:
+          GLES20.glUniform3fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GlUtil.checkGlError();
+          break;
+        case GLES20.GL_FLOAT_MAT3:
+          GLES20.glUniformMatrix3fv(
+              location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+          GlUtil.checkGlError();
+          break;
+        case GLES20.GL_FLOAT_MAT4:
+          GLES20.glUniformMatrix4fv(
+              location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+          GlUtil.checkGlError();
+          break;
+        case GLES20.GL_SAMPLER_2D:
+        case GLES11Ext.GL_SAMPLER_EXTERNAL_OES:
+        case GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
+          if (texId == 0) {
+            throw new IllegalStateException("No call to setSamplerTexId() before bind.");
+          }
+          GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texUnitIndex);
+          GlUtil.checkGlError();
+          GlUtil.bindTexture(
+              type == GLES20.GL_SAMPLER_2D
+                  ? GLES20.GL_TEXTURE_2D
+                  : GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+              texId);
+          GLES20.glUniform1i(location, texUnitIndex);
+          GlUtil.checkGlError();
+          break;
+        default:
+          throw new IllegalStateException("Unexpected uniform type: " + type);
       }
-
-      if (type == GLES20.GL_FLOAT_MAT3) {
-        GLES20.glUniformMatrix3fv(
-            location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
-        GlUtil.checkGlError();
-        return;
-      }
-
-      if (type == GLES20.GL_FLOAT_MAT4) {
-        GLES20.glUniformMatrix4fv(
-            location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
-        GlUtil.checkGlError();
-        return;
-      }
-
-      if (texId == 0) {
-        throw new IllegalStateException("No call to setSamplerTexId() before bind.");
-      }
-      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texUnitIndex);
-      if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES || type == GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT) {
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
-      } else if (type == GLES20.GL_SAMPLER_2D) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
-      } else {
-        throw new IllegalStateException("Unexpected uniform type: " + type);
-      }
-      GLES20.glUniform1i(location, texUnitIndex);
-      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-      GLES20.glTexParameteri(
-          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-      GLES20.glTexParameteri(
-          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-      GlUtil.checkGlError();
     }
   }
 }

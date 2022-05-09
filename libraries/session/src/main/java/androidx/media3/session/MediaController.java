@@ -50,7 +50,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Consumer;
@@ -415,6 +415,7 @@ public class MediaController implements Player {
       return;
     }
     released = true;
+    applicationHandler.removeCallbacksAndMessages(null);
     try {
       impl.release();
     } catch (Exception e) {
@@ -1680,8 +1681,8 @@ public class MediaController implements Player {
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return TracksInfo.EMPTY; // TODO(b/178486745)
+  public Tracks getCurrentTracks() {
+    return Tracks.EMPTY; // TODO(b/178486745)
   }
 
   @Override

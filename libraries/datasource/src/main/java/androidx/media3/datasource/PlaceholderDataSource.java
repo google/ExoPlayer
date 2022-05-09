@@ -22,14 +22,14 @@ import java.io.IOException;
 
 /** A DataSource which provides no data. {@link #open(DataSpec)} throws {@link IOException}. */
 @UnstableApi
-public final class DummyDataSource implements DataSource {
+public final class PlaceholderDataSource implements DataSource {
 
-  public static final DummyDataSource INSTANCE = new DummyDataSource();
+  public static final PlaceholderDataSource INSTANCE = new PlaceholderDataSource();
 
-  /** A factory that produces {@link DummyDataSource}. */
-  public static final Factory FACTORY = DummyDataSource::new;
+  /** A factory that produces {@link PlaceholderDataSource}. */
+  public static final Factory FACTORY = PlaceholderDataSource::new;
 
-  private DummyDataSource() {}
+  private PlaceholderDataSource() {}
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
@@ -38,7 +38,7 @@ public final class DummyDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    throw new IOException("DummyDataSource cannot be opened");
+    throw new IOException("PlaceholderDataSource cannot be opened");
   }
 
   @Override
