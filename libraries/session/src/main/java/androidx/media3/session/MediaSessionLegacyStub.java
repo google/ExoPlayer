@@ -190,6 +190,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   @Override
+  public void onCustomAction(String action, @Nullable Bundle extras) {
+    Bundle args = extras == null ? Bundle.EMPTY : extras;
+    SessionCommand command = new SessionCommand(action, args);
+    dispatchSessionTaskWithSessionCommand(
+        command,
+        controller ->
+            ignoreFuture(sessionImpl.onCustomCommandOnHandler(controller, command, args)));
+  }
+
+  @Override
   public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
     @Nullable KeyEvent keyEvent = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
     if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
@@ -455,11 +465,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           // MediaControllerCompat#setRating doesn't return a value.
           ignoreFuture(sessionImpl.onSetRatingOnHandler(controller, currentItem.mediaId, rating));
         });
-  }
-
-  @Override
-  public void onCustomAction(String action, @Nullable Bundle extras) {
-    // no-op
   }
 
   @Override

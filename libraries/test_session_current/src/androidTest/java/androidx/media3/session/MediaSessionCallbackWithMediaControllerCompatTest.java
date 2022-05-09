@@ -702,6 +702,58 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
+  public void sendCustomCommand() throws Exception {
+    String testCommand = "test_custom_command";
+    Bundle testArgs = new Bundle();
+    testArgs.putString("args", "test_custom_args");
+    SessionCommand customCommand = new SessionCommand(testCommand, /* extras= */ Bundle.EMPTY);
+    CountDownLatch latch = new CountDownLatch(1);
+    SessionCallback callback =
+        new SessionCallback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
+              MediaSession.ConnectionResult connectionResult =
+                  SessionCallback.super.onConnect(session, controller);
+              SessionCommands.Builder builder =
+                  connectionResult.availableSessionCommands.buildUpon().add(customCommand);
+              return MediaSession.ConnectionResult.accept(
+                  /* availableSessionCommands= */ builder.build(),
+                  connectionResult.availablePlayerCommands);
+            } else {
+              return MediaSession.ConnectionResult.reject();
+            }
+          }
+
+          @Override
+          public ListenableFuture<SessionResult> onCustomCommand(
+              MediaSession session,
+              ControllerInfo controller,
+              SessionCommand sessionCommand,
+              Bundle args) {
+            if (sessionCommand.customAction.equals(testCommand)
+                && TestUtils.equals(testArgs, args)) {
+              latch.countDown();
+            }
+            return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+          }
+        };
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("sendCommand")
+            .setSessionCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.sendCustomCommand(customCommand, testArgs);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
   public void controllerCallback_sessionRejects() throws Exception {
     SessionCallback sessionCallback =
         new SessionCallback() {
