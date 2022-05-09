@@ -53,8 +53,8 @@ public final class GlUtil {
   /** Whether to throw a {@link GlException} in case of an OpenGL error. */
   public static boolean glAssertionsEnabled = false;
 
-  /** Number of vertices in a rectangle. */
-  public static final int RECTANGLE_VERTICES_COUNT = 4;
+  /** Number of elements in a 3d homogeneous coordinate vector describing a vertex. */
+  public static final int HOMOGENEOUS_COORDINATE_VECTOR_SIZE = 4;
 
   /** Length of the normalized device coordinate (NDC) space, which spans from -1 to 1. */
   public static final float LENGTH_NDC = 2f;

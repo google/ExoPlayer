@@ -87,9 +87,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw new IllegalStateException(e);
     }
     program.setBufferAttribute(
-        "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aFramePosition",
+        GlUtil.getNormalizedCoordinateBounds(),
+        GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
     program.setBufferAttribute(
-        "aTexCoords", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aTexCoords",
+        GlUtil.getTextureCoordinateBounds(),
+        GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
     GLES20.glGenTextures(1, textures, 0);
     GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
     GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
