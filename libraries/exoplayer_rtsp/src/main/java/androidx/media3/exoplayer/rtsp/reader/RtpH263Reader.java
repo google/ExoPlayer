@@ -178,7 +178,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * >Android's software H263 decoder</a>.
      */
     long shortHeader = data.readUnsignedInt();
-    if (((shortHeader >> 10) & 0xffff) == 0x20) {
+    if (((shortHeader >> 10) & 0x3f) == 0x20) {
       int header = data.peekUnsignedByte();
       int vopType = ((header >> 1) & 0x1);
       if (!gotResolution && vopType == I_VOP) {
