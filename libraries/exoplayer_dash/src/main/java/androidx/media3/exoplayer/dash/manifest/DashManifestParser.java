@@ -77,7 +77,7 @@ public class DashManifestParser extends DefaultHandler
       Pattern.compile("([1-9]|[1-5][0-9]|6[0-3])=.*");
 
   /**
-   * Maps the value attribute of an AudioElementConfiguration with schemeIdUri
+   * Maps the value attribute of an AudioChannelConfiguration with schemeIdUri
    * "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1, to a channel
    * count.
    */
@@ -1465,6 +1465,13 @@ public class DashManifestParser extends DefaultHandler
       case "urn:mpeg:mpegB:cicp:ChannelConfiguration":
         audioChannels = parseMpegChannelConfiguration(xpp);
         break;
+      case "tag:dts.com,2014:dash:audio_channel_configuration:2012":
+      case "urn:dts:dash:audio_channel_configuration:2012":
+        audioChannels = parseDtsChannelConfiguration(xpp);
+        break;
+      case "tag:dts.com,2018:uhd:audio_channel_configuration":
+        audioChannels = parseDtsxChannelConfiguration(xpp);
+        break;
       case "tag:dolby.com,2014:dash:audio_channel_configuration:2011":
       case "urn:dolby:dash:audio_channel_configuration:2011":
         audioChannels = parseDolbyChannelConfiguration(xpp);
@@ -1868,7 +1875,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
    * schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.
    *
    * @param xpp The parser from which to read.
@@ -1883,9 +1890,42 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
-   * schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
-   * in ETSI TS 102 366, or the legacy schemeIdUri
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+   * schemeIdUri "tag:dts.com,2014:dash:audio_channel_configuration:2012" as defined by Annex G
+   * (3.2) in ETSI TS 102 114 V1.6.1, or by the legacy schemeIdUri
+   * "urn:dts:dash:audio_channel_configuration:2012".
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   *     not be parsed.
+   */
+  protected static int parseDtsChannelConfiguration(XmlPullParser xpp) {
+    int channelCount = parseInt(xpp, "value", Format.NO_VALUE);
+    return 0 < channelCount && channelCount < 33 ? channelCount : Format.NO_VALUE;
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+   * schemeIdUri "tag:dts.com,2018:uhd:audio_channel_configuration" as defined by table B-5 in ETSI
+   * TS 103 491 v1.2.1.
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   *     not be parsed.
+   */
+  protected static int parseDtsxChannelConfiguration(XmlPullParser xpp) {
+    @Nullable String value = xpp.getAttributeValue(null, "value");
+    if (value == null) {
+      return Format.NO_VALUE;
+    }
+    int channelCount = Integer.bitCount(Integer.parseInt(value, /* radix= */ 16));
+    return channelCount == 0 ? Format.NO_VALUE : channelCount;
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+   * schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011" as defined by table E.5
+   * in ETSI TS 102 366, or by the legacy schemeIdUri
    * "urn:dolby:dash:audio_channel_configuration:2011".
    *
    * @param xpp The parser from which to read.

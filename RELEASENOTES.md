@@ -49,13 +49,17 @@
     *   Don't show forced text tracks in the `PlayerView` track selector, and
         keep a suitable forced text track selected if "None" is selected
         ([#9432](https://github.com/google/ExoPlayer/issues/9432)).
+*   DASH:
+    *   Parse channel count from DTS `AudioChannelConfiguration` elements. This
+        re-enables audio passthrough for DTS streams
+        ([#10159](https://github.com/google/ExoPlayer/issues/10159)).
 *   HLS:
     *   Fallback to chunkful preparation if the playlist CODECS attribute
         does not contain the audio codec
         ([#10065](https://github.com/google/ExoPlayer/issues/10065)).
 *   RTSP:
     *   Add RTP reader for MPEG4
-        ([#35](https://github.com/androidx/media/pull/35))
+        ([#35](https://github.com/androidx/media/pull/35)).
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
     *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved
