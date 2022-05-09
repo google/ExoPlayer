@@ -719,6 +719,8 @@ public final class Transformer {
                 DEFAULT_BUFFER_FOR_PLAYBACK_MS / 10,
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
+    TransformerPlayerListener playerListener =
+        new TransformerPlayerListener(mediaItem, muxerWrapper, looper);
     ExoPlayer.Builder playerBuilder =
         new ExoPlayer.Builder(
                 context,
@@ -732,6 +734,7 @@ public final class Transformer {
                     encoderFactory,
                     decoderFactory,
                     new FallbackListener(mediaItem, listeners, transformationRequest),
+                    playerListener,
                     debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -746,7 +749,7 @@ public final class Transformer {
 
     player = playerBuilder.build();
     player.setMediaItem(mediaItem);
-    player.addListener(new TransformerPlayerListener(mediaItem, muxerWrapper));
+    player.addListener(playerListener);
     player.prepare();
 
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
@@ -844,6 +847,7 @@ public final class Transformer {
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final FallbackListener fallbackListener;
+    private final FrameProcessorChain.Listener frameProcessorChainListener;
     private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
@@ -856,6 +860,7 @@ public final class Transformer {
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         FallbackListener fallbackListener,
+        FrameProcessorChain.Listener frameProcessorChainListener,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
@@ -866,6 +871,7 @@ public final class Transformer {
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.fallbackListener = fallbackListener;
+      this.frameProcessorChainListener = frameProcessorChainListener;
       this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
@@ -902,6 +908,7 @@ public final class Transformer {
                 encoderFactory,
                 decoderFactory,
                 fallbackListener,
+                frameProcessorChainListener,
                 debugViewProvider);
         index++;
       }
@@ -909,14 +916,18 @@ public final class Transformer {
     }
   }
 
-  private final class TransformerPlayerListener implements Player.Listener {
+  private final class TransformerPlayerListener
+      implements Player.Listener, FrameProcessorChain.Listener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
+    private final Handler handler;
 
-    public TransformerPlayerListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+    public TransformerPlayerListener(
+        MediaItem mediaItem, MuxerWrapper muxerWrapper, Looper looper) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
+      handler = new Handler(looper);
     }
 
     @Override
@@ -1010,6 +1021,15 @@ public final class Transformer {
             listener -> listener.onTransformationCompleted(mediaItem, result));
       }
       listeners.flushEvents();
+    }
+
+    @Override
+    public void onFrameProcessingError(FrameProcessingException exception) {
+      handler.post(
+          () ->
+              handleTransformationEnded(
+                  TransformationException.createForFrameProcessorChain(
+                      exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)));
     }
   }
 }

@@ -38,6 +38,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ImmutableList<GlEffect> effects;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
+  private final FrameProcessorChain.Listener frameProcessorChainListener;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final DecoderInputBuffer decoderInputBuffer;
 
@@ -52,12 +53,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       FallbackListener fallbackListener,
+      FrameProcessorChain.Listener frameProcessorChainListener,
       Transformer.DebugViewProvider debugViewProvider) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.context = context;
     this.effects = effects;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
+    this.frameProcessorChainListener = frameProcessorChainListener;
     this.debugViewProvider = debugViewProvider;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -95,6 +98,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
               fallbackListener,
+              frameProcessorChainListener,
               debugViewProvider);
     }
     if (transformationRequest.flattenForSlowMotion) {

@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Size;
+import com.google.android.exoplayer2.transformer.FrameProcessingException;
 import com.google.android.exoplayer2.transformer.GlFrameProcessor;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -98,14 +99,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(glProgram).use();
-    double theta = presentationTimeUs * 2 * Math.PI / DIMMING_PERIOD_US;
-    float innerRadius = minInnerRadius + deltaInnerRadius * (0.5f - 0.5f * (float) Math.cos(theta));
-    glProgram.setFloatsUniform("uInnerRadius", new float[] {innerRadius});
-    glProgram.bindAttributesAndUniforms();
-    // The four-vertex triangle strip forms a quad.
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+    try {
+      checkStateNotNull(glProgram).use();
+      double theta = presentationTimeUs * 2 * Math.PI / DIMMING_PERIOD_US;
+      float innerRadius =
+          minInnerRadius + deltaInnerRadius * (0.5f - 0.5f * (float) Math.cos(theta));
+      glProgram.setFloatsUniform("uInnerRadius", new float[] {innerRadius});
+      glProgram.bindAttributesAndUniforms();
+      // The four-vertex triangle strip forms a quad.
+      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
   }
 
   @Override

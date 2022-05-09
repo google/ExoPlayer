@@ -104,12 +104,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) {
+  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
     checkStateNotNull(glProgram);
-    glProgram.use();
-    glProgram.bindAttributesAndUniforms();
-    // The four-vertex triangle strip forms a quad.
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+    try {
+      glProgram.use();
+      glProgram.bindAttributesAndUniforms();
+      // The four-vertex triangle strip forms a quad.
+      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      GlUtil.checkGlError();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
   }
 
   @Override

@@ -95,16 +95,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(glProgram).use();
-    float[] transformationMatrix = matrixTransformation.getGlMatrixArray(presentationTimeUs);
-    checkState(
-        transformationMatrix.length == 16, "A 4x4 transformation matrix must have 16 elements");
-    glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrix);
-    glProgram.bindAttributesAndUniforms();
-    // The four-vertex triangle strip forms a quad.
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-    GlUtil.checkGlError();
+  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+    try {
+      checkStateNotNull(glProgram).use();
+      float[] transformationMatrix = matrixTransformation.getGlMatrixArray(presentationTimeUs);
+      checkState(
+          transformationMatrix.length == 16, "A 4x4 transformation matrix must have 16 elements");
+      glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrix);
+      glProgram.bindAttributesAndUniforms();
+      // The four-vertex triangle strip forms a quad.
+      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      GlUtil.checkGlError();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
   }
 
   @Override

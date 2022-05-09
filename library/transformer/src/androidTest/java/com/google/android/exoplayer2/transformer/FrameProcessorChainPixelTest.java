@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
 
@@ -36,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
@@ -77,6 +79,9 @@ public final class FrameProcessorChainPixelTest {
   private static final int FRAME_PROCESSING_WAIT_MS = 5000;
   /** The ratio of width over height, for each pixel in a frame. */
   private static final float DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO = 1;
+
+  private final AtomicReference<FrameProcessingException> frameProcessingException =
+      new AtomicReference<>();
 
   private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
   private @MonotonicNonNull ImageReader outputImageReader;
@@ -229,6 +234,15 @@ public final class FrameProcessorChainPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
+  @Test
+  public void processData_withFrameProcessingException_callsListener() throws Exception {
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, ThrowingFrameProcessor::new);
+
+    Thread.sleep(FRAME_PROCESSING_WAIT_MS);
+
+    assertThat(frameProcessingException.get()).isNotNull();
+  }
+
   /**
    * Set up and prepare the first frame from an input video, as well as relevant test
    * infrastructure. The frame will be sent towards the {@link FrameProcessorChain}, and may be
@@ -258,6 +272,7 @@ public final class FrameProcessorChainPixelTest {
       frameProcessorChain =
           FrameProcessorChain.create(
               context,
+              /* listener= */ this.frameProcessingException::set,
               pixelWidthHeightRatio,
               inputWidth,
               inputHeight,
@@ -321,16 +336,39 @@ public final class FrameProcessorChainPixelTest {
     }
   }
 
-  private Bitmap processFirstFrameAndEnd() throws InterruptedException, TransformationException {
+  private Bitmap processFirstFrameAndEnd() throws InterruptedException {
     checkNotNull(frameProcessorChain).signalEndOfInputStream();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
     assertThat(frameProcessorChain.isEnded()).isTrue();
-    frameProcessorChain.getAndRethrowBackgroundExceptions();
+    assertThat(frameProcessingException.get()).isNull();
 
     Image frameProcessorChainOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(frameProcessorChainOutputImage);
     frameProcessorChainOutputImage.close();
     return actualBitmap;
+  }
+
+  private static class ThrowingFrameProcessor implements GlFrameProcessor {
+
+    private @MonotonicNonNull Size outputSize;
+
+    @Override
+    public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight) {
+      outputSize = new Size(inputWidth, inputHeight);
+    }
+
+    @Override
+    public Size getOutputSize() {
+      return checkStateNotNull(outputSize);
+    }
+
+    @Override
+    public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+      throw new FrameProcessingException("An exception occurred.");
+    }
+
+    @Override
+    public void release() {}
   }
 }

@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -68,9 +69,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
+   * Listener for asynchronous frame processing events.
+   *
+   * <p>This listener is only called from the {@link FrameProcessorChain}'s background thread.
+   */
+  public interface Listener {
+    /** Called when an exception occurs during asynchronous frame processing. */
+    void onFrameProcessingError(FrameProcessingException exception);
+  }
+
+  /**
    * Creates a new instance.
    *
    * @param context A {@link Context}.
+   * @param listener A {@link Listener}.
    * @param pixelWidthHeightRatio The ratio of width over height for each pixel. Pixels are expanded
    *     by this ratio so that the output frame's pixels have a ratio of 1.
    * @param inputWidth The input frame width, in pixels.
@@ -78,17 +90,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @return A new instance.
-   * @throws TransformationException If reading shader files fails, or an OpenGL error occurs while
+   * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
    *     creating and configuring the OpenGL components.
    */
   public static FrameProcessorChain create(
       Context context,
+      Listener listener,
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
       List<GlEffect> effects,
       boolean enableExperimentalHdrEditing)
-      throws TransformationException {
+      throws FrameProcessingException {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
@@ -100,6 +113,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               () ->
                   createOpenGlObjectsAndFrameProcessorChain(
                       context,
+                      listener,
                       pixelWidthHeightRatio,
                       inputWidth,
                       inputHeight,
@@ -108,12 +122,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                       singleThreadExecutorService))
           .get();
     } catch (ExecutionException e) {
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+      throw new FrameProcessingException(e);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw TransformationException.createForFrameProcessorChain(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+      throw new FrameProcessingException(e);
     }
   }
 
@@ -127,6 +139,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @WorkerThread
   private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
       Context context,
+      Listener listener,
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
@@ -177,6 +190,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         inputExternalTexId,
         framebuffers,
         frameProcessors,
+        listener,
         enableExperimentalHdrEditing);
   }
 
@@ -241,6 +255,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private final int[] framebuffers;
 
+  private final Listener listener;
+  /**
+   * Prevents further frame processing tasks from being scheduled or executed after {@link
+   * #release()} is called or an exception occurred.
+   */
+  private final AtomicBoolean stopProcessing;
+
   private int outputWidth;
   private int outputHeight;
   /**
@@ -258,8 +279,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull EGLSurface debugPreviewEglSurface;
 
   private boolean inputStreamEnded;
-  /** Prevents further frame processing tasks from being scheduled after {@link #release()}. */
-  private volatile boolean releaseRequested;
 
   private FrameProcessorChain(
       EGLDisplay eglDisplay,
@@ -268,6 +287,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       int inputExternalTexId,
       int[] framebuffers,
       ImmutableList<GlFrameProcessor> frameProcessors,
+      Listener listener,
       boolean enableExperimentalHdrEditing) {
     checkState(!frameProcessors.isEmpty());
 
@@ -276,6 +296,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.singleThreadExecutorService = singleThreadExecutorService;
     this.framebuffers = framebuffers;
     this.frameProcessors = frameProcessors;
+    this.listener = listener;
+    this.stopProcessing = new AtomicBoolean();
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
 
     futures = new ConcurrentLinkedQueue<>();
@@ -331,7 +353,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
-          if (releaseRequested) {
+          if (stopProcessing.get()) {
             // Frames can still become available after a transformation is cancelled but they can be
             // ignored.
             return;
@@ -339,7 +361,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           try {
             futures.add(singleThreadExecutorService.submit(this::processFrame));
           } catch (RejectedExecutionException e) {
-            if (!releaseRequested) {
+            if (!stopProcessing.get()) {
               throw e;
             }
           }
@@ -371,28 +393,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return pendingFrameCount.get();
   }
 
-  /**
-   * Checks whether any exceptions occurred during asynchronous frame processing and rethrows the
-   * first exception encountered.
-   */
-  public void getAndRethrowBackgroundExceptions() throws TransformationException {
-    @Nullable Future<?> oldestGlProcessingFuture = futures.peek();
-    while (oldestGlProcessingFuture != null && oldestGlProcessingFuture.isDone()) {
-      futures.poll();
-      try {
-        oldestGlProcessingFuture.get();
-      } catch (ExecutionException e) {
-        throw TransformationException.createForFrameProcessorChain(
-            e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw TransformationException.createForFrameProcessorChain(
-            e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
-      }
-      oldestGlProcessingFuture = futures.peek();
-    }
-  }
-
   /** Informs the {@code FrameProcessorChain} that no further input frames should be accepted. */
   public void signalEndOfInputStream() {
     inputStreamEnded = true;
@@ -413,18 +413,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * <p>This method blocks until all OpenGL resources are released or releasing times out.
    */
   public void release() {
-    releaseRequested = true;
+    stopProcessing.set(true);
     while (!futures.isEmpty()) {
       checkNotNull(futures.poll()).cancel(/* mayInterruptIfRunning= */ true);
     }
     futures.add(
-        singleThreadExecutorService.submit(
-            () -> {
-              for (int i = 0; i < frameProcessors.size(); i++) {
-                frameProcessors.get(i).release();
-              }
-              GlUtil.destroyEglContext(eglDisplay, eglContext);
-            }));
+        singleThreadExecutorService.submit(this::releaseFrameProcessorsAndDestroyGlContext));
     if (inputSurfaceTexture != null) {
       inputSurfaceTexture.release();
     }
@@ -448,22 +442,26 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @WorkerThread
   private void createOpenGlSurfaces(Surface outputSurface, @Nullable SurfaceView debugSurfaceView) {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-    checkStateNotNull(eglDisplay);
+    try {
+      checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+      checkStateNotNull(eglDisplay);
 
-    if (enableExperimentalHdrEditing) {
-      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
-      eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
-      if (debugSurfaceView != null) {
-        debugPreviewEglSurface =
-            GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+      if (enableExperimentalHdrEditing) {
+        // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+        eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
+        if (debugSurfaceView != null) {
+          debugPreviewEglSurface =
+              GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+        }
+      } else {
+        eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
+        if (debugSurfaceView != null) {
+          debugPreviewEglSurface =
+              GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+        }
       }
-    } else {
-      eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-      if (debugSurfaceView != null) {
-        debugPreviewEglSurface =
-            GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-      }
+    } catch (RuntimeException e) {
+      listener.onFrameProcessingError(new FrameProcessingException(e));
     }
   }
 
@@ -475,49 +473,80 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @WorkerThread
   @RequiresNonNull("inputSurfaceTexture")
   private void processFrame() {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-    checkStateNotNull(eglSurface, "No output surface set.");
-
-    inputSurfaceTexture.updateTexImage();
-    long presentationTimeNs = inputSurfaceTexture.getTimestamp();
-    long presentationTimeUs = presentationTimeNs / 1000;
-    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-    ((ExternalCopyFrameProcessor) frameProcessors.get(0))
-        .setTextureTransformMatrix(textureTransformMatrix);
-
-    for (int i = 0; i < frameProcessors.size() - 1; i++) {
-      Size intermediateSize = frameProcessors.get(i).getOutputSize();
-      GlUtil.focusFramebuffer(
-          eglDisplay,
-          eglContext,
-          eglSurface,
-          framebuffers[i],
-          intermediateSize.getWidth(),
-          intermediateSize.getHeight());
-      clearOutputFrame();
-      frameProcessors.get(i).drawFrame(presentationTimeUs);
+    if (stopProcessing.get()) {
+      return;
     }
-    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-    clearOutputFrame();
-    getLast(frameProcessors).drawFrame(presentationTimeUs);
 
-    EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
-    EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+    long presentationTimeUs = C.TIME_UNSET;
+    try {
+      checkState(Thread.currentThread().getName().equals(THREAD_NAME));
+      checkStateNotNull(eglSurface, "No output surface set.");
 
-    if (debugPreviewEglSurface != null) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
+      inputSurfaceTexture.updateTexImage();
+      long presentationTimeNs = inputSurfaceTexture.getTimestamp();
+      presentationTimeUs = presentationTimeNs / 1000;
+      inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
+      ((ExternalCopyFrameProcessor) frameProcessors.get(0))
+          .setTextureTransformMatrix(textureTransformMatrix);
+
+      for (int i = 0; i < frameProcessors.size() - 1; i++) {
+        Size intermediateSize = frameProcessors.get(i).getOutputSize();
+        GlUtil.focusFramebuffer(
+            eglDisplay,
+            eglContext,
+            eglSurface,
+            framebuffers[i],
+            intermediateSize.getWidth(),
+            intermediateSize.getHeight());
+        clearOutputFrame();
+        frameProcessors.get(i).drawFrame(presentationTimeUs);
+      }
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
       clearOutputFrame();
       getLast(frameProcessors).drawFrame(presentationTimeUs);
-      EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
-    }
 
-    checkState(pendingFrameCount.getAndDecrement() > 0);
+      EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
+      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+
+      if (debugPreviewEglSurface != null) {
+        GlUtil.focusEglSurface(
+            eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
+        clearOutputFrame();
+        getLast(frameProcessors).drawFrame(presentationTimeUs);
+        EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+      }
+
+      checkState(pendingFrameCount.getAndDecrement() > 0);
+    } catch (FrameProcessingException | RuntimeException e) {
+      if (!stopProcessing.getAndSet(true)) {
+        listener.onFrameProcessingError(
+            e instanceof FrameProcessingException
+                ? (FrameProcessingException) e
+                : new FrameProcessingException(e, presentationTimeUs));
+      }
+    }
   }
 
   private static void clearOutputFrame() {
     GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GlUtil.checkGlError();
+  }
+
+  /**
+   * Releases the {@link GlFrameProcessor GlFrameProcessors} and destroys the OpenGL context.
+   *
+   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
+   */
+  @WorkerThread
+  private void releaseFrameProcessorsAndDestroyGlContext() {
+    try {
+      for (int i = 0; i < frameProcessors.size(); i++) {
+        frameProcessors.get(i).release();
+      }
+      GlUtil.destroyEglContext(eglDisplay, eglContext);
+    } catch (RuntimeException e) {
+      listener.onFrameProcessingError(new FrameProcessingException(e));
+    }
   }
 }

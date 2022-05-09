@@ -55,6 +55,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
       FallbackListener fallbackListener,
+      FrameProcessorChain.Listener frameProcessorChainListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
@@ -86,14 +87,20 @@ import org.checkerframework.dataflow.qual.Pure;
     EncoderCompatibilityTransformation encoderCompatibilityTransformation =
         new EncoderCompatibilityTransformation();
     effectsListBuilder.add(encoderCompatibilityTransformation);
-    frameProcessorChain =
-        FrameProcessorChain.create(
-            context,
-            inputFormat.pixelWidthHeightRatio,
-            /* inputWidth= */ decodedWidth,
-            /* inputHeight= */ decodedHeight,
-            effectsListBuilder.build(),
-            transformationRequest.enableHdrEditing);
+    try {
+      frameProcessorChain =
+          FrameProcessorChain.create(
+              context,
+              frameProcessorChainListener,
+              inputFormat.pixelWidthHeightRatio,
+              /* inputWidth= */ decodedWidth,
+              /* inputHeight= */ decodedHeight,
+              effectsListBuilder.build(),
+              transformationRequest.enableHdrEditing);
+    } catch (FrameProcessingException e) {
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
     outputRotationDegrees = encoderCompatibilityTransformation.getOutputRotationDegrees();
 
@@ -146,7 +153,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    frameProcessorChain.getAndRethrowBackgroundExceptions();
     if (frameProcessorChain.isEnded()) {
       if (!signaledEndOfStreamToEncoder) {
         encoder.signalEndOfInputStream();
