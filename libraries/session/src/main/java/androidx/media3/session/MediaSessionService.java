@@ -94,14 +94,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * controller. If it's accepted, the controller will be available and keep the binding. If it's
  * rejected, the controller will unbind.
  *
- * <p>When a playback is started on the service, the service will obtain a {@link MediaNotification}
- * from the {@link MediaNotification.Provider} that's set with {@link #setMediaNotificationProvider}
- * (or {@link DefaultMediaNotificationProvider}, if no provider is set), and the service will become
- * a <a href="https://developer.android.com/guide/components/foreground-services">foreground
- * service</a>. It's required to keep the playback after the controller is destroyed. The service
- * will become a background service when all playbacks are stopped. Apps targeting {@code SDK_INT >=
- * 28} must request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order
- * to make the service foreground.
+ * <p>{@link #onUpdateNotification(MediaSession)} will be called whenever a notification needs to be
+ * shown, updated or cancelled. The default implementation will display notifications using a
+ * default UI or using a {@link MediaNotification.Provider} that's set with {@link
+ * #setMediaNotificationProvider}. In addition, when playback starts, the service will become a <a
+ * href="https://developer.android.com/guide/components/foreground-services">foreground service</a>.
+ * It's required to keep the playback after the controller is destroyed. The service will become a
+ * background service when all playbacks are stopped. Apps targeting {@code SDK_INT >= 28} must
+ * request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order to make
+ * the service foreground. You can control when to show or hide notifications by overriding {@link
+ * #onUpdateNotification(MediaSession)}. In this case, you must also start or stop the service from
+ * the foreground, when playback starts or stops respectively.
  *
  * <p>The service will be destroyed when all sessions are closed, or no controller is binding to the
  * service while the service is in the background.
@@ -264,6 +267,16 @@ public abstract class MediaSessionService extends Service {
   }
 
   /**
+   * Returns whether {@code session} has been added to this service via {@link #addSession} or
+   * {@link #onGetSession(ControllerInfo)}.
+   */
+  public final boolean isSessionAdded(MediaSession session) {
+    synchronized (lock) {
+      return sessions.containsKey(session.getId());
+    }
+  }
+
+  /**
    * Called when a component is about to bind to the service.
    *
    * <p>The default implementation handles the incoming requests from {@link MediaController
@@ -374,11 +387,36 @@ public abstract class MediaSessionService extends Service {
   }
 
   /**
+   * Called when a notification needs to be updated. Override this method to show or cancel your own
+   * notifications.
+   *
+   * <p>This method is called whenever the service has detected a change that requires to show,
+   * update or cancel a notification. The method will be called on the application thread of the app
+   * that the service belongs to.
+   *
+   * <p>Override this method to create your own notification and customize the foreground handling
+   * of your service.
+   *
+   * <p>The default implementation will present a default notification or the notification provided
+   * by the {@link MediaNotification.Provider} that is {@link
+   * #setMediaNotificationProvider(MediaNotification.Provider) set} by the app. Further, the service
+   * is started in the <a
+   * href="https://developer.android.com/guide/components/foreground-services">foreground</a> when
+   * playback is ongoing and put back into background otherwise.
+   *
+   * <p>Apps targeting {@code SDK_INT >= 28} must request the permission, {@link
+   * android.Manifest.permission#FOREGROUND_SERVICE}.
+   *
+   * @param session A session that needs notification update.
+   */
+  public void onUpdateNotification(MediaSession session) {
+    getMediaNotificationManager().updateNotification(session);
+  }
+
+  /**
    * Sets the {@link MediaNotification.Provider} to customize notifications.
    *
-   * <p>This should be called before any session is attached to this service via {@link
-   * #onGetSession(ControllerInfo)} or {@link #addSession(MediaSession)}. Otherwise a default UX
-   * will be shown with {@link DefaultMediaNotificationProvider}.
+   * <p>This should be called before {@link #onCreate()} returns.
    */
   @UnstableApi
   protected final void setMediaNotificationProvider(
