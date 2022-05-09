@@ -17,7 +17,6 @@ package androidx.media3.exoplayer.rtsp.reader;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.castNonNull;
 
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
@@ -31,40 +30,49 @@ import androidx.media3.extractor.TrackOutput;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Parses an VP9 byte stream carried on RTP packets, and extracts VP9 Access Units. Refer to
- * @link https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9 for more details.
+ * Parses an VP9 byte stream carried on RTP packets, and extracts VP9 Access Units. Refer to <a
+ * href=https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9> this draft RFC</a> for more
+ * details.
  */
-/* package */ final class RtpVP9Reader implements RtpPayloadReader {
+/* package */ final class RtpVp9Reader implements RtpPayloadReader {
 
-  private static final String TAG = "RtpVP9Reader";
+  private static final String TAG = "RtpVp9Reader";
 
   private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
+  private static final int SCALABILITY_STRUCTURE_SIZE = 4;
 
   private final RtpPayloadFormat payloadFormat;
 
   private @MonotonicNonNull TrackOutput trackOutput;
-  @C.BufferFlags private int bufferFlags;
 
+  /**
+   * First received RTP timestamp. All RTP timestamps are dimension-less, the time base is defined
+   * by {@link #MEDIA_CLOCK_FREQUENCY}.
+   */
   private long firstReceivedTimestamp;
   private long startTimeOffsetUs;
-  private static int previousSequenceNumber;
+  private int previousSequenceNumber;
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
-  private static int width;
-  private static int height;
-  private static boolean gotFirstPacketOfVP9Frame;
+  private int width;
+  private int height;
+  /**
+   * Whether the first packet of one VP9 frame is received, it mark the start of a VP9 partition.
+   * A VP9 frame can be split into multiple RTP packets.
+   */
+  private boolean gotFirstPacketOfVP9Frame;
   private boolean isKeyFrame;
   private boolean isOutputFormatSet;
 
   /** Creates an instance. */
-  public RtpVP9Reader(RtpPayloadFormat payloadFormat) {
+  public RtpVp9Reader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
-    startTimeOffsetUs = 0;
+    startTimeOffsetUs = 0;    // The start time offset must be 0 until the first seek.
     previousSequenceNumber = C.INDEX_UNSET;
     fragmentedSampleSizeBytes = 0;
-    width = C.INDEX_UNSET;
-    height = C.INDEX_UNSET;
+    width = C.LENGTH_UNSET;
+    height = C.LENGTH_UNSET;
     gotFirstPacketOfVP9Frame = false;
     isKeyFrame = false;
     isOutputFormatSet = false;
@@ -73,7 +81,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void createTracks(ExtractorOutput extractorOutput, int trackId) {
     trackOutput = extractorOutput.track(trackId, C.TRACK_TYPE_VIDEO);
-    castNonNull(trackOutput).format(payloadFormat.format);
+    trackOutput.format(payloadFormat.format);
   }
 
   @Override
@@ -84,12 +92,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throws ParserException {
     checkStateNotNull(trackOutput);
 
-    if (parseVP9Descriptor(data, sequenceNumber)) {
+    if (validateVp9Descriptor(data, sequenceNumber)) {
       if (fragmentedSampleSizeBytes == 0 && gotFirstPacketOfVP9Frame) {
         isKeyFrame = (data.peekUnsignedByte() & 0x04) == 0;
       }
 
-      if (!isOutputFormatSet && width > 0 && height > 0) {
+      if (!isOutputFormatSet && width != C.LENGTH_UNSET  && height != C.LENGTH_UNSET) {
         if (width != payloadFormat.format.width || height != payloadFormat.format.height) {
           trackOutput.format(
               payloadFormat.format.buildUpon().setWidth(width).setHeight(height).build());
@@ -106,14 +114,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (firstReceivedTimestamp == C.TIME_UNSET) {
           firstReceivedTimestamp = timestamp;
         }
-        bufferFlags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
         long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
         trackOutput.sampleMetadata(
             timeUs,
-            bufferFlags,
+            isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
             fragmentedSampleSizeBytes,
             /* offset= */ 0,
-            /* encryptionData= */ null);
+            /* cryptoData= */ null);
         fragmentedSampleSizeBytes = 0;
         gotFirstPacketOfVP9Frame = false;
       }
@@ -138,7 +145,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 
-  private static boolean parseVP9Descriptor(ParsableByteArray payload, int packetSequenceNumber)
+  /**
+   * Returns {@code true} and sets the {@link ParsableByteArray#getPosition() payload.position} to
+   * the end of the descriptor, if a valid VP9 descriptor is present.
+   */
+  private boolean validateVp9Descriptor(ParsableByteArray payload, int packetSequenceNumber)
       throws ParserException {
     // VP9 Payload Descriptor, Section 4.2
     //         0 1 2 3 4 5 6 7
@@ -159,13 +170,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     int header = payload.readUnsignedByte();
     if (!gotFirstPacketOfVP9Frame) {
-      // For start of VP9 partition B=1 as per VP9 RFC Section 4.2.
       if ((header & 0x08) == 0) {
         Log.w(
             TAG,
-            Util.formatInvariant(
-                "First payload octet of the RTP packet is not the beginning of a new VP9 partition,"
-                    + " Dropping current packet." + header));
+            "First payload octet of the RTP packet is not the beginning of a new VP9 partition,"
+                + " Dropping current packet.");
         return false;
       }
       gotFirstPacketOfVP9Frame = true;
@@ -183,7 +192,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
-    // Check I optional header present.
+    // Check if optional I header is present.
     if ((header & 0x80) != 0) {
       int optionalHeader = payload.readUnsignedByte();
       // Check M for 15 bits PictureID.
@@ -197,29 +206,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Flexible-mode not implemented.
     checkArgument((header & 0x10) == 0, "VP9 flexible mode unsupported");
 
-    // Check L optional header present.
+    // Check if optional L header is present.
     if ((header & 0x20) != 0) {
       payload.skipBytes(1);
       if (payload.bytesLeft() < 1) {
         return false;
       }
-      // Check TL0PICIDX header present (non-flexible mode).
+      // Check if TL0PICIDX header present (non-flexible mode).
       if ((header & 0x10) == 0) {
         payload.skipBytes(1);
       }
     }
 
-    // Check V optional header present, Refer Section 4.2.1.
+    // Check if optional V header is present, Refer Section 4.2.1.
     if ((header & 0x02) != 0) {
-      int scalabilityStr = payload.readUnsignedByte();
-      int numSpatialLayers = (scalabilityStr & 0xe0) >> 5;
-      int scalabilityStrLength = ((scalabilityStr & 0x10) != 0) ? numSpatialLayers + 1 : 0;
+      int scalabilityStructure = payload.readUnsignedByte();
+      int numSpatialLayers = (scalabilityStructure >> 5) & 0x7 ;
+      int scalabilityStructureLength =
+          ((scalabilityStructure & 0x10) != 0) ? numSpatialLayers + 1 : 0;
 
-      if ((scalabilityStr & 0x10) != 0) {
-        if (payload.bytesLeft() < scalabilityStrLength * 4) {
+      if ((scalabilityStructure & 0x10) != 0) {
+        if (payload.bytesLeft() < scalabilityStructureLength * SCALABILITY_STRUCTURE_SIZE) {
           return false;
         }
-        for (int index = 0; index < scalabilityStrLength; index++) {
+        for (int index = 0; index < scalabilityStructureLength; index++) {
           width = payload.readUnsignedShort();
           height = payload.readUnsignedShort();
         }

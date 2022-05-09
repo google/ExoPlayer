@@ -56,8 +56,25 @@ import com.google.common.collect.ImmutableMap;
 
   private static final String GENERIC_CONTROL_ATTR = "*";
 
-  /** Default width and height for VP9. */
+  /**
+   * Default width for VP9.
+   *
+   * <p>VP9 RFC (<a href=https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9> this draft
+   * RFC</a>) never uses codec specific data (like width and height) in the fmtp attribute. These
+   * values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/vpx/C2SoftVpxDec.cpp;drc=749a74cc3e081c16ea0e8c530953d0a247177867;l=70>Android's
+   * software VP9 decoder</a>.
+   */
   private static final int DEFAULT_VP9_WIDTH = 320;
+  /**
+   * Default height for VP9.
+   *
+   * <p>VP9 RFC (<a href=https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9> this draft
+   * RFC</a>) never uses codec specific data (like width and height) in the fmtp attribute. These
+   * values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/vpx/C2SoftVpxDec.cpp;drc=749a74cc3e081c16ea0e8c530953d0a247177867;l=70>Android's
+   * software VP9 decoder</a>.
+   */
   private static final int DEFAULT_VP9_HEIGHT = 240;
 
   /** The track's associated {@link RtpPayloadFormat}. */
@@ -134,7 +151,7 @@ import com.google.common.collect.ImmutableMap;
         processH265FmtpAttribute(formatBuilder, fmtpParameters);
         break;
       case MimeTypes.VIDEO_VP9:
-        // VP9 does not require a FMTP attribute. So Setting default width and height.
+        // VP9 never uses fmtp width and height attributes, setting default width and height.
         formatBuilder.setWidth(DEFAULT_VP9_WIDTH).setHeight(DEFAULT_VP9_HEIGHT);
         break;
       case MimeTypes.AUDIO_AC3:
