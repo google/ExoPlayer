@@ -26,6 +26,7 @@ import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.LibraryLoader;
+import androidx.media3.transformer.FrameProcessingException;
 import androidx.media3.transformer.GlFrameProcessor;
 import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.framework.AppTextureFrame;
@@ -112,7 +113,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) {
+  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
     frameProcessorConditionVariable.close();
 
     // Pass the input frame to MediaPipe.
@@ -133,7 +134,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (frameProcessorPendingError != null) {
-      throw new IllegalStateException(frameProcessorPendingError);
+      throw new FrameProcessingException(frameProcessorPendingError);
     }
 
     // Copy from MediaPipe's output texture to the current output.
@@ -148,6 +149,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       glProgram.bindAttributesAndUniforms();
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       GlUtil.checkGlError();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
     } finally {
       checkStateNotNull(outputFrame).release();
     }

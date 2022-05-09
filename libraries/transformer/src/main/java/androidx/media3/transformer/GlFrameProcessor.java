@@ -46,6 +46,7 @@ public interface GlFrameProcessor {
    * @param inputTexId Identifier of a 2D OpenGL texture.
    * @param inputWidth The input width, in pixels.
    * @param inputHeight The input height, in pixels.
+   * @throws IOException If an error occurs while reading resources.
    */
   void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
       throws IOException;
@@ -69,8 +70,9 @@ public interface GlFrameProcessor {
    * program's vertex attributes and uniforms, and issue a drawing command.
    *
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
+   * @throws FrameProcessingException If an error occurs while processing or drawing the frame.
    */
-  void drawFrame(long presentationTimeUs);
+  void drawFrame(long presentationTimeUs) throws FrameProcessingException;
 
   /** Releases all resources. */
   void release();

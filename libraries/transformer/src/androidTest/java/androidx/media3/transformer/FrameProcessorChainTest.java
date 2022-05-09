@@ -23,6 +23,7 @@ import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +34,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainTest {
+  private final AtomicReference<FrameProcessingException> frameProcessingException =
+      new AtomicReference<>();
 
   @Test
   public void getOutputSize_noOperation_returnsInputSize() throws Exception {
@@ -46,6 +49,7 @@ public final class FrameProcessorChainTest {
     Size outputSize = frameProcessorChain.getOutputSize();
 
     assertThat(outputSize).isEqualTo(inputSize);
+    assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
@@ -60,6 +64,7 @@ public final class FrameProcessorChainTest {
     Size outputSize = frameProcessorChain.getOutputSize();
 
     assertThat(outputSize).isEqualTo(new Size(400, 100));
+    assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
@@ -74,6 +79,7 @@ public final class FrameProcessorChainTest {
     Size outputSize = frameProcessorChain.getOutputSize();
 
     assertThat(outputSize).isEqualTo(new Size(200, 200));
+    assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
@@ -89,6 +95,7 @@ public final class FrameProcessorChainTest {
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
     assertThat(frameProcessorChainOutputSize).isEqualTo(frameProcessorOutputSize);
+    assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
@@ -107,17 +114,19 @@ public final class FrameProcessorChainTest {
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
     assertThat(frameProcessorChainOutputSize).isEqualTo(outputSize3);
+    assertThat(frameProcessingException.get()).isNull();
   }
 
-  private static FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
+  private FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
       float pixelWidthHeightRatio, Size inputSize, List<Size> frameProcessorOutputSizes)
-      throws TransformationException {
+      throws FrameProcessingException {
     ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
     for (Size element : frameProcessorOutputSizes) {
       effects.add(() -> new FakeFrameProcessor(element));
     }
     return FrameProcessorChain.create(
         getApplicationContext(),
+        /* listener= */ this.frameProcessingException::set,
         pixelWidthHeightRatio,
         inputSize.getWidth(),
         inputSize.getHeight(),

@@ -31,6 +31,7 @@ import android.util.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.transformer.FrameProcessingException;
 import androidx.media3.transformer.GlFrameProcessor;
 import java.io.IOException;
 import java.util.Locale;
@@ -116,28 +117,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) {
-    checkStateNotNull(glProgram);
-    glProgram.use();
+  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+    try {
+      checkStateNotNull(glProgram).use();
 
-    // Draw to the canvas and store it in a texture.
-    String text =
-        String.format(Locale.US, "%.02f", presentationTimeUs / (float) C.MICROS_PER_SECOND);
-    overlayBitmap.eraseColor(Color.TRANSPARENT);
-    overlayCanvas.drawBitmap(checkStateNotNull(logoBitmap), /* left= */ 3, /* top= */ 378, paint);
-    overlayCanvas.drawText(text, /* x= */ 160, /* y= */ 466, paint);
-    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTexId);
-    GLUtils.texSubImage2D(
-        GLES20.GL_TEXTURE_2D,
-        /* level= */ 0,
-        /* xoffset= */ 0,
-        /* yoffset= */ 0,
-        flipBitmapVertically(overlayBitmap));
-    GlUtil.checkGlError();
+      // Draw to the canvas and store it in a texture.
+      String text =
+          String.format(Locale.US, "%.02f", presentationTimeUs / (float) C.MICROS_PER_SECOND);
+      overlayBitmap.eraseColor(Color.TRANSPARENT);
+      overlayCanvas.drawBitmap(checkStateNotNull(logoBitmap), /* left= */ 3, /* top= */ 378, paint);
+      overlayCanvas.drawText(text, /* x= */ 160, /* y= */ 466, paint);
+      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTexId);
+      GLUtils.texSubImage2D(
+          GLES20.GL_TEXTURE_2D,
+          /* level= */ 0,
+          /* xoffset= */ 0,
+          /* yoffset= */ 0,
+          flipBitmapVertically(overlayBitmap));
+      GlUtil.checkGlError();
 
-    glProgram.bindAttributesAndUniforms();
-    // The four-vertex triangle strip forms a quad.
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      glProgram.bindAttributesAndUniforms();
+      // The four-vertex triangle strip forms a quad.
+      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      GlUtil.checkGlError();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
   }
 
   @Override

@@ -50,6 +50,8 @@ public final class GlUtil {
     }
   }
 
+  // TODO(b/231937416): Consider removing this flag, enabling assertions by default, and making
+  //  GlException checked.
   /** Whether to throw a {@link GlException} in case of an OpenGL error. */
   public static boolean glAssertionsEnabled = false;
 
