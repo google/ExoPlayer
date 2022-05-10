@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
@@ -45,7 +46,10 @@ public class TransformationTest {
   public void transform() throws Exception {
     String testId = TAG + "_transform";
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder(context).build();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
@@ -53,15 +57,12 @@ public class TransformationTest {
   }
 
   @Test
-  public void transformWithDecodeEncode() throws Exception {
-    String testId = TAG + "_transformWithDecodeEncode";
+  public void transformWithoutDecodeEncode() throws Exception {
+    String testId = TAG + "_transformWithoutDecodeEncode";
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
+    // No need to calculate SSIM because no decode/encoding, so input frames match output frames.
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setCalculateSsim(true)
         .build()
         .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
   }
@@ -89,7 +90,8 @@ public class TransformationTest {
   public void transform4K60() throws Exception {
     String testId = TAG + "_transform4K60";
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder(context).build();
+    Transformer transformer =
+        new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
@@ -100,7 +102,11 @@ public class TransformationTest {
   public void transformNoAudio() throws Exception {
     String testId = TAG + "_transformNoAudio";
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY)
+            .setRemoveAudio(true)
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
@@ -111,7 +117,11 @@ public class TransformationTest {
   public void transformNoVideo() throws Exception {
     String testId = TAG + "_transformNoVideo";
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder(context).setRemoveVideo(true).build();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY)
+            .setRemoveVideo(true)
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(testId, MP4_ASSET_URI_STRING);
