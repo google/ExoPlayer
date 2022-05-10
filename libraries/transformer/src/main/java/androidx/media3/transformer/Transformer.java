@@ -557,10 +557,10 @@ public final class Transformer {
   private final ImmutableList<GlEffect> videoFrameEffects;
   private final Looper looper;
   private final Clock clock;
-  private final Codec.EncoderFactory encoderFactory;
-  private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final ListenerSet<Transformer.Listener> listeners;
+  private final Codec.DecoderFactory decoderFactory;
+  @VisibleForTesting /* package */ final Codec.EncoderFactory encoderFactory;
 
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;

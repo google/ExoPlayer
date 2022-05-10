@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
@@ -30,7 +31,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
@@ -124,7 +124,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public int getMaxPendingFrameCount() {
-    if (Util.SDK_INT < 29) {
+    if (SDK_INT < 29) {
       // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
       // bounds. From API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
       // dropping even when the surface is full. Frame dropping is never desired, so allow a maximum
@@ -255,6 +255,23 @@ public final class DefaultCodec implements Codec {
       inputSurface.release();
     }
     mediaCodec.release();
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This name is of the actual codec, which may not be the same as the {@code mediaCodecName}
+   * passed to {@link #DefaultCodec(Format, MediaFormat, String, boolean, Surface)}.
+   *
+   * @see MediaCodec#getCanonicalName()
+   */
+  @Override
+  public String getName() {
+    if (SDK_INT >= 29) {
+      return mediaCodec.getCanonicalName();
+    }
+
+    return mediaCodec.getName();
   }
 
   /**

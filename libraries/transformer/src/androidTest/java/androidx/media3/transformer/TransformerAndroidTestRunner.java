@@ -21,17 +21,20 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
@@ -140,6 +143,7 @@ public class TransformerAndroidTestRunner {
   }
 
   private final Context context;
+  private final CodecNameForwardingEncoderFactory transformerEncoderFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
   private final boolean calculateSsim;
@@ -154,7 +158,9 @@ public class TransformerAndroidTestRunner {
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
-    this.transformer = transformer;
+    this.transformerEncoderFactory =
+        new CodecNameForwardingEncoderFactory(transformer.encoderFactory);
+    this.transformer = transformer.buildUpon().setEncoderFactory(transformerEncoderFactory).build();
     this.timeoutSeconds = timeoutSeconds;
     this.calculateSsim = calculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
@@ -186,6 +192,7 @@ public class TransformerAndroidTestRunner {
       resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
       throw e;
     } finally {
+      resultJson.put("codecDetails", transformerEncoderFactory.getCodecNamesAsJsonObject());
       AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
@@ -306,5 +313,58 @@ public class TransformerAndroidTestRunner {
       Log.e(TAG_PREFIX + testId, "SSIM calculation failed.", analysisException);
     }
     return resultBuilder.build();
+  }
+
+  /**
+   * A {@link Codec.EncoderFactory} that forwards all methods to another encoder factory, whilst
+   * providing visibility into the names of last codecs created by it.
+   */
+  private static class CodecNameForwardingEncoderFactory implements Codec.EncoderFactory {
+
+    @Nullable public String audioEncoderName;
+    @Nullable public String videoEncoderName;
+
+    private final Codec.EncoderFactory encoderFactory;
+
+    public CodecNameForwardingEncoderFactory(Codec.EncoderFactory encoderFactory) {
+      this.encoderFactory = encoderFactory;
+    }
+
+    @Override
+    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException {
+      Codec audioEncoder = encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+      audioEncoderName = audioEncoder.getName();
+      return audioEncoder;
+    }
+
+    @Override
+    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException {
+      Codec videoEncoder = encoderFactory.createForVideoEncoding(format, allowedMimeTypes);
+      videoEncoderName = videoEncoder.getName();
+      return videoEncoder;
+    }
+
+    @Override
+    public boolean audioNeedsEncoding() {
+      return encoderFactory.audioNeedsEncoding();
+    }
+
+    @Override
+    public boolean videoNeedsEncoding() {
+      return encoderFactory.videoNeedsEncoding();
+    }
+
+    public JSONObject getCodecNamesAsJsonObject() throws JSONException {
+      JSONObject detailsJson = new JSONObject();
+      if (audioEncoderName != null) {
+        detailsJson.put("audioEncoderName", audioEncoderName);
+      }
+      if (videoEncoderName != null) {
+        detailsJson.put("videoEncoderName", videoEncoderName);
+      }
+      return detailsJson;
+    }
   }
 }

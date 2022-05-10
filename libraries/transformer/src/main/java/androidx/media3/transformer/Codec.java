@@ -133,6 +133,9 @@ public interface Codec {
    */
   Format getConfigurationFormat();
 
+  /** Returns the name of the underlying codec. */
+  String getName();
+
   /**
    * Returns the input {@link Surface} of an underlying video encoder.
    *
