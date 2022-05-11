@@ -110,6 +110,7 @@ public final class Transformer {
     private Looper looper;
     private Clock clock;
     private Codec.EncoderFactory encoderFactory;
+    private Codec.DecoderFactory decoderFactory;
 
     /**
      * @deprecated Use {@link #Builder(Context)} instead.
@@ -121,6 +122,7 @@ public final class Transformer {
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
       encoderFactory = Codec.EncoderFactory.DEFAULT;
+      decoderFactory = Codec.DecoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
@@ -139,6 +141,7 @@ public final class Transformer {
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
       encoderFactory = Codec.EncoderFactory.DEFAULT;
+      decoderFactory = Codec.DecoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
@@ -158,6 +161,7 @@ public final class Transformer {
       this.listeners = transformer.listeners;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
+      this.decoderFactory = transformer.decoderFactory;
       this.debugViewProvider = transformer.debugViewProvider;
       this.clock = transformer.clock;
     }
@@ -350,6 +354,19 @@ public final class Transformer {
     }
 
     /**
+     * Sets the {@link Codec.DecoderFactory} that will be used by the transformer.
+     *
+     * <p>The default value is {@link Codec.DecoderFactory#DEFAULT}.
+     *
+     * @param decoderFactory The {@link Codec.DecoderFactory} instance.
+     * @return This builder.
+     */
+    public Builder setDecoderFactory(Codec.DecoderFactory decoderFactory) {
+      this.decoderFactory = decoderFactory;
+      return this;
+    }
+
+    /**
      * Sets a provider for views to show diagnostic information (if available) during
      * transformation.
      *
@@ -437,7 +454,7 @@ public final class Transformer {
           looper,
           clock,
           encoderFactory,
-          Codec.DecoderFactory.DEFAULT,
+          decoderFactory,
           debugViewProvider);
     }
 
@@ -559,7 +576,7 @@ public final class Transformer {
   private final Clock clock;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final ListenerSet<Transformer.Listener> listeners;
-  private final Codec.DecoderFactory decoderFactory;
+  @VisibleForTesting /* package */ final Codec.DecoderFactory decoderFactory;
   @VisibleForTesting /* package */ final Codec.EncoderFactory encoderFactory;
 
   @Nullable private MuxerWrapper muxerWrapper;

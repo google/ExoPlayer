@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.net.Uri;
+import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
@@ -143,7 +144,7 @@ public class TransformerAndroidTestRunner {
   }
 
   private final Context context;
-  private final CodecNameForwardingEncoderFactory transformerEncoderFactory;
+  private final CodecNameForwardingCodecFactory transformerCodecFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
   private final boolean calculateSsim;
@@ -158,9 +159,14 @@ public class TransformerAndroidTestRunner {
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
-    this.transformerEncoderFactory =
-        new CodecNameForwardingEncoderFactory(transformer.encoderFactory);
-    this.transformer = transformer.buildUpon().setEncoderFactory(transformerEncoderFactory).build();
+    this.transformerCodecFactory =
+        new CodecNameForwardingCodecFactory(transformer.decoderFactory, transformer.encoderFactory);
+    this.transformer =
+        transformer
+            .buildUpon()
+            .setDecoderFactory(transformerCodecFactory)
+            .setEncoderFactory(transformerCodecFactory)
+            .build();
     this.timeoutSeconds = timeoutSeconds;
     this.calculateSsim = calculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
@@ -192,7 +198,7 @@ public class TransformerAndroidTestRunner {
       resultJson.put("exception", AndroidTestUtil.exceptionAsJsonObject(e));
       throw e;
     } finally {
-      resultJson.put("codecDetails", transformerEncoderFactory.getCodecNamesAsJsonObject());
+      resultJson.put("codecDetails", transformerCodecFactory.getCodecNamesAsJsonObject());
       AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);
     }
   }
@@ -319,15 +325,42 @@ public class TransformerAndroidTestRunner {
    * A {@link Codec.EncoderFactory} that forwards all methods to another encoder factory, whilst
    * providing visibility into the names of last codecs created by it.
    */
-  private static class CodecNameForwardingEncoderFactory implements Codec.EncoderFactory {
+  private static class CodecNameForwardingCodecFactory
+      implements Codec.DecoderFactory, Codec.EncoderFactory {
 
+    /** The name of the last audio {@link Codec decoder} created. */
+    @Nullable public String audioDecoderName;
+    /** The name of the last video {@link Codec decoder} created. */
+    @Nullable public String videoDecoderName;
+    /** The name of the last audio {@link Codec encoder} created. */
     @Nullable public String audioEncoderName;
+    /** The name of the last video {@link Codec encoder} created. */
     @Nullable public String videoEncoderName;
 
+    private final Codec.DecoderFactory decoderFactory;
     private final Codec.EncoderFactory encoderFactory;
 
-    public CodecNameForwardingEncoderFactory(Codec.EncoderFactory encoderFactory) {
+    public CodecNameForwardingCodecFactory(
+        Codec.DecoderFactory decoderFactory, Codec.EncoderFactory encoderFactory) {
+      this.decoderFactory = decoderFactory;
       this.encoderFactory = encoderFactory;
+    }
+
+    @Override
+    public Codec createForAudioDecoding(Format format) throws TransformationException {
+      Codec audioDecoder = decoderFactory.createForAudioDecoding(format);
+      audioDecoderName = audioDecoder.getName();
+      return audioDecoder;
+    }
+
+    @Override
+    public Codec createForVideoDecoding(
+        Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
+        throws TransformationException {
+      Codec videoDecoder =
+          decoderFactory.createForVideoDecoding(format, outputSurface, enableRequestSdrToneMapping);
+      videoDecoderName = videoDecoder.getName();
+      return videoDecoder;
     }
 
     @Override
@@ -358,6 +391,12 @@ public class TransformerAndroidTestRunner {
 
     public JSONObject getCodecNamesAsJsonObject() throws JSONException {
       JSONObject detailsJson = new JSONObject();
+      if (audioDecoderName != null) {
+        detailsJson.put("audioDecoderName", audioDecoderName);
+      }
+      if (videoDecoderName != null) {
+        detailsJson.put("videoDecoderName", videoDecoderName);
+      }
       if (audioEncoderName != null) {
         detailsJson.put("audioEncoderName", audioEncoderName);
       }
