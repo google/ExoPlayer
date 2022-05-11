@@ -57,6 +57,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -765,6 +766,55 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackStateRef.get().getPosition()).isEqualTo(testSeekPosition);
     assertThat(controllerCompat.getPlaybackState().getPosition()).isEqualTo(testSeekPosition);
+  }
+
+  @Test
+  public void customLayoutChanged_updatesPlaybackStateCompat() throws Exception {
+
+    AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            playbackStateRef.set(state);
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    List<CommandButton> customLayout = new ArrayList<>();
+    Bundle customCommandBundle1 = new Bundle();
+    customCommandBundle1.putString("customKey1", "customValue1");
+    customLayout.add(
+        new CommandButton.Builder()
+            .setDisplayName("customCommandName1")
+            .setIconResId(1)
+            .setSessionCommand(new SessionCommand("customCommandAction1", customCommandBundle1))
+            .build());
+    Bundle customCommandBundle2 = new Bundle();
+    customCommandBundle2.putString("customKey2", "customValue2");
+    customLayout.add(
+        new CommandButton.Builder()
+            .setDisplayName("customCommandName2")
+            .setIconResId(2)
+            .setSessionCommand(new SessionCommand("customCommandAction2", customCommandBundle2))
+            .build());
+
+    session.setCustomLayout(customLayout);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    List<PlaybackStateCompat.CustomAction> customActions =
+        playbackStateRef.get().getCustomActions();
+    assertThat(customActions).hasSize(2);
+    assertThat(customActions.get(0).getAction()).isEqualTo("customCommandAction1");
+    assertThat(customActions.get(0).getName()).isEqualTo("customCommandName1");
+    assertThat(customActions.get(0).getIcon()).isEqualTo(1);
+    assertThat(TestUtils.equals(customActions.get(0).getExtras(), customCommandBundle1)).isTrue();
+    assertThat(customActions.get(1).getAction()).isEqualTo("customCommandAction2");
+    assertThat(customActions.get(1).getName()).isEqualTo("customCommandName2");
+    assertThat(customActions.get(1).getIcon()).isEqualTo(2);
+    assertThat(TestUtils.equals(customActions.get(1).getExtras(), customCommandBundle2)).isTrue();
   }
 
   @Test

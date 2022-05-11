@@ -89,6 +89,7 @@ import androidx.media3.test.session.common.MockActivity;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestHandler.TestRunnable;
 import androidx.media3.test.session.common.TestUtils;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -398,15 +399,12 @@ public class MediaSessionProviderService extends Service {
       }
       runOnHandler(
           () -> {
-            List<CommandButton> buttons = new ArrayList<>();
+            ImmutableList.Builder<CommandButton> builder = new ImmutableList.Builder<>();
             for (Bundle bundle : layout) {
-              buttons.add(CommandButton.CREATOR.fromBundle(bundle));
+              builder.add(CommandButton.CREATOR.fromBundle(bundle));
             }
             MediaSession session = sessionMap.get(sessionId);
-            List<ControllerInfo> controllerInfos = MediaTestUtils.getTestControllerInfos(session);
-            for (ControllerInfo info : controllerInfos) {
-              session.setCustomLayout(info, buttons);
-            }
+            session.setCustomLayout(builder.build());
           });
     }
 

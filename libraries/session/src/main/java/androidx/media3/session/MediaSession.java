@@ -623,6 +623,17 @@ public class MediaSession {
   }
 
   /**
+   * Sets the custom layout and broadcasts it to all connected controllers including the legacy
+   * controllers.
+   *
+   * @param layout The ordered list of {@link CommandButton}.
+   */
+  public void setCustomLayout(List<CommandButton> layout) {
+    checkNotNull(layout, "layout must not be null");
+    impl.setCustomLayout(layout);
+  }
+
+  /**
    * Sets the new available commands for the controller.
    *
    * <p>This is a synchronous call. Changes in the available commands take effect immediately

@@ -45,6 +45,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /**
@@ -59,10 +60,12 @@ import java.util.List;
   private int legacyStatusCode;
   @Nullable private String legacyErrorMessage;
   @Nullable private Bundle legacyErrorExtras;
+  private ImmutableList<CommandButton> customLayout;
 
   public PlayerWrapper(Player player) {
     super(player);
     legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
+    customLayout = ImmutableList.of();
   }
 
   /**
@@ -89,6 +92,11 @@ import java.util.List;
   /** Returns the legacy status code. */
   public int getLegacyStatusCode() {
     return legacyStatusCode;
+  }
+
+  /** Sets the custom layout. */
+  public void setCustomLayout(ImmutableList<CommandButton> customLayout) {
+    this.customLayout = customLayout;
   }
 
   /** Clears the legacy error status. */
@@ -766,8 +774,6 @@ import java.util.List;
             | PlaybackStateCompat.ACTION_PAUSE
             | PlaybackStateCompat.ACTION_PLAY
             | PlaybackStateCompat.ACTION_REWIND
-            | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
             | PlaybackStateCompat.ACTION_FAST_FORWARD
             | PlaybackStateCompat.ACTION_SET_RATING
             | PlaybackStateCompat.ACTION_SEEK_TO
@@ -783,6 +789,14 @@ import java.util.List;
             | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
             | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
             | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
+    if (getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS)
+        || getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
+      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+    }
+    if (getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT)
+        || getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
+      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+    }
     long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
     PlaybackStateCompat.Builder builder =
         new PlaybackStateCompat.Builder()
@@ -794,6 +808,22 @@ import java.util.List;
             .setActions(allActions)
             .setActiveQueueItemId(queueItemId)
             .setBufferedPosition(getBufferedPosition());
+
+    for (int i = 0; i < customLayout.size(); i++) {
+      CommandButton commandButton = customLayout.get(i);
+      if (commandButton.sessionCommand != null) {
+        SessionCommand sessionCommand = commandButton.sessionCommand;
+        if (sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM) {
+          builder.addCustomAction(
+              new PlaybackStateCompat.CustomAction.Builder(
+                      sessionCommand.customAction,
+                      commandButton.displayName,
+                      commandButton.iconResId)
+                  .setExtras(sessionCommand.customExtras)
+                  .build());
+        }
+      }
+    }
     if (playerError != null) {
       builder.setErrorMessage(
           PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, Util.castNonNull(playerError.getMessage()));

@@ -70,6 +70,7 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.MediaSession.MediaItemFiller;
 import androidx.media3.session.MediaSession.SessionCallback;
 import androidx.media3.session.SequencedFutureManager.SequencedFuture;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.ref.WeakReference;
@@ -341,6 +342,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       ControllerInfo controller, List<CommandButton> layout) {
     return dispatchRemoteControllerTask(
         controller, (controller1, seq) -> controller1.setCustomLayout(seq, layout));
+  }
+
+  public void setCustomLayout(List<CommandButton> layout) {
+    playerWrapper.setCustomLayout(ImmutableList.copyOf(layout));
+    dispatchRemoteControllerTaskWithoutReturn(
+        (controller, seq) -> controller.setCustomLayout(seq, layout));
   }
 
   public void setAvailableCommands(

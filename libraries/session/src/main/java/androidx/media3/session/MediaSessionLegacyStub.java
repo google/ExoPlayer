@@ -34,6 +34,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
+import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
@@ -640,10 +641,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private void dispatchSessionTaskWithSessionCommand(
       SessionCommand sessionCommand, SessionTask task) {
     dispatchSessionTaskWithSessionCommandInternal(
-        sessionCommand,
-        SessionCommand.COMMAND_CODE_CUSTOM,
-        task,
-        sessionCompat.getCurrentControllerInfo());
+        sessionCommand, COMMAND_CODE_CUSTOM, task, sessionCompat.getCurrentControllerInfo());
   }
 
   private void dispatchSessionTaskWithSessionCommandInternal(
@@ -875,6 +873,13 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPlayerError(int seq, @Nullable PlaybackException playerError) {
+      sessionImpl
+          .getSessionCompat()
+          .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
+    }
+
+    @Override
+    public void setCustomLayout(int seq, List<CommandButton> layout) {
       sessionImpl
           .getSessionCompat()
           .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
