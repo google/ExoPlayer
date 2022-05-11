@@ -35,13 +35,14 @@ public final class FileTypes {
   /**
    * File types. One of {@link #UNKNOWN}, {@link #AC3}, {@link #AC4}, {@link #ADTS}, {@link #AMR},
    * {@link #FLAC}, {@link #FLV}, {@link #MATROSKA}, {@link #MP3}, {@link #MP4}, {@link #OGG},
-   * {@link #PS}, {@link #TS}, {@link #WAV}, {@link #WEBVTT} and {@link #JPEG}.
+   * {@link #PS}, {@link #TS}, {@link #WAV}, {@link #WEBVTT}, {@link #JPEG} and {@link #MIDI}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
-    UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG
+    UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG,
+    MIDI
   })
   public @interface Type {}
   /** Unknown file type. */
@@ -76,6 +77,8 @@ public final class FileTypes {
   public static final int WEBVTT = 13;
   /** File type for the JPEG format. */
   public static final int JPEG = 14;
+  /** File type for the MIDI format. */
+  public static final int MIDI = 15;
 
   @VisibleForTesting /* package */ static final String HEADER_CONTENT_TYPE = "Content-Type";
 
@@ -87,6 +90,9 @@ public final class FileTypes {
   private static final String EXTENSION_AMR = ".amr";
   private static final String EXTENSION_FLAC = ".flac";
   private static final String EXTENSION_FLV = ".flv";
+  private static final String EXTENSION_MID = ".mid";
+  private static final String EXTENSION_MIDI = ".midi";
+  private static final String EXTENSION_SMF = ".smf";
   private static final String EXTENSION_PREFIX_MK = ".mk";
   private static final String EXTENSION_WEBM = ".webm";
   private static final String EXTENSION_PREFIX_OG = ".og";
@@ -145,6 +151,8 @@ public final class FileTypes {
         return FileTypes.FLAC;
       case MimeTypes.VIDEO_FLV:
         return FileTypes.FLV;
+      case MimeTypes.AUDIO_MIDI:
+        return FileTypes.MIDI;
       case MimeTypes.VIDEO_MATROSKA:
       case MimeTypes.AUDIO_MATROSKA:
       case MimeTypes.VIDEO_WEBM:
@@ -191,6 +199,10 @@ public final class FileTypes {
       return FileTypes.FLAC;
     } else if (filename.endsWith(EXTENSION_FLV)) {
       return FileTypes.FLV;
+    } else if (filename.endsWith(EXTENSION_MID)
+        || filename.endsWith(EXTENSION_MIDI)
+        || filename.endsWith(EXTENSION_SMF)) {
+      return FileTypes.MIDI;
     } else if (filename.startsWith(
             EXTENSION_PREFIX_MK,
             /* toffset= */ filename.length() - (EXTENSION_PREFIX_MK.length() + 1))
