@@ -261,8 +261,8 @@ public abstract class MediaSessionService extends Service {
   }
 
   /**
-   * Returns the list of {@link MediaSession sessions} that you've added to this service via {@link
-   * #addSession} or {@link #onGetSession(ControllerInfo)}.
+   * Returns the list of {@linkplain MediaSession sessions} that you've added to this service via
+   * {@link #addSession} or {@link #onGetSession(ControllerInfo)}.
    */
   public final List<MediaSession> getSessions() {
     synchronized (lock) {

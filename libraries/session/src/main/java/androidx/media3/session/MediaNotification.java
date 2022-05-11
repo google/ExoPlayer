@@ -31,8 +31,8 @@ import androidx.media3.common.util.UnstableApi;
 public final class MediaNotification {
 
   /**
-   * Creates {@link NotificationCompat.Action actions} and {@link PendingIntent pending intents} for
-   * notifications.
+   * Creates {@linkplain NotificationCompat.Action actions} and {@linkplain PendingIntent pending
+   * intents} for notifications.
    */
   @UnstableApi
   public interface ActionFactory {
@@ -51,7 +51,7 @@ public final class MediaNotification {
     /**
      * Creates a {@link NotificationCompat.Action} for a notification with a custom action. Actions
      * created with this method are not expected to be handled by the library and will be forwarded
-     * to the {@link MediaNotification.Provider#handleCustomAction notification provider} that
+     * to the {@linkplain MediaNotification.Provider#handleCustomAction notification provider} that
      * provided them.
      *
      * @param icon The icon to show for this action.
@@ -72,11 +72,11 @@ public final class MediaNotification {
   }
 
   /**
-   * Provides {@link MediaNotification media notifications} to be posted as notifications that
+   * Provides {@linkplain MediaNotification media notifications} to be posted as notifications that
    * reflect the state of a {@link MediaController} and to send media commands to a {@link
    * MediaSession}.
    *
-   * <p>The provider is required to create a {@link androidx.core.app.NotificationChannelCompat
+   * <p>The provider is required to create a {@linkplain androidx.core.app.NotificationChannelCompat
    * notification channel}, which is required to show notification for {@code SDK_INT >= 26}.
    */
   @UnstableApi
@@ -98,7 +98,7 @@ public final class MediaNotification {
      * Creates a new {@link MediaNotification}.
      *
      * @param mediaController The controller of the session.
-     * @param actionFactory The {@link ActionFactory} for creating notification {@link
+     * @param actionFactory The {@link ActionFactory} for creating notification {@linkplain
      *     NotificationCompat.Action actions}.
      * @param onNotificationChangedCallback A callback that the provider needs to notify when the
      *     notification has changed and needs to be posted again, for example after a bitmap has
@@ -136,8 +136,9 @@ public final class MediaNotification {
    *     and to send media commands to a {@link MediaSession}. The notification may be used to start
    *     a service in the <a
    *     href="https://developer.android.com/guide/components/foreground-services">foreground</a>.
-   *     It's highly recommended to use a {@link androidx.media.app.NotificationCompat.MediaStyle
-   *     media style} {@link Notification notification}.
+   *     It's highly recommended to use a {@linkplain
+   *     androidx.media.app.NotificationCompat.MediaStyle media style} {@linkplain Notification
+   *     notification}.
    */
   public MediaNotification(@IntRange(from = 1) int notificationId, Notification notification) {
     this.notificationId = notificationId;
