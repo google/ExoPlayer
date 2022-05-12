@@ -94,6 +94,7 @@ public class TransformationTest {
         new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
+        .setTimeoutSeconds(180)
         .build()
         .run(testId, MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
   }
