@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.telephony.ServiceState;
 import android.telephony.TelephonyDisplayInfo;
 import android.telephony.TelephonyManager;
 import androidx.media3.common.C;
@@ -189,13 +190,6 @@ public final class DefaultBandwidthMeterTest {
 
   @Test
   public void defaultInitialBitrateEstimate_for4G_isGreaterThanEstimateFor2G() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g);
     DefaultBandwidthMeter bandwidthMeter4g =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
@@ -211,13 +205,6 @@ public final class DefaultBandwidthMeterTest {
 
   @Test
   public void defaultInitialBitrateEstimate_for4G_isGreaterThanEstimateFor3G() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g);
     DefaultBandwidthMeter bandwidthMeter4g =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
@@ -249,13 +236,6 @@ public final class DefaultBandwidthMeterTest {
   @Test
   @Config(minSdk = 29) // 5G detection support was added in API 29.
   public void defaultInitialBitrateEstimate_for5gNsa_isGreaterThanEstimateFor4g() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g);
     DefaultBandwidthMeter bandwidthMeter4g =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
@@ -367,13 +347,6 @@ public final class DefaultBandwidthMeterTest {
   @Test
   public void
       defaultInitialBitrateEstimate_for4g_forFastCountry_isGreaterThanEstimateForSlowCountry() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g);
     setNetworkCountryIso(FAST_COUNTRY_ISO);
     DefaultBandwidthMeter bandwidthMeterFast =
@@ -392,13 +365,6 @@ public final class DefaultBandwidthMeterTest {
   @Config(minSdk = 29) // 5G detection support was added in API 29.
   public void
       defaultInitialBitrateEstimate_for5gNsa_forFastCountry_isGreaterThanEstimateForSlowCountry() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g, TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA);
     setNetworkCountryIso(FAST_COUNTRY_ISO);
     DefaultBandwidthMeter bandwidthMeterFast =
@@ -558,13 +524,6 @@ public final class DefaultBandwidthMeterTest {
 
   @Test
   public void initialBitrateEstimateOverwrite_for4G_whileConnectedTo4G_setsInitialEstimate() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g);
     DefaultBandwidthMeter bandwidthMeter =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext())
@@ -591,13 +550,6 @@ public final class DefaultBandwidthMeterTest {
   @Test
   @Config(minSdk = 29) // 5G detection support was added in API 29.
   public void initialBitrateEstimateOverwrite_for5gNsa_whileConnectedTo5gNsa_setsInitialEstimate() {
-    if (Util.SDK_INT == 29 || Util.SDK_INT == 30) {
-      // Robolectric doesn't support listening to service state changes, which we need on APIs 29
-      // and 30 to run this test successfully.
-      // TODO(b/190021699): Update once Robolectric released support for this.
-      return;
-    }
-
     setActiveNetworkInfo(networkInfo4g, TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA);
     DefaultBandwidthMeter bandwidthMeter =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext())
@@ -762,6 +714,19 @@ public final class DefaultBandwidthMeterTest {
           ShadowTelephonyManager.createTelephonyDisplayInfo(
               networkInfo.getType(), networkTypeOverride);
       Shadows.shadowOf(telephonyManager).setTelephonyDisplayInfo(displayInfo);
+    } else if (Util.SDK_INT >= 29) {
+      ServiceState serviceState = new ServiceState();
+      if (networkTypeOverride == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA) {
+        // Replicate known platform hack that includes special string indicating 5G-NSA.
+        serviceState =
+            new ServiceState() {
+              @Override
+              public String toString() {
+                return "...nrState=CONNECTED...";
+              }
+            };
+      }
+      Shadows.shadowOf(telephonyManager).setServiceState(serviceState);
     }
     // Create a sticky broadcast for the connectivity action because Robolectric isn't replying with
     // the current network state if a receiver for this intent is registered.
@@ -789,7 +754,7 @@ public final class DefaultBandwidthMeterTest {
           dataSource,
           dataSpec,
           /* isNetwork= */ true,
-          /* bytes= */ random.nextInt(5 * 1024 * 1024));
+          /* bytesTransferred= */ random.nextInt(5 * 1024 * 1024));
       bandwidthMeter.onTransferEnd(dataSource, dataSpec, /* isNetwork= */ true);
       bitrateEstimates[i] = bandwidthMeter.getBitrateEstimate();
     }
