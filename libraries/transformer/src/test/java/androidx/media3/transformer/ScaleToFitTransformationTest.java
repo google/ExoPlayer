@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link ScaleToFitTransformation}.
  *
- * <p>See {@code MatrixTransformationFrameProcessorText} for pixel tests testing {@link
+ * <p>See {@code MatrixTransformationFrameProcessorPixelTest} for pixel tests testing {@link
  * MatrixTransformationFrameProcessor} given a transformation matrix.
  */
 @RunWith(AndroidJUnit4.class)
