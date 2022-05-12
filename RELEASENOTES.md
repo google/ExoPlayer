@@ -89,6 +89,8 @@
         ([#59](https://github.com/androidx/media/pull/59))
     *   Update session position info on timeline
         change([#51](https://github.com/androidx/media/issues/51))
+    *   Fix NPE in MediaControllerImplBase after releasing controller
+        ([#74](https://github.com/androidx/media/issues/74))
 
 *   Data sources:
 

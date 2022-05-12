@@ -309,6 +309,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       serviceConnection = null;
     }
     connectedToken = null;
+    flushCommandQueueHandler.removeCallbacksAndMessages(/* token= */ null);
     this.iSession = null;
     controllerStub.destroy();
     if (iSession != null) {
@@ -3046,9 +3047,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     public void sendFlushCommandQueueMessage() {
-      // Send message to notify the end of the transaction. It will be handled when the current
-      // looper iteration is over.
-      if (!hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+      if (iSession != null && !hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+        // Send message to notify the end of the transaction. It will be handled when the current
+        // looper iteration is over.
         sendEmptyMessage(MSG_FLUSH_COMMAND_QUEUE);
       }
     }
