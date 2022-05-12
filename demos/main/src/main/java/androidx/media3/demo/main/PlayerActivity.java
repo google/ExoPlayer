@@ -314,8 +314,8 @@ public class PlayerActivity extends AppCompatActivity
             serverSideAdsLoader, new DefaultMediaSourceFactory(dataSourceFactory));
     return new DefaultMediaSourceFactory(dataSourceFactory)
         .setDrmSessionManagerProvider(drmSessionManagerProvider)
-        .setAdsLoaderProvider(this::getClientSideAdsLoader)
-        .setAdViewProvider(playerView)
+        .setLocalAdInsertionComponents(
+            this::getClientSideAdsLoader, /* adViewProvider= */ playerView)
         .setServerSideAdInsertionMediaSourceFactory(imaServerSideAdInsertionMediaSourceFactory);
   }
 
