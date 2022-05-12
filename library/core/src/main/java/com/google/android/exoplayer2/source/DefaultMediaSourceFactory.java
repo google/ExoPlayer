@@ -188,9 +188,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * Sets the {@link AdsLoader.Provider} that provides {@link AdsLoader} instances for media items
    * that have {@link MediaItem.LocalConfiguration#adsConfiguration ads configurations}.
    *
+   * <p>This will override or clear the {@link AdsLoader.Provider} set by {@link
+   * #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}.
+   *
    * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}
+   *     instead.
    */
+  @Deprecated
   public DefaultMediaSourceFactory setAdsLoaderProvider(
       @Nullable AdsLoader.Provider adsLoaderProvider) {
     this.adsLoaderProvider = adsLoaderProvider;
@@ -200,11 +206,50 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Sets the {@link AdViewProvider} that provides information about views for the ad playback UI.
    *
-   * @param adViewProvider A provider for {@link AdsLoader} instances.
+   * <p>This will override or clear the {@link AdViewProvider} set by {@link
+   * #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}.
+   *
+   * @param adViewProvider A provider for information about views for the ad playback UI.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}
+   *     instead.
    */
+  @Deprecated
   public DefaultMediaSourceFactory setAdViewProvider(@Nullable AdViewProvider adViewProvider) {
     this.adViewProvider = adViewProvider;
+    return this;
+  }
+
+  /**
+   * Sets the components required for local ad insertion for media items that have {@link
+   * MediaItem.LocalConfiguration#adsConfiguration ads configurations}
+   *
+   * <p>This will override the values set by {@link #setAdsLoaderProvider(AdsLoader.Provider)} and
+   * {@link #setAdViewProvider(AdViewProvider)}.
+   *
+   * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
+   * @param adViewProvider A provider for information about views for the ad playback UI.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLocalAdInsertionComponents(
+      AdsLoader.Provider adsLoaderProvider, AdViewProvider adViewProvider) {
+    this.adsLoaderProvider = checkNotNull(adsLoaderProvider);
+    this.adViewProvider = checkNotNull(adViewProvider);
+    return this;
+  }
+
+  /**
+   * Clear any values set via {@link #setLocalAdInsertionComponents(AdsLoader.Provider,
+   * AdViewProvider)}.
+   *
+   * <p>This will also clear any values set by {@link #setAdsLoaderProvider(AdsLoader.Provider)} and
+   * {@link #setAdViewProvider(AdViewProvider)}.
+   *
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory clearLocalAdInsertionComponents() {
+    this.adsLoaderProvider = null;
+    this.adViewProvider = null;
     return this;
   }
 

@@ -191,8 +191,9 @@ public final class DefaultMediaSourceFactoryTest {
     assertThat(supportedTypes).asList().containsExactly(C.CONTENT_TYPE_OTHER);
   }
 
+  @SuppressWarnings("deprecation") // Testing deprecated setters.
   @Test
-  public void createMediaSource_withAdsConfiguration_callsAdsLoader() {
+  public void createMediaSource_withDeprecatedAdsConfiguration_callsAdsLoader() {
     Uri adTagUri = Uri.parse(URI_MEDIA);
     MediaItem mediaItem =
         new MediaItem.Builder()
@@ -203,6 +204,24 @@ public final class DefaultMediaSourceFactoryTest {
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .setAdsLoaderProvider(ignoredAdsConfiguration -> mock(AdsLoader.class))
             .setAdViewProvider(mock(AdViewProvider.class));
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(AdsMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_withAdsConfiguration_callsAdsLoader() {
+    Uri adTagUri = Uri.parse(URI_MEDIA);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setAdsConfiguration(new MediaItem.AdsConfiguration.Builder(adTagUri).build())
+            .build();
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
+            .setLocalAdInsertionComponents(
+                ignoredAdsConfiguration -> mock(AdsLoader.class), mock(AdViewProvider.class));
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
