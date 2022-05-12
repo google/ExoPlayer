@@ -605,7 +605,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   }
 
   @MainThread
-  @EnsuresNonNull("contentTimeline")
+  @EnsuresNonNull("this.contentTimeline")
   private void setContentTimeline(Timeline contentTimeline) {
     if (contentTimeline.equals(this.contentTimeline)) {
       return;
