@@ -36,7 +36,9 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -235,12 +237,38 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withFrameProcessingException_callsListener() throws Exception {
-    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, ThrowingFrameProcessor::new);
+  public void
+      processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation()
+          throws Exception {
+    String testId =
+        "processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation";
+    Presentation centerCrop =
+        new Presentation.Builder()
+            .setCrop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f)
+            .build();
+    ImmutableList.Builder<GlEffect> full10StepRotationAndCenterCrop = new ImmutableList.Builder<>();
+    for (int i = 0; i < 10; i++) {
+      full10StepRotationAndCenterCrop.add(new Rotation(/* degrees= */ 36));
+    }
+    full10StepRotationAndCenterCrop.add(centerCrop);
 
-    Thread.sleep(FRAME_PROCESSING_WAIT_MS);
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, centerCrop);
+    Bitmap centerCropResultBitmap = processFirstFrameAndEnd();
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, full10StepRotationAndCenterCrop.build());
+    Bitmap fullRotationAndCenterCropResultBitmap = processFirstFrameAndEnd();
 
-    assertThat(frameProcessingException.get()).isNotNull();
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "centerCrop", centerCropResultBitmap);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId,
+        /* bitmapLabel= */ "full10StepRotationAndCenterCrop",
+        fullRotationAndCenterCropResultBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            centerCropResultBitmap, fullRotationAndCenterCropResultBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   /**
@@ -252,6 +280,11 @@ public final class FrameProcessorChainPixelTest {
    * @param effects The {@link GlEffect GlEffects} to apply to the input frame.
    */
   private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, GlEffect... effects)
+      throws Exception {
+    setUpAndPrepareFirstFrame(pixelWidthHeightRatio, asList(effects));
+  }
+
+  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, List<GlEffect> effects)
       throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
@@ -276,7 +309,7 @@ public final class FrameProcessorChainPixelTest {
               pixelWidthHeightRatio,
               inputWidth,
               inputHeight,
-              asList(effects),
+              effects,
               /* enableExperimentalHdrEditing= */ false);
       Size outputSize = frameProcessorChain.getOutputSize();
       outputImageReader =
@@ -349,26 +382,36 @@ public final class FrameProcessorChainPixelTest {
     return actualBitmap;
   }
 
-  private static class ThrowingFrameProcessor implements GlFrameProcessor {
+  /**
+   * Specifies a counter-clockwise rotation while accounting for the aspect ratio difference between
+   * the input frame in pixel coordinates and NDC.
+   *
+   * <p>Unlike {@link ScaleToFitTransformation}, this does not adjust the output size or scale to
+   * preserve input pixels. Pixels rotated out of the frame are clipped.
+   */
+  private static final class Rotation implements MatrixTransformation {
 
-    private @MonotonicNonNull Size outputSize;
+    private final float degrees;
+    private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 
-    @Override
-    public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight) {
-      outputSize = new Size(inputWidth, inputHeight);
+    public Rotation(float degrees) {
+      this.degrees = degrees;
     }
 
     @Override
-    public Size getOutputSize() {
-      return checkStateNotNull(outputSize);
+    public Size configure(int inputWidth, int inputHeight) {
+      adjustedTransformationMatrix = new Matrix();
+      adjustedTransformationMatrix.postRotate(degrees);
+      float inputAspectRatio = (float) inputWidth / inputHeight;
+      adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
+      adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
+
+      return new Size(inputWidth, inputHeight);
     }
 
     @Override
-    public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
-      throw new FrameProcessingException("An exception occurred.");
+    public Matrix getMatrix(long presentationTimeUs) {
+      return checkStateNotNull(adjustedTransformationMatrix);
     }
-
-    @Override
-    public void release() {}
   }
 }

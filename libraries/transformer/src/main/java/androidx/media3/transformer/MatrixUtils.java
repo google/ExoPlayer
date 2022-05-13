@@ -15,10 +15,31 @@
  */
 package androidx.media3.transformer;
 
-/** Utility functions for working with matrices. */
-/* package */ class MatrixUtils {
+import static androidx.media3.common.util.Assertions.checkArgument;
+
+import android.opengl.Matrix;
+import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+
+/** Utility functions for working with matrices, vertices, and polygons. */
+/* package */ final class MatrixUtils {
   /**
-   * Returns a 4x4, column-major {@link android.opengl.Matrix} float array, from an input {@link
+   * Contains the normal vectors of the clipping planes in homogeneous coordinates which
+   * conveniently also double as origin vectors and parameters of the normal form of the planes ax +
+   * by + cz = d.
+   */
+  private static final float[][] NDC_CUBE =
+      new float[][] {
+        new float[] {1, 0, 0, 1},
+        new float[] {-1, 0, 0, 1},
+        new float[] {0, 1, 0, 1},
+        new float[] {0, -1, 0, 1},
+        new float[] {0, 0, 1, 1},
+        new float[] {0, 0, -1, 1}
+      };
+
+  /**
+   * Returns a 4x4, column-major {@link Matrix} float array, from an input {@link
    * android.graphics.Matrix}.
    *
    * <p>This is useful for converting to the 4x4 column-major format commonly used in OpenGL.
@@ -30,7 +51,7 @@ package androidx.media3.transformer;
 
     // Transpose from row-major to column-major representations.
     float[] transposedMatrix4x4Array = new float[16];
-    android.opengl.Matrix.transposeM(
+    Matrix.transposeM(
         transposedMatrix4x4Array, /* mTransOffset= */ 0, matrix4x4Array, /* mOffset= */ 0);
 
     return transposedMatrix4x4Array;
@@ -57,6 +78,143 @@ package androidx.media3.transformer;
       }
     }
     return matrix4x4Array;
+  }
+
+  /**
+   * Clips a convex polygon to normalized device coordinates (-1 to 1 on x, y, and z axes).
+   *
+   * <p>The input and output vertices are given in homogeneous coordinates (x,y,z,1) where the last
+   * element must always be 1. To convert a general vector in homogeneous coordinates (xw,yw,zw,w)
+   * to this form, simply divide all elements by w.
+   *
+   * @param polygonVertices The vertices in counter-clockwise order as 4 element vectors of
+   *     homogeneous coordinates.
+   * @return The vertices of the clipped polygon, in counter-clockwise order, or an empty list if
+   *     the polygon doesn't intersect with the NDC range.
+   */
+  public static ImmutableList<float[]> clipConvexPolygonToNdcRange(
+      ImmutableList<float[]> polygonVertices) {
+    checkArgument(polygonVertices.size() >= 3, "A polygon must have at least 3 vertices.");
+
+    // This is a 3D generalization of the Sutherland-Hodgman algorithm
+    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+    // using a convex clipping volume (the NDC cube) instead of a convex clipping polygon to clip a
+    // given subject polygon.
+    // For this algorithm, the subject polygon doesn't necessarily need to be convex. But since we
+    // require that it is convex, we can assume that the clipped result is a single connected
+    // convex polygon.
+    ImmutableList.Builder<float[]> outputVertices =
+        new ImmutableList.Builder<float[]>().addAll(polygonVertices);
+    for (float[] clippingPlane : NDC_CUBE) {
+      ImmutableList<float[]> inputVertices = outputVertices.build();
+      outputVertices = new ImmutableList.Builder<>();
+
+      for (int i = 0; i < inputVertices.size(); i++) {
+        float[] currentVertex = inputVertices.get(i);
+        float[] previousVertex =
+            inputVertices.get((inputVertices.size() + i - 1) % inputVertices.size());
+        if (isInsideClippingHalfSpace(currentVertex, clippingPlane)) {
+          if (!isInsideClippingHalfSpace(previousVertex, clippingPlane)) {
+            float[] intersectionPoint =
+                computeIntersectionPoint(
+                    clippingPlane, clippingPlane, previousVertex, currentVertex);
+            if (!Arrays.equals(currentVertex, intersectionPoint)) {
+              outputVertices.add(intersectionPoint);
+            }
+          }
+          outputVertices.add(currentVertex);
+        } else if (isInsideClippingHalfSpace(previousVertex, clippingPlane)) {
+          float[] intersection =
+              computeIntersectionPoint(clippingPlane, clippingPlane, previousVertex, currentVertex);
+          if (!Arrays.equals(previousVertex, intersection)) {
+            outputVertices.add(intersection);
+          }
+        }
+      }
+    }
+
+    return outputVertices.build();
+  }
+
+  /**
+   * Returns whether the given point is inside the half-space bounded by the clipping plane and
+   * facing away from its normal vector.
+   *
+   * <p>The clipping plane has the form ax + by + cz = d.
+   *
+   * @param point A point in homogeneous coordinates (x,y,z,1).
+   * @param clippingPlane The parameters (a,b,c,d) of the plane's normal form.
+   * @return Whether the point is on the inside of the plane.
+   */
+  private static boolean isInsideClippingHalfSpace(float[] point, float[] clippingPlane) {
+    checkArgument(clippingPlane.length == 4, "Expecting 4 plane parameters");
+
+    return clippingPlane[0] * point[0] + clippingPlane[1] * point[1] + clippingPlane[2] * point[2]
+        <= clippingPlane[3];
+  }
+
+  /**
+   * Returns the intersection point of the given line and plane.
+   *
+   * <p>This method may only be called if such an intersection exists.
+   *
+   * <p>The plane has the form ax + by + cz = d.
+   *
+   * <p>The points are given in homogeneous coordinates (x,y,z,1).
+   *
+   * @param planePoint A point on the plane.
+   * @param planeParameters The parameters of the plane's normal form.
+   * @param linePoint1 A point on the line.
+   * @param linePoint2 Another point on the line.
+   * @return The point of intersection.
+   */
+  private static float[] computeIntersectionPoint(
+      float[] planePoint, float[] planeParameters, float[] linePoint1, float[] linePoint2) {
+    checkArgument(planeParameters.length == 4, "Expecting 4 plane parameters");
+
+    // See https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection#Algebraic_form for the
+    // derivation of this solution formula.
+    float lineEquationParameter =
+        ((planePoint[0] - linePoint1[0]) * planeParameters[0]
+                + (planePoint[1] - linePoint1[1]) * planeParameters[1]
+                + (planePoint[2] - linePoint1[2]) * planeParameters[2])
+            / ((linePoint2[0] - linePoint1[0]) * planeParameters[0]
+                + (linePoint2[1] - linePoint1[1]) * planeParameters[1]
+                + (linePoint2[2] - linePoint1[2]) * planeParameters[2]);
+    float x = linePoint1[0] + (linePoint2[0] - linePoint1[0]) * lineEquationParameter;
+    float y = linePoint1[1] + (linePoint2[1] - linePoint1[1]) * lineEquationParameter;
+    float z = linePoint1[2] + (linePoint2[2] - linePoint1[2]) * lineEquationParameter;
+    return new float[] {x, y, z, 1};
+  }
+
+  /**
+   * Applies a transformation matrix to each point.
+   *
+   * @param transformationMatrix The 4x4 transformation matrix.
+   * @param points The points as 4 element vectors of homogeneous coordinates (x,y,z,1).
+   * @return The transformed points as 4 element vectors of homogeneous coordinates (x,y,z,1).
+   */
+  public static ImmutableList<float[]> transformPoints(
+      float[] transformationMatrix, ImmutableList<float[]> points) {
+    ImmutableList.Builder<float[]> transformedPoints = new ImmutableList.Builder<>();
+    for (int i = 0; i < points.size(); i++) {
+      float[] transformedPoint = new float[4];
+      Matrix.multiplyMV(
+          transformedPoint,
+          /* resultVecOffset= */ 0,
+          transformationMatrix,
+          /* lhsMatOffset= */ 0,
+          points.get(i),
+          /* rhsVecOffset= */ 0);
+      // Multiplication result is in homogeneous coordinates (xw,yw,zw,w) with any w. Divide by w
+      // to get (x,y,z,1).
+      transformedPoint[0] /= transformedPoint[3];
+      transformedPoint[1] /= transformedPoint[3];
+      transformedPoint[2] /= transformedPoint[3];
+      transformedPoint[3] = 1;
+      transformedPoints.add(transformedPoint);
+    }
+    return transformedPoints.build();
   }
 
   /** Class only contains static methods. */
