@@ -516,7 +516,7 @@ public class MediaSession {
   }
 
   /**
-   * Sets the underlying {@link Player} for this session to dispatch incoming event to.
+   * Sets the underlying {@link Player} for this session to dispatch incoming events to.
    *
    * @param player A player that handles actual media playback in your app.
    * @throws IllegalArgumentException if the new player's application looper differs from the
@@ -532,7 +532,16 @@ public class MediaSession {
     impl.setPlayer(player);
   }
 
-  /** Releases the session. */
+  /**
+   * Releases the session and disconnects all connected controllers.
+   *
+   * <p>The session must not be used after calling this method.
+   *
+   * <p>Releasing the session removes the session's listeners from the player but does not
+   * {@linkplain Player#stop() stop} or {@linkplain Player#release() release} the player. An app can
+   * further use the player after the session is released and needs to make sure to eventually
+   * release the player.
+   */
   public void release() {
     try {
       synchronized (STATIC_LOCK) {
