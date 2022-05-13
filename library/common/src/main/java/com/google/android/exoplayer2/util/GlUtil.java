@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.List;
 import javax.microedition.khronos.egl.EGL10;
 
 /** OpenGL ES utilities. */
@@ -119,6 +120,20 @@ public final class GlUtil {
       0, 1, 0, 1,
       1, 1, 0, 1
     };
+  }
+
+  /** Flattens the list of 4 element NDC coordinate vectors into a buffer. */
+  public static float[] createVertexBuffer(List<float[]> vertexList) {
+    float[] vertexBuffer = new float[HOMOGENEOUS_COORDINATE_VECTOR_SIZE * vertexList.size()];
+    for (int i = 0; i < vertexList.size(); i++) {
+      System.arraycopy(
+          /* src= */ vertexList.get(i),
+          /* srcPos= */ 0,
+          /* dest= */ vertexBuffer,
+          /* destPos= */ HOMOGENEOUS_COORDINATE_VECTOR_SIZE * i,
+          /* length= */ HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
+    }
+    return vertexBuffer;
   }
 
   /**

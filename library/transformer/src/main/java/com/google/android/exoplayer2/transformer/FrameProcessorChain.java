@@ -201,24 +201,43 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     ImmutableList.Builder<GlFrameProcessor> frameProcessors =
         new ImmutableList.Builder<GlFrameProcessor>().add(externalCopyFrameProcessor);
 
+    ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
+        new ImmutableList.Builder<>();
     // Scale to expand the frame to apply the pixelWidthHeightRatio.
     if (pixelWidthHeightRatio > 1f) {
-      frameProcessors.add(
+      matrixTransformationListBuilder.add(
           new ScaleToFitTransformation.Builder()
               .setScale(/* scaleX= */ pixelWidthHeightRatio, /* scaleY= */ 1f)
-              .build()
-              .toGlFrameProcessor());
+              .build());
     } else if (pixelWidthHeightRatio < 1f) {
-      frameProcessors.add(
+      matrixTransformationListBuilder.add(
           new ScaleToFitTransformation.Builder()
               .setScale(/* scaleX= */ 1f, /* scaleY= */ 1f / pixelWidthHeightRatio)
-              .build()
-              .toGlFrameProcessor());
+              .build());
     }
 
+    // Combine consecutive GlMatrixTransformations into a single GlFrameProcessor and convert
+    // all other GlEffects to GlFrameProcessors.
     for (int i = 0; i < effects.size(); i++) {
-      frameProcessors.add(effects.get(i).toGlFrameProcessor());
+      GlEffect effect = effects.get(i);
+      if (effect instanceof GlMatrixTransformation) {
+        matrixTransformationListBuilder.add((GlMatrixTransformation) effect);
+        continue;
+      }
+      ImmutableList<GlMatrixTransformation> matrixTransformations =
+          matrixTransformationListBuilder.build();
+      if (!matrixTransformations.isEmpty()) {
+        frameProcessors.add(new MatrixTransformationFrameProcessor(matrixTransformations));
+        matrixTransformationListBuilder = new ImmutableList.Builder<>();
+      }
+      frameProcessors.add(effect.toGlFrameProcessor());
     }
+    ImmutableList<GlMatrixTransformation> matrixTransformations =
+        matrixTransformationListBuilder.build();
+    if (!matrixTransformations.isEmpty()) {
+      frameProcessors.add(new MatrixTransformationFrameProcessor(matrixTransformations));
+    }
+
     return frameProcessors.build();
   }
 
@@ -256,6 +275,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final int[] framebuffers;
 
   private final Listener listener;
+
   /**
    * Prevents further frame processing tasks from being scheduled or executed after {@link
    * #release()} is called or an exception occurred.
@@ -415,7 +435,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void release() {
     stopProcessing.set(true);
     while (!futures.isEmpty()) {
-      checkNotNull(futures.poll()).cancel(/* mayInterruptIfRunning= */ true);
+      checkNotNull(futures.poll()).cancel(/* mayInterruptIfRunning= */ false);
     }
     futures.add(
         singleThreadExecutorService.submit(this::releaseFrameProcessorsAndDestroyGlContext));
@@ -490,6 +510,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           .setTextureTransformMatrix(textureTransformMatrix);
 
       for (int i = 0; i < frameProcessors.size() - 1; i++) {
+        if (stopProcessing.get()) {
+          return;
+        }
+
         Size intermediateSize = frameProcessors.get(i).getOutputSize();
         GlUtil.focusFramebuffer(
             eglDisplay,
