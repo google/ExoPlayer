@@ -429,6 +429,15 @@ public class DashManifestParser extends DefaultHandler
           drmSchemeType = contentProtection.first;
         }
         if (contentProtection.second != null) {
+          // In case of clear key, update the licence server url of
+          // previously parsed common encryption drmSchemeData.
+          if (drmSchemeType != null && drmSchemeType == "clearkey") {
+            for (int i = 0;i<drmSchemeDatas.size();i++) {
+              if (drmSchemeDatas.get(i).uuid == C.COMMON_PSSH_UUID
+                  && drmSchemeDatas.get(i).licenseServerUrl == null)
+                drmSchemeDatas.get(i).licenseServerUrl = contentProtection.second.licenseServerUrl;
+            }
+          }
           drmSchemeDatas.add(contentProtection.second);
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentComponent")) {
@@ -597,6 +606,10 @@ public class DashManifestParser extends DefaultHandler
         case "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed":
           uuid = C.WIDEVINE_UUID;
           break;
+        case "urn:uuid:e2719d58-a985-b3c9-781a-b030af78d30e":
+          uuid = C.CLEARKEY_UUID;
+          schemeType = "clearkey";
+          break;
         default:
           break;
       }
@@ -604,7 +617,10 @@ public class DashManifestParser extends DefaultHandler
 
     do {
       xpp.next();
-      if (XmlPullParserUtil.isStartTag(xpp, "ms:laurl")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "clearkey:Laurl")
+          && xpp.next() == XmlPullParser.TEXT) {
+        licenseServerUrl = xpp.getText();
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ms:laurl")) {
         licenseServerUrl = xpp.getAttributeValue(null, "licenseUrl");
       } else if (data == null
           && XmlPullParserUtil.isStartTagIgnorePrefix(xpp, "pssh")
