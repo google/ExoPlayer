@@ -432,10 +432,10 @@ public class DashManifestParser extends DefaultHandler
           // In case of clear key, update the licence server url of
           // previously parsed common encryption drmSchemeData.
           if (drmSchemeType != null && drmSchemeType == "clearkey") {
-            for (int i = 0;i<drmSchemeDatas.size();i++) {
-              if (drmSchemeDatas.get(i).uuid == C.COMMON_PSSH_UUID
-                  && drmSchemeDatas.get(i).licenseServerUrl == null)
-                drmSchemeDatas.get(i).licenseServerUrl = contentProtection.second.licenseServerUrl;
+            for (SchemeData drmSchemeData : drmSchemeDatas) {
+              if (drmSchemeData.uuid == C.COMMON_PSSH_UUID
+                  && drmSchemeData.licenseServerUrl == null)
+                drmSchemeData.licenseServerUrl = contentProtection.second.licenseServerUrl;
             }
           }
           drmSchemeDatas.add(contentProtection.second);
