@@ -2719,6 +2719,7 @@ public final class Util {
         "ji", "yi",
         // Individual macrolanguage codes mapped back to full macrolanguage code.
         // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+        "arb", "ar-arb",
         "in", "ms-ind",
         "ind", "ms-ind",
         "nb", "no-nob",

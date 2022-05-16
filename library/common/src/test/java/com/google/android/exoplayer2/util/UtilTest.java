@@ -1162,6 +1162,7 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("ara-ayl")).isEqualTo("ar-ayl");
 
     // Special case of short codes that are actually part of a macrolanguage.
+    assertThat(Util.normalizeLanguageCode("arb")).isEqualTo("ar-arb");
     assertThat(Util.normalizeLanguageCode("nb")).isEqualTo("no-nob");
     assertThat(Util.normalizeLanguageCode("nn")).isEqualTo("no-nno");
     assertThat(Util.normalizeLanguageCode("nob")).isEqualTo("no-nob");
