@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.LibraryLoader;
 import com.google.mediapipe.components.FrameProcessor;
+import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.framework.AppTextureFrame;
 import com.google.mediapipe.framework.TextureFrame;
 import com.google.mediapipe.glutil.EglManager;
@@ -88,6 +89,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
+
+    AndroidAssetUtil.initializeNativeAssetManager(context);
 
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
