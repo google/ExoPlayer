@@ -267,7 +267,7 @@ public final class TransformerActivity extends AppCompatActivity {
                             /* inputStreamName= */ "input_video",
                             /* outputStreamName= */ "output_video");
                   } catch (Exception e) {
-                    showToast(R.string.no_media_pipe_error);
+                    runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
                     throw new RuntimeException("Failed to load MediaPipe processor", e);
                   }
                 });
