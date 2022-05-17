@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.FlagSet;
@@ -1016,15 +1017,27 @@ public interface Player {
     /**
      * Called when there is a change in the {@link Cue Cues}.
      *
-     * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-     * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param cues The {@link Cue Cues}. May be empty.
+     * @deprecated Use {@link #onCues(CueGroup)} instead.
      */
+    @Deprecated
     default void onCues(List<Cue> cues) {}
+
+    /**
+     * Called when there is a change in the {@link CueGroup}.
+     *
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     */
+    default void onCues(CueGroup cueGroup) {}
 
     /**
      * Called when there is metadata associated with the current playback time.
@@ -2443,8 +2456,8 @@ public interface Player {
    */
   VideoSize getVideoSize();
 
-  /** Returns the current {@link Cue Cues}. This list may be empty. */
-  List<Cue> getCurrentCues();
+  /** Returns the current {@link CueGroup}. */
+  CueGroup getCurrentCues();
 
   /** Gets the device information. */
   DeviceInfo getDeviceInfo();

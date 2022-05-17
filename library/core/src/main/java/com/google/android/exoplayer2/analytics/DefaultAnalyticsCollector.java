@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -693,11 +694,19 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         listener -> listener.onMetadata(eventTime, metadata));
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public void onCues(List<Cue> cues) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cues));
+  }
+
+  @Override
+  public void onCues(CueGroup cueGroup) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cueGroup));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.

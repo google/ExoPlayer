@@ -40,7 +40,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -703,10 +703,10 @@ public final class CastPlayer extends BasePlayer {
     return VideoSize.UNKNOWN;
   }
 
-  /** This method is not supported and returns an empty list. */
+  /** This method is not supported and returns an empty {@link CueGroup}. */
   @Override
-  public ImmutableList<Cue> getCurrentCues() {
-    return ImmutableList.of();
+  public CueGroup getCurrentCues() {
+    return CueGroup.EMPTY;
   }
 
   /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */

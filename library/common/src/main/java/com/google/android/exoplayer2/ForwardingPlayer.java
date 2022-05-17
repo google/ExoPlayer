@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
@@ -754,7 +755,7 @@ public class ForwardingPlayer implements Player {
 
   /** Calls {@link Player#getCurrentCues()} on the delegate and returns the result. */
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     return player.getCurrentCues();
   }
 
@@ -992,6 +993,11 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onCues(List<Cue> cues) {
       listener.onCues(cues);
+    }
+
+    @Override
+    public void onCues(CueGroup cueGroup) {
+      listener.onCues(cueGroup);
     }
 
     @Override

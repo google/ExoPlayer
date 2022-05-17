@@ -605,7 +605,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         updateAspectRatio();
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
-        subtitleView.setCues(player.getCurrentCues());
+        subtitleView.setCues(player.getCurrentCues().cues);
       }
       player.addListener(componentListener);
       maybeShowController(false);

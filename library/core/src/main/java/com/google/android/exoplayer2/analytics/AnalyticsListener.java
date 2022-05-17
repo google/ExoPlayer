@@ -55,6 +55,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
@@ -832,13 +833,26 @@ public interface AnalyticsListener {
   /**
    * Called when there is a change in the {@link Cue Cues}.
    *
-   * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-   * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+   * <p>Both {@link #onCues(EventTime, List)} and {@link #onCues(EventTime, CueGroup)} are called
+   * when there is a change in the cues. You should only implement one or the other.
    *
    * @param eventTime The event time.
-   * @param cues The {@link Cue Cues}. May be empty.
+   * @param cues The {@link Cue Cues}.
+   * @deprecated Use {@link #onCues(EventTime, CueGroup)} instead.
    */
+  @Deprecated
   default void onCues(EventTime eventTime, List<Cue> cues) {}
+
+  /**
+   * Called when there is a change in the {@link CueGroup}.
+   *
+   * <p>Both {@link #onCues(EventTime, List)} and {@link #onCues(EventTime, CueGroup)} are called
+   * when there is a change in the cues. You should only implement one or the other.
+   *
+   * @param eventTime The event time.
+   * @param cueGroup The {@link CueGroup}.
+   */
+  default void onCues(EventTime eventTime, CueGroup cueGroup) {}
 
   /**
    * @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead.

@@ -45,7 +45,7 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -348,7 +348,7 @@ public interface ExoPlayer extends Player {
      * @deprecated Use {@link Player#getCurrentCues()} instead.
      */
     @Deprecated
-    List<Cue> getCurrentCues();
+    CueGroup getCurrentCues();
   }
 
   /**
