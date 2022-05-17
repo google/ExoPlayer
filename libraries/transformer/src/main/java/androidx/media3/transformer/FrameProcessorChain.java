@@ -50,7 +50,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * {@code FrameProcessorChain} applies changes to individual video frames.
@@ -439,12 +438,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     futures.add(
         singleThreadExecutorService.submit(this::releaseFrameProcessorsAndDestroyGlContext));
-    if (inputSurfaceTexture != null) {
-      inputSurfaceTexture.release();
-    }
-    if (inputSurface != null) {
-      inputSurface.release();
-    }
     singleThreadExecutorService.shutdown();
     try {
       if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
@@ -452,7 +445,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     } catch (InterruptedException e) {
       Log.d(TAG, "FrameProcessorChain release was interrupted", e);
+      Thread.currentThread().interrupt();
     }
+    inputSurfaceTexture.release();
+    inputSurface.release();
   }
 
   /**
@@ -491,7 +487,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
   @WorkerThread
-  @RequiresNonNull("inputSurfaceTexture")
   private void processFrame() {
     if (stopProcessing.get()) {
       return;
