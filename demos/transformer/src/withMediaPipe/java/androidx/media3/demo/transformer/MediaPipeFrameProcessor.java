@@ -50,6 +50,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       };
 
+  static {
+    // Not all build configurations require OpenCV to be loaded separately, so attempt to load the
+    // library but ignore the error if it's not present.
+    try {
+      System.loadLibrary("opencv_java3");
+    } catch (UnsatisfiedLinkError e) {
+      // Do nothing.
+    }
+  }
+
   private static final String COPY_VERTEX_SHADER_NAME = "vertex_shader_copy_es2.glsl";
   private static final String COPY_FRAGMENT_SHADER_NAME = "shaders/fragment_shader_copy_es2.glsl";
 
