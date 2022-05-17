@@ -159,7 +159,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       GlUtil.focusEglSurface(
           eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
     } else if (enableExperimentalHdrEditing) {
-      // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+      // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
       GlUtil.focusPlaceholderEglSurfaceBt2020Pq(eglContext, eglDisplay);
     } else {
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
@@ -467,7 +467,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       checkStateNotNull(eglDisplay);
 
       if (enableExperimentalHdrEditing) {
-        // TODO(b/209404935): Don't assume BT.2020 PQ input/output.
+        // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
         eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
         if (debugSurfaceView != null) {
           debugPreviewEglSurface =
