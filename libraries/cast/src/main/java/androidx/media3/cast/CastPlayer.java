@@ -42,7 +42,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
@@ -705,10 +705,10 @@ public final class CastPlayer extends BasePlayer {
     return VideoSize.UNKNOWN;
   }
 
-  /** This method is not supported and returns an empty list. */
+  /** This method is not supported and returns an empty {@link CueGroup}. */
   @Override
-  public ImmutableList<Cue> getCurrentCues() {
-    return ImmutableList.of();
+  public CueGroup getCurrentCues() {
+    return CueGroup.EMPTY;
   }
 
   /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */

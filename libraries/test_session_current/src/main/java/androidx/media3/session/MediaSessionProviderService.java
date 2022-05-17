@@ -24,7 +24,7 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CONTENT_DU
 import static androidx.media3.test.session.common.CommonConstants.KEY_CONTENT_POSITION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD_GROUP_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD_INDEX_IN_AD_GROUP;
-import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_CUES;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_CUE_GROUP;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LIVE_OFFSET;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
@@ -78,7 +78,7 @@ import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -306,10 +306,9 @@ public class MediaSessionProviderService extends Service {
               AudioAttributes.CREATOR,
               config.getBundle(KEY_AUDIO_ATTRIBUTES),
               player.audioAttributes);
-      @Nullable List<Bundle> cuesBundleList = config.getParcelableArrayList(KEY_CURRENT_CUES);
-      if (cuesBundleList != null) {
-        player.cues = BundleableUtil.fromBundleList(Cue.CREATOR, cuesBundleList);
-      }
+      player.cueGroup =
+          BundleableUtil.fromNullableBundle(
+              CueGroup.CREATOR, config.getBundle(KEY_CURRENT_CUE_GROUP), CueGroup.EMPTY);
       player.deviceInfo =
           BundleableUtil.fromNullableBundle(
               DeviceInfo.CREATOR, config.getBundle(KEY_DEVICE_INFO), player.deviceInfo);
@@ -886,14 +885,13 @@ public class MediaSessionProviderService extends Service {
     }
 
     @Override
-    public void notifyCuesChanged(String sessionId, List<Bundle> cueBundleList)
-        throws RemoteException {
-      List<Cue> cues = BundleableUtil.fromBundleList(Cue.CREATOR, cueBundleList);
+    public void notifyCuesChanged(String sessionId, Bundle cueGroupBundle) throws RemoteException {
+      CueGroup cueGroup = CueGroup.CREATOR.fromBundle(cueGroupBundle);
       runOnHandler(
           () -> {
             MediaSession session = sessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            player.cues = cues;
+            player.cueGroup = cueGroup;
             player.notifyCuesChanged();
           });
     }

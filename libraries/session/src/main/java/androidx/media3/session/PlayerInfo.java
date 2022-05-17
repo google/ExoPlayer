@@ -43,15 +43,13 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
-import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
 
 /**
  * Information about the player that {@link MediaSession} uses to send its state to {@link
@@ -75,7 +73,7 @@ import java.util.List;
     private MediaMetadata playlistMetadata;
     private float volume;
     private AudioAttributes audioAttributes;
-    private ImmutableList<Cue> cues;
+    private CueGroup cueGroup;
     private DeviceInfo deviceInfo;
     private int deviceVolume;
     private boolean deviceMuted;
@@ -106,7 +104,7 @@ import java.util.List;
       playlistMetadata = playerInfo.playlistMetadata;
       volume = playerInfo.volume;
       audioAttributes = playerInfo.audioAttributes;
-      cues = ImmutableList.copyOf(playerInfo.cues);
+      cueGroup = playerInfo.cueGroup;
       deviceInfo = playerInfo.deviceInfo;
       deviceVolume = playerInfo.deviceVolume;
       deviceMuted = playerInfo.deviceMuted;
@@ -194,8 +192,8 @@ import java.util.List;
       return this;
     }
 
-    public Builder setCues(List<Cue> cues) {
-      this.cues = ImmutableList.copyOf(cues);
+    public Builder setCues(CueGroup cueGroup) {
+      this.cueGroup = cueGroup;
       return this;
     }
 
@@ -290,7 +288,7 @@ import java.util.List;
           playlistMetadata,
           volume,
           audioAttributes,
-          cues,
+          cueGroup,
           deviceInfo,
           deviceVolume,
           deviceMuted,
@@ -335,7 +333,7 @@ import java.util.List;
           MediaMetadata.EMPTY,
           /* volume= */ 1f,
           AudioAttributes.DEFAULT,
-          /* cues = */ ImmutableList.of(),
+          /* cueGroup = */ CueGroup.EMPTY,
           DeviceInfo.UNKNOWN,
           /* deviceVolume= */ 0,
           /* deviceMuted= */ false,
@@ -379,7 +377,7 @@ import java.util.List;
 
   public final AudioAttributes audioAttributes;
 
-  public final List<Cue> cues;
+  public final CueGroup cueGroup;
 
   public final DeviceInfo deviceInfo;
 
@@ -597,7 +595,7 @@ import java.util.List;
       MediaMetadata playlistMetadata,
       float volume,
       AudioAttributes audioAttributes,
-      List<Cue> cues,
+      CueGroup cueGroup,
       DeviceInfo deviceInfo,
       int deviceVolume,
       boolean deviceMuted,
@@ -626,7 +624,7 @@ import java.util.List;
     this.playlistMetadata = playlistMetadata;
     this.volume = volume;
     this.audioAttributes = audioAttributes;
-    this.cues = cues;
+    this.cueGroup = cueGroup;
     this.deviceInfo = deviceInfo;
     this.deviceVolume = deviceVolume;
     this.deviceMuted = deviceMuted;
@@ -689,7 +687,7 @@ import java.util.List;
     FIELD_OLD_POSITION_INFO,
     FIELD_NEW_POSITION_INFO,
     FIELD_DISCONTINUITY_REASON,
-    FIELD_CUES,
+    FIELD_CUE_GROUP,
     FIELD_MEDIA_METADATA,
     FIELD_SEEK_BACK_INCREMENT_MS,
     FIELD_SEEK_FORWARD_INCREMENT_MS,
@@ -721,7 +719,7 @@ import java.util.List;
   private static final int FIELD_OLD_POSITION_INFO = 21;
   private static final int FIELD_NEW_POSITION_INFO = 22;
   private static final int FIELD_DISCONTINUITY_REASON = 23;
-  private static final int FIELD_CUES = 24;
+  private static final int FIELD_CUE_GROUP = 24;
   private static final int FIELD_MEDIA_METADATA = 25;
   private static final int FIELD_SEEK_BACK_INCREMENT_MS = 26;
   private static final int FIELD_SEEK_FORWARD_INCREMENT_MS = 27;
@@ -759,9 +757,7 @@ import java.util.List;
     bundle.putFloat(keyForField(FIELD_VOLUME), volume);
     bundle.putBundle(keyForField(FIELD_AUDIO_ATTRIBUTES), audioAttributes.toBundle());
     if (!excludeCues) {
-      bundle.putParcelableArrayList(
-          keyForField(FIELD_CUES),
-          BundleableUtil.toBundleArrayList(MediaUtils.filterOutBitmapCues(cues)));
+      bundle.putBundle(keyForField(FIELD_CUE_GROUP), cueGroup.toBundle());
     }
     bundle.putBundle(keyForField(FIELD_DEVICE_INFO), deviceInfo.toBundle());
     bundle.putInt(keyForField(FIELD_DEVICE_VOLUME), deviceVolume);
@@ -851,11 +847,9 @@ import java.util.List;
             AudioAttributes.CREATOR,
             bundle.getBundle(keyForField(FIELD_AUDIO_ATTRIBUTES)),
             /* defaultValue= */ AudioAttributes.DEFAULT);
-    List<Cue> cues =
-        BundleableUtil.fromBundleNullableList(
-            Cue.CREATOR,
-            bundle.getParcelableArrayList(keyForField(FIELD_CUES)),
-            /* defaultValue= */ ImmutableList.of());
+    CueGroup cueGroup =
+        BundleableUtil.fromNullableBundle(
+            CueGroup.CREATOR, bundle.getBundle(keyForField(FIELD_CUE_GROUP)), CueGroup.EMPTY);
     @Nullable Bundle deviceInfoBundle = bundle.getBundle(keyForField(FIELD_DEVICE_INFO));
     DeviceInfo deviceInfo =
         BundleableUtil.fromNullableBundle(
@@ -912,7 +906,7 @@ import java.util.List;
         playlistMetadata,
         volume,
         audioAttributes,
-        cues,
+        cueGroup,
         deviceInfo,
         deviceVolume,
         deviceMuted,

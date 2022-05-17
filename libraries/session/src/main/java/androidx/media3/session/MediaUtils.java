@@ -81,7 +81,6 @@ import androidx.media3.common.ThumbRating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.Window;
-import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
@@ -1265,21 +1264,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
     return intersectCommandsBuilder.build();
-  }
-
-  /**
-   * Filters out {@link Cue} objects containing {@link Bitmap}. It is used when transferring cues
-   * between processes to prevent transferring too large data.
-   */
-  public static ImmutableList<Cue> filterOutBitmapCues(List<Cue> cues) {
-    ImmutableList.Builder<Cue> builder = ImmutableList.builder();
-    for (int i = 0; i < cues.size(); i++) {
-      if (cues.get(i).bitmap != null) {
-        continue;
-      }
-      builder.add(cues.get(i));
-    }
-    return builder.build();
   }
 
   private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {

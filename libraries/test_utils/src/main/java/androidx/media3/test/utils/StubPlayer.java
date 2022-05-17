@@ -33,7 +33,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
@@ -346,7 +346,7 @@ public class StubPlayer extends BasePlayer {
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     throw new UnsupportedOperationException();
   }
 

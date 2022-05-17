@@ -22,6 +22,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
@@ -752,7 +753,7 @@ public class ForwardingPlayer implements Player {
 
   /** Calls {@link Player#getCurrentCues()} on the delegate and returns the result. */
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     return player.getCurrentCues();
   }
 
@@ -990,6 +991,11 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onCues(List<Cue> cues) {
       listener.onCues(cues);
+    }
+
+    @Override
+    public void onCues(CueGroup cueGroup) {
+      listener.onCues(cueGroup);
     }
 
     @Override

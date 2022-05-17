@@ -73,6 +73,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
@@ -196,7 +197,7 @@ import java.util.concurrent.TimeoutException;
   private AudioAttributes audioAttributes;
   private float volume;
   private boolean skipSilenceEnabled;
-  private List<Cue> currentCues;
+  private CueGroup currentCueGroup;
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
   @Nullable private CameraMotionListener cameraMotionListener;
   private boolean throwsWhenUsingWrongThread;
@@ -353,7 +354,7 @@ import java.util.concurrent.TimeoutException;
       } else {
         audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
-      currentCues = ImmutableList.of();
+      currentCueGroup = CueGroup.EMPTY;
       throwsWhenUsingWrongThread = true;
 
       addListener(analyticsCollector);
@@ -936,7 +937,7 @@ import java.util.concurrent.TimeoutException;
     verifyApplicationThread();
     audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
     stopInternal(reset, /* error= */ null);
-    currentCues = ImmutableList.of();
+    currentCueGroup = CueGroup.EMPTY;
   }
 
   @Override
@@ -990,7 +991,7 @@ import java.util.concurrent.TimeoutException;
       checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
-    currentCues = ImmutableList.of();
+    currentCueGroup = CueGroup.EMPTY;
     playerReleased = true;
   }
 
@@ -1587,9 +1588,9 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return currentCues;
+    return currentCueGroup;
   }
 
   @Override
@@ -2850,11 +2851,15 @@ import java.util.concurrent.TimeoutException;
     }
 
     // TextOutput implementation
-
     @Override
     public void onCues(List<Cue> cues) {
-      currentCues = cues;
       listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cues));
+    }
+
+    @Override
+    public void onCues(CueGroup cueGroup) {
+      currentCueGroup = cueGroup;
+      listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cueGroup));
     }
 
     // MetadataOutput implementation

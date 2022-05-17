@@ -42,6 +42,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
@@ -695,11 +696,19 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         listener -> listener.onMetadata(eventTime, metadata));
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public void onCues(List<Cue> cues) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cues));
+  }
+
+  @Override
+  public void onCues(CueGroup cueGroup) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cueGroup));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.

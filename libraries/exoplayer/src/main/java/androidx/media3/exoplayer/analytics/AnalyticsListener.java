@@ -49,6 +49,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderException;
 import androidx.media3.exoplayer.DecoderCounters;
@@ -875,14 +876,28 @@ public interface AnalyticsListener {
   /**
    * Called when there is a change in the {@link Cue Cues}.
    *
-   * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-   * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+   * <p>Both {@link #onCues(EventTime, List)} and {@link #onCues(EventTime, CueGroup)} are called
+   * when there is a change in the cues. You should only implement one or the other.
    *
    * @param eventTime The event time.
-   * @param cues The {@link Cue Cues}. May be empty.
+   * @param cues The {@link Cue Cues}.
+   * @deprecated Use {@link #onCues(EventTime, CueGroup)} instead.
    */
+  @Deprecated
   @UnstableApi
   default void onCues(EventTime eventTime, List<Cue> cues) {}
+
+  /**
+   * Called when there is a change in the {@link CueGroup}.
+   *
+   * <p>Both {@link #onCues(EventTime, List)} and {@link #onCues(EventTime, CueGroup)} are called
+   * when there is a change in the cues. You should only implement one or the other.
+   *
+   * @param eventTime The event time.
+   * @param cueGroup The {@link CueGroup}.
+   */
+  @UnstableApi
+  default void onCues(EventTime eventTime, CueGroup cueGroup) {}
 
   /**
    * @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead.

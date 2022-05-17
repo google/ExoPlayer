@@ -134,7 +134,7 @@ import androidx.media3.common.Timeline.RemotableTimeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
@@ -1490,8 +1490,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
-    return playerInfo.cues;
+  public CueGroup getCurrentCues() {
+    return playerInfo.cueGroup;
   }
 
   @Override
@@ -2356,6 +2356,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         });
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   void onPlayerInfoChanged(
       PlayerInfo newPlayerInfo,
       @TimelineChangeReason int timelineChangedReason,
@@ -2427,10 +2428,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* eventFlag= */ C.INDEX_UNSET,
           listener -> listener.onAudioAttributesChanged(playerInfo.audioAttributes));
     }
-    if (!Util.areEqual(oldPlayerInfo.cues, playerInfo.cues)) {
+    if (!oldPlayerInfo.cueGroup.cues.equals(playerInfo.cueGroup.cues)) {
       // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cues));
+          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup.cues));
+      listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup));
     }
     if (!Util.areEqual(oldPlayerInfo.deviceInfo, playerInfo.deviceInfo)) {
       // TODO(b/187152483): Set proper event code when available.

@@ -42,7 +42,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -636,7 +636,7 @@ import java.util.List;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
     return super.getCurrentCues();
   }

@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.text;
 
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
@@ -26,10 +27,19 @@ public interface TextOutput {
   /**
    * Called when there is a change in the {@link Cue Cues}.
    *
-   * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-   * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+   * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+   * in the cues. You should only implement one or the other.
    *
-   * @param cues The {@link Cue Cues}. May be empty.
+   * @deprecated Use {@link #onCues(CueGroup)} instead.
    */
+  @Deprecated
   void onCues(List<Cue> cues);
+
+  /**
+   * Called when there is a change in the {@link CueGroup}.
+   *
+   * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+   * in the cues You should only implement one or the other.
+   */
+  default void onCues(CueGroup cueGroup) {}
 }

@@ -32,6 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -1024,15 +1025,28 @@ public interface Player {
     /**
      * Called when there is a change in the {@link Cue Cues}.
      *
-     * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-     * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param cues The {@link Cue Cues}. May be empty.
+     * @deprecated Use {@link #onCues(CueGroup)} instead.
      */
+    @Deprecated
+    @UnstableApi
     default void onCues(List<Cue> cues) {}
+
+    /**
+     * Called when there is a change in the {@link CueGroup}.
+     *
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     */
+    default void onCues(CueGroup cueGroup) {}
 
     /**
      * Called when there is metadata associated with the current playback time.
@@ -2469,8 +2483,8 @@ public interface Player {
    */
   VideoSize getVideoSize();
 
-  /** Returns the current {@link Cue Cues}. This list may be empty. */
-  List<Cue> getCurrentCues();
+  /** Returns the current {@link CueGroup}. */
+  CueGroup getCurrentCues();
 
   /** Gets the device information. */
   DeviceInfo getDeviceInfo();

@@ -63,6 +63,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.session.RemoteMediaSession.RemoteMockPlayer;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -1842,12 +1843,14 @@ public class MediaControllerListenerTest {
     List<Cue> testCues = ImmutableList.of(testCue1, testCue2);
 
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setCurrentCues(testCues).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentCues(new CueGroup(testCues))
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
 
-    assertThat(threadTestRule.getHandler().postAndSync(controller::getCurrentCues))
+    assertThat(threadTestRule.getHandler().postAndSync(controller::getCurrentCues).cues)
         .isEqualTo(testCues);
   }
 
@@ -1858,7 +1861,9 @@ public class MediaControllerListenerTest {
     List<Cue> testCues = ImmutableList.of(testCue1, testCue2);
 
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setCurrentCues(testCues).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentCues(new CueGroup(testCues))
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
@@ -1873,7 +1878,7 @@ public class MediaControllerListenerTest {
             cuesFromParam.clear();
             cuesFromParam.addAll(cues);
             cuesFromGetter.clear();
-            cuesFromGetter.addAll(controller.getCurrentCues());
+            cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
         };
@@ -1902,14 +1907,16 @@ public class MediaControllerListenerTest {
           @Override
           public void onCues(List<Cue> cues) {
             cuesFromParam.addAll(cues);
-            cuesFromGetter.addAll(controller.getCurrentCues());
+            cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
         };
     controller.addListener(listener);
 
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setCurrentCues(testCues).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentCues(new CueGroup(testCues))
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -1932,13 +1939,13 @@ public class MediaControllerListenerTest {
           @Override
           public void onCues(List<Cue> cues) {
             cuesFromParam.addAll(cues);
-            cuesFromGetter.addAll(controller.getCurrentCues());
+            cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().notifyCuesChanged(testCues);
+    remoteSession.getMockPlayer().notifyCuesChanged(new CueGroup(testCues));
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(cuesFromParam).isEqualTo(testCues);

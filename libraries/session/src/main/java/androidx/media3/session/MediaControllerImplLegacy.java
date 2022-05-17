@@ -91,7 +91,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
@@ -1052,9 +1052,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     Log.w(TAG, "Session doesn't support getting Cue");
-    return ImmutableList.of();
+    return CueGroup.EMPTY;
   }
 
   @Override
@@ -2042,7 +2042,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             /* playlistMetadata= */ playlistMetadata,
             /* volume= */ 1.0f,
             /* audioAttributes= */ audioAttributes,
-            /* cues= */ Collections.emptyList(),
+            /* cueGroup= */ CueGroup.EMPTY,
             /* deviceInfo= */ deviceInfo,
             /* deviceVolume= */ deviceVolume,
             /* deviceMuted= */ deviceMuted,

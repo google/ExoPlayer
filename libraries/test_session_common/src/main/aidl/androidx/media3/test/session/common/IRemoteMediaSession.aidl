@@ -77,7 +77,7 @@ interface IRemoteMediaSession {
   void notifySeekBackIncrementChanged(String sessionId, long seekBackIncrementMs);
   void notifySeekForwardIncrementChanged(String sessionId, long seekForwardIncrementMs);
   void notifyDeviceVolumeChanged(String sessionId, int volume, boolean muted);
-  void notifyCuesChanged(String sessionId, in List<Bundle> cues);
+  void notifyCuesChanged(String sessionId, in Bundle cueGroup);
   void notifyDeviceInfoChanged(String sessionId, in Bundle deviceInfo);
   void notifyMediaMetadataChanged(String sessionId, in Bundle mediaMetadata);
   void notifyRenderedFirstFrame(String sessionId);

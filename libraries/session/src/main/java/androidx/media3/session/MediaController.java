@@ -52,12 +52,11 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
@@ -1583,9 +1582,9 @@ public class MediaController implements Player {
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return isConnected() ? impl.getCurrentCues() : ImmutableList.of();
+    return isConnected() ? impl.getCurrentCues() : CueGroup.EMPTY;
   }
 
   @Override
@@ -1981,7 +1980,7 @@ public class MediaController implements Player {
 
     void clearVideoTextureView(@Nullable TextureView textureView);
 
-    List<Cue> getCurrentCues();
+    CueGroup getCurrentCues();
 
     float getVolume();
 

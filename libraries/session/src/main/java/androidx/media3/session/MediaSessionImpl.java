@@ -62,7 +62,7 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
@@ -1016,7 +1016,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     @Override
-    public void onCues(List<Cue> cues) {
+    public void onCues(CueGroup cueGroup) {
       @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
@@ -1026,7 +1026,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      session.playerInfo = new PlayerInfo.Builder(session.playerInfo).setCues(cues).build();
+      session.playerInfo = new PlayerInfo.Builder(session.playerInfo).setCues(cueGroup).build();
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
     }
 

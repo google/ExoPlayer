@@ -38,7 +38,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -234,7 +234,7 @@ public class MockPlayer implements Player {
   @Nullable public SurfaceView surfaceView;
   @Nullable public TextureView textureView;
   public float volume;
-  public List<Cue> cues;
+  public CueGroup cueGroup;
   public DeviceInfo deviceInfo;
   public int deviceVolume;
   public boolean deviceMuted;
@@ -277,7 +277,7 @@ public class MockPlayer implements Player {
     repeatMode = Player.REPEAT_MODE_OFF;
     videoSize = VideoSize.UNKNOWN;
     volume = 1.0f;
-    cues = ImmutableList.of();
+    cueGroup = CueGroup.EMPTY;
     deviceInfo = DeviceInfo.UNKNOWN;
     seekPositionMs = C.TIME_UNSET;
     seekMediaItemIndex = C.INDEX_UNSET;
@@ -621,8 +621,8 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
-    return cues;
+  public CueGroup getCurrentCues() {
+    return cueGroup;
   }
 
   @Override
@@ -1134,9 +1134,11 @@ public class MockPlayer implements Player {
     }
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   public void notifyCuesChanged() {
     for (Listener listener : listeners) {
-      listener.onCues(cues);
+      listener.onCues(cueGroup.cues);
+      listener.onCues(cueGroup);
     }
   }
 
