@@ -63,44 +63,44 @@ public final class SsimHelper {
   private static final int DECODED_IMAGE_CHANNEL_COUNT = 3;
 
   /**
-   * Returns the mean SSIM score between the expected and the actual video.
+   * Returns the mean SSIM score between the reference and the actual video.
    *
    * <p>The method compares every {@link #DEFAULT_COMPARISON_INTERVAL n-th} frame from both videos.
    *
    * @param context The {@link Context}.
-   * @param expectedVideoPath The path to the expected video file, must be in {@link
+   * @param referenceVideoPath The path to the reference video file, must be in {@link
    *     Context#getAssets() Assets}.
    * @param actualVideoPath The path to the actual video file.
    * @throws IOException When unable to open the provided video paths.
    */
-  public static double calculate(Context context, String expectedVideoPath, String actualVideoPath)
+  public static double calculate(Context context, String referenceVideoPath, String actualVideoPath)
       throws IOException, InterruptedException {
-    VideoDecodingWrapper expectedDecodingWrapper =
-        new VideoDecodingWrapper(context, expectedVideoPath, DEFAULT_COMPARISON_INTERVAL);
+    VideoDecodingWrapper referenceDecodingWrapper =
+        new VideoDecodingWrapper(context, referenceVideoPath, DEFAULT_COMPARISON_INTERVAL);
     VideoDecodingWrapper actualDecodingWrapper =
         new VideoDecodingWrapper(context, actualVideoPath, DEFAULT_COMPARISON_INTERVAL);
-    @Nullable byte[] expectedLumaBuffer = null;
+    @Nullable byte[] referenceLumaBuffer = null;
     @Nullable byte[] actualLumaBuffer = null;
     double accumulatedSsim = 0.0;
     int comparedImagesCount = 0;
     try {
       while (true) {
-        @Nullable Image expectedImage = expectedDecodingWrapper.runUntilComparisonFrameOrEnded();
+        @Nullable Image referenceImage = referenceDecodingWrapper.runUntilComparisonFrameOrEnded();
         @Nullable Image actualImage = actualDecodingWrapper.runUntilComparisonFrameOrEnded();
-        if (expectedImage == null) {
+        if (referenceImage == null) {
           assertThat(actualImage).isNull();
           break;
         }
         checkNotNull(actualImage);
 
-        int width = expectedImage.getWidth();
-        int height = expectedImage.getHeight();
+        int width = referenceImage.getWidth();
+        int height = referenceImage.getHeight();
 
         assertThat(actualImage.getWidth()).isEqualTo(width);
         assertThat(actualImage.getHeight()).isEqualTo(height);
 
-        if (expectedLumaBuffer == null || expectedLumaBuffer.length != width * height) {
-          expectedLumaBuffer = new byte[width * height];
+        if (referenceLumaBuffer == null || referenceLumaBuffer.length != width * height) {
+          referenceLumaBuffer = new byte[width * height];
         }
         if (actualLumaBuffer == null || actualLumaBuffer.length != width * height) {
           actualLumaBuffer = new byte[width * height];
@@ -108,20 +108,20 @@ public final class SsimHelper {
         try {
           accumulatedSsim +=
               SsimCalculator.calculate(
-                  extractLumaChannelBuffer(expectedImage, expectedLumaBuffer),
+                  extractLumaChannelBuffer(referenceImage, referenceLumaBuffer),
                   extractLumaChannelBuffer(actualImage, actualLumaBuffer),
                   /* offset= */ 0,
                   /* stride= */ width,
                   width,
                   height);
         } finally {
-          expectedImage.close();
+          referenceImage.close();
           actualImage.close();
         }
         comparedImagesCount++;
       }
     } finally {
-      expectedDecodingWrapper.close();
+      referenceDecodingWrapper.close();
       actualDecodingWrapper.close();
     }
     assertWithMessage("Input had no frames.").that(comparedImagesCount).isGreaterThan(0);
@@ -347,7 +347,7 @@ public final class SsimHelper {
     /**
      * Calculates the Structural Similarity Index (SSIM) between two images.
      *
-     * @param expected The luma channel (Y) bitmap of the expected image.
+     * @param reference The luma channel (Y) bitmap of the reference image.
      * @param actual The luma channel (Y) bitmap of the actual image.
      * @param offset The offset.
      * @param stride The stride of the bitmap.
@@ -356,23 +356,23 @@ public final class SsimHelper {
      * @return The SSIM score between the input images.
      */
     public static double calculate(
-        byte[] expected, byte[] actual, int offset, int stride, int width, int height) {
+        byte[] reference, byte[] actual, int offset, int stride, int width, int height) {
       double totalSsim = 0;
       int windowsCount = 0;
 
-      // X refers to the expected image, while Y refers to the actual image.
+      // X refers to the reference image, while Y refers to the actual image.
       for (int currentWindowY = 0; currentWindowY < height; currentWindowY += WINDOW_SIZE) {
         int windowHeight = computeWindowSize(currentWindowY, height);
         for (int currentWindowX = 0; currentWindowX < width; currentWindowX += WINDOW_SIZE) {
           windowsCount++;
           int windowWidth = computeWindowSize(currentWindowX, width);
           int start = getGlobalCoordinate(currentWindowX, currentWindowY, stride, offset);
-          double meanX = getMean(expected, start, stride, windowWidth, windowHeight);
+          double meanX = getMean(reference, start, stride, windowWidth, windowHeight);
           double meanY = getMean(actual, start, stride, windowWidth, windowHeight);
 
           double[] variances =
               getVariancesAndCovariance(
-                  expected, actual, meanX, meanY, start, stride, windowWidth, windowHeight);
+                  reference, actual, meanX, meanY, start, stride, windowWidth, windowHeight);
           // varX is the variance of window X, covXY is the covariance between window X and Y.
           double varX = variances[0];
           double varY = variances[1];
