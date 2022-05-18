@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -56,12 +57,14 @@ public final class PlaybackOutput implements Dumper.Dumpable {
 
   private final List<Metadata> metadatas;
   private final List<List<Cue>> subtitles;
+  private final List<List<Cue>> subtitlesFromDeprecatedTextOutput;
 
   private PlaybackOutput(ExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
     this.capturingRenderersFactory = capturingRenderersFactory;
 
     metadatas = Collections.synchronizedList(new ArrayList<>());
     subtitles = Collections.synchronizedList(new ArrayList<>());
+    subtitlesFromDeprecatedTextOutput = Collections.synchronizedList(new ArrayList<>());
     // TODO: Consider passing playback position into MetadataOutput and TextOutput. Calling
     // player.getCurrentPosition() inside onMetadata/Cues will likely be non-deterministic
     // because renderer-thread != playback-thread.
@@ -74,7 +77,12 @@ public final class PlaybackOutput implements Dumper.Dumpable {
 
           @Override
           public void onCues(List<Cue> cues) {
-            subtitles.add(cues);
+            subtitlesFromDeprecatedTextOutput.add(cues);
+          }
+
+          @Override
+          public void onCues(CueGroup cueGroup) {
+            subtitles.add(cueGroup.cues);
           }
         });
   }
@@ -146,6 +154,11 @@ public final class PlaybackOutput implements Dumper.Dumpable {
   }
 
   private void dumpSubtitles(Dumper dumper) {
+    if (!subtitles.equals(subtitlesFromDeprecatedTextOutput)) {
+      throw new IllegalStateException(
+          "Expected subtitles to be equal from both implementations of onCues method.");
+    }
+
     if (subtitles.isEmpty()) {
       return;
     }

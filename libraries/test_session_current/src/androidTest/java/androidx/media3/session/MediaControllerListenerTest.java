@@ -1874,9 +1874,9 @@ public class MediaControllerListenerTest {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onCues(List<Cue> cues) {
+          public void onCues(CueGroup cueGroup) {
             cuesFromParam.clear();
-            cuesFromParam.addAll(cues);
+            cuesFromParam.addAll(cueGroup.cues);
             cuesFromGetter.clear();
             cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
@@ -1905,8 +1905,8 @@ public class MediaControllerListenerTest {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onCues(List<Cue> cues) {
-            cuesFromParam.addAll(cues);
+          public void onCues(CueGroup cueGroup) {
+            cuesFromParam.addAll(cueGroup.cues);
             cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
@@ -1937,8 +1937,8 @@ public class MediaControllerListenerTest {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onCues(List<Cue> cues) {
-            cuesFromParam.addAll(cues);
+          public void onCues(CueGroup cueGroup) {
+            cuesFromParam.addAll(cueGroup.cues);
             cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }

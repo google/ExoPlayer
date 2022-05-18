@@ -25,6 +25,7 @@ import androidx.media3.common.MediaItem.SubtitleConfiguration;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.exoplayer.source.ClippingMediaSource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -135,8 +136,8 @@ public final class ClippedPlaybackTest {
     }
 
     @Override
-    public void onCues(List<Cue> cues) {
-      this.cues.add(cues);
+    public void onCues(CueGroup cueGroup) {
+      this.cues.add(cueGroup.cues);
     }
 
     @Override

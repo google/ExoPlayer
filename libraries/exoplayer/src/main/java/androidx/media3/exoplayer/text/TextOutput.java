@@ -33,7 +33,7 @@ public interface TextOutput {
    * @deprecated Use {@link #onCues(CueGroup)} instead.
    */
   @Deprecated
-  void onCues(List<Cue> cues);
+  default void onCues(List<Cue> cues) {}
 
   /**
    * Called when there is a change in the {@link CueGroup}.
@@ -41,5 +41,5 @@ public interface TextOutput {
    * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
    * in the cues You should only implement one or the other.
    */
-  default void onCues(CueGroup cueGroup) {}
+  void onCues(CueGroup cueGroup);
 }
