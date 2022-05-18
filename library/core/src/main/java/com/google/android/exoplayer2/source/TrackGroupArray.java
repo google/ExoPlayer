@@ -136,12 +136,15 @@ public final class TrackGroupArray implements Bundleable {
   /** Object that can restores a TrackGroupArray from a {@link Bundle}. */
   public static final Creator<TrackGroupArray> CREATOR =
       bundle -> {
-        List<TrackGroup> trackGroups =
-            BundleableUtil.fromBundleNullableList(
-                TrackGroup.CREATOR,
-                bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS)),
-                /* defaultValue= */ ImmutableList.of());
-        return new TrackGroupArray(trackGroups.toArray(new TrackGroup[0]));
+        @Nullable
+        List<Bundle> trackGroupBundles =
+            bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS));
+        if (trackGroupBundles == null) {
+          return new TrackGroupArray();
+        }
+        return new TrackGroupArray(
+            BundleableUtil.fromBundleList(TrackGroup.CREATOR, trackGroupBundles)
+                .toArray(new TrackGroup[0]));
       };
 
   private void verifyCorrectness() {

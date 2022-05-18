@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.BundleableUtil.fromBundleNullableList;
 import static com.google.android.exoplayer2.util.BundleableUtil.toBundleArrayList;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -31,6 +30,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -246,11 +246,13 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
+      @Nullable
+      List<Bundle> overrideBundleList =
+          bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDES));
       List<TrackSelectionOverride> overrideList =
-          fromBundleNullableList(
-              TrackSelectionOverride.CREATOR,
-              bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDES)),
-              ImmutableList.of());
+          overrideBundleList == null
+              ? ImmutableList.of()
+              : BundleableUtil.fromBundleList(TrackSelectionOverride.CREATOR, overrideBundleList);
       overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);

@@ -839,18 +839,23 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int[] rendererIndices =
           bundle.getIntArray(
               Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDICES));
+      @Nullable
+      ArrayList<Bundle> trackGroupArrayBundles =
+          bundle.getParcelableArrayList(
+              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS));
       List<TrackGroupArray> trackGroupArrays =
-          BundleableUtil.fromBundleNullableList(
-              TrackGroupArray.CREATOR,
-              bundle.getParcelableArrayList(
-                  Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS)),
-              /* defaultValue= */ ImmutableList.of());
+          trackGroupArrayBundles == null
+              ? ImmutableList.of()
+              : BundleableUtil.fromBundleList(TrackGroupArray.CREATOR, trackGroupArrayBundles);
+      @Nullable
+      SparseArray<Bundle> selectionOverrideBundles =
+          bundle.getSparseParcelableArray(
+              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES));
       SparseArray<SelectionOverride> selectionOverrides =
-          BundleableUtil.fromBundleNullableSparseArray(
-              SelectionOverride.CREATOR,
-              bundle.getSparseParcelableArray(
-                  Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES)),
-              /* defaultValue= */ new SparseArray<>());
+          selectionOverrideBundles == null
+              ? new SparseArray<>()
+              : BundleableUtil.fromBundleSparseArray(
+                  SelectionOverride.CREATOR, selectionOverrideBundles);
 
       if (rendererIndices == null || rendererIndices.length != trackGroupArrays.size()) {
         return; // Incorrect format, ignore all overrides.

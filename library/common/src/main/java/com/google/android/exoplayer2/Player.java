@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
-import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -295,7 +294,9 @@ public interface Player {
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
+      if (mediaItem != null) {
+        bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      }
       bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
       bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
@@ -310,10 +311,10 @@ public interface Player {
     private static PositionInfo fromBundle(Bundle bundle) {
       int mediaItemIndex =
           bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
       @Nullable
       MediaItem mediaItem =
-          BundleableUtil.fromNullableBundle(
-              MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
+          mediaItemBundle == null ? null : MediaItem.CREATOR.fromBundle(mediaItemBundle);
       int periodIndex =
           bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
       long positionMs =
