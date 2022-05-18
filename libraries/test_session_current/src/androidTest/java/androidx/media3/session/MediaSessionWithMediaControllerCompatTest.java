@@ -66,14 +66,14 @@ public class MediaSessionWithMediaControllerCompatTest {
   public void getControllerVersion() throws Exception {
     CountDownLatch connectedLatch = new CountDownLatch(1);
     AtomicInteger controllerVersionRef = new AtomicInteger();
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, MediaSession.ControllerInfo controller) {
             controllerVersionRef.set(controller.getControllerVersion());
             connectedLatch.countDown();
-            return MediaSession.SessionCallback.super.onConnect(session, controller);
+            return MediaSession.Callback.super.onConnect(session, controller);
           }
         };
 

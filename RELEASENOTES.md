@@ -92,21 +92,20 @@
     *   Add RTP reader for VP9
         ([#47](https://github.com/androidx/media/pull/64)).
 *   Session:
-
     *   Fix NPE in MediaControllerImplLegacy
-        ([#59](https://github.com/androidx/media/pull/59))
+        ([#59](https://github.com/androidx/media/pull/59)).
     *   Update session position info on timeline
-        change([#51](https://github.com/androidx/media/issues/51))
+        change([#51](https://github.com/androidx/media/issues/51)).
     *   Fix NPE in MediaControllerImplBase after releasing controller
-        ([#74](https://github.com/androidx/media/issues/74))
-
+        ([#74](https://github.com/androidx/media/issues/74)).
+    *   Rename `MediaSession.MediaSessionCallback` to `MediaSession.Callback`
+        and `MediaLibrarySession.MediaLibrarySession` to
+        `MediaLibrarySession.Callback` for consistency with other nested
+        listener and callbacks like `Player.Listener`.
 *   Data sources:
-
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
     *   Workaround OkHttp interrupt handling.
-
 *   Remove deprecated symbols:
-
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
     *   Remove `Player.getCurrentTrackGroups` and

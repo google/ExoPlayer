@@ -67,12 +67,12 @@ public class MediaSessionPlayerTest {
     session =
         new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
             .setSessionCallback(
-                new MediaSession.SessionCallback() {
+                new MediaSession.Callback() {
                   @Override
                   public MediaSession.ConnectionResult onConnect(
                       MediaSession session, MediaSession.ControllerInfo controller) {
                     if (SUPPORT_APP_PACKAGE_NAME.equals(controller.getPackageName())) {
-                      return MediaSession.SessionCallback.super.onConnect(session, controller);
+                      return MediaSession.Callback.super.onConnect(session, controller);
                     }
                     return MediaSession.ConnectionResult.reject();
                   }

@@ -48,7 +48,6 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
-import androidx.media3.session.MediaSession.SessionCallback;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.PollingCheck;
@@ -69,7 +68,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link SessionCallback} working with {@link MediaControllerCompat}. */
+/** Tests for {@link MediaSession.Callback} working with {@link MediaControllerCompat}. */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionCallbackWithMediaControllerCompatTest {
@@ -117,7 +116,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
         new MediaSession.Builder(context, player)
             .setId("onDisconnected_afterTimeout_isCalled")
             .setSessionCallback(
-                new SessionCallback() {
+                new MediaSession.Callback() {
                   private ControllerInfo connectedController;
 
                   @Override
@@ -125,7 +124,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
                       MediaSession session, ControllerInfo controller) {
                     if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
                       connectedController = controller;
-                      return SessionCallback.super.onConnect(session, controller);
+                      return MediaSession.Callback.super.onConnect(session, controller);
                     }
                     return MediaSession.ConnectionResult.reject();
                   }
@@ -156,7 +155,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
         new MediaSession.Builder(context, player)
             .setId("onConnected_afterDisconnectedByTimeout_isCalled")
             .setSessionCallback(
-                new SessionCallback() {
+                new MediaSession.Callback() {
                   private ControllerInfo connectedController;
 
                   @Override
@@ -165,7 +164,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
                     if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
                       connectedController = controller;
                       connectedLatch.countDown();
-                      return SessionCallback.super.onConnect(session, controller);
+                      return MediaSession.Callback.super.onConnect(session, controller);
                     }
                     return MediaSession.ConnectionResult.reject();
                   }
@@ -657,14 +656,14 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     testArgs.putString("args", "test_args");
 
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
-        new SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, ControllerInfo controller) {
             if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
               MediaSession.ConnectionResult commands =
-                  SessionCallback.super.onConnect(session, controller);
+                  MediaSession.Callback.super.onConnect(session, controller);
               SessionCommands.Builder builder = commands.availableSessionCommands.buildUpon();
               builder.add(new SessionCommand(testCommand, /* extras= */ Bundle.EMPTY));
               return MediaSession.ConnectionResult.accept(
@@ -708,14 +707,14 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     testArgs.putString("args", "test_custom_args");
     SessionCommand customCommand = new SessionCommand(testCommand, /* extras= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
-        new SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, ControllerInfo controller) {
             if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
               MediaSession.ConnectionResult connectionResult =
-                  SessionCallback.super.onConnect(session, controller);
+                  MediaSession.Callback.super.onConnect(session, controller);
               SessionCommands.Builder builder =
                   connectionResult.availableSessionCommands.buildUpon().add(customCommand);
               return MediaSession.ConnectionResult.accept(
@@ -755,8 +754,8 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
   @Test
   public void controllerCallback_sessionRejects() throws Exception {
-    SessionCallback sessionCallback =
-        new SessionCallback() {
+    MediaSession.Callback sessionCallback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, ControllerInfo controller) {
@@ -785,7 +784,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onSetMediaUri(
@@ -817,7 +816,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onSetMediaUri(
@@ -849,7 +848,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onSetMediaUri(
@@ -882,7 +881,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onSetMediaUri(
@@ -915,7 +914,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onSetMediaUri(
@@ -948,7 +947,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onSetMediaUri(
@@ -983,7 +982,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     String mediaId = "media_id";
 
     CountDownLatch latch = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public ListenableFuture<SessionResult> onSetRating(
@@ -1020,7 +1019,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   public void onCommandRequest() throws Exception {
     ArrayList<Integer> commands = new ArrayList<>();
     CountDownLatch latchForPause = new CountDownLatch(1);
-    SessionCallback callback =
+    MediaSession.Callback callback =
         new TestSessionCallback() {
           @Override
           public int onPlayerCommandRequest(
@@ -1128,13 +1127,13 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isFalse();
   }
 
-  private static class TestSessionCallback implements SessionCallback {
+  private static class TestSessionCallback implements MediaSession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
         MediaSession session, ControllerInfo controller) {
       if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
-        return SessionCallback.super.onConnect(session, controller);
+        return MediaSession.Callback.super.onConnect(session, controller);
       }
       return MediaSession.ConnectionResult.reject();
     }

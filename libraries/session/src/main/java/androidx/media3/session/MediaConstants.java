@@ -26,7 +26,7 @@ public final class MediaConstants {
    * A {@link Uri} scheme used in a media uri.
    *
    * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    */
   public static final String MEDIA_URI_SCHEME = "androidx";
 
@@ -34,7 +34,7 @@ public final class MediaConstants {
    * A {@link Uri} authority used in a media uri.
    *
    * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    */
   public static final String MEDIA_URI_AUTHORITY = "media3-session";
 
@@ -43,7 +43,7 @@ public final class MediaConstants {
    * android.support.v4.media.session.MediaControllerCompat.TransportControls#playFromMediaId}.
    *
    * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    */
   public static final String MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID = "playFromMediaId";
 
@@ -52,7 +52,7 @@ public final class MediaConstants {
    * android.support.v4.media.session.MediaControllerCompat.TransportControls#playFromSearch}.
    *
    * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    */
   public static final String MEDIA_URI_PATH_PLAY_FROM_SEARCH = "playFromSearch";
 
@@ -61,7 +61,7 @@ public final class MediaConstants {
    * android.support.v4.media.session.MediaControllerCompat.TransportControls#prepareFromMediaId}.
    *
    * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    */
   public static final String MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID = "prepareFromMediaId";
 
@@ -70,7 +70,7 @@ public final class MediaConstants {
    * android.support.v4.media.session.MediaControllerCompat.TransportControls#prepareFromSearch}.
    *
    * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    */
   public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
 
@@ -95,7 +95,7 @@ public final class MediaConstants {
   /**
    * A {@link Uri} query for media id.
    *
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    * @see MediaController#setMediaUri
    */
   public static final String MEDIA_URI_QUERY_ID = "id";
@@ -103,7 +103,7 @@ public final class MediaConstants {
   /**
    * A {@link Uri} query for search query.
    *
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see MediaSession.Callback#onSetMediaUri
    * @see MediaController#setMediaUri
    */
   public static final String MEDIA_URI_QUERY_QUERY = "query";

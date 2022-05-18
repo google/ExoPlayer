@@ -68,7 +68,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.MediaSession.MediaItemFiller;
-import androidx.media3.session.MediaSession.SessionCallback;
 import androidx.media3.session.SequencedFutureManager.SequencedFuture;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -108,7 +107,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private final PlayerInfoChangedHandler onPlayerInfoChangedHandler;
 
-  private final SessionCallback callback;
+  private final MediaSession.Callback callback;
   private final MediaItemFiller mediaItemFiller;
 
   private final Context context;
@@ -143,7 +142,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      SessionCallback callback,
+      MediaSession.Callback callback,
       MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     this.context = context;

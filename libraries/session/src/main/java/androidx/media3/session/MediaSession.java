@@ -109,10 +109,9 @@ import java.util.List;
  *
  * <p>The instances are thread safe, but should be used on the thread with a looper.
  *
- * <p>{@link SessionCallback} methods will be called from the application thread associated with the
- * {@link Player#getApplicationLooper() application looper} of the underlying player. When a new
- * player is set by {@link #setPlayer}, the player should use the same application looper as the
- * previous one.
+ * <p>{@link Callback} methods will be called from the application thread associated with the {@link
+ * Player#getApplicationLooper() application looper} of the underlying player. When a new player is
+ * set by {@link #setPlayer}, the player should use the same application looper as the previous one.
  *
  * <p>The session listens to events from the underlying player via {@link Player.Listener} and
  * expects the callback methods to be called from the application thread. If the player violates the
@@ -231,7 +230,7 @@ public class MediaSession {
    * <p>Any incoming requests from the {@link MediaController} will be handled on the application
    * thread of the underlying {@link Player}.
    */
-  public static final class Builder extends BuilderBase<MediaSession, Builder, SessionCallback> {
+  public static final class Builder extends BuilderBase<MediaSession, Builder, Callback> {
 
     /**
      * Creates a builder for {@link MediaSession}.
@@ -241,7 +240,7 @@ public class MediaSession {
      * @throws IllegalArgumentException if {@link Player#canAdvertiseSession()} returns false.
      */
     public Builder(Context context, Player player) {
-      super(context, player, new SessionCallback() {});
+      super(context, player, new Callback() {});
     }
 
     /**
@@ -281,7 +280,7 @@ public class MediaSession {
      * @return The builder to allow chaining.
      */
     @Override
-    public Builder setSessionCallback(SessionCallback callback) {
+    public Builder setSessionCallback(Callback callback) {
       return super.setSessionCallback(callback);
     }
 
@@ -475,7 +474,7 @@ public class MediaSession {
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      SessionCallback callback,
+      Callback callback,
       MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     synchronized (STATIC_LOCK) {
@@ -492,7 +491,7 @@ public class MediaSession {
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      SessionCallback callback,
+      Callback callback,
       MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     return new MediaSessionImpl(
@@ -770,10 +769,10 @@ public class MediaSession {
    * <p>The callback methods will be called from the application thread associated with the {@link
    * Player#getApplicationLooper() application looper} of the underlying {@link Player}.
    *
-   * <p>If it's not set by {@link MediaSession.Builder#setSessionCallback(SessionCallback)}, the
-   * session will accept all controllers and all incoming commands by default.
+   * <p>If it's not set by {@link MediaSession.Builder#setSessionCallback(Callback)}, the session
+   * will accept all controllers and all incoming commands by default.
    */
-  public interface SessionCallback {
+  public interface Callback {
 
     /**
      * Called when a controller is about to connect to this session. Return a {@link
@@ -1033,8 +1032,8 @@ public class MediaSession {
   }
 
   /**
-   * A result for {@link SessionCallback#onConnect(MediaSession, ControllerInfo)} to denote the set
-   * of commands that are available for the given {@link ControllerInfo controller}.
+   * A result for {@link Callback#onConnect(MediaSession, ControllerInfo)} to denote the set of
+   * commands that are available for the given {@link ControllerInfo controller}.
    */
   public static final class ConnectionResult {
 
@@ -1195,7 +1194,7 @@ public class MediaSession {
    * applied to the subclasses.
    */
   /* package */ abstract static class BuilderBase<
-      T extends MediaSession, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
+      T extends MediaSession, U extends BuilderBase<T, U, C>, C extends Callback> {
 
     /* package */ final Context context;
     /* package */ final Player player;

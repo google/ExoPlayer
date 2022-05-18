@@ -113,8 +113,7 @@ public class MediaSessionServiceTest {
   /**
    * Tests whether the controller is connected to the session which is returned from {@link
    * MediaSessionService#onGetSession(ControllerInfo)}. Also checks whether the connection hints are
-   * properly passed to {@link MediaSession.SessionCallback#onConnect(MediaSession,
-   * ControllerInfo)}.
+   * properly passed to {@link MediaSession.Callback#onConnect(MediaSession, ControllerInfo)}.
    */
   @Test
   public void onGetSession_returnsSession() throws Exception {
@@ -129,7 +128,7 @@ public class MediaSessionServiceTest {
                     context, new MockPlayer.Builder().setApplicationLooper(looper).build())
                 .setId("testOnGetSession_returnsSession")
                 .setSessionCallback(
-                    new MediaSession.SessionCallback() {
+                    new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
                           MediaSession session, ControllerInfo controller) {

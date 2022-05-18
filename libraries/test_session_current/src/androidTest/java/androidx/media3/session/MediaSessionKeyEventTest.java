@@ -202,13 +202,13 @@ public class MediaSessionKeyEventTest {
     }
   }
 
-  private static class TestSessionCallback implements MediaSession.SessionCallback {
+  private static class TestSessionCallback implements MediaSession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
         MediaSession session, ControllerInfo controller) {
       if (expectedControllerPackageName.equals(controller.getPackageName())) {
-        return MediaSession.SessionCallback.super.onConnect(session, controller);
+        return MediaSession.Callback.super.onConnect(session, controller);
       }
       return MediaSession.ConnectionResult.reject();
     }

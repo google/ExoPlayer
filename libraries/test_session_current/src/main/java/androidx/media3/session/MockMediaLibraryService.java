@@ -64,7 +64,7 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
@@ -142,7 +142,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
     MockPlayer player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
-    MediaLibrarySessionCallback callback = registry.getSessionCallback();
+    MediaLibrarySession.Callback callback = registry.getSessionCallback();
     session =
         new MediaLibrarySession.Builder(
                 MockMediaLibraryService.this,
@@ -169,7 +169,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
     }
   }
 
-  private class TestLibrarySessionCallback implements MediaLibrarySessionCallback {
+  private class TestLibrarySessionCallback implements MediaLibrarySession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
@@ -178,7 +178,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
         return MediaSession.ConnectionResult.reject();
       }
       MediaSession.ConnectionResult connectionResult =
-          checkNotNull(MediaLibrarySessionCallback.super.onConnect(session, controller));
+          checkNotNull(MediaLibrarySession.Callback.super.onConnect(session, controller));
       SessionCommands.Builder builder = connectionResult.availableSessionCommands.buildUpon();
       builder.add(new SessionCommand(CUSTOM_ACTION, /* extras= */ Bundle.EMPTY));
       builder.add(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, /* extras= */ Bundle.EMPTY));

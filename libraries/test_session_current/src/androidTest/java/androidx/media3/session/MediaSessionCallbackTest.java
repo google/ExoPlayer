@@ -51,7 +51,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link MediaSession.SessionCallback}. */
+/** Tests for {@link MediaSession.Callback}. */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionCallbackTest {
@@ -81,8 +81,8 @@ public class MediaSessionCallbackTest {
   @Test
   public void onPostConnect_afterConnected() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public void onPostConnect(MediaSession session, ControllerInfo controller) {
             latch.countDown();
@@ -101,8 +101,8 @@ public class MediaSessionCallbackTest {
   @Test
   public void onPostConnect_afterConnectionRejected() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, ControllerInfo controller) {
@@ -127,8 +127,8 @@ public class MediaSessionCallbackTest {
   @Test
   public void onCommandRequest() throws Exception {
     ArrayList<Integer> commands = new ArrayList<>();
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public int onPlayerCommandRequest(
               MediaSession session, ControllerInfo controllerInfo, @Player.Command int command) {
@@ -180,8 +180,8 @@ public class MediaSessionCallbackTest {
     AtomicReference<SessionCommand> sessionCommandRef = new AtomicReference<>();
     AtomicReference<Bundle> argsRef = new AtomicReference<>();
 
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, ControllerInfo controller) {
@@ -229,8 +229,8 @@ public class MediaSessionCallbackTest {
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<Uri> uriRef = new AtomicReference<>();
     AtomicReference<Bundle> extrasRef = new AtomicReference<>();
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public int onSetMediaUri(
               MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
@@ -268,8 +268,8 @@ public class MediaSessionCallbackTest {
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> mediaIdRef = new AtomicReference<>();
     AtomicReference<Rating> ratingRef = new AtomicReference<>();
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public ListenableFuture<SessionResult> onSetRating(
               MediaSession session, ControllerInfo controller, String mediaId, Rating rating) {
@@ -306,8 +306,8 @@ public class MediaSessionCallbackTest {
 
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<Rating> ratingRef = new AtomicReference<>();
-    MediaSession.SessionCallback callback =
-        new MediaSession.SessionCallback() {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
           @Override
           public ListenableFuture<SessionResult> onSetRating(
               MediaSession session, ControllerInfo controller, Rating rating) {
@@ -508,7 +508,7 @@ public class MediaSessionCallbackTest {
             new MediaSession.Builder(context, player)
                 .setId("testOnConnect")
                 .setSessionCallback(
-                    new MediaSession.SessionCallback() {
+                    new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
                           MediaSession session, ControllerInfo controller) {
@@ -518,7 +518,7 @@ public class MediaSessionCallbackTest {
                         }
                         connectionHints.set(controller.getConnectionHints());
                         latch.countDown();
-                        return MediaSession.SessionCallback.super.onConnect(session, controller);
+                        return MediaSession.Callback.super.onConnect(session, controller);
                       }
                     })
                 .build());
@@ -539,7 +539,7 @@ public class MediaSessionCallbackTest {
             new MediaSession.Builder(context, player)
                 .setId("testOnDisconnected")
                 .setSessionCallback(
-                    new MediaSession.SessionCallback() {
+                    new MediaSession.Callback() {
                       @Override
                       public void onDisconnected(MediaSession session, ControllerInfo controller) {
                         if (TextUtils.equals(

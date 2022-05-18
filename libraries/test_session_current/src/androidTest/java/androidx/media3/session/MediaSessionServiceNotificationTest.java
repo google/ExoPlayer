@@ -21,7 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -67,8 +67,8 @@ public class MediaSessionServiceNotificationTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
 
-    MediaLibrarySessionCallback sessionCallback =
-        new MediaLibrarySessionCallback() {
+    MediaLibrarySession.Callback sessionCallback =
+        new MediaLibrarySession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, ControllerInfo controller) {
@@ -78,7 +78,7 @@ public class MediaSessionServiceNotificationTest {
               session.setPlayer(player);
             }
             if (SUPPORT_APP_PACKAGE_NAME.equals(controller.getPackageName())) {
-              return MediaLibrarySessionCallback.super.onConnect(session, controller);
+              return MediaLibrarySession.Callback.super.onConnect(session, controller);
             } else {
               return MediaSession.ConnectionResult.reject();
             }

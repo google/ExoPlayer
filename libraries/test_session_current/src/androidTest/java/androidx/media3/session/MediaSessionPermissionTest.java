@@ -300,7 +300,7 @@ public class MediaSessionPermissionTest {
     void run(RemoteMediaController controller) throws Exception;
   }
 
-  private static class MySessionCallback implements MediaSession.SessionCallback {
+  private static class MySessionCallback implements MediaSession.Callback {
     public CountDownLatch countDownLatch;
 
     public @Player.Command int command;
@@ -334,8 +334,7 @@ public class MediaSessionPermissionTest {
       onCommandRequestCalled = true;
       this.command = command;
       countDownLatch.countDown();
-      return MediaSession.SessionCallback.super.onPlayerCommandRequest(
-          session, controller, command);
+      return MediaSession.Callback.super.onPlayerCommandRequest(session, controller, command);
     }
 
     @Override

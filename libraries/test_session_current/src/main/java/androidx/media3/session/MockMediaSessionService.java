@@ -60,7 +60,7 @@ public class MockMediaSessionService extends MediaSessionService {
     }
 
     if (session == null) {
-      MediaSession.SessionCallback callback = registry.getSessionCallback();
+      MediaSession.Callback callback = registry.getSessionCallback();
       MockPlayer player =
           new MockPlayer.Builder().setApplicationLooper(handlerThread.getLooper()).build();
       session =
@@ -72,13 +72,13 @@ public class MockMediaSessionService extends MediaSessionService {
     return session;
   }
 
-  private static class TestSessionCallback implements MediaSession.SessionCallback {
+  private static class TestSessionCallback implements MediaSession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
         MediaSession session, ControllerInfo controller) {
       if (TextUtils.equals(SUPPORT_APP_PACKAGE_NAME, controller.getPackageName())) {
-        return MediaSession.SessionCallback.super.onConnect(session, controller);
+        return MediaSession.Callback.super.onConnect(session, controller);
       }
       return MediaSession.ConnectionResult.reject();
     }

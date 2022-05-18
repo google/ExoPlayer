@@ -73,7 +73,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  * process like another app but may be in the same process as this controller. It implements {@link
  * Player} and the player commands are sent to the underlying {@link Player} of the connected {@link
  * MediaSession}. It also has session-specific commands that can be handled by {@link
- * MediaSession.SessionCallback}.
+ * MediaSession.Callback}.
  *
  * <p>Topics covered here:
  *

@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Tests for {@link MediaLibrarySession.MediaLibrarySessionCallback}.
+ * Tests for {@link MediaLibrarySession.Callback}.
  *
  * <p>TODO: Make this class extend MediaSessionCallbackTest. TODO: Create MediaLibrarySessionTest
  * which extends MediaSessionTest.
@@ -76,8 +76,8 @@ public class MediaLibrarySessionCallbackTest {
     LibraryParams testParams = MediaTestUtils.createLibraryParams();
 
     CountDownLatch latch = new CountDownLatch(1);
-    MediaLibrarySession.MediaLibrarySessionCallback sessionCallback =
-        new MediaLibrarySession.MediaLibrarySessionCallback() {
+    MediaLibrarySession.Callback sessionCallback =
+        new MediaLibrarySession.Callback() {
           @Override
           public ListenableFuture<LibraryResult<Void>> onSubscribe(
               MediaLibrarySession session,
@@ -109,8 +109,8 @@ public class MediaLibrarySessionCallbackTest {
     String testParentId = "testUnsubscribeId";
 
     CountDownLatch latch = new CountDownLatch(1);
-    MediaLibrarySession.MediaLibrarySessionCallback sessionCallback =
-        new MediaLibrarySession.MediaLibrarySessionCallback() {
+    MediaLibrarySession.Callback sessionCallback =
+        new MediaLibrarySession.Callback() {
           @Override
           public ListenableFuture<LibraryResult<Void>> onUnsubscribe(
               MediaLibrarySession session, ControllerInfo browser, String parentId) {

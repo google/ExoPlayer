@@ -43,8 +43,7 @@ class PlaybackService : MediaLibraryService() {
     private const val SEARCH_QUERY_PREFIX = "androidx://media3-session/setMediaUri"
   }
 
-  private inner class CustomMediaLibrarySessionCallback :
-    MediaLibrarySession.MediaLibrarySessionCallback {
+  private inner class CustomMediaLibrarySessionCallback : MediaLibrarySession.Callback {
     override fun onGetLibraryRoot(
       session: MediaLibrarySession,
       browser: MediaSession.ControllerInfo,
