@@ -20,6 +20,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
@@ -28,6 +29,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Class to represent the state of active {@link Cue Cues} at a particular time. */
@@ -74,11 +76,11 @@ public final class CueGroup implements Bundleable {
   @UnstableApi public static final Creator<CueGroup> CREATOR = CueGroup::fromBundle;
 
   private static final CueGroup fromBundle(Bundle bundle) {
+    @Nullable ArrayList<Bundle> cueBundles = bundle.getParcelableArrayList(keyForField(FIELD_CUES));
     List<Cue> cues =
-        BundleableUtil.fromBundleNullableList(
-            Cue.CREATOR,
-            bundle.getParcelableArrayList(keyForField(FIELD_CUES)),
-            /* defaultValue= */ ImmutableList.of());
+        cueBundles == null
+            ? ImmutableList.of()
+            : BundleableUtil.fromBundleList(Cue.CREATOR, cueBundles);
     return new CueGroup(cues);
   }
 

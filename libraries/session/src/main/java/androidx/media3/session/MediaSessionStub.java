@@ -1521,7 +1521,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1576,7 +1576,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1602,7 +1602,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1637,7 +1637,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1663,7 +1663,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1769,7 +1769,7 @@ import java.util.concurrent.ExecutionException;
         int seq, String parentId, int itemCount, @Nullable LibraryParams params)
         throws RemoteException {
       iController.onChildrenChanged(
-          seq, parentId, itemCount, BundleableUtil.toNullableBundle(params));
+          seq, parentId, itemCount, params == null ? null : params.toBundle());
     }
 
     @SuppressWarnings("nullness:argument") // params can be null.
@@ -1778,7 +1778,7 @@ import java.util.concurrent.ExecutionException;
         int seq, String query, int itemCount, @Nullable LibraryParams params)
         throws RemoteException {
       iController.onSearchResultChanged(
-          seq, query, itemCount, BundleableUtil.toNullableBundle(params));
+          seq, query, itemCount, params == null ? null : params.toBundle());
     }
 
     @Override

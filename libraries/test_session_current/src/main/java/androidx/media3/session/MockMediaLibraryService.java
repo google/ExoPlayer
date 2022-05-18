@@ -61,7 +61,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -102,6 +101,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
   private static boolean assertLibraryParams;
 
   @GuardedBy("MockMediaLibraryService.class")
+  @Nullable
   private static LibraryParams expectedParams;
 
   MediaLibrarySession session;
@@ -162,7 +162,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
     super.attachBaseContext(base);
   }
 
-  public static void setAssertLibraryParams(LibraryParams expectedParams) {
+  public static void setAssertLibraryParams(@Nullable LibraryParams expectedParams) {
     synchronized (MockMediaLibraryService.class) {
       assertLibraryParams = true;
       MockMediaLibraryService.expectedParams = expectedParams;
@@ -365,9 +365,10 @@ public class MockMediaLibraryService extends MediaLibraryService {
           return Futures.immediateFuture(
               new SessionResult(SessionResult.RESULT_SUCCESS, CUSTOM_ACTION_EXTRAS));
         case CUSTOM_ACTION_ASSERT_PARAMS:
+          @Nullable Bundle paramsBundle = args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS);
+          @Nullable
           LibraryParams params =
-              BundleableUtil.fromNullableBundle(
-                  LibraryParams.CREATOR, args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS));
+              paramsBundle == null ? null : LibraryParams.CREATOR.fromBundle(paramsBundle);
           setAssertLibraryParams(params);
           return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
         default: // fall out

@@ -1548,7 +1548,9 @@ public final class Format implements Bundleable {
     bundle.putFloat(keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), pixelWidthHeightRatio);
     bundle.putByteArray(keyForField(FIELD_PROJECTION_DATA), projectionData);
     bundle.putInt(keyForField(FIELD_STEREO_MODE), stereoMode);
-    bundle.putBundle(keyForField(FIELD_COLOR_INFO), BundleableUtil.toNullableBundle(colorInfo));
+    if (colorInfo != null) {
+      bundle.putBundle(keyForField(FIELD_COLOR_INFO), colorInfo.toBundle());
+    }
     // Audio specific.
     bundle.putInt(keyForField(FIELD_CHANNEL_COUNT), channelCount);
     bundle.putInt(keyForField(FIELD_SAMPLE_RATE), sampleRate);
@@ -1615,11 +1617,13 @@ public final class Format implements Bundleable {
             bundle.getFloat(
                 keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), DEFAULT.pixelWidthHeightRatio))
         .setProjectionData(bundle.getByteArray(keyForField(FIELD_PROJECTION_DATA)))
-        .setStereoMode(bundle.getInt(keyForField(FIELD_STEREO_MODE), DEFAULT.stereoMode))
-        .setColorInfo(
-            BundleableUtil.fromNullableBundle(
-                ColorInfo.CREATOR, bundle.getBundle(keyForField(FIELD_COLOR_INFO))))
-        // Audio specific.
+        .setStereoMode(bundle.getInt(keyForField(FIELD_STEREO_MODE), DEFAULT.stereoMode));
+    Bundle colorInfoBundle = bundle.getBundle(keyForField(FIELD_COLOR_INFO));
+    if (colorInfoBundle != null) {
+      builder.setColorInfo(ColorInfo.CREATOR.fromBundle(colorInfoBundle));
+    }
+    // Audio specific.
+    builder
         .setChannelCount(bundle.getInt(keyForField(FIELD_CHANNEL_COUNT), DEFAULT.channelCount))
         .setSampleRate(bundle.getInt(keyForField(FIELD_SAMPLE_RATE), DEFAULT.sampleRate))
         .setPcmEncoding(bundle.getInt(keyForField(FIELD_PCM_ENCODING), DEFAULT.pcmEncoding))

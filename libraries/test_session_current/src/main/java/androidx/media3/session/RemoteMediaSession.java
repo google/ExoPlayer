@@ -79,7 +79,6 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaSession;
@@ -206,7 +205,7 @@ public class RemoteMediaSession {
   public class RemoteMockPlayer {
 
     public void notifyPlayerError(@Nullable PlaybackException playerError) throws RemoteException {
-      binder.notifyPlayerError(sessionId, BundleableUtil.toNullableBundle(playerError));
+      binder.notifyPlayerError(sessionId, playerError == null ? null : playerError.toBundle());
     }
 
     public void setPlayWhenReady(
@@ -491,7 +490,9 @@ public class RemoteMediaSession {
     }
 
     public MockPlayerConfigBuilder setPlayerError(@Nullable PlaybackException playerError) {
-      bundle.putBundle(KEY_PLAYER_ERROR, BundleableUtil.toNullableBundle(playerError));
+      if (playerError != null) {
+        bundle.putBundle(KEY_PLAYER_ERROR, playerError.toBundle());
+      }
       return this;
     }
 

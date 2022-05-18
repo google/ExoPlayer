@@ -189,11 +189,12 @@ public final class TrackGroup implements Bundleable {
   @UnstableApi
   public static final Creator<TrackGroup> CREATOR =
       bundle -> {
+        @Nullable
+        List<Bundle> formatBundles = bundle.getParcelableArrayList(keyForField(FIELD_FORMATS));
         List<Format> formats =
-            BundleableUtil.fromBundleNullableList(
-                Format.CREATOR,
-                bundle.getParcelableArrayList(keyForField(FIELD_FORMATS)),
-                ImmutableList.of());
+            formatBundles == null
+                ? ImmutableList.of()
+                : BundleableUtil.fromBundleList(Format.CREATOR, formatBundles);
         String id = bundle.getString(keyForField(FIELD_ID), /* defaultValue= */ "");
         return new TrackGroup(id, formats.toArray(new Format[0]));
       };

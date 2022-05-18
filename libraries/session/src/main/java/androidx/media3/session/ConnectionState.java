@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
-import androidx.media3.common.util.BundleableUtil;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -135,27 +134,31 @@ import java.lang.annotation.Target;
         checkNotNull(BundleCompat.getBinder(bundle, keyForField(FIELD_SESSION_BINDER)));
     @Nullable
     PendingIntent sessionActivity = bundle.getParcelable(keyForField(FIELD_SESSION_ACTIVITY));
+    @Nullable Bundle sessionCommandsBundle = bundle.getBundle(keyForField(FIELD_SESSION_COMMANDS));
     SessionCommands sessionCommands =
-        BundleableUtil.fromNullableBundle(
-            SessionCommands.CREATOR,
-            bundle.getBundle(keyForField(FIELD_SESSION_COMMANDS)),
-            SessionCommands.EMPTY);
+        sessionCommandsBundle == null
+            ? SessionCommands.EMPTY
+            : SessionCommands.CREATOR.fromBundle(sessionCommandsBundle);
+    @Nullable
+    Bundle playerCommandsFromPlayerBundle =
+        bundle.getBundle(keyForField(FIELD_PLAYER_COMMANDS_FROM_PLAYER));
     Player.Commands playerCommandsFromPlayer =
-        BundleableUtil.fromNullableBundle(
-            Player.Commands.CREATOR,
-            bundle.getBundle(keyForField(FIELD_PLAYER_COMMANDS_FROM_PLAYER)),
-            Player.Commands.EMPTY);
+        playerCommandsFromPlayerBundle == null
+            ? Player.Commands.EMPTY
+            : Player.Commands.CREATOR.fromBundle(playerCommandsFromPlayerBundle);
+    @Nullable
+    Bundle playerCommandsFromSessionBundle =
+        bundle.getBundle(keyForField(FIELD_PLAYER_COMMANDS_FROM_SESSION));
     Player.Commands playerCommandsFromSession =
-        BundleableUtil.fromNullableBundle(
-            Player.Commands.CREATOR,
-            bundle.getBundle(keyForField(FIELD_PLAYER_COMMANDS_FROM_SESSION)),
-            Player.Commands.EMPTY);
+        playerCommandsFromSessionBundle == null
+            ? Player.Commands.EMPTY
+            : Player.Commands.CREATOR.fromBundle(playerCommandsFromSessionBundle);
     @Nullable Bundle tokenExtras = bundle.getBundle(keyForField(FIELD_TOKEN_EXTRAS));
+    @Nullable Bundle playerInfoBundle = bundle.getBundle(keyForField(FIELD_PLAYER_INFO));
     PlayerInfo playerInfo =
-        BundleableUtil.fromNullableBundle(
-            PlayerInfo.CREATOR,
-            bundle.getBundle(keyForField(FIELD_PLAYER_INFO)),
-            PlayerInfo.DEFAULT);
+        playerInfoBundle == null
+            ? PlayerInfo.DEFAULT
+            : PlayerInfo.CREATOR.fromBundle(playerInfoBundle);
     return new ConnectionState(
         version,
         IMediaSession.Stub.asInterface(sessionBinder),

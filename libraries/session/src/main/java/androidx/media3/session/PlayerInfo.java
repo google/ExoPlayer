@@ -45,7 +45,6 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.BundleableUtil;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -733,14 +732,13 @@ import java.lang.annotation.Target;
       boolean excludeCues,
       boolean excludeTimeline) {
     Bundle bundle = new Bundle();
-    bundle.putBundle(
-        keyForField(FIELD_PLAYBACK_ERROR), BundleableUtil.toNullableBundle(playerError));
+    if (playerError != null) {
+      bundle.putBundle(keyForField(FIELD_PLAYBACK_ERROR), playerError.toBundle());
+    }
     bundle.putInt(keyForField(FIELD_MEDIA_ITEM_TRANSITION_REASON), mediaItemTransitionReason);
     bundle.putBundle(keyForField(FIELD_SESSION_POSITION_INFO), sessionPositionInfo.toBundle());
-    bundle.putBundle(
-        keyForField(FIELD_OLD_POSITION_INFO), BundleableUtil.toNullableBundle(oldPositionInfo));
-    bundle.putBundle(
-        keyForField(FIELD_NEW_POSITION_INFO), BundleableUtil.toNullableBundle(newPositionInfo));
+    bundle.putBundle(keyForField(FIELD_OLD_POSITION_INFO), oldPositionInfo.toBundle());
+    bundle.putBundle(keyForField(FIELD_NEW_POSITION_INFO), newPositionInfo.toBundle());
     bundle.putInt(keyForField(FIELD_DISCONTINUITY_REASON), discontinuityReason);
     bundle.putBundle(keyForField(FIELD_PLAYBACK_PARAMETERS), playbackParameters.toBundle());
     bundle.putInt(keyForField(FIELD_REPEAT_MODE), repeatMode);
@@ -749,11 +747,9 @@ import java.lang.annotation.Target;
       bundle.putBundle(keyForField(FIELD_TIMELINE), timeline.toBundle(excludeMediaItems));
     }
     bundle.putBundle(keyForField(FIELD_VIDEO_SIZE), videoSize.toBundle());
-    bundle.putBundle(
-        keyForField(FIELD_PLAYLIST_METADATA),
-        excludeMediaItemsMetadata
-            ? MediaMetadata.EMPTY.toBundle()
-            : BundleableUtil.toNullableBundle(playlistMetadata));
+    if (!excludeMediaItemsMetadata) {
+      bundle.putBundle(keyForField(FIELD_PLAYLIST_METADATA), playlistMetadata.toBundle());
+    }
     bundle.putFloat(keyForField(FIELD_VOLUME), volume);
     bundle.putBundle(keyForField(FIELD_AUDIO_ATTRIBUTES), audioAttributes.toBundle());
     if (!excludeCues) {
@@ -793,67 +789,69 @@ import java.lang.annotation.Target;
   public static final Creator<PlayerInfo> CREATOR = PlayerInfo::fromBundle;
 
   private static PlayerInfo fromBundle(Bundle bundle) {
+    @Nullable Bundle playerErrorBundle = bundle.getBundle(keyForField(FIELD_PLAYBACK_ERROR));
     @Nullable
     PlaybackException playerError =
-        BundleableUtil.fromNullableBundle(
-            PlaybackException.CREATOR, bundle.getBundle(keyForField(FIELD_PLAYBACK_ERROR)));
+        playerErrorBundle == null ? null : PlaybackException.CREATOR.fromBundle(playerErrorBundle);
     int mediaItemTransitionReason =
         bundle.getInt(
             keyForField(FIELD_MEDIA_ITEM_TRANSITION_REASON), MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+    @Nullable
+    Bundle sessionPositionInfoBundle = bundle.getBundle(keyForField(FIELD_SESSION_POSITION_INFO));
     SessionPositionInfo sessionPositionInfo =
-        BundleableUtil.fromNullableBundle(
-            SessionPositionInfo.CREATOR,
-            bundle.getBundle(keyForField(FIELD_SESSION_POSITION_INFO)),
-            SessionPositionInfo.DEFAULT);
+        sessionPositionInfoBundle == null
+            ? SessionPositionInfo.DEFAULT
+            : SessionPositionInfo.CREATOR.fromBundle(sessionPositionInfoBundle);
+    @Nullable Bundle oldPositionInfoBundle = bundle.getBundle(keyForField(FIELD_OLD_POSITION_INFO));
     PositionInfo oldPositionInfo =
-        BundleableUtil.fromNullableBundle(
-            PositionInfo.CREATOR,
-            bundle.getBundle(keyForField(FIELD_OLD_POSITION_INFO)),
-            SessionPositionInfo.DEFAULT_POSITION_INFO);
+        oldPositionInfoBundle == null
+            ? SessionPositionInfo.DEFAULT_POSITION_INFO
+            : PositionInfo.CREATOR.fromBundle(oldPositionInfoBundle);
+    @Nullable Bundle newPositionInfoBundle = bundle.getBundle(keyForField(FIELD_NEW_POSITION_INFO));
     PositionInfo newPositionInfo =
-        BundleableUtil.fromNullableBundle(
-            PositionInfo.CREATOR,
-            bundle.getBundle(keyForField(FIELD_NEW_POSITION_INFO)),
-            SessionPositionInfo.DEFAULT_POSITION_INFO);
+        newPositionInfoBundle == null
+            ? SessionPositionInfo.DEFAULT_POSITION_INFO
+            : PositionInfo.CREATOR.fromBundle(newPositionInfoBundle);
     int discontinuityReason =
         bundle.getInt(
             keyForField(FIELD_DISCONTINUITY_REASON), DISCONTINUITY_REASON_AUTO_TRANSITION);
     @Nullable
     Bundle playbackParametersBundle = bundle.getBundle(keyForField(FIELD_PLAYBACK_PARAMETERS));
     PlaybackParameters playbackParameters =
-        BundleableUtil.fromNullableBundle(
-            PlaybackParameters.CREATOR,
-            playbackParametersBundle,
-            /* defaultValue= */ PlaybackParameters.DEFAULT);
+        playbackParametersBundle == null
+            ? PlaybackParameters.DEFAULT
+            : PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
     @Player.RepeatMode
     int repeatMode =
         bundle.getInt(keyForField(FIELD_REPEAT_MODE), /* defaultValue= */ Player.REPEAT_MODE_OFF);
     boolean shuffleModeEnabled =
         bundle.getBoolean(keyForField(FIELD_SHUFFLE_MODE_ENABLED), /* defaultValue= */ false);
+    @Nullable Bundle timelineBundle = bundle.getBundle(keyForField(FIELD_TIMELINE));
     Timeline timeline =
-        BundleableUtil.fromNullableBundle(
-            Timeline.CREATOR, bundle.getBundle(keyForField(FIELD_TIMELINE)), Timeline.EMPTY);
+        timelineBundle == null ? Timeline.EMPTY : Timeline.CREATOR.fromBundle(timelineBundle);
+    @Nullable Bundle videoSizeBundle = bundle.getBundle(keyForField(FIELD_VIDEO_SIZE));
     VideoSize videoSize =
-        BundleableUtil.fromNullableBundle(
-            VideoSize.CREATOR, bundle.getBundle(keyForField(FIELD_VIDEO_SIZE)), VideoSize.UNKNOWN);
+        videoSizeBundle == null ? VideoSize.UNKNOWN : VideoSize.CREATOR.fromBundle(videoSizeBundle);
+    @Nullable
+    Bundle playlistMetadataBundle = bundle.getBundle(keyForField(FIELD_PLAYLIST_METADATA));
     MediaMetadata playlistMetadata =
-        BundleableUtil.fromNullableBundle(
-            MediaMetadata.CREATOR,
-            bundle.getBundle(keyForField(FIELD_PLAYLIST_METADATA)),
-            MediaMetadata.EMPTY);
+        playlistMetadataBundle == null
+            ? MediaMetadata.EMPTY
+            : MediaMetadata.CREATOR.fromBundle(playlistMetadataBundle);
     float volume = bundle.getFloat(keyForField(FIELD_VOLUME), /* defaultValue= */ 1);
+    @Nullable Bundle audioAttributesBundle = bundle.getBundle(keyForField(FIELD_AUDIO_ATTRIBUTES));
     AudioAttributes audioAttributes =
-        BundleableUtil.fromNullableBundle(
-            AudioAttributes.CREATOR,
-            bundle.getBundle(keyForField(FIELD_AUDIO_ATTRIBUTES)),
-            /* defaultValue= */ AudioAttributes.DEFAULT);
+        audioAttributesBundle == null
+            ? AudioAttributes.DEFAULT
+            : AudioAttributes.CREATOR.fromBundle(audioAttributesBundle);
+    @Nullable Bundle cueGroupBundle = bundle.getBundle(keyForField(FIELD_CUE_GROUP));
     CueGroup cueGroup =
-        BundleableUtil.fromNullableBundle(
-            CueGroup.CREATOR, bundle.getBundle(keyForField(FIELD_CUE_GROUP)), CueGroup.EMPTY);
+        cueGroupBundle == null ? CueGroup.EMPTY : CueGroup.CREATOR.fromBundle(cueGroupBundle);
     @Nullable Bundle deviceInfoBundle = bundle.getBundle(keyForField(FIELD_DEVICE_INFO));
     DeviceInfo deviceInfo =
-        BundleableUtil.fromNullableBundle(
-            DeviceInfo.CREATOR, deviceInfoBundle, /* defaultValue= */ DeviceInfo.UNKNOWN);
+        deviceInfoBundle == null
+            ? DeviceInfo.UNKNOWN
+            : DeviceInfo.CREATOR.fromBundle(deviceInfoBundle);
     int deviceVolume = bundle.getInt(keyForField(FIELD_DEVICE_VOLUME), /* defaultValue= */ 0);
     boolean deviceMuted =
         bundle.getBoolean(keyForField(FIELD_DEVICE_MUTED), /* defaultValue= */ false);
@@ -873,11 +871,11 @@ import java.lang.annotation.Target;
         bundle.getInt(keyForField(FIELD_PLAYBACK_STATE), /* defaultValue= */ STATE_IDLE);
     boolean isPlaying = bundle.getBoolean(keyForField(FIELD_IS_PLAYING), /* defaultValue= */ false);
     boolean isLoading = bundle.getBoolean(keyForField(FIELD_IS_LOADING), /* defaultValue= */ false);
+    @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
     MediaMetadata mediaMetadata =
-        BundleableUtil.fromNullableBundle(
-            MediaMetadata.CREATOR,
-            bundle.getBundle(keyForField(FIELD_MEDIA_METADATA)),
-            MediaMetadata.EMPTY);
+        mediaMetadataBundle == null
+            ? MediaMetadata.EMPTY
+            : MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
     long seekBackIncrementMs =
         bundle.getLong(keyForField(FIELD_SEEK_BACK_INCREMENT_MS), /* defaultValue= */ 0);
     long seekForwardIncrementMs =

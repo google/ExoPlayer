@@ -16,7 +16,6 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.BundleableUtil.fromBundleNullableList;
 import static androidx.media3.common.util.BundleableUtil.toBundleArrayList;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -28,6 +27,7 @@ import android.view.accessibility.CaptioningManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -247,11 +247,13 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
+      @Nullable
+      List<Bundle> overrideBundleList =
+          bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDES));
       List<TrackSelectionOverride> overrideList =
-          fromBundleNullableList(
-              TrackSelectionOverride.CREATOR,
-              bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDES)),
-              ImmutableList.of());
+          overrideBundleList == null
+              ? ImmutableList.of()
+              : BundleableUtil.fromBundleList(TrackSelectionOverride.CREATOR, overrideBundleList);
       overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);

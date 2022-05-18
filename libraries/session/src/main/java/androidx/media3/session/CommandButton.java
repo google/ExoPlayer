@@ -25,7 +25,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -219,8 +218,9 @@ public final class CommandButton implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putBundle(
-        keyForField(FIELD_SESSION_COMMAND), BundleableUtil.toNullableBundle(sessionCommand));
+    if (sessionCommand != null) {
+      bundle.putBundle(keyForField(FIELD_SESSION_COMMAND), sessionCommand.toBundle());
+    }
     bundle.putInt(keyForField(FIELD_PLAYER_COMMAND), playerCommand);
     bundle.putInt(keyForField(FIELD_ICON_RES_ID), iconResId);
     bundle.putCharSequence(keyForField(FIELD_DISPLAY_NAME), displayName);
@@ -233,10 +233,12 @@ public final class CommandButton implements Bundleable {
   @UnstableApi public static final Creator<CommandButton> CREATOR = CommandButton::fromBundle;
 
   private static CommandButton fromBundle(Bundle bundle) {
+    @Nullable Bundle sessionCommandBundle = bundle.getBundle(keyForField(FIELD_SESSION_COMMAND));
     @Nullable
     SessionCommand sessionCommand =
-        BundleableUtil.fromNullableBundle(
-            SessionCommand.CREATOR, bundle.getBundle(keyForField(FIELD_SESSION_COMMAND)));
+        sessionCommandBundle == null
+            ? null
+            : SessionCommand.CREATOR.fromBundle(sessionCommandBundle);
     @Player.Command
     int playerCommand =
         bundle.getInt(
