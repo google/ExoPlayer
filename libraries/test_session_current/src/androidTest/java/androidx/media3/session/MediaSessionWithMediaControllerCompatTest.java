@@ -79,10 +79,7 @@ public class MediaSessionWithMediaControllerCompatTest {
 
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
-            new MediaSession.Builder(context, player)
-                .setId(TAG)
-                .setSessionCallback(callback)
-                .build());
+            new MediaSession.Builder(context, player).setId(TAG).setCallback(callback).build());
     RemoteMediaControllerCompat controllerCompat =
         remoteControllerTestRule.createRemoteControllerCompat(
             session.getSessionCompat().getSessionToken());

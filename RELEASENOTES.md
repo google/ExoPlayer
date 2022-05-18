@@ -15,7 +15,7 @@
     *   Fix bug that tracks are reset too often when using `MergingMediaSource`,
         for example when side-loading subtitles and changing the selected
         subtitle mid-playback
-         ([#10248](https://github.com/google/ExoPlayer/issues/10248)).
+        ([#10248](https://github.com/google/ExoPlayer/issues/10248)).
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
@@ -98,10 +98,10 @@
         change([#51](https://github.com/androidx/media/issues/51)).
     *   Fix NPE in MediaControllerImplBase after releasing controller
         ([#74](https://github.com/androidx/media/issues/74)).
-    *   Rename `MediaSession.MediaSessionCallback` to `MediaSession.Callback`
-        and `MediaLibrarySession.MediaLibrarySession` to
-        `MediaLibrarySession.Callback` for consistency with other nested
-        listener and callbacks like `Player.Listener`.
+    *   Rename `MediaSession.MediaSessionCallback` to `MediaSession.Callback`,
+        `MediaLibrarySession.MediaLibrarySessionCallback` to
+        `MediaLibrarySession.Callback` and
+        `MediaSession.Builder.setSessionCallback` to `setCallback`.
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
     *   Workaround OkHttp interrupt handling.

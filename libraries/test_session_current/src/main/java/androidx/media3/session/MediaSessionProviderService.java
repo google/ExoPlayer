@@ -179,7 +179,7 @@ public class MediaSessionProviderService extends Service {
           }
         case TEST_CONTROLLER_LISTENER_SESSION_REJECTS:
           {
-            builder.setSessionCallback(
+            builder.setCallback(
                 new MediaSession.Callback() {
                   @Override
                   public MediaSession.ConnectionResult onConnect(
@@ -194,7 +194,7 @@ public class MediaSessionProviderService extends Service {
             SessionCommands availableSessionCommands =
                 SessionCommands.CREATOR.fromBundle(
                     tokenExtras.getBundle(KEY_AVAILABLE_SESSION_COMMANDS));
-            builder.setSessionCallback(
+            builder.setCallback(
                 new MediaSession.Callback() {
                   @Override
                   public MediaSession.ConnectionResult onConnect(

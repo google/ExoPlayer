@@ -84,7 +84,7 @@ public class MediaSessionTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId(TAG)
-                .setSessionCallback(
+                .setCallback(
                     new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
@@ -354,9 +354,7 @@ public class MediaSessionTest {
         };
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
-            new MediaSession.Builder(context, player)
-                .setSessionCallback(testSessionCallback)
-                .build());
+            new MediaSession.Builder(context, player).setCallback(testSessionCallback).build());
     controllerTestRule.createRemoteController(session.getToken());
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
@@ -372,7 +370,7 @@ public class MediaSessionTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId("getSessionCompatToken_returnsCompatibleWithMediaControllerCompat")
-                .setSessionCallback(
+                .setCallback(
                     new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
@@ -426,7 +424,7 @@ public class MediaSessionTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId("getControllerVersion")
-                .setSessionCallback(sessionCallback)
+                .setCallback(sessionCallback)
                 .build());
     controllerTestRule.createRemoteController(session.getToken());
 

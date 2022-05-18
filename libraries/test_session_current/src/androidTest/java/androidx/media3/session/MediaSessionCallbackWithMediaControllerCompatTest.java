@@ -115,7 +115,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("onDisconnected_afterTimeout_isCalled")
-            .setSessionCallback(
+            .setCallback(
                 new MediaSession.Callback() {
                   private ControllerInfo connectedController;
 
@@ -154,7 +154,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("onConnected_afterDisconnectedByTimeout_isCalled")
-            .setSessionCallback(
+            .setCallback(
                 new MediaSession.Callback() {
                   private ControllerInfo connectedController;
 
@@ -197,7 +197,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("play")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -213,7 +213,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("pause")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -229,7 +229,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("stop")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -245,7 +245,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("prepare")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -261,7 +261,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("seekTo")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -279,7 +279,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("setPlaybackSpeed")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -297,7 +297,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("addQueueItem")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -323,7 +323,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("addQueueItemWithIndex")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -351,7 +351,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("removeQueueItem")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -380,7 +380,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("skipToPrevious")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -396,7 +396,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("skipToNext")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -412,7 +412,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("skipToQueueItem")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -439,7 +439,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("setShuffleMode")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -457,7 +457,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("setRepeatMode")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -475,7 +475,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("setVolumeTo_setsDeviceVolume")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -503,7 +503,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("adjustVolume_raise_increasesDeviceVolume")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -529,7 +529,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("adjustVolume_lower_decreasesDeviceVolume")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -560,7 +560,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("setVolumeWithLocalVolume")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -608,7 +608,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("adjustVolumeWithLocalVolume")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -689,7 +689,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("sendCommand")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -741,7 +741,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("sendCommand")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -765,7 +765,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("controllerCallback_sessionRejects")
-            .setSessionCallback(sessionCallback)
+            .setCallback(sessionCallback)
             .build();
     // Session will not accept the controller's commands.
     controller =
@@ -798,7 +798,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("prepareFromMediaUri")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -830,7 +830,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("playFromMediaUri")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -863,7 +863,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("prepareFromMediaId")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -896,7 +896,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("playFromMediaId")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -929,7 +929,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("prepareFromSearch")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -962,7 +962,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("playFromSearch")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -1002,10 +1002,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
           player.timeline = MediaTestUtils.createTimeline(mediaItems);
         });
     session =
-        new MediaSession.Builder(context, player)
-            .setId("setRating")
-            .setSessionCallback(callback)
-            .build();
+        new MediaSession.Builder(context, player).setId("setRating").setCallback(callback).build();
     controller =
         new RemoteMediaControllerCompat(
             context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
@@ -1037,7 +1034,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("onPlayerCommandRequest")
-            .setSessionCallback(callback)
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -1066,7 +1063,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId("deadlock")
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -1101,7 +1098,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId(sessionId)
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -1119,7 +1116,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     session =
         new MediaSession.Builder(context, player)
             .setId(sessionId)
-            .setSessionCallback(new TestSessionCallback())
+            .setCallback(new TestSessionCallback())
             .build();
 
     controller.getTransportControls().play();

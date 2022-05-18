@@ -381,10 +381,7 @@ public class MediaSessionPermissionTest {
       this.session.release();
     }
     this.session =
-        new MediaSession.Builder(context, player)
-            .setId(SESSION_ID)
-            .setSessionCallback(callback)
-            .build();
+        new MediaSession.Builder(context, player).setId(SESSION_ID).setCallback(callback).build();
   }
 
   private SessionCommands createSessionCommandsWith(SessionCommand command) {

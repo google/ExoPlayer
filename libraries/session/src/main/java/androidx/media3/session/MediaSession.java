@@ -280,8 +280,8 @@ public class MediaSession {
      * @return The builder to allow chaining.
      */
     @Override
-    public Builder setSessionCallback(Callback callback) {
-      return super.setSessionCallback(callback);
+    public Builder setCallback(Callback callback) {
+      return super.setCallback(callback);
     }
 
     /**
@@ -769,8 +769,8 @@ public class MediaSession {
    * <p>The callback methods will be called from the application thread associated with the {@link
    * Player#getApplicationLooper() application looper} of the underlying {@link Player}.
    *
-   * <p>If it's not set by {@link MediaSession.Builder#setSessionCallback(Callback)}, the session
-   * will accept all controllers and all incoming commands by default.
+   * <p>If it's not set by {@link MediaSession.Builder#setCallback(Callback)}, the session will
+   * accept all controllers and all incoming commands by default.
    */
   public interface Callback {
 
@@ -1227,7 +1227,7 @@ public class MediaSession {
     }
 
     @SuppressWarnings("unchecked")
-    /* package */ U setSessionCallback(C callback) {
+    /* package */ U setCallback(C callback) {
       this.callback = checkNotNull(callback);
       return (U) this;
     }

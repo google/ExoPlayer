@@ -127,7 +127,7 @@ public class MediaSessionServiceTest {
             new MediaSession.Builder(
                     context, new MockPlayer.Builder().setApplicationLooper(looper).build())
                 .setId("testOnGetSession_returnsSession")
-                .setSessionCallback(
+                .setCallback(
                     new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(

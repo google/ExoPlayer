@@ -66,7 +66,7 @@ public class MediaSessionPlayerTest {
             .build();
     session =
         new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
-            .setSessionCallback(
+            .setCallback(
                 new MediaSession.Callback() {
                   @Override
                   public MediaSession.ConnectionResult onConnect(

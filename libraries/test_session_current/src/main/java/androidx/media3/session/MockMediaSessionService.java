@@ -66,7 +66,7 @@ public class MockMediaSessionService extends MediaSessionService {
       session =
           new MediaSession.Builder(MockMediaSessionService.this, player)
               .setId(ID)
-              .setSessionCallback(callback != null ? callback : new TestSessionCallback())
+              .setCallback(callback != null ? callback : new TestSessionCallback())
               .build();
     }
     return session;

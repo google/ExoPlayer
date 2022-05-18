@@ -91,7 +91,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnPostConnect_afterConnected")
                 .build());
     controllerTestRule.createRemoteController(session.getToken());
@@ -117,7 +117,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnPostConnect_afterConnectionRejected")
                 .build());
     controllerTestRule.createRemoteController(session.getToken());
@@ -149,7 +149,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnCommandRequest")
                 .build());
     RemoteMediaController controller =
@@ -210,7 +210,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnCustomCommand")
                 .build());
     RemoteMediaController controller =
@@ -247,7 +247,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnSetMediaUri")
                 .build());
     RemoteMediaController controller =
@@ -287,7 +287,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnSetRating")
                 .build());
     RemoteMediaController controller =
@@ -323,7 +323,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
-                .setSessionCallback(callback)
+                .setCallback(callback)
                 .setId("testOnSetRating")
                 .build());
     RemoteMediaController controller =
@@ -507,7 +507,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId("testOnConnect")
-                .setSessionCallback(
+                .setCallback(
                     new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
@@ -538,7 +538,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId("testOnDisconnected")
-                .setSessionCallback(
+                .setCallback(
                     new MediaSession.Callback() {
                       @Override
                       public void onDisconnected(MediaSession session, ControllerInfo controller) {
