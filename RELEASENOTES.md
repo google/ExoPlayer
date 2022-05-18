@@ -12,6 +12,10 @@
         by the user of the device. Apps can opt-out of contributing to platform
         diagnostics for ExoPlayer with
         `ExoPlayer.Builder.setUsePlatformDiagnostics(false)`.
+    *   Fix bug that tracks are reset too often when using `MergingMediaSource`,
+        for example when side-loading subtitles and changing the selected
+        subtitle mid-playback
+         ([#10248](https://github.com/google/ExoPlayer/issues/10248)).
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
