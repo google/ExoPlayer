@@ -84,11 +84,12 @@ ExoPlayer uses some parameters to control the offset of the playback position
 from the live edge, and the range of playback speeds that can be used to
 adjust this offset.
 
-By default, ExoPlayer reads values for these parameters directly from the media.
-These values can also be provided per `MediaItem`, by calling
-`MediaItem.Builder.setLiveConfiguration`, or set globally on the
-`DefaultMediaSourceFactory` provided to the player. In both cases, the provided
-values will override parameters defined by the media.
+ExoPlayer gets values for these parameters from three places, in descending
+order of priority (the first value found is used):
+
+* Per `MediaItem` values passed to `MediaItem.Builder.setLiveConfiguration`.
+* Global default values set on `DefaultMediaSourceFactory`.
+* Values read directly from the media. 
 
 ~~~
 // Global settings.
