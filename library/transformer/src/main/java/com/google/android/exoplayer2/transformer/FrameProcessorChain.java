@@ -32,7 +32,9 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.util.Size;
 import android.view.Surface;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
@@ -283,19 +285,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private int outputWidth;
   private int outputHeight;
+  private @MonotonicNonNull Surface outputSurface;
+
   /**
    * Wraps the output {@link Surface} that is populated with the output of the final {@link
    * GlFrameProcessor} for each frame.
    */
-  private @MonotonicNonNull EGLSurface eglSurface;
-
-  private int debugPreviewWidth;
-  private int debugPreviewHeight;
+  private @MonotonicNonNull EGLSurface outputEglSurface;
   /**
    * Wraps a debug {@link SurfaceView} that is populated with the output of the final {@link
    * GlFrameProcessor} for each frame.
    */
-  private @MonotonicNonNull EGLSurface debugPreviewEglSurface;
+  private @MonotonicNonNull SurfaceViewWrapper debugSurfaceViewWrapper;
 
   private boolean inputStreamEnded;
 
@@ -326,8 +327,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     textureTransformMatrix = new float[16];
     outputWidth = C.LENGTH_UNSET;
     outputHeight = C.LENGTH_UNSET;
-    debugPreviewWidth = C.LENGTH_UNSET;
-    debugPreviewHeight = C.LENGTH_UNSET;
   }
 
   /**
@@ -358,17 +357,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable SurfaceView debugSurfaceView) {
     // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
     //  GlFrameProcessor to be re-configured or append another GlFrameProcessor.
+    this.outputSurface = outputSurface;
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
 
     if (debugSurfaceView != null) {
-      debugPreviewWidth = debugSurfaceView.getWidth();
-      debugPreviewHeight = debugSurfaceView.getHeight();
+      debugSurfaceViewWrapper = new SurfaceViewWrapper(debugSurfaceView);
     }
-
-    futures.add(
-        singleThreadExecutorService.submit(
-            () -> createOpenGlSurfaces(outputSurface, debugSurfaceView)));
 
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
@@ -452,36 +447,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Creates the OpenGL surfaces.
-   *
-   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
-   */
-  @WorkerThread
-  private void createOpenGlSurfaces(Surface outputSurface, @Nullable SurfaceView debugSurfaceView) {
-    try {
-      checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-      checkStateNotNull(eglDisplay);
-
-      if (enableExperimentalHdrEditing) {
-        // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
-        eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
-        if (debugSurfaceView != null) {
-          debugPreviewEglSurface =
-              GlUtil.getEglSurfaceBt2020Pq(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-        }
-      } else {
-        eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-        if (debugSurfaceView != null) {
-          debugPreviewEglSurface =
-              GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-        }
-      }
-    } catch (RuntimeException e) {
-      listener.onFrameProcessingError(new FrameProcessingException(e));
-    }
-  }
-
-  /**
    * Processes an input frame.
    *
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
@@ -495,7 +460,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long presentationTimeUs = C.TIME_UNSET;
     try {
       checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-      checkStateNotNull(eglSurface, "No output surface set.");
+
+      if (outputEglSurface == null) {
+        checkStateNotNull(outputSurface);
+        if (enableExperimentalHdrEditing) {
+          // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
+          outputEglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
+        } else {
+          outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
+        }
+      }
 
       inputSurfaceTexture.updateTexImage();
       long presentationTimeNs = inputSurfaceTexture.getTimestamp();
@@ -513,26 +487,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         GlUtil.focusFramebuffer(
             eglDisplay,
             eglContext,
-            eglSurface,
+            outputEglSurface,
             framebuffers[i],
             intermediateSize.getWidth(),
             intermediateSize.getHeight());
         clearOutputFrame();
         frameProcessors.get(i).drawFrame(presentationTimeUs);
       }
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      GlUtil.focusEglSurface(eglDisplay, eglContext, outputEglSurface, outputWidth, outputHeight);
       clearOutputFrame();
       getLast(frameProcessors).drawFrame(presentationTimeUs);
 
-      EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
-      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+      EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, presentationTimeNs);
+      EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
 
-      if (debugPreviewEglSurface != null) {
-        GlUtil.focusEglSurface(
-            eglDisplay, eglContext, debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
-        clearOutputFrame();
-        getLast(frameProcessors).drawFrame(presentationTimeUs);
-        EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+      if (debugSurfaceViewWrapper != null) {
+        long framePresentationTimeUs = presentationTimeUs;
+        debugSurfaceViewWrapper.maybeRenderToSurfaceView(
+            () -> {
+              clearOutputFrame();
+              try {
+                getLast(frameProcessors).drawFrame(framePresentationTimeUs);
+              } catch (FrameProcessingException e) {
+                Log.d(TAG, "Error rendering to debug preview", e);
+              }
+            });
       }
 
       checkState(pendingFrameCount.getAndDecrement() > 0);
@@ -566,6 +545,75 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.destroyEglContext(eglDisplay, eglContext);
     } catch (RuntimeException e) {
       listener.onFrameProcessingError(new FrameProcessingException(e));
+    }
+  }
+
+  /**
+   * Wrapper around a {@link SurfaceView} that keeps track of whether the output surface is valid,
+   * and makes rendering a no-op if not.
+   */
+  private final class SurfaceViewWrapper implements SurfaceHolder.Callback {
+
+    @GuardedBy("this")
+    @Nullable
+    private Surface surface;
+
+    @GuardedBy("this")
+    @Nullable
+    private EGLSurface eglSurface;
+
+    private int width;
+    private int height;
+
+    public SurfaceViewWrapper(SurfaceView surfaceView) {
+      surfaceView.getHolder().addCallback(this);
+      surface = surfaceView.getHolder().getSurface();
+      width = surfaceView.getWidth();
+      height = surfaceView.getHeight();
+    }
+
+    /**
+     * Focuses the wrapped surface view's surface as an {@link EGLSurface}, renders using {@code
+     * renderRunnable} and swaps buffers, if the view's holder has a valid surface. Does nothing
+     * otherwise.
+     */
+    @WorkerThread
+    public synchronized void maybeRenderToSurfaceView(Runnable renderRunnable) {
+      if (surface == null) {
+        return;
+      }
+
+      if (eglSurface == null) {
+        if (enableExperimentalHdrEditing) {
+          eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, surface);
+        } else {
+          eglSurface = GlUtil.getEglSurface(eglDisplay, surface);
+        }
+      }
+      EGLSurface eglSurface = this.eglSurface;
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
+      renderRunnable.run();
+      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {}
+
+    @Override
+    public synchronized void surfaceChanged(
+        SurfaceHolder holder, int format, int width, int height) {
+      surface = holder.getSurface();
+      eglSurface = null;
+      this.width = width;
+      this.height = height;
+    }
+
+    @Override
+    public synchronized void surfaceDestroyed(SurfaceHolder holder) {
+      surface = null;
+      eglSurface = null;
+      width = C.LENGTH_UNSET;
+      height = C.LENGTH_UNSET;
     }
   }
 }
