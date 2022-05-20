@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.hls;
 
+import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 
@@ -32,7 +33,7 @@ public final class DefaultHlsDataSourceFactory implements HlsDataSourceFactory {
   }
 
   @Override
-  public DataSource createDataSource(int dataType) {
+  public DataSource createDataSource(@C.DataType int dataType) {
     return dataSourceFactory.createDataSource();
   }
 }
