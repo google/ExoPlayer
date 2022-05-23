@@ -308,8 +308,11 @@ public class PlayerActivity extends AppCompatActivity
     serverSideAdsLoader = serverSideAdLoaderBuilder.build();
     ImaServerSideAdInsertionMediaSource.Factory imaServerSideAdInsertionMediaSourceFactory =
         new ImaServerSideAdInsertionMediaSource.Factory(
-            serverSideAdsLoader, new DefaultMediaSourceFactory(dataSourceFactory));
-    return new DefaultMediaSourceFactory(dataSourceFactory)
+            serverSideAdsLoader,
+            new DefaultMediaSourceFactory(/* context= */ this)
+                .setDataSourceFactory(dataSourceFactory));
+    return new DefaultMediaSourceFactory(/* context= */ this)
+        .setDataSourceFactory(dataSourceFactory)
         .setDrmSessionManagerProvider(drmSessionManagerProvider)
         .setLocalAdInsertionComponents(
             this::getClientSideAdsLoader, /* adViewProvider= */ playerView)

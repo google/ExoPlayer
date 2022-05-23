@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * The default {@link MediaSource.Factory} implementation.
@@ -104,9 +105,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private static final String TAG = "DMediaSourceFactory";
 
-  private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;
 
+  private DataSource.Factory dataSourceFactory;
   @Nullable private MediaSource.Factory serverSideAdInsertionMediaSourceFactory;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
@@ -130,6 +131,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Creates a new instance.
    *
+   * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+   * DefaultExtractorsFactory} can be removed by ProGuard or R8.
+   *
    * @param context Any context.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
    *     its container.
@@ -141,6 +145,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Creates a new instance.
    *
+   * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+   * DefaultDataSource.Factory} can be removed by ProGuard or R8.
+   *
    * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
    *     for requesting media data.
    */
@@ -151,6 +158,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Creates a new instance.
    *
+   * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+   * DefaultDataSource.Factory} and {@link DefaultExtractorsFactory} can be removed by ProGuard or
+   * R8.
+   *
    * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
    *     for requesting media data.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
@@ -159,7 +170,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    delegateFactoryLoader = new DelegateFactoryLoader(dataSourceFactory, extractorsFactory);
+    delegateFactoryLoader = new DelegateFactoryLoader(extractorsFactory);
+    delegateFactoryLoader.setDataSourceFactory(dataSourceFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
     liveMaxOffsetMs = C.TIME_UNSET;
@@ -250,6 +262,18 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory clearLocalAdInsertionComponents() {
     this.adsLoaderProvider = null;
     this.adViewProvider = null;
+    return this;
+  }
+
+  /**
+   * Sets the {@link DataSource.Factory} used to create {@link DataSource} instances for requesting
+   * media data.
+   *
+   * @param dataSourceFactory The {@link DataSource.Factory}.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setDataSourceFactory(DataSource.Factory dataSourceFactory) {
+    this.dataSourceFactory = dataSourceFactory;
     return this;
   }
 
@@ -484,19 +508,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /** Loads media source factories lazily. */
   private static final class DelegateFactoryLoader {
-    private final DataSource.Factory dataSourceFactory;
     private final ExtractorsFactory extractorsFactory;
     private final Map<Integer, @NullableType Supplier<MediaSource.Factory>>
         mediaSourceFactorySuppliers;
     private final Set<Integer> supportedTypes;
     private final Map<Integer, MediaSource.Factory> mediaSourceFactories;
 
+    private DataSource.@MonotonicNonNull Factory dataSourceFactory;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
-    public DelegateFactoryLoader(
-        DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
-      this.dataSourceFactory = dataSourceFactory;
+    public DelegateFactoryLoader(ExtractorsFactory extractorsFactory) {
       this.extractorsFactory = extractorsFactory;
       mediaSourceFactorySuppliers = new HashMap<>();
       supportedTypes = new HashSet<>();
@@ -530,6 +552,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       }
       mediaSourceFactories.put(contentType, mediaSourceFactory);
       return mediaSourceFactory;
+    }
+
+    public void setDataSourceFactory(DataSource.Factory dataSourceFactory) {
+      if (dataSourceFactory != this.dataSourceFactory) {
+        this.dataSourceFactory = dataSourceFactory;
+        // TODO(b/233577470): Call MediaSource.Factory.setDataSourceFactory on each value when it
+        // exists on the interface.
+        mediaSourceFactories.clear();
+      }
     }
 
     public void setDrmSessionManagerProvider(
@@ -570,20 +601,20 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
             break;
           case C.CONTENT_TYPE_SS:
             clazz =
                 Class.forName(
                         "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
             break;
           case C.CONTENT_TYPE_HLS:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
             break;
           case C.CONTENT_TYPE_RTSP:
             clazz =
@@ -593,7 +624,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             break;
           case C.CONTENT_TYPE_OTHER:
             mediaSourceFactorySupplier =
-                () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
+                () ->
+                    new ProgressiveMediaSource.Factory(
+                        checkNotNull(dataSourceFactory), extractorsFactory);
             break;
           default:
             // Do nothing.

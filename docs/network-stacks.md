@@ -51,7 +51,9 @@ DefaultDataSource.Factory dataSourceFactory =
 // Inject the DefaultDataSource.Factory when creating the player.
 ExoPlayer player =
     new ExoPlayer.Builder(context)
-        .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
+        .setMediaSourceFactory(
+            new DefaultMediaSourceFactory(context)
+                .setDataSourceFactory(dataSourceFactory))
         .build();
 ~~~
 {: .language-java}
