@@ -18,11 +18,6 @@
         ([#10248](https://github.com/google/ExoPlayer/issues/10248)).
     *   Stop detecting 5G-NSA network type on API 29 and 30. These playbacks
         will assume a 4G network.
-    *   Disallow passing `null` to
-        `MediaSource.Factory.setDrmSessionManagerProvider` and
-        `MediaSource.Factory.setLoadErrorHandlingPolicy`. Instances of
-        `DefaultDrmSessionManagerProvider` and `DefaultLoadErrorHandlingPolicy`
-        can be passed explicitly if required.
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
