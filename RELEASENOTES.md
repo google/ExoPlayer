@@ -16,6 +16,8 @@
         for example when side-loading subtitles and changing the selected
         subtitle mid-playback
         ([#10248](https://github.com/google/ExoPlayer/issues/10248)).
+    *   Stop detecting 5G-NSA network type on API 29 and 30. These playbacks
+        will assume a 4G network.
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.

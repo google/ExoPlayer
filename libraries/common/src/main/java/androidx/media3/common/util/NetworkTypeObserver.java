@@ -25,8 +25,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
-import android.telephony.PhoneStateListener;
-import android.telephony.ServiceState;
+import android.telephony.TelephonyCallback;
+import android.telephony.TelephonyCallback.DisplayInfoListener;
 import android.telephony.TelephonyDisplayInfo;
 import android.telephony.TelephonyManager;
 import androidx.annotation.GuardedBy;
@@ -57,24 +57,6 @@ public final class NetworkTypeObserver {
      * <p>This method is always called on the main thread.
      */
     void onNetworkTypeChanged(@C.NetworkType int networkType);
-  }
-
-  /*
-   * Static configuration that may need to be set at app startup time is located in a separate
-   * static Config class. This allows apps to set their desired config without incurring unnecessary
-   * class loading costs during startup.
-   */
-  /** Configuration for {@link NetworkTypeObserver}. */
-  public static final class Config {
-
-    private static volatile boolean disable5GNsaDisambiguation;
-
-    /** Disables logic to disambiguate 5G-NSA networks from 4G networks. */
-    public static void disable5GNsaDisambiguation() {
-      disable5GNsaDisambiguation = true;
-    }
-
-    private Config() {}
   }
 
   @Nullable private static NetworkTypeObserver staticInstance;
@@ -232,26 +214,16 @@ public final class NetworkTypeObserver {
     @Override
     public void onReceive(Context context, Intent intent) {
       @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
-      if (Util.SDK_INT >= 29
-          && !Config.disable5GNsaDisambiguation
-          && networkType == C.NETWORK_TYPE_4G) {
+      if (Util.SDK_INT >= 31 && networkType == C.NETWORK_TYPE_4G) {
         // Delay update of the network type to check whether this is actually 5G-NSA.
         try {
-          // We can't access TelephonyManager getters like getServiceState() directly as they
-          // require special permissions. Attaching a listener is permission-free because the
-          // callback data is censored to not include sensitive information.
           TelephonyManager telephonyManager =
               checkNotNull((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
-          TelephonyManagerListener listener = new TelephonyManagerListener();
-          if (Util.SDK_INT < 31) {
-            telephonyManager.listen(listener, PhoneStateListener.LISTEN_SERVICE_STATE);
-          } else {
-            // Display info information can only be requested without permission from API 31.
-            telephonyManager.listen(listener, PhoneStateListener.LISTEN_DISPLAY_INFO_CHANGED);
-          }
+          DisplayInfoCallback callback = new DisplayInfoCallback();
+          telephonyManager.registerTelephonyCallback(context.getMainExecutor(), callback);
           // We are only interested in the initial response with the current state, so unregister
           // the listener immediately.
-          telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
+          telephonyManager.unregisterTelephonyCallback(callback);
           return;
         } catch (RuntimeException e) {
           // Ignore problems with listener registration and keep reporting as 4G.
@@ -261,19 +233,9 @@ public final class NetworkTypeObserver {
     }
   }
 
-  private class TelephonyManagerListener extends PhoneStateListener {
+  @RequiresApi(31)
+  private final class DisplayInfoCallback extends TelephonyCallback implements DisplayInfoListener {
 
-    @Override
-    public void onServiceStateChanged(@Nullable ServiceState serviceState) {
-      // This workaround to check the toString output of ServiceState only works on API 29 and 30.
-      String serviceStateString = serviceState == null ? "" : serviceState.toString();
-      boolean is5gNsa =
-          serviceStateString.contains("nrState=CONNECTED")
-              || serviceStateString.contains("nrState=NOT_RESTRICTED");
-      updateNetworkType(is5gNsa ? C.NETWORK_TYPE_5G_NSA : C.NETWORK_TYPE_4G);
-    }
-
-    @RequiresApi(31)
     @Override
     public void onDisplayInfoChanged(TelephonyDisplayInfo telephonyDisplayInfo) {
       int overrideNetworkType = telephonyDisplayInfo.getOverrideNetworkType();

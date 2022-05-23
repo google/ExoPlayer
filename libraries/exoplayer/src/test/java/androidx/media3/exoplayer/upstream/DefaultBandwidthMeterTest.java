@@ -25,7 +25,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
-import android.telephony.ServiceState;
 import android.telephony.TelephonyDisplayInfo;
 import android.telephony.TelephonyManager;
 import androidx.media3.common.C;
@@ -234,7 +233,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 31) // 5G-NSA detection is supported from API 31.
   public void defaultInitialBitrateEstimate_for5gNsa_isGreaterThanEstimateFor4g() {
     setActiveNetworkInfo(networkInfo4g);
     DefaultBandwidthMeter bandwidthMeter4g =
@@ -250,7 +249,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 29) // 5G-SA detection is supported from API 29.
   public void defaultInitialBitrateEstimate_for5gSa_isGreaterThanEstimateFor3g() {
     setActiveNetworkInfo(networkInfo3g);
     DefaultBandwidthMeter bandwidthMeter3g =
@@ -362,7 +361,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 31) // 5G-NSA detection is supported from API 31.
   public void
       defaultInitialBitrateEstimate_for5gNsa_forFastCountry_isGreaterThanEstimateForSlowCountry() {
     setActiveNetworkInfo(networkInfo4g, TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA);
@@ -380,7 +379,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 29) // 5G-SA detection support was added in API 29.
   public void
       defaultInitialBitrateEstimate_for5gSa_forFastCountry_isGreaterThanEstimateForSlowCountry() {
     setActiveNetworkInfo(networkInfo5gSa);
@@ -548,7 +547,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 31) // 5G-NSA detection is supported from API 31.
   public void initialBitrateEstimateOverwrite_for5gNsa_whileConnectedTo5gNsa_setsInitialEstimate() {
     setActiveNetworkInfo(networkInfo4g, TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA);
     DefaultBandwidthMeter bandwidthMeter =
@@ -561,7 +560,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 31) // 5G-NSA detection is supported from API 31.
   public void
       initialBitrateEstimateOverwrite_for5gNsa_whileConnectedToOtherNetwork_doesNotSetInitialEstimate() {
     setActiveNetworkInfo(networkInfo4g);
@@ -575,7 +574,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 29) // 5G-SA detection is supported from API 29.
   public void initialBitrateEstimateOverwrite_for5gSa_whileConnectedTo5gSa_setsInitialEstimate() {
     setActiveNetworkInfo(networkInfo5gSa);
     DefaultBandwidthMeter bandwidthMeter =
@@ -588,7 +587,7 @@ public final class DefaultBandwidthMeterTest {
   }
 
   @Test
-  @Config(minSdk = 29) // 5G detection support was added in API 29.
+  @Config(minSdk = 29) // 5G-SA detection is supported from API 29.
   public void
       initialBitrateEstimateOverwrite_for5gSa_whileConnectedToOtherNetwork_doesNotSetInitialEstimate() {
     setActiveNetworkInfo(networkInfoWifi);
@@ -714,19 +713,6 @@ public final class DefaultBandwidthMeterTest {
           ShadowTelephonyManager.createTelephonyDisplayInfo(
               networkInfo.getType(), networkTypeOverride);
       Shadows.shadowOf(telephonyManager).setTelephonyDisplayInfo(displayInfo);
-    } else if (Util.SDK_INT >= 29) {
-      ServiceState serviceState = new ServiceState();
-      if (networkTypeOverride == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA) {
-        // Replicate known platform hack that includes special string indicating 5G-NSA.
-        serviceState =
-            new ServiceState() {
-              @Override
-              public String toString() {
-                return "...nrState=CONNECTED...";
-              }
-            };
-      }
-      Shadows.shadowOf(telephonyManager).setServiceState(serviceState);
     }
     // Create a sticky broadcast for the connectivity action because Robolectric isn't replying with
     // the current network state if a receiver for this intent is registered.
