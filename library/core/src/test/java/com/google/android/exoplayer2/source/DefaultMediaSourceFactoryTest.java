@@ -74,21 +74,6 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withNull_usesNonNullDefaults() {
-    DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).build();
-
-    MediaSource mediaSource =
-        defaultMediaSourceFactory
-            .setDrmSessionManagerProvider(null)
-            .setLoadErrorHandlingPolicy(null)
-            .createMediaSource(mediaItem);
-
-    assertThat(mediaSource).isNotNull();
-  }
-
-  @Test
   public void createMediaSource_withSubtitle_isMergingMediaSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());

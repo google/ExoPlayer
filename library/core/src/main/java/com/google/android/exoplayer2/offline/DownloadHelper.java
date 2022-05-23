@@ -949,10 +949,12 @@ public final class DownloadHelper {
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    return new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY)
-        .setDrmSessionManagerProvider(
-            drmSessionManager != null ? unusedMediaItem -> drmSessionManager : null)
-        .createMediaSource(mediaItem);
+    DefaultMediaSourceFactory mediaSourceFactory =
+        new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY);
+    if (drmSessionManager != null) {
+      mediaSourceFactory.setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+    }
+    return mediaSourceFactory.createMediaSource(mediaItem);
   }
 
   private static boolean isProgressive(MediaItem.LocalConfiguration localConfiguration) {
