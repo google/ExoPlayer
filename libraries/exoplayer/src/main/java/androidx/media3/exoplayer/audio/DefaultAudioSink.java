@@ -914,7 +914,11 @@ public final class DefaultAudioSink implements AudioSink {
         pendingConfiguration = null;
         if (isOffloadedPlayback(audioTrack)
             && offloadMode != OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED) {
-          audioTrack.setOffloadEndOfStream();
+          // If the first track is very short (typically <1s), the offload AudioTrack might
+          // not have started yet. Do not call setOffloadEndOfStream as it would throw.
+          if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+            audioTrack.setOffloadEndOfStream();
+          }
           audioTrack.setOffloadDelayPadding(
               configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
           isWaitingForOffloadEndOfStreamHandled = true;
