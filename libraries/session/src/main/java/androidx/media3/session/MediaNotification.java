@@ -26,6 +26,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /** A notification for media playbacks. */
 public final class MediaNotification {
@@ -46,22 +48,39 @@ public final class MediaNotification {
      * @param command A command to send when users trigger this action.
      */
     NotificationCompat.Action createMediaAction(
-        IconCompat icon, CharSequence title, @Player.Command long command);
+        IconCompat icon, CharSequence title, @Player.Command int command);
 
     /**
      * Creates a {@link NotificationCompat.Action} for a notification with a custom action. Actions
      * created with this method are not expected to be handled by the library and will be forwarded
-     * to the {@linkplain MediaNotification.Provider#handleCustomAction notification provider} that
+     * to the {@linkplain MediaNotification.Provider#handleCustomCommand notification provider} that
      * provided them.
      *
      * @param icon The icon to show for this action.
      * @param title The title of the action.
      * @param customAction The custom action set.
      * @param extras Extras to be included in the action.
-     * @see MediaNotification.Provider#handleCustomAction
+     * @see MediaNotification.Provider#handleCustomCommand
      */
     NotificationCompat.Action createCustomAction(
         IconCompat icon, CharSequence title, String customAction, Bundle extras);
+
+    /**
+     * Creates a {@link NotificationCompat.Action} for a notification from a custom command button.
+     * Actions created with this method are not expected to be handled by the library and will be
+     * forwarded to the {@linkplain MediaNotification.Provider#handleCustomCommand notification
+     * provider} that provided them.
+     *
+     * <p>The returned {@link NotificationCompat.Action} will have a {@link PendingIntent} with the
+     * extras from {@link SessionCommand#customExtras}. Accordingly the {@linkplain
+     * SessionCommand#customExtras command's extras} will be passed to {@link
+     * Provider#handleCustomCommand(MediaController, String, Bundle)} when the action is executed.
+     *
+     * @param customCommandButton A {@linkplain CommandButton custom command button}.
+     * @see MediaNotification.Provider#handleCustomCommand
+     */
+    NotificationCompat.Action createCustomActionFromCustomCommandButton(
+        CommandButton customCommandButton);
 
     /**
      * Creates a {@link PendingIntent} for a media action that will be handled by the library.
@@ -100,24 +119,28 @@ public final class MediaNotification {
      * @param mediaController The controller of the session.
      * @param actionFactory The {@link ActionFactory} for creating notification {@linkplain
      *     NotificationCompat.Action actions}.
+     * @param customLayout The custom layout {@linkplain MediaSession#setCustomLayout(List) set by
+     *     the session}.
      * @param onNotificationChangedCallback A callback that the provider needs to notify when the
      *     notification has changed and needs to be posted again, for example after a bitmap has
      *     been loaded asynchronously.
      */
     MediaNotification createNotification(
         MediaController mediaController,
+        ImmutableList<CommandButton> customLayout,
         ActionFactory actionFactory,
         Callback onNotificationChangedCallback);
 
     /**
-     * Handles a notification's custom action.
+     * Handles a notification's custom command.
      *
      * @param mediaController The controller of the session.
-     * @param action The custom action.
-     * @param extras Extras set in the custom action, otherwise {@link Bundle#EMPTY}.
+     * @param action The custom command action.
+     * @param extras A bundle {@linkplain SessionCommand#customExtras set in the custom command},
+     *     otherwise {@link Bundle#EMPTY}.
      * @see ActionFactory#createCustomAction
      */
-    void handleCustomAction(MediaController mediaController, String action, Bundle extras);
+    void handleCustomCommand(MediaController mediaController, String action, Bundle extras);
   }
 
   /** The notification id. */

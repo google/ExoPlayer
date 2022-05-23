@@ -631,8 +631,18 @@ public class MediaSession {
   }
 
   /**
-   * Sets the custom layout and broadcasts it to all connected controllers including the legacy
+   * Broadcasts the custom layout to all connected Media3 controllers and converts the buttons to
+   * custom actions in the legacy media session playback state (see {@code
+   * PlaybackStateCompat.Builder#addCustomAction(PlaybackStateCompat.CustomAction)}) for legacy
    * controllers.
+   *
+   * <p>When converting, the {@link SessionCommand#customExtras custom extras of the session
+   * command} is used for the extras of the legacy custom action.
+   *
+   * <p>Media3 controllers that connect after calling this method will not receive the broadcast.
+   * You need to call {@link #setCustomLayout(ControllerInfo, List)} in {@link
+   * MediaSession.Callback#onPostConnect(MediaSession, ControllerInfo)} to make these controllers
+   * aware of the custom layout.
    *
    * @param layout The ordered list of {@link CommandButton}.
    */

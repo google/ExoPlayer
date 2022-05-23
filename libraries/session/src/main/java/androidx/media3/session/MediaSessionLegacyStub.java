@@ -191,13 +191,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   @Override
-  public void onCustomAction(String action, @Nullable Bundle extras) {
-    Bundle args = extras == null ? Bundle.EMPTY : extras;
-    SessionCommand command = new SessionCommand(action, args);
+  public void onCustomAction(String action, @Nullable Bundle args) {
+    SessionCommand command = new SessionCommand(action, /* extras= */ Bundle.EMPTY);
     dispatchSessionTaskWithSessionCommand(
         command,
         controller ->
-            ignoreFuture(sessionImpl.onCustomCommandOnHandler(controller, command, args)));
+            ignoreFuture(
+                sessionImpl.onCustomCommandOnHandler(
+                    controller, command, args != null ? args : Bundle.EMPTY)));
   }
 
   @Override

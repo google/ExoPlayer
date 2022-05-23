@@ -29,6 +29,8 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -64,7 +66,7 @@ import androidx.media3.common.util.Util;
 
   @Override
   public NotificationCompat.Action createMediaAction(
-      IconCompat icon, CharSequence title, @Player.Command long command) {
+      IconCompat icon, CharSequence title, @Player.Command int command) {
     return new NotificationCompat.Action(icon, title, createMediaActionPendingIntent(command));
   }
 
@@ -73,6 +75,20 @@ import androidx.media3.common.util.Util;
       IconCompat icon, CharSequence title, String customAction, Bundle extras) {
     return new NotificationCompat.Action(
         icon, title, createCustomActionPendingIntent(customAction, extras));
+  }
+
+  @Override
+  public NotificationCompat.Action createCustomActionFromCustomCommandButton(
+      CommandButton customCommandButton) {
+    checkArgument(
+        customCommandButton.sessionCommand != null
+            && customCommandButton.sessionCommand.commandCode
+                == SessionCommand.COMMAND_CODE_CUSTOM);
+    SessionCommand customCommand = checkNotNull(customCommandButton.sessionCommand);
+    return new NotificationCompat.Action(
+        IconCompat.createWithResource(service, customCommandButton.iconResId),
+        customCommandButton.displayName,
+        createCustomActionPendingIntent(customCommand.customAction, customCommand.customExtras));
   }
 
   @Override
@@ -120,7 +136,8 @@ import androidx.media3.common.util.Util;
         service,
         /* requestCode= */ ++customActionPendingIntentRequestCode,
         intent,
-        Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
+        PendingIntent.FLAG_UPDATE_CURRENT
+            | (Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
   }
 
   /** Returns whether {@code intent} was part of a {@link #createMediaAction media action}. */

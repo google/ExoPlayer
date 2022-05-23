@@ -20,9 +20,12 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.media3.common.Player;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -62,6 +65,51 @@ public class DefaultActionFactoryTest {
     Intent intent = new Intent("invalid_action");
 
     assertThat(actionFactory.isCustomAction(intent)).isFalse();
+  }
+
+  @Test
+  public void createCustomActionFromCustomCommandButton() {
+    DefaultActionFactory actionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+
+    Bundle commandBundle = new Bundle();
+    commandBundle.putString("command-key", "command-value");
+    Bundle buttonBundle = new Bundle();
+    buttonBundle.putString("button-key", "button-value");
+    CommandButton customSessionCommand =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("a", commandBundle))
+            .setExtras(buttonBundle)
+            .setIconResId(R.drawable.media3_notification_pause)
+            .setDisplayName("name")
+            .build();
+
+    NotificationCompat.Action notificationAction =
+        actionFactory.createCustomActionFromCustomCommandButton(customSessionCommand);
+
+    assertThat(String.valueOf(notificationAction.title)).isEqualTo("name");
+    assertThat(notificationAction.getIconCompat().getResId())
+        .isEqualTo(R.drawable.media3_notification_pause);
+    assertThat(notificationAction.getExtras().size()).isEqualTo(0);
+    assertThat(notificationAction.getActionIntent()).isNotNull();
+  }
+
+  @Test
+  public void
+      createCustomActionFromCustomCommandButton_notACustomAction_throwsIllegalArgumentException() {
+    DefaultActionFactory actionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+
+    CommandButton customSessionCommand =
+        new CommandButton.Builder()
+            .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
+            .setIconResId(R.drawable.media3_notification_pause)
+            .setDisplayName("name")
+            .build();
+
+    Assert.assertThrows(
+        IllegalArgumentException.class,
+        () -> actionFactory.createCustomActionFromCustomCommandButton(customSessionCommand));
   }
 
   /** A test service for unit tests. */

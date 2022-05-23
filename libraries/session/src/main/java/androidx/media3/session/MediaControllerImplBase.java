@@ -1077,7 +1077,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* positionDiscontinuity= */ false,
-        /* ignored= */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* mediaItemTransition= */ oldTimeline.isEmpty(),
         MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
   }
@@ -1987,7 +1987,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
           /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ false,
-          /* ignored= */ DISCONTINUITY_REASON_INTERNAL,
+          /* ignored */ DISCONTINUITY_REASON_INTERNAL,
           /* mediaItemTransition= */ false,
           /* ignored */ MEDIA_ITEM_TRANSITION_REASON_REPEAT);
     }
@@ -2262,7 +2262,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   IMediaSession getSessionInterfaceWithSessionCommandIfAble(SessionCommand command) {
     checkArgument(command.commandCode == COMMAND_CODE_CUSTOM);
     if (!sessionCommands.contains(command)) {
-      Log.w(TAG, "Controller isn't allowed to call session command:" + command);
+      Log.w(TAG, "Controller isn't allowed to call custom session command:" + command.customAction);
       return null;
     }
     return iSession;
@@ -2578,11 +2578,21 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isConnected()) {
       return;
     }
+    List<CommandButton> validatedCustomLayout = new ArrayList<>();
+    for (int i = 0; i < layout.size(); i++) {
+      CommandButton button = layout.get(i);
+      if (intersectedPlayerCommands.contains(button.playerCommand)
+          || (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
+          || (button.playerCommand != Player.COMMAND_INVALID
+              && sessionCommands.contains(button.playerCommand))) {
+        validatedCustomLayout.add(button);
+      }
+    }
     instance.notifyControllerListener(
         listener -> {
           ListenableFuture<SessionResult> future =
               checkNotNull(
-                  listener.onSetCustomLayout(instance, layout),
+                  listener.onSetCustomLayout(instance, validatedCustomLayout),
                   "MediaController.Listener#onSetCustomLayout() must not return null");
           sendControllerResultWhenReady(seq, future);
         });
