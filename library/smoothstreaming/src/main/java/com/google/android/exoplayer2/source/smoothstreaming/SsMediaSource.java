@@ -173,8 +173,7 @@ public final class SsMediaSource extends BaseMediaSource
 
     /**
      * Sets the factory to create composite {@link SequenceableLoader}s for when this media source
-     * loads data from multiple streams (video, audio etc.). The default is an instance of {@link
-     * DefaultCompositeSequenceableLoaderFactory}.
+     * loads data from multiple streams (video, audio etc.).
      *
      * @param compositeSequenceableLoaderFactory A factory to create composite {@link
      *     SequenceableLoader}s for when this media source loads data from multiple streams (video,
@@ -182,11 +181,13 @@ public final class SsMediaSource extends BaseMediaSource
      * @return This factory, for convenience.
      */
     public Factory setCompositeSequenceableLoaderFactory(
-        @Nullable CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
+        CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
       this.compositeSequenceableLoaderFactory =
-          compositeSequenceableLoaderFactory != null
-              ? compositeSequenceableLoaderFactory
-              : new DefaultCompositeSequenceableLoaderFactory();
+          checkNotNull(
+              compositeSequenceableLoaderFactory,
+              "SsMediaSource.Factory#setCompositeSequenceableLoaderFactory no longer handles null"
+                  + " by instantiating a new DefaultCompositeSequenceableLoaderFactory. Explicitly"
+                  + " construct and pass an instance in order to retain the old behavior.");
       return this;
     }
 
