@@ -355,15 +355,25 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
-      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-    delegateFactoryLoader.setDrmSessionManagerProvider(drmSessionManagerProvider);
+      DrmSessionManagerProvider drmSessionManagerProvider) {
+    delegateFactoryLoader.setDrmSessionManagerProvider(
+        checkNotNull(
+            drmSessionManagerProvider,
+            "MediaSource.Factory#setDrmSessionManagerProvider no longer handles null by"
+                + " instantiating a new DefaultDrmSessionManagerProvider. Explicitly construct and"
+                + " pass an instance in order to retain the old behavior."));
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
-      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    this.loadErrorHandlingPolicy =
+        checkNotNull(
+            loadErrorHandlingPolicy,
+            "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
+                + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
+                + " pass an instance in order to retain the old behavior.");
     delegateFactoryLoader.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
     return this;
   }
@@ -438,16 +448,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                             SubtitleDecoderFactory.DEFAULT.createDecoder(format), format)
                         : new UnknownSubtitlesExtractor(format)
                   };
+          ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
+              new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
+          if (loadErrorHandlingPolicy != null) {
+            progressiveMediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+          }
           mediaSources[i + 1] =
-              new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
-                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
-                  .createMediaSource(
-                      MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
+              progressiveMediaSourceFactory.createMediaSource(
+                  MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
         } else {
+          SingleSampleMediaSource.Factory singleSampleMediaSourceFactory =
+              new SingleSampleMediaSource.Factory(dataSourceFactory);
+          if (loadErrorHandlingPolicy != null) {
+            singleSampleMediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+          }
           mediaSources[i + 1] =
-              new SingleSampleMediaSource.Factory(dataSourceFactory)
-                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
-                  .createMediaSource(subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
+              singleSampleMediaSourceFactory.createMediaSource(
+                  subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
         }
       }
 
@@ -563,16 +580,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       }
     }
 
-    public void setDrmSessionManagerProvider(
-        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+    public void setDrmSessionManagerProvider(DrmSessionManagerProvider drmSessionManagerProvider) {
       this.drmSessionManagerProvider = drmSessionManagerProvider;
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
       }
     }
 
-    public void setLoadErrorHandlingPolicy(
-        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    public void setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);

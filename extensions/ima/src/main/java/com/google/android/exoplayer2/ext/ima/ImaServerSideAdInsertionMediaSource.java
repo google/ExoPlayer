@@ -134,14 +134,14 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
     @Override
     public MediaSource.Factory setLoadErrorHandlingPolicy(
-        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+        LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       contentMediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       return this;
     }
 
     @Override
     public MediaSource.Factory setDrmSessionManagerProvider(
-        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+        DrmSessionManagerProvider drmSessionManagerProvider) {
       contentMediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
       return this;
     }
