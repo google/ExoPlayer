@@ -146,13 +146,15 @@ public final class RtspMediaSource extends BaseMediaSource {
 
     /** Does nothing. {@link RtspMediaSource} does not support DRM. */
     @Override
-    public Factory setDrmSessionManagerProvider(DrmSessionManagerProvider drmSessionManager) {
+    public Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManager) {
       return this;
     }
 
     /** Does nothing. {@link RtspMediaSource} does not support error handling policies. */
     @Override
-    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    public Factory setLoadErrorHandlingPolicy(
+        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       // TODO(internal b/172331505): Implement support.
       return this;
     }

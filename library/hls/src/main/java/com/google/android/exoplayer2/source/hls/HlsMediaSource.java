@@ -112,17 +112,6 @@ public final class HlsMediaSource extends BaseMediaSource
     /**
      * Creates a new factory for {@link HlsMediaSource}s.
      *
-     * <p>The factory will use the following default components:
-     *
-     * <ul>
-     *   <li>{@link DefaultDrmSessionManagerProvider}
-     *   <li>{@link DefaultHlsPlaylistParserFactory}
-     *   <li>{@link DefaultHlsPlaylistTracker#FACTORY}
-     *   <li>{@link HlsExtractorFactory#DEFAULT}
-     *   <li>{@link DefaultLoadErrorHandlingPolicy}
-     *   <li>{@link DefaultCompositeSequenceableLoaderFactory}
-     * </ul>
-     *
      * @param dataSourceFactory A data source factory that will be wrapped by a {@link
      *     DefaultHlsDataSourceFactory} to create {@link DataSource}s for manifests, segments and
      *     keys.
@@ -133,17 +122,6 @@ public final class HlsMediaSource extends BaseMediaSource
 
     /**
      * Creates a new factory for {@link HlsMediaSource}s.
-     *
-     * <p>The factory will use the following default components:
-     *
-     * <ul>
-     *   <li>{@link DefaultDrmSessionManagerProvider}
-     *   <li>{@link DefaultHlsPlaylistParserFactory}
-     *   <li>{@link DefaultHlsPlaylistTracker#FACTORY}
-     *   <li>{@link HlsExtractorFactory#DEFAULT}
-     *   <li>{@link DefaultLoadErrorHandlingPolicy}
-     *   <li>{@link DefaultCompositeSequenceableLoaderFactory}
-     * </ul>
      *
      * @param hlsDataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for
      *     manifests, segments and keys.
@@ -175,14 +153,19 @@ public final class HlsMediaSource extends BaseMediaSource
       return this;
     }
 
-    @Override
-    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    /**
+     * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
+     * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     */
+    public Factory setLoadErrorHandlingPolicy(
+        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
-          checkNotNull(
-              loadErrorHandlingPolicy,
-              "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
-                  + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
-                  + " pass an instance in order to retain the old behavior.");
+          loadErrorHandlingPolicy != null
+              ? loadErrorHandlingPolicy
+              : new DefaultLoadErrorHandlingPolicy();
       return this;
     }
 
@@ -291,13 +274,11 @@ public final class HlsMediaSource extends BaseMediaSource
 
     @Override
     public Factory setDrmSessionManagerProvider(
-        DrmSessionManagerProvider drmSessionManagerProvider) {
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
       this.drmSessionManagerProvider =
-          checkNotNull(
-              drmSessionManagerProvider,
-              "MediaSource.Factory#setDrmSessionManagerProvider no longer handles null by"
-                  + " instantiating a new DefaultDrmSessionManagerProvider. Explicitly construct"
-                  + " and pass an instance in order to retain the old behavior.");
+          drmSessionManagerProvider != null
+              ? drmSessionManagerProvider
+              : new DefaultDrmSessionManagerProvider();
       return this;
     }
 
