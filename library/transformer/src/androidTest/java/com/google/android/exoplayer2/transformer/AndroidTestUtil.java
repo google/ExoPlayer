@@ -61,6 +61,14 @@ public final class AndroidTestUtil {
   public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING =
       "asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4";
 
+  public static final Format MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(640)
+          .setHeight(360)
+          .setFrameRate(30.00f)
+          .build();
+
   public static final String MP4_ASSET_SEF_URI_STRING =
       "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final Format MP4_ASSET_SEF_FORMAT =
@@ -256,6 +264,34 @@ public final class AndroidTestUtil {
     }
     recordTestSkipped(context, testId, skipReasonBuilder.toString());
     return true;
+  }
+
+  /**
+   * Returns the {@link Format} of the given test asset.
+   *
+   * @param uri The string {@code uri} to the test file. The {@code uri} must be defined in this
+   *     file.
+   * @throws IllegalArgumentException If the given {@code uri} is not defined in this file.
+   */
+  public static Format getFormatForTestFile(String uri) {
+    switch (uri) {
+      case MP4_ASSET_URI_STRING:
+        return MP4_ASSET_FORMAT;
+      case MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING:
+        return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
+      case MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING:
+        return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_FORMAT;
+      case MP4_ASSET_SEF_URI_STRING:
+        return MP4_ASSET_SEF_FORMAT;
+      case MP4_REMOTE_10_SECONDS_URI_STRING:
+        return MP4_REMOTE_10_SECONDS_FORMAT;
+      case MP4_REMOTE_H264_MP3_URI_STRING:
+        return MP4_REMOTE_H264_MP3_FORMAT;
+      case MP4_REMOTE_4K60_PORTRAIT_URI_STRING:
+        return MP4_REMOTE_4K60_PORTRAIT_FORMAT;
+      default:
+        throw new IllegalArgumentException("The format for the given uri is not found.");
+    }
   }
 
   private static boolean canDecode(Format format) throws MediaCodecUtil.DecoderQueryException {
