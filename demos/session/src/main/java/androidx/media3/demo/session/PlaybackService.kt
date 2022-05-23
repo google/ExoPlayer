@@ -116,6 +116,21 @@ class PlaybackService : MediaLibraryService() {
         return SessionResult.RESULT_ERROR_NOT_SUPPORTED
       }
     }
+
+    override fun onSubscribe(
+      session: MediaLibrarySession,
+      browser: MediaSession.ControllerInfo,
+      parentId: String,
+      params: LibraryParams?
+    ): ListenableFuture<LibraryResult<Void>> {
+      val children =
+        MediaItemTree.getChildren(parentId)
+          ?: return Futures.immediateFuture(
+            LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE)
+          )
+      session.notifyChildrenChanged(browser, parentId, children.size, params)
+      return Futures.immediateFuture(LibraryResult.ofVoid())
+    }
   }
 
   private class CustomMediaItemFiller : MediaSession.MediaItemFiller {
