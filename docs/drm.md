@@ -94,7 +94,7 @@ DrmSessionManager customDrmSessionManager =
     new CustomDrmSessionManager(/* ... */);
 // Pass a drm session manager provider to the media source factory.
 MediaSource.Factory mediaSourceFactory =
-    new DefaultMediaSourceFactory(dataSourceFactory)
+    new DefaultMediaSourceFactory(context)
         .setDrmSessionManagerProvider(mediaItem -> customDrmSessionManager);
 ~~~
 {: .language-java}
