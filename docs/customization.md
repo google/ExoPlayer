@@ -212,6 +212,28 @@ If you're instantiating renderers directly, pass a
 `AsynchronousMediaCodecAdapter.Factory` to the `MediaCodecVideoRenderer` and
 `MediaCodecAudioRenderer` constructors.
 
+### Intercepting method calls with `ForwardingPlayer` ###
+
+You can customize some of the behavior of a `Player` instance by wrapping it in
+a subclass of `ForwardingPlayer` and overriding methods in order to do any of
+the following:
+
+* Access parameters before passing them to the delegate `Player`.
+* Access the return value from the delegate `Player` before returning it.
+* Re-implement the method completely.
+
+When overriding `ForwardingPlayer` methods it's important to ensure the
+implementation remains self-consistent and compliant with the `Player`
+interface, especially when dealing with methods that are intended to have
+identical or related behavior. For example, if you want to override every 'play'
+operation, you need to override both `ForwardingPlayer.play` and
+`ForwardingPlayer.setPlayWhenReady`, because a caller will expect the behavior
+of these methdods to be identical when `playWhenReady = true`. Similarly, if you
+want to change the seek-forward increment you need to override both
+`ForwardingPlayer.seekForward` to perform a seek with your customized increment,
+and `ForwardingPlayer.getSeekForwardIncrement` in order to report the correct
+customized increment back to the caller.
+
 ## MediaSource customization ##
 
 The examples above inject customized components for use during playback of all
