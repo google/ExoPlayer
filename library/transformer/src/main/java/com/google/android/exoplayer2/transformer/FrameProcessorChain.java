@@ -602,10 +602,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public synchronized void surfaceChanged(
         SurfaceHolder holder, int format, int width, int height) {
-      surface = holder.getSurface();
-      eglSurface = null;
       this.width = width;
       this.height = height;
+      Surface newSurface = holder.getSurface();
+      if (surface == null || !surface.equals(newSurface)) {
+        surface = newSurface;
+        eglSurface = null;
+      }
     }
 
     @Override
