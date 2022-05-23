@@ -74,10 +74,27 @@
     *   Parse channel count from DTS `AudioChannelConfiguration` elements. This
         re-enables audio passthrough for DTS streams
         ([#10159](https://github.com/google/ExoPlayer/issues/10159)).
+    *   Disallow passing `null` to
+        `DashMediaSource.Factory.setCompositeSequenceableLoaderFactory`.
+        Instances of `DefaultCompositeSequenceableLoaderFactory` can be passed
+        explicitly if required.
 *   HLS:
     *   Fallback to chunkful preparation if the playlist CODECS attribute does
         not contain the audio codec
         ([#10065](https://github.com/google/ExoPlayer/issues/10065)).
+    *   Disallow passing `null` to
+        `HlsMediaSource.Factory.setCompositeSequenceableLoaderFactory`,
+        `HlsMediaSource.Factory.setPlaylistParserFactory`, and
+        `HlsMediaSource.Factory.setPlaylistTrackerFactory`. Instances of
+        `DefaultCompositeSequenceableLoaderFactory`,
+        `DefaultHlsPlaylistParserFactory`, or a reference to
+        `DefaultHlsPlaylistTracker.FACTORY` can be passed explicitly if
+        required.
+*   Smooth Streaming:
+    *   Disallow passing `null` to
+        `SsMediaSource.Factory.setCompositeSequenceableLoaderFactory`. Instances
+        of `DefaultCompositeSequenceableLoaderFactory` can be passed explicitly
+        if required.
 *   RTSP:
     *   Add RTP reader for MPEG4
         ([#35](https://github.com/androidx/media/pull/35)).
