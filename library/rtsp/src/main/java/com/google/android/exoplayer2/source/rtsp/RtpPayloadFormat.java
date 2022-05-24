@@ -49,6 +49,7 @@ public final class RtpPayloadFormat {
   private static final String RTP_MEDIA_PCMA = "PCMA";
   private static final String RTP_MEDIA_PCMU = "PCMU";
   private static final String RTP_MEDIA_VP8 = "VP8";
+  private static final String RTP_MEDIA_VP9 = "VP9";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
@@ -65,6 +66,7 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_PCMA:
       case RTP_MEDIA_PCMU:
       case RTP_MEDIA_VP8:
+      case RTP_MEDIA_VP9:
         return true;
       default:
         return false;
@@ -103,6 +105,8 @@ public final class RtpPayloadFormat {
         return MimeTypes.VIDEO_MP4V;
       case RTP_MEDIA_VP8:
         return MimeTypes.VIDEO_VP8;
+      case RTP_MEDIA_VP9:
+        return MimeTypes.VIDEO_VP9;
       default:
         throw new IllegalArgumentException(mediaType);
     }
