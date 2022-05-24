@@ -418,7 +418,7 @@ public interface HttpDataSource extends DataSource {
     @Nullable public final String responseMessage;
 
     /** An unmodifiable map of the response header fields and values. */
-    public final Map<String, List<String>> headerFields;
+    @UnstableApi public final Map<String, List<String>> headerFields;
 
     /** The response body. */
     public final byte[] responseBody;
