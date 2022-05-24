@@ -232,11 +232,11 @@ public final class AndroidTestUtil {
    * @param context The {@link Context context}.
    * @param testId The test ID.
    * @param decodingFormat The {@link Format format} to decode.
-   * @param encodingFormat The {@link Format format} to encode.
+   * @param encodingFormat The {@link Format format} to encode, optional.
    * @return Whether the test should be skipped.
    */
   public static boolean skipAndLogIfInsufficientCodecSupport(
-      Context context, String testId, Format decodingFormat, Format encodingFormat)
+      Context context, String testId, Format decodingFormat, @Nullable Format encodingFormat)
       throws IOException, JSONException {
     boolean canDecode = false;
     @Nullable MediaCodecUtil.DecoderQueryException queryException = null;
@@ -246,7 +246,7 @@ public final class AndroidTestUtil {
       queryException = e;
     }
 
-    boolean canEncode = canEncode(encodingFormat);
+    boolean canEncode = encodingFormat == null || canEncode(encodingFormat);
 
     if (canDecode && canEncode) {
       return false;

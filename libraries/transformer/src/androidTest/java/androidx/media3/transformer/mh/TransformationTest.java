@@ -19,6 +19,7 @@ import static androidx.media3.transformer.AndroidTestUtil.FORCE_ENCODE_ENCODER_F
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
@@ -90,6 +91,15 @@ public class TransformationTest {
   public void transform4K60() throws Exception {
     String testId = TAG + "_transform4K60";
     Context context = ApplicationProvider.getApplicationContext();
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ MP4_REMOTE_4K60_PORTRAIT_FORMAT,
+        /* encodingFormat= */ null)) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
