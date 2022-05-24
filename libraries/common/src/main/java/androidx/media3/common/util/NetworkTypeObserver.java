@@ -216,34 +216,49 @@ public final class NetworkTypeObserver {
       @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
       if (Util.SDK_INT >= 31 && networkType == C.NETWORK_TYPE_4G) {
         // Delay update of the network type to check whether this is actually 5G-NSA.
-        try {
-          TelephonyManager telephonyManager =
-              checkNotNull((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
-          DisplayInfoCallback callback = new DisplayInfoCallback();
-          telephonyManager.registerTelephonyCallback(context.getMainExecutor(), callback);
-          // We are only interested in the initial response with the current state, so unregister
-          // the listener immediately.
-          telephonyManager.unregisterTelephonyCallback(callback);
-          return;
-        } catch (RuntimeException e) {
-          // Ignore problems with listener registration and keep reporting as 4G.
-        }
+        Api31.disambiguate4gAnd5gNsa(context, /* instance= */ NetworkTypeObserver.this);
+      } else {
+        updateNetworkType(networkType);
       }
-      updateNetworkType(networkType);
     }
   }
 
   @RequiresApi(31)
-  private final class DisplayInfoCallback extends TelephonyCallback implements DisplayInfoListener {
+  private static final class Api31 {
 
-    @Override
-    public void onDisplayInfoChanged(TelephonyDisplayInfo telephonyDisplayInfo) {
-      int overrideNetworkType = telephonyDisplayInfo.getOverrideNetworkType();
-      boolean is5gNsa =
-          overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA
-              || overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
-              || overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_ADVANCED;
-      updateNetworkType(is5gNsa ? C.NETWORK_TYPE_5G_NSA : C.NETWORK_TYPE_4G);
+    public static void disambiguate4gAnd5gNsa(Context context, NetworkTypeObserver instance) {
+      try {
+        TelephonyManager telephonyManager =
+            checkNotNull((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
+        DisplayInfoCallback callback = new DisplayInfoCallback(instance);
+        telephonyManager.registerTelephonyCallback(context.getMainExecutor(), callback);
+        // We are only interested in the initial response with the current state, so unregister
+        // the listener immediately.
+        telephonyManager.unregisterTelephonyCallback(callback);
+      } catch (RuntimeException e) {
+        // Ignore problems with listener registration and keep reporting as 4G.
+        instance.updateNetworkType(C.NETWORK_TYPE_4G);
+      }
+    }
+
+    private static final class DisplayInfoCallback extends TelephonyCallback
+        implements DisplayInfoListener {
+
+      private final NetworkTypeObserver instance;
+
+      public DisplayInfoCallback(NetworkTypeObserver instance) {
+        this.instance = instance;
+      }
+
+      @Override
+      public void onDisplayInfoChanged(TelephonyDisplayInfo telephonyDisplayInfo) {
+        int overrideNetworkType = telephonyDisplayInfo.getOverrideNetworkType();
+        boolean is5gNsa =
+            overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA
+                || overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
+                || overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_ADVANCED;
+        instance.updateNetworkType(is5gNsa ? C.NETWORK_TYPE_5G_NSA : C.NETWORK_TYPE_4G);
+      }
     }
   }
 }
