@@ -51,6 +51,8 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
         return new RtpMpeg4Reader(payloadFormat);
       case MimeTypes.VIDEO_VP8:
         return new RtpVp8Reader(payloadFormat);
+      case MimeTypes.VIDEO_VP9:
+        return new RtpVp9Reader(payloadFormat);
       default:
         // No supported reader, returning null.
     }

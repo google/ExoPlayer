@@ -83,6 +83,8 @@
         ([#10049](https://github.com/google/ExoPlayer/issues/10049)).
     *   Throw checked exception when parsing RTSP timing
         ([#10165](https://github.com/google/ExoPlayer/issues/10165)).
+    *   Add RTP reader for VP9
+        ([#47](https://github.com/androidx/media/pull/64)).
 *   Session:
 
     *   Fix NPE in MediaControllerImplLegacy
