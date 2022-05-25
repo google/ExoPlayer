@@ -60,7 +60,9 @@ public final class TranscodeQualityTest {
             .build()
             .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
 
-    assertThat(result.ssim).isGreaterThan(0.90);
+    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+      assertThat(result.ssim).isGreaterThan(0.90);
+    }
   }
 
   @Test
@@ -92,7 +94,9 @@ public final class TranscodeQualityTest {
             .build()
             .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
 
-    assertThat(result.ssim).isGreaterThan(0.90);
+    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+      assertThat(result.ssim).isGreaterThan(0.90);
+    }
   }
 
   @Test
@@ -119,6 +123,8 @@ public final class TranscodeQualityTest {
                 testId,
                 AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING);
 
-    assertThat(result.ssim).isGreaterThan(0.90);
+    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+      assertThat(result.ssim).isGreaterThan(0.90);
+    }
   }
 }

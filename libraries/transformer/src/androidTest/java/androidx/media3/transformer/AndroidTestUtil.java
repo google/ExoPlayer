@@ -37,6 +37,8 @@ import org.json.JSONObject;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
+  private static final String TAG = "AndroidTestUtil";
+
   // TODO(b/228865104): Add device capability based test skipping.
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final Format MP4_ASSET_FORMAT =
@@ -136,7 +138,7 @@ public final class AndroidTestUtil {
    */
   public static void recordTestSkipped(Context context, String testId, String reason)
       throws JSONException, IOException {
-    Log.i(testId, reason);
+    Log.i(TAG, testId + ": " + reason);
     JSONObject testJson = new JSONObject();
     testJson.put("skipReason", reason);
 
@@ -216,7 +218,7 @@ public final class AndroidTestUtil {
 
     // Log contents as well as writing to file, for easier visibility on individual device testing.
     for (String line : Util.split(analysisContents, "\n")) {
-      Log.i(testId, line);
+      Log.i(TAG, testId + ": " + line);
     }
 
     File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
