@@ -58,14 +58,14 @@ public final class AndroidTestUtil {
           .build();
 
   /** Baseline profile level 3.0 H.264 stream, which should be supported on all devices. */
-  public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING =
-      "asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4";
+  public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING =
+      "asset:///media/mp4/sample_with_increasing_timestamps_320w_240h.mp4";
 
-  public static final Format MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_FORMAT =
+  public static final Format MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.VIDEO_H264)
-          .setWidth(640)
-          .setHeight(360)
+          .setWidth(320)
+          .setHeight(240)
           .setFrameRate(30.00f)
           .build();
 
@@ -279,8 +279,8 @@ public final class AndroidTestUtil {
         return MP4_ASSET_FORMAT;
       case MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING:
         return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
-      case MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING:
-        return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_FORMAT;
+      case MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING:
+        return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT;
       case MP4_ASSET_SEF_URI_STRING:
         return MP4_ASSET_SEF_FORMAT;
       case MP4_REMOTE_10_SECONDS_URI_STRING:

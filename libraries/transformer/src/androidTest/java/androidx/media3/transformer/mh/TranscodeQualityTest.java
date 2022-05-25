@@ -96,9 +96,9 @@ public final class TranscodeQualityTest {
   }
 
   @Test
-  public void transcodeAvcToAvc360p_ssimIsGreaterThan90Percent() throws Exception {
+  public void transcodeAvcToAvc360x240_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transcodeAvcToAvc360p_ssim";
+    String testId = "transcodeAvcToAvc320x240_ssim";
 
     // Note: We never skip this test as the input and output formats should be within CDD
     // requirements on all supported API versions.
@@ -115,7 +115,9 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING);
+            .run(
+                testId,
+                AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING);
 
     assertThat(result.ssim).isGreaterThan(0.90);
   }
