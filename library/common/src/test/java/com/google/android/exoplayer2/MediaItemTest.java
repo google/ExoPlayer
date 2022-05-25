@@ -225,7 +225,7 @@ public class MediaItemTest {
         new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
             .setLicenseUri(licenseUri)
             .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
-            .forceSessionsForAudioAndVideoTracks(true)
+            .setForceSessionsForAudioAndVideoTracks(true)
             .build();
 
     assertThat(drmConfiguration.sessionForClearTypes)
