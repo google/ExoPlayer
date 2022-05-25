@@ -29,6 +29,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -315,12 +316,12 @@ public final class MediaItem implements Bundleable {
 
     /**
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
-     *     DrmConfiguration.Builder#forceSessionsForAudioAndVideoTracks(boolean)} instead.
+     *     DrmConfiguration.Builder#setForceSessionsForAudioAndVideoTracks(boolean)} instead.
      */
     @UnstableApi
     @Deprecated
     public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
-      drmConfiguration.forceSessionsForAudioAndVideoTracks(sessionForClearPeriods);
+      drmConfiguration.setForceSessionsForAudioAndVideoTracks(sessionForClearPeriods);
       return this;
     }
 
@@ -660,16 +661,29 @@ public final class MediaItem implements Bundleable {
       }
 
       /**
+       * @deprecated Use {@link #setForceSessionsForAudioAndVideoTracks(boolean)} instead.
+       */
+      @UnstableApi
+      @Deprecated
+      @InlineMe(
+          replacement =
+              "this.setForceSessionsForAudioAndVideoTracks(forceSessionsForAudioAndVideoTracks)")
+      public Builder forceSessionsForAudioAndVideoTracks(
+          boolean forceSessionsForAudioAndVideoTracks) {
+        return setForceSessionsForAudioAndVideoTracks(forceSessionsForAudioAndVideoTracks);
+      }
+
+      /**
        * Sets whether a DRM session should be used for clear tracks of type {@link
        * C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_AUDIO}.
        *
        * <p>This method overrides what has been set by previously calling {@link
        * #setForcedSessionTrackTypes(List)}.
        */
-      public Builder forceSessionsForAudioAndVideoTracks(
-          boolean useClearSessionsForAudioAndVideoTracks) {
+      public Builder setForceSessionsForAudioAndVideoTracks(
+          boolean forceSessionsForAudioAndVideoTracks) {
         this.setForcedSessionTrackTypes(
-            useClearSessionsForAudioAndVideoTracks
+            forceSessionsForAudioAndVideoTracks
                 ? ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
                 : ImmutableList.of());
         return this;
@@ -680,10 +694,10 @@ public final class MediaItem implements Bundleable {
        * when the tracks are in the clear.
        *
        * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
-       * C#TRACK_TYPE_AUDIO}, {@link #forceSessionsForAudioAndVideoTracks(boolean)} can be used.
+       * C#TRACK_TYPE_AUDIO}, {@link #setForceSessionsForAudioAndVideoTracks(boolean)} can be used.
        *
        * <p>This method overrides what has been set by previously calling {@link
-       * #forceSessionsForAudioAndVideoTracks(boolean)}.
+       * #setForceSessionsForAudioAndVideoTracks(boolean)}.
        */
       public Builder setForcedSessionTrackTypes(
           List<@C.TrackType Integer> forcedSessionTrackTypes) {
@@ -1311,7 +1325,7 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the MIME type. */
-      public Builder setMimeType(String mimeType) {
+      public Builder setMimeType(@Nullable String mimeType) {
         this.mimeType = mimeType;
         return this;
       }

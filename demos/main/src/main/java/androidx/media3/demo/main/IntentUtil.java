@@ -188,7 +188,7 @@ public class IntentUtil {
                   intent.getBooleanExtra(
                       DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
               .setLicenseRequestHeaders(headers)
-              .forceSessionsForAudioAndVideoTracks(
+              .setForceSessionsForAudioAndVideoTracks(
                   intent.getBooleanExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, false))
               .build());
     }
