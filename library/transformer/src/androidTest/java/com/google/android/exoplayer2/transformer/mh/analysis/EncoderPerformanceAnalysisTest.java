@@ -51,7 +51,7 @@ public class EncoderPerformanceAnalysisTest {
 
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
-          AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING,
+          AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING,
           AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
           AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
 
