@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SystemClock;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -40,7 +41,7 @@ import org.json.JSONObject;
 
 /** An android instrumentation test runner for {@link Transformer}. */
 public class TransformerAndroidTestRunner {
-  private static final String TAG_PREFIX = "TransformerAndroidTest_";
+  private static final String TAG = "TransformerAndroidTest";
 
   /** The default transformation timeout value. */
   public static final int DEFAULT_TIMEOUT_SECONDS = 120;
@@ -299,7 +300,7 @@ public class TransformerAndroidTestRunner {
       if (calculateSsim) {
         double ssim =
             SsimHelper.calculate(
-                context, /* expectedVideoPath= */ uriString, outputVideoFile.getPath());
+                context, /* referenceVideoPath= */ uriString, outputVideoFile.getPath());
         resultBuilder.setSsim(ssim);
       }
     } catch (InterruptedException interruptedException) {
@@ -308,15 +309,19 @@ public class TransformerAndroidTestRunner {
       // TransformationTestResult.
       throw interruptedException;
     } catch (Throwable analysisFailure) {
-      // Catch all (checked and unchecked) failures throw by the SsimHelper and process them as
-      // part of the TransformationTestResult.
-      Exception analysisException =
-          analysisFailure instanceof Exception
-              ? (Exception) analysisFailure
-              : new IllegalStateException(analysisFailure);
+      if (Util.SDK_INT == 21 && "Nexus 5".equals(Util.MODEL)) { // b/233584640
+        Log.i(TAG, testId + ": Skipping SSIM calculation due to known device-specific issue");
+      } else {
+        // Catch all (checked and unchecked) failures throw by the SsimHelper and process them as
+        // part of the TransformationTestResult.
+        Exception analysisException =
+            analysisFailure instanceof Exception
+                ? (Exception) analysisFailure
+                : new IllegalStateException(analysisFailure);
 
-      resultBuilder.setAnalysisException(analysisException);
-      Log.e(TAG_PREFIX + testId, "SSIM calculation failed.", analysisException);
+        resultBuilder.setAnalysisException(analysisException);
+        Log.e(TAG, testId + ": SSIM calculation failed.", analysisException);
+      }
     }
     return resultBuilder.build();
   }
