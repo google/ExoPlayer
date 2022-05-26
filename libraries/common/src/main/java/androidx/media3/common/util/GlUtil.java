@@ -327,7 +327,8 @@ public final class GlUtil {
    */
   public static void assertValidTextureSize(int width, int height) {
     // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
-    //  (ex. downscaling appropriately) in a FrameProcessor instead of asserting incorrect values.
+    //  (ex. downscaling appropriately) in a texture processor instead of asserting incorrect
+    //  values.
 
     // For valid GL sizes, see:
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
