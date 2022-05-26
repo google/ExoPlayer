@@ -74,7 +74,7 @@ public final class MediaNotification {
      * <p>The returned {@link NotificationCompat.Action} will have a {@link PendingIntent} with the
      * extras from {@link SessionCommand#customExtras}. Accordingly the {@linkplain
      * SessionCommand#customExtras command's extras} will be passed to {@link
-     * Provider#handleCustomCommand(MediaController, String, Bundle)} when the action is executed.
+     * Provider#handleCustomCommand(MediaSession, String, Bundle)} when the action is executed.
      *
      * @param customCommandButton A {@linkplain CommandButton custom command button}.
      * @see MediaNotification.Provider#handleCustomCommand
@@ -116,8 +116,8 @@ public final class MediaNotification {
     /**
      * Creates a new {@link MediaNotification}.
      *
-     * @param mediaController The controller of the session.
-     * @param actionFactory The {@link ActionFactory} for creating notification {@linkplain
+     * @param session The media session.
+     * @param actionFactory The {@link ActionFactory} for creating notification {@link
      *     NotificationCompat.Action actions}.
      * @param customLayout The custom layout {@linkplain MediaSession#setCustomLayout(List) set by
      *     the session}.
@@ -126,7 +126,7 @@ public final class MediaNotification {
      *     been loaded asynchronously.
      */
     MediaNotification createNotification(
-        MediaController mediaController,
+        MediaSession session,
         ImmutableList<CommandButton> customLayout,
         ActionFactory actionFactory,
         Callback onNotificationChangedCallback);
@@ -134,13 +134,15 @@ public final class MediaNotification {
     /**
      * Handles a notification's custom command.
      *
-     * @param mediaController The controller of the session.
+     * @param session The media session.
      * @param action The custom command action.
      * @param extras A bundle {@linkplain SessionCommand#customExtras set in the custom command},
      *     otherwise {@link Bundle#EMPTY}.
+     * @return {@code false} if the action should be delivered to the session as a custom command or
+     *     {@code true} if the action has been handled completely by the provider.
      * @see ActionFactory#createCustomAction
      */
-    void handleCustomCommand(MediaController mediaController, String action, Bundle extras);
+    boolean handleCustomCommand(MediaSession session, String action, Bundle extras);
   }
 
   /** The notification id. */

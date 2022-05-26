@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.NotificationCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.DeviceInfo;
@@ -246,6 +247,14 @@ public class MediaSession {
     /**
      * Sets a {@link PendingIntent} to launch an {@link android.app.Activity} for the {@link
      * MediaSession}. This can be used as a quick link to an ongoing media screen.
+     *
+     * <p>A client can use this pending intent to start an activity belonging to this session. When
+     * this pending intent is for instance included in the notification {@linkplain
+     * NotificationCompat.Builder#setContentIntent(PendingIntent) as the content intent}, tapping
+     * the notification will open this activity.
+     *
+     * <p>See <a href="https://developer.android.com/training/notify-user/navigation">'Start an
+     * Activity from a Notification'</a> also.
      *
      * @param pendingIntent The pending intent.
      * @return The builder to allow chaining.
@@ -512,6 +521,17 @@ public class MediaSession {
       }
     }
     return null;
+  }
+
+  /**
+   * Returns the {@link PendingIntent} to launch {@linkplain
+   * Builder#setSessionActivity(PendingIntent) the session activity} or null if not set.
+   *
+   * @return The {@link PendingIntent} to launch an activity belonging to the session.
+   */
+  @Nullable
+  public PendingIntent getSessionActivity() {
+    return impl.getSessionActivity();
   }
 
   /**

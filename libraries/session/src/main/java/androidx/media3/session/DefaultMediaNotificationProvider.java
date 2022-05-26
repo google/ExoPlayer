@@ -51,7 +51,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -126,16 +125,17 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
   @Override
   public final MediaNotification createNotification(
-      MediaController mediaController,
+      MediaSession mediaSession,
       ImmutableList<CommandButton> customLayout,
       MediaNotification.ActionFactory actionFactory,
       Callback onNotificationChangedCallback) {
     ensureNotificationChannel();
 
+    Player player = mediaSession.getPlayer();
     NotificationCompat.Builder builder =
         new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
     // Set metadata info in the notification.
-    MediaMetadata metadata = mediaController.getMediaMetadata();
+    MediaMetadata metadata = player.getMediaMetadata();
     builder.setContentTitle(metadata.title).setContentText(metadata.artist);
 
     @Nullable ListenableFuture<Bitmap> bitmapFuture = loadArtworkBitmap(metadata);
@@ -164,19 +164,16 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     MediaStyle mediaStyle = new MediaStyle();
     int[] compactViewIndices =
         addNotificationActions(
-            getMediaButtons(
-                mediaController.getAvailableCommands(),
-                customLayout,
-                mediaController.getPlayWhenReady()),
+            getMediaButtons(player.getAvailableCommands(), customLayout, player.getPlayWhenReady()),
             builder,
             actionFactory);
     mediaStyle.setShowActionsInCompactView(compactViewIndices);
-    if (mediaController.isCommandAvailable(COMMAND_STOP) || Util.SDK_INT < 21) {
+    if (player.isCommandAvailable(COMMAND_STOP) || Util.SDK_INT < 21) {
       // We must include a cancel intent for pre-L devices.
       mediaStyle.setCancelButtonIntent(actionFactory.createMediaActionPendingIntent(COMMAND_STOP));
     }
 
-    long playbackStartTimeMs = getPlaybackStartTimeEpochMs(mediaController);
+    long playbackStartTimeMs = getPlaybackStartTimeEpochMs(player);
     boolean displayElapsedTimeWithChronometer = playbackStartTimeMs != C.TIME_UNSET;
     builder
         .setWhen(playbackStartTimeMs)
@@ -185,7 +182,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     Notification notification =
         builder
-            .setContentIntent(mediaController.getSessionActivity())
+            .setContentIntent(mediaSession.getSessionActivity())
             .setDeleteIntent(actionFactory.createMediaActionPendingIntent(COMMAND_STOP))
             .setOnlyAlertOnce(true)
             .setSmallIcon(getSmallIconResId(context))
@@ -197,34 +194,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   }
 
   @Override
-  public final void handleCustomCommand(
-      MediaController mediaController, String action, Bundle extras) {
-    @Nullable SessionCommand customCommand = null;
-    for (SessionCommand command : mediaController.getAvailableSessionCommands().commands) {
-      if (command.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
-          && command.customAction.equals(action)) {
-        customCommand = command;
-        break;
-      }
-    }
-    if (customCommand != null) {
-      ListenableFuture<SessionResult> future =
-          mediaController.sendCustomCommand(customCommand, extras);
-      Futures.addCallback(
-          future,
-          new FutureCallback<SessionResult>() {
-            @Override
-            public void onSuccess(SessionResult result) {
-              // Do nothing.
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-              Log.w(TAG, "custom command " + action + " produced an error: " + t.getMessage(), t);
-            }
-          },
-          MoreExecutors.directExecutor());
-    }
+  public final boolean handleCustomCommand(MediaSession session, String action, Bundle extras) {
+    // Make the custom action being delegated to the session as a custom session command.
+    return false;
   }
 
   /**
@@ -422,14 +394,14 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     }
   }
 
-  private static long getPlaybackStartTimeEpochMs(MediaController controller) {
+  private static long getPlaybackStartTimeEpochMs(Player player) {
     // Changing "showWhen" causes notification flicker if SDK_INT < 21.
     if (Util.SDK_INT >= 21
-        && controller.isPlaying()
-        && !controller.isPlayingAd()
-        && !controller.isCurrentMediaItemDynamic()
-        && controller.getPlaybackParameters().speed == 1f) {
-      return System.currentTimeMillis() - controller.getContentPosition();
+        && player.isPlaying()
+        && !player.isPlayingAd()
+        && !player.isCurrentMediaItemDynamic()
+        && player.getPlaybackParameters().speed == 1f) {
+      return System.currentTimeMillis() - player.getContentPosition();
     } else {
       return C.TIME_UNSET;
     }

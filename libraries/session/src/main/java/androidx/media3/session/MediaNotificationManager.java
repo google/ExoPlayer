@@ -32,8 +32,10 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,28 +124,44 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     try {
-      MediaController mediaController = controllerFuture.get(0, TimeUnit.MILLISECONDS);
-      mediaNotificationProvider.handleCustomCommand(mediaController, action, extras);
-    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      MediaController mediaController = checkStateNotNull(Futures.getDone(controllerFuture));
+      if (!mediaNotificationProvider.handleCustomCommand(session, action, extras)) {
+        @Nullable SessionCommand customCommand = null;
+        for (SessionCommand command : mediaController.getAvailableSessionCommands().commands) {
+          if (command.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
+              && command.customAction.equals(action)) {
+            customCommand = command;
+            break;
+          }
+        }
+        if (customCommand != null
+            && mediaController.getAvailableSessionCommands().contains(customCommand)) {
+          ListenableFuture<SessionResult> future =
+              mediaController.sendCustomCommand(customCommand, Bundle.EMPTY);
+          Futures.addCallback(
+              future,
+              new FutureCallback<SessionResult>() {
+                @Override
+                public void onSuccess(SessionResult result) {
+                  // Do nothing.
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                  Log.w(
+                      TAG, "custom command " + action + " produced an error: " + t.getMessage(), t);
+                }
+              },
+              MoreExecutors.directExecutor());
+        }
+      }
+    } catch (ExecutionException e) {
       // We should never reach this.
       throw new IllegalStateException(e);
     }
   }
 
   public void updateNotification(MediaSession session) {
-    @Nullable ListenableFuture<MediaController> controllerFuture = controllerMap.get(session);
-    if (controllerFuture == null) {
-      return;
-    }
-
-    MediaController mediaController;
-    try {
-      mediaController = checkStateNotNull(Futures.getDone(controllerFuture));
-    } catch (ExecutionException e) {
-      // We should never reach this point.
-      throw new IllegalStateException(e);
-    }
-
     if (!mediaSessionService.isSessionAdded(session) || !canStartPlayback(session.getPlayer())) {
       maybeStopForegroundService(/* removeNotifications= */ true);
       return;
@@ -157,10 +175,7 @@ import java.util.concurrent.TimeoutException;
 
     MediaNotification mediaNotification =
         this.mediaNotificationProvider.createNotification(
-            mediaController,
-            checkStateNotNull(customLayoutMap.get(session)),
-            actionFactory,
-            callback);
+            session, checkStateNotNull(customLayoutMap.get(session)), actionFactory, callback);
     updateNotificationInternal(session, mediaNotification);
   }
 
