@@ -22,17 +22,17 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Size;
 import com.google.android.exoplayer2.transformer.FrameProcessingException;
-import com.google.android.exoplayer2.transformer.GlFrameProcessor;
+import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link GlFrameProcessor} that periodically dims the frames such that pixels are darker the
- * further they are away from the frame center.
+ * A {@link SingleFrameGlTextureProcessor} that periodically dims the frames such that pixels are
+ * darker the further they are away from the frame center.
  */
-/* package */ final class PeriodicVignetteFrameProcessor implements GlFrameProcessor {
+/* package */ final class PeriodicVignetteProcessor implements SingleFrameGlTextureProcessor {
   static {
     GlUtil.glAssertionsEnabled = true;
   }
@@ -67,7 +67,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param maxInnerRadius The upper bound of the radius that is unaffected by the effect.
    * @param outerRadius The radius after which all pixels are black.
    */
-  public PeriodicVignetteFrameProcessor(
+  public PeriodicVignetteProcessor(
       float centerX, float centerY, float minInnerRadius, float maxInnerRadius, float outerRadius) {
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);

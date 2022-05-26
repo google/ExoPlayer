@@ -41,10 +41,10 @@ public final class FrameProcessorChainTest {
   public void getOutputSize_noOperation_returnsInputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
+        createFrameProcessorChainWithFakeTextureProcessors(
             /* pixelWidthHeightRatio= */ 1f,
             inputSize,
-            /* frameProcessorOutputSizes= */ ImmutableList.of());
+            /* textureProcessorOutputSizes= */ ImmutableList.of());
 
     Size outputSize = frameProcessorChain.getOutputSize();
 
@@ -56,10 +56,10 @@ public final class FrameProcessorChainTest {
   public void getOutputSize_withWidePixels_returnsWiderOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
+        createFrameProcessorChainWithFakeTextureProcessors(
             /* pixelWidthHeightRatio= */ 2f,
             inputSize,
-            /* frameProcessorOutputSizes= */ ImmutableList.of());
+            /* textureProcessorOutputSizes= */ ImmutableList.of());
 
     Size outputSize = frameProcessorChain.getOutputSize();
 
@@ -71,10 +71,10 @@ public final class FrameProcessorChainTest {
   public void getOutputSize_withTallPixels_returnsTallerOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
+        createFrameProcessorChainWithFakeTextureProcessors(
             /* pixelWidthHeightRatio= */ .5f,
             inputSize,
-            /* frameProcessorOutputSizes= */ ImmutableList.of());
+            /* textureProcessorOutputSizes= */ ImmutableList.of());
 
     Size outputSize = frameProcessorChain.getOutputSize();
 
@@ -83,32 +83,32 @@ public final class FrameProcessorChainTest {
   }
 
   @Test
-  public void getOutputSize_withOneFrameProcessor_returnsItsOutputSize() throws Exception {
+  public void getOutputSize_withOneTextureProcessor_returnsItsOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
-    Size frameProcessorOutputSize = new Size(300, 250);
+    Size textureProcessorOutputSize = new Size(300, 250);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
+        createFrameProcessorChainWithFakeTextureProcessors(
             /* pixelWidthHeightRatio= */ 1f,
             inputSize,
-            /* frameProcessorOutputSizes= */ ImmutableList.of(frameProcessorOutputSize));
+            /* textureProcessorOutputSizes= */ ImmutableList.of(textureProcessorOutputSize));
 
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
-    assertThat(frameProcessorChainOutputSize).isEqualTo(frameProcessorOutputSize);
+    assertThat(frameProcessorChainOutputSize).isEqualTo(textureProcessorOutputSize);
     assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
-  public void getOutputSize_withThreeFrameProcessors_returnsLastOutputSize() throws Exception {
+  public void getOutputSize_withThreeTextureProcessors_returnsLastOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     Size outputSize1 = new Size(300, 250);
     Size outputSize2 = new Size(400, 244);
     Size outputSize3 = new Size(150, 160);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
+        createFrameProcessorChainWithFakeTextureProcessors(
             /* pixelWidthHeightRatio= */ 1f,
             inputSize,
-            /* frameProcessorOutputSizes= */ ImmutableList.of(
+            /* textureProcessorOutputSizes= */ ImmutableList.of(
                 outputSize1, outputSize2, outputSize3));
 
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
@@ -117,12 +117,12 @@ public final class FrameProcessorChainTest {
     assertThat(frameProcessingException.get()).isNull();
   }
 
-  private FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
-      float pixelWidthHeightRatio, Size inputSize, List<Size> frameProcessorOutputSizes)
+  private FrameProcessorChain createFrameProcessorChainWithFakeTextureProcessors(
+      float pixelWidthHeightRatio, Size inputSize, List<Size> textureProcessorOutputSizes)
       throws FrameProcessingException {
     ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
-    for (Size element : frameProcessorOutputSizes) {
-      effects.add(() -> new FakeFrameProcessor(element));
+    for (Size element : textureProcessorOutputSizes) {
+      effects.add(() -> new FakeTextureProcessor(element));
     }
     return FrameProcessorChain.create(
         getApplicationContext(),
@@ -134,11 +134,11 @@ public final class FrameProcessorChainTest {
         /* enableExperimentalHdrEditing= */ false);
   }
 
-  private static class FakeFrameProcessor implements GlFrameProcessor {
+  private static class FakeTextureProcessor implements SingleFrameGlTextureProcessor {
 
     private final Size outputSize;
 
-    private FakeFrameProcessor(Size outputSize) {
+    private FakeTextureProcessor(Size outputSize) {
       this.outputSize = outputSize;
     }
 

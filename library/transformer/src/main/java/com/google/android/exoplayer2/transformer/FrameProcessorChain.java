@@ -63,6 +63,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * fully processed yet. Output is written to its {@linkplain #setOutputSurface(Surface, int, int,
  * SurfaceView) output surface}.
  */
+// TODO(b/227625423): Factor out FrameProcessor interface and rename this class to GlFrameProcessor.
 /* package */ final class FrameProcessorChain {
 
   static {
@@ -131,9 +132,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Creates the OpenGL textures and framebuffers, initializes the {@link GlFrameProcessor
-   * GlFrameProcessors} corresponding to the {@link GlEffect GlEffects}, and returns a new {@code
-   * FrameProcessorChain}.
+   * Creates the OpenGL textures and framebuffers, initializes the {@link
+   * SingleFrameGlTextureProcessor SingleFrameGlTextureProcessors} corresponding to the {@link
+   * GlEffect GlEffects}, and returns a new {@code FrameProcessorChain}.
    *
    * <p>This method must be executed using the {@code singleThreadExecutorService}.
    */
@@ -166,23 +167,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
-    ExternalCopyFrameProcessor externalCopyFrameProcessor =
-        new ExternalCopyFrameProcessor(enableExperimentalHdrEditing);
-    ImmutableList<GlFrameProcessor> frameProcessors =
-        getFrameProcessors(externalCopyFrameProcessor, pixelWidthHeightRatio, effects);
+    ExternalTextureProcessor externalTextureProcessor =
+        new ExternalTextureProcessor(enableExperimentalHdrEditing);
+    ImmutableList<SingleFrameGlTextureProcessor> textureProcessors =
+        getTextureProcessors(externalTextureProcessor, pixelWidthHeightRatio, effects);
 
-    // Initialize frame processors.
+    // Initialize texture processors.
     int inputExternalTexId = GlUtil.createExternalTexture();
-    externalCopyFrameProcessor.initialize(context, inputExternalTexId, inputWidth, inputHeight);
+    externalTextureProcessor.initialize(context, inputExternalTexId, inputWidth, inputHeight);
 
-    int[] framebuffers = new int[frameProcessors.size() - 1];
-    Size inputSize = externalCopyFrameProcessor.getOutputSize();
-    for (int i = 1; i < frameProcessors.size(); i++) {
+    int[] framebuffers = new int[textureProcessors.size() - 1];
+    Size inputSize = externalTextureProcessor.getOutputSize();
+    for (int i = 1; i < textureProcessors.size(); i++) {
       int inputTexId = GlUtil.createTexture(inputSize.getWidth(), inputSize.getHeight());
       framebuffers[i - 1] = GlUtil.createFboForTexture(inputTexId);
-      GlFrameProcessor frameProcessor = frameProcessors.get(i);
-      frameProcessor.initialize(context, inputTexId, inputSize.getWidth(), inputSize.getHeight());
-      inputSize = frameProcessor.getOutputSize();
+      SingleFrameGlTextureProcessor textureProcessor = textureProcessors.get(i);
+      textureProcessor.initialize(context, inputTexId, inputSize.getWidth(), inputSize.getHeight());
+      inputSize = textureProcessor.getOutputSize();
     }
     return new FrameProcessorChain(
         eglDisplay,
@@ -190,17 +191,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         singleThreadExecutorService,
         inputExternalTexId,
         framebuffers,
-        frameProcessors,
+        textureProcessors,
         listener,
         enableExperimentalHdrEditing);
   }
 
-  private static ImmutableList<GlFrameProcessor> getFrameProcessors(
-      ExternalCopyFrameProcessor externalCopyFrameProcessor,
+  private static ImmutableList<SingleFrameGlTextureProcessor> getTextureProcessors(
+      ExternalTextureProcessor externalTextureProcessor,
       float pixelWidthHeightRatio,
       List<GlEffect> effects) {
-    ImmutableList.Builder<GlFrameProcessor> frameProcessors =
-        new ImmutableList.Builder<GlFrameProcessor>().add(externalCopyFrameProcessor);
+    ImmutableList.Builder<SingleFrameGlTextureProcessor> textureProcessors =
+        new ImmutableList.Builder<SingleFrameGlTextureProcessor>().add(externalTextureProcessor);
 
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
@@ -217,8 +218,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               .build());
     }
 
-    // Combine consecutive GlMatrixTransformations into a single GlFrameProcessor and convert
-    // all other GlEffects to GlFrameProcessors.
+    // Combine consecutive GlMatrixTransformations into a single SingleFrameGlTextureProcessor and
+    // convert all other GlEffects to SingleFrameGlTextureProcessors.
     for (int i = 0; i < effects.size(); i++) {
       GlEffect effect = effects.get(i);
       if (effect instanceof GlMatrixTransformation) {
@@ -228,18 +229,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<GlMatrixTransformation> matrixTransformations =
           matrixTransformationListBuilder.build();
       if (!matrixTransformations.isEmpty()) {
-        frameProcessors.add(new MatrixTransformationFrameProcessor(matrixTransformations));
+        textureProcessors.add(new MatrixTransformationProcessor(matrixTransformations));
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
       }
-      frameProcessors.add(effect.toGlFrameProcessor());
+      textureProcessors.add(effect.toGlTextureProcessor());
     }
     ImmutableList<GlMatrixTransformation> matrixTransformations =
         matrixTransformationListBuilder.build();
     if (!matrixTransformations.isEmpty()) {
-      frameProcessors.add(new MatrixTransformationFrameProcessor(matrixTransformations));
+      textureProcessors.add(new MatrixTransformationProcessor(matrixTransformations));
     }
 
-    return frameProcessors.build();
+    return textureProcessors.build();
   }
 
   private static final String TAG = "FrameProcessorChain";
@@ -264,14 +265,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final float[] textureTransformMatrix;
 
   /**
-   * Contains an {@link ExternalCopyFrameProcessor} at the 0th index and optionally other {@link
-   * GlFrameProcessor GlFrameProcessors} at indices >= 1.
+   * Contains an {@link ExternalTextureProcessor} at the 0th index and optionally other {@link
+   * SingleFrameGlTextureProcessor SingleFrameGlTextureProcessors} at indices >= 1.
    */
-  private final ImmutableList<GlFrameProcessor> frameProcessors;
+  private final ImmutableList<SingleFrameGlTextureProcessor> textureProcessors;
   /**
    * Identifiers of a framebuffer object associated with the intermediate textures that receive
-   * output from the previous {@link GlFrameProcessor}, and provide input for the following {@link
-   * GlFrameProcessor}.
+   * output from the previous {@link SingleFrameGlTextureProcessor}, and provide input for the
+   * following {@link SingleFrameGlTextureProcessor}.
    */
   private final int[] framebuffers;
 
@@ -289,33 +290,35 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /**
    * Wraps the output {@link Surface} that is populated with the output of the final {@link
-   * GlFrameProcessor} for each frame.
+   * SingleFrameGlTextureProcessor} for each frame.
    */
   private @MonotonicNonNull EGLSurface outputEglSurface;
   /**
    * Wraps a debug {@link SurfaceView} that is populated with the output of the final {@link
-   * GlFrameProcessor} for each frame.
+   * SingleFrameGlTextureProcessor} for each frame.
    */
   private @MonotonicNonNull SurfaceViewWrapper debugSurfaceViewWrapper;
 
   private boolean inputStreamEnded;
 
+  // TODO(b/227625423): accept GlTextureProcessors instead of SingleFrameGlTextureProcessors once
+  //  this interface exists.
   private FrameProcessorChain(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       ExecutorService singleThreadExecutorService,
       int inputExternalTexId,
       int[] framebuffers,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      ImmutableList<SingleFrameGlTextureProcessor> textureProcessors,
       Listener listener,
       boolean enableExperimentalHdrEditing) {
-    checkState(!frameProcessors.isEmpty());
+    checkState(!textureProcessors.isEmpty());
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.singleThreadExecutorService = singleThreadExecutorService;
     this.framebuffers = framebuffers;
-    this.frameProcessors = frameProcessors;
+    this.textureProcessors = textureProcessors;
     this.listener = listener;
     this.stopProcessing = new AtomicBoolean();
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
@@ -336,7 +339,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * SurfaceView) output surface}.
    */
   public Size getOutputSize() {
-    return getLast(frameProcessors).getOutputSize();
+    return getLast(textureProcessors).getOutputSize();
   }
 
   /**
@@ -356,7 +359,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int outputHeight,
       @Nullable SurfaceView debugSurfaceView) {
     // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
-    //  GlFrameProcessor to be re-configured or append another GlFrameProcessor.
+    //  SingleFrameGlTextureProcessor to be re-configured or append another
+    //  SingleFrameGlTextureProcessor.
     this.outputSurface = outputSurface;
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
@@ -432,7 +436,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkNotNull(futures.poll()).cancel(/* mayInterruptIfRunning= */ false);
     }
     futures.add(
-        singleThreadExecutorService.submit(this::releaseFrameProcessorsAndDestroyGlContext));
+        singleThreadExecutorService.submit(this::releaseTextureProcessorsAndDestroyGlContext));
     singleThreadExecutorService.shutdown();
     try {
       if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
@@ -475,15 +479,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long presentationTimeNs = inputSurfaceTexture.getTimestamp();
       presentationTimeUs = presentationTimeNs / 1000;
       inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-      ((ExternalCopyFrameProcessor) frameProcessors.get(0))
+      ((ExternalTextureProcessor) textureProcessors.get(0))
           .setTextureTransformMatrix(textureTransformMatrix);
 
-      for (int i = 0; i < frameProcessors.size() - 1; i++) {
+      for (int i = 0; i < textureProcessors.size() - 1; i++) {
         if (stopProcessing.get()) {
           return;
         }
 
-        Size intermediateSize = frameProcessors.get(i).getOutputSize();
+        Size intermediateSize = textureProcessors.get(i).getOutputSize();
         GlUtil.focusFramebuffer(
             eglDisplay,
             eglContext,
@@ -492,11 +496,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             intermediateSize.getWidth(),
             intermediateSize.getHeight());
         clearOutputFrame();
-        frameProcessors.get(i).drawFrame(presentationTimeUs);
+        textureProcessors.get(i).drawFrame(presentationTimeUs);
       }
       GlUtil.focusEglSurface(eglDisplay, eglContext, outputEglSurface, outputWidth, outputHeight);
       clearOutputFrame();
-      getLast(frameProcessors).drawFrame(presentationTimeUs);
+      getLast(textureProcessors).drawFrame(presentationTimeUs);
 
       EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, presentationTimeNs);
       EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
@@ -507,7 +511,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             () -> {
               clearOutputFrame();
               try {
-                getLast(frameProcessors).drawFrame(framePresentationTimeUs);
+                getLast(textureProcessors).drawFrame(framePresentationTimeUs);
               } catch (FrameProcessingException e) {
                 Log.d(TAG, "Error rendering to debug preview", e);
               }
@@ -532,15 +536,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Releases the {@link GlFrameProcessor GlFrameProcessors} and destroys the OpenGL context.
+   * Releases the {@link SingleFrameGlTextureProcessor SingleFrameGlTextureProcessors} and destroys
+   * the OpenGL context.
    *
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
   @WorkerThread
-  private void releaseFrameProcessorsAndDestroyGlContext() {
+  private void releaseTextureProcessorsAndDestroyGlContext() {
     try {
-      for (int i = 0; i < frameProcessors.size(); i++) {
-        frameProcessors.get(i).release();
+      for (int i = 0; i < textureProcessors.size(); i++) {
+        textureProcessors.get(i).release();
       }
       GlUtil.destroyEglContext(eglDisplay, eglContext);
     } catch (RuntimeException e) {

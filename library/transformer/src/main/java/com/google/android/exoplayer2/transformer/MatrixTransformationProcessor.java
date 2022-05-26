@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>The background color of the output frame will be black.
  */
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
-/* package */ final class MatrixTransformationFrameProcessor implements GlFrameProcessor {
+/* package */ final class MatrixTransformationProcessor implements SingleFrameGlTextureProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -91,7 +91,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param matrixTransformation A {@link MatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
    */
-  public MatrixTransformationFrameProcessor(MatrixTransformation matrixTransformation) {
+  public MatrixTransformationProcessor(MatrixTransformation matrixTransformation) {
     this(ImmutableList.of(matrixTransformation));
   }
 
@@ -101,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param matrixTransformation A {@link GlMatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
    */
-  public MatrixTransformationFrameProcessor(GlMatrixTransformation matrixTransformation) {
+  public MatrixTransformationProcessor(GlMatrixTransformation matrixTransformation) {
     this(ImmutableList.of(matrixTransformation));
   }
 
@@ -111,7 +111,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
    *     apply to each frame in order.
    */
-  public MatrixTransformationFrameProcessor(
+  public MatrixTransformationProcessor(
       ImmutableList<GlMatrixTransformation> matrixTransformations) {
     this.matrixTransformations = matrixTransformations;
 

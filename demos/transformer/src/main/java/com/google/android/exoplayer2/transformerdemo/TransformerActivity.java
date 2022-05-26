@@ -39,8 +39,8 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.GlEffect;
-import com.google.android.exoplayer2.transformer.GlFrameProcessor;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
+import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationResult;
@@ -254,14 +254,13 @@ public final class TransformerActivity extends AppCompatActivity {
         if (selectedEffects[1]) {
           try {
             Class<?> clazz =
-                Class.forName(
-                    "com.google.android.exoplayer2.transformerdemo.MediaPipeFrameProcessor");
+                Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
             Constructor<?> constructor =
                 clazz.getConstructor(String.class, String.class, String.class);
             effects.add(
                 () -> {
                   try {
-                    return (GlFrameProcessor)
+                    return (SingleFrameGlTextureProcessor)
                         constructor.newInstance(
                             /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
                             /* inputStreamName= */ "input_video",
@@ -278,7 +277,7 @@ public final class TransformerActivity extends AppCompatActivity {
         if (selectedEffects[2]) {
           effects.add(
               () ->
-                  new PeriodicVignetteFrameProcessor(
+                  new PeriodicVignetteProcessor(
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
                       /* minInnerRadius= */ bundle.getFloat(
@@ -291,7 +290,7 @@ public final class TransformerActivity extends AppCompatActivity {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
         if (selectedEffects[4]) {
-          effects.add(BitmapOverlayFrameProcessor::new);
+          effects.add(BitmapOverlayProcessor::new);
         }
         if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());

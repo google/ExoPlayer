@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
-import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
 import com.google.android.exoplayer2.C;
@@ -77,8 +76,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>Return values may be {@code 0} or {@code 90} degrees.
    *
-   * <p>The frame processor must be {@linkplain GlFrameProcessor#initialize(Context, int, int, int)
-   * initialized}.
+   * <p>Should only be called after {@linkplain #configure(int, int) configuration}.
    */
   public int getOutputRotationDegrees() {
     checkState(

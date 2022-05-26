@@ -27,7 +27,7 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Copies frames from an external texture and applies color transformations for HDR if needed. */
-/* package */ class ExternalCopyFrameProcessor implements GlFrameProcessor {
+/* package */ class ExternalTextureProcessor implements SingleFrameGlTextureProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull Size size;
   private @MonotonicNonNull GlProgram glProgram;
 
-  public ExternalCopyFrameProcessor(boolean enableExperimentalHdrEditing) {
+  public ExternalTextureProcessor(boolean enableExperimentalHdrEditing) {
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
   }
 
