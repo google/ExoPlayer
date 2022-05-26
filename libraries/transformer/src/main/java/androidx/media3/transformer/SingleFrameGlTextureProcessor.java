@@ -34,7 +34,9 @@ import java.io.IOException;
  * </ol>
  */
 @UnstableApi
-public interface GlFrameProcessor {
+// TODO(b/227625423): Add GlTextureProcessor interface for async texture processors and make this an
+//  abstract class with a default implementation of GlTextureProcessor methods.
+public interface SingleFrameGlTextureProcessor {
 
   /**
    * Performs all initialization that requires OpenGL, such as, loading and compiling a GLSL shader
@@ -54,7 +56,7 @@ public interface GlFrameProcessor {
   /**
    * Returns the output {@link Size} of frames processed through {@link #drawFrame(long)}.
    *
-   * <p>This method may only be called after the frame processor has been {@link
+   * <p>This method may only be called after the texture processor has been {@link
    * #initialize(Context, int, int, int) initialized}.
    */
   Size getOutputSize();
@@ -62,7 +64,7 @@ public interface GlFrameProcessor {
   /**
    * Draws one frame.
    *
-   * <p>This method may only be called after the frame processor has been {@link
+   * <p>This method may only be called after the texture processor has been {@link
    * #initialize(Context, int, int, int) initialized}. The caller is responsible for focussing the
    * correct render target before calling this method.
    *

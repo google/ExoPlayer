@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link Presentation}.
  *
- * <p>See {@code PresentationFrameProcessorPixelTest} for pixel tests testing {@link Presentation}.
+ * <p>See {@code PresentationPixelTest} for pixel tests testing {@link Presentation}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class PresentationTest {
@@ -161,27 +161,27 @@ public final class PresentationTest {
 
   @Test
   public void configure_setAspectRatioAndCrop_throwsIllegalStateException() {
-    Presentation.Builder presentationFrameProcessor =
+    Presentation.Builder presentationBuilder =
         new Presentation.Builder()
             .setAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT);
 
     assertThrows(
         IllegalStateException.class,
         () ->
-            presentationFrameProcessor.setCrop(
+            presentationBuilder.setCrop(
                 /* left= */ -.5f, /* right= */ .5f, /* bottom= */ .5f, /* top= */ 1f));
   }
 
   @Test
   public void configure_setCropAndAspectRatio_throwsIllegalStateException() {
-    Presentation.Builder presentationFrameProcessor =
+    Presentation.Builder presentationBuilder =
         new Presentation.Builder()
             .setCrop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ .5f, /* top= */ 1f);
 
     assertThrows(
         IllegalStateException.class,
         () ->
-            presentationFrameProcessor.setAspectRatio(
+            presentationBuilder.setAspectRatio(
                 /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT));
   }
 }

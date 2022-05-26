@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
-import android.content.Context;
 import android.graphics.Matrix;
 import android.util.Size;
 import androidx.media3.common.C;
@@ -77,8 +76,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>Return values may be {@code 0} or {@code 90} degrees.
    *
-   * <p>The frame processor must be {@linkplain GlFrameProcessor#initialize(Context, int, int, int)
-   * initialized}.
+   * <p>Should only be called after {@linkplain #configure(int, int) configuration}.
    */
   public int getOutputRotationDegrees() {
     checkState(

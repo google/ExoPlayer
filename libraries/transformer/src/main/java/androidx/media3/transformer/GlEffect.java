@@ -18,14 +18,16 @@ package androidx.media3.transformer;
 import androidx.media3.common.util.UnstableApi;
 
 /**
- * Interface for a video frame effect with a {@link GlFrameProcessor} implementation.
+ * Interface for a video frame effect with a {@link SingleFrameGlTextureProcessor} implementation.
  *
  * <p>Implementations contain information specifying the effect and can be {@linkplain
- * #toGlFrameProcessor() converted} to a {@link GlFrameProcessor} which applies the effect.
+ * #toGlTextureProcessor() converted} to a {@link SingleFrameGlTextureProcessor} which applies the
+ * effect.
  */
 @UnstableApi
 public interface GlEffect {
 
-  /** Returns a {@link GlFrameProcessor} that applies the the effect. */
-  GlFrameProcessor toGlFrameProcessor();
+  /** Returns a {@link SingleFrameGlTextureProcessor} that applies the effect. */
+  // TODO(b/227625423): use GlTextureProcessor here once this interface exists.
+  SingleFrameGlTextureProcessor toGlTextureProcessor();
 }

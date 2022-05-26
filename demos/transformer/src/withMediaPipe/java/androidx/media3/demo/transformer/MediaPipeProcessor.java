@@ -27,7 +27,7 @@ import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.LibraryLoader;
 import androidx.media3.transformer.FrameProcessingException;
-import androidx.media3.transformer.GlFrameProcessor;
+import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.framework.AppTextureFrame;
@@ -40,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Runs a MediaPipe graph on input frames. The implementation is currently limited to graphs that
  * can immediately produce one output frame per input frame.
  */
-/* package */ final class MediaPipeFrameProcessor implements GlFrameProcessor {
+/* package */ final class MediaPipeProcessor implements SingleFrameGlTextureProcessor {
 
   private static final LibraryLoader LOADER =
       new LibraryLoader("mediapipe_jni") {
@@ -77,14 +77,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull RuntimeException frameProcessorPendingError;
 
   /**
-   * Creates a new frame processor that wraps a MediaPipe graph.
+   * Creates a new texture processor that wraps a MediaPipe graph.
    *
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
    */
-  public MediaPipeFrameProcessor(
-      String graphName, String inputStreamName, String outputStreamName) {
+  public MediaPipeProcessor(String graphName, String inputStreamName, String outputStreamName) {
     checkState(LOADER.isAvailable());
     this.graphName = graphName;
     this.inputStreamName = inputStreamName;
@@ -141,7 +140,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // Propagate the interrupted flag so the next blocking operation will throw.
       // TODO(b/230469581): The next processor that runs will not have valid input due to returning
       //  early here. This could be fixed by checking for interruption in the outer loop that runs
-      //  through the frame processors.
+      //  through the texture processors.
       Thread.currentThread().interrupt();
       return;
     }

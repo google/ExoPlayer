@@ -49,7 +49,7 @@ public interface GlMatrixTransformation extends GlEffect {
   float[] getGlMatrixArray(long presentationTimeUs);
 
   @Override
-  default GlFrameProcessor toGlFrameProcessor() {
-    return new MatrixTransformationFrameProcessor(this);
+  default SingleFrameGlTextureProcessor toGlTextureProcessor() {
+    return new MatrixTransformationProcessor(this);
   }
 }

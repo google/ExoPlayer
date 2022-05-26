@@ -32,19 +32,20 @@ import androidx.media3.common.C;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.transformer.FrameProcessingException;
-import androidx.media3.transformer.GlFrameProcessor;
+import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import java.io.IOException;
 import java.util.Locale;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link GlFrameProcessor} that overlays a bitmap with a logo and timer on each frame.
+ * A {@link SingleFrameGlTextureProcessor} that overlays a bitmap with a logo and timer on each
+ * frame.
  *
  * <p>The bitmap is drawn using an Android {@link Canvas}.
  */
-// TODO(b/227625365): Delete this class and use a frame processor from the Transformer library, once
-//  overlaying a bitmap and text is supported in Transformer.
-/* package */ final class BitmapOverlayFrameProcessor implements GlFrameProcessor {
+// TODO(b/227625365): Delete this class and use a texture processor from the Transformer library,
+//  once overlaying a bitmap and text is supported in Transformer.
+/* package */ final class BitmapOverlayProcessor implements SingleFrameGlTextureProcessor {
   static {
     GlUtil.glAssertionsEnabled = true;
   }
@@ -65,7 +66,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull Bitmap logoBitmap;
   private @MonotonicNonNull GlProgram glProgram;
 
-  public BitmapOverlayFrameProcessor() {
+  public BitmapOverlayProcessor() {
     paint = new Paint();
     paint.setTextSize(64);
     paint.setAntiAlias(true);

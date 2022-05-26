@@ -42,8 +42,8 @@ import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.GlEffect;
-import androidx.media3.transformer.GlFrameProcessor;
 import androidx.media3.transformer.ProgressHolder;
+import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationResult;
@@ -253,14 +253,13 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         if (selectedEffects[1]) {
           try {
-            Class<?> clazz =
-                Class.forName("androidx.media3.demo.transformer.MediaPipeFrameProcessor");
+            Class<?> clazz = Class.forName("androidx.media3.demo.transformer.MediaPipeProcessor");
             Constructor<?> constructor =
                 clazz.getConstructor(String.class, String.class, String.class);
             effects.add(
                 () -> {
                   try {
-                    return (GlFrameProcessor)
+                    return (SingleFrameGlTextureProcessor)
                         constructor.newInstance(
                             /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
                             /* inputStreamName= */ "input_video",
@@ -277,7 +276,7 @@ public final class TransformerActivity extends AppCompatActivity {
         if (selectedEffects[2]) {
           effects.add(
               () ->
-                  new PeriodicVignetteFrameProcessor(
+                  new PeriodicVignetteProcessor(
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
                       /* minInnerRadius= */ bundle.getFloat(
@@ -290,7 +289,7 @@ public final class TransformerActivity extends AppCompatActivity {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
         if (selectedEffects[4]) {
-          effects.add(BitmapOverlayFrameProcessor::new);
+          effects.add(BitmapOverlayProcessor::new);
         }
         if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
