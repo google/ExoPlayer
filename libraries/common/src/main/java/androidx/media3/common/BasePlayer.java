@@ -94,7 +94,7 @@ public abstract class BasePlayer implements Player {
   /**
    * {@inheritDoc}
    *
-   * <p>BasePlayer and its descendents will return {@code true}.
+   * <p>BasePlayer and its descendants will return {@code true}.
    */
   @Override
   public final boolean canAdvertiseSession() {
