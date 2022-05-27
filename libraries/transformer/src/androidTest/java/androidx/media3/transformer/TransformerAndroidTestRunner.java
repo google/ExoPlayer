@@ -333,7 +333,7 @@ public class TransformerAndroidTestRunner {
           SsimHelper.calculate(
               context,
               /* referenceVideoPath= */ checkNotNull(mediaItem.localConfiguration).uri.toString(),
-              outputVideoFile.getPath());
+              /* distortedVideoPath= */ outputVideoFile.getPath());
       resultBuilder.setSsim(ssim);
     } catch (InterruptedException interruptedException) {
       // InterruptedException is a special unexpected case because it is not related to Ssim
