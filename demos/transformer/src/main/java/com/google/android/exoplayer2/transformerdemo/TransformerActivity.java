@@ -152,9 +152,10 @@ public final class TransformerActivity extends AppCompatActivity {
       externalCacheFile = createExternalCacheFile("transformer-output.mp4");
       String filePath = externalCacheFile.getAbsolutePath();
       @Nullable Bundle bundle = intent.getExtras();
+      MediaItem mediaItem = createMediaItem(bundle, uri);
       Transformer transformer = createTransformer(bundle, filePath);
       transformationStopwatch.start();
-      transformer.startTransformation(MediaItem.fromUri(uri), filePath);
+      transformer.startTransformation(mediaItem, filePath);
       this.transformer = transformer;
     } catch (IOException e) {
       throw new IllegalStateException(e);
@@ -179,6 +180,24 @@ public final class TransformerActivity extends AppCompatActivity {
             }
           }
         });
+  }
+
+  private MediaItem createMediaItem(@Nullable Bundle bundle, Uri uri) {
+    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder().setUri(uri);
+    if (bundle != null) {
+      long trimStartMs =
+          bundle.getLong(ConfigurationActivity.TRIM_START_MS, /* defaultValue= */ C.TIME_UNSET);
+      long trimEndMs =
+          bundle.getLong(ConfigurationActivity.TRIM_END_MS, /* defaultValue= */ C.TIME_UNSET);
+      if (trimStartMs != C.TIME_UNSET && trimEndMs != C.TIME_UNSET) {
+        mediaItemBuilder.setClippingConfiguration(
+            new MediaItem.ClippingConfiguration.Builder()
+                .setStartPositionMs(trimStartMs)
+                .setEndPositionMs(trimEndMs)
+                .build());
+      }
+    }
+    return mediaItemBuilder.build();
   }
 
   // Create a cache file, resetting it if it already exists.

@@ -24,8 +24,10 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMO
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
+import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
@@ -54,7 +56,7 @@ public class TransformationTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
-        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
 
   @Test
@@ -65,7 +67,7 @@ public class TransformationTest {
     // No need to calculate SSIM because no decode/encoding, so input frames match output frames.
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
 
   @Test
@@ -84,7 +86,7 @@ public class TransformationTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
-        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
 
   @Test
@@ -106,7 +108,7 @@ public class TransformationTest {
         .setCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
-        .run(testId, MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING)));
   }
 
   @Test
@@ -121,7 +123,7 @@ public class TransformationTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setCalculateSsim(true)
         .build()
-        .run(testId, MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
 
   @Test
@@ -135,7 +137,7 @@ public class TransformationTest {
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(testId, MP4_ASSET_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)));
   }
 
   @Test
@@ -159,6 +161,6 @@ public class TransformationTest {
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
-        .run(testId, MP4_ASSET_SEF_URI_STRING);
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING)));
   }
 }

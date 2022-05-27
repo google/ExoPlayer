@@ -19,8 +19,10 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
+import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
@@ -56,7 +58,7 @@ public final class RepeatedTranscodeTransformationTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
-              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
+              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -86,7 +88,7 @@ public final class RepeatedTranscodeTransformationTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
-              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
+              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -115,7 +117,7 @@ public final class RepeatedTranscodeTransformationTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
-              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
+              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 

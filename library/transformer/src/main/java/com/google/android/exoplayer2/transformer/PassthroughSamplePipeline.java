@@ -25,14 +25,17 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
   private final DecoderInputBuffer buffer;
   private final Format format;
+  private final long outputPresentationTimeOffsetUs;
 
   private boolean hasPendingBuffer;
 
   public PassthroughSamplePipeline(
       Format format,
+      long outputPresentationTimeOffsetUs,
       TransformationRequest transformationRequest,
       FallbackListener fallbackListener) {
     this.format = format;
+    this.outputPresentationTimeOffsetUs = outputPresentationTimeOffsetUs;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     hasPendingBuffer = false;
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
@@ -46,6 +49,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
   @Override
   public void queueInputBuffer() {
+    buffer.timeUs -= outputPresentationTimeOffsetUs;
     hasPendingBuffer = true;
   }
 

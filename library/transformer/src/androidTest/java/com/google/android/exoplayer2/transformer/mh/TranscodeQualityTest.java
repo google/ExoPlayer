@@ -19,8 +19,10 @@ package com.google.android.exoplayer2.transformer.mh;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationTestResult;
@@ -58,7 +60,10 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+            .run(
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
 
     if (result.ssim != TransformationTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
@@ -92,7 +97,10 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+            .run(
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
 
     if (result.ssim != TransformationTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
@@ -121,7 +129,10 @@ public final class TranscodeQualityTest {
             .build()
             .run(
                 testId,
-                AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING);
+                MediaItem.fromUri(
+                    Uri.parse(
+                        AndroidTestUtil
+                            .MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING)));
 
     if (result.ssim != TransformationTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);

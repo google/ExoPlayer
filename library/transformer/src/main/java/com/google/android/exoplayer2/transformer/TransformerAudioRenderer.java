@@ -70,7 +70,8 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
-          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
+          new PassthroughSamplePipeline(
+              inputFormat, startPositionOffsetUs, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new AudioTranscodingSamplePipeline(

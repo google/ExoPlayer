@@ -23,6 +23,7 @@ import android.content.Context;
 import android.media.MediaFormat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
@@ -136,6 +137,6 @@ public class EncoderPerformanceAnalysisTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
         .build()
-        .run(testId, fileUri);
+        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
   }
 }

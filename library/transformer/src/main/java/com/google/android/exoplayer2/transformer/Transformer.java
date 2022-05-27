@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -683,6 +684,12 @@ public final class Transformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && transformationRequest.flattenForSlowMotion) {
+      // TODO(b/233986762): Support clipping with SEF flattening.
+      throw new UnsupportedEncodingException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
     startTransformation(mediaItem, muxerFactory.create(path, containerMimeType));
   }
 
