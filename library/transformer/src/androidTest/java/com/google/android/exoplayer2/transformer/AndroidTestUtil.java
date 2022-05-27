@@ -113,6 +113,16 @@ public final class AndroidTestUtil {
           .setFrameRate(57.39f)
           .build();
 
+  public static final String MP4_REMOTE_8K24_URI_STRING =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/8k24fps_4s.mp4";
+  public static final Format MP4_REMOTE_8K24_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H265)
+          .setWidth(7680)
+          .setHeight(4320)
+          .setFrameRate(24.00f)
+          .build();
+
   // The 7 HIGHMOTION files are H264 and AAC.
   public static final String MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1280w_720h_highmotion.mp4";
