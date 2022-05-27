@@ -454,10 +454,10 @@ public final class SsimHelper {
       double total = 0;
       for (int y = 0; y < windowHeight; y++) {
         for (int x = 0; x < windowWidth; x++) {
-          total += pixelBuffer[get1dIndex(x, y, stride, bufferIndexOffset)];
+          total += pixelBuffer[get1dIndex(x, y, stride, bufferIndexOffset)] & 0xFF;
         }
       }
-      return total / windowWidth * windowHeight;
+      return total / (windowWidth * windowHeight);
     }
 
     /** Calculates the variances and covariance of the pixels in the window for both buffers. */
@@ -476,8 +476,8 @@ public final class SsimHelper {
       for (int y = 0; y < windowHeight; y++) {
         for (int x = 0; x < windowWidth; x++) {
           int index = get1dIndex(x, y, stride, bufferIndexOffset);
-          double referencePixelDeviation = referenceBuffer[index] - referenceMean;
-          double distortedPixelDeviation = distortedBuffer[index] - distortedMean;
+          double referencePixelDeviation = (referenceBuffer[index] & 0xFF) - referenceMean;
+          double distortedPixelDeviation = (distortedBuffer[index] & 0xFF) - distortedMean;
           referenceVariance += referencePixelDeviation * referencePixelDeviation;
           distortedVariance += distortedPixelDeviation * distortedPixelDeviation;
           referenceDistortedCovariance += referencePixelDeviation * distortedPixelDeviation;
