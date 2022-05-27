@@ -116,7 +116,7 @@ public class BitrateAnalysisTest {
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
-        .setCalculateSsim(true)
+        .setMaybeCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
   }
