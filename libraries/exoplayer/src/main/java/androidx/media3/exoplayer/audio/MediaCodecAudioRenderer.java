@@ -930,9 +930,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     @Override
-    public void onOffloadBufferFull(long bufferEmptyingDeadlineMs) {
+    public void onOffloadBufferFull() {
       if (wakeupListener != null) {
-        wakeupListener.onSleep(bufferEmptyingDeadlineMs);
+        wakeupListener.onSleep();
       }
     }
 
