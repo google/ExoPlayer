@@ -35,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TVideoRenderer";
 
   private final Context context;
+  private final boolean clippingStartsAtKeyFrame;
   private final ImmutableList<GlEffect> effects;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
@@ -49,6 +50,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
+      boolean clippingStartsAtKeyFrame,
       ImmutableList<GlEffect> effects,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
@@ -57,6 +59,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Transformer.DebugViewProvider debugViewProvider) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.context = context;
+    this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
     this.effects = effects;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
@@ -110,8 +113,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
-    // TODO(b/233988291): Use passthrough pipeline if the clipping start is a key-frame.
-    if (startPositionOffsetUs != 0) {
+    if (startPositionOffsetUs != 0 && !clippingStartsAtKeyFrame) {
       return false;
     }
     if (encoderFactory.videoNeedsEncoding()) {

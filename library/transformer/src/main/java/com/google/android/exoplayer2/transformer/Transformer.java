@@ -756,6 +756,7 @@ public final class Transformer {
                     removeAudio,
                     removeVideo,
                     transformationRequest,
+                    mediaItem.clippingConfiguration.startsAtKeyFrame,
                     videoFrameEffects,
                     encoderFactory,
                     decoderFactory,
@@ -869,6 +870,7 @@ public final class Transformer {
     private final boolean removeAudio;
     private final boolean removeVideo;
     private final TransformationRequest transformationRequest;
+    private final boolean clippingStartsAtKeyFrame;
     private final ImmutableList<GlEffect> videoFrameEffects;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
@@ -882,6 +884,7 @@ public final class Transformer {
         boolean removeAudio,
         boolean removeVideo,
         TransformationRequest transformationRequest,
+        boolean clippingStartsAtKeyFrame,
         ImmutableList<GlEffect> videoFrameEffects,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
@@ -893,6 +896,7 @@ public final class Transformer {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
       this.transformationRequest = transformationRequest;
+      this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
       this.videoFrameEffects = videoFrameEffects;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
@@ -930,6 +934,7 @@ public final class Transformer {
                 muxerWrapper,
                 mediaClock,
                 transformationRequest,
+                clippingStartsAtKeyFrame,
                 videoFrameEffects,
                 encoderFactory,
                 decoderFactory,
