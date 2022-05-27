@@ -1193,9 +1193,7 @@ public final class DefaultAudioSink implements AudioSink {
           && listener != null
           && bytesWritten < bytesRemaining
           && !isWaitingForOffloadEndOfStreamHandled) {
-        long pendingDurationMs =
-            audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
-        listener.onOffloadBufferFull(pendingDurationMs);
+        listener.onOffloadBufferFull();
       }
     }
 
