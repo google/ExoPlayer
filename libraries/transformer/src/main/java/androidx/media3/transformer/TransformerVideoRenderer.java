@@ -86,12 +86,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
-          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
+          new PassthroughSamplePipeline(
+              inputFormat, startPositionOffsetUs, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new VideoTranscodingSamplePipeline(
               context,
               inputFormat,
+              startPositionOffsetUs,
               transformationRequest,
               effects,
               decoderFactory,
@@ -108,6 +110,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    // TODO(b/233988291): Use passthrough pipeline if the clipping start is a key-frame.
+    if (startPositionOffsetUs != 0) {
+      return false;
+    }
     if (encoderFactory.videoNeedsEncoding()) {
       return false;
     }

@@ -16,9 +16,12 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
@@ -50,7 +53,7 @@ public class TransformerEndToEndTest {
             .build()
             .run(
                 /* testId= */ "videoEditing_completesWithConsistentFrameCount",
-                MP4_ASSET_URI_STRING);
+                MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)));
 
     assertThat(result.transformationResult.videoFrameCount).isEqualTo(expectedFrameCount);
   }
@@ -71,8 +74,34 @@ public class TransformerEndToEndTest {
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(/* testId= */ "videoOnly_completesWithConsistentDuration", MP4_ASSET_URI_STRING);
+            .run(
+                /* testId= */ "videoOnly_completesWithConsistentDuration",
+                MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)));
 
     assertThat(result.transformationResult.durationMs).isEqualTo(expectedDurationMs);
+  }
+
+  @Test
+  public void clippedMedia_completesWithClippedDuration() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer = new Transformer.Builder(context).build();
+    long clippingStartMs = 10_000;
+    long clippingEndMs = 11_000;
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(clippingStartMs)
+                    .setEndPositionMs(clippingEndMs)
+                    .build())
+            .build();
+
+    TransformationTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(/* testId= */ "clippedMedia_completesWithClippedDuration", mediaItem);
+
+    assertThat(result.transformationResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
 }

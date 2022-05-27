@@ -32,6 +32,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import com.google.android.material.slider.RangeSlider;
@@ -55,6 +56,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SCALE_X = "scale_x";
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
+  public static final String TRIM_START_MS = "trim_start_ms";
+  public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
@@ -115,12 +118,15 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner resolutionHeightSpinner;
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
+  private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private @MonotonicNonNull Button selectDemoEffectsButton;
   private boolean @MonotonicNonNull [] demoEffectsSelections;
   private int inputUriPosition;
+  private long trimStartMs;
+  private long trimEndMs;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
   private float periodicVignetteInnerRadius;
@@ -188,6 +194,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateSpinner.setAdapter(rotateAdapter);
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
+    trimCheckBox = findViewById(R.id.trim_checkbox);
+    trimCheckBox.setOnCheckedChangeListener(this::selectTrimBounds);
+    trimStartMs = C.TIME_UNSET;
+    trimEndMs = C.TIME_UNSET;
+
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
     enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
@@ -224,6 +235,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "trimCheckBox",
     "enableFallbackCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
@@ -258,6 +270,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (!SAME_AS_INPUT_OPTION.equals(selectedRotate)) {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
+    if (trimCheckBox.isChecked()) {
+      bundle.putLong(TRIM_START_MS, trimStartMs);
+      bundle.putLong(TRIM_END_MS, trimEndMs);
+    }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
@@ -291,6 +307,27 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .setMultiChoiceItems(
             DEMO_EFFECTS, checkNotNull(demoEffectsSelections), this::selectDemoEffect)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
+        .create()
+        .show();
+  }
+
+  private void selectTrimBounds(View view, boolean isChecked) {
+    if (!isChecked) {
+      return;
+    }
+    View dialogView = getLayoutInflater().inflate(R.layout.trim_options, /* root= */ null);
+    RangeSlider radiusRangeSlider =
+        checkNotNull(dialogView.findViewById(R.id.trim_bounds_range_slider));
+    radiusRangeSlider.setValues(0f, 60f); // seconds
+    new AlertDialog.Builder(/* context= */ this)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              List<Float> radiusRange = radiusRangeSlider.getValues();
+              trimStartMs = 1000 * radiusRange.get(0).longValue();
+              trimEndMs = 1000 * radiusRange.get(1).longValue();
+            })
         .create()
         .show();
   }

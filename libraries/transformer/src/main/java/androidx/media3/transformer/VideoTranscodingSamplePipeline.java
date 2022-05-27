@@ -27,6 +27,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -35,9 +36,12 @@ import org.checkerframework.dataflow.qual.Pure;
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
   private final int outputRotationDegrees;
+  private final long outputPresentationTimeOffsetUs;
+  private final int maxPendingFrameCount;
+
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
-  private final int maxPendingFrameCount;
+  private final ArrayList<Long> decodeOnlyPresentationTimestamps;
 
   private final FrameProcessorChain frameProcessorChain;
 
@@ -49,6 +53,7 @@ import org.checkerframework.dataflow.qual.Pure;
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
+      long outputPresentationTimeOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<GlEffect> effects,
       Codec.DecoderFactory decoderFactory,
@@ -58,10 +63,12 @@ import org.checkerframework.dataflow.qual.Pure;
       FrameProcessorChain.Listener frameProcessorChainListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
+    this.outputPresentationTimeOffsetUs = outputPresentationTimeOffsetUs;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    decodeOnlyPresentationTimestamps = new ArrayList<>();
 
     // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
     int decodedWidth =
@@ -148,6 +155,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void queueInputBuffer() throws TransformationException {
+    if (decoderInputBuffer.isDecodeOnly()) {
+      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
+    }
     decoder.queueInputBuffer(decoderInputBuffer);
   }
 
@@ -192,7 +202,7 @@ import org.checkerframework.dataflow.qual.Pure;
       return null;
     }
     MediaCodec.BufferInfo bufferInfo = checkNotNull(encoder.getOutputBufferInfo());
-    encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
+    encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs - outputPresentationTimeOffsetUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;
   }
@@ -251,8 +261,14 @@ import org.checkerframework.dataflow.qual.Pure;
    * @throws TransformationException If a problem occurs while processing the frame.
    */
   private boolean maybeProcessDecoderOutput() throws TransformationException {
-    if (decoder.getOutputBufferInfo() == null) {
+    @Nullable MediaCodec.BufferInfo decoderOutputBufferInfo = decoder.getOutputBufferInfo();
+    if (decoderOutputBufferInfo == null) {
       return false;
+    }
+
+    if (isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
+      decoder.releaseOutputBuffer(/* render= */ false);
+      return true;
     }
 
     if (maxPendingFrameCount != Codec.UNLIMITED_PENDING_FRAME_COUNT
@@ -263,5 +279,18 @@ import org.checkerframework.dataflow.qual.Pure;
     frameProcessorChain.registerInputFrame();
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;
+  }
+
+  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
+    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
+    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
+    int size = decodeOnlyPresentationTimestamps.size();
+    for (int i = 0; i < size; i++) {
+      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
+        decodeOnlyPresentationTimestamps.remove(i);
+        return true;
+      }
+    }
+    return false;
   }
 }

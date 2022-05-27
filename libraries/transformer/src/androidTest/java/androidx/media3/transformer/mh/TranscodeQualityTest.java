@@ -19,6 +19,8 @@ package androidx.media3.transformer.mh;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.TransformationRequest;
@@ -58,7 +60,10 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+            .run(
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
 
     if (result.ssim != TransformationTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
@@ -92,7 +97,10 @@ public final class TranscodeQualityTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+            .run(
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
 
     if (result.ssim != TransformationTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
@@ -121,7 +129,10 @@ public final class TranscodeQualityTest {
             .build()
             .run(
                 testId,
-                AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING);
+                MediaItem.fromUri(
+                    Uri.parse(
+                        AndroidTestUtil
+                            .MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING)));
 
     if (result.ssim != TransformationTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);

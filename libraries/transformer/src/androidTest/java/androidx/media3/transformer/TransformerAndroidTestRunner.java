@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
@@ -179,17 +178,17 @@ public class TransformerAndroidTestRunner {
    * cache.
    *
    * @param testId A unique identifier for the transformer test run.
-   * @param uriString The uri (as a {@link String}) of the file to transform.
+   * @param mediaItem The {@link MediaItem} to transform.
    * @return The {@link TransformationTestResult}.
    * @throws Exception The cause of the transformation not completing.
    */
-  public TransformationTestResult run(String testId, String uriString) throws Exception {
+  public TransformationTestResult run(String testId, MediaItem mediaItem) throws Exception {
     JSONObject resultJson = new JSONObject();
     if (inputValues != null) {
       resultJson.put("inputValues", JSONObject.wrap(inputValues));
     }
     try {
-      TransformationTestResult transformationTestResult = runInternal(testId, uriString);
+      TransformationTestResult transformationTestResult = runInternal(testId, mediaItem);
       resultJson.put("transformationResult", transformationTestResult.asJsonObject());
       if (!suppressAnalysisExceptions && transformationTestResult.analysisException != null) {
         throw transformationTestResult.analysisException;
@@ -208,7 +207,7 @@ public class TransformerAndroidTestRunner {
    * Transforms the {@code uriString}.
    *
    * @param testId An identifier for the test.
-   * @param uriString The uri (as a {@link String}) of the file to transform.
+   * @param mediaItem The {@link MediaItem} to transform.
    * @return The {@link TransformationTestResult}.
    * @throws IOException If an error occurs opening the output file for writing
    * @throws TimeoutException If the transformation takes longer than the {@link #timeoutSeconds}.
@@ -218,8 +217,14 @@ public class TransformerAndroidTestRunner {
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If an unexpected exception occurs when starting a transformation.
    */
-  private TransformationTestResult runInternal(String testId, String uriString)
+  private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
       throws InterruptedException, IOException, TimeoutException, TransformationException {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && calculateSsim) {
+      throw new UnsupportedOperationException(
+          "SSIM calculation is not supported for clipped inputs.");
+    }
+
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
         new AtomicReference<>();
     AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
@@ -249,15 +254,13 @@ public class TransformerAndroidTestRunner {
                 })
             .build();
 
-    Uri uri = Uri.parse(uriString);
     File outputVideoFile =
         AndroidTestUtil.createExternalCacheFile(context, /* fileName= */ testId + "-output.mp4");
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(
             () -> {
               try {
-                testTransformer.startTransformation(
-                    MediaItem.fromUri(uri), outputVideoFile.getAbsolutePath());
+                testTransformer.startTransformation(mediaItem, outputVideoFile.getAbsolutePath());
                 // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
                 // propagate.
               } catch (Exception e) {
@@ -300,7 +303,9 @@ public class TransformerAndroidTestRunner {
       if (calculateSsim) {
         double ssim =
             SsimHelper.calculate(
-                context, /* referenceVideoPath= */ uriString, outputVideoFile.getPath());
+                context,
+                /* referenceVideoPath= */ checkNotNull(mediaItem.localConfiguration).uri.toString(),
+                outputVideoFile.getPath());
         resultBuilder.setSsim(ssim);
       }
     } catch (InterruptedException interruptedException) {

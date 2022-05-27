@@ -18,6 +18,8 @@ package androidx.media3.transformer.mh;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -41,6 +43,7 @@ public class SetFrameEditTransformationTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(
-            /* testId= */ "SetFrameEditTransform", MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING);
+            /* testId= */ "SetFrameEditTransform",
+            MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
 }

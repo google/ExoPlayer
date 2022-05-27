@@ -45,6 +45,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected boolean muxerWrapperTrackAdded;
   protected boolean muxerWrapperTrackEnded;
   protected long streamOffsetUs;
+  protected long startPositionOffsetUs;
   protected @MonotonicNonNull SamplePipeline samplePipeline;
 
   public TransformerBaseRenderer(
@@ -109,6 +110,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected final void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.streamOffsetUs = offsetUs;
+    this.startPositionOffsetUs = startPositionUs - offsetUs;
   }
 
   @Override

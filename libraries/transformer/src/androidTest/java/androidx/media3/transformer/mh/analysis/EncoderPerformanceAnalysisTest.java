@@ -22,6 +22,7 @@ import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import android.content.Context;
 import android.media.MediaFormat;
 import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -136,6 +137,6 @@ public class EncoderPerformanceAnalysisTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
         .build()
-        .run(testId, fileUri);
+        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
   }
 }

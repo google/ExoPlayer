@@ -19,6 +19,8 @@ import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR;
 import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -116,6 +118,6 @@ public class BitrateAnalysisTest {
         .setInputValues(inputValues)
         .setCalculateSsim(true)
         .build()
-        .run(testId, fileUri);
+        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
   }
 }
