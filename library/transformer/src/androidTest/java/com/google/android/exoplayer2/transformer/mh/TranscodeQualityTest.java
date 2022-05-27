@@ -108,7 +108,7 @@ public final class TranscodeQualityTest {
   }
 
   @Test
-  public void transcodeAvcToAvc360x240_ssimIsGreaterThan90Percent() throws Exception {
+  public void transcodeAvcToAvc320x240_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     String testId = "transcodeAvcToAvc320x240_ssim";
 
