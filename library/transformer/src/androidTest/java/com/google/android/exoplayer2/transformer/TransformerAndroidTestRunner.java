@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.json.JSONException;
@@ -49,7 +50,7 @@ public class TransformerAndroidTestRunner {
   public static class Builder {
     private final Context context;
     private final Transformer transformer;
-    private boolean calculateSsim;
+    private boolean maybeCalculateSsim;
     private int timeoutSeconds;
     private boolean suppressAnalysisExceptions;
     @Nullable private Map<String, Object> inputValues;
@@ -81,19 +82,21 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets whether to calculate the SSIM of the transformation output.
+     * Sets whether to try to calculate the SSIM of the transformation output.
+     *
+     * <p>SSIM requires the input and output video dimensions to match. Therefore, if encoder
+     * resolution fallback occurs, this calculation is skipped.
      *
      * <p>The calculation involves decoding and comparing both the input and the output video.
-     * Consequently this calculation is not cost-free. Requires the input and output video to be the
-     * same size.
+     * Consequently this calculation is not cost-free.
      *
      * <p>The default value is {@code false}.
      *
-     * @param calculateSsim Whether to calculate SSIM.
+     * @param maybeCalculateSsim Whether to try to calculate SSIM.
      * @return This {@link Builder}.
      */
-    public Builder setCalculateSsim(boolean calculateSsim) {
-      this.calculateSsim = calculateSsim;
+    public Builder setMaybeCalculateSsim(boolean maybeCalculateSsim) {
+      this.maybeCalculateSsim = maybeCalculateSsim;
       return this;
     }
 
@@ -137,7 +140,7 @@ public class TransformerAndroidTestRunner {
           context,
           transformer,
           timeoutSeconds,
-          calculateSsim,
+          maybeCalculateSsim,
           suppressAnalysisExceptions,
           inputValues);
     }
@@ -147,7 +150,7 @@ public class TransformerAndroidTestRunner {
   private final CodecNameForwardingCodecFactory transformerCodecFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
-  private final boolean calculateSsim;
+  private final boolean maybeCalculateSsim;
   private final boolean suppressAnalysisExceptions;
   @Nullable private final Map<String, Object> inputValues;
 
@@ -155,7 +158,7 @@ public class TransformerAndroidTestRunner {
       Context context,
       Transformer transformer,
       int timeoutSeconds,
-      boolean calculateSsim,
+      boolean maybeCalculateSsim,
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
@@ -168,7 +171,7 @@ public class TransformerAndroidTestRunner {
             .setEncoderFactory(transformerCodecFactory)
             .build();
     this.timeoutSeconds = timeoutSeconds;
-    this.calculateSsim = calculateSsim;
+    this.maybeCalculateSsim = maybeCalculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
     this.inputValues = inputValues;
   }
@@ -220,7 +223,7 @@ public class TransformerAndroidTestRunner {
   private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
       throws InterruptedException, IOException, TimeoutException, TransformationException {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && calculateSsim) {
+        && maybeCalculateSsim) {
       throw new UnsupportedOperationException(
           "SSIM calculation is not supported for clipped inputs.");
     }
@@ -231,6 +234,7 @@ public class TransformerAndroidTestRunner {
     AtomicReference<@NullableType TransformationResult> transformationResultReference =
         new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
+    AtomicBoolean fallbackResolutionApplied = new AtomicBoolean(false);
     long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
     Transformer testTransformer =
@@ -250,6 +254,20 @@ public class TransformerAndroidTestRunner {
                       MediaItem inputMediaItem, TransformationException exception) {
                     transformationExceptionReference.set(exception);
                     countDownLatch.countDown();
+                  }
+
+                  @Override
+                  public void onFallbackApplied(
+                      MediaItem inputMediaItem,
+                      TransformationRequest originalTransformationRequest,
+                      TransformationRequest fallbackTransformationRequest) {
+                    // Note: As TransformationRequest only reports the output height but not the
+                    // output width, it's not possible to check whether the encoder has changed
+                    // the output aspect ratio.
+                    if (originalTransformationRequest.outputHeight
+                        != fallbackTransformationRequest.outputHeight) {
+                      fallbackResolutionApplied.set(true);
+                    }
                   }
                 })
             .build();
@@ -299,15 +317,23 @@ public class TransformerAndroidTestRunner {
             .setFilePath(outputVideoFile.getPath())
             .setElapsedTimeMs(elapsedTimeMs);
 
+    if (!maybeCalculateSsim) {
+      return resultBuilder.build();
+    }
+    if (fallbackResolutionApplied.get()) {
+      Log.i(
+          TAG,
+          testId
+              + ": Skipping SSIM calculation because an encoder resolution fallback was applied.");
+      return resultBuilder.build();
+    }
     try {
-      if (calculateSsim) {
-        double ssim =
-            SsimHelper.calculate(
-                context,
-                /* referenceVideoPath= */ checkNotNull(mediaItem.localConfiguration).uri.toString(),
-                outputVideoFile.getPath());
-        resultBuilder.setSsim(ssim);
-      }
+      double ssim =
+          SsimHelper.calculate(
+              context,
+              /* referenceVideoPath= */ checkNotNull(mediaItem.localConfiguration).uri.toString(),
+              outputVideoFile.getPath());
+      resultBuilder.setSsim(ssim);
     } catch (InterruptedException interruptedException) {
       // InterruptedException is a special unexpected case because it is not related to Ssim
       // calculation, so it should be thrown, rather than processed as part of the
@@ -317,7 +343,7 @@ public class TransformerAndroidTestRunner {
       if (Util.SDK_INT == 21 && "Nexus 5".equals(Util.MODEL)) { // b/233584640
         Log.i(TAG, testId + ": Skipping SSIM calculation due to known device-specific issue");
       } else {
-        // Catch all (checked and unchecked) failures throw by the SsimHelper and process them as
+        // Catch all (checked and unchecked) failures thrown by the SsimHelper and process them as
         // part of the TransformationTestResult.
         Exception analysisException =
             analysisFailure instanceof Exception

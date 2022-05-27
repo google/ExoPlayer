@@ -68,7 +68,7 @@ public final class SsimHelper {
    * <p>The method compares every {@link #DEFAULT_COMPARISON_INTERVAL n-th} frame from both videos.
    *
    * @param context The {@link Context}.
-   * @param referenceVideoPath The path to the reference video file, must be in {@link
+   * @param referenceVideoPath The path to the reference video file, which must be in {@linkplain
    *     Context#getAssets() Assets}.
    * @param actualVideoPath The path to the actual video file.
    * @throws IOException When unable to open the provided video paths.

@@ -229,7 +229,9 @@ public final class AndroidTestUtil {
 
   /**
    * Checks whether the test should be skipped because the device is incapable of decoding and
-   * encoding the given formats. If the test should be skipped, logs the reason for skipping.
+   * encoding the given formats.
+   *
+   * <p>If the test should be skipped, logs the reason for skipping.
    *
    * @param context The {@link Context context}.
    * @param testId The test ID.

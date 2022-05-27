@@ -58,7 +58,7 @@ public final class TranscodeQualityTest {
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setCalculateSsim(true)
+            .setMaybeCalculateSsim(true)
             .build()
             .run(
                 testId,
@@ -95,7 +95,7 @@ public final class TranscodeQualityTest {
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setCalculateSsim(true)
+            .setMaybeCalculateSsim(true)
             .build()
             .run(
                 testId,
@@ -125,7 +125,7 @@ public final class TranscodeQualityTest {
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setCalculateSsim(true)
+            .setMaybeCalculateSsim(true)
             .build()
             .run(
                 testId,
