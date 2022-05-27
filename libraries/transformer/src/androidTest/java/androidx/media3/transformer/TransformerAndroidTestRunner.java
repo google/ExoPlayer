@@ -27,6 +27,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.Util;
 import androidx.test.platform.app.InstrumentationRegistry;
+import com.google.common.base.Ascii;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -340,7 +341,8 @@ public class TransformerAndroidTestRunner {
       // TransformationTestResult.
       throw interruptedException;
     } catch (Throwable analysisFailure) {
-      if (Util.SDK_INT == 21 && "Nexus 5".equals(Util.MODEL)) { // b/233584640
+      if (Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus")) {
+        // b/233584640, b/230093713
         Log.i(TAG, testId + ": Skipping SSIM calculation due to known device-specific issue");
       } else {
         // Catch all (checked and unchecked) failures thrown by the SsimHelper and process them as
