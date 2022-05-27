@@ -21,6 +21,8 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_8K24_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_8K24_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
@@ -109,6 +111,27 @@ public class TransformationTest {
         .setTimeoutSeconds(180)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING)));
+  }
+
+  @Test
+  public void transform8K24() throws Exception {
+    String testId = TAG + "_transform8K24";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ MP4_REMOTE_8K24_FORMAT,
+        /* encodingFormat= */ null)) {
+      return;
+    }
+    Transformer transformer =
+        new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .setMaybeCalculateSsim(true)
+        .setTimeoutSeconds(180)
+        .build()
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING)));
   }
 
   @Test
