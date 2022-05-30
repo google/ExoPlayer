@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,24 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
-import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
-import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import androidx.media3.common.C;
-import androidx.media3.common.FlagSet;
-import androidx.media3.common.Player;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -51,17 +42,25 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link MediaController.Listener} with {@link MediaSessionCompat}. */
+/**
+ * Tests for {@link MediaControllerCompat.Callback} with {@link MediaSessionCompat}.
+ *
+ * <p>The tests in this class represents the reference specific usages of the legacy API for which
+ * we need to provide support with the Media3 API.
+ *
+ * <p>So these test are actually not tests but rather a reference of how the legacy API is used and
+ * expected to work.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MediaControllerListenerWithMediaSessionCompatTest {
+public class MediaControllerCompatCallbackWithMediaSessionCompatTest {
+
+  private static final int TIMEOUT_MS = 1_000;
 
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 
-  private static final int EVENT_ON_EVENTS = C.INDEX_UNSET;
-
   private final HandlerThreadTestRule threadTestRule =
-      new HandlerThreadTestRule("MediaControllerListenerWithMediaSessionCompatTest");
+      new HandlerThreadTestRule("MediaControllerCompatCallbackWithMediaSessionCompatTest");
   private final MediaControllerTestRule controllerTestRule =
       new MediaControllerTestRule(threadTestRule);
 
@@ -82,41 +81,11 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     session.cleanUp();
   }
 
+  /** Custom actions in the legacy session used for instance by Android Auto and Wear OS. */
   @Test
-  public void onEvents_whenOnRepeatModeChanges_isCalledAfterOtherListenerMethods()
+  public void setPlaybackState_withCustomActions_onPlaybackStateCompatChangedCalled()
       throws Exception {
-    Player.Events testEvents =
-        new Player.Events(new FlagSet.Builder().add(EVENT_REPEAT_MODE_CHANGED).build());
-    CopyOnWriteArrayList<Integer> listenerEventCodes = new CopyOnWriteArrayList<>();
-
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-    CountDownLatch latch = new CountDownLatch(2);
-    AtomicReference<Player.Events> eventsRef = new AtomicReference<>();
-    Player.Listener listener =
-        new Player.Listener() {
-          @Override
-          public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-            listenerEventCodes.add(EVENT_REPEAT_MODE_CHANGED);
-            latch.countDown();
-          }
-
-          @Override
-          public void onEvents(Player player, Player.Events events) {
-            listenerEventCodes.add(EVENT_ON_EVENTS);
-            eventsRef.set(events);
-            latch.countDown();
-          }
-        };
-    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_GROUP);
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-
-    assertThat(listenerEventCodes).containsExactly(EVENT_REPEAT_MODE_CHANGED, EVENT_ON_EVENTS);
-    assertThat(eventsRef.get()).isEqualTo(testEvents);
-  }
-
-  @Test
-  public void setPlaybackState_withCustomActions_onSetCustomLayoutCalled() throws Exception {
+    MediaSessionCompat.Token sessionToken = session.getSessionToken();
     Bundle extras1 = new Bundle();
     extras1.putString("key", "value-1");
     PlaybackStateCompat.CustomAction customAction1 =
@@ -137,33 +106,33 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     List<String> receivedDisplayNames = new ArrayList<>();
     List<String> receivedBundleValues = new ArrayList<>();
     List<Integer> receivedIconResIds = new ArrayList<>();
-    List<Integer> receivedCommandCodes = new ArrayList<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
-    controllerTestRule.createController(
-        session.getSessionToken(),
-        new MediaController.Listener() {
-          @Override
-          public ListenableFuture<SessionResult> onSetCustomLayout(
-              MediaController controller, List<CommandButton> layout) {
-            for (CommandButton button : layout) {
-              receivedActions.add(button.sessionCommand.customAction);
-              receivedDisplayNames.add(String.valueOf(button.displayName));
-              receivedBundleValues.add(button.sessionCommand.customExtras.getString("key"));
-              receivedCommandCodes.add(button.sessionCommand.commandCode);
-              receivedIconResIds.add(button.iconResId);
-            }
-            countDownLatch.countDown();
-            return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
-          }
-        });
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              MediaControllerCompat mediaControllerCompat =
+                  new MediaControllerCompat(context, sessionToken);
+              mediaControllerCompat.registerCallback(
+                  new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                      List<PlaybackStateCompat.CustomAction> layout = state.getCustomActions();
+                      for (PlaybackStateCompat.CustomAction action : layout) {
+                        receivedActions.add(action.getAction());
+                        receivedDisplayNames.add(String.valueOf(action.getName()));
+                        receivedBundleValues.add(action.getExtras().getString("key"));
+                        receivedIconResIds.add(action.getIcon());
+                      }
+                      countDownLatch.countDown();
+                    }
+                  });
+            });
 
     session.setPlaybackState(builder.build());
 
     assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(receivedActions).containsExactly("action1", "action2").inOrder();
-    assertThat(receivedCommandCodes)
-        .containsExactly(SessionCommand.COMMAND_CODE_CUSTOM, SessionCommand.COMMAND_CODE_CUSTOM)
-        .inOrder();
     assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
     assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
     assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();

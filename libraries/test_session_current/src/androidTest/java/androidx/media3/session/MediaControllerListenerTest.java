@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
 import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
@@ -30,6 +29,7 @@ import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_N
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_SESSION_SERVICE;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
@@ -1743,37 +1743,61 @@ public class MediaControllerListenerTest {
   }
 
   @Test
-  public void onCustomLayoutChanged() throws Exception {
+  public void setCustomLayout_onSetCustomLayoutCalled() throws Exception {
     List<CommandButton> buttons = new ArrayList<>();
-
-    CommandButton button =
+    Bundle extras1 = new Bundle();
+    extras1.putString("key", "value-1");
+    CommandButton button1 =
         new CommandButton.Builder()
-            .setPlayerCommand(COMMAND_PLAY_PAUSE)
-            .setDisplayName("button")
+            .setSessionCommand(new SessionCommand("action1", extras1))
+            .setDisplayName("actionName1")
+            .setIconResId(1)
             .build();
-    buttons.add(button);
-
+    Bundle extras2 = new Bundle();
+    extras2.putString("key", "value-2");
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("action2", extras2))
+            .setDisplayName("actionName2")
+            .setIconResId(2)
+            .build();
+    buttons.add(button1);
+    buttons.add(button2);
     CountDownLatch latch = new CountDownLatch(1);
+    List<String> receivedActions = new ArrayList<>();
+    List<String> receivedDisplayNames = new ArrayList<>();
+    List<String> receivedBundleValues = new ArrayList<>();
+    List<Integer> receivedIconResIds = new ArrayList<>();
+    List<Integer> receivedCommandCodes = new ArrayList<>();
     MediaController.Listener listener =
         new MediaController.Listener() {
           @Override
           public ListenableFuture<SessionResult> onSetCustomLayout(
               MediaController controller, List<CommandButton> layout) {
-            assertThat(layout).hasSize(buttons.size());
-            for (int i = 0; i < layout.size(); i++) {
-              assertThat(layout.get(i).playerCommand).isEqualTo(buttons.get(i).playerCommand);
-              assertThat(layout.get(i).displayName.toString())
-                  .isEqualTo(buttons.get(i).displayName.toString());
+            for (CommandButton button : layout) {
+              receivedActions.add(button.sessionCommand.customAction);
+              receivedDisplayNames.add(String.valueOf(button.displayName));
+              receivedBundleValues.add(button.sessionCommand.customExtras.getString("key"));
+              receivedCommandCodes.add(button.sessionCommand.commandCode);
+              receivedIconResIds.add(button.iconResId);
             }
             latch.countDown();
             return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
           }
         };
-    controllerTestRule.createController(
-        remoteSession.getToken(), /* connectionHints= */ null, listener);
+    RemoteMediaSession session = createRemoteMediaSession(TEST_WITH_CUSTOM_COMMANDS);
+    controllerTestRule.createController(session.getToken(), /* connectionHints= */ null, listener);
 
-    remoteSession.setCustomLayout(buttons);
+    session.setCustomLayout(buttons);
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedActions).containsExactly("action1", "action2").inOrder();
+    assertThat(receivedCommandCodes)
+        .containsExactly(SessionCommand.COMMAND_CODE_CUSTOM, SessionCommand.COMMAND_CODE_CUSTOM)
+        .inOrder();
+    assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
+    assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
+    assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
   }
 
   @Test

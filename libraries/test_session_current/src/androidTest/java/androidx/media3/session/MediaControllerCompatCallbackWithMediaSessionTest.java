@@ -769,52 +769,54 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   }
 
   @Test
-  public void customLayoutChanged_updatesPlaybackStateCompat() throws Exception {
-
-    AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
+  public void setCustomLayout_onPlaybackStateCompatChangedCalled() throws Exception {
+    List<CommandButton> buttons = new ArrayList<>();
+    Bundle extras1 = new Bundle();
+    extras1.putString("key", "value-1");
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("action1", extras1))
+            .setDisplayName("actionName1")
+            .setIconResId(1)
+            .build();
+    Bundle extras2 = new Bundle();
+    extras2.putString("key", "value-2");
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("action2", extras2))
+            .setDisplayName("actionName2")
+            .setIconResId(2)
+            .build();
+    buttons.add(button1);
+    buttons.add(button2);
+    List<String> receivedActions = new ArrayList<>();
+    List<String> receivedDisplayNames = new ArrayList<>();
+    List<String> receivedBundleValues = new ArrayList<>();
+    List<Integer> receivedIconResIds = new ArrayList<>();
     CountDownLatch latch = new CountDownLatch(1);
     MediaControllerCompat.Callback callback =
         new MediaControllerCompat.Callback() {
           @Override
           public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            playbackStateRef.set(state);
+            List<PlaybackStateCompat.CustomAction> layout = state.getCustomActions();
+            for (PlaybackStateCompat.CustomAction action : layout) {
+              receivedActions.add(action.getAction());
+              receivedDisplayNames.add(String.valueOf(action.getName()));
+              receivedBundleValues.add(action.getExtras().getString("key"));
+              receivedIconResIds.add(action.getIcon());
+            }
             latch.countDown();
           }
         };
     controllerCompat.registerCallback(callback, handler);
 
-    List<CommandButton> customLayout = new ArrayList<>();
-    Bundle customCommandBundle1 = new Bundle();
-    customCommandBundle1.putString("customKey1", "customValue1");
-    customLayout.add(
-        new CommandButton.Builder()
-            .setDisplayName("customCommandName1")
-            .setIconResId(1)
-            .setSessionCommand(new SessionCommand("customCommandAction1", customCommandBundle1))
-            .build());
-    Bundle customCommandBundle2 = new Bundle();
-    customCommandBundle2.putString("customKey2", "customValue2");
-    customLayout.add(
-        new CommandButton.Builder()
-            .setDisplayName("customCommandName2")
-            .setIconResId(2)
-            .setSessionCommand(new SessionCommand("customCommandAction2", customCommandBundle2))
-            .build());
-
-    session.setCustomLayout(customLayout);
+    session.setCustomLayout(buttons);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    List<PlaybackStateCompat.CustomAction> customActions =
-        playbackStateRef.get().getCustomActions();
-    assertThat(customActions).hasSize(2);
-    assertThat(customActions.get(0).getAction()).isEqualTo("customCommandAction1");
-    assertThat(customActions.get(0).getName()).isEqualTo("customCommandName1");
-    assertThat(customActions.get(0).getIcon()).isEqualTo(1);
-    assertThat(TestUtils.equals(customActions.get(0).getExtras(), customCommandBundle1)).isTrue();
-    assertThat(customActions.get(1).getAction()).isEqualTo("customCommandAction2");
-    assertThat(customActions.get(1).getName()).isEqualTo("customCommandName2");
-    assertThat(customActions.get(1).getIcon()).isEqualTo(2);
-    assertThat(TestUtils.equals(customActions.get(1).getExtras(), customCommandBundle2)).isTrue();
+    assertThat(receivedActions).containsExactly("action1", "action2").inOrder();
+    assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
+    assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
+    assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
   }
 
   @Test

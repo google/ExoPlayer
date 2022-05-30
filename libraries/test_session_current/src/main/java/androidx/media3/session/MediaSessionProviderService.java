@@ -57,6 +57,7 @@ import static androidx.media3.test.session.common.MediaSessionConstants.KEY_AVAI
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -175,6 +176,24 @@ public class MediaSessionProviderService extends Service {
                     sessionActivity,
                     Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
             builder.setSessionActivity(pendingIntent);
+            break;
+          }
+        case TEST_WITH_CUSTOM_COMMANDS:
+          {
+            SessionCommands availableSessionCommands =
+                new SessionCommands.Builder()
+                    .add(new SessionCommand("action1", Bundle.EMPTY))
+                    .add(new SessionCommand("action2", Bundle.EMPTY))
+                    .build();
+            builder.setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, ControllerInfo controller) {
+                    return MediaSession.ConnectionResult.accept(
+                        availableSessionCommands, Player.Commands.EMPTY);
+                  }
+                });
             break;
           }
         case TEST_CONTROLLER_LISTENER_SESSION_REJECTS:
