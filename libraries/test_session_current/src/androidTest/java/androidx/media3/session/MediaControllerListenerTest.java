@@ -28,6 +28,7 @@ import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_SESSION_SERVICE;
+import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
@@ -1798,6 +1799,55 @@ public class MediaControllerListenerTest {
     assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
     assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
     assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+  }
+
+  @Test
+  public void setSessionExtras_onExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = TestUtils.createTestBundle();
+    sessionExtras.putString("key-0", "value-0");
+    CountDownLatch latch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onExtrasChanged(MediaController controller, Bundle extras) {
+            receivedSessionExtras.add(extras);
+            latch.countDown();
+          }
+        };
+    controllerTestRule.createController(
+        remoteSession.getToken(), /* connectionHints= */ null, listener);
+
+    remoteSession.setSessionExtras(sessionExtras);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedSessionExtras).hasSize(1);
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+  }
+
+  @Test
+  public void setSessionExtras_specificMedia3Controller_onExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = TestUtils.createTestBundle();
+    sessionExtras.putString("key-0", "value-0");
+    CountDownLatch latch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onExtrasChanged(MediaController controller, Bundle extras) {
+            receivedSessionExtras.add(extras);
+            latch.countDown();
+          }
+        };
+    Bundle connectionHints = new Bundle();
+    connectionHints.putString(KEY_CONTROLLER, "controller_key_1");
+    controllerTestRule.createController(remoteSession.getToken(), connectionHints, listener);
+
+    remoteSession.setSessionExtras("controller_key_1", sessionExtras);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedSessionExtras).hasSize(1);
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
   }
 
   @Test

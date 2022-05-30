@@ -32,6 +32,7 @@ import androidx.media3.common.FlagSet;
 import androidx.media3.common.Player;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
+import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -167,5 +168,27 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
     assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
     assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+  }
+
+  @Test
+  public void setSessionExtras_onExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("key-1", "value-1");
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    controllerTestRule.createController(
+        session.getSessionToken(),
+        new MediaController.Listener() {
+          @Override
+          public void onExtrasChanged(MediaController controller, Bundle extras) {
+            receivedSessionExtras.add(extras);
+            countDownLatch.countDown();
+          }
+        });
+
+    session.setExtras(sessionExtras);
+
+    assertThat(countDownLatch.await(1_000, MILLISECONDS)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
   }
 }

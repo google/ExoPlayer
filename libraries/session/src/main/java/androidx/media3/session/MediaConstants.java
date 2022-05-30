@@ -151,8 +151,6 @@ public final class MediaConstants {
    */
   public static final int ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT = 3;
 
-  /* package */ static final String SESSION_COMMAND_ON_EXTRAS_CHANGED =
-      "androidx.media3.session.SESSION_COMMAND_ON_EXTRAS_CHANGED";
   /* package */ static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
       "androidx.media3.session.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED";
   /* package */ static final String SESSION_COMMAND_REQUEST_SESSION3_TOKEN =

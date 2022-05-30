@@ -887,6 +887,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     @Override
+    public void onSessionExtrasChanged(int seq, Bundle sessionExtras) {
+      sessionImpl.getSessionCompat().setExtras(sessionExtras);
+    }
+
+    @Override
     public void onPlayWhenReadyChanged(
         int seq, boolean playWhenReady, @Player.PlaybackSuppressionReason int reason)
         throws RemoteException {

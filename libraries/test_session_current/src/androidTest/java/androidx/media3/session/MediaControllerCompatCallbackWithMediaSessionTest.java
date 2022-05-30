@@ -820,6 +820,30 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   }
 
   @Test
+  public void setSessionExtras_cnExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("key-0", "value-0");
+    CountDownLatch latch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onExtrasChanged(Bundle extras) {
+            receivedSessionExtras.add(extras);
+            receivedSessionExtras.add(controllerCompat.getExtras());
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    session.setSessionExtras(sessionExtras);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(1), sessionExtras)).isTrue();
+  }
+
+  @Test
   public void currentMediaItemChange() throws Exception {
     int testItemIndex = 3;
     long testPosition = 1234;

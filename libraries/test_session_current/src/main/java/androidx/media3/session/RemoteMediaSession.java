@@ -197,6 +197,14 @@ public class RemoteMediaSession {
     binder.setCustomLayout(sessionId, bundleList);
   }
 
+  public void setSessionExtras(Bundle extras) throws RemoteException {
+    binder.setSessionExtras(sessionId, extras);
+  }
+
+  public void setSessionExtras(String controllerKey, Bundle extras) throws RemoteException {
+    binder.setSessionExtrasForController(sessionId, controllerKey, extras);
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // RemoteMockPlayer methods
   ////////////////////////////////////////////////////////////////////////////////

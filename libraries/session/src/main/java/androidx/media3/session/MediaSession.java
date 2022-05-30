@@ -703,6 +703,32 @@ public class MediaSession {
   }
 
   /**
+   * Sends the session extras to connected controllers.
+   *
+   * <p>This is a synchronous call and doesn't wait for results from the controllers.
+   *
+   * @param sessionExtras The session extras.
+   */
+  public void setSessionExtras(Bundle sessionExtras) {
+    checkNotNull(sessionExtras);
+    impl.setSessionExtras(sessionExtras);
+  }
+
+  /**
+   * Sends the session extras to the connected controller.
+   *
+   * <p>This is a synchronous call and doesn't wait for results from the controller.
+   *
+   * @param controller The controller to send the extras to.
+   * @param sessionExtras The session extras.
+   */
+  public void setSessionExtras(ControllerInfo controller, Bundle sessionExtras) {
+    checkNotNull(controller, "controller must not be null");
+    checkNotNull(sessionExtras);
+    impl.setSessionExtras(controller, sessionExtras);
+  }
+
+  /**
    * Sends a custom command to a specific controller.
    *
    * <p>The result from {@link MediaController.Listener#onCustomCommand(MediaController,
@@ -1118,6 +1144,8 @@ public class MediaSession {
     default void onDisconnected(int seq) throws RemoteException {}
 
     default void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {}
+
+    default void onSessionExtrasChanged(int seq, Bundle sessionExtras) throws RemoteException {}
 
     default void sendCustomCommand(int seq, SessionCommand command, Bundle args)
         throws RemoteException {}

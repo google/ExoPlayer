@@ -2598,6 +2598,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         });
   }
 
+  public void onExtrasChanged(Bundle extras) {
+    if (!isConnected()) {
+      return;
+    }
+    instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
+  }
+
   public void onRenderedFirstFrame() {
     listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onRenderedFirstFrame);
   }

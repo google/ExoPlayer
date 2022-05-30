@@ -216,5 +216,11 @@ public class MediaSessionCompatProviderService extends Service {
       MediaSessionCompat session = sessionMap.get(sessionTag);
       session.setCaptioningEnabled(enabled);
     }
+
+    @Override
+    public void setSessionExtras(String sessionTag, Bundle extras) throws RemoteException {
+      MediaSessionCompat session = sessionMap.get(sessionTag);
+      session.setExtras(extras);
+    }
   }
 }

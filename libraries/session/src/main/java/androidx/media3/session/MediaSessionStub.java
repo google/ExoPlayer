@@ -1802,6 +1802,11 @@ import java.util.concurrent.ExecutionException;
     }
 
     @Override
+    public void onSessionExtrasChanged(int seq, Bundle sessionExtras) throws RemoteException {
+      iController.onExtrasChanged(seq, sessionExtras);
+    }
+
+    @Override
     public int hashCode() {
       return ObjectsCompat.hash(getCallbackBinder());
     }

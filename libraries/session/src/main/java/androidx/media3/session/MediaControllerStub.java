@@ -184,6 +184,11 @@ import java.util.List;
   }
 
   @Override
+  public void onExtrasChanged(int seq, Bundle extras) {
+    dispatchControllerTaskOnHandler(controller -> controller.onExtrasChanged(extras));
+  }
+
+  @Override
   public void onRenderedFirstFrame(int seq) {
     dispatchControllerTaskOnHandler(MediaControllerImplBase::onRenderedFirstFrame);
   }

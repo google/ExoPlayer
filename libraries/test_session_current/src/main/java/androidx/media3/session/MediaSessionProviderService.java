@@ -54,6 +54,7 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_TRACK_SELE
 import static androidx.media3.test.session.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media3.test.session.common.CommonConstants.KEY_VOLUME;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_AVAILABLE_SESSION_COMMANDS;
+import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
@@ -424,6 +425,29 @@ public class MediaSessionProviderService extends Service {
             }
             MediaSession session = sessionMap.get(sessionId);
             session.setCustomLayout(builder.build());
+          });
+    }
+
+    @Override
+    public void setSessionExtras(String sessionId, Bundle extras) throws RemoteException {
+      runOnHandler(() -> sessionMap.get(sessionId).setSessionExtras(extras));
+    }
+
+    @Override
+    public void setSessionExtrasForController(String sessionId, String controllerKey, Bundle extras)
+        throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession mediaSession = sessionMap.get(sessionId);
+            for (ControllerInfo controllerInfo : mediaSession.getConnectedControllers()) {
+              if (controllerInfo
+                  .getConnectionHints()
+                  .getString(KEY_CONTROLLER, /* defaultValue= */ "")
+                  .equals(controllerKey)) {
+                mediaSession.setSessionExtras(controllerInfo, extras);
+                break;
+              }
+            }
           });
     }
 

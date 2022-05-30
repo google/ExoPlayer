@@ -27,6 +27,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
+import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -136,5 +137,43 @@ public class MediaControllerCompatCallbackWithMediaSessionCompatTest {
     assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
     assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
     assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+  }
+
+  /**
+   * Setting the session extras is used for instance by <a
+   * href="http://android-doc.github.io/reference/android/support/wearable/media/MediaControlConstants.html">
+   * Wear OS</a> and System UI (starting with T) to receive extras for UI customization. An app
+   * needs a way to set the session extras that are stored in the legacy session and broadcast to
+   * the connected controllers.
+   */
+  @Test
+  public void setExtras_onExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("key-1", "value-1");
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    MediaSessionCompat.Token sessionToken = session.getSessionToken();
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              MediaControllerCompat mediaControllerCompat =
+                  new MediaControllerCompat(context, sessionToken);
+              mediaControllerCompat.registerCallback(
+                  new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onExtrasChanged(Bundle extras) {
+                      receivedSessionExtras.add(extras);
+                      receivedSessionExtras.add(mediaControllerCompat.getExtras());
+                      countDownLatch.countDown();
+                    }
+                  });
+            });
+
+    session.setExtras(sessionExtras);
+
+    assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(1), sessionExtras)).isTrue();
   }
 }

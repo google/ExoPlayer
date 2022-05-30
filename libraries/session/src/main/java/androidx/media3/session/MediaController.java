@@ -322,6 +322,14 @@ public class MediaController implements Player {
         MediaController controller, SessionCommand command, Bundle args) {
       return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED));
     }
+
+    /**
+     * Called when the session extras have changed.
+     *
+     * @param controller The controller.
+     * @param extras The session extras that have changed.
+     */
+    default void onExtrasChanged(MediaController controller, Bundle extras) {}
   }
 
   /* package */ interface ConnectionCallback {

@@ -342,6 +342,18 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         (controller, seq) -> controller.setCustomLayout(seq, layout));
   }
 
+  public void setSessionExtras(Bundle sessionExtras) {
+    dispatchRemoteControllerTaskWithoutReturn(
+        (controller, seq) -> controller.onSessionExtrasChanged(seq, sessionExtras));
+  }
+
+  public void setSessionExtras(ControllerInfo controller, Bundle sessionExtras) {
+    if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
+      dispatchRemoteControllerTaskWithoutReturn(
+          controller, (callback, seq) -> callback.onSessionExtrasChanged(seq, sessionExtras));
+    }
+  }
+
   public void setAvailableCommands(
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {

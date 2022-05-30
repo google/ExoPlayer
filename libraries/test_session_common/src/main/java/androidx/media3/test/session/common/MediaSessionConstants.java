@@ -29,6 +29,7 @@ public class MediaSessionConstants {
 
   // Bundle keys
   public static final String KEY_AVAILABLE_SESSION_COMMANDS = "availableSessionCommands";
+  public static final String KEY_CONTROLLER = "controllerKey";
 
   private MediaSessionConstants() {}
 }

@@ -38,7 +38,6 @@ import static androidx.media3.session.MediaConstants.MEDIA_URI_QUERY_QUERY;
 import static androidx.media3.session.MediaConstants.MEDIA_URI_QUERY_URI;
 import static androidx.media3.session.MediaConstants.MEDIA_URI_SET_MEDIA_URI_PREFIX;
 import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED;
-import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_EXTRAS_CHANGED;
 import static androidx.media3.session.MediaUtils.POSITION_DIFF_TOLERANCE_MS;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
@@ -1606,14 +1605,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onExtrasChanged(Bundle extras) {
-      instance.notifyControllerListener(
-          listener ->
-              ignoreFuture(
-                  listener.onCustomCommand(
-                      instance,
-                      new SessionCommand(
-                          SESSION_COMMAND_ON_EXTRAS_CHANGED, /* extras= */ Bundle.EMPTY),
-                      extras)));
+      instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
     }
 
     @Override
