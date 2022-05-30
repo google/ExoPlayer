@@ -101,6 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
+      long streamOffsetUs,
       List<GlEffect> effects,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
@@ -119,6 +120,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                       pixelWidthHeightRatio,
                       inputWidth,
                       inputHeight,
+                      streamOffsetUs,
                       effects,
                       enableExperimentalHdrEditing,
                       singleThreadExecutorService))
@@ -145,6 +147,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
+      long streamOffsetUs,
       List<GlEffect> effects,
       boolean enableExperimentalHdrEditing,
       ExecutorService singleThreadExecutorService)
@@ -190,6 +193,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         eglContext,
         singleThreadExecutorService,
         inputExternalTexId,
+        streamOffsetUs,
         framebuffers,
         textureProcessors,
         listener,
@@ -252,6 +256,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLContext eglContext;
   /** Some OpenGL commands may block, so all OpenGL commands are run on a background thread. */
   private final ExecutorService singleThreadExecutorService;
+  /**
+   * Offset compared to original media presentation time that has been added to incoming frame
+   * timestamps, in microseconds.
+   */
+  private final long streamOffsetUs;
   /** Futures corresponding to the executor service's pending tasks. */
   private final ConcurrentLinkedQueue<Future<?>> futures;
   /** Number of frames {@linkplain #registerInputFrame() registered} but not fully processed. */
@@ -308,6 +317,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLContext eglContext,
       ExecutorService singleThreadExecutorService,
       int inputExternalTexId,
+      long streamOffsetUs,
       int[] framebuffers,
       ImmutableList<SingleFrameGlTextureProcessor> textureProcessors,
       Listener listener,
@@ -317,6 +327,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.singleThreadExecutorService = singleThreadExecutorService;
+    this.streamOffsetUs = streamOffsetUs;
     this.framebuffers = framebuffers;
     this.textureProcessors = textureProcessors;
     this.listener = listener;
@@ -476,8 +487,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       inputSurfaceTexture.updateTexImage();
-      long presentationTimeNs = inputSurfaceTexture.getTimestamp();
-      presentationTimeUs = presentationTimeNs / 1000;
+      long inputFrameTimeNs = inputSurfaceTexture.getTimestamp();
+      // Correct for the stream offset so processors see original media presentation timestamps.
+      presentationTimeUs = inputFrameTimeNs / 1000 - streamOffsetUs;
       inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
       ((ExternalTextureProcessor) textureProcessors.get(0))
           .setTextureTransformMatrix(textureTransformMatrix);
@@ -502,7 +514,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       clearOutputFrame();
       getLast(textureProcessors).drawFrame(presentationTimeUs);
 
-      EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, presentationTimeNs);
+      EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, inputFrameTimeNs);
       EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
 
       if (debugSurfaceViewWrapper != null) {

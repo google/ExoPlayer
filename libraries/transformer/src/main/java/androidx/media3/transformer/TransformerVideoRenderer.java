@@ -89,14 +89,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
-          new PassthroughSamplePipeline(
-              inputFormat, startPositionOffsetUs, transformationRequest, fallbackListener);
+          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new VideoTranscodingSamplePipeline(
               context,
               inputFormat,
-              startPositionOffsetUs,
+              streamOffsetUs,
               transformationRequest,
               effects,
               decoderFactory,
@@ -113,7 +112,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
-    if (startPositionOffsetUs != 0 && !clippingStartsAtKeyFrame) {
+    if ((streamStartPositionUs - streamOffsetUs) != 0 && !clippingStartsAtKeyFrame) {
       return false;
     }
     if (encoderFactory.videoNeedsEncoding()) {
@@ -166,9 +165,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @RequiresNonNull({"samplePipeline", "#1.data"})
   protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
       throws TransformationException {
+    if (sefSlowMotionFlattener == null) {
+      samplePipeline.queueInputBuffer();
+      return;
+    }
+
     ByteBuffer data = inputBuffer.data;
+    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
     boolean shouldDropSample =
-        sefSlowMotionFlattener != null && sefSlowMotionFlattener.dropOrTransformSample(inputBuffer);
+        sefSlowMotionFlattener.dropOrTransformSample(data, presentationTimeUs);
+    inputBuffer.timeUs = streamOffsetUs + sefSlowMotionFlattener.getSamplePresentationTimeUs();
     if (shouldDropSample) {
       data.clear();
     } else {

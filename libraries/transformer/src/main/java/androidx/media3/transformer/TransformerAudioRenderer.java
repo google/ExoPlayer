@@ -70,12 +70,12 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
-          new PassthroughSamplePipeline(
-              inputFormat, startPositionOffsetUs, transformationRequest, fallbackListener);
+          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new AudioTranscodingSamplePipeline(
               inputFormat,
+              streamOffsetUs,
               transformationRequest,
               decoderFactory,
               encoderFactory,
