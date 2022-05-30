@@ -43,6 +43,27 @@ import java.lang.annotation.Target;
  */
 public final class AudioAttributes implements Bundleable {
 
+  /** A direct wrapper around {@link android.media.AudioAttributes}. */
+  @RequiresApi(21)
+  public static final class AudioAttributesV21 {
+    public final android.media.AudioAttributes audioAttributes;
+
+    private AudioAttributesV21(AudioAttributes audioAttributes) {
+      android.media.AudioAttributes.Builder builder =
+          new android.media.AudioAttributes.Builder()
+              .setContentType(audioAttributes.contentType)
+              .setFlags(audioAttributes.flags)
+              .setUsage(audioAttributes.usage);
+      if (Util.SDK_INT >= 29) {
+        Api29.setAllowedCapturePolicy(builder, audioAttributes.allowedCapturePolicy);
+      }
+      if (Util.SDK_INT >= 32) {
+        Api32.setSpatializationBehavior(builder, audioAttributes.spatializationBehavior);
+      }
+      this.audioAttributes = builder.build();
+    }
+  }
+
   /**
    * The default audio attributes, where the content type is {@link C#AUDIO_CONTENT_TYPE_UNKNOWN},
    * usage is {@link C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags
@@ -121,7 +142,7 @@ public final class AudioAttributes implements Bundleable {
   /** The {@link C.SpatializationBehavior}. */
   public final @C.SpatializationBehavior int spatializationBehavior;
 
-  @Nullable private android.media.AudioAttributes audioAttributesV21;
+  @Nullable private AudioAttributesV21 audioAttributesV21;
 
   private AudioAttributes(
       @C.AudioContentType int contentType,
@@ -137,25 +158,15 @@ public final class AudioAttributes implements Bundleable {
   }
 
   /**
-   * Returns a {@link android.media.AudioAttributes} from this instance.
+   * Returns a {@link AudioAttributesV21} from this instance.
    *
-   * <p>Field {@link AudioAttributes#allowedCapturePolicy} is ignored for API levels prior to 29.
+   * <p>Some fields are ignored if the corresponding {@link android.media.AudioAttributes.Builder}
+   * setter is not available on the current API level.
    */
   @RequiresApi(21)
-  public android.media.AudioAttributes getAudioAttributesV21() {
+  public AudioAttributesV21 getAudioAttributesV21() {
     if (audioAttributesV21 == null) {
-      android.media.AudioAttributes.Builder builder =
-          new android.media.AudioAttributes.Builder()
-              .setContentType(contentType)
-              .setFlags(flags)
-              .setUsage(usage);
-      if (Util.SDK_INT >= 29) {
-        Api29.setAllowedCapturePolicy(builder, allowedCapturePolicy);
-      }
-      if (Util.SDK_INT >= 32) {
-        Api32.setSpatializationBehavior(builder, spatializationBehavior);
-      }
-      audioAttributesV21 = builder.build();
+      audioAttributesV21 = new AudioAttributesV21(this);
     }
     return audioAttributesV21;
   }
@@ -247,8 +258,6 @@ public final class AudioAttributes implements Bundleable {
 
   @RequiresApi(29)
   private static final class Api29 {
-    private Api29() {}
-
     @DoNotInline
     public static void setAllowedCapturePolicy(
         android.media.AudioAttributes.Builder builder,
@@ -259,8 +268,6 @@ public final class AudioAttributes implements Bundleable {
 
   @RequiresApi(32)
   private static final class Api32 {
-    private Api32() {}
-
     @DoNotInline
     public static void setSpatializationBehavior(
         android.media.AudioAttributes.Builder builder,

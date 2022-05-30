@@ -1827,7 +1827,8 @@ public final class DefaultAudioSink implements AudioSink {
     }
     AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, encoding);
 
-    switch (getOffloadedPlaybackSupport(audioFormat, audioAttributes.getAudioAttributesV21())) {
+    switch (getOffloadedPlaybackSupport(
+        audioFormat, audioAttributes.getAudioAttributesV21().audioAttributes)) {
       case AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED:
         return false;
       case AudioManager.PLAYBACK_OFFLOAD_SUPPORTED:
@@ -2301,7 +2302,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (tunneling) {
         return getAudioTrackTunnelingAttributesV21();
       } else {
-        return audioAttributes.getAudioAttributesV21();
+        return audioAttributes.getAudioAttributesV21().audioAttributes;
       }
     }
 
