@@ -36,7 +36,6 @@ import org.checkerframework.dataflow.qual.Pure;
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
   private final int outputRotationDegrees;
-  private final long outputPresentationTimeOffsetUs;
   private final int maxPendingFrameCount;
 
   private final DecoderInputBuffer decoderInputBuffer;
@@ -53,7 +52,7 @@ import org.checkerframework.dataflow.qual.Pure;
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
-      long outputPresentationTimeOffsetUs,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<GlEffect> effects,
       Codec.DecoderFactory decoderFactory,
@@ -63,7 +62,6 @@ import org.checkerframework.dataflow.qual.Pure;
       FrameProcessorChain.Listener frameProcessorChainListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
-    this.outputPresentationTimeOffsetUs = outputPresentationTimeOffsetUs;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer =
@@ -102,6 +100,7 @@ import org.checkerframework.dataflow.qual.Pure;
               inputFormat.pixelWidthHeightRatio,
               /* inputWidth= */ decodedWidth,
               /* inputHeight= */ decodedHeight,
+              streamOffsetUs,
               effectsListBuilder.build(),
               transformationRequest.enableHdrEditing);
     } catch (FrameProcessingException e) {
@@ -202,7 +201,7 @@ import org.checkerframework.dataflow.qual.Pure;
       return null;
     }
     MediaCodec.BufferInfo bufferInfo = checkNotNull(encoder.getOutputBufferInfo());
-    encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs - outputPresentationTimeOffsetUs;
+    encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;
   }

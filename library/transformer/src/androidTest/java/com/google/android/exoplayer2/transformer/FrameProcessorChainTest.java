@@ -130,6 +130,7 @@ public final class FrameProcessorChainTest {
         pixelWidthHeightRatio,
         inputSize.getWidth(),
         inputSize.getHeight(),
+        /* streamOffsetUs= */ 0L,
         effects.build(),
         /* enableExperimentalHdrEditing= */ false);
   }

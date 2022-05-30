@@ -309,6 +309,7 @@ public final class FrameProcessorChainPixelTest {
               pixelWidthHeightRatio,
               inputWidth,
               inputHeight,
+              /* streamOffsetUs= */ 0L,
               effects,
               /* enableExperimentalHdrEditing= */ false);
       Size outputSize = frameProcessorChain.getOutputSize();
