@@ -497,12 +497,12 @@ public class MediaBrowserServiceCompatCallbackWithMediaBrowserTest {
       MediaBrowserCompat.MediaItem browserItem, MediaItem commonItem) {
     assertThat(commonItem.mediaId).isEqualTo(browserItem.getMediaId());
     MediaDescriptionCompat description = browserItem.getDescription();
+    assertThat(commonItem.requestMetadata.mediaUri).isEqualTo(description.getMediaUri());
     MediaMetadata metadata = commonItem.mediaMetadata;
     assertThat(TextUtils.equals(metadata.title, description.getTitle())).isTrue();
     assertThat(TextUtils.equals(metadata.subtitle, description.getSubtitle())).isTrue();
     assertThat(TextUtils.equals(metadata.description, description.getDescription())).isTrue();
     assertThat(metadata.artworkUri).isEqualTo(description.getIconUri());
-    assertThat(metadata.mediaUri).isEqualTo(description.getMediaUri());
     assertThat(TestUtils.equals(metadata.extras, description.getExtras())).isTrue();
   }
 

@@ -18,7 +18,6 @@ package androidx.media3.session;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_ARTWORK_URI;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_DESCRIPTION;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_EXTRAS;
-import static androidx.media3.test.session.common.CommonConstants.METADATA_MEDIA_URI;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_SUBTITLE;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_TITLE;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
@@ -82,7 +81,6 @@ public final class MediaTestUtils {
         .setSubtitle(METADATA_SUBTITLE)
         .setDescription(METADATA_DESCRIPTION)
         .setArtworkUri(METADATA_ARTWORK_URI)
-        .setMediaUri(METADATA_MEDIA_URI)
         .setExtras(METADATA_EXTRAS)
         .build();
   }

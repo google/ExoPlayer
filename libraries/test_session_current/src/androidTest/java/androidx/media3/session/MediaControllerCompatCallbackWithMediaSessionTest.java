@@ -979,7 +979,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(TextUtils.equals(description.getDescription(), mediaItem.mediaMetadata.description))
         .isTrue();
     assertThat(description.getIconUri()).isEqualTo(mediaItem.mediaMetadata.artworkUri);
-    assertThat(description.getMediaUri()).isEqualTo(mediaItem.mediaMetadata.mediaUri);
+    assertThat(description.getMediaUri()).isEqualTo(mediaItem.requestMetadata.mediaUri);
     assertThat(TestUtils.equals(description.getExtras(), mediaItem.mediaMetadata.extras)).isTrue();
   }
 

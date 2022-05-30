@@ -66,6 +66,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import com.google.common.collect.ImmutableList;
@@ -440,6 +441,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
   private static MediaItem createMediaItemWithMetadata(String mediaId) {
     MediaMetadata mediaMetadata = MediaTestUtils.createMediaMetadata();
-    return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
+    return new MediaItem.Builder()
+        .setMediaId(mediaId)
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder()
+                .setMediaUri(CommonConstants.METADATA_MEDIA_URI)
+                .build())
+        .setMediaMetadata(mediaMetadata)
+        .build();
   }
 }

@@ -188,29 +188,33 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       @Nullable String mediaId,
       MediaMetadataCompat metadataCompat,
       @RatingCompat.Style int ratingType) {
-    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
-
+    MediaItem.Builder builder = new MediaItem.Builder();
     if (mediaId != null) {
-      mediaItemBuilder.setMediaId(mediaId);
+      builder.setMediaId(mediaId);
     }
-    mediaItemBuilder.setMediaMetadata(convertToMediaMetadata(metadataCompat, ratingType));
-
-    return mediaItemBuilder.build();
+    @Nullable
+    String mediaUriString = metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+    if (mediaUriString != null) {
+      builder.setRequestMetadata(
+          new MediaItem.RequestMetadata.Builder().setMediaUri(Uri.parse(mediaUriString)).build());
+    }
+    builder.setMediaMetadata(convertToMediaMetadata(metadataCompat, ratingType));
+    return builder.build();
   }
 
   private static MediaItem convertToMediaItem(
       MediaDescriptionCompat descriptionCompat, boolean browsable, boolean playable) {
-    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
-
     @Nullable String mediaId = descriptionCompat.getMediaId();
-    if (mediaId != null) {
-      mediaItemBuilder.setMediaId(mediaId);
-    }
-
-    mediaItemBuilder.setMediaMetadata(
-        convertToMediaMetadata(descriptionCompat, RatingCompat.RATING_NONE, browsable, playable));
-
-    return mediaItemBuilder.build();
+    return new MediaItem.Builder()
+        .setMediaId(mediaId == null ? MediaItem.DEFAULT_MEDIA_ID : mediaId)
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder()
+                .setMediaUri(descriptionCompat.getMediaUri())
+                .build())
+        .setMediaMetadata(
+            convertToMediaMetadata(
+                descriptionCompat, RatingCompat.RATING_NONE, browsable, playable))
+        .build();
   }
 
   /** Converts a list of {@link MediaBrowserCompat.MediaItem} to a list of {@link MediaItem}. */
@@ -342,7 +346,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         .setSubtitle(metadata.subtitle)
         .setDescription(metadata.description)
         .setIconUri(metadata.artworkUri)
-        .setMediaUri(metadata.mediaUri)
+        .setMediaUri(item.requestMetadata.mediaUri)
         .setExtras(extras)
         .build();
   }
@@ -381,7 +385,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         .setSubtitle(descriptionCompat.getSubtitle())
         .setDescription(descriptionCompat.getDescription())
         .setArtworkUri(descriptionCompat.getIconUri())
-        .setMediaUri(descriptionCompat.getMediaUri())
         .setUserRating(convertToRating(RatingCompat.newUnratedRating(ratingType)));
 
     @Nullable Bitmap iconBitmap = descriptionCompat.getIconBitmap();
@@ -448,12 +451,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (metadataCompat.containsKey(MediaMetadataCompat.METADATA_KEY_YEAR)) {
       long year = metadataCompat.getLong(MediaMetadataCompat.METADATA_KEY_YEAR);
       builder.setRecordingYear((int) year);
-    }
-
-    @Nullable
-    String mediaUriString = metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-    if (mediaUriString != null) {
-      builder.setMediaUri(Uri.parse(mediaUriString));
     }
 
     @Nullable
@@ -563,8 +560,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       builder.putLong(MediaMetadataCompat.METADATA_KEY_YEAR, metadata.recordingYear);
     }
 
-    if (metadata.mediaUri != null) {
-      builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, metadata.mediaUri.toString());
+    if (mediaItem.requestMetadata.mediaUri != null) {
+      builder.putString(
+          MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
+          mediaItem.requestMetadata.mediaUri.toString());
     }
 
     if (metadata.artworkUri != null) {
