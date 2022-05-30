@@ -294,18 +294,6 @@ public class MediaSession {
     }
 
     /**
-     * Sets the logic used to fill in the fields of a {@link MediaItem} from {@link
-     * MediaController}.
-     *
-     * @param mediaItemFiller The filler.
-     * @return The builder to allow chaining.
-     */
-    @Override
-    public Builder setMediaItemFiller(MediaItemFiller mediaItemFiller) {
-      return super.setMediaItemFiller(mediaItemFiller);
-    }
-
-    /**
      * Sets an extra {@link Bundle} for the {@link MediaSession}. The {@link
      * MediaSession#getToken()} session token} will have the {@link SessionToken#getExtras()
      * extras}. If not set, an empty {@link Bundle} will be used.
@@ -327,8 +315,7 @@ public class MediaSession {
      */
     @Override
     public MediaSession build() {
-      return new MediaSession(
-          context, id, player, sessionActivity, callback, mediaItemFiller, extras);
+      return new MediaSession(context, id, player, sessionActivity, callback, extras);
     }
   }
 
@@ -484,7 +471,6 @@ public class MediaSession {
       Player player,
       @Nullable PendingIntent sessionActivity,
       Callback callback,
-      MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     synchronized (STATIC_LOCK) {
       if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
@@ -492,7 +478,7 @@ public class MediaSession {
       }
       SESSION_ID_TO_SESSION_MAP.put(id, this);
     }
-    impl = createImpl(context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    impl = createImpl(context, id, player, sessionActivity, callback, tokenExtras);
   }
 
   /* package */ MediaSessionImpl createImpl(
@@ -501,10 +487,8 @@ public class MediaSession {
       Player player,
       @Nullable PendingIntent sessionActivity,
       Callback callback,
-      MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
-    return new MediaSessionImpl(
-        this, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    return new MediaSessionImpl(this, context, id, player, sessionActivity, callback, tokenExtras);
   }
 
   /* package */ MediaSessionImpl getImpl() {
@@ -1041,23 +1025,29 @@ public class MediaSession {
         Bundle args) {
       return Futures.immediateFuture(new SessionResult(RESULT_ERROR_NOT_SUPPORTED));
     }
-  }
-
-  /** An object which fills in the fields of a {@link MediaItem} from {@link MediaController}. */
-  public interface MediaItemFiller {
 
     /**
-     * Called to fill in the {@link MediaItem#localConfiguration} of the media item from
-     * controllers.
+     * Called when a controller requested to add new {@linkplain MediaItem media items} to the
+     * playlist.
      *
-     * @param session The session for this event.
+     * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
+     * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
+     * playable by the underlying {@link Player}. Typically, this implementation should be able to
+     * identify the correct item by its {@link MediaItem#mediaId} and/or the {@link
+     * MediaItem#requestMetadata}.
+     *
+     * <p>Return a {@link ListenableFuture} with the resolved {@link MediaItem media items}. You can
+     * also return the items directly by using Guava's {@link Futures#immediateFuture(Object)}.
+     *
+     * @param mediaSession The session for this event.
      * @param controller The controller information.
-     * @param mediaItem The media item whose local configuration will be filled in.
-     * @return A media item with filled local configuration.
+     * @param mediaItems The list of requested {@link MediaItem media items}.
+     * @return A {@link ListenableFuture} for the list of resolved {@link MediaItem media items}
+     *     that are playable by the underlying {@link Player}.
      */
-    default MediaItem fillInLocalConfiguration(
-        MediaSession session, MediaSession.ControllerInfo controller, MediaItem mediaItem) {
-      return mediaItem;
+    default ListenableFuture<List<MediaItem>> onAddMediaItems(
+        MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+      return Futures.immediateFailedFuture(new UnsupportedOperationException());
     }
   }
 
@@ -1230,7 +1220,6 @@ public class MediaSession {
     /* package */ final Player player;
     /* package */ String id;
     /* package */ C callback;
-    /* package */ MediaItemFiller mediaItemFiller;
     /* package */ @Nullable PendingIntent sessionActivity;
     /* package */ Bundle extras;
 
@@ -1240,7 +1229,6 @@ public class MediaSession {
       checkArgument(player.canAdvertiseSession());
       id = "";
       this.callback = callback;
-      this.mediaItemFiller = new MediaItemFiller() {};
       extras = Bundle.EMPTY;
     }
 
@@ -1259,12 +1247,6 @@ public class MediaSession {
     @SuppressWarnings("unchecked")
     /* package */ U setCallback(C callback) {
       this.callback = checkNotNull(callback);
-      return (U) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    /* package */ U setMediaItemFiller(MediaItemFiller mediaItemFiller) {
-      this.mediaItemFiller = checkNotNull(mediaItemFiller);
       return (U) this;
     }
 

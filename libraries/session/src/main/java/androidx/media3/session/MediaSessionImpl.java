@@ -67,7 +67,6 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
-import androidx.media3.session.MediaSession.MediaItemFiller;
 import androidx.media3.session.SequencedFutureManager.SequencedFuture;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -104,12 +103,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   protected final Object lock = new Object();
 
   private final Uri sessionUri;
-
   private final PlayerInfoChangedHandler onPlayerInfoChangedHandler;
-
   private final MediaSession.Callback callback;
-  private final MediaItemFiller mediaItemFiller;
-
   private final Context context;
   private final MediaSessionStub sessionStub;
   private final MediaSessionLegacyStub sessionLegacyStub;
@@ -143,7 +138,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       Player player,
       @Nullable PendingIntent sessionActivity,
       MediaSession.Callback callback,
-      MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     this.context = context;
     this.instance = instance;
@@ -157,7 +151,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     applicationHandler = new Handler(player.getApplicationLooper());
     this.callback = callback;
-    this.mediaItemFiller = mediaItemFiller;
 
     playerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
@@ -495,9 +488,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return applicationHandler;
   }
 
-  protected MediaItem fillInLocalConfiguration(
-      MediaSession.ControllerInfo controller, MediaItem mediaItem) {
-    return mediaItemFiller.fillInLocalConfiguration(instance, controller, mediaItem);
+  protected ListenableFuture<List<MediaItem>> onAddMediaItemsOnHandler(
+      ControllerInfo controller, List<MediaItem> mediaItems) {
+    return checkNotNull(
+        callback.onAddMediaItems(instance, controller, mediaItems),
+        "onAddMediaItems must return a non-null future");
   }
 
   protected boolean isReleased() {

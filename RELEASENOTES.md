@@ -129,6 +129,9 @@
         `MediaLibrarySession.MediaLibrarySessionCallback` to
         `MediaLibrarySession.Callback` and
         `MediaSession.Builder.setSessionCallback` to `setCallback`.
+    *   Replace `MediaSession.MediaItemFiler` with
+        `MediaSession.Callback.onAddMediaItems` to allow asynchronous resolution
+        of requests.
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
     *   Workaround OkHttp interrupt handling.

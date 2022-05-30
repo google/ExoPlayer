@@ -63,9 +63,8 @@ import java.util.concurrent.Future;
       Player player,
       @Nullable PendingIntent sessionActivity,
       MediaLibrarySession.Callback callback,
-      MediaSession.MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
-    super(instance, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    super(instance, context, id, player, sessionActivity, callback, tokenExtras);
     this.instance = instance;
     this.callback = callback;
     subscriptions = new ArrayMap<>();

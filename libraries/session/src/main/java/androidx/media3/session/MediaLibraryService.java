@@ -407,17 +407,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
-       * Sets the logic used to fill in the fields of a {@link MediaItem}.
-       *
-       * @param mediaItemFiller The filler.
-       * @return The builder to allow chaining.
-       */
-      @Override
-      public Builder setMediaItemFiller(MediaItemFiller mediaItemFiller) {
-        return super.setMediaItemFiller(mediaItemFiller);
-      }
-
-      /**
        * Sets an extra {@link Bundle} for the {@link MediaLibrarySession}. The {@link
        * MediaLibrarySession#getToken()} session token} will have the {@link
        * SessionToken#getExtras() extras}. If not set, an empty {@link Bundle} will be used.
@@ -439,8 +428,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
        */
       @Override
       public MediaLibrarySession build() {
-        return new MediaLibrarySession(
-            context, id, player, sessionActivity, callback, mediaItemFiller, extras);
+        return new MediaLibrarySession(context, id, player, sessionActivity, callback, extras);
       }
     }
 
@@ -450,9 +438,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         Player player,
         @Nullable PendingIntent sessionActivity,
         MediaSession.Callback callback,
-        MediaItemFiller mediaItemFiller,
         Bundle tokenExtras) {
-      super(context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+      super(context, id, player, sessionActivity, callback, tokenExtras);
     }
 
     @Override
@@ -462,17 +449,9 @@ public abstract class MediaLibraryService extends MediaSessionService {
         Player player,
         @Nullable PendingIntent sessionActivity,
         MediaSession.Callback callback,
-        MediaItemFiller mediaItemFiller,
         Bundle tokenExtras) {
       return new MediaLibrarySessionImpl(
-          this,
-          context,
-          id,
-          player,
-          sessionActivity,
-          (Callback) callback,
-          mediaItemFiller,
-          tokenExtras);
+          this, context, id, player, sessionActivity, (Callback) callback, tokenExtras);
     }
 
     @Override

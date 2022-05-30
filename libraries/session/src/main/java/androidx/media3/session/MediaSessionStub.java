@@ -147,6 +147,36 @@ import java.util.concurrent.ExecutionException;
         MoreExecutors.directExecutor());
   }
 
+  private static <K extends MediaSessionImpl> void handleMediaItemsWhenReady(
+      K sessionImpl,
+      ControllerInfo controller,
+      int seq,
+      ListenableFuture<List<MediaItem>> future,
+      MediaItemPlayerTask mediaItemPlayerTask) {
+    future.addListener(
+        () -> {
+          SessionResult result;
+          try {
+            List<MediaItem> mediaItems =
+                checkNotNull(future.get(), "MediaItem list must not be null");
+            postOrRun(
+                sessionImpl.getApplicationHandler(),
+                () -> mediaItemPlayerTask.run(sessionImpl.getPlayerWrapper(), mediaItems));
+            result = new SessionResult(SessionResult.RESULT_SUCCESS);
+          } catch (CancellationException unused) {
+            result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
+          } catch (ExecutionException | InterruptedException exception) {
+            result =
+                new SessionResult(
+                    exception.getCause() instanceof UnsupportedOperationException
+                        ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
+                        : SessionResult.RESULT_ERROR_UNKNOWN);
+          }
+          sendSessionResult(sessionImpl, controller, seq, result);
+        },
+        MoreExecutors.directExecutor());
+  }
+
   private static void sendLibraryResult(
       ControllerInfo controller, int seq, LibraryResult<?> result) {
     try {
@@ -816,13 +846,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl.getPlayerWrapper().setMediaItem(mediaItemWithPlaybackProperties);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::setMediaItems));
   }
 
   @Override
@@ -845,15 +873,16 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItem(mediaItemWithPlaybackProperties, startPositionMs);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) ->
+                    player.setMediaItems(mediaItems, /* startIndex= */ 0, startPositionMs)));
   }
 
   @Override
@@ -876,15 +905,15 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItem(mediaItemWithPlaybackProperties, resetPosition);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition)));
   }
 
   @Override
@@ -907,20 +936,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemWithPlaybackPropertiesListBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItemList) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemWithPlaybackPropertiesListBuilder.add(mediaItemWithPlaybackProperties);
-          }
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItems(mediaItemWithPlaybackPropertiesListBuilder.build());
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::setMediaItems));
   }
 
   @Override
@@ -945,20 +965,15 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemWithPlaybackPropertiesListBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItemList) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemWithPlaybackPropertiesListBuilder.add(mediaItemWithPlaybackProperties);
-          }
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItems(mediaItemWithPlaybackPropertiesListBuilder.build(), resetPosition);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition)));
   }
 
   @Override
@@ -984,22 +999,16 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemWithPlaybackPropertiesListBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItemList) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemWithPlaybackPropertiesListBuilder.add(mediaItemWithPlaybackProperties);
-          }
-
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItems(
-                  mediaItemWithPlaybackPropertiesListBuilder.build(), startIndex, startPositionMs);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) ->
+                    player.setMediaItems(mediaItems, startIndex, startPositionMs)));
   }
 
   @Override
@@ -1057,13 +1066,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl.getPlayerWrapper().addMediaItem(mediaItemWithPlaybackProperties);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::addMediaItems));
   }
 
   @Override
@@ -1083,13 +1090,15 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl.getPlayerWrapper().addMediaItem(index, mediaItemWithPlaybackProperties);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) -> player.addMediaItems(index, mediaItems)));
   }
 
   @Override
@@ -1111,21 +1120,10 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemsWithPlaybackPropertiesBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItems) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemsWithPlaybackPropertiesBuilder.add(mediaItemWithPlaybackProperties);
-          }
-
-          sessionImpl
-              .getPlayerWrapper()
-              .addMediaItems(mediaItemsWithPlaybackPropertiesBuilder.build());
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) -> sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::addMediaItems));
   }
 
   @Override
@@ -1150,21 +1148,14 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemsWithPlaybackPropertiesBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItems) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemsWithPlaybackPropertiesBuilder.add(mediaItemWithPlaybackProperties);
-          }
-
-          sessionImpl
-              .getPlayerWrapper()
-              .addMediaItems(index, mediaItemsWithPlaybackPropertiesBuilder.build());
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) -> sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, items) -> player.addMediaItems(index, items)));
   }
 
   @Override
@@ -1707,6 +1698,10 @@ import java.util.concurrent.ExecutionException;
 
   private interface PostSessionTask<T, K extends MediaSessionImpl> {
     void run(K sessionImpl, ControllerInfo controller, int seq, T result);
+  }
+
+  private interface MediaItemPlayerTask {
+    void run(PlayerWrapper player, List<MediaItem> mediaItems);
   }
 
   /* package */ static final class Controller2Cb implements ControllerCb {

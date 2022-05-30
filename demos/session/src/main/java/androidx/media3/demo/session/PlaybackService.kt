@@ -202,6 +202,16 @@ class PlaybackService : MediaLibraryService() {
       }
     }
 
+    override fun onAddMediaItems(
+      mediaSession: MediaSession,
+      controller: MediaSession.ControllerInfo,
+      mediaItems: List<MediaItem>
+    ): ListenableFuture<List<MediaItem>> {
+      val updatedMediaItems: List<MediaItem> =
+        mediaItems.map { mediaItem -> MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem }
+      return Futures.immediateFuture(updatedMediaItems)
+    }
+
     private fun setMediaItemFromSearchQuery(query: String) {
       // Only accept query with pattern "play [Title]" or "[Title]"
       // Where [Title]: must be exactly matched
@@ -236,7 +246,6 @@ class PlaybackService : MediaLibraryService() {
 
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, librarySessionCallback)
-        .setMediaItemFiller(CustomMediaItemFiller())
         .setSessionActivity(sessionActivityPendingIntent)
         .build()
     if (!customLayout.isEmpty()) {
@@ -261,15 +270,5 @@ class PlaybackService : MediaLibraryService() {
 
   private fun ignoreFuture(customLayout: ListenableFuture<SessionResult>) {
     /* Do nothing. */
-  }
-
-  private class CustomMediaItemFiller : MediaSession.MediaItemFiller {
-    override fun fillInLocalConfiguration(
-      session: MediaSession,
-      controller: ControllerInfo,
-      mediaItem: MediaItem
-    ): MediaItem {
-      return MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem
-    }
   }
 }
