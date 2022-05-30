@@ -16,6 +16,9 @@
 package androidx.media3.session;
 
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 
@@ -114,6 +117,41 @@ public final class MediaConstants {
    * @see MediaController#setMediaUri
    */
   public static final String MEDIA_URI_QUERY_URI = "uri";
+
+  /**
+   * Bundle key to indicate a preference that a region of space for the skip to next control should
+   * always be blocked out in the UI, even when the seek to next standard action is not supported.
+   *
+   * <p>This may be used when the session temporarily disallows {@link
+   * androidx.media3.common.Player#COMMAND_SEEK_TO_NEXT} by design.
+   *
+   * @see MediaSession#setSessionExtras(Bundle)
+   * @see MediaSessionCompat#setExtras(Bundle)
+   * @see MediaController.Listener#onExtrasChanged(MediaController, Bundle)
+   * @see MediaControllerCompat.Callback#onExtrasChanged(Bundle)
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_NEXT
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
+   */
+  public static final String EXTRAS_KEY_SLOT_RESERVATION_SEEK_TO_NEXT =
+      "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_NEXT";
+
+  /**
+   * Bundle key to indicate a preference that a region of space for the skip to previous control
+   * should always be blocked out in the UI, even when the seek to previous standard action is not
+   * supported.
+   *
+   * <p>This may be used when the session temporarily disallows {@link
+   * androidx.media3.common.Player#COMMAND_SEEK_TO_PREVIOUS} by design.
+   *
+   * @see MediaSession#setSessionExtras(Bundle)
+   * @see MediaSessionCompat#setExtras(Bundle)
+   * @see MediaController.Listener#onExtrasChanged(MediaController, Bundle)
+   * @see MediaControllerCompat.Callback#onExtrasChanged(Bundle)
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_PREVIOUS
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
+   */
+  public static final String EXTRAS_KEY_SLOT_RESERVATION_SEEK_TO_PREV =
+      "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_PREVIOUS";
 
   /**
    * The extras key for the localized error resolution string.
