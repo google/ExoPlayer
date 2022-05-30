@@ -157,7 +157,7 @@ public final class MediaNotification {
    *
    * @param notificationId The notification id to be used for {@link NotificationManager#notify(int,
    *     Notification)}.
-   * @param notification A {@link Notification} that reflects the sate of a {@link MediaController}
+   * @param notification A {@link Notification} that reflects the state of a {@link MediaController}
    *     and to send media commands to a {@link MediaSession}. The notification may be used to start
    *     a service in the <a
    *     href="https://developer.android.com/guide/components/foreground-services">foreground</a>.
