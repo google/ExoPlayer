@@ -116,12 +116,13 @@ import java.util.concurrent.ExecutionException;
     return connectedControllersManager;
   }
 
-  private static void sendSessionResult(
-      ControllerInfo controller, int seq, @SessionResult.Code int resultCode) {
-    sendSessionResult(controller, seq, new SessionResult(resultCode));
+  private static <K extends MediaSessionImpl> void sendSessionResult(
+      K sessionImpl, ControllerInfo controller, int seq, @SessionResult.Code int resultCode) {
+    sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
   }
 
-  private static void sendSessionResult(ControllerInfo controller, int seq, SessionResult result) {
+  private static <K extends MediaSessionImpl> void sendSessionResult(
+      K sessionImpl, ControllerInfo controller, int seq, SessionResult result) {
     try {
       checkStateNotNull(controller.getControllerCb()).onSessionResult(seq, result);
     } catch (RemoteException e) {
@@ -129,8 +130,8 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static void sendSessionResultWhenReady(
-      ControllerInfo controller, int seq, ListenableFuture<SessionResult> future) {
+  private static <K extends MediaSessionImpl> void sendSessionResultWhenReady(
+      K sessionImpl, ControllerInfo controller, int seq, ListenableFuture<SessionResult> future) {
     future.addListener(
         () -> {
           SessionResult result;
@@ -141,7 +142,7 @@ import java.util.concurrent.ExecutionException;
           } catch (ExecutionException | InterruptedException unused) {
             result = new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN);
           }
-          sendSessionResult(controller, seq, result);
+          sendSessionResult(sessionImpl, controller, seq, result);
         },
         MoreExecutors.directExecutor());
   }
@@ -155,8 +156,11 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static <V> void sendLibraryResultWhenReady(
-      ControllerInfo controller, int seq, ListenableFuture<LibraryResult<V>> future) {
+  private static <V, K extends MediaSessionImpl> void sendLibraryResultWhenReady(
+      K sessionImpl,
+      ControllerInfo controller,
+      int seq,
+      ListenableFuture<LibraryResult<V>> future) {
     future.addListener(
         () -> {
           LibraryResult<V> result;
@@ -177,7 +181,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @Player.Command int command,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -213,22 +217,25 @@ import java.util.concurrent.ExecutionException;
       @Player.Command int command,
       K sessionImpl,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     return () -> {
       if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
         sendSessionResult(
-            controller, seq, new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
+            sessionImpl,
+            controller,
+            seq,
+            new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
         return;
       }
       @SessionResult.Code
       int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
       if (resultCode != SessionResult.RESULT_SUCCESS) {
         // Don't run rejected command.
-        sendSessionResult(controller, seq, new SessionResult(resultCode));
+        sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
         return;
       }
       T result = task.run(sessionImpl, controller);
-      postTask.run(controller, seq, result);
+      postTask.run(sessionImpl, controller, seq, result);
     };
   }
 
@@ -237,7 +244,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @CommandCode int commandCode,
       SessionTask<T, MediaLibrarySessionImpl> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, MediaLibrarySessionImpl> postTask) {
     dispatchSessionTaskWithSessionCommandInternal(
         caller, seq, /* sessionCommand= */ null, commandCode, task, postTask);
   }
@@ -247,7 +254,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @CommandCode int commandCode,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     dispatchSessionTaskWithSessionCommandInternal(
         caller, seq, /* sessionCommand= */ null, commandCode, task, postTask);
   }
@@ -257,7 +264,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       SessionCommand sessionCommand,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     dispatchSessionTaskWithSessionCommandInternal(
         caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, task, postTask);
   }
@@ -268,7 +275,7 @@ import java.util.concurrent.ExecutionException;
       @Nullable SessionCommand sessionCommand,
       @CommandCode int commandCode,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -292,6 +299,7 @@ import java.util.concurrent.ExecutionException;
               if (!connectedControllersManager.isSessionCommandAvailable(
                   controller, sessionCommand)) {
                 sendSessionResult(
+                    sessionImpl,
                     controller,
                     seq,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
@@ -300,6 +308,7 @@ import java.util.concurrent.ExecutionException;
             } else {
               if (!connectedControllersManager.isSessionCommandAvailable(controller, commandCode)) {
                 sendSessionResult(
+                    sessionImpl,
                     controller,
                     seq,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
@@ -307,7 +316,7 @@ import java.util.concurrent.ExecutionException;
               }
             }
             T result = task.run(sessionImpl, controller);
-            postTask.run(controller, seq, result);
+            postTask.run(sessionImpl, controller, seq, result);
           });
     } finally {
       Binder.restoreCallingIdentity(token);
@@ -1696,8 +1705,8 @@ import java.util.concurrent.ExecutionException;
     T run(K sessionImpl, ControllerInfo controller);
   }
 
-  private interface PostSessionTask<T> {
-    void run(ControllerInfo controller, int seq, T result);
+  private interface PostSessionTask<T, K extends MediaSessionImpl> {
+    void run(K sessionImpl, ControllerInfo controller, int seq, T result);
   }
 
   /* package */ static final class Controller2Cb implements ControllerCb {
