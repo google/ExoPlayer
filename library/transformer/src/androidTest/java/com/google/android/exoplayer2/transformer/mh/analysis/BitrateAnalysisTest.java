@@ -101,6 +101,17 @@ public class BitrateAnalysisTest {
     }
 
     Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
+        /* encodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri)
+            .buildUpon()
+            .setAverageBitrate(bitrate)
+            .build())) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
