@@ -415,31 +415,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
       // The extension is present, but instantiation failed.
       throw new RuntimeException("Error instantiating AV1 extension", e);
     }
-
-    try {
-      // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      Class<?> clazz = Class.forName("androidx.media3.decoder.ffmpeg.FfmpegVideoRenderer");
-      Constructor<?> constructor =
-          clazz.getConstructor(
-              long.class,
-              android.os.Handler.class,
-              androidx.media3.exoplayer.video.VideoRendererEventListener.class,
-              int.class);
-      Renderer renderer =
-          (Renderer)
-              constructor.newInstance(
-                  allowedVideoJoiningTimeMs,
-                  eventHandler,
-                  eventListener,
-                  MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
-      out.add(extensionRendererIndex++, renderer);
-      Log.i(TAG, "Loaded FfmpegVideoRenderer.");
-    } catch (ClassNotFoundException e) {
-      // Expected if the app was built without the extension.
-    } catch (Exception e) {
-      // The extension is present, but instantiation failed.
-      throw new RuntimeException("Error instantiating FFmpeg extension", e);
-    }
   }
 
   /**
