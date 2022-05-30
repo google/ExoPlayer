@@ -85,6 +85,7 @@ public final class MediaItem implements Bundleable {
     // TODO: Change this to LiveConfiguration once all the deprecated individual setters
     // are removed.
     private LiveConfiguration.Builder liveConfiguration;
+    private RequestMetadata requestMetadata;
 
     /** Creates a builder. */
     @SuppressWarnings("deprecation") // Temporarily uses DrmConfiguration.Builder() constructor.
@@ -94,6 +95,7 @@ public final class MediaItem implements Bundleable {
       streamKeys = Collections.emptyList();
       subtitleConfigurations = ImmutableList.of();
       liveConfiguration = new LiveConfiguration.Builder();
+      requestMetadata = RequestMetadata.EMPTY;
     }
 
     private Builder(MediaItem mediaItem) {
@@ -102,6 +104,7 @@ public final class MediaItem implements Bundleable {
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
       liveConfiguration = mediaItem.liveConfiguration.buildUpon();
+      requestMetadata = mediaItem.requestMetadata;
       @Nullable LocalConfiguration localConfiguration = mediaItem.localConfiguration;
       if (localConfiguration != null) {
         customCacheKey = localConfiguration.customCacheKey;
@@ -526,6 +529,12 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
+    /** Sets the request metadata. */
+    public Builder setRequestMetadata(RequestMetadata requestMetadata) {
+      this.requestMetadata = requestMetadata;
+      return this;
+    }
+
     /** Returns a new {@link MediaItem} instance with the current builder values. */
     @SuppressWarnings("deprecation") // Using PlaybackProperties while it exists.
     public MediaItem build() {
@@ -550,7 +559,8 @@ public final class MediaItem implements Bundleable {
           clippingConfiguration.buildClippingProperties(),
           localConfiguration,
           liveConfiguration.build(),
-          mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
+          mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY,
+          requestMetadata);
     }
   }
 
@@ -1731,6 +1741,146 @@ public final class MediaItem implements Bundleable {
   }
 
   /**
+   * Metadata that helps the player to understand a playback request represented by a {@link
+   * MediaItem}.
+   *
+   * <p>This metadata is most useful for cases where playback requests are forwarded to other player
+   * instances (e.g. from a {@link android.media.session.MediaController}) and the player creating
+   * the request doesn't know the required {@link LocalConfiguration} for playback.
+   */
+  public static final class RequestMetadata implements Bundleable {
+
+    /** Empty request metadata. */
+    public static final RequestMetadata EMPTY = new Builder().build();
+
+    /** Builder for {@link RequestMetadata} instances. */
+    public static final class Builder {
+
+      @Nullable private Uri mediaUri;
+      @Nullable private String searchQuery;
+      @Nullable private Bundle extras;
+
+      /** Constructs an instance. */
+      public Builder() {}
+
+      private Builder(RequestMetadata requestMetadata) {
+        this.mediaUri = requestMetadata.mediaUri;
+        this.searchQuery = requestMetadata.searchQuery;
+        this.extras = requestMetadata.extras;
+      }
+
+      /** Sets the URI of the requested media, or null if not known or applicable. */
+      public Builder setMediaUri(@Nullable Uri mediaUri) {
+        this.mediaUri = mediaUri;
+        return this;
+      }
+
+      /** Sets the search query for the requested media, or null if not applicable. */
+      public Builder setSearchQuery(@Nullable String searchQuery) {
+        this.searchQuery = searchQuery;
+        return this;
+      }
+
+      /** Sets optional extras {@link Bundle}. */
+      public Builder setExtras(@Nullable Bundle extras) {
+        this.extras = extras;
+        return this;
+      }
+
+      /** Builds the request metadata. */
+      public RequestMetadata build() {
+        return new RequestMetadata(this);
+      }
+    }
+
+    /** The URI of the requested media, or null if not known or applicable. */
+    @Nullable public final Uri mediaUri;
+
+    /** The search query for the requested media, or null if not applicable. */
+    @Nullable public final String searchQuery;
+
+    /**
+     * Optional extras {@link Bundle}.
+     *
+     * <p>Given the complexities of checking the equality of two {@link Bundle}s, this is not
+     * considered in the {@link #equals(Object)} or {@link #hashCode()}.
+     */
+    @Nullable public final Bundle extras;
+
+    private RequestMetadata(Builder builder) {
+      this.mediaUri = builder.mediaUri;
+      this.searchQuery = builder.searchQuery;
+      this.extras = builder.extras;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof RequestMetadata)) {
+        return false;
+      }
+      RequestMetadata that = (RequestMetadata) o;
+      return Util.areEqual(mediaUri, that.mediaUri) && Util.areEqual(searchQuery, that.searchQuery);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = mediaUri == null ? 0 : mediaUri.hashCode();
+      result = 31 * result + (searchQuery == null ? 0 : searchQuery.hashCode());
+      return result;
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({FIELD_MEDIA_URI, FIELD_SEARCH_QUERY, FIELD_EXTRAS})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_MEDIA_URI = 0;
+    private static final int FIELD_SEARCH_QUERY = 1;
+    private static final int FIELD_EXTRAS = 2;
+
+    @UnstableApi
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      if (mediaUri != null) {
+        bundle.putParcelable(keyForField(FIELD_MEDIA_URI), mediaUri);
+      }
+      if (searchQuery != null) {
+        bundle.putString(keyForField(FIELD_SEARCH_QUERY), searchQuery);
+      }
+      if (extras != null) {
+        bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+      }
+      return bundle;
+    }
+
+    /** Object that can restore {@link RequestMetadata} from a {@link Bundle}. */
+    @UnstableApi
+    public static final Creator<RequestMetadata> CREATOR =
+        bundle ->
+            new RequestMetadata.Builder()
+                .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
+                .setSearchQuery(bundle.getString(keyForField(FIELD_SEARCH_QUERY)))
+                .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)))
+                .build();
+
+    private static String keyForField(@RequestMetadata.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
+  }
+
+  /**
    * The default media ID that is used if the media ID is not explicitly set by {@link
    * Builder#setMediaId(String)}.
    */
@@ -1765,6 +1915,9 @@ public final class MediaItem implements Bundleable {
    */
   @UnstableApi @Deprecated public final ClippingProperties clippingProperties;
 
+  /** The media {@link RequestMetadata}. */
+  public final RequestMetadata requestMetadata;
+
   // Using PlaybackProperties and ClippingProperties until they're deleted.
   @SuppressWarnings("deprecation")
   private MediaItem(
@@ -1772,7 +1925,8 @@ public final class MediaItem implements Bundleable {
       ClippingProperties clippingConfiguration,
       @Nullable PlaybackProperties localConfiguration,
       LiveConfiguration liveConfiguration,
-      MediaMetadata mediaMetadata) {
+      MediaMetadata mediaMetadata,
+      RequestMetadata requestMetadata) {
     this.mediaId = mediaId;
     this.localConfiguration = localConfiguration;
     this.playbackProperties = localConfiguration;
@@ -1780,6 +1934,7 @@ public final class MediaItem implements Bundleable {
     this.mediaMetadata = mediaMetadata;
     this.clippingConfiguration = clippingConfiguration;
     this.clippingProperties = clippingConfiguration;
+    this.requestMetadata = requestMetadata;
   }
 
   /** Returns a {@link Builder} initialized with the values of this instance. */
@@ -1802,7 +1957,8 @@ public final class MediaItem implements Bundleable {
         && clippingConfiguration.equals(other.clippingConfiguration)
         && Util.areEqual(localConfiguration, other.localConfiguration)
         && Util.areEqual(liveConfiguration, other.liveConfiguration)
-        && Util.areEqual(mediaMetadata, other.mediaMetadata);
+        && Util.areEqual(mediaMetadata, other.mediaMetadata)
+        && Util.areEqual(requestMetadata, other.requestMetadata);
   }
 
   @Override
@@ -1812,6 +1968,7 @@ public final class MediaItem implements Bundleable {
     result = 31 * result + liveConfiguration.hashCode();
     result = 31 * result + clippingConfiguration.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
+    result = 31 * result + requestMetadata.hashCode();
     return result;
   }
 
@@ -1824,7 +1981,8 @@ public final class MediaItem implements Bundleable {
     FIELD_MEDIA_ID,
     FIELD_LIVE_CONFIGURATION,
     FIELD_MEDIA_METADATA,
-    FIELD_CLIPPING_PROPERTIES
+    FIELD_CLIPPING_PROPERTIES,
+    FIELD_REQUEST_METADATA
   })
   private @interface FieldNumber {}
 
@@ -1832,6 +1990,7 @@ public final class MediaItem implements Bundleable {
   private static final int FIELD_LIVE_CONFIGURATION = 1;
   private static final int FIELD_MEDIA_METADATA = 2;
   private static final int FIELD_CLIPPING_PROPERTIES = 3;
+  private static final int FIELD_REQUEST_METADATA = 4;
 
   /**
    * {@inheritDoc}
@@ -1847,6 +2006,7 @@ public final class MediaItem implements Bundleable {
     bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
     bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
     bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingConfiguration.toBundle());
+    bundle.putBundle(keyForField(FIELD_REQUEST_METADATA), requestMetadata.toBundle());
     return bundle;
   }
 
@@ -1883,12 +2043,20 @@ public final class MediaItem implements Bundleable {
     } else {
       clippingConfiguration = ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
     }
+    @Nullable Bundle requestMetadataBundle = bundle.getBundle(keyForField(FIELD_REQUEST_METADATA));
+    RequestMetadata requestMetadata;
+    if (requestMetadataBundle == null) {
+      requestMetadata = RequestMetadata.EMPTY;
+    } else {
+      requestMetadata = RequestMetadata.CREATOR.fromBundle(requestMetadataBundle);
+    }
     return new MediaItem(
         mediaId,
         clippingConfiguration,
         /* localConfiguration= */ null,
         liveConfiguration,
-        mediaMetadata);
+        mediaMetadata,
+        requestMetadata);
   }
 
   private static String keyForField(@FieldNumber int field) {
