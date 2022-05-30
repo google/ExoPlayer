@@ -126,18 +126,81 @@ public final class AndroidTestUtil {
   // The 7 HIGHMOTION files are H264 and AAC.
   public static final String MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1280w_720h_highmotion.mp4";
+  public static final Format MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1280)
+          .setHeight(720)
+          .setAverageBitrate(8_939_000)
+          .setFrameRate(30.075f)
+          .build();
+
   public static final String MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1440w_1440h_highmotion.mp4";
+  public static final Format MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1440)
+          .setHeight(1440)
+          .setAverageBitrate(17_000_000)
+          .setFrameRate(29.97f)
+          .build();
+
   public static final String MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_highmotion.mp4";
+  public static final Format MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setAverageBitrate(17_100_000)
+          .setFrameRate(30.037f)
+          .build();
+
   public static final String MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/3840w_2160h_highmotion.mp4";
+  public static final Format MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setAverageBitrate(48_300_000)
+          .setFrameRate(30.090f)
+          .build();
+
   public static final String MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1280w_720h_30s_highmotion.mp4";
+  public static final Format MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1280)
+          .setHeight(720)
+          .setAverageBitrate(9_962_000)
+          .setFrameRate(30.078f)
+          .build();
+
   public static final String MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_30s_highmotion.mp4";
+  public static final Format MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setAverageBitrate(15_000_000)
+          .setFrameRate(28.561f)
+          .build();
+
   public static final String MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/3840w_2160h_32s_highmotion.mp4";
+  public static final Format MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setAverageBitrate(47_800_000)
+          .setFrameRate(28.414f)
+          .build();
+
   /**
    * Log in logcat and in an analysis file that this test was skipped.
    *
@@ -303,6 +366,20 @@ public final class AndroidTestUtil {
         return MP4_REMOTE_H264_MP3_FORMAT;
       case MP4_REMOTE_4K60_PORTRAIT_URI_STRING:
         return MP4_REMOTE_4K60_PORTRAIT_FORMAT;
+      case MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1440W_1440H_5_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1920W_1080H_5_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION:
+        return MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION:
+        return MP4_REMOTE_1920W_1080H_30_SECOND_HIGHMOTION_FORMAT;
+      case MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION:
+        return MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION_FORMAT;
       default:
         throw new IllegalArgumentException("The format for the given uri is not found.");
     }
@@ -321,6 +398,12 @@ public final class AndroidTestUtil {
         format.width, format.height, /* frameRate= */ Format.NO_VALUE);
   }
 
+  /**
+   * Checks whether the top ranked encoder from {@link EncoderUtil#getSupportedEncoders} supports
+   * the given resolution and {@linkplain Format#averageBitrate bitrate}.
+   *
+   * <p>Assumes support encoding if the {@link Format#averageBitrate bitrate} is not set.
+   */
   private static boolean canEncode(Format format) {
     String mimeType = checkNotNull(format.sampleMimeType);
     ImmutableList<android.media.MediaCodecInfo> supportedEncoders =
@@ -328,8 +411,15 @@ public final class AndroidTestUtil {
     if (supportedEncoders.isEmpty()) {
       return false;
     }
-    return EncoderUtil.isSizeSupported(
-        supportedEncoders.get(0), mimeType, format.width, format.height);
+
+    android.media.MediaCodecInfo encoder = supportedEncoders.get(0);
+    boolean sizeSupported =
+        EncoderUtil.isSizeSupported(encoder, mimeType, format.width, format.height);
+    boolean bitrateSupported =
+        format.averageBitrate == Format.NO_VALUE
+            || EncoderUtil.getSupportedBitrateRange(encoder, mimeType)
+                .contains(format.averageBitrate);
+    return sizeSupported && bitrateSupported;
   }
 
   /**
