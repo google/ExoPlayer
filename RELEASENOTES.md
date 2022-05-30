@@ -35,6 +35,9 @@
     *   Add AV1 support to the `MediaCodecVideoRenderer.getCodecMaxInputSize`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
+    *   Change the return type of `AudioAttributes.getAudioAttributesV21()` from
+        `android.media.AudioAttributes` to a new `AudioAttributesV21` wrapper
+        class, to prevent slow ART verification on API < 21.
 *   Ad playback / IMA:
     *   Decrease ad polling rate from every 100ms to every 200ms, to line up
         with Media Rating Council (MRC) recommendations.

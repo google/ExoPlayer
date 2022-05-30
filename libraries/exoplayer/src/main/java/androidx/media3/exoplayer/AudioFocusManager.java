@@ -276,7 +276,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean willPauseWhenDucked = willPauseWhenDucked();
       audioFocusRequest =
           builder
-              .setAudioAttributes(checkNotNull(audioAttributes).getAudioAttributesV21())
+              .setAudioAttributes(
+                  checkNotNull(audioAttributes).getAudioAttributesV21().audioAttributes)
               .setWillPauseWhenDucked(willPauseWhenDucked)
               .setOnAudioFocusChangeListener(focusListener)
               .build();
