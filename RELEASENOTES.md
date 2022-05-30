@@ -34,7 +34,7 @@
         `Player.Listener.onTracksInfoChanged` have also been renamed to
         `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
 *   Video:
-    *   Rename `DummySurface` to `PlaceHolderSurface`.
+    *   Rename `DummySurface` to `PlaceholderSurface`.
     *   Add AV1 support to the `MediaCodecVideoRenderer.getCodecMaxInputSize`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
@@ -136,7 +136,7 @@
         `MediaSession.Callback.onAddMediaItems` to allow asynchronous resolution
         of requests.
 *   Data sources:
-    *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
+    *   Rename `DummyDataSource` to `PlaceholderDataSource`.
     *   Workaround OkHttp interrupt handling.
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
