@@ -151,7 +151,10 @@ public class MediaSessionPermissionTest {
   public void removeMediaItems() throws Exception {
     testOnCommandRequest(
         COMMAND_CHANGE_MEDIA_ITEMS,
-        controller -> controller.removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1));
+        controller -> {
+          controller.addMediaItems(MediaTestUtils.createMediaItems(/* size= */ 5));
+          controller.removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1);
+        });
   }
 
   @Test

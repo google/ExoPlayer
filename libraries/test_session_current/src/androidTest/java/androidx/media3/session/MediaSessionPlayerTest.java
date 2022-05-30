@@ -198,7 +198,7 @@ public class MediaSessionPlayerTest {
     controller.setMediaItem(item);
 
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEM, TIMEOUT_MS);
-    assertThat(player.mediaItem).isEqualTo(item);
+    assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
   }
@@ -214,7 +214,7 @@ public class MediaSessionPlayerTest {
     controller.setMediaItem(item);
 
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEM, TIMEOUT_MS);
-    assertThat(player.mediaItem).isEqualTo(item);
+    assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
   }
@@ -230,7 +230,7 @@ public class MediaSessionPlayerTest {
     controller.setMediaItem(item);
 
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEM, TIMEOUT_MS);
-    assertThat(player.mediaItem).isEqualTo(item);
+    assertThat(player.mediaItems).containsExactly(item);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.resetPosition).isEqualTo(resetPosition);
   }
@@ -318,7 +318,7 @@ public class MediaSessionPlayerTest {
     controller.addMediaItem(mediaItem);
 
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM, TIMEOUT_MS);
-    assertThat(player.mediaItem).isEqualTo(mediaItem);
+    assertThat(player.mediaItems).hasSize(6);
   }
 
   @Test
@@ -330,7 +330,7 @@ public class MediaSessionPlayerTest {
 
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM_WITH_INDEX, TIMEOUT_MS);
     assertThat(player.index).isEqualTo(index);
-    assertThat(player.mediaItem).isEqualTo(mediaItem);
+    assertThat(player.mediaItems).hasSize(6);
   }
 
   @Test
@@ -341,7 +341,7 @@ public class MediaSessionPlayerTest {
     controller.addMediaItems(mediaItems);
 
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS, TIMEOUT_MS);
-    assertThat(player.mediaItems).isEqualTo(mediaItems);
+    assertThat(player.mediaItems).hasSize(7);
   }
 
   @Test
@@ -354,12 +354,12 @@ public class MediaSessionPlayerTest {
 
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, TIMEOUT_MS);
     assertThat(player.index).isEqualTo(index);
-    assertThat(player.mediaItems).isEqualTo(mediaItems);
+    assertThat(player.mediaItems).hasSize(7);
   }
 
   @Test
   public void removeMediaItem() throws Exception {
-    int index = 5;
+    int index = 3;
 
     controller.removeMediaItem(index);
 

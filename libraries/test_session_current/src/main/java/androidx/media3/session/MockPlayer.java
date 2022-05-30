@@ -48,6 +48,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -214,8 +215,7 @@ public class MockPlayer implements Player {
   public int currentAdIndexInAdGroup;
   @Nullable public PlaybackParameters playbackParameters;
   public Timeline timeline;
-  public MediaItem mediaItem;
-  public List<MediaItem> mediaItems;
+  public ArrayList<MediaItem> mediaItems;
   public boolean resetPosition;
   public int startMediaItemIndex;
   public long startPositionMs;
@@ -260,14 +260,13 @@ public class MockPlayer implements Player {
       mediaItems = MediaTestUtils.createMediaItems(builder.itemCount);
       timeline = new PlaylistTimeline(mediaItems);
     } else {
-      mediaItems = ImmutableList.of();
+      mediaItems = new ArrayList<>();
       timeline = Timeline.EMPTY;
     }
 
     // Sets default audio attributes to prevent setVolume() from being called with the play().
     audioAttributes = AudioAttributes.DEFAULT;
 
-    mediaItem = MediaItem.EMPTY;
     playlistMetadata = MediaMetadata.EMPTY;
     index = C.INDEX_UNSET;
     fromIndex = C.INDEX_UNSET;
@@ -709,40 +708,40 @@ public class MockPlayer implements Player {
 
   @Override
   public void setMediaItem(MediaItem mediaItem) {
-    this.mediaItem = mediaItem;
+    this.mediaItems = new ArrayList<>(ImmutableList.of(mediaItem));
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM)).open();
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    this.mediaItem = mediaItem;
+    this.mediaItems = new ArrayList<>(ImmutableList.of(mediaItem));
     this.startPositionMs = startPositionMs;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM_WITH_START_POSITION)).open();
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    this.mediaItem = mediaItem;
+    this.mediaItems = new ArrayList<>(ImmutableList.of(mediaItem));
     this.resetPosition = resetPosition;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems) {
-    this.mediaItems = mediaItems;
+    this.mediaItems = new ArrayList<>(mediaItems);
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    this.mediaItems = mediaItems;
+    this.mediaItems = new ArrayList<>(mediaItems);
     this.resetPosition = resetPosition;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    this.mediaItems = mediaItems;
+    this.mediaItems = new ArrayList<>(mediaItems);
     this.startMediaItemIndex = startIndex;
     this.startPositionMs = startPositionMs;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX)).open();
@@ -851,33 +850,34 @@ public class MockPlayer implements Player {
 
   @Override
   public void addMediaItem(MediaItem mediaItem) {
-    this.mediaItem = mediaItem;
+    this.mediaItems.add(mediaItem);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEM)).open();
   }
 
   @Override
   public void addMediaItem(int index, MediaItem mediaItem) {
     this.index = index;
-    this.mediaItem = mediaItem;
+    this.mediaItems.add(index, mediaItem);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEM_WITH_INDEX)).open();
   }
 
   @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
-    this.mediaItems = mediaItems;
+    this.mediaItems.addAll(mediaItems);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     this.index = index;
-    this.mediaItems = mediaItems;
+    this.mediaItems.addAll(index, mediaItems);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).open();
   }
 
   @Override
   public void removeMediaItem(int index) {
     this.index = index;
+    this.mediaItems.remove(index);
     checkNotNull(conditionVariables.get(METHOD_REMOVE_MEDIA_ITEM)).open();
   }
 
@@ -885,11 +885,13 @@ public class MockPlayer implements Player {
   public void removeMediaItems(int fromIndex, int toIndex) {
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
+    Util.removeRange(mediaItems, fromIndex, toIndex);
     checkNotNull(conditionVariables.get(METHOD_REMOVE_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void clearMediaItems() {
+    this.mediaItems.clear();
     checkNotNull(conditionVariables.get(METHOD_CLEAR_MEDIA_ITEMS)).open();
   }
 
@@ -897,6 +899,7 @@ public class MockPlayer implements Player {
   public void moveMediaItem(int currentIndex, int newIndex) {
     this.index = currentIndex;
     this.newIndex = newIndex;
+    Util.moveItems(mediaItems, currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
     checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEM)).open();
   }
 
@@ -905,6 +908,7 @@ public class MockPlayer implements Player {
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
     this.newIndex = newIndex;
+    Util.moveItems(mediaItems, fromIndex, toIndex, newIndex);
     checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEMS)).open();
   }
 

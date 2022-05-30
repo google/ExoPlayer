@@ -136,7 +136,7 @@ public class MockPlayerTest {
     player.setMediaItem(mediaItem);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM)).isTrue();
-    assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
+    assertThat(player.mediaItems).containsExactly(mediaItem);
   }
 
   @Test
@@ -149,7 +149,7 @@ public class MockPlayerTest {
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM_WITH_START_POSITION))
         .isTrue();
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
-    assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
+    assertThat(player.mediaItems).containsExactly(mediaItem);
   }
 
   @Test
@@ -162,7 +162,7 @@ public class MockPlayerTest {
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION))
         .isTrue();
     assertThat(player.resetPosition).isEqualTo(resetPosition);
-    assertThat(player.mediaItem).isEqualTo(mediaItem);
+    assertThat(player.mediaItems).containsExactly(mediaItem);
   }
 
   @Test
@@ -172,7 +172,7 @@ public class MockPlayerTest {
     player.setMediaItems(list);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS)).isTrue();
-    assertThat(player.mediaItems).isSameInstanceAs(list);
+    assertThat(player.mediaItems).containsExactlyElementsIn(list).inOrder();
   }
 
   @Test
@@ -185,7 +185,7 @@ public class MockPlayerTest {
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION))
         .isTrue();
     assertThat(player.resetPosition).isEqualTo(resetPosition);
-    assertThat(player.mediaItems).isSameInstanceAs(list);
+    assertThat(player.mediaItems).containsExactlyElementsIn(list).inOrder();
   }
 
   @Test
@@ -200,7 +200,7 @@ public class MockPlayerTest {
         .isTrue();
     assertThat(player.startMediaItemIndex).isEqualTo(startWindowIndex);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
-    assertThat(player.mediaItems).isSameInstanceAs(list);
+    assertThat(player.mediaItems).containsExactlyElementsIn(list).inOrder();
   }
 
   @Test
@@ -211,7 +211,7 @@ public class MockPlayerTest {
     player.setMediaItems(list);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS)).isTrue();
-    assertThat(player.mediaItems).isSameInstanceAs(list);
+    assertThat(player.mediaItems).containsExactlyElementsIn(list).inOrder();
   }
 
   @Test
@@ -226,98 +226,132 @@ public class MockPlayerTest {
 
   @Test
   public void addMediaItem() {
+    MediaItem existingItem = MediaTestUtils.createMediaItem("existing");
     MediaItem mediaItem = MediaTestUtils.createMediaItem("item");
+    player.setMediaItem(existingItem);
 
     player.addMediaItem(mediaItem);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM)).isTrue();
-    assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
+    assertThat(player.mediaItems).containsExactly(existingItem, mediaItem).inOrder();
   }
 
   @Test
   public void addMediaItem_withIndex() {
     int index = 1;
+    List<MediaItem> existingItems = MediaTestUtils.createMediaItems(/* size= */ 2);
     MediaItem mediaItem = MediaTestUtils.createMediaItem("item");
+    player.setMediaItems(existingItems);
 
     player.addMediaItem(index, mediaItem);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM_WITH_INDEX)).isTrue();
     assertThat(player.index).isEqualTo(index);
-    assertThat(player.mediaItem).isSameInstanceAs(mediaItem);
+    assertThat(player.mediaItems)
+        .containsExactly(existingItems.get(0), mediaItem, existingItems.get(1))
+        .inOrder();
   }
 
   @Test
   public void addMediaItems() {
-    int index = 1;
-    int size = 2;
+    int size = 4;
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
+    player.setMediaItems(mediaItems.subList(/* fromIndex= */ 0, /* toIndex= */ 2));
 
-    player.addMediaItems(index, mediaItems);
+    player.addMediaItems(mediaItems.subList(/* fromIndex= */ 2, /* toIndex= */ 4));
 
-    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).isTrue();
-    assertThat(player.index).isEqualTo(index);
-    assertThat(player.mediaItems).isSameInstanceAs(mediaItems);
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS)).isTrue();
+    assertThat(player.mediaItems).containsExactlyElementsIn(mediaItems).inOrder();
   }
 
   @Test
   public void addMediaItems_withIndex() {
     int index = 1;
-    int size = 2;
+    int size = 4;
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
+    player.setMediaItems(mediaItems.subList(/* fromIndex= */ 0, /* toIndex= */ 2));
 
-    player.addMediaItems(index, mediaItems);
+    player.addMediaItems(index, mediaItems.subList(/* fromIndex= */ 2, /* toIndex= */ 4));
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).isTrue();
     assertThat(player.index).isEqualTo(index);
-    assertThat(player.mediaItems).isSameInstanceAs(mediaItems);
+    assertThat(player.mediaItems)
+        .containsExactly(mediaItems.get(0), mediaItems.get(2), mediaItems.get(3), mediaItems.get(1))
+        .inOrder();
   }
 
   @Test
   public void removeMediaItem() {
-    int index = 8;
+    int index = 3;
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    player.addMediaItems(mediaItems);
 
     player.removeMediaItem(index);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEM)).isTrue();
     assertThat(player.index).isEqualTo(index);
+    assertThat(player.mediaItems)
+        .containsExactly(mediaItems.get(0), mediaItems.get(1), mediaItems.get(2), mediaItems.get(4))
+        .inOrder();
   }
 
   @Test
   public void removeMediaItems() {
     int fromIndex = 1;
     int toIndex = 3;
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    player.addMediaItems(mediaItems);
 
     player.removeMediaItems(fromIndex, toIndex);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_REMOVE_MEDIA_ITEMS)).isTrue();
     assertThat(player.fromIndex).isEqualTo(fromIndex);
     assertThat(player.toIndex).isEqualTo(toIndex);
+    assertThat(player.mediaItems)
+        .containsExactly(mediaItems.get(0), mediaItems.get(3), mediaItems.get(4))
+        .inOrder();
   }
 
   @Test
   public void clearMediaItems() {
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    player.addMediaItems(mediaItems);
+
     player.clearMediaItems();
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_CLEAR_MEDIA_ITEMS)).isTrue();
+    assertThat(player.mediaItems).isEmpty();
   }
 
   @Test
   public void moveMediaItem() {
     int index = 2;
     int newIndex = 3;
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    player.addMediaItems(mediaItems);
 
     player.moveMediaItem(index, newIndex);
 
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_MOVE_MEDIA_ITEM)).isTrue();
     assertThat(player.index).isEqualTo(index);
     assertThat(player.newIndex).isEqualTo(newIndex);
+    assertThat(player.mediaItems)
+        .containsExactly(
+            mediaItems.get(0),
+            mediaItems.get(1),
+            mediaItems.get(3),
+            mediaItems.get(2),
+            mediaItems.get(4))
+        .inOrder();
   }
 
   @Test
   public void moveMediaItems() {
     int fromIndex = 1;
-    int toIndex = 2;
+    int toIndex = 3;
     int newIndex = 3;
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 5);
+    player.addMediaItems(mediaItems);
 
     player.moveMediaItems(fromIndex, toIndex, newIndex);
 
@@ -325,6 +359,14 @@ public class MockPlayerTest {
     assertThat(player.fromIndex).isEqualTo(fromIndex);
     assertThat(player.toIndex).isEqualTo(toIndex);
     assertThat(player.newIndex).isEqualTo(newIndex);
+    assertThat(player.mediaItems)
+        .containsExactly(
+            mediaItems.get(0),
+            mediaItems.get(3),
+            mediaItems.get(4),
+            mediaItems.get(1),
+            mediaItems.get(2))
+        .inOrder();
   }
 
   @Test

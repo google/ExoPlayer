@@ -58,8 +58,8 @@ public final class MediaTestUtils {
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
   }
 
-  public static List<MediaItem> createMediaItems(int size) {
-    List<MediaItem> list = new ArrayList<>();
+  public static ArrayList<MediaItem> createMediaItems(int size) {
+    ArrayList<MediaItem> list = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       list.add(createMediaItem("mediaItem_" + (i + 1)));
     }

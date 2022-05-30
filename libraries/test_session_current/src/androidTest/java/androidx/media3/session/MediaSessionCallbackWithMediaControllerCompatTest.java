@@ -315,7 +315,8 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     controller.addQueueItem(desc);
 
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM, TIMEOUT_MS);
-    assertThat(player.mediaItem.mediaId).isEqualTo(mediaId);
+    assertThat(player.mediaItems).hasSize(1);
+    assertThat(player.mediaItems.get(0).mediaId).isEqualTo(mediaId);
   }
 
   @Test
@@ -329,9 +330,11 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
         new RemoteMediaControllerCompat(
             context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
 
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 10);
     handler.postAndSync(
         () -> {
-          player.timeline = MediaTestUtils.createTimeline(/* windowCount= */ 10);
+          player.setMediaItems(mediaItems);
+          player.timeline = new PlaylistTimeline(mediaItems);
           player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
         });
 
@@ -343,7 +346,8 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM_WITH_INDEX, TIMEOUT_MS);
     assertThat(player.index).isEqualTo(testIndex);
-    assertThat(player.mediaItem.mediaId).isEqualTo(mediaId);
+    assertThat(player.mediaItems).hasSize(11);
+    assertThat(player.mediaItems.get(1).mediaId).isEqualTo(mediaId);
   }
 
   @Test
@@ -360,6 +364,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 10);
     handler.postAndSync(
         () -> {
+          player.setMediaItems(mediaItems);
           player.timeline = new PlaylistTimeline(mediaItems);
           player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
         });
