@@ -317,7 +317,7 @@ import java.util.concurrent.atomic.AtomicReference;
   public ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo) {
     return new ControllerInfo(
         remoteUserInfo,
-        /* controllerVersion= */ 0,
+        ControllerInfo.LEGACY_CONTROLLER_VERSION,
         getMediaSessionManager().isTrustedForMediaControl(remoteUserInfo),
         new BrowserLegacyCb(remoteUserInfo),
         /* connectionHints= */ Bundle.EMPTY);

@@ -95,7 +95,7 @@ import java.util.concurrent.atomic.AtomicReference;
   public ControllerInfo createControllerInfo(RemoteUserInfo info) {
     return new ControllerInfo(
         info,
-        /* controllerVersion= */ 0,
+        ControllerInfo.LEGACY_CONTROLLER_VERSION,
         manager.isTrustedForMediaControl(info),
         /* cb= */ null,
         /* connectionHints= */ Bundle.EMPTY);

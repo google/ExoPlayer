@@ -322,6 +322,9 @@ public class MediaSession {
   /** Information of a {@link MediaController} or a {@link MediaBrowser}. */
   public static final class ControllerInfo {
 
+    /** The {@linkplain #getControllerVersion() controller version} of legacy controllers. */
+    public static final int LEGACY_CONTROLLER_VERSION = 0;
+
     private final RemoteUserInfo remoteUserInfo;
     private final int controllerVersion;
     private final boolean isTrusted;
@@ -454,7 +457,7 @@ public class MediaSession {
               /* uid= */ RemoteUserInfo.UNKNOWN_UID);
       return new ControllerInfo(
           legacyRemoteUserInfo,
-          /* controllerVersion= */ 0,
+          ControllerInfo.LEGACY_CONTROLLER_VERSION,
           /* trusted= */ false,
           /* cb= */ null,
           /* connectionHints= */ Bundle.EMPTY);

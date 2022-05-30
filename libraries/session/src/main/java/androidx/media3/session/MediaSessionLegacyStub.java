@@ -709,7 +709,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       controller =
           new ControllerInfo(
               remoteUserInfo,
-              /* controllerVersion= */ 0,
+              ControllerInfo.LEGACY_CONTROLLER_VERSION,
               sessionManager.isTrustedForMediaControl(remoteUserInfo),
               controllerCb,
               /* connectionHints= */ Bundle.EMPTY);
