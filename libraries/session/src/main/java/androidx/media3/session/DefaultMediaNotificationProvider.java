@@ -79,6 +79,8 @@ import java.util.concurrent.ExecutionException;
  *   <li><b>{@code media3_notification_pause}</b> - The pause icon.
  *   <li><b>{@code media3_notification_seek_to_previous}</b> - The previous icon.
  *   <li><b>{@code media3_notification_seek_to_next}</b> - The next icon.
+ *   <li><b>{@code media3_notification_small_icon}</b> - The {@link
+ *       NotificationCompat.Builder#setSmallIcon(int) small icon}.
  * </ul>
  */
 @UnstableApi
@@ -134,10 +136,18 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     Player player = mediaSession.getPlayer();
     NotificationCompat.Builder builder =
         new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
+
+    MediaStyle mediaStyle = new MediaStyle();
+    int[] compactViewIndices =
+        addNotificationActions(
+            getMediaButtons(player.getAvailableCommands(), customLayout, player.getPlayWhenReady()),
+            builder,
+            actionFactory);
+    mediaStyle.setShowActionsInCompactView(compactViewIndices);
+
     // Set metadata info in the notification.
     MediaMetadata metadata = player.getMediaMetadata();
     builder.setContentTitle(metadata.title).setContentText(metadata.artist);
-
     @Nullable ListenableFuture<Bitmap> bitmapFuture = loadArtworkBitmap(metadata);
     if (bitmapFuture != null) {
       if (bitmapFuture.isDone()) {
@@ -161,13 +171,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       }
     }
 
-    MediaStyle mediaStyle = new MediaStyle();
-    int[] compactViewIndices =
-        addNotificationActions(
-            getMediaButtons(player.getAvailableCommands(), customLayout, player.getPlayWhenReady()),
-            builder,
-            actionFactory);
-    mediaStyle.setShowActionsInCompactView(compactViewIndices);
     if (player.isCommandAvailable(COMMAND_STOP) || Util.SDK_INT < 21) {
       // We must include a cancel intent for pre-L devices.
       mediaStyle.setCancelButtonIntent(actionFactory.createMediaActionPendingIntent(COMMAND_STOP));
@@ -185,7 +188,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
             .setContentIntent(mediaSession.getSessionActivity())
             .setDeleteIntent(actionFactory.createMediaActionPendingIntent(COMMAND_STOP))
             .setOnlyAlertOnce(true)
-            .setSmallIcon(getSmallIconResId(context))
+            .setSmallIcon(R.drawable.media3_notification_small_icon)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(false)
@@ -383,15 +386,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         // It's ok to run this immediately to update the last loaded bitmap.
         runnable -> Util.postOrRun(mainHandler, runnable));
     return future;
-  }
-
-  private static int getSmallIconResId(Context context) {
-    int appIcon = context.getApplicationInfo().icon;
-    if (appIcon != 0) {
-      return appIcon;
-    } else {
-      return Util.SDK_INT >= 21 ? R.drawable.media_session_service_notification_ic_music_note : 0;
-    }
   }
 
   private static long getPlaybackStartTimeEpochMs(Player player) {
