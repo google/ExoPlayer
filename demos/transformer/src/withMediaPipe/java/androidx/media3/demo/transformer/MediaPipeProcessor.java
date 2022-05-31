@@ -63,49 +63,36 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String COPY_VERTEX_SHADER_NAME = "vertex_shader_copy_es2.glsl";
   private static final String COPY_FRAGMENT_SHADER_NAME = "shaders/fragment_shader_copy_es2.glsl";
 
-  private final String graphName;
-  private final String inputStreamName;
-  private final String outputStreamName;
   private final ConditionVariable frameProcessorConditionVariable;
+  private final FrameProcessor frameProcessor;
+  private final GlProgram glProgram;
 
-  private @MonotonicNonNull FrameProcessor frameProcessor;
   private int inputWidth;
   private int inputHeight;
-  private int inputTexId;
-  private @MonotonicNonNull GlProgram glProgram;
   private @MonotonicNonNull TextureFrame outputFrame;
   private @MonotonicNonNull RuntimeException frameProcessorPendingError;
 
   /**
    * Creates a new texture processor that wraps a MediaPipe graph.
    *
+   * @param context The {@link Context}.
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
+   * @throws IOException If a problem occurs while reading shader files or initializing MediaPipe
+   *     resources.
    */
-  public MediaPipeProcessor(String graphName, String inputStreamName, String outputStreamName) {
-    checkState(LOADER.isAvailable());
-    this.graphName = graphName;
-    this.inputStreamName = inputStreamName;
-    this.outputStreamName = outputStreamName;
-    frameProcessorConditionVariable = new ConditionVariable();
-  }
-
-  @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+  public MediaPipeProcessor(
+      Context context, String graphName, String inputStreamName, String outputStreamName)
       throws IOException {
-    this.inputTexId = inputTexId;
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
-    glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
+    checkState(LOADER.isAvailable());
 
+    frameProcessorConditionVariable = new ConditionVariable();
     AndroidAssetUtil.initializeNativeAssetManager(context);
-
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
         new FrameProcessor(
             context, eglManager.getNativeContext(), graphName, inputStreamName, outputStreamName);
-
     // Unblock drawFrame when there is an output frame or an error.
     frameProcessor.setConsumer(
         frame -> {
@@ -117,15 +104,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           frameProcessorPendingError = error;
           frameProcessorConditionVariable.open();
         });
+    glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
   }
 
   @Override
-  public Size getOutputSize() {
+  public Size configure(int inputWidth, int inputHeight) {
+    this.inputWidth = inputWidth;
+    this.inputHeight = inputHeight;
     return new Size(inputWidth, inputHeight);
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     frameProcessorConditionVariable.close();
 
     // Pass the input frame to MediaPipe.
