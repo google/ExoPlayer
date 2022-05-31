@@ -416,24 +416,44 @@ public class SimpleExoPlayer extends BasePlayer
     return player.experimentalIsSleepingForOffload();
   }
 
+  /**
+   * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are defined by that
+   *     interface.
+   */
+  @Deprecated
   @Override
   @Nullable
   public AudioComponent getAudioComponent() {
     return this;
   }
 
+  /**
+   * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are defined by that
+   *     interface.
+   */
+  @Deprecated
   @Override
   @Nullable
   public VideoComponent getVideoComponent() {
     return this;
   }
 
+  /**
+   * @deprecated Use {@link Player}, as the {@link TextComponent} methods are defined by that
+   *     interface.
+   */
+  @Deprecated
   @Override
   @Nullable
   public TextComponent getTextComponent() {
     return this;
   }
 
+  /**
+   * @deprecated Use {@link Player}, as the {@link DeviceComponent} methods are defined by that
+   *     interface.
+   */
+  @Deprecated
   @Override
   @Nullable
   public DeviceComponent getDeviceComponent() {
@@ -993,6 +1013,11 @@ public class SimpleExoPlayer extends BasePlayer
     player.stop();
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @Deprecated
   @Override
   public void stop(boolean reset) {
@@ -1036,12 +1061,20 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getTrackSelector();
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentTracks()}.
+   */
+  @Deprecated
   @Override
   public TrackGroupArray getCurrentTrackGroups() {
     blockUntilConstructorFinished();
     return player.getCurrentTrackGroups();
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentTracks()}.
+   */
+  @Deprecated
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
     blockUntilConstructorFinished();
@@ -1156,6 +1189,9 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getContentBufferedPosition();
   }
 
+  /**
+   * @deprecated Use {@link #setWakeMode(int)} instead.
+   */
   @Deprecated
   @Override
   public void setHandleWakeLock(boolean handleWakeLock) {
