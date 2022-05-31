@@ -763,7 +763,7 @@ public final class Transformer {
                     encoderFactory,
                     decoderFactory,
                     new FallbackListener(mediaItem, listeners, transformationRequest),
-                    playerListener,
+                    /* asyncErrorListener= */ playerListener,
                     debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -877,7 +877,7 @@ public final class Transformer {
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final FallbackListener fallbackListener;
-    private final FrameProcessorChain.Listener frameProcessorChainListener;
+    private final AsyncErrorListener asyncErrorListener;
     private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
@@ -891,7 +891,7 @@ public final class Transformer {
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         FallbackListener fallbackListener,
-        FrameProcessorChain.Listener frameProcessorChainListener,
+        AsyncErrorListener asyncErrorListener,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
@@ -903,7 +903,7 @@ public final class Transformer {
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.fallbackListener = fallbackListener;
-      this.frameProcessorChainListener = frameProcessorChainListener;
+      this.asyncErrorListener = asyncErrorListener;
       this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
@@ -926,6 +926,7 @@ public final class Transformer {
                 transformationRequest,
                 encoderFactory,
                 decoderFactory,
+                asyncErrorListener,
                 fallbackListener);
         index++;
       }
@@ -940,8 +941,8 @@ public final class Transformer {
                 videoFrameEffects,
                 encoderFactory,
                 decoderFactory,
+                asyncErrorListener,
                 fallbackListener,
-                frameProcessorChainListener,
                 debugViewProvider);
         index++;
       }
@@ -949,8 +950,7 @@ public final class Transformer {
     }
   }
 
-  private final class TransformerPlayerListener
-      implements Player.Listener, FrameProcessorChain.Listener {
+  private final class TransformerPlayerListener implements Player.Listener, AsyncErrorListener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
@@ -1001,11 +1001,12 @@ public final class Transformer {
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      @Nullable Throwable cause = error.getCause();
       TransformationException transformationException =
-          cause instanceof TransformationException
-              ? (TransformationException) cause
-              : TransformationException.createForPlaybackException(error);
+          TransformationException.createForPlaybackException(error);
+      handleTransformationException(transformationException);
+    }
+
+    private void handleTransformationException(TransformationException transformationException) {
       if (isCancelling) {
         // Resources are already being released.
         listeners.queueEvent(
@@ -1057,12 +1058,22 @@ public final class Transformer {
     }
 
     @Override
-    public void onFrameProcessingError(FrameProcessingException exception) {
-      handler.post(
-          () ->
-              handleTransformationEnded(
-                  TransformationException.createForFrameProcessorChain(
-                      exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)));
+    public void onTransformationException(TransformationException exception) {
+      if (Looper.myLooper() == looper) {
+        handleTransformationException(exception);
+      } else {
+        handler.post(() -> handleTransformationException(exception));
+      }
     }
+  }
+
+  /** Listener for exceptions that occur during a transformation. */
+  /* package */ interface AsyncErrorListener {
+    /**
+     * Called when a {@link TransformationException} occurs.
+     *
+     * <p>Can be called from any thread.
+     */
+    void onTransformationException(TransformationException exception);
   }
 }
