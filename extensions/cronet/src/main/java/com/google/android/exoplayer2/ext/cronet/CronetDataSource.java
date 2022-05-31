@@ -465,11 +465,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
-   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
-   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
-   *
-   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
-   *     predicate that was previously set.
+   * @deprecated Use {@link CronetDataSource.Factory#setContentTypePredicate(Predicate)} instead.
    */
   @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
