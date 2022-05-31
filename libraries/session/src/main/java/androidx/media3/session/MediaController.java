@@ -401,6 +401,11 @@ public class MediaController implements Player {
     impl.stop();
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1185,6 +1190,9 @@ public class MediaController implements Player {
     impl.moveMediaItems(fromIndex, toIndex, newIndex);
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1199,6 +1207,9 @@ public class MediaController implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isDynamic;
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1213,6 +1224,9 @@ public class MediaController implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isLive();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1262,6 +1276,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getCurrentPeriodIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1275,6 +1292,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getCurrentMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1295,6 +1315,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getPreviousMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1315,6 +1338,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getNextMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1322,6 +1348,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1329,6 +1358,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1336,6 +1368,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1355,6 +1390,9 @@ public class MediaController implements Player {
     return isConnected() && impl.hasNextMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1362,6 +1400,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1369,6 +1410,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1392,6 +1436,9 @@ public class MediaController implements Player {
     impl.seekToPreviousMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override

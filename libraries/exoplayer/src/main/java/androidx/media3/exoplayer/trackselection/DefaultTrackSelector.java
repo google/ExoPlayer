@@ -616,6 +616,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return this;
     }
 
+    /**
+     * @deprecated Use {@link #setTrackTypeDisabled(int, boolean)}.
+     */
     @Override
     @Deprecated
     @SuppressWarnings("deprecation")
