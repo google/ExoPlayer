@@ -22,10 +22,8 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.PlaybackException;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.BaseRenderer;
-import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.MediaClock;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
@@ -39,11 +37,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected final MuxerWrapper muxerWrapper;
   protected final TransformerMediaClock mediaClock;
   protected final TransformationRequest transformationRequest;
+  protected final Transformer.AsyncErrorListener asyncErrorListener;
   protected final FallbackListener fallbackListener;
 
-  protected boolean isRendererStarted;
-  protected boolean muxerWrapperTrackAdded;
-  protected boolean muxerWrapperTrackEnded;
+  private boolean isTransformationRunning;
+  private boolean muxerWrapperTrackAdded;
+  private boolean muxerWrapperTrackEnded;
   protected long streamOffsetUs;
   protected long streamStartPositionUs;
   protected @MonotonicNonNull SamplePipeline samplePipeline;
@@ -53,11 +52,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
+      Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener) {
     super(trackType);
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
     this.transformationRequest = transformationRequest;
+    this.asyncErrorListener = asyncErrorListener;
     this.fallbackListener = fallbackListener;
   }
 
@@ -91,17 +92,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public final void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public final void render(long positionUs, long elapsedRealtimeUs) {
     try {
-      if (!isRendererStarted || isEnded() || !ensureConfigured()) {
+      if (!isTransformationRunning || isEnded() || !ensureConfigured()) {
         return;
       }
 
       while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
-      throw wrapTransformationException(e);
+      isTransformationRunning = false;
+      asyncErrorListener.onTransformationException(e);
     } catch (Muxer.MuxerException e) {
-      throw wrapTransformationException(
+      isTransformationRunning = false;
+      asyncErrorListener.onTransformationException(
           TransformationException.createForMuxer(
               e, TransformationException.ERROR_CODE_MUXING_FAILED));
     }
@@ -122,12 +125,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected final void onStarted() {
-    isRendererStarted = true;
+    isTransformationRunning = true;
   }
 
   @Override
   protected final void onStopped() {
-    isRendererStarted = false;
+    isTransformationRunning = false;
   }
 
   @Override
@@ -224,24 +227,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       default:
         return false;
     }
-  }
-
-  /**
-   * Returns an {@link ExoPlaybackException} wrapping the {@link TransformationException}.
-   *
-   * <p>This temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer. {@link
-   * Transformer} extracts the {@link TransformationException} from this {@link
-   * ExoPlaybackException} again.
-   */
-  private ExoPlaybackException wrapTransformationException(
-      TransformationException transformationException) {
-    return ExoPlaybackException.createForRenderer(
-        transformationException,
-        "Transformer",
-        getIndex(),
-        /* rendererFormat= */ null,
-        C.FORMAT_HANDLED,
-        /* isRecoverable= */ false,
-        PlaybackException.ERROR_CODE_UNSPECIFIED);
   }
 }

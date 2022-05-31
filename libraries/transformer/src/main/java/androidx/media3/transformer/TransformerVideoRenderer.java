@@ -39,7 +39,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ImmutableList<GlEffect> effects;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
-  private final FrameProcessorChain.Listener frameProcessorChainListener;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final DecoderInputBuffer decoderInputBuffer;
 
@@ -54,16 +53,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       ImmutableList<GlEffect> effects,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener,
-      FrameProcessorChain.Listener frameProcessorChainListener,
       Transformer.DebugViewProvider debugViewProvider) {
-    super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
+    super(
+        C.TRACK_TYPE_VIDEO,
+        muxerWrapper,
+        mediaClock,
+        transformationRequest,
+        asyncErrorListener,
+        fallbackListener);
     this.context = context;
     this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
     this.effects = effects;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
-    this.frameProcessorChainListener = frameProcessorChainListener;
     this.debugViewProvider = debugViewProvider;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -102,7 +106,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
               fallbackListener,
-              frameProcessorChainListener,
+              /* frameProcessorChainListener= */ exception ->
+                  asyncErrorListener.onTransformationException(
+                      TransformationException.createForFrameProcessorChain(
+                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)),
               debugViewProvider);
     }
     if (transformationRequest.flattenForSlowMotion) {
