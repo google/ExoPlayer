@@ -122,7 +122,7 @@ public final class FrameProcessorChainTest {
       throws FrameProcessingException {
     ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
     for (Size element : textureProcessorOutputSizes) {
-      effects.add(() -> new FakeTextureProcessor(element));
+      effects.add((Context context) -> new FakeTextureProcessor(element));
     }
     return FrameProcessorChain.create(
         getApplicationContext(),
@@ -144,15 +144,12 @@ public final class FrameProcessorChainTest {
     }
 
     @Override
-    public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight) {}
-
-    @Override
-    public Size getOutputSize() {
+    public Size configure(int inputWidth, int inputHeight) {
       return outputSize;
     }
 
     @Override
-    public void drawFrame(long presentationTimeNs) {}
+    public void drawFrame(int inputTexId, long presentationTimeNs) {}
 
     @Override
     public void release() {}

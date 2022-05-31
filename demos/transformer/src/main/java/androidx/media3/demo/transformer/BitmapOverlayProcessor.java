@@ -35,7 +35,6 @@ import androidx.media3.transformer.FrameProcessingException;
 import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import java.io.IOException;
 import java.util.Locale;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link SingleFrameGlTextureProcessor} that overlays a bitmap with a logo and timer on each
@@ -57,16 +56,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final Paint paint;
   private final Bitmap overlayBitmap;
+  private final Bitmap logoBitmap;
   private final Canvas overlayCanvas;
+  private final GlProgram glProgram;
 
   private float bitmapScaleX;
   private float bitmapScaleY;
   private int bitmapTexId;
-  private @MonotonicNonNull Size outputSize;
-  private @MonotonicNonNull Bitmap logoBitmap;
-  private @MonotonicNonNull GlProgram glProgram;
 
-  public BitmapOverlayProcessor() {
+  /**
+   * Creates a new instance.
+   *
+   * @throws IOException If a problem occurs while reading shader files.
+   */
+  public BitmapOverlayProcessor(Context context) throws IOException {
     paint = new Paint();
     paint.setTextSize(64);
     paint.setAntiAlias(true);
@@ -75,19 +78,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     overlayBitmap =
         Bitmap.createBitmap(BITMAP_WIDTH_HEIGHT, BITMAP_WIDTH_HEIGHT, Bitmap.Config.ARGB_8888);
     overlayCanvas = new Canvas(overlayBitmap);
-  }
-
-  @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
-      throws IOException {
-    if (inputWidth > inputHeight) {
-      bitmapScaleX = inputWidth / (float) inputHeight;
-      bitmapScaleY = 1f;
-    } else {
-      bitmapScaleX = 1f;
-      bitmapScaleY = inputHeight / (float) inputWidth;
-    }
-    outputSize = new Size(inputWidth, inputHeight);
 
     try {
       logoBitmap =
@@ -106,19 +96,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         "aFramePosition",
         GlUtil.getNormalizedCoordinateBounds(),
         GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-    glProgram.setSamplerTexIdUniform("uTexSampler0", inputTexId, /* texUnitIndex= */ 0);
     glProgram.setSamplerTexIdUniform("uTexSampler1", bitmapTexId, /* texUnitIndex= */ 1);
+  }
+
+  @Override
+  public Size configure(int inputWidth, int inputHeight) {
+    if (inputWidth > inputHeight) {
+      bitmapScaleX = inputWidth / (float) inputHeight;
+      bitmapScaleY = 1f;
+    } else {
+      bitmapScaleX = 1f;
+      bitmapScaleY = inputHeight / (float) inputWidth;
+    }
+
     glProgram.setFloatUniform("uScaleX", bitmapScaleX);
     glProgram.setFloatUniform("uScaleY", bitmapScaleY);
+
+    return new Size(inputWidth, inputHeight);
   }
 
   @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(outputSize);
-  }
-
-  @Override
-  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     try {
       checkStateNotNull(glProgram).use();
 
@@ -137,6 +135,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           flipBitmapVertically(overlayBitmap));
       GlUtil.checkGlError();
 
+      glProgram.setSamplerTexIdUniform("uTexSampler0", inputTexId, /* texUnitIndex= */ 0);
       glProgram.bindAttributesAndUniforms();
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);

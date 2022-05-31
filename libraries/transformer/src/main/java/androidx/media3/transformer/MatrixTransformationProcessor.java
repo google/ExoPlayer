@@ -17,7 +17,6 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -29,7 +28,6 @@ import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Applies a sequence of transformation matrices in the vertex shader, and copies input pixels into
@@ -84,37 +82,45 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   private ImmutableList<float[]> visiblePolygon;
 
-  private @MonotonicNonNull Size outputSize;
-  private @MonotonicNonNull GlProgram glProgram;
+  private final GlProgram glProgram;
 
   /**
    * Creates a new instance.
    *
+   * @param context The {@link Context}.
    * @param matrixTransformation A {@link MatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
+   * @throws IOException If a problem occurs while reading shader files.
    */
-  public MatrixTransformationProcessor(MatrixTransformation matrixTransformation) {
-    this(ImmutableList.of(matrixTransformation));
+  public MatrixTransformationProcessor(Context context, MatrixTransformation matrixTransformation)
+      throws IOException {
+    this(context, ImmutableList.of(matrixTransformation));
   }
 
   /**
    * Creates a new instance.
    *
+   * @param context The {@link Context}.
    * @param matrixTransformation A {@link GlMatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
+   * @throws IOException If a problem occurs while reading shader files.
    */
-  public MatrixTransformationProcessor(GlMatrixTransformation matrixTransformation) {
-    this(ImmutableList.of(matrixTransformation));
+  public MatrixTransformationProcessor(Context context, GlMatrixTransformation matrixTransformation)
+      throws IOException {
+    this(context, ImmutableList.of(matrixTransformation));
   }
 
   /**
    * Creates a new instance.
    *
+   * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
    *     apply to each frame in order.
+   * @throws IOException If a problem occurs while reading shader files.
    */
   public MatrixTransformationProcessor(
-      ImmutableList<GlMatrixTransformation> matrixTransformations) {
+      Context context, ImmutableList<GlMatrixTransformation> matrixTransformations)
+      throws IOException {
     this.matrixTransformations = matrixTransformations;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
@@ -122,38 +128,33 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     tempResultMatrix = new float[16];
     Matrix.setIdentityM(compositeTransformationMatrix, /* smOffset= */ 0);
     visiblePolygon = NDC_SQUARE;
+    glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
   }
 
   @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
-      throws IOException {
+  public Size configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
-    outputSize = new Size(inputWidth, inputHeight);
+    Size outputSize = new Size(inputWidth, inputHeight);
     for (int i = 0; i < matrixTransformations.size(); i++) {
       outputSize =
           matrixTransformations.get(i).configure(outputSize.getWidth(), outputSize.getHeight());
     }
 
-    glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
+    return outputSize;
   }
 
   @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(outputSize);
-  }
-
-  @Override
-  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     updateCompositeTransformationMatrixAndVisiblePolygon(presentationTimeUs);
     if (visiblePolygon.size() < 3) {
       return; // Need at least three visible vertices for a triangle.
     }
 
     try {
-      checkStateNotNull(glProgram).use();
+      glProgram.use();
+      glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
       glProgram.setFloatsUniform("uTransformationMatrix", compositeTransformationMatrix);
       glProgram.setBufferAttribute(
           "aFramePosition",
@@ -170,9 +171,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void release() {
-    if (glProgram != null) {
-      glProgram.delete();
-    }
+    glProgram.delete();
   }
 
   /**
