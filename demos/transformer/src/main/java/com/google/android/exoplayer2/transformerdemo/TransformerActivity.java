@@ -19,6 +19,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -275,12 +276,13 @@ public final class TransformerActivity extends AppCompatActivity {
             Class<?> clazz =
                 Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
             Constructor<?> constructor =
-                clazz.getConstructor(String.class, String.class, String.class);
+                clazz.getConstructor(Context.class, String.class, String.class, String.class);
             effects.add(
-                () -> {
+                (Context context) -> {
                   try {
                     return (SingleFrameGlTextureProcessor)
                         constructor.newInstance(
+                            context,
                             /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
                             /* inputStreamName= */ "input_video",
                             /* outputStreamName= */ "output_video");
@@ -295,8 +297,9 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         if (selectedEffects[2]) {
           effects.add(
-              () ->
+              (Context context) ->
                   new PeriodicVignetteProcessor(
+                      context,
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
                       /* minInnerRadius= */ bundle.getFloat(

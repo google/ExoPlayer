@@ -24,7 +24,6 @@ import android.util.Size;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Copies frames from an external texture and applies color transformations for HDR if needed. */
 /* package */ class ExternalTextureProcessor implements SingleFrameGlTextureProcessor {
@@ -49,22 +48,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     1.683f, -0.652f, 0.0f,
   };
 
-  private final boolean enableExperimentalHdrEditing;
+  private final GlProgram glProgram;
 
-  private @MonotonicNonNull Size size;
-  private @MonotonicNonNull GlProgram glProgram;
-
-  public ExternalTextureProcessor(boolean enableExperimentalHdrEditing) {
-    this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
-  }
-
-  @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
+  /**
+   * Creates a new instance.
+   *
+   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
+   * @throws IOException If a problem occurs while reading shader files.
+   */
+  public ExternalTextureProcessor(Context context, boolean enableExperimentalHdrEditing)
       throws IOException {
-    checkArgument(inputWidth > 0, "inputWidth must be positive");
-    checkArgument(inputHeight > 0, "inputHeight must be positive");
-
-    size = new Size(inputWidth, inputHeight);
     String vertexShaderFilePath =
         enableExperimentalHdrEditing
             ? VERTEX_SHADER_TEX_TRANSFORM_ES3_PATH
@@ -74,7 +67,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
     glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition",
@@ -87,8 +79,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(size);
+  public Size configure(int inputWidth, int inputHeight) {
+    checkArgument(inputWidth > 0, "inputWidth must be positive");
+    checkArgument(inputHeight > 0, "inputHeight must be positive");
+
+    return new Size(inputWidth, inputHeight);
   }
 
   /**
@@ -104,10 +99,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     checkStateNotNull(glProgram);
     try {
       glProgram.use();
+      glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
       glProgram.bindAttributesAndUniforms();
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
