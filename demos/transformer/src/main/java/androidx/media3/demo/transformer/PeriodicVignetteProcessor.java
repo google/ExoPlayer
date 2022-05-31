@@ -16,7 +16,6 @@
 package androidx.media3.demo.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -26,7 +25,6 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.transformer.FrameProcessingException;
 import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link SingleFrameGlTextureProcessor} that periodically dims the frames such that pixels are
@@ -41,14 +39,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final String FRAGMENT_SHADER_PATH = "fragment_shader_vignette_es2.glsl";
   private static final float DIMMING_PERIOD_US = 5_600_000f;
 
-  private float centerX;
-  private float centerY;
-  private float minInnerRadius;
-  private float deltaInnerRadius;
-  private float outerRadius;
-
-  private @MonotonicNonNull Size outputSize;
-  private @MonotonicNonNull GlProgram glProgram;
+  private final GlProgram glProgram;
+  private final float minInnerRadius;
+  private final float deltaInnerRadius;
 
   /**
    * Creates a new instance.
@@ -61,29 +54,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>The parameters are given in normalized texture coordinates from 0 to 1.
    *
+   * @param context The {@link Context}.
    * @param centerX The x-coordinate of the center of the effect.
    * @param centerY The y-coordinate of the center of the effect.
    * @param minInnerRadius The lower bound of the radius that is unaffected by the effect.
    * @param maxInnerRadius The upper bound of the radius that is unaffected by the effect.
    * @param outerRadius The radius after which all pixels are black.
+   * @throws IOException If a problem occurs while reading shader files.
    */
   public PeriodicVignetteProcessor(
-      float centerX, float centerY, float minInnerRadius, float maxInnerRadius, float outerRadius) {
+      Context context,
+      float centerX,
+      float centerY,
+      float minInnerRadius,
+      float maxInnerRadius,
+      float outerRadius)
+      throws IOException {
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
-    this.centerX = centerX;
-    this.centerY = centerY;
     this.minInnerRadius = minInnerRadius;
     this.deltaInnerRadius = maxInnerRadius - minInnerRadius;
-    this.outerRadius = outerRadius;
-  }
-
-  @Override
-  public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight)
-      throws IOException {
-    outputSize = new Size(inputWidth, inputHeight);
     glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
     glProgram.setFloatsUniform("uCenter", new float[] {centerX, centerY});
     glProgram.setFloatsUniform("uOuterRadius", new float[] {outerRadius});
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
@@ -94,14 +85,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public Size getOutputSize() {
-    return checkStateNotNull(outputSize);
+  public Size configure(int inputWidth, int inputHeight) {
+    return new Size(inputWidth, inputHeight);
   }
 
   @Override
-  public void drawFrame(long presentationTimeUs) throws FrameProcessingException {
+  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     try {
-      checkStateNotNull(glProgram).use();
+      glProgram.use();
+      glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
       double theta = presentationTimeUs * 2 * Math.PI / DIMMING_PERIOD_US;
       float innerRadius =
           minInnerRadius + deltaInnerRadius * (0.5f - 0.5f * (float) Math.cos(theta));
