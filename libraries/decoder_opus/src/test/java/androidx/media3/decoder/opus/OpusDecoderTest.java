@@ -200,8 +200,12 @@ public final class OpusDecoderTest {
     return ImmutableList.of(HEADER, preSkip, CUSTOM_SEEK_PRE_ROLL_BYTES);
   }
 
+  // The cast to ByteBuffer is required for Java 8 compatibility. See
+  // https://issues.apache.org/jira/browse/MRESOLVER-85
+  @SuppressWarnings("UnnecessaryCast")
   private static ByteBuffer createSupplementalData(long value) {
-    return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(value).rewind();
+    return (ByteBuffer)
+        ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(value).rewind();
   }
 
   private static DecoderInputBuffer createInputBuffer(
