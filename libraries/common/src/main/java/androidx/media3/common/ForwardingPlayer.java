@@ -299,7 +299,11 @@ public class ForwardingPlayer implements Player {
     player.seekForward();
   }
 
-  /** Calls {@link Player#hasPrevious()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#hasPrevious()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -307,7 +311,11 @@ public class ForwardingPlayer implements Player {
     return player.hasPrevious();
   }
 
-  /** Calls {@link Player#hasPreviousWindow()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#hasPreviousWindow()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -321,7 +329,11 @@ public class ForwardingPlayer implements Player {
     return player.hasPreviousMediaItem();
   }
 
-  /** Calls {@link Player#previous()} on the delegate. */
+  /**
+   * Calls {@link Player#previous()} on the delegate.
+   *
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -329,7 +341,11 @@ public class ForwardingPlayer implements Player {
     player.previous();
   }
 
-  /** Calls {@link Player#seekToPreviousWindow()} on the delegate. */
+  /**
+   * Calls {@link Player#seekToPreviousWindow()} on the delegate.
+   *
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -355,7 +371,11 @@ public class ForwardingPlayer implements Player {
     return player.getMaxSeekToPreviousPosition();
   }
 
-  /** Calls {@link Player#hasNext()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#hasNext()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -363,7 +383,11 @@ public class ForwardingPlayer implements Player {
     return player.hasNext();
   }
 
-  /** Calls {@link Player#hasNextWindow()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#hasNextWindow()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -377,7 +401,11 @@ public class ForwardingPlayer implements Player {
     return player.hasNextMediaItem();
   }
 
-  /** Calls {@link Player#next()} on the delegate. */
+  /**
+   * Calls {@link Player#next()} on the delegate.
+   *
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -385,7 +413,11 @@ public class ForwardingPlayer implements Player {
     player.next();
   }
 
-  /** Calls {@link Player#seekToNextWindow()} on the delegate. */
+  /**
+   * Calls {@link Player#seekToNextWindow()} on the delegate.
+   *
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -429,7 +461,13 @@ public class ForwardingPlayer implements Player {
     player.stop();
   }
 
-  /** Calls {@link Player#stop(boolean)} on the delegate. */
+  /**
+   * Calls {@link Player#stop(boolean)} on the delegate.
+   *
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -498,7 +536,11 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentPeriodIndex();
   }
 
-  /** Calls {@link Player#getCurrentWindowIndex()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#getCurrentWindowIndex()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -512,7 +554,11 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentMediaItemIndex();
   }
 
-  /** Calls {@link Player#getNextWindowIndex()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#getNextWindowIndex()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -526,7 +572,11 @@ public class ForwardingPlayer implements Player {
     return player.getNextMediaItemIndex();
   }
 
-  /** Calls {@link Player#getPreviousWindowIndex()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#getPreviousWindowIndex()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -589,7 +639,11 @@ public class ForwardingPlayer implements Player {
     return player.getTotalBufferedDuration();
   }
 
-  /** Calls {@link Player#isCurrentWindowDynamic()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#isCurrentWindowDynamic()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -603,7 +657,11 @@ public class ForwardingPlayer implements Player {
     return player.isCurrentMediaItemDynamic();
   }
 
-  /** Calls {@link Player#isCurrentWindowLive()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#isCurrentWindowLive()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
@@ -623,7 +681,11 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentLiveOffset();
   }
 
-  /** Calls {@link Player#isCurrentWindowSeekable()} on the delegate and returns the result. */
+  /**
+   * Calls {@link Player#isCurrentWindowSeekable()} on the delegate and returns the result.
+   *
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override

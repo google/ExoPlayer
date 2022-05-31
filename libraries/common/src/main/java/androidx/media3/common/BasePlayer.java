@@ -143,12 +143,18 @@ public abstract class BasePlayer implements Player {
     seekToOffset(getSeekForwardIncrement());
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final boolean hasPrevious() {
     return hasPreviousMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final boolean hasPreviousWindow() {
@@ -160,12 +166,18 @@ public abstract class BasePlayer implements Player {
     return getPreviousMediaItemIndex() != C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final void previous() {
     seekToPreviousMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final void seekToPreviousWindow() {
@@ -198,12 +210,18 @@ public abstract class BasePlayer implements Player {
     }
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final boolean hasNext() {
     return hasNextMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final boolean hasNextWindow() {
@@ -215,12 +233,18 @@ public abstract class BasePlayer implements Player {
     return getNextMediaItemIndex() != C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final void next() {
     seekToNextMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public final void seekToNextWindow() {
@@ -253,12 +277,18 @@ public abstract class BasePlayer implements Player {
     setPlaybackParameters(getPlaybackParameters().withSpeed(speed));
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public final int getCurrentWindowIndex() {
     return getCurrentMediaItemIndex();
   }
 
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public final int getNextWindowIndex() {
@@ -274,6 +304,9 @@ public abstract class BasePlayer implements Player {
             getCurrentMediaItemIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
   }
 
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public final int getPreviousWindowIndex() {
@@ -326,6 +359,9 @@ public abstract class BasePlayer implements Player {
         : duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @Deprecated
   @Override
   public final boolean isCurrentWindowDynamic() {
@@ -338,6 +374,9 @@ public abstract class BasePlayer implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isDynamic;
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @Deprecated
   @Override
   public final boolean isCurrentWindowLive() {
@@ -364,6 +403,9 @@ public abstract class BasePlayer implements Player {
     return window.getCurrentUnixTimeMs() - window.windowStartTimeMs - getContentPosition();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @Deprecated
   @Override
   public final boolean isCurrentWindowSeekable() {

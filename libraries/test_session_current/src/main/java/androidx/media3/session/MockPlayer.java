@@ -310,6 +310,11 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_STOP)).open();
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @Deprecated
   @Override
   public void stop(boolean reset) {
@@ -758,6 +763,9 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_SET_PLAYLIST_METADATA)).open();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
@@ -769,6 +777,9 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @Deprecated
   @Override
   public boolean isCurrentWindowLive() {
@@ -780,6 +791,9 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
@@ -815,6 +829,9 @@ public class MockPlayer implements Player {
     return currentPeriodIndex;
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public int getCurrentWindowIndex() {
@@ -826,6 +843,9 @@ public class MockPlayer implements Player {
     return currentMediaItemIndex;
   }
 
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public int getPreviousWindowIndex() {
@@ -837,6 +857,9 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public int getNextWindowIndex() {
@@ -912,24 +935,36 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEMS)).open();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasPrevious() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasNext() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasPreviousWindow() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasNextWindow() {
@@ -946,24 +981,36 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void previous() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void next() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void seekToNextWindow() {
