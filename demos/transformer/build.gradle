@@ -56,6 +56,16 @@ android {
             dimension "mediaPipe"
         }
     }
+
+    // Ignore the withMediaPipe variant if the MediaPipe AAR is not present.
+    if (!project.file("libs/edge_detector_mediapipe_aar.aar").exists()) {
+        variantFilter { variant ->
+            def names = variant.flavors*.name
+            if (names.contains("withMediaPipe")) {
+                setIgnore(true)
+            }
+        }
+    }
 }
 
 dependencies {

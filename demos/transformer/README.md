@@ -57,8 +57,9 @@ manual steps.
       ${TRANSFORMER_DEMO_ROOT}/src/withMediaPipe/assets
     ```
 
-1.  Select the `withMediaPipe` build variant in Android Studio, then build and
-    run the demo app and select a MediaPipe-based effect.
+1.  In Android Studio, gradle sync and select the `withMediaPipe` build variant
+    (this will only appear if the AAR is present), then build and run the demo
+    app and select a MediaPipe-based effect.
 
 [Transformer]: https://exoplayer.dev/transforming-media.html
 [MediaPipe]: https://google.github.io/mediapipe/
