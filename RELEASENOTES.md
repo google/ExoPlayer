@@ -56,7 +56,9 @@
         subtitle format.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
-    *   Parse bitrates from `esds` boxes.
+    *   MP4: Parse bitrates from `esds` boxes.
+    *   Ogg: Allow duplicate Opus ID and comment headers
+        ([#10038](https://github.com/google/ExoPlayer/issues/10038)).
 *   UI:
     *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
         `LegacyPlayerView`, in the case that `useController=false`
