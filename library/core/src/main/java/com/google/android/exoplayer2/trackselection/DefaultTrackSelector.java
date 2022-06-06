@@ -98,30 +98,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
-   * A builder for {@link Parameters}. See the {@link Parameters} documentation for explanations of
-   * the parameters that can be configured using this builder.
+   * @deprecated Use {@link Parameters.Builder} instead.
    */
+  @Deprecated
   public static final class ParametersBuilder extends TrackSelectionParameters.Builder {
 
-    // Video
-    private boolean exceedVideoConstraintsIfNecessary;
-    private boolean allowVideoMixedMimeTypeAdaptiveness;
-    private boolean allowVideoNonSeamlessAdaptiveness;
-    private boolean allowVideoMixedDecoderSupportAdaptiveness;
-    // Audio
-    private boolean exceedAudioConstraintsIfNecessary;
-    private boolean allowAudioMixedMimeTypeAdaptiveness;
-    private boolean allowAudioMixedSampleRateAdaptiveness;
-    private boolean allowAudioMixedChannelCountAdaptiveness;
-    private boolean allowAudioMixedDecoderSupportAdaptiveness;
-    // General
-    private boolean exceedRendererCapabilitiesIfNecessary;
-    private boolean tunnelingEnabled;
-    private boolean allowMultipleAdaptiveSelections;
-    // Overrides
-    private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
-        selectionOverrides;
-    private final SparseBooleanArray rendererDisabledFlags;
+    private final Parameters.Builder delegate;
 
     /**
      * @deprecated {@link Context} constraints will not be set using this constructor. Use {@link
@@ -130,10 +112,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Deprecated
     @SuppressWarnings({"deprecation"})
     public ParametersBuilder() {
-      super();
-      selectionOverrides = new SparseArray<>();
-      rendererDisabledFlags = new SparseBooleanArray();
-      init();
+      delegate = new Parameters.Builder();
     }
 
     /**
@@ -142,110 +121,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param context Any context.
      */
     public ParametersBuilder(Context context) {
-      super(context);
-      selectionOverrides = new SparseArray<>();
-      rendererDisabledFlags = new SparseBooleanArray();
-      init();
-    }
-
-    /**
-     * @param initialValues The {@link Parameters} from which the initial values of the builder are
-     *     obtained.
-     */
-    private ParametersBuilder(Parameters initialValues) {
-      super(initialValues);
-      // Video
-      exceedVideoConstraintsIfNecessary = initialValues.exceedVideoConstraintsIfNecessary;
-      allowVideoMixedMimeTypeAdaptiveness = initialValues.allowVideoMixedMimeTypeAdaptiveness;
-      allowVideoNonSeamlessAdaptiveness = initialValues.allowVideoNonSeamlessAdaptiveness;
-      allowVideoMixedDecoderSupportAdaptiveness =
-          initialValues.allowVideoMixedDecoderSupportAdaptiveness;
-      // Audio
-      exceedAudioConstraintsIfNecessary = initialValues.exceedAudioConstraintsIfNecessary;
-      allowAudioMixedMimeTypeAdaptiveness = initialValues.allowAudioMixedMimeTypeAdaptiveness;
-      allowAudioMixedSampleRateAdaptiveness = initialValues.allowAudioMixedSampleRateAdaptiveness;
-      allowAudioMixedChannelCountAdaptiveness =
-          initialValues.allowAudioMixedChannelCountAdaptiveness;
-      allowAudioMixedDecoderSupportAdaptiveness =
-          initialValues.allowAudioMixedDecoderSupportAdaptiveness;
-      // General
-      exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
-      tunnelingEnabled = initialValues.tunnelingEnabled;
-      allowMultipleAdaptiveSelections = initialValues.allowMultipleAdaptiveSelections;
-      // Overrides
-      selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
-      rendererDisabledFlags = initialValues.rendererDisabledFlags.clone();
-    }
-
-    @SuppressWarnings("method.invocation") // Only setter are invoked.
-    private ParametersBuilder(Bundle bundle) {
-      super(bundle);
-      Parameters defaultValue = Parameters.DEFAULT_WITHOUT_CONTEXT;
-      // Video
-      setExceedVideoConstraintsIfNecessary(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY),
-              defaultValue.exceedVideoConstraintsIfNecessary));
-      setAllowVideoMixedMimeTypeAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS),
-              defaultValue.allowVideoMixedMimeTypeAdaptiveness));
-      setAllowVideoNonSeamlessAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS),
-              defaultValue.allowVideoNonSeamlessAdaptiveness));
-      setAllowVideoMixedDecoderSupportAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(
-                  Parameters.FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
-              defaultValue.allowVideoMixedDecoderSupportAdaptiveness));
-      // Audio
-      setExceedAudioConstraintsIfNecessary(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
-              defaultValue.exceedAudioConstraintsIfNecessary));
-      setAllowAudioMixedMimeTypeAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS),
-              defaultValue.allowAudioMixedMimeTypeAdaptiveness));
-      setAllowAudioMixedSampleRateAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS),
-              defaultValue.allowAudioMixedSampleRateAdaptiveness));
-      setAllowAudioMixedChannelCountAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS),
-              defaultValue.allowAudioMixedChannelCountAdaptiveness));
-      setAllowAudioMixedDecoderSupportAdaptiveness(
-          bundle.getBoolean(
-              Parameters.keyForField(
-                  Parameters.FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
-              defaultValue.allowAudioMixedDecoderSupportAdaptiveness));
-      // General
-      setExceedRendererCapabilitiesIfNecessary(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY),
-              defaultValue.exceedRendererCapabilitiesIfNecessary));
-      setTunnelingEnabled(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_TUNNELING_ENABLED),
-              defaultValue.tunnelingEnabled));
-      setAllowMultipleAdaptiveSelections(
-          bundle.getBoolean(
-              Parameters.keyForField(Parameters.FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS),
-              defaultValue.allowMultipleAdaptiveSelections));
-      // Overrides
-      selectionOverrides = new SparseArray<>();
-      setSelectionOverridesFromBundle(bundle);
-      rendererDisabledFlags =
-          makeSparseBooleanArrayFromTrueKeys(
-              bundle.getIntArray(
-                  Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDICES)));
+      delegate = new Parameters.Builder(context);
     }
 
     @Override
     protected ParametersBuilder set(TrackSelectionParameters parameters) {
-      super.set(parameters);
+      delegate.set(parameters);
       return this;
     }
 
@@ -253,51 +134,51 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoSizeSd() {
-      super.setMaxVideoSizeSd();
+      delegate.setMaxVideoSizeSd();
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder clearVideoSizeConstraints() {
-      super.clearVideoSizeConstraints();
+      delegate.clearVideoSizeConstraints();
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoSize(
         int maxVideoWidth, int maxVideoHeight) {
-      super.setMaxVideoSize(maxVideoWidth, maxVideoHeight);
+      delegate.setMaxVideoSize(maxVideoWidth, maxVideoHeight);
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoFrameRate(int maxVideoFrameRate) {
-      super.setMaxVideoFrameRate(maxVideoFrameRate);
+      delegate.setMaxVideoFrameRate(maxVideoFrameRate);
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoBitrate(int maxVideoBitrate) {
-      super.setMaxVideoBitrate(maxVideoBitrate);
+      delegate.setMaxVideoBitrate(maxVideoBitrate);
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMinVideoSize(
         int minVideoWidth, int minVideoHeight) {
-      super.setMinVideoSize(minVideoWidth, minVideoHeight);
+      delegate.setMinVideoSize(minVideoWidth, minVideoHeight);
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMinVideoFrameRate(int minVideoFrameRate) {
-      super.setMinVideoFrameRate(minVideoFrameRate);
+      delegate.setMinVideoFrameRate(minVideoFrameRate);
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setMinVideoBitrate(int minVideoBitrate) {
-      super.setMinVideoBitrate(minVideoBitrate);
+      delegate.setMinVideoBitrate(minVideoBitrate);
       return this;
     }
 
@@ -311,7 +192,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setExceedVideoConstraintsIfNecessary(
         boolean exceedVideoConstraintsIfNecessary) {
-      this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
+      delegate.setExceedVideoConstraintsIfNecessary(exceedVideoConstraintsIfNecessary);
       return this;
     }
 
@@ -328,7 +209,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowVideoMixedMimeTypeAdaptiveness(
         boolean allowVideoMixedMimeTypeAdaptiveness) {
-      this.allowVideoMixedMimeTypeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
+      delegate.setAllowVideoMixedMimeTypeAdaptiveness(allowVideoMixedMimeTypeAdaptiveness);
       return this;
     }
 
@@ -342,7 +223,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowVideoNonSeamlessAdaptiveness(
         boolean allowVideoNonSeamlessAdaptiveness) {
-      this.allowVideoNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;
+      delegate.setAllowVideoNonSeamlessAdaptiveness(allowVideoNonSeamlessAdaptiveness);
       return this;
     }
 
@@ -357,46 +238,47 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowVideoMixedDecoderSupportAdaptiveness(
         boolean allowVideoMixedDecoderSupportAdaptiveness) {
-      this.allowVideoMixedDecoderSupportAdaptiveness = allowVideoMixedDecoderSupportAdaptiveness;
+      delegate.setAllowVideoMixedDecoderSupportAdaptiveness(
+          allowVideoMixedDecoderSupportAdaptiveness);
       return this;
     }
 
     @Override
     public ParametersBuilder setViewportSizeToPhysicalDisplaySize(
         Context context, boolean viewportOrientationMayChange) {
-      super.setViewportSizeToPhysicalDisplaySize(context, viewportOrientationMayChange);
+      delegate.setViewportSizeToPhysicalDisplaySize(context, viewportOrientationMayChange);
       return this;
     }
 
     @Override
     public ParametersBuilder clearViewportSizeConstraints() {
-      super.clearViewportSizeConstraints();
+      delegate.clearViewportSizeConstraints();
       return this;
     }
 
     @Override
     public ParametersBuilder setViewportSize(
         int viewportWidth, int viewportHeight, boolean viewportOrientationMayChange) {
-      super.setViewportSize(viewportWidth, viewportHeight, viewportOrientationMayChange);
+      delegate.setViewportSize(viewportWidth, viewportHeight, viewportOrientationMayChange);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredVideoMimeType(@Nullable String mimeType) {
-      super.setPreferredVideoMimeType(mimeType);
+      delegate.setPreferredVideoMimeType(mimeType);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredVideoMimeTypes(String... mimeTypes) {
-      super.setPreferredVideoMimeTypes(mimeTypes);
+      delegate.setPreferredVideoMimeTypes(mimeTypes);
       return this;
     }
 
     @Override
     public DefaultTrackSelector.ParametersBuilder setPreferredVideoRoleFlags(
         @RoleFlags int preferredVideoRoleFlags) {
-      super.setPreferredVideoRoleFlags(preferredVideoRoleFlags);
+      delegate.setPreferredVideoRoleFlags(preferredVideoRoleFlags);
       return this;
     }
 
@@ -404,31 +286,31 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public ParametersBuilder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
-      super.setPreferredAudioLanguage(preferredAudioLanguage);
+      delegate.setPreferredAudioLanguage(preferredAudioLanguage);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredAudioLanguages(String... preferredAudioLanguages) {
-      super.setPreferredAudioLanguages(preferredAudioLanguages);
+      delegate.setPreferredAudioLanguages(preferredAudioLanguages);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredAudioRoleFlags(@C.RoleFlags int preferredAudioRoleFlags) {
-      super.setPreferredAudioRoleFlags(preferredAudioRoleFlags);
+      delegate.setPreferredAudioRoleFlags(preferredAudioRoleFlags);
       return this;
     }
 
     @Override
     public ParametersBuilder setMaxAudioChannelCount(int maxAudioChannelCount) {
-      super.setMaxAudioChannelCount(maxAudioChannelCount);
+      delegate.setMaxAudioChannelCount(maxAudioChannelCount);
       return this;
     }
 
     @Override
     public ParametersBuilder setMaxAudioBitrate(int maxAudioBitrate) {
-      super.setMaxAudioBitrate(maxAudioBitrate);
+      delegate.setMaxAudioBitrate(maxAudioBitrate);
       return this;
     }
 
@@ -442,7 +324,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setExceedAudioConstraintsIfNecessary(
         boolean exceedAudioConstraintsIfNecessary) {
-      this.exceedAudioConstraintsIfNecessary = exceedAudioConstraintsIfNecessary;
+      delegate.setExceedAudioConstraintsIfNecessary(exceedAudioConstraintsIfNecessary);
       return this;
     }
 
@@ -457,7 +339,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowAudioMixedMimeTypeAdaptiveness(
         boolean allowAudioMixedMimeTypeAdaptiveness) {
-      this.allowAudioMixedMimeTypeAdaptiveness = allowAudioMixedMimeTypeAdaptiveness;
+      delegate.setAllowAudioMixedMimeTypeAdaptiveness(allowAudioMixedMimeTypeAdaptiveness);
       return this;
     }
 
@@ -472,7 +354,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowAudioMixedSampleRateAdaptiveness(
         boolean allowAudioMixedSampleRateAdaptiveness) {
-      this.allowAudioMixedSampleRateAdaptiveness = allowAudioMixedSampleRateAdaptiveness;
+      delegate.setAllowAudioMixedSampleRateAdaptiveness(allowAudioMixedSampleRateAdaptiveness);
       return this;
     }
 
@@ -487,7 +369,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowAudioMixedChannelCountAdaptiveness(
         boolean allowAudioMixedChannelCountAdaptiveness) {
-      this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
+      delegate.setAllowAudioMixedChannelCountAdaptiveness(allowAudioMixedChannelCountAdaptiveness);
       return this;
     }
 
@@ -502,19 +384,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowAudioMixedDecoderSupportAdaptiveness(
         boolean allowAudioMixedDecoderSupportAdaptiveness) {
-      this.allowAudioMixedDecoderSupportAdaptiveness = allowAudioMixedDecoderSupportAdaptiveness;
+      delegate.setAllowAudioMixedDecoderSupportAdaptiveness(
+          allowAudioMixedDecoderSupportAdaptiveness);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredAudioMimeType(@Nullable String mimeType) {
-      super.setPreferredAudioMimeType(mimeType);
+      delegate.setPreferredAudioMimeType(mimeType);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredAudioMimeTypes(String... mimeTypes) {
-      super.setPreferredAudioMimeTypes(mimeTypes);
+      delegate.setPreferredAudioMimeTypes(mimeTypes);
       return this;
     }
 
@@ -523,39 +406,39 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Override
     public ParametersBuilder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
         Context context) {
-      super.setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
+      delegate.setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
-      super.setPreferredTextLanguage(preferredTextLanguage);
+      delegate.setPreferredTextLanguage(preferredTextLanguage);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredTextLanguages(String... preferredTextLanguages) {
-      super.setPreferredTextLanguages(preferredTextLanguages);
+      delegate.setPreferredTextLanguages(preferredTextLanguages);
       return this;
     }
 
     @Override
     public ParametersBuilder setPreferredTextRoleFlags(@C.RoleFlags int preferredTextRoleFlags) {
-      super.setPreferredTextRoleFlags(preferredTextRoleFlags);
+      delegate.setPreferredTextRoleFlags(preferredTextRoleFlags);
       return this;
     }
 
     @Override
     public ParametersBuilder setIgnoredTextSelectionFlags(
         @C.SelectionFlags int ignoredTextSelectionFlags) {
-      super.setIgnoredTextSelectionFlags(ignoredTextSelectionFlags);
+      delegate.setIgnoredTextSelectionFlags(ignoredTextSelectionFlags);
       return this;
     }
 
     @Override
     public ParametersBuilder setSelectUndeterminedTextLanguage(
         boolean selectUndeterminedTextLanguage) {
-      super.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
+      delegate.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
       return this;
     }
 
@@ -565,50 +448,51 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Deprecated
     public ParametersBuilder setDisabledTextTrackSelectionFlags(
         @C.SelectionFlags int disabledTextTrackSelectionFlags) {
-      return setIgnoredTextSelectionFlags(disabledTextTrackSelectionFlags);
+      delegate.setDisabledTextTrackSelectionFlags(disabledTextTrackSelectionFlags);
+      return this;
     }
 
     // General
 
     @Override
     public ParametersBuilder setForceLowestBitrate(boolean forceLowestBitrate) {
-      super.setForceLowestBitrate(forceLowestBitrate);
+      delegate.setForceLowestBitrate(forceLowestBitrate);
       return this;
     }
 
     @Override
     public ParametersBuilder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
-      super.setForceHighestSupportedBitrate(forceHighestSupportedBitrate);
+      delegate.setForceHighestSupportedBitrate(forceHighestSupportedBitrate);
       return this;
     }
 
     @Override
     public ParametersBuilder addOverride(TrackSelectionOverride override) {
-      super.addOverride(override);
+      delegate.addOverride(override);
       return this;
     }
 
     @Override
     public ParametersBuilder clearOverride(TrackGroup trackGroup) {
-      super.clearOverride(trackGroup);
+      delegate.clearOverride(trackGroup);
       return this;
     }
 
     @Override
     public ParametersBuilder setOverrideForType(TrackSelectionOverride override) {
-      super.setOverrideForType(override);
+      delegate.setOverrideForType(override);
       return this;
     }
 
     @Override
     public ParametersBuilder clearOverridesOfType(@C.TrackType int trackType) {
-      super.clearOverridesOfType(trackType);
+      delegate.clearOverridesOfType(trackType);
       return this;
     }
 
     @Override
     public ParametersBuilder clearOverrides() {
-      super.clearOverrides();
+      delegate.clearOverrides();
       return this;
     }
 
@@ -619,13 +503,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Deprecated
     @SuppressWarnings("deprecation")
     public ParametersBuilder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
-      super.setDisabledTrackTypes(disabledTrackTypes);
+      delegate.setDisabledTrackTypes(disabledTrackTypes);
       return this;
     }
 
     @Override
     public ParametersBuilder setTrackTypeDisabled(@C.TrackType int trackType, boolean disabled) {
-      super.setTrackTypeDisabled(trackType, disabled);
+      delegate.setTrackTypeDisabled(trackType, disabled);
       return this;
     }
 
@@ -643,7 +527,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setExceedRendererCapabilitiesIfNecessary(
         boolean exceedRendererCapabilitiesIfNecessary) {
-      this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
+      delegate.setExceedRendererCapabilitiesIfNecessary(exceedRendererCapabilitiesIfNecessary);
       return this;
     }
 
@@ -662,7 +546,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return This builder.
      */
     public ParametersBuilder setTunnelingEnabled(boolean tunnelingEnabled) {
-      this.tunnelingEnabled = tunnelingEnabled;
+      delegate.setTunnelingEnabled(tunnelingEnabled);
       return this;
     }
 
@@ -674,7 +558,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setAllowMultipleAdaptiveSelections(
         boolean allowMultipleAdaptiveSelections) {
-      this.allowMultipleAdaptiveSelections = allowMultipleAdaptiveSelections;
+      delegate.setAllowMultipleAdaptiveSelections(allowMultipleAdaptiveSelections);
       return this;
     }
 
@@ -689,16 +573,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return This builder.
      */
     public final ParametersBuilder setRendererDisabled(int rendererIndex, boolean disabled) {
-      if (rendererDisabledFlags.get(rendererIndex) == disabled) {
-        // The disabled flag is unchanged.
-        return this;
-      }
-      // Only true values are placed in the array to make it easier to check for equality.
-      if (disabled) {
-        rendererDisabledFlags.put(rendererIndex, true);
-      } else {
-        rendererDisabledFlags.delete(rendererIndex);
-      }
+      delegate.setRendererDisabled(rendererIndex, disabled);
       return this;
     }
 
@@ -729,17 +604,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Deprecated
     public final ParametersBuilder setSelectionOverride(
         int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
-      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
-          selectionOverrides.get(rendererIndex);
-      if (overrides == null) {
-        overrides = new HashMap<>();
-        selectionOverrides.put(rendererIndex, overrides);
-      }
-      if (overrides.containsKey(groups) && Util.areEqual(overrides.get(groups), override)) {
-        // The override is unchanged.
-        return this;
-      }
-      overrides.put(groups, override);
+      delegate.setSelectionOverride(rendererIndex, groups, override);
       return this;
     }
 
@@ -754,16 +619,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Deprecated
     public final ParametersBuilder clearSelectionOverride(
         int rendererIndex, TrackGroupArray groups) {
-      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
-          selectionOverrides.get(rendererIndex);
-      if (overrides == null || !overrides.containsKey(groups)) {
-        // Nothing to clear.
-        return this;
-      }
-      overrides.remove(groups);
-      if (overrides.isEmpty()) {
-        selectionOverrides.remove(rendererIndex);
-      }
+      delegate.clearSelectionOverride(rendererIndex, groups);
       return this;
     }
 
@@ -776,13 +632,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Deprecated
     public final ParametersBuilder clearSelectionOverrides(int rendererIndex) {
-      Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
-          selectionOverrides.get(rendererIndex);
-      if (overrides == null || overrides.isEmpty()) {
-        // Nothing to clear.
-        return this;
-      }
-      selectionOverrides.remove(rendererIndex);
+      delegate.clearSelectionOverrides(rendererIndex);
       return this;
     }
 
@@ -794,92 +644,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Deprecated
     public final ParametersBuilder clearSelectionOverrides() {
-      if (selectionOverrides.size() == 0) {
-        // Nothing to clear.
-        return this;
-      }
-      selectionOverrides.clear();
+      delegate.clearSelectionOverrides();
       return this;
     }
 
     /** Builds a {@link Parameters} instance with the selected values. */
     @Override
     public Parameters build() {
-      return new Parameters(this);
-    }
-
-    private void init(ParametersBuilder this) {
-      // Video
-      exceedVideoConstraintsIfNecessary = true;
-      allowVideoMixedMimeTypeAdaptiveness = false;
-      allowVideoNonSeamlessAdaptiveness = true;
-      allowVideoMixedDecoderSupportAdaptiveness = false;
-      // Audio
-      exceedAudioConstraintsIfNecessary = true;
-      allowAudioMixedMimeTypeAdaptiveness = false;
-      allowAudioMixedSampleRateAdaptiveness = false;
-      allowAudioMixedChannelCountAdaptiveness = false;
-      allowAudioMixedDecoderSupportAdaptiveness = false;
-      // General
-      exceedRendererCapabilitiesIfNecessary = true;
-      tunnelingEnabled = false;
-      allowMultipleAdaptiveSelections = true;
-    }
-
-    private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
-        cloneSelectionOverrides(
-            SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides) {
-      SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> clone =
-          new SparseArray<>();
-      for (int i = 0; i < selectionOverrides.size(); i++) {
-        clone.put(selectionOverrides.keyAt(i), new HashMap<>(selectionOverrides.valueAt(i)));
-      }
-      return clone;
-    }
-
-    private void setSelectionOverridesFromBundle(Bundle bundle) {
-      @Nullable
-      int[] rendererIndices =
-          bundle.getIntArray(
-              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDICES));
-      @Nullable
-      ArrayList<Bundle> trackGroupArrayBundles =
-          bundle.getParcelableArrayList(
-              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS));
-      List<TrackGroupArray> trackGroupArrays =
-          trackGroupArrayBundles == null
-              ? ImmutableList.of()
-              : BundleableUtil.fromBundleList(TrackGroupArray.CREATOR, trackGroupArrayBundles);
-      @Nullable
-      SparseArray<Bundle> selectionOverrideBundles =
-          bundle.getSparseParcelableArray(
-              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES));
-      SparseArray<SelectionOverride> selectionOverrides =
-          selectionOverrideBundles == null
-              ? new SparseArray<>()
-              : BundleableUtil.fromBundleSparseArray(
-                  SelectionOverride.CREATOR, selectionOverrideBundles);
-
-      if (rendererIndices == null || rendererIndices.length != trackGroupArrays.size()) {
-        return; // Incorrect format, ignore all overrides.
-      }
-      for (int i = 0; i < rendererIndices.length; i++) {
-        int rendererIndex = rendererIndices[i];
-        TrackGroupArray groups = trackGroupArrays.get(i);
-        @Nullable SelectionOverride selectionOverride = selectionOverrides.get(i);
-        setSelectionOverride(rendererIndex, groups, selectionOverride);
-      }
-    }
-
-    private SparseBooleanArray makeSparseBooleanArrayFromTrueKeys(@Nullable int[] trueKeys) {
-      if (trueKeys == null) {
-        return new SparseBooleanArray();
-      }
-      SparseBooleanArray sparseBooleanArray = new SparseBooleanArray(trueKeys.length);
-      for (int trueKey : trueKeys) {
-        sparseBooleanArray.append(trueKey, true);
-      }
-      return sparseBooleanArray;
+      return delegate.build();
     }
   }
 
@@ -889,6 +661,788 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   public static final class Parameters extends TrackSelectionParameters implements Bundleable {
 
     /**
+     * A builder for {@link Parameters}. See the {@link Parameters} documentation for explanations
+     * of the parameters that can be configured using this builder.
+     */
+    public static final class Builder extends TrackSelectionParameters.Builder {
+
+      // Video
+      private boolean exceedVideoConstraintsIfNecessary;
+      private boolean allowVideoMixedMimeTypeAdaptiveness;
+      private boolean allowVideoNonSeamlessAdaptiveness;
+      private boolean allowVideoMixedDecoderSupportAdaptiveness;
+      // Audio
+      private boolean exceedAudioConstraintsIfNecessary;
+      private boolean allowAudioMixedMimeTypeAdaptiveness;
+      private boolean allowAudioMixedSampleRateAdaptiveness;
+      private boolean allowAudioMixedChannelCountAdaptiveness;
+      private boolean allowAudioMixedDecoderSupportAdaptiveness;
+      // General
+      private boolean exceedRendererCapabilitiesIfNecessary;
+      private boolean tunnelingEnabled;
+      private boolean allowMultipleAdaptiveSelections;
+      // Overrides
+      private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+          selectionOverrides;
+      private final SparseBooleanArray rendererDisabledFlags;
+
+      /**
+       * @deprecated {@link Context} constraints will not be set using this constructor. Use {@link
+       *     #Builder(Context)} instead.
+       */
+      @Deprecated
+      @SuppressWarnings({"deprecation"})
+      public Builder() {
+        super();
+        selectionOverrides = new SparseArray<>();
+        rendererDisabledFlags = new SparseBooleanArray();
+        init();
+      }
+
+      /**
+       * Creates a builder with default initial values.
+       *
+       * @param context Any context.
+       */
+      public Builder(Context context) {
+        super(context);
+        selectionOverrides = new SparseArray<>();
+        rendererDisabledFlags = new SparseBooleanArray();
+        init();
+      }
+
+      /**
+       * @param initialValues The {@link Parameters} from which the initial values of the builder
+       *     are obtained.
+       */
+      private Builder(Parameters initialValues) {
+        super(initialValues);
+        // Video
+        exceedVideoConstraintsIfNecessary = initialValues.exceedVideoConstraintsIfNecessary;
+        allowVideoMixedMimeTypeAdaptiveness = initialValues.allowVideoMixedMimeTypeAdaptiveness;
+        allowVideoNonSeamlessAdaptiveness = initialValues.allowVideoNonSeamlessAdaptiveness;
+        allowVideoMixedDecoderSupportAdaptiveness =
+            initialValues.allowVideoMixedDecoderSupportAdaptiveness;
+        // Audio
+        exceedAudioConstraintsIfNecessary = initialValues.exceedAudioConstraintsIfNecessary;
+        allowAudioMixedMimeTypeAdaptiveness = initialValues.allowAudioMixedMimeTypeAdaptiveness;
+        allowAudioMixedSampleRateAdaptiveness = initialValues.allowAudioMixedSampleRateAdaptiveness;
+        allowAudioMixedChannelCountAdaptiveness =
+            initialValues.allowAudioMixedChannelCountAdaptiveness;
+        allowAudioMixedDecoderSupportAdaptiveness =
+            initialValues.allowAudioMixedDecoderSupportAdaptiveness;
+        // General
+        exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
+        tunnelingEnabled = initialValues.tunnelingEnabled;
+        allowMultipleAdaptiveSelections = initialValues.allowMultipleAdaptiveSelections;
+        // Overrides
+        selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
+        rendererDisabledFlags = initialValues.rendererDisabledFlags.clone();
+      }
+
+      @SuppressWarnings("method.invocation") // Only setter are invoked.
+      private Builder(Bundle bundle) {
+        super(bundle);
+        Parameters defaultValue = Parameters.DEFAULT_WITHOUT_CONTEXT;
+        // Video
+        setExceedVideoConstraintsIfNecessary(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY),
+                defaultValue.exceedVideoConstraintsIfNecessary));
+        setAllowVideoMixedMimeTypeAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS),
+                defaultValue.allowVideoMixedMimeTypeAdaptiveness));
+        setAllowVideoNonSeamlessAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS),
+                defaultValue.allowVideoNonSeamlessAdaptiveness));
+        setAllowVideoMixedDecoderSupportAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(
+                    Parameters.FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
+                defaultValue.allowVideoMixedDecoderSupportAdaptiveness));
+        // Audio
+        setExceedAudioConstraintsIfNecessary(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
+                defaultValue.exceedAudioConstraintsIfNecessary));
+        setAllowAudioMixedMimeTypeAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS),
+                defaultValue.allowAudioMixedMimeTypeAdaptiveness));
+        setAllowAudioMixedSampleRateAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS),
+                defaultValue.allowAudioMixedSampleRateAdaptiveness));
+        setAllowAudioMixedChannelCountAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(
+                    Parameters.FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS),
+                defaultValue.allowAudioMixedChannelCountAdaptiveness));
+        setAllowAudioMixedDecoderSupportAdaptiveness(
+            bundle.getBoolean(
+                Parameters.keyForField(
+                    Parameters.FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
+                defaultValue.allowAudioMixedDecoderSupportAdaptiveness));
+        // General
+        setExceedRendererCapabilitiesIfNecessary(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY),
+                defaultValue.exceedRendererCapabilitiesIfNecessary));
+        setTunnelingEnabled(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_TUNNELING_ENABLED),
+                defaultValue.tunnelingEnabled));
+        setAllowMultipleAdaptiveSelections(
+            bundle.getBoolean(
+                Parameters.keyForField(Parameters.FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS),
+                defaultValue.allowMultipleAdaptiveSelections));
+        // Overrides
+        selectionOverrides = new SparseArray<>();
+        setSelectionOverridesFromBundle(bundle);
+        rendererDisabledFlags =
+            makeSparseBooleanArrayFromTrueKeys(
+                bundle.getIntArray(
+                    Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDICES)));
+      }
+
+      @Override
+      protected Builder set(TrackSelectionParameters parameters) {
+        super.set(parameters);
+        return this;
+      }
+
+      // Video
+
+      @Override
+      public Builder setMaxVideoSizeSd() {
+        super.setMaxVideoSizeSd();
+        return this;
+      }
+
+      @Override
+      public Builder clearVideoSizeConstraints() {
+        super.clearVideoSizeConstraints();
+        return this;
+      }
+
+      @Override
+      public Builder setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
+        super.setMaxVideoSize(maxVideoWidth, maxVideoHeight);
+        return this;
+      }
+
+      @Override
+      public Builder setMaxVideoFrameRate(int maxVideoFrameRate) {
+        super.setMaxVideoFrameRate(maxVideoFrameRate);
+        return this;
+      }
+
+      @Override
+      public Builder setMaxVideoBitrate(int maxVideoBitrate) {
+        super.setMaxVideoBitrate(maxVideoBitrate);
+        return this;
+      }
+
+      @Override
+      public Builder setMinVideoSize(int minVideoWidth, int minVideoHeight) {
+        super.setMinVideoSize(minVideoWidth, minVideoHeight);
+        return this;
+      }
+
+      @Override
+      public Builder setMinVideoFrameRate(int minVideoFrameRate) {
+        super.setMinVideoFrameRate(minVideoFrameRate);
+        return this;
+      }
+
+      @Override
+      public Builder setMinVideoBitrate(int minVideoBitrate) {
+        super.setMinVideoBitrate(minVideoBitrate);
+        return this;
+      }
+
+      /**
+       * Sets whether to exceed the {@link #setMaxVideoBitrate}, {@link #setMaxVideoSize(int, int)}
+       * and {@link #setMaxVideoFrameRate} constraints when no selection can be made otherwise.
+       *
+       * @param exceedVideoConstraintsIfNecessary Whether to exceed video constraints when no
+       *     selection can be made otherwise.
+       * @return This builder.
+       */
+      public Builder setExceedVideoConstraintsIfNecessary(
+          boolean exceedVideoConstraintsIfNecessary) {
+        this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive video selections containing mixed MIME types.
+       *
+       * <p>Adaptations between different MIME types may not be completely seamless, in which case
+       * {@link #setAllowVideoNonSeamlessAdaptiveness(boolean)} also needs to be {@code true} for
+       * mixed MIME type selections to be made.
+       *
+       * @param allowVideoMixedMimeTypeAdaptiveness Whether to allow adaptive video selections
+       *     containing mixed MIME types.
+       * @return This builder.
+       */
+      public Builder setAllowVideoMixedMimeTypeAdaptiveness(
+          boolean allowVideoMixedMimeTypeAdaptiveness) {
+        this.allowVideoMixedMimeTypeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive video selections where adaptation may not be completely
+       * seamless.
+       *
+       * @param allowVideoNonSeamlessAdaptiveness Whether to allow adaptive video selections where
+       *     adaptation may not be completely seamless.
+       * @return This builder.
+       */
+      public Builder setAllowVideoNonSeamlessAdaptiveness(
+          boolean allowVideoNonSeamlessAdaptiveness) {
+        this.allowVideoNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive video selections with mixed levels of {@link
+       * RendererCapabilities.DecoderSupport} and {@link
+       * RendererCapabilities.HardwareAccelerationSupport}.
+       *
+       * @param allowVideoMixedDecoderSupportAdaptiveness Whether to allow adaptive video selections
+       *     with mixed levels of decoder and hardware acceleration support.
+       * @return This builder.
+       */
+      public Builder setAllowVideoMixedDecoderSupportAdaptiveness(
+          boolean allowVideoMixedDecoderSupportAdaptiveness) {
+        this.allowVideoMixedDecoderSupportAdaptiveness = allowVideoMixedDecoderSupportAdaptiveness;
+        return this;
+      }
+
+      @Override
+      public Builder setViewportSizeToPhysicalDisplaySize(
+          Context context, boolean viewportOrientationMayChange) {
+        super.setViewportSizeToPhysicalDisplaySize(context, viewportOrientationMayChange);
+        return this;
+      }
+
+      @Override
+      public Builder clearViewportSizeConstraints() {
+        super.clearViewportSizeConstraints();
+        return this;
+      }
+
+      @Override
+      public Builder setViewportSize(
+          int viewportWidth, int viewportHeight, boolean viewportOrientationMayChange) {
+        super.setViewportSize(viewportWidth, viewportHeight, viewportOrientationMayChange);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredVideoMimeType(@Nullable String mimeType) {
+        super.setPreferredVideoMimeType(mimeType);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredVideoMimeTypes(String... mimeTypes) {
+        super.setPreferredVideoMimeTypes(mimeTypes);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredVideoRoleFlags(@RoleFlags int preferredVideoRoleFlags) {
+        super.setPreferredVideoRoleFlags(preferredVideoRoleFlags);
+        return this;
+      }
+
+      // Audio
+
+      @Override
+      public Builder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
+        super.setPreferredAudioLanguage(preferredAudioLanguage);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredAudioLanguages(String... preferredAudioLanguages) {
+        super.setPreferredAudioLanguages(preferredAudioLanguages);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredAudioRoleFlags(@C.RoleFlags int preferredAudioRoleFlags) {
+        super.setPreferredAudioRoleFlags(preferredAudioRoleFlags);
+        return this;
+      }
+
+      @Override
+      public Builder setMaxAudioChannelCount(int maxAudioChannelCount) {
+        super.setMaxAudioChannelCount(maxAudioChannelCount);
+        return this;
+      }
+
+      @Override
+      public Builder setMaxAudioBitrate(int maxAudioBitrate) {
+        super.setMaxAudioBitrate(maxAudioBitrate);
+        return this;
+      }
+
+      /**
+       * Sets whether to exceed the {@link #setMaxAudioChannelCount(int)} and {@link
+       * #setMaxAudioBitrate(int)} constraints when no selection can be made otherwise.
+       *
+       * @param exceedAudioConstraintsIfNecessary Whether to exceed audio constraints when no
+       *     selection can be made otherwise.
+       * @return This builder.
+       */
+      public Builder setExceedAudioConstraintsIfNecessary(
+          boolean exceedAudioConstraintsIfNecessary) {
+        this.exceedAudioConstraintsIfNecessary = exceedAudioConstraintsIfNecessary;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive audio selections containing mixed MIME types.
+       *
+       * <p>Adaptations between different MIME types may not be completely seamless.
+       *
+       * @param allowAudioMixedMimeTypeAdaptiveness Whether to allow adaptive audio selections
+       *     containing mixed MIME types.
+       * @return This builder.
+       */
+      public Builder setAllowAudioMixedMimeTypeAdaptiveness(
+          boolean allowAudioMixedMimeTypeAdaptiveness) {
+        this.allowAudioMixedMimeTypeAdaptiveness = allowAudioMixedMimeTypeAdaptiveness;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive audio selections containing mixed sample rates.
+       *
+       * <p>Adaptations between different sample rates may not be completely seamless.
+       *
+       * @param allowAudioMixedSampleRateAdaptiveness Whether to allow adaptive audio selections
+       *     containing mixed sample rates.
+       * @return This builder.
+       */
+      public Builder setAllowAudioMixedSampleRateAdaptiveness(
+          boolean allowAudioMixedSampleRateAdaptiveness) {
+        this.allowAudioMixedSampleRateAdaptiveness = allowAudioMixedSampleRateAdaptiveness;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive audio selections containing mixed channel counts.
+       *
+       * <p>Adaptations between different channel counts may not be completely seamless.
+       *
+       * @param allowAudioMixedChannelCountAdaptiveness Whether to allow adaptive audio selections
+       *     containing mixed channel counts.
+       * @return This builder.
+       */
+      public Builder setAllowAudioMixedChannelCountAdaptiveness(
+          boolean allowAudioMixedChannelCountAdaptiveness) {
+        this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive audio selections with mixed levels of {@link
+       * RendererCapabilities.DecoderSupport} and {@link
+       * RendererCapabilities.HardwareAccelerationSupport}.
+       *
+       * @param allowAudioMixedDecoderSupportAdaptiveness Whether to allow adaptive audio selections
+       *     with mixed levels of decoder and hardware acceleration support.
+       * @return This builder.
+       */
+      public Builder setAllowAudioMixedDecoderSupportAdaptiveness(
+          boolean allowAudioMixedDecoderSupportAdaptiveness) {
+        this.allowAudioMixedDecoderSupportAdaptiveness = allowAudioMixedDecoderSupportAdaptiveness;
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredAudioMimeType(@Nullable String mimeType) {
+        super.setPreferredAudioMimeType(mimeType);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredAudioMimeTypes(String... mimeTypes) {
+        super.setPreferredAudioMimeTypes(mimeTypes);
+        return this;
+      }
+
+      // Text
+
+      @Override
+      public Builder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
+          Context context) {
+        super.setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
+        super.setPreferredTextLanguage(preferredTextLanguage);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredTextLanguages(String... preferredTextLanguages) {
+        super.setPreferredTextLanguages(preferredTextLanguages);
+        return this;
+      }
+
+      @Override
+      public Builder setPreferredTextRoleFlags(@C.RoleFlags int preferredTextRoleFlags) {
+        super.setPreferredTextRoleFlags(preferredTextRoleFlags);
+        return this;
+      }
+
+      @Override
+      public Builder setIgnoredTextSelectionFlags(@C.SelectionFlags int ignoredTextSelectionFlags) {
+        super.setIgnoredTextSelectionFlags(ignoredTextSelectionFlags);
+        return this;
+      }
+
+      @Override
+      public Builder setSelectUndeterminedTextLanguage(boolean selectUndeterminedTextLanguage) {
+        super.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
+        return this;
+      }
+
+      /**
+       * @deprecated Use {@link #setIgnoredTextSelectionFlags}.
+       */
+      @Deprecated
+      public Builder setDisabledTextTrackSelectionFlags(
+          @C.SelectionFlags int disabledTextTrackSelectionFlags) {
+        return setIgnoredTextSelectionFlags(disabledTextTrackSelectionFlags);
+      }
+
+      // General
+
+      @Override
+      public Builder setForceLowestBitrate(boolean forceLowestBitrate) {
+        super.setForceLowestBitrate(forceLowestBitrate);
+        return this;
+      }
+
+      @Override
+      public Builder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
+        super.setForceHighestSupportedBitrate(forceHighestSupportedBitrate);
+        return this;
+      }
+
+      @Override
+      public Builder addOverride(TrackSelectionOverride override) {
+        super.addOverride(override);
+        return this;
+      }
+
+      @Override
+      public Builder clearOverride(TrackGroup trackGroup) {
+        super.clearOverride(trackGroup);
+        return this;
+      }
+
+      @Override
+      public Builder setOverrideForType(TrackSelectionOverride override) {
+        super.setOverrideForType(override);
+        return this;
+      }
+
+      @Override
+      public Builder clearOverridesOfType(@C.TrackType int trackType) {
+        super.clearOverridesOfType(trackType);
+        return this;
+      }
+
+      @Override
+      public Builder clearOverrides() {
+        super.clearOverrides();
+        return this;
+      }
+
+      /**
+       * @deprecated Use {@link #setTrackTypeDisabled(int, boolean)}.
+       */
+      @Override
+      @Deprecated
+      @SuppressWarnings("deprecation")
+      public Builder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
+        super.setDisabledTrackTypes(disabledTrackTypes);
+        return this;
+      }
+
+      @Override
+      public Builder setTrackTypeDisabled(@C.TrackType int trackType, boolean disabled) {
+        super.setTrackTypeDisabled(trackType, disabled);
+        return this;
+      }
+
+      /**
+       * Sets whether to exceed renderer capabilities when no selection can be made otherwise.
+       *
+       * <p>This parameter applies when all of the tracks available for a renderer exceed the
+       * renderer's reported capabilities. If the parameter is {@code true} then the lowest quality
+       * track will still be selected. Playback may succeed if the renderer has under-reported its
+       * true capabilities. If {@code false} then no track will be selected.
+       *
+       * @param exceedRendererCapabilitiesIfNecessary Whether to exceed renderer capabilities when
+       *     no selection can be made otherwise.
+       * @return This builder.
+       */
+      public Builder setExceedRendererCapabilitiesIfNecessary(
+          boolean exceedRendererCapabilitiesIfNecessary) {
+        this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
+        return this;
+      }
+
+      /**
+       * Sets whether to enable tunneling if possible. Tunneling will only be enabled if it's
+       * supported by the audio and video renderers for the selected tracks.
+       *
+       * <p>Tunneling is known to have many device specific issues and limitations. Manual testing
+       * is strongly recommended to check that the media plays correctly when this option is
+       * enabled. See [#9661](https://github.com/google/ExoPlayer/issues/9661),
+       * [#9133](https://github.com/google/ExoPlayer/issues/9133),
+       * [#9317](https://github.com/google/ExoPlayer/issues/9317),
+       * [#9502](https://github.com/google/ExoPlayer/issues/9502).
+       *
+       * @param tunnelingEnabled Whether to enable tunneling if possible.
+       * @return This builder.
+       */
+      public Builder setTunnelingEnabled(boolean tunnelingEnabled) {
+        this.tunnelingEnabled = tunnelingEnabled;
+        return this;
+      }
+
+      /**
+       * Sets whether multiple adaptive selections with more than one track are allowed.
+       *
+       * @param allowMultipleAdaptiveSelections Whether multiple adaptive selections are allowed.
+       * @return This builder.
+       */
+      public Builder setAllowMultipleAdaptiveSelections(boolean allowMultipleAdaptiveSelections) {
+        this.allowMultipleAdaptiveSelections = allowMultipleAdaptiveSelections;
+        return this;
+      }
+
+      // Overrides
+
+      /**
+       * Sets whether the renderer at the specified index is disabled. Disabling a renderer prevents
+       * the selector from selecting any tracks for it.
+       *
+       * @param rendererIndex The renderer index.
+       * @param disabled Whether the renderer is disabled.
+       * @return This builder.
+       */
+      public final Builder setRendererDisabled(int rendererIndex, boolean disabled) {
+        if (rendererDisabledFlags.get(rendererIndex) == disabled) {
+          // The disabled flag is unchanged.
+          return this;
+        }
+        // Only true values are placed in the array to make it easier to check for equality.
+        if (disabled) {
+          rendererDisabledFlags.put(rendererIndex, true);
+        } else {
+          rendererDisabledFlags.delete(rendererIndex);
+        }
+        return this;
+      }
+
+      /**
+       * Overrides the track selection for the renderer at the specified index.
+       *
+       * <p>When the {@link TrackGroupArray} mapped to the renderer matches the one provided, the
+       * override is applied. When the {@link TrackGroupArray} does not match, the override has no
+       * effect. The override replaces any previous override for the specified {@link
+       * TrackGroupArray} for the specified {@link Renderer}.
+       *
+       * <p>Passing a {@code null} override will cause the renderer to be disabled when the {@link
+       * TrackGroupArray} mapped to it matches the one provided. When the {@link TrackGroupArray}
+       * does not match a {@code null} override has no effect. Hence a {@code null} override differs
+       * from disabling the renderer using {@link #setRendererDisabled(int, boolean)} because the
+       * renderer is disabled conditionally on the {@link TrackGroupArray} mapped to it, where-as
+       * {@link #setRendererDisabled(int, boolean)} disables the renderer unconditionally.
+       *
+       * <p>To remove overrides use {@link #clearSelectionOverride(int, TrackGroupArray)}, {@link
+       * #clearSelectionOverrides(int)} or {@link #clearSelectionOverrides()}.
+       *
+       * @param rendererIndex The renderer index.
+       * @param groups The {@link TrackGroupArray} for which the override should be applied.
+       * @param override The override.
+       * @return This builder.
+       * @deprecated Use {@link
+       *     TrackSelectionParameters.Builder#addOverride(TrackSelectionOverride)}.
+       */
+      @Deprecated
+      public final Builder setSelectionOverride(
+          int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
+        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+            selectionOverrides.get(rendererIndex);
+        if (overrides == null) {
+          overrides = new HashMap<>();
+          selectionOverrides.put(rendererIndex, overrides);
+        }
+        if (overrides.containsKey(groups) && Util.areEqual(overrides.get(groups), override)) {
+          // The override is unchanged.
+          return this;
+        }
+        overrides.put(groups, override);
+        return this;
+      }
+
+      /**
+       * Clears a track selection override for the specified renderer and {@link TrackGroupArray}.
+       *
+       * @param rendererIndex The renderer index.
+       * @param groups The {@link TrackGroupArray} for which the override should be cleared.
+       * @return This builder.
+       * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverride(TrackGroup)}.
+       */
+      @Deprecated
+      public final Builder clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+            selectionOverrides.get(rendererIndex);
+        if (overrides == null || !overrides.containsKey(groups)) {
+          // Nothing to clear.
+          return this;
+        }
+        overrides.remove(groups);
+        if (overrides.isEmpty()) {
+          selectionOverrides.remove(rendererIndex);
+        }
+        return this;
+      }
+
+      /**
+       * Clears all track selection overrides for the specified renderer.
+       *
+       * @param rendererIndex The renderer index.
+       * @return This builder.
+       * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverridesOfType(int)}.
+       */
+      @Deprecated
+      public final Builder clearSelectionOverrides(int rendererIndex) {
+        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
+            selectionOverrides.get(rendererIndex);
+        if (overrides == null || overrides.isEmpty()) {
+          // Nothing to clear.
+          return this;
+        }
+        selectionOverrides.remove(rendererIndex);
+        return this;
+      }
+
+      /**
+       * Clears all track selection overrides for all renderers.
+       *
+       * @return This builder.
+       * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverrides()}.
+       */
+      @Deprecated
+      public final Builder clearSelectionOverrides() {
+        if (selectionOverrides.size() == 0) {
+          // Nothing to clear.
+          return this;
+        }
+        selectionOverrides.clear();
+        return this;
+      }
+
+      /** Builds a {@link Parameters} instance with the selected values. */
+      @Override
+      public Parameters build() {
+        return new Parameters(this);
+      }
+
+      private void init(Builder this) {
+        // Video
+        exceedVideoConstraintsIfNecessary = true;
+        allowVideoMixedMimeTypeAdaptiveness = false;
+        allowVideoNonSeamlessAdaptiveness = true;
+        allowVideoMixedDecoderSupportAdaptiveness = false;
+        // Audio
+        exceedAudioConstraintsIfNecessary = true;
+        allowAudioMixedMimeTypeAdaptiveness = false;
+        allowAudioMixedSampleRateAdaptiveness = false;
+        allowAudioMixedChannelCountAdaptiveness = false;
+        allowAudioMixedDecoderSupportAdaptiveness = false;
+        // General
+        exceedRendererCapabilitiesIfNecessary = true;
+        tunnelingEnabled = false;
+        allowMultipleAdaptiveSelections = true;
+      }
+
+      private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+          cloneSelectionOverrides(
+              SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
+                  selectionOverrides) {
+        SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> clone =
+            new SparseArray<>();
+        for (int i = 0; i < selectionOverrides.size(); i++) {
+          clone.put(selectionOverrides.keyAt(i), new HashMap<>(selectionOverrides.valueAt(i)));
+        }
+        return clone;
+      }
+
+      private void setSelectionOverridesFromBundle(Bundle bundle) {
+        @Nullable
+        int[] rendererIndices =
+            bundle.getIntArray(
+                Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDICES));
+        @Nullable
+        ArrayList<Bundle> trackGroupArrayBundles =
+            bundle.getParcelableArrayList(
+                Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS));
+        List<TrackGroupArray> trackGroupArrays =
+            trackGroupArrayBundles == null
+                ? ImmutableList.of()
+                : BundleableUtil.fromBundleList(TrackGroupArray.CREATOR, trackGroupArrayBundles);
+        @Nullable
+        SparseArray<Bundle> selectionOverrideBundles =
+            bundle.getSparseParcelableArray(
+                Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES));
+        SparseArray<SelectionOverride> selectionOverrides =
+            selectionOverrideBundles == null
+                ? new SparseArray<>()
+                : BundleableUtil.fromBundleSparseArray(
+                    SelectionOverride.CREATOR, selectionOverrideBundles);
+
+        if (rendererIndices == null || rendererIndices.length != trackGroupArrays.size()) {
+          return; // Incorrect format, ignore all overrides.
+        }
+        for (int i = 0; i < rendererIndices.length; i++) {
+          int rendererIndex = rendererIndices[i];
+          TrackGroupArray groups = trackGroupArrays.get(i);
+          @Nullable SelectionOverride selectionOverride = selectionOverrides.get(i);
+          setSelectionOverride(rendererIndex, groups, selectionOverride);
+        }
+      }
+
+      private SparseBooleanArray makeSparseBooleanArrayFromTrueKeys(@Nullable int[] trueKeys) {
+        if (trueKeys == null) {
+          return new SparseBooleanArray();
+        }
+        SparseBooleanArray sparseBooleanArray = new SparseBooleanArray(trueKeys.length);
+        for (int trueKey : trueKeys) {
+          sparseBooleanArray.append(trueKey, true);
+        }
+        return sparseBooleanArray;
+      }
+    }
+
+    /**
      * An instance with default values, except those obtained from the {@link Context}.
      *
      * <p>If possible, use {@link #getDefaults(Context)} instead.
@@ -896,16 +1450,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * <p>This instance will not have the following settings:
      *
      * <ul>
-     *   <li>{@link ParametersBuilder#setViewportSizeToPhysicalDisplaySize(Context, boolean)
-     *       Viewport constraints} configured for the primary display.
-     *   <li>{@link
-     *       ParametersBuilder#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(Context)
+     *   <li>{@linkplain Builder#setViewportSizeToPhysicalDisplaySize(Context, boolean) Viewport
+     *       constraints} configured for the primary display.
+     *   <li>{@linkplain
+     *       Builder#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(Context)
      *       Preferred text language and role flags} configured to the accessibility settings of
      *       {@link android.view.accessibility.CaptioningManager}.
      * </ul>
      */
     @SuppressWarnings("deprecation")
-    public static final Parameters DEFAULT_WITHOUT_CONTEXT = new ParametersBuilder().build();
+    public static final Parameters DEFAULT_WITHOUT_CONTEXT = new Builder().build();
     /**
      * @deprecated This instance is not configured using {@link Context} constraints. Use {@link
      *     #getDefaults(Context)} instead.
@@ -914,7 +1468,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     /** Returns an instance configured with default values. */
     public static Parameters getDefaults(Context context) {
-      return new ParametersBuilder(context).build();
+      return new Parameters.Builder(context).build();
     }
 
     // Video
@@ -996,7 +1550,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         selectionOverrides;
     private final SparseBooleanArray rendererDisabledFlags;
 
-    private Parameters(ParametersBuilder builder) {
+    private Parameters(Builder builder) {
       super(builder);
       // Video
       exceedVideoConstraintsIfNecessary = builder.exceedVideoConstraintsIfNecessary;
@@ -1035,8 +1589,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param groups The {@link TrackGroupArray}.
      * @return Whether there is an override.
      * @deprecated Only works to retrieve the overrides set with the deprecated {@link
-     *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
-     *     {@link TrackSelectionParameters#overrides} instead.
+     *     Builder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use {@link
+     *     TrackSelectionParameters#overrides} instead.
      */
     @Deprecated
     public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
@@ -1053,8 +1607,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param groups The {@link TrackGroupArray}.
      * @return The override, or null if no override exists.
      * @deprecated Only works to retrieve the overrides set with the deprecated {@link
-     *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
-     *     {@link TrackSelectionParameters#overrides} instead.
+     *     Builder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use {@link
+     *     TrackSelectionParameters#overrides} instead.
      */
     @Deprecated
     @Nullable
@@ -1065,10 +1619,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return overrides != null ? overrides.get(groups) : null;
     }
 
-    /** Creates a new {@link ParametersBuilder}, copying the initial values from this instance. */
+    /** Creates a new {@link Parameters.Builder}, copying the initial values from this instance. */
     @Override
-    public ParametersBuilder buildUpon() {
-      return new ParametersBuilder(this);
+    public Parameters.Builder buildUpon() {
+      return new Parameters.Builder(this);
     }
 
     @SuppressWarnings("EqualsGetClass") // Class is not final for backward-compatibility reason.
@@ -1227,7 +1781,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     /** Object that can restore {@code Parameters} from a {@link Bundle}. */
     public static final Creator<Parameters> CREATOR =
-        bundle -> new ParametersBuilder(bundle).build();
+        bundle -> new Parameters.Builder(bundle).build();
 
     private static String keyForField(@FieldNumber int field) {
       return Integer.toString(field, Character.MAX_RADIX);
@@ -1532,8 +2086,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
     // Only add the fields of `TrackSelectionParameters` to `parameters`.
     Parameters mergedParameters =
-        new ParametersBuilder(parametersReference.get()).set(parameters).build();
+        new Parameters.Builder(parametersReference.get()).set(parameters).build();
     setParametersInternal(mergedParameters);
+  }
+
+  /**
+   * @deprecated Use {@link #setParameters(Parameters.Builder)} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Allow setting the deprecated builder
+  public void setParameters(ParametersBuilder parametersBuilder) {
+    setParametersInternal(parametersBuilder.build());
   }
 
   /**
@@ -1541,12 +2104,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *
    * @param parametersBuilder A builder from which to obtain the parameters for track selection.
    */
-  public void setParameters(ParametersBuilder parametersBuilder) {
+  public void setParameters(Parameters.Builder parametersBuilder) {
     setParametersInternal(parametersBuilder.build());
   }
 
-  /** Returns a new {@link ParametersBuilder} initialized with the current selection parameters. */
-  public ParametersBuilder buildUponParameters() {
+  /** Returns a new {@link Parameters.Builder} initialized with the current selection parameters. */
+  public Parameters.Builder buildUponParameters() {
     return getParameters().buildUpon();
   }
 
