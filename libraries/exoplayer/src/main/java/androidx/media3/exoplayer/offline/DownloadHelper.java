@@ -746,7 +746,7 @@ public final class DownloadHelper {
       List<SelectionOverride> overrides) {
     try {
       assertPreparedWithMedia();
-      DefaultTrackSelector.ParametersBuilder builder = trackSelectorParameters.buildUpon();
+      DefaultTrackSelector.Parameters.Builder builder = trackSelectorParameters.buildUpon();
       for (int i = 0; i < mappedTrackInfos[periodIndex].getRendererCount(); i++) {
         builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ i != rendererIndex);
       }

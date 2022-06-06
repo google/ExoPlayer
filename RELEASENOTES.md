@@ -33,6 +33,10 @@
         `Tracks.Group`. `Player.getCurrentTracksInfo` and
         `Player.Listener.onTracksInfoChanged` have also been renamed to
         `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
+    *   Change `DefaultTrackSelector.buildUponParameters` and
+        `DefaultTrackSelector.Parameters.buildUpon` to return
+        `DefaultTrackSelector.Parameters.Builder` instead of the deprecated
+        `DefaultTrackSelector.ParametersBuilder`.
 *   Video:
     *   Rename `DummySurface` to `PlaceholderSurface`.
     *   Add AV1 support to the `MediaCodecVideoRenderer.getCodecMaxInputSize`.
