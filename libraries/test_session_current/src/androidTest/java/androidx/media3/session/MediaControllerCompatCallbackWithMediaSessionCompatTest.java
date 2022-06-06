@@ -37,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -84,6 +85,7 @@ public class MediaControllerCompatCallbackWithMediaSessionCompatTest {
 
   /** Custom actions in the legacy session used for instance by Android Auto and Wear OS. */
   @Test
+  @Ignore("Flaky, see b/235057692")
   public void setPlaybackState_withCustomActions_onPlaybackStateCompatChangedCalled()
       throws Exception {
     MediaSessionCompat.Token sessionToken = session.getSessionToken();
