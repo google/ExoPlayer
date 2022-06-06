@@ -49,8 +49,8 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -59,7 +59,9 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
@@ -515,7 +517,7 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void setParameterWithNonDefaultParameterNotifyInvalidationListener() {
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    Parameters.Builder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
     trackSelector.setParameters(builder);
     verify(invalidationListener).onTrackSelectionsInvalidated();
   }
@@ -527,7 +529,7 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void setParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain() {
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    Parameters.Builder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
     trackSelector.setParameters(builder);
     trackSelector.setParameters(builder);
     verify(invalidationListener, times(1)).onTrackSelectionsInvalidated();
@@ -1267,7 +1269,7 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, undeterminedUnd);
 
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredTextLanguage("spa");
+    Parameters.Builder builder = defaultParameters.buildUpon().setPreferredTextLanguage("spa");
     trackSelector.setParameters(builder);
     result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, spanish);
@@ -2261,6 +2263,30 @@ public final class DefaultTrackSelectorTest {
             selectionOverrideToBundle.toBundle());
 
     assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
+  }
+
+  /**
+   * The deprecated {@link DefaultTrackSelector.ParametersBuilder} is implemented by delegating to
+   * an instance of {@link DefaultTrackSelector.Parameters.Builder}. However, it <b>also</b> extends
+   * {@link TrackSelectionParameters.Builder}, and for the delegation-pattern to work correctly it
+   * needs to override <b>every</b> setter method from the superclass (otherwise the setter won't be
+   * propagated to the delegate). This test ensures that invariant.
+   *
+   * <p>The test can be removed when the deprecated {@link DefaultTrackSelector.ParametersBuilder}
+   * is removed.
+   */
+  @SuppressWarnings("deprecation") // Testing deprecated builder
+  @Test
+  public void deprecatedParametersBuilderOverridesAllTrackSelectionParametersBuilderMethods()
+      throws Exception {
+    List<Method> methods = TestUtil.getPublicMethods(TrackSelectionParameters.Builder.class);
+    for (Method method : methods) {
+      assertThat(
+              DefaultTrackSelector.ParametersBuilder.class
+                  .getDeclaredMethod(method.getName(), method.getParameterTypes())
+                  .getDeclaringClass())
+          .isEqualTo(DefaultTrackSelector.ParametersBuilder.class);
+    }
   }
 
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {

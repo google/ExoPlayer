@@ -25,6 +25,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaCodec;
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -46,9 +47,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
 
 /** Utility methods for tests. */
 public class TestUtil {
@@ -451,5 +460,36 @@ public class TestUtil {
     buffer.data = ByteBuffer.allocate(data.length).put(data);
     buffer.data.flip();
     return buffer;
+  }
+
+  /** Returns all the public methods of a Java class (except those defined by {@link Object}). */
+  public static List<Method> getPublicMethods(Class<?> clazz) {
+    // Run a BFS over all extended types to inspect them all.
+    Queue<Class<?>> supertypeQueue = new ArrayDeque<>();
+    supertypeQueue.add(clazz);
+    Set<Class<?>> supertypes = new HashSet<>();
+    Object object = new Object();
+    while (!supertypeQueue.isEmpty()) {
+      Class<?> currentSupertype = supertypeQueue.remove();
+      if (supertypes.add(currentSupertype)) {
+        @Nullable Class<?> superclass = currentSupertype.getSuperclass();
+        if (superclass != null && !superclass.isInstance(object)) {
+          supertypeQueue.add(superclass);
+        }
+
+        Collections.addAll(supertypeQueue, currentSupertype.getInterfaces());
+      }
+    }
+
+    List<Method> list = new ArrayList<>();
+    for (Class<?> supertype : supertypes) {
+      for (Method method : supertype.getDeclaredMethods()) {
+        if (Modifier.isPublic(method.getModifiers())) {
+          list.add(method);
+        }
+      }
+    }
+
+    return list;
   }
 }

@@ -96,7 +96,7 @@ public final class TrackSelectionUtil {
       TrackGroupArray trackGroupArray,
       boolean isDisabled,
       @Nullable SelectionOverride override) {
-    DefaultTrackSelector.ParametersBuilder builder =
+    DefaultTrackSelector.Parameters.Builder builder =
         parameters
             .buildUpon()
             .clearSelectionOverrides(rendererIndex)
