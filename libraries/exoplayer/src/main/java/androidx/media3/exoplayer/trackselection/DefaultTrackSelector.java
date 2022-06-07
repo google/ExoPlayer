@@ -1688,50 +1688,30 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Bundleable implementation.
 
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @Target(TYPE_USE)
-    @IntDef({
-      // Video
-      FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY,
-      FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS,
-      FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS,
-      FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS,
-      // Audio
-      FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY,
-      FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS,
-      FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS,
-      FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS,
-      FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS,
-      // General
-      FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY,
-      FIELD_TUNNELING_ENABLED,
-      FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS,
-      // Overrides
-      FIELD_SELECTION_OVERRIDES_RENDERER_INDICES,
-      FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS,
-      FIELD_SELECTION_OVERRIDES,
-      FIELD_RENDERER_DISABLED_INDICES,
-    })
-    private @interface FieldNumber {}
-
-    // Start at 1000 to avoid conflict with the base class fields.
-    private static final int FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY = 1000;
-    private static final int FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS = 1001;
-    private static final int FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS = 1002;
-    private static final int FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY = 1003;
-    private static final int FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS = 1004;
-    private static final int FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS = 1005;
-    private static final int FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS = 1006;
-    private static final int FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY = 1007;
-    private static final int FIELD_TUNNELING_ENABLED = 1008;
-    private static final int FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS = 1009;
-    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDICES = 1010;
-    private static final int FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS = 1011;
-    private static final int FIELD_SELECTION_OVERRIDES = 1012;
-    private static final int FIELD_RENDERER_DISABLED_INDICES = 1013;
-    private static final int FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS = 1014;
-    private static final int FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS = 1015;
+    private static final int FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY = FIELD_CUSTOM_ID_BASE;
+    private static final int FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS =
+        FIELD_CUSTOM_ID_BASE + 1;
+    private static final int FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS = FIELD_CUSTOM_ID_BASE + 2;
+    private static final int FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY = FIELD_CUSTOM_ID_BASE + 3;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS =
+        FIELD_CUSTOM_ID_BASE + 4;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS =
+        FIELD_CUSTOM_ID_BASE + 5;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS =
+        FIELD_CUSTOM_ID_BASE + 6;
+    private static final int FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY =
+        FIELD_CUSTOM_ID_BASE + 7;
+    private static final int FIELD_TUNNELING_ENABLED = FIELD_CUSTOM_ID_BASE + 8;
+    private static final int FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS = FIELD_CUSTOM_ID_BASE + 9;
+    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDICES = FIELD_CUSTOM_ID_BASE + 10;
+    private static final int FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS =
+        FIELD_CUSTOM_ID_BASE + 11;
+    private static final int FIELD_SELECTION_OVERRIDES = FIELD_CUSTOM_ID_BASE + 12;
+    private static final int FIELD_RENDERER_DISABLED_INDICES = FIELD_CUSTOM_ID_BASE + 13;
+    private static final int FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS =
+        FIELD_CUSTOM_ID_BASE + 14;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS =
+        FIELD_CUSTOM_ID_BASE + 15;
 
     @Override
     public Bundle toBundle() {
@@ -1786,10 +1766,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     /** Object that can restore {@code Parameters} from a {@link Bundle}. */
     public static final Creator<Parameters> CREATOR =
         bundle -> new Parameters.Builder(bundle).build();
-
-    private static String keyForField(@FieldNumber int field) {
-      return Integer.toString(field, Character.MAX_RADIX);
-    }
 
     /**
      * Bundles selection overrides in 3 arrays of equal length. Each triplet of matching indices is:

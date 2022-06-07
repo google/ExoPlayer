@@ -24,7 +24,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.accessibility.CaptioningManager;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.BundleableUtil;
@@ -34,9 +33,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1073,42 +1069,6 @@ public class TrackSelectionParameters implements Bundleable {
 
   // Bundleable implementation
 
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    // Video
-    FIELD_MAX_VIDEO_WIDTH,
-    FIELD_MAX_VIDEO_HEIGHT,
-    FIELD_MAX_VIDEO_FRAMERATE,
-    FIELD_MAX_VIDEO_BITRATE,
-    FIELD_MIN_VIDEO_WIDTH,
-    FIELD_MIN_VIDEO_HEIGHT,
-    FIELD_MIN_VIDEO_FRAMERATE,
-    FIELD_MIN_VIDEO_BITRATE,
-    FIELD_VIEWPORT_WIDTH,
-    FIELD_VIEWPORT_HEIGHT,
-    FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE,
-    FIELD_PREFERRED_VIDEO_MIMETYPES,
-    FIELD_PREFERRED_VIDEO_ROLE_FLAGS,
-    // Audio
-    FIELD_PREFERRED_AUDIO_LANGUAGES,
-    FIELD_PREFERRED_AUDIO_ROLE_FLAGS,
-    FIELD_MAX_AUDIO_CHANNEL_COUNT,
-    FIELD_MAX_AUDIO_BITRATE,
-    FIELD_PREFERRED_AUDIO_MIME_TYPES,
-    // Text
-    FIELD_PREFERRED_TEXT_LANGUAGES,
-    FIELD_PREFERRED_TEXT_ROLE_FLAGS,
-    FIELD_IGNORED_TEXT_SELECTION_FLAGS,
-    FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
-    // General
-    FIELD_FORCE_LOWEST_BITRATE,
-    FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
-    FIELD_SELECTION_OVERRIDES,
-    FIELD_DISABLED_TRACK_TYPE,
-  })
-  private @interface FieldNumber {}
-
   private static final int FIELD_PREFERRED_AUDIO_LANGUAGES = 1;
   private static final int FIELD_PREFERRED_AUDIO_ROLE_FLAGS = 2;
   private static final int FIELD_PREFERRED_TEXT_LANGUAGES = 3;
@@ -1135,6 +1095,15 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_DISABLED_TRACK_TYPE = 24;
   private static final int FIELD_PREFERRED_VIDEO_ROLE_FLAGS = 25;
   private static final int FIELD_IGNORED_TEXT_SELECTION_FLAGS = 26;
+
+  /**
+   * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
+   * and {@link Bundleable.Creator}.
+   *
+   * <p>Subclasses should obtain keys for their {@link Bundle} representation by applying a
+   * non-negative offset on this constant and passing the result to {@link #keyForField(int)}.
+   */
+  @UnstableApi protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
   @Override
   public Bundle toBundle() {
@@ -1197,7 +1166,15 @@ public class TrackSelectionParameters implements Bundleable {
   public static final Creator<TrackSelectionParameters> CREATOR =
       TrackSelectionParameters::fromBundle;
 
-  private static String keyForField(@FieldNumber int field) {
+  /**
+   * Converts the given field number to a string which can be used as a field key when implementing
+   * {@link #toBundle()} and {@link Bundleable.Creator}.
+   *
+   * <p>Subclasses should use {@code field} values greater than or equal to {@link
+   * #FIELD_CUSTOM_ID_BASE}.
+   */
+  @UnstableApi
+  protected static String keyForField(int field) {
     return Integer.toString(field, Character.MAX_RADIX);
   }
 }
