@@ -144,6 +144,10 @@
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceholderDataSource`.
     *   Workaround OkHttp interrupt handling.
+*   FFmpeg extension:
+    *   Update CMake version to `3.21.0+` to avoid a CMake bug causing
+        AndroidStudio's gradle sync to fail
+        ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
@@ -157,10 +161,6 @@
         `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
         `getDefaultTrackSelectorParameters(Context)` instead when possible, and
         `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
-    *   FFmpeg extension:
-        *   Update CMake version to `3.21.0+` to avoid a CMake bug causing
-            AndroidStudio's gradle sync to fail
-            ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 
 ### 1.0.0-alpha03 (2022-03-14)
 
