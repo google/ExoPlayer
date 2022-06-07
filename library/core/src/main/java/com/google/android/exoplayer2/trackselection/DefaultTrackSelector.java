@@ -572,7 +572,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param disabled Whether the renderer is disabled.
      * @return This builder.
      */
-    public final ParametersBuilder setRendererDisabled(int rendererIndex, boolean disabled) {
+    public ParametersBuilder setRendererDisabled(int rendererIndex, boolean disabled) {
       delegate.setRendererDisabled(rendererIndex, disabled);
       return this;
     }
@@ -602,7 +602,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @deprecated Use {@link TrackSelectionParameters.Builder#addOverride(TrackSelectionOverride)}.
      */
     @Deprecated
-    public final ParametersBuilder setSelectionOverride(
+    public ParametersBuilder setSelectionOverride(
         int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
       delegate.setSelectionOverride(rendererIndex, groups, override);
       return this;
@@ -617,8 +617,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverride(TrackGroup)}.
      */
     @Deprecated
-    public final ParametersBuilder clearSelectionOverride(
-        int rendererIndex, TrackGroupArray groups) {
+    public ParametersBuilder clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       delegate.clearSelectionOverride(rendererIndex, groups);
       return this;
     }
@@ -631,7 +630,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverridesOfType(int)}.
      */
     @Deprecated
-    public final ParametersBuilder clearSelectionOverrides(int rendererIndex) {
+    public ParametersBuilder clearSelectionOverrides(int rendererIndex) {
       delegate.clearSelectionOverrides(rendererIndex);
       return this;
     }
@@ -643,7 +642,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverrides()}.
      */
     @Deprecated
-    public final ParametersBuilder clearSelectionOverrides() {
+    public ParametersBuilder clearSelectionOverrides() {
       delegate.clearSelectionOverrides();
       return this;
     }
@@ -1246,7 +1245,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
        * @param disabled Whether the renderer is disabled.
        * @return This builder.
        */
-      public final Builder setRendererDisabled(int rendererIndex, boolean disabled) {
+      public Builder setRendererDisabled(int rendererIndex, boolean disabled) {
         if (rendererDisabledFlags.get(rendererIndex) == disabled) {
           // The disabled flag is unchanged.
           return this;
@@ -1286,7 +1285,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
        *     TrackSelectionParameters.Builder#addOverride(TrackSelectionOverride)}.
        */
       @Deprecated
-      public final Builder setSelectionOverride(
+      public Builder setSelectionOverride(
           int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
         Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
             selectionOverrides.get(rendererIndex);
@@ -1311,7 +1310,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
        * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverride(TrackGroup)}.
        */
       @Deprecated
-      public final Builder clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+      public Builder clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
         Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
             selectionOverrides.get(rendererIndex);
         if (overrides == null || !overrides.containsKey(groups)) {
@@ -1333,7 +1332,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
        * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverridesOfType(int)}.
        */
       @Deprecated
-      public final Builder clearSelectionOverrides(int rendererIndex) {
+      public Builder clearSelectionOverrides(int rendererIndex) {
         Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
             selectionOverrides.get(rendererIndex);
         if (overrides == null || overrides.isEmpty()) {
@@ -1351,7 +1350,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
        * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverrides()}.
        */
       @Deprecated
-      public final Builder clearSelectionOverrides() {
+      public Builder clearSelectionOverrides() {
         if (selectionOverrides.size() == 0) {
           // Nothing to clear.
           return this;
@@ -1578,7 +1577,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @return Whether the renderer is disabled.
      */
-    public final boolean getRendererDisabled(int rendererIndex) {
+    public boolean getRendererDisabled(int rendererIndex) {
       return rendererDisabledFlags.get(rendererIndex);
     }
 
@@ -1593,7 +1592,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *     TrackSelectionParameters#overrides} instead.
      */
     @Deprecated
-    public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+    public boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       @Nullable
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
@@ -1612,7 +1611,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Deprecated
     @Nullable
-    public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
+    public SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       @Nullable
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
@@ -1625,7 +1624,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return new Parameters.Builder(this);
     }
 
-    @SuppressWarnings("EqualsGetClass") // Class is not final for backward-compatibility reason.
+    @SuppressWarnings(
+        "EqualsGetClass") // Class extends TrackSelectionParameters for backwards compatibility.
     @Override
     public boolean equals(@Nullable Object obj) {
       if (this == obj) {
