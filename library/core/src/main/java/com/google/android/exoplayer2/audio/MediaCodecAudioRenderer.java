@@ -27,6 +27,8 @@ import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -47,6 +49,7 @@ import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.MediaCodecParameters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -58,6 +61,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -106,7 +110,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean audioSinkNeedsReset;
 
   private boolean experimentalKeepAudioTrackOnSeek;
-
   @Nullable private WakeupListener wakeupListener;
 
   /**
@@ -168,6 +171,32 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             .build());
   }
 
+
+
+  private final HashMap<String, Integer> AC4_DIALOG_ENHANCEMENT_LEVEL_MAP = new HashMap<String, Integer>() {{
+    put(MediaCodecParameters.DIALOG_ENHANCEMENT_OFF,0);
+    put(MediaCodecParameters.DIALOG_ENHANCEMENT_LEVEL_LOW,3);
+    put(MediaCodecParameters.DIALOG_ENHANCEMENT_LEVEL_MID,6);
+    put(MediaCodecParameters.DIALOG_ENHANCEMENT_LEVEL_HIGH,9);
+  }};
+
+  private void setDialogEnhancement() {
+      if (audioCodecInfo != null && audioCodecInfo.name.contains("ac4")) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          String dialogEnhancementLevel = (String) mediaCodecParameters.getOrDefault(MediaCodecParameters.KEY_DIALOG_ENHANCEMENT, "off");
+          int    gain = AC4_DIALOG_ENHANCEMENT_LEVEL_MAP.getOrDefault(dialogEnhancementLevel,0);
+          Log.e(TAG, "setDialogEnhancement on AC4 Codec to " + gain + " dB (" + dialogEnhancementLevel + ")");
+          Bundle bundle = new Bundle(1);
+          bundle.putInt("vendor.dolby.dialog-enhancement-gain.value", gain);
+          super.getCodec().setParameters(bundle);
+        }
+      }
+  }
+
+  private void updateMediaCodecParameters(MediaCodecParameters mediaCodecParameters) {
+    this.mediaCodecParameters.set(mediaCodecParameters.get());
+    setDialogEnhancement();
+  }
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
@@ -348,6 +377,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         decoderSupport);
   }
 
+  MediaCodecInfo audioCodecInfo;
   @Override
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
@@ -416,6 +446,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
+    audioCodecInfo = codecInfo;
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
@@ -736,6 +767,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     switch (messageType) {
       case MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);
+        break;
+      case MSG_SET_CODEC_PARAMETERS:
+        updateMediaCodecParameters((MediaCodecParameters) message);
         break;
       case MSG_SET_AUDIO_ATTRIBUTES:
         AudioAttributes audioAttributes = (AudioAttributes) message;

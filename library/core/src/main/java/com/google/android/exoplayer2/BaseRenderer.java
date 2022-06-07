@@ -42,6 +42,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private int state;
   @Nullable private SampleStream stream;
   @Nullable private Format[] streamFormats;
+  protected MediaCodecParameters mediaCodecParameters;
   private long streamOffsetUs;
   private long lastResetPositionUs;
   private long readingPositionUs;
@@ -56,6 +57,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     this.trackType = trackType;
     formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
+    mediaCodecParameters = new MediaCodecParameters();
   }
 
   @Override

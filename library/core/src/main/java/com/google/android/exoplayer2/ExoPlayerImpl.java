@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_SESSION_ID;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUX_EFFECT_INFO;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_CODEC_PARAMETERS;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
@@ -209,6 +210,10 @@ import java.util.concurrent.TimeoutException;
   private int maskingPeriodIndex;
   private long maskingWindowPositionMs;
 
+  // MediaCodec parameters
+  private MediaCodecParameters mediaCodecParameters;
+
+
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(ExoPlayer.Builder builder, @Nullable Player wrappingPlayer) {
     constructorFinished = new ConditionVariable();
@@ -367,6 +372,8 @@ import java.util.concurrent.TimeoutException;
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
+
+      mediaCodecParameters = new MediaCodecParameters();
 
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
@@ -915,6 +922,20 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  @Override
+  public void setMediaCodecParameters(MediaCodecParameters mediaCodecParameters) {
+    verifyApplicationThread();
+    this.mediaCodecParameters.set(mediaCodecParameters.get());
+    for (Renderer renderer : renderers) {
+      createMessageInternal(renderer).setType(MSG_SET_CODEC_PARAMETERS).setPayload(mediaCodecParameters).send();
+    }
+  }
+
+  @Override
+  public MediaCodecParameters getMediaCodecParameters() {
+    verifyApplicationThread();
+    return mediaCodecParameters;
+  }
   @Override
   public void stop() {
     verifyApplicationThread();
@@ -3023,6 +3044,7 @@ import java.util.concurrent.TimeoutException;
         case Renderer.MSG_SET_VIDEO_OUTPUT:
         case Renderer.MSG_SET_VOLUME:
         case Renderer.MSG_SET_WAKEUP_LISTENER:
+        case MSG_SET_CODEC_PARAMETERS:
         default:
           break;
       }

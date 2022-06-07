@@ -61,6 +61,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
+import com.google.android.exoplayer2.MediaCodecParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
@@ -253,6 +254,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
+  private static final int SETTINGS_DIALOG_ENHANCEMENT = 2;
 
   private final ComponentListener componentListener;
 
@@ -323,6 +325,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private RecyclerView settingsView;
   private SettingsAdapter settingsAdapter;
   private PlaybackSpeedAdapter playbackSpeedAdapter;
+  private DialogEnhancementAdapter dialogEnhancementAdapter;
   private PopupWindow settingsWindow;
   private boolean needToHideBars;
   private int settingsWindowMargin;
@@ -540,8 +543,8 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
-    String[] settingTexts = new String[2];
-    Drawable[] settingIcons = new Drawable[2];
+    String[] settingTexts = new String[3];
+    Drawable[] settingIcons = new Drawable[3];
     settingTexts[SETTINGS_PLAYBACK_SPEED_POSITION] =
         resources.getString(R.string.exo_controls_playback_speed);
     settingIcons[SETTINGS_PLAYBACK_SPEED_POSITION] =
@@ -550,6 +553,12 @@ public class StyledPlayerControlView extends FrameLayout {
         resources.getString(R.string.exo_track_selection_title_audio);
     settingIcons[SETTINGS_AUDIO_TRACK_SELECTION_POSITION] =
         resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
+
+    // ADD DialogEnhancement Gain support
+    settingTexts[SETTINGS_DIALOG_ENHANCEMENT] = "AC-4 Dialog Enhancement";
+    settingIcons[SETTINGS_DIALOG_ENHANCEMENT] =
+        resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
+
     settingsAdapter = new SettingsAdapter(settingTexts, settingIcons);
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
     settingsView =
@@ -580,6 +589,9 @@ public class StyledPlayerControlView extends FrameLayout {
     playbackSpeedAdapter =
         new PlaybackSpeedAdapter(
             resources.getStringArray(R.array.exo_controls_playback_speeds), PLAYBACK_SPEEDS);
+
+    dialogEnhancementAdapter =
+        new DialogEnhancementAdapter();
 
     fullScreenExitDrawable = resources.getDrawable(R.drawable.exo_styled_controls_fullscreen_exit);
     fullScreenEnterDrawable =
@@ -966,6 +978,7 @@ public class StyledPlayerControlView extends FrameLayout {
     updateShuffleButton();
     updateTrackLists();
     updatePlaybackSpeedList();
+    updateDialogEnhancementList();
     updateTimeline();
   }
 
@@ -1286,6 +1299,17 @@ public class StyledPlayerControlView extends FrameLayout {
         SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedAdapter.getSelectedText());
   }
 
+  private void updateDialogEnhancementList() {
+    if (player == null) {
+      return;
+    }
+    MediaCodecParameters mediaCodecParameters = player.getMediaCodecParameters();
+
+    dialogEnhancementAdapter.updateSelectedIndex((String) mediaCodecParameters.getOrDefault(MediaCodecParameters.KEY_DIALOG_ENHANCEMENT,dialogEnhancementAdapter.dialogEnhancementLevels[0]));
+    settingsAdapter.setSubTextAtPosition(
+        SETTINGS_DIALOG_ENHANCEMENT, dialogEnhancementAdapter.getSelectedText());
+  }
+
   private void updateSettingsWindowSize() {
     settingsView.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 
@@ -1313,6 +1337,18 @@ public class StyledPlayerControlView extends FrameLayout {
     int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
 
     settingsWindow.showAsDropDown(this, xoff, yoff);
+  }
+
+  private void setDialogEnhancementLevel(String level) {
+    if (player == null) {
+      return;
+    }
+
+    MediaCodecParameters mediaCodecParameters = new MediaCodecParameters();
+    mediaCodecParameters.set(MediaCodecParameters.KEY_DIALOG_ENHANCEMENT,level);
+
+    player.setMediaCodecParameters(mediaCodecParameters);
+    updateDialogEnhancementList();
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1397,6 +1433,8 @@ public class StyledPlayerControlView extends FrameLayout {
       displaySettingsWindow(playbackSpeedAdapter);
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
       displaySettingsWindow(audioTrackSelectionAdapter);
+    } else if (position == SETTINGS_DIALOG_ENHANCEMENT) {
+      displaySettingsWindow(dialogEnhancementAdapter);
     } else {
       settingsWindow.dismiss();
     }
@@ -1832,6 +1870,56 @@ public class StyledPlayerControlView extends FrameLayout {
       return playbackSpeedTexts.length;
     }
   }
+
+  private final class DialogEnhancementAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
+
+    private final String[] dialogEnhancementLevels = {
+        MediaCodecParameters.DIALOG_ENHANCEMENT_OFF,
+        MediaCodecParameters.DIALOG_ENHANCEMENT_LEVEL_LOW,
+        MediaCodecParameters.DIALOG_ENHANCEMENT_LEVEL_MID,
+        MediaCodecParameters.DIALOG_ENHANCEMENT_LEVEL_HIGH
+    };
+    private int            selectedIndex;
+
+    public DialogEnhancementAdapter() {}
+
+    public void updateSelectedIndex(String dialogEnhancement) {
+      selectedIndex = Arrays.asList(dialogEnhancementLevels).indexOf(dialogEnhancement);
+    }
+
+    public String getSelectedText() {
+      return dialogEnhancementLevels[selectedIndex];
+    }
+
+    @Override
+    public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      View v =
+          LayoutInflater.from(getContext())
+              .inflate(R.layout.exo_styled_sub_settings_list_item, null);
+      return new SubSettingViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(SubSettingViewHolder holder, int position) {
+      if (position < dialogEnhancementLevels.length) {
+        holder.textView.setText(dialogEnhancementLevels[position]);
+      }
+      holder.checkView.setVisibility(position == selectedIndex ? VISIBLE : INVISIBLE);
+      holder.itemView.setOnClickListener(
+          v -> {
+            if (position != selectedIndex) {
+              setDialogEnhancementLevel(dialogEnhancementLevels[position]);
+            }
+            settingsWindow.dismiss();
+          });
+    }
+
+    @Override
+    public int getItemCount() {
+      return dialogEnhancementLevels.length;
+    }
+  }
+
 
   private static final class TrackInformation {
 

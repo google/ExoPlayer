@@ -1247,6 +1247,16 @@ public class SimpleExoPlayer extends BasePlayer
     player.setDeviceMuted(muted);
   }
 
+  @Override
+  public void setMediaCodecParameters(MediaCodecParameters parameters) {
+    player.setMediaCodecParameters(parameters);
+  }
+
+  @Override
+  public MediaCodecParameters getMediaCodecParameters() {
+    return player.getMediaCodecParameters();
+  }
+
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     blockUntilConstructorFinished();
     player.setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);
