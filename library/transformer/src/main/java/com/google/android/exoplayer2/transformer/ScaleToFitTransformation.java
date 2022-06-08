@@ -31,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>All input frames' pixels will be preserved and copied into an output frame, potentially
  * changing the width and height of the frame by scaling dimensions to fit.
  *
- * <p>The background color of the output frame will be black.
+ * <p>The background color of the output frame will be black, with alpha = 0 if applicable.
  */
 public final class ScaleToFitTransformation implements MatrixTransformation {
 
