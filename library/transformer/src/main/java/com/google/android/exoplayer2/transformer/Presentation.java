@@ -39,7 +39,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *
  * <p>Cropping or aspect ratio is applied before setting resolution.
  *
- * <p>The background color of the output frame will be black.
+ * <p>The background color of the output frame will be black, with alpha = 0 if applicable.
  */
 public final class Presentation implements MatrixTransformation {
 

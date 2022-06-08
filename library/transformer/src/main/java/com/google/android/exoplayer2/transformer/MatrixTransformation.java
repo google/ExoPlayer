@@ -24,7 +24,8 @@ import android.graphics.Matrix;
  * axes). Transformed pixels that are moved outside of the normal device coordinate range are
  * clipped.
  *
- * <p>Output frame pixels outside of the transformed input frame will be black.
+ * <p>Output frame pixels outside of the transformed input frame will be black, with alpha = 0 if
+ * applicable.
  */
 public interface MatrixTransformation extends GlMatrixTransformation {
   /**
