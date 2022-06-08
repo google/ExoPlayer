@@ -33,7 +33,7 @@ public class RtspAuthenticationInfoTest {
     String authenticationRealm = "WallyWorld";
     String username = "Aladdin";
     String password = "open sesame";
-    String expectedAuthorizationHeaderValue = "QWxhZGRpbjpvcGVuIHNlc2FtZQ==\n";
+    String expectedAuthorizationHeaderValue = "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\n";
     RtspAuthenticationInfo authenticator =
         new RtspAuthenticationInfo(
             RtspAuthenticationInfo.BASIC, authenticationRealm, /* nonce= */ "", /* opaque= */ "");

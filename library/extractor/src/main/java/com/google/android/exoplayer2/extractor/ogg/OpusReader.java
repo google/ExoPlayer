@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
@@ -39,8 +38,18 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     'O', 'p', 'u', 's', 'T', 'a', 'g', 's'
   };
 
+  private boolean firstCommentHeaderSeen;
+
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     return peekPacketStartsWith(data, OPUS_ID_HEADER_SIGNATURE);
+  }
+
+  @Override
+  protected void reset(boolean headerData) {
+    super.reset(headerData);
+    if (headerData) {
+      firstCommentHeaderSeen = false;
+    }
   }
 
   @Override
@@ -57,9 +66,15 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
       int channelCount = OpusUtil.getChannelCount(headerBytes);
       List<byte[]> initializationData = OpusUtil.buildInitializationData(headerBytes);
 
-      // The ID header must come at the start of the file:
-      // https://datatracker.ietf.org/doc/html/rfc7845#section-3
-      checkState(setupData.format == null);
+      if (setupData.format != null) {
+        // setupData.format being non-null indicates we've already seen an ID header. Multiple ID
+        // headers are not permitted by the Opus spec [1], but have been observed in real files [2],
+        // so we just ignore all subsequent ones.
+        // [1] https://datatracker.ietf.org/doc/html/rfc7845#section-3 and
+        //     https://datatracker.ietf.org/doc/html/rfc7845#section-5
+        // [2] https://github.com/google/ExoPlayer/issues/10038
+        return true;
+      }
       setupData.format =
           new Format.Builder()
               .setSampleMimeType(MimeTypes.AUDIO_OPUS)
@@ -72,6 +87,15 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
       // The comment header must come immediately after the ID header, so the format will already
       // be populated: https://datatracker.ietf.org/doc/html/rfc7845#section-3
       checkStateNotNull(setupData.format);
+      if (firstCommentHeaderSeen) {
+        // Multiple comment headers are not permitted by the Opus spec [1], but have been observed
+        // in real files [2], so we just ignore all subsequent ones.
+        // [1] https://datatracker.ietf.org/doc/html/rfc7845#section-3 and
+        //     https://datatracker.ietf.org/doc/html/rfc7845#section-5
+        // [2] https://github.com/google/ExoPlayer/issues/10038
+        return true;
+      }
+      firstCommentHeaderSeen = true;
       packet.skipBytes(OPUS_COMMENT_HEADER_SIGNATURE.length);
       VorbisUtil.CommentHeader commentHeader =
           VorbisUtil.readVorbisCommentHeader(

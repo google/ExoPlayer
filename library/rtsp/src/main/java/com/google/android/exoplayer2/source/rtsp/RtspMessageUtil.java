@@ -457,6 +457,21 @@ import java.util.regex.Pattern;
         "Invalid WWW-Authenticate header " + headerValue, /* cause= */ null);
   }
 
+  /**
+   * Throws {@link ParserException#createForMalformedManifest ParserException} if {@code expression}
+   * evaluates to false.
+   *
+   * @param expression The expression to evaluate.
+   * @param message The error message.
+   * @throws ParserException If {@code expression} is false.
+   */
+  public static void checkManifestExpression(boolean expression, @Nullable String message)
+      throws ParserException {
+    if (!expression) {
+      throw ParserException.createForMalformedManifest(message, /* cause= */ null);
+    }
+  }
+
   private static String getRtspStatusReasonPhrase(int statusCode) {
     switch (statusCode) {
       case 200:

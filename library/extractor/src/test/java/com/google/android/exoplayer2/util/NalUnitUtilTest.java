@@ -124,6 +124,7 @@ public final class NalUnitUtilTest {
   public void parseSpsNalUnit() {
     NalUnitUtil.SpsData data =
         NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET, SPS_TEST_DATA.length);
+    assertThat(data.maxNumRefFrames).isEqualTo(4);
     assertThat(data.width).isEqualTo(640);
     assertThat(data.height).isEqualTo(360);
     assertThat(data.deltaPicOrderAlwaysZeroFlag).isFalse();

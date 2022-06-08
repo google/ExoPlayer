@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
@@ -25,7 +28,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * The component of an {@link ExoPlayer} responsible for selecting tracks to be consumed by each of
@@ -63,6 +65,8 @@ import com.google.android.exoplayer2.util.Assertions;
  *       track selection for the currently playing period differs from the one that was invalidated.
  *       Implementing subclasses can trigger invalidation by calling {@link #invalidate()}, which
  *       will call {@link InvalidationListener#onTrackSelectionsInvalidated()}.
+ *   <li>When the player is {@linkplain Player#release() released}, it will release the track
+ *       selector by calling {@link #release()}.
  * </ul>
  *
  * <h2>Renderer configuration</h2>
@@ -108,6 +112,15 @@ public abstract class TrackSelector {
   public final void init(InvalidationListener listener, BandwidthMeter bandwidthMeter) {
     this.listener = listener;
     this.bandwidthMeter = bandwidthMeter;
+  }
+
+  /**
+   * Called by the player to release the selector. The selector cannot be used until {@link
+   * #init(InvalidationListener, BandwidthMeter)} is called again.
+   */
+  public final void release() {
+    this.listener = null;
+    this.bandwidthMeter = null;
   }
 
   /**
@@ -174,9 +187,10 @@ public abstract class TrackSelector {
 
   /**
    * Returns a bandwidth meter which can be used by track selections to select tracks. Must only be
-   * called after {@link #init(InvalidationListener, BandwidthMeter)} has been called.
+   * called when the track selector is {@linkplain #init(InvalidationListener, BandwidthMeter)
+   * initialized}.
    */
   protected final BandwidthMeter getBandwidthMeter() {
-    return Assertions.checkNotNull(bandwidthMeter);
+    return checkStateNotNull(bandwidthMeter);
   }
 }

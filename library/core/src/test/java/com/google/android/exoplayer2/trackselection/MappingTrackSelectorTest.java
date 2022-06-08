@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static com.google.android.exoplayer2.util.MimeTypes.AUDIO_AAC;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Pair;
@@ -27,15 +28,12 @@ import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +50,7 @@ public final class MappingTrackSelectorTest {
       new FakeRendererCapabilities(C.TRACK_TYPE_METADATA);
 
   private static final TrackGroup VIDEO_TRACK_GROUP = buildTrackGroup(MimeTypes.VIDEO_H264);
-  private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(MimeTypes.AUDIO_AAC);
+  private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(AUDIO_AAC);
   private static final TrackGroup METADATA_TRACK_GROUP = buildTrackGroup(MimeTypes.APPLICATION_ID3);
 
   private static final Timeline TIMELINE = new FakeTimeline();
@@ -135,61 +133,6 @@ public final class MappingTrackSelectorTest {
 
   private static TrackGroup buildTrackGroup(String sampleMimeType) {
     return new TrackGroup(new Format.Builder().setSampleMimeType(sampleMimeType).build());
-  }
-
-  @Test
-  public void buildTrackInfos_withTestValues_isAsExpected() {
-    MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
-        new MappingTrackSelector.MappedTrackInfo(
-            new String[] {"1", "2"},
-            new int[] {C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO},
-            new TrackGroupArray[] {
-              new TrackGroupArray(
-                  new TrackGroup("0", new Format.Builder().build()),
-                  new TrackGroup("1", new Format.Builder().build())),
-              new TrackGroupArray(
-                  new TrackGroup("2", new Format.Builder().build(), new Format.Builder().build()))
-            },
-            new int[] {
-              RendererCapabilities.ADAPTIVE_SEAMLESS, RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
-            },
-            new int[][][] {
-              new int[][] {new int[] {C.FORMAT_HANDLED}, new int[] {C.FORMAT_UNSUPPORTED_SUBTYPE}},
-              new int[][] {new int[] {C.FORMAT_UNSUPPORTED_DRM, C.FORMAT_EXCEEDS_CAPABILITIES}}
-            },
-            new TrackGroupArray(new TrackGroup(new Format.Builder().build())));
-    TrackSelection[] selections =
-        new TrackSelection[] {
-          new FixedTrackSelection(mappedTrackInfo.getTrackGroups(0).get(1), 0),
-          new FixedTrackSelection(mappedTrackInfo.getTrackGroups(1).get(0), 1)
-        };
-
-    TracksInfo tracksInfo = MappingTrackSelector.buildTracksInfo(selections, mappedTrackInfo);
-
-    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    assertThat(trackGroupInfos).hasSize(4);
-    assertThat(trackGroupInfos.get(0).getTrackGroup())
-        .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(0));
-    assertThat(trackGroupInfos.get(1).getTrackGroup())
-        .isEqualTo(mappedTrackInfo.getTrackGroups(0).get(1));
-    assertThat(trackGroupInfos.get(2).getTrackGroup())
-        .isEqualTo(mappedTrackInfo.getTrackGroups(1).get(0));
-    assertThat(trackGroupInfos.get(3).getTrackGroup())
-        .isEqualTo(mappedTrackInfo.getUnmappedTrackGroups().get(0));
-    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(C.FORMAT_HANDLED);
-    assertThat(trackGroupInfos.get(1).getTrackSupport(0)).isEqualTo(C.FORMAT_UNSUPPORTED_SUBTYPE);
-    assertThat(trackGroupInfos.get(2).getTrackSupport(0)).isEqualTo(C.FORMAT_UNSUPPORTED_DRM);
-    assertThat(trackGroupInfos.get(2).getTrackSupport(1)).isEqualTo(C.FORMAT_EXCEEDS_CAPABILITIES);
-    assertThat(trackGroupInfos.get(3).getTrackSupport(0)).isEqualTo(C.FORMAT_UNSUPPORTED_TYPE);
-    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(1).isTrackSelected(0)).isTrue();
-    assertThat(trackGroupInfos.get(2).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(2).isTrackSelected(1)).isTrue();
-    assertThat(trackGroupInfos.get(3).isTrackSelected(0)).isFalse();
-    assertThat(trackGroupInfos.get(0).getTrackType()).isEqualTo(C.TRACK_TYPE_AUDIO);
-    assertThat(trackGroupInfos.get(1).getTrackType()).isEqualTo(C.TRACK_TYPE_AUDIO);
-    assertThat(trackGroupInfos.get(2).getTrackType()).isEqualTo(C.TRACK_TYPE_VIDEO);
-    assertThat(trackGroupInfos.get(3).getTrackType()).isEqualTo(C.TRACK_TYPE_UNKNOWN);
   }
 
   /**

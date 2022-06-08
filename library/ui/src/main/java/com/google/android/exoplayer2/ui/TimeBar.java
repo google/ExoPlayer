@@ -38,7 +38,9 @@ public interface TimeBar {
    */
   void removeListener(OnScrubListener listener);
 
-  /** @see View#isEnabled() */
+  /**
+   * @see View#isEnabled()
+   */
   void setEnabled(boolean enabled);
 
   /**

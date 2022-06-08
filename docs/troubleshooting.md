@@ -22,6 +22,7 @@ redirect_from:
 * [Why does content fail to play, but no error is surfaced?]
 * [How can I get a decoding extension to load and be used for playback?][]
 * [Can I play YouTube videos directly with ExoPlayer?][]
+* [Video playback is stuttering][]
 
 ---
 
@@ -293,6 +294,16 @@ No, ExoPlayer cannot play videos from YouTube, i.e., urls of the form
 Android Player API](https://developers.google.com/youtube/android/player/) which
 is the official way to play YouTube videos on Android.
 
+#### Video playback is stuttering ###
+
+The device may not be able to decode the content fast enough if, for example,
+the content bitrate or resolution exceeds the device capabilities. You may need
+to use lower quality content to obtain good performance on such devices.
+
+If you're experiencing video stuttering on a device running Android 6 to 11,
+particularly when playing DRM protected or high frame rate content, you can try
+[enabling asynchronous buffer queueing].
+
 [Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
 [Fixing "SSLHandshakeException", "CertPathValidatorException" and "ERR_CERT_AUTHORITY_INVALID" errors]: #fixing-sslhandshakeexception-certpathvalidatorexception-and-err_cert_authority_invalid-errors
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
@@ -311,7 +322,7 @@ is the official way to play YouTube videos on Android.
 [Why does content fail to play, but no error is surfaced?]: #why-does-content-fail-to-play-but-no-error-is-surfaced
 [How can I get a decoding extension to load and be used for playback?]: #how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
 [Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-youtube-videos-directly-with-exoplayer
-
+[Video playback is stuttering]: #video-playback-is-stuttering
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [set on a `DefaultExtractorsFactory`]: {{ site.base_url }}/customization.html#customizing-extractor-flags
@@ -349,3 +360,4 @@ is the official way to play YouTube videos on Android.
 [`DefaultRenderersFactory`]: {{ site.exo_sdk }}/DefaultRenderersFactory.html
 [`LibraryLoader`]: {{ site.exo_sdk }}/util/LibraryLoader.html
 [`EventLogger`]: {{ site.baseurl }}/debug-logging.html
+[enabling asynchronous buffer queueing]: {{ site.baseurl }}/customization.html#enabling-asynchronous-buffer-queueing

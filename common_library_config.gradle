@@ -29,5 +29,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    testOptions.unitTests.includeAndroidResources = true
+    testOptions {
+        unitTests.all {
+            jvmArgs "-Xmx2g"
+        }
+        unitTests.includeAndroidResources true
+    }
 }

@@ -84,12 +84,14 @@ import java.util.Map;
   private static final String IMA_SDK_SETTINGS_PLAYER_VERSION = ExoPlayerLibraryInfo.VERSION;
 
   /**
-   * Interval at which ad progress updates are provided to the IMA SDK, in milliseconds. 100 ms is
-   * the interval recommended by the IMA documentation.
+   * Interval at which ad progress updates are provided to the IMA SDK, in milliseconds. 200 ms is
+   * the interval recommended by the Media Rating Council (MRC) for minimum polling of viewable
+   * video impressions.
+   * http://www.mediaratingcouncil.org/063014%20Viewable%20Ad%20Impression%20Guideline_Final.pdf.
    *
    * @see VideoAdPlayer.VideoAdPlayerCallback
    */
-  private static final int AD_PROGRESS_UPDATE_INTERVAL_MS = 100;
+  private static final int AD_PROGRESS_UPDATE_INTERVAL_MS = 200;
 
   /** The value used in {@link VideoProgressUpdate}s to indicate an unset duration. */
   private static final long IMA_DURATION_UNSET = -1L;
@@ -708,7 +710,7 @@ import java.util.Map;
     }
 
     // Check for a selected track using an audio renderer.
-    return player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_AUDIO) ? 100 : 0;
+    return player.getCurrentTracks().isTypeSelected(C.TRACK_TYPE_AUDIO) ? 100 : 0;
   }
 
   private void handleAdEvent(AdEvent adEvent) {

@@ -46,6 +46,19 @@ public final class MediaFormatUtil {
   // The constant value must not be changed, because it's also set by the framework MediaParser API.
   public static final String KEY_PCM_ENCODING_EXTENDED = "exo-pcm-encoding-int";
 
+  /**
+   * The {@link MediaFormat} key for the maximum bitrate in bits per second.
+   *
+   * <p>The associated value is an integer.
+   *
+   * <p>The key string constant is the same as {@code MediaFormat#KEY_MAX_BITRATE}. Values for it
+   * are already returned by the framework MediaExtractor; the key is a hidden field in {@code
+   * MediaFormat} though, which is why it's being replicated here.
+   */
+  // The constant value must not be changed, because it's also set by the framework MediaParser and
+  // MediaExtractor APIs.
+  public static final String KEY_MAX_BIT_RATE = "max-bitrate";
+
   private static final int MAX_POWER_OF_TWO_INT = 1 << 30;
 
   /**
@@ -62,6 +75,7 @@ public final class MediaFormatUtil {
   public static MediaFormat createMediaFormatFromFormat(Format format) {
     MediaFormat result = new MediaFormat();
     maybeSetInteger(result, MediaFormat.KEY_BIT_RATE, format.bitrate);
+    maybeSetInteger(result, KEY_MAX_BIT_RATE, format.peakBitrate);
     maybeSetInteger(result, MediaFormat.KEY_CHANNEL_COUNT, format.channelCount);
 
     maybeSetColorInfo(result, format.colorInfo);

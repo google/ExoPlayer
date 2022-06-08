@@ -524,7 +524,9 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean offloadDisabledUntilNextConfiguration;
   private boolean isWaitingForOffloadEndOfStreamHandled;
 
-  /** @deprecated Use {@link Builder}. */
+  /**
+   * @deprecated Use {@link Builder}.
+   */
   @Deprecated
   @InlineMeValidationDisabled("Migrate constructor to Builder")
   @InlineMe(
@@ -542,7 +544,9 @@ public final class DefaultAudioSink implements AudioSink {
             .setAudioProcessors(audioProcessors));
   }
 
-  /** @deprecated Use {@link Builder}. */
+  /**
+   * @deprecated Use {@link Builder}.
+   */
   @Deprecated
   @InlineMeValidationDisabled("Migrate constructor to Builder")
   @InlineMe(
@@ -564,7 +568,9 @@ public final class DefaultAudioSink implements AudioSink {
             .setEnableFloatOutput(enableFloatOutput));
   }
 
-  /** @deprecated Use {@link Builder}. */
+  /**
+   * @deprecated Use {@link Builder}.
+   */
   @Deprecated
   @InlineMeValidationDisabled("Migrate constructor to Builder")
   @InlineMe(
@@ -872,7 +878,6 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void handleDiscontinuity() {
-    // Force resynchronization after a skipped buffer.
     startMediaTimeUsNeedsSync = true;
   }
 
@@ -900,7 +905,11 @@ public final class DefaultAudioSink implements AudioSink {
         pendingConfiguration = null;
         if (isOffloadedPlayback(audioTrack)
             && offloadMode != OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED) {
-          audioTrack.setOffloadEndOfStream();
+          // If the first track is very short (typically <1s), the offload AudioTrack might
+          // not have started yet. Do not call setOffloadEndOfStream as it would throw.
+          if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+            audioTrack.setOffloadEndOfStream();
+          }
           audioTrack.setOffloadDelayPadding(
               configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
           isWaitingForOffloadEndOfStreamHandled = true;
@@ -1003,7 +1012,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (configuration.outputMode == OUTPUT_MODE_PCM) {
         submittedPcmBytes += buffer.remaining();
       } else {
-        submittedEncodedFrames += framesPerEncodedSample * encodedAccessUnitCount;
+        submittedEncodedFrames += (long) framesPerEncodedSample * encodedAccessUnitCount;
       }
 
       inputBuffer = buffer;
@@ -1184,9 +1193,7 @@ public final class DefaultAudioSink implements AudioSink {
           && listener != null
           && bytesWritten < bytesRemaining
           && !isWaitingForOffloadEndOfStreamHandled) {
-        long pendingDurationMs =
-            audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
-        listener.onOffloadBufferFull(pendingDurationMs);
+        listener.onOffloadBufferFull();
       }
     }
 
@@ -1198,7 +1205,7 @@ public final class DefaultAudioSink implements AudioSink {
         // When playing non-PCM, the inputBuffer is never processed, thus the last inputBuffer
         // must be the current input buffer.
         Assertions.checkState(buffer == inputBuffer);
-        writtenEncodedFrames += framesPerEncodedSample * inputBufferAccessUnitCount;
+        writtenEncodedFrames += (long) framesPerEncodedSample * inputBufferAccessUnitCount;
       }
       outputBuffer = null;
     }
@@ -1820,7 +1827,8 @@ public final class DefaultAudioSink implements AudioSink {
     }
     AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, encoding);
 
-    switch (getOffloadedPlaybackSupport(audioFormat, audioAttributes.getAudioAttributesV21())) {
+    switch (getOffloadedPlaybackSupport(
+        audioFormat, audioAttributes.getAudioAttributesV21().audioAttributes)) {
       case AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED:
         return false;
       case AudioManager.PLAYBACK_OFFLOAD_SUPPORTED:
@@ -2294,7 +2302,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (tunneling) {
         return getAudioTrackTunnelingAttributesV21();
       } else {
-        return audioAttributes.getAudioAttributesV21();
+        return audioAttributes.getAudioAttributesV21().audioAttributes;
       }
     }
 

@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.getStringForTime;
 import static com.google.android.exoplayer2.util.Util.gzip;
+import static com.google.android.exoplayer2.util.Util.maxValue;
 import static com.google.android.exoplayer2.util.Util.minValue;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
@@ -102,50 +103,109 @@ public class UtilTest {
 
   @Test
   public void inferContentType_handlesHlsIsmUris() {
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl)"))
-        .isEqualTo(C.TYPE_HLS);
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl,quality=hd)"))
-        .isEqualTo(C.TYPE_HLS);
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl)"))
-        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism/manifest(format=m3u8-aapl)")))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("http://a.b/c.ism/manifest(format=m3u8-aapl,quality=hd)")))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl)")))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
   }
 
   @Test
   public void inferContentType_handlesHlsIsmV3Uris() {
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl-v3)"))
-        .isEqualTo(C.TYPE_HLS);
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl-v3,quality=hd)"))
-        .isEqualTo(C.TYPE_HLS);
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl-v3)"))
-        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism/manifest(format=m3u8-aapl-v3)")))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("http://a.b/c.ism/manifest(format=m3u8-aapl-v3,quality=hd)")))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl-v3)")))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
   }
 
   @Test
   public void inferContentType_handlesDashIsmUris() {
-    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(format=mpd-time-csf)"))
-        .isEqualTo(C.TYPE_DASH);
-    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(format=mpd-time-csf,quality=hd)"))
-        .isEqualTo(C.TYPE_DASH);
-    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(quality=hd,format=mpd-time-csf)"))
-        .isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.isml/manifest(format=mpd-time-csf)")))
+        .isEqualTo(C.CONTENT_TYPE_DASH);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("http://a.b/c.isml/manifest(format=mpd-time-csf,quality=hd)")))
+        .isEqualTo(C.CONTENT_TYPE_DASH);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("http://a.b/c.isml/manifest(quality=hd,format=mpd-time-csf)")))
+        .isEqualTo(C.CONTENT_TYPE_DASH);
   }
 
   @Test
   public void inferContentType_handlesSmoothStreamingIsmUris() {
-    assertThat(Util.inferContentType("http://a.b/c.ism")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.isml")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.ism/")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.isml/")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.ism/Manifest")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.isml/manifest")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(filter=x)")).isEqualTo(C.TYPE_SS);
-    assertThat(Util.inferContentType("http://a.b/c.isml/manifest_hd")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism"))).isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.isml"))).isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism/"))).isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.isml/"))).isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism/Manifest")))
+        .isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.isml/manifest")))
+        .isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.isml/manifest(filter=x)")))
+        .isEqualTo(C.CONTENT_TYPE_SS);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.isml/manifest_hd")))
+        .isEqualTo(C.CONTENT_TYPE_SS);
   }
 
   @Test
   public void inferContentType_handlesOtherIsmUris() {
-    assertThat(Util.inferContentType("http://a.b/c.ism/video.mp4")).isEqualTo(C.TYPE_OTHER);
-    assertThat(Util.inferContentType("http://a.b/c.ism/prefix-manifest")).isEqualTo(C.TYPE_OTHER);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism/video.mp4")))
+        .isEqualTo(C.CONTENT_TYPE_OTHER);
+    assertThat(Util.inferContentType(Uri.parse("http://a.b/c.ism/prefix-manifest")))
+        .isEqualTo(C.CONTENT_TYPE_OTHER);
+  }
+
+  /**
+   * Test that the deprecated {@link Util#inferContentType(String)} works when passed only a file
+   * extension and the leading dot.
+   */
+  @SuppressWarnings("deprecation")
+  @Test
+  public void inferContentType_extensionAsPath() {
+    assertThat(Util.inferContentType(".m3u8")).isEqualTo(C.CONTENT_TYPE_HLS);
+    assertThat(Util.inferContentType(".mpd")).isEqualTo(C.CONTENT_TYPE_DASH);
+    assertThat(Util.inferContentType(".ism")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType(".isml")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType(".mp4")).isEqualTo(C.CONTENT_TYPE_OTHER);
+  }
+
+  // Testing deprecated method.
+  @SuppressWarnings("deprecation")
+  @Test
+  public void inferContentType_extensionOverride() {
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("file:///path/to/something.mpd"), /* overrideExtension= */ null))
+        .isEqualTo(C.CONTENT_TYPE_DASH);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("file:///path/to/something.mpd"), /* overrideExtension= */ ""))
+        .isEqualTo(C.CONTENT_TYPE_DASH);
+    assertThat(
+            Util.inferContentType(
+                Uri.parse("file:///path/to/something.mpd"), /* overrideExtension= */ "m3u8"))
+        .isEqualTo(C.CONTENT_TYPE_HLS);
+  }
+
+  @Test
+  public void inferContentTypeForExtension() {
+    assertThat(Util.inferContentTypeForExtension("m3u8")).isEqualTo(C.CONTENT_TYPE_HLS);
+    assertThat(Util.inferContentTypeForExtension("mpd")).isEqualTo(C.CONTENT_TYPE_DASH);
+    assertThat(Util.inferContentTypeForExtension("ism")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentTypeForExtension("isml")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentTypeForExtension("mp4")).isEqualTo(C.CONTENT_TYPE_OTHER);
   }
 
   @Test
@@ -748,6 +808,21 @@ public class UtilTest {
   }
 
   @Test
+  public void sparseLongArrayMaxValue_returnsMaxValue() {
+    SparseLongArray sparseLongArray = new SparseLongArray();
+    sparseLongArray.put(0, 2);
+    sparseLongArray.put(25, 10);
+    sparseLongArray.put(42, 1);
+
+    assertThat(maxValue(sparseLongArray)).isEqualTo(10);
+  }
+
+  @Test
+  public void sparseLongArrayMaxValue_emptyArray_throws() {
+    assertThrows(NoSuchElementException.class, () -> maxValue(new SparseLongArray()));
+  }
+
+  @Test
   public void parseXsDuration_returnsParsedDurationInMillis() {
     assertThat(parseXsDuration("PT150.279S")).isEqualTo(150279L);
     assertThat(parseXsDuration("PT1.500S")).isEqualTo(1500L);
@@ -1087,6 +1162,7 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("ara-ayl")).isEqualTo("ar-ayl");
 
     // Special case of short codes that are actually part of a macrolanguage.
+    assertThat(Util.normalizeLanguageCode("arb")).isEqualTo("ar-arb");
     assertThat(Util.normalizeLanguageCode("nb")).isEqualTo("no-nob");
     assertThat(Util.normalizeLanguageCode("nn")).isEqualTo("no-nno");
     assertThat(Util.normalizeLanguageCode("nob")).isEqualTo("no-nob");

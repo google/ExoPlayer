@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.extractor.wav.WavExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *             the FLAC extension or the FFmpeg extension.
  *       </ul>
  *   <li>JPEG ({@link JpegExtractor})
+ *   <li>MIDI, if available, the MIDI extension's {@code
+ *       com.google.android.exoplayer2.decoder.midi.MidiExtractor} is used.
  * </ul>
  */
 public final class DefaultExtractorsFactory implements ExtractorsFactory {
@@ -99,9 +102,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.AC4,
         FileTypes.MP3,
         FileTypes.JPEG,
+        FileTypes.MIDI,
       };
 
-  private static final FlacExtensionLoader FLAC_EXTENSION_LOADER = new FlacExtensionLoader();
+  private static final ExtensionLoader FLAC_EXTENSION_LOADER =
+      new ExtensionLoader(DefaultExtractorsFactory::getFlacExtractorConstructor);
+  private static final ExtensionLoader MIDI_EXTENSION_LOADER =
+      new ExtensionLoader(DefaultExtractorsFactory::getMidiExtractorConstructor);
 
   private boolean constantBitrateSeekingEnabled;
   private boolean constantBitrateSeekingAlwaysEnabled;
@@ -397,6 +404,12 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
       case FileTypes.JPEG:
         extractors.add(new JpegExtractor());
         break;
+      case FileTypes.MIDI:
+        @Nullable Extractor midiExtractor = MIDI_EXTENSION_LOADER.getExtractor();
+        if (midiExtractor != null) {
+          extractors.add(midiExtractor);
+        }
+        break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:
       default:
@@ -404,28 +417,63 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     }
   }
 
-  private static final class FlacExtensionLoader {
+  private static Constructor<? extends Extractor> getMidiExtractorConstructor()
+      throws ClassNotFoundException, NoSuchMethodException {
+    return Class.forName("com.google.android.exoplayer2.decoder.midi.MidiExtractor")
+        .asSubclass(Extractor.class)
+        .getConstructor();
+  }
+
+  @Nullable
+  private static Constructor<? extends Extractor> getFlacExtractorConstructor()
+      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+          IllegalAccessException {
+    @SuppressWarnings("nullness:argument")
+    boolean isFlacNativeLibraryAvailable =
+        Boolean.TRUE.equals(
+            Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
+                .getMethod("isAvailable")
+                .invoke(/* obj= */ null));
+    if (isFlacNativeLibraryAvailable) {
+      return Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
+          .asSubclass(Extractor.class)
+          .getConstructor(int.class);
+    }
+    return null;
+  }
+
+  private static final class ExtensionLoader {
+
+    public interface ConstructorSupplier {
+      @Nullable
+      Constructor<? extends Extractor> getConstructor()
+          throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
+              ClassNotFoundException;
+    }
+
+    private final ConstructorSupplier constructorSupplier;
     private final AtomicBoolean extensionLoaded;
 
     @GuardedBy("extensionLoaded")
     @Nullable
     private Constructor<? extends Extractor> extractorConstructor;
 
-    public FlacExtensionLoader() {
+    public ExtensionLoader(ConstructorSupplier constructorSupplier) {
+      this.constructorSupplier = constructorSupplier;
       extensionLoaded = new AtomicBoolean(false);
     }
 
     @Nullable
-    public Extractor getExtractor(int flags) {
+    public Extractor getExtractor(Object... constructorParams) {
       @Nullable
       Constructor<? extends Extractor> extractorConstructor = maybeLoadExtractorConstructor();
       if (extractorConstructor == null) {
         return null;
       }
       try {
-        return extractorConstructor.newInstance(flags);
+        return extractorConstructor.newInstance(constructorParams);
       } catch (Exception e) {
-        throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
+        throw new IllegalStateException("Unexpected error creating extractor", e);
       }
     }
 
@@ -436,23 +484,12 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
           return extractorConstructor;
         }
         try {
-          @SuppressWarnings("nullness:argument")
-          boolean isFlacNativeLibraryAvailable =
-              Boolean.TRUE.equals(
-                  Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
-                      .getMethod("isAvailable")
-                      .invoke(/* obj= */ null));
-          if (isFlacNativeLibraryAvailable) {
-            extractorConstructor =
-                Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
-                    .asSubclass(Extractor.class)
-                    .getConstructor(int.class);
-          }
+          return constructorSupplier.getConstructor();
         } catch (ClassNotFoundException e) {
-          // Expected if the app was built without the FLAC extension.
+          // Expected if the app was built without the extension.
         } catch (Exception e) {
-          // The FLAC extension is present, but instantiation failed.
-          throw new RuntimeException("Error instantiating FLAC extension", e);
+          // The extension is present, but instantiation failed.
+          throw new RuntimeException("Error instantiating extension", e);
         }
         extensionLoaded.set(true);
         return extractorConstructor;

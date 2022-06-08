@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -28,6 +30,12 @@ public final class CodecSpecificDataUtil {
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
   private static final String[] HEVC_GENERAL_PROFILE_SPACE_STRINGS =
       new String[] {"", "A", "B", "C"};
+
+  // MP4V-ES
+  private static final int VISUAL_OBJECT_LAYER = 1;
+  private static final int VISUAL_OBJECT_LAYER_START = 0x20;
+  private static final int EXTENDED_PAR = 0x0F;
+  private static final int RECTANGULAR = 0x00;
 
   /**
    * Parses an ALAC AudioSpecificConfig (i.e. an <a
@@ -68,6 +76,87 @@ public final class CodecSpecificDataUtil {
     return initializationData.size() == 1
         && initializationData.get(0).length == 1
         && initializationData.get(0)[0] == 1;
+  }
+
+  /**
+   * Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2.
+   *
+   * @param videoSpecificConfig A byte array containing the MPEG-4 Visual configuration information
+   *     to parse.
+   * @return A pair of the video's width and height.
+   */
+  public static Pair<Integer, Integer> getVideoResolutionFromMpeg4VideoConfig(
+      byte[] videoSpecificConfig) {
+    int offset = 0;
+    boolean foundVOL = false;
+    ParsableByteArray scratchBytes = new ParsableByteArray(videoSpecificConfig);
+    while (offset + 3 < videoSpecificConfig.length) {
+      if (scratchBytes.readUnsignedInt24() != VISUAL_OBJECT_LAYER
+          || (videoSpecificConfig[offset + 3] & 0xF0) != VISUAL_OBJECT_LAYER_START) {
+        scratchBytes.setPosition(scratchBytes.getPosition() - 2);
+        offset++;
+        continue;
+      }
+      foundVOL = true;
+      break;
+    }
+
+    checkArgument(foundVOL, "Invalid input: VOL not found.");
+
+    ParsableBitArray scratchBits = new ParsableBitArray(videoSpecificConfig);
+    // Skip the start codecs from the bitstream
+    scratchBits.skipBits((offset + 4) * 8);
+    scratchBits.skipBits(1); // random_accessible_vol
+    scratchBits.skipBits(8); // video_object_type_indication
+
+    if (scratchBits.readBit()) { // object_layer_identifier
+      scratchBits.skipBits(4); // video_object_layer_verid
+      scratchBits.skipBits(3); // video_object_layer_priority
+    }
+
+    int aspectRatioInfo = scratchBits.readBits(4);
+    if (aspectRatioInfo == EXTENDED_PAR) {
+      scratchBits.skipBits(8); // par_width
+      scratchBits.skipBits(8); // par_height
+    }
+
+    if (scratchBits.readBit()) { // vol_control_parameters
+      scratchBits.skipBits(2); // chroma_format
+      scratchBits.skipBits(1); // low_delay
+      if (scratchBits.readBit()) { // vbv_parameters
+        scratchBits.skipBits(79);
+      }
+    }
+
+    int videoObjectLayerShape = scratchBits.readBits(2);
+    checkArgument(
+        videoObjectLayerShape == RECTANGULAR,
+        "Only supports rectangular video object layer shape.");
+
+    checkArgument(scratchBits.readBit()); // marker_bit
+    int vopTimeIncrementResolution = scratchBits.readBits(16);
+    checkArgument(scratchBits.readBit()); // marker_bit
+
+    if (scratchBits.readBit()) { // fixed_vop_rate
+      checkArgument(vopTimeIncrementResolution > 0);
+      vopTimeIncrementResolution--;
+      int numBitsToSkip = 0;
+      while (vopTimeIncrementResolution > 0) {
+        numBitsToSkip++;
+        vopTimeIncrementResolution >>= 1;
+      }
+      scratchBits.skipBits(numBitsToSkip); // fixed_vop_time_increment
+    }
+
+    checkArgument(scratchBits.readBit()); // marker_bit
+    int videoObjectLayerWidth = scratchBits.readBits(13);
+    checkArgument(scratchBits.readBit()); // marker_bit
+    int videoObjectLayerHeight = scratchBits.readBits(13);
+    checkArgument(scratchBits.readBit()); // marker_bit
+
+    scratchBits.skipBits(1); // interlaced
+
+    return Pair.create(videoObjectLayerWidth, videoObjectLayerHeight);
   }
 
   /**

@@ -55,7 +55,9 @@ public class SlidingPercentile {
   private int totalWeight;
   private int recycledSampleCount;
 
-  /** @param maxWeight The maximum weight. */
+  /**
+   * @param maxWeight The maximum weight.
+   */
   public SlidingPercentile(int maxWeight) {
     this.maxWeight = maxWeight;
     recycledSamples = new Sample[MAX_RECYCLED_SAMPLES];

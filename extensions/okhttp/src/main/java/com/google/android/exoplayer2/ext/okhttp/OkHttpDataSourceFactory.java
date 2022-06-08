@@ -22,7 +22,9 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 
-/** @deprecated Use {@link OkHttpDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link OkHttpDataSource.Factory} instead.
+ */
 @Deprecated
 public final class OkHttpDataSourceFactory extends BaseFactory {
 

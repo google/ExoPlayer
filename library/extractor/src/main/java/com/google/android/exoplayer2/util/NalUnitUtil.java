@@ -26,6 +26,21 @@ public final class NalUnitUtil {
 
   private static final String TAG = "NalUnitUtil";
 
+  /** Coded slice of a non-IDR picture. */
+  public static final int NAL_UNIT_TYPE_NON_IDR = 1;
+  /** Coded slice data partition A. */
+  public static final int NAL_UNIT_TYPE_PARTITION_A = 2;
+  /** Coded slice of an IDR picture. */
+  public static final int NAL_UNIT_TYPE_IDR = 5;
+  /** Supplemental enhancement information. */
+  public static final int NAL_UNIT_TYPE_SEI = 6;
+  /** Sequence parameter set. */
+  public static final int NAL_UNIT_TYPE_SPS = 7;
+  /** Picture parameter set. */
+  public static final int NAL_UNIT_TYPE_PPS = 8;
+  /** Access unit delimiter. */
+  public static final int NAL_UNIT_TYPE_AUD = 9;
+
   /** Holds data parsed from a H.264 sequence parameter set NAL unit. */
   public static final class SpsData {
 
@@ -33,6 +48,7 @@ public final class NalUnitUtil {
     public final int constraintsFlagsAndReservedZero2Bits;
     public final int levelIdc;
     public final int seqParameterSetId;
+    public final int maxNumRefFrames;
     public final int width;
     public final int height;
     public final float pixelWidthHeightRatio;
@@ -48,6 +64,7 @@ public final class NalUnitUtil {
         int constraintsFlagsAndReservedZero2Bits,
         int levelIdc,
         int seqParameterSetId,
+        int maxNumRefFrames,
         int width,
         int height,
         float pixelWidthHeightRatio,
@@ -61,6 +78,7 @@ public final class NalUnitUtil {
       this.constraintsFlagsAndReservedZero2Bits = constraintsFlagsAndReservedZero2Bits;
       this.levelIdc = levelIdc;
       this.seqParameterSetId = seqParameterSetId;
+      this.maxNumRefFrames = maxNumRefFrames;
       this.width = width;
       this.height = height;
       this.pixelWidthHeightRatio = pixelWidthHeightRatio;
@@ -367,7 +385,7 @@ public final class NalUnitUtil {
         data.readUnsignedExpGolombCodedInt(); // offset_for_ref_frame[i]
       }
     }
-    data.readUnsignedExpGolombCodedInt(); // max_num_ref_frames
+    int maxNumRefFrames = data.readUnsignedExpGolombCodedInt(); // max_num_ref_frames
     data.skipBit(); // gaps_in_frame_num_value_allowed_flag
 
     int picWidthInMbs = data.readUnsignedExpGolombCodedInt() + 1;
@@ -427,6 +445,7 @@ public final class NalUnitUtil {
         constraintsFlagsAndReservedZero2Bits,
         levelIdc,
         seqParameterSetId,
+        maxNumRefFrames,
         frameWidth,
         frameHeight,
         pixelWidthHeightRatio,

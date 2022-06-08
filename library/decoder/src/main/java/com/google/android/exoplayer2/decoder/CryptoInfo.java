@@ -67,9 +67,13 @@ public final class CryptoInfo {
    * @see android.media.MediaCodec.CryptoInfo#numSubSamples
    */
   public int numSubSamples;
-  /** @see android.media.MediaCodec.CryptoInfo.Pattern */
+  /**
+   * @see android.media.MediaCodec.CryptoInfo.Pattern
+   */
   public int encryptedBlocks;
-  /** @see android.media.MediaCodec.CryptoInfo.Pattern */
+  /**
+   * @see android.media.MediaCodec.CryptoInfo.Pattern
+   */
   public int clearBlocks;
 
   private final android.media.MediaCodec.CryptoInfo frameworkCryptoInfo;
@@ -80,7 +84,9 @@ public final class CryptoInfo {
     patternHolder = Util.SDK_INT >= 24 ? new PatternHolderV24(frameworkCryptoInfo) : null;
   }
 
-  /** @see android.media.MediaCodec.CryptoInfo#set(int, int[], int[], byte[], byte[], int) */
+  /**
+   * @see android.media.MediaCodec.CryptoInfo#set(int, int[], int[], byte[], byte[], int)
+   */
   public void set(
       int numSubSamples,
       int[] numBytesOfClearData,

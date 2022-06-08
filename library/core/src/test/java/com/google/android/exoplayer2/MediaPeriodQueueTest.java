@@ -1135,7 +1135,7 @@ public final class MediaPeriodQueueTest {
         new TrackSelectorResult(
             new RendererConfiguration[0],
             new ExoTrackSelection[0],
-            TracksInfo.EMPTY,
+            Tracks.EMPTY,
             /* info= */ null));
   }
 

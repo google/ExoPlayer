@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
@@ -24,6 +25,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.ParcelFileDescriptor;
+import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -37,7 +39,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-/** Muxer implementation that uses a {@link MediaMuxer}. */
+/** {@link Muxer} implementation that uses a {@link MediaMuxer}. */
 /* package */ final class FrameworkMuxer implements Muxer {
 
   // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
@@ -66,6 +68,7 @@ import java.nio.ByteBuffer;
               MimeTypes.VIDEO_WEBM,
               ImmutableList.of(MimeTypes.AUDIO_VORBIS));
 
+  /** {@link Muxer.Factory} for {@link FrameworkMuxer}. */
   public static final class Factory implements Muxer.Factory {
     @Override
     public FrameworkMuxer create(String path, String outputMimeType) throws IOException {
@@ -118,12 +121,14 @@ import java.nio.ByteBuffer;
 
   private final MediaMuxer mediaMuxer;
   private final MediaCodec.BufferInfo bufferInfo;
+  private final SparseLongArray trackIndexToLastPresentationTimeUs;
 
   private boolean isStarted;
 
   private FrameworkMuxer(MediaMuxer mediaMuxer) {
     this.mediaMuxer = mediaMuxer;
     bufferInfo = new MediaCodec.BufferInfo();
+    trackIndexToLastPresentationTimeUs = new SparseLongArray();
   }
 
   @Override
@@ -171,7 +176,17 @@ import java.nio.ByteBuffer;
     int size = data.limit() - offset;
     int flags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
     bufferInfo.set(offset, size, presentationTimeUs, flags);
+    long lastSamplePresentationTimeUs = trackIndexToLastPresentationTimeUs.get(trackIndex);
     try {
+      // writeSampleData blocks on old API versions, so check here to avoid calling the method.
+      checkState(
+          Util.SDK_INT > 24 || presentationTimeUs >= lastSamplePresentationTimeUs,
+          "Samples not in presentation order ("
+              + presentationTimeUs
+              + " < "
+              + lastSamplePresentationTimeUs
+              + ") unsupported on this API version");
+      trackIndexToLastPresentationTimeUs.put(trackIndex, presentationTimeUs);
       mediaMuxer.writeSampleData(trackIndex, data, bufferInfo);
     } catch (RuntimeException e) {
       throw new MuxerException(
@@ -206,13 +221,13 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Converts a {@link MimeTypes MIME type} into a {@link MediaMuxer.OutputFormat MediaMuxer output
-   * format}.
+   * Converts a {@linkplain MimeTypes MIME type} into a {@linkplain MediaMuxer.OutputFormat
+   * MediaMuxer output format}.
    *
-   * @param mimeType The {@link MimeTypes MIME type} to convert.
-   * @return The corresponding {@link MediaMuxer.OutputFormat MediaMuxer output format}.
-   * @throws IllegalArgumentException If the {@link MimeTypes MIME type} is not supported as output
-   *     format.
+   * @param mimeType The {@linkplain MimeTypes MIME type} to convert.
+   * @return The corresponding {@linkplain MediaMuxer.OutputFormat MediaMuxer output format}.
+   * @throws IllegalArgumentException If the {@linkplain MimeTypes MIME type} is not supported as
+   *     output format.
    */
   private static int mimeTypeToMuxerOutputFormat(String mimeType) {
     if (mimeType.equals(MimeTypes.VIDEO_MP4)) {

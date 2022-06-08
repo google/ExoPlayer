@@ -29,7 +29,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 
 /**
  * Attributes for audio playback, which configure the underlying platform {@link
@@ -44,10 +43,31 @@ import java.lang.reflect.Method;
  */
 public final class AudioAttributes implements Bundleable {
 
+  /** A direct wrapper around {@link android.media.AudioAttributes}. */
+  @RequiresApi(21)
+  public static final class AudioAttributesV21 {
+    public final android.media.AudioAttributes audioAttributes;
+
+    private AudioAttributesV21(AudioAttributes audioAttributes) {
+      android.media.AudioAttributes.Builder builder =
+          new android.media.AudioAttributes.Builder()
+              .setContentType(audioAttributes.contentType)
+              .setFlags(audioAttributes.flags)
+              .setUsage(audioAttributes.usage);
+      if (Util.SDK_INT >= 29) {
+        Api29.setAllowedCapturePolicy(builder, audioAttributes.allowedCapturePolicy);
+      }
+      if (Util.SDK_INT >= 32) {
+        Api32.setSpatializationBehavior(builder, audioAttributes.spatializationBehavior);
+      }
+      this.audioAttributes = builder.build();
+    }
+  }
+
   /**
-   * The default audio attributes, where the content type is {@link C#CONTENT_TYPE_UNKNOWN}, usage
-   * is {@link C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags are
-   * set.
+   * The default audio attributes, where the content type is {@link C#AUDIO_CONTENT_TYPE_UNKNOWN},
+   * usage is {@link C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags
+   * are set.
    */
   public static final AudioAttributes DEFAULT = new Builder().build();
 
@@ -63,11 +83,11 @@ public final class AudioAttributes implements Bundleable {
     /**
      * Creates a new builder for {@link AudioAttributes}.
      *
-     * <p>By default the content type is {@link C#CONTENT_TYPE_UNKNOWN}, usage is {@link
+     * <p>By default the content type is {@link C#AUDIO_CONTENT_TYPE_UNKNOWN}, usage is {@link
      * C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags are set.
      */
     public Builder() {
-      contentType = C.CONTENT_TYPE_UNKNOWN;
+      contentType = C.AUDIO_CONTENT_TYPE_UNKNOWN;
       flags = 0;
       usage = C.USAGE_MEDIA;
       allowedCapturePolicy = C.ALLOW_CAPTURE_BY_ALL;
@@ -98,9 +118,7 @@ public final class AudioAttributes implements Bundleable {
       return this;
     }
 
-    // TODO[b/190759307] Update javadoc to link to AudioAttributes.Builder#setSpatializationBehavior
-    //  once compile SDK target is set to 32.
-    /** See {@code android.media.AudioAttributes.Builder.setSpatializationBehavior(int)}. */
+    /** See {@link android.media.AudioAttributes.Builder#setSpatializationBehavior(int)}. */
     public Builder setSpatializationBehavior(@C.SpatializationBehavior int spatializationBehavior) {
       this.spatializationBehavior = spatializationBehavior;
       return this;
@@ -124,7 +142,7 @@ public final class AudioAttributes implements Bundleable {
   /** The {@link C.SpatializationBehavior}. */
   public final @C.SpatializationBehavior int spatializationBehavior;
 
-  @Nullable private android.media.AudioAttributes audioAttributesV21;
+  @Nullable private AudioAttributesV21 audioAttributesV21;
 
   private AudioAttributes(
       @C.AudioContentType int contentType,
@@ -140,25 +158,15 @@ public final class AudioAttributes implements Bundleable {
   }
 
   /**
-   * Returns a {@link android.media.AudioAttributes} from this instance.
+   * Returns a {@link AudioAttributesV21} from this instance.
    *
-   * <p>Field {@link AudioAttributes#allowedCapturePolicy} is ignored for API levels prior to 29.
+   * <p>Some fields are ignored if the corresponding {@link android.media.AudioAttributes.Builder}
+   * setter is not available on the current API level.
    */
   @RequiresApi(21)
-  public android.media.AudioAttributes getAudioAttributesV21() {
+  public AudioAttributesV21 getAudioAttributesV21() {
     if (audioAttributesV21 == null) {
-      android.media.AudioAttributes.Builder builder =
-          new android.media.AudioAttributes.Builder()
-              .setContentType(contentType)
-              .setFlags(flags)
-              .setUsage(usage);
-      if (Util.SDK_INT >= 29) {
-        Api29.setAllowedCapturePolicy(builder, allowedCapturePolicy);
-      }
-      if (Util.SDK_INT >= 32) {
-        Api32.setSpatializationBehavior(builder, spatializationBehavior);
-      }
-      audioAttributesV21 = builder.build();
+      audioAttributesV21 = new AudioAttributesV21(this);
     }
     return audioAttributesV21;
   }
@@ -250,8 +258,6 @@ public final class AudioAttributes implements Bundleable {
 
   @RequiresApi(29)
   private static final class Api29 {
-    private Api29() {}
-
     @DoNotInline
     public static void setAllowedCapturePolicy(
         android.media.AudioAttributes.Builder builder,
@@ -262,20 +268,11 @@ public final class AudioAttributes implements Bundleable {
 
   @RequiresApi(32)
   private static final class Api32 {
-    private Api32() {}
-
     @DoNotInline
     public static void setSpatializationBehavior(
         android.media.AudioAttributes.Builder builder,
         @C.SpatializationBehavior int spatializationBehavior) {
-      try {
-        // TODO[b/190759307]: Remove reflection once compile SDK target is set to 32.
-        Method setSpatializationBehavior =
-            builder.getClass().getMethod("setSpatializationBehavior", Integer.TYPE);
-        setSpatializationBehavior.invoke(builder, spatializationBehavior);
-      } catch (Exception e) {
-        // Do nothing if reflection fails.
-      }
+      builder.setSpatializationBehavior(spatializationBehavior);
     }
   }
 }

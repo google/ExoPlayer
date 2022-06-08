@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * The default {@link MediaSource.Factory} implementation.
@@ -96,15 +97,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
-  /** @deprecated Use {@link AdsLoader.Provider} instead. */
+  /**
+   * @deprecated Use {@link AdsLoader.Provider} instead.
+   */
   @Deprecated
   public interface AdsLoaderProvider extends AdsLoader.Provider {}
 
   private static final String TAG = "DMediaSourceFactory";
 
-  private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;
 
+  private DataSource.Factory dataSourceFactory;
   @Nullable private MediaSource.Factory serverSideAdInsertionMediaSourceFactory;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
@@ -128,6 +131,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Creates a new instance.
    *
+   * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+   * DefaultExtractorsFactory} can be removed by ProGuard or R8.
+   *
    * @param context Any context.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
    *     its container.
@@ -139,6 +145,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Creates a new instance.
    *
+   * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+   * DefaultDataSource.Factory} can be removed by ProGuard or R8.
+   *
    * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
    *     for requesting media data.
    */
@@ -149,6 +158,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Creates a new instance.
    *
+   * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+   * DefaultDataSource.Factory} and {@link DefaultExtractorsFactory} can be removed by ProGuard or
+   * R8.
+   *
    * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
    *     for requesting media data.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
@@ -157,7 +170,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    delegateFactoryLoader = new DelegateFactoryLoader(dataSourceFactory, extractorsFactory);
+    delegateFactoryLoader = new DelegateFactoryLoader(extractorsFactory);
+    delegateFactoryLoader.setDataSourceFactory(dataSourceFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
     liveMaxOffsetMs = C.TIME_UNSET;
@@ -186,9 +200,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * Sets the {@link AdsLoader.Provider} that provides {@link AdsLoader} instances for media items
    * that have {@link MediaItem.LocalConfiguration#adsConfiguration ads configurations}.
    *
+   * <p>This will override or clear the {@link AdsLoader.Provider} set by {@link
+   * #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}.
+   *
    * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}
+   *     instead.
    */
+  @Deprecated
   public DefaultMediaSourceFactory setAdsLoaderProvider(
       @Nullable AdsLoader.Provider adsLoaderProvider) {
     this.adsLoaderProvider = adsLoaderProvider;
@@ -198,11 +218,62 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Sets the {@link AdViewProvider} that provides information about views for the ad playback UI.
    *
-   * @param adViewProvider A provider for {@link AdsLoader} instances.
+   * <p>This will override or clear the {@link AdViewProvider} set by {@link
+   * #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}.
+   *
+   * @param adViewProvider A provider for information about views for the ad playback UI.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}
+   *     instead.
    */
+  @Deprecated
   public DefaultMediaSourceFactory setAdViewProvider(@Nullable AdViewProvider adViewProvider) {
     this.adViewProvider = adViewProvider;
+    return this;
+  }
+
+  /**
+   * Sets the components required for local ad insertion for media items that have {@link
+   * MediaItem.LocalConfiguration#adsConfiguration ads configurations}
+   *
+   * <p>This will override the values set by {@link #setAdsLoaderProvider(AdsLoader.Provider)} and
+   * {@link #setAdViewProvider(AdViewProvider)}.
+   *
+   * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
+   * @param adViewProvider A provider for information about views for the ad playback UI.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLocalAdInsertionComponents(
+      AdsLoader.Provider adsLoaderProvider, AdViewProvider adViewProvider) {
+    this.adsLoaderProvider = checkNotNull(adsLoaderProvider);
+    this.adViewProvider = checkNotNull(adViewProvider);
+    return this;
+  }
+
+  /**
+   * Clear any values set via {@link #setLocalAdInsertionComponents(AdsLoader.Provider,
+   * AdViewProvider)}.
+   *
+   * <p>This will also clear any values set by {@link #setAdsLoaderProvider(AdsLoader.Provider)} and
+   * {@link #setAdViewProvider(AdViewProvider)}.
+   *
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory clearLocalAdInsertionComponents() {
+    this.adsLoaderProvider = null;
+    this.adViewProvider = null;
+    return this;
+  }
+
+  /**
+   * Sets the {@link DataSource.Factory} used to create {@link DataSource} instances for requesting
+   * media data.
+   *
+   * @param dataSourceFactory The {@link DataSource.Factory}.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setDataSourceFactory(DataSource.Factory dataSourceFactory) {
+    this.dataSourceFactory = dataSourceFactory;
     return this;
   }
 
@@ -284,15 +355,25 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
-      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-    delegateFactoryLoader.setDrmSessionManagerProvider(drmSessionManagerProvider);
+      DrmSessionManagerProvider drmSessionManagerProvider) {
+    delegateFactoryLoader.setDrmSessionManagerProvider(
+        checkNotNull(
+            drmSessionManagerProvider,
+            "MediaSource.Factory#setDrmSessionManagerProvider no longer handles null by"
+                + " instantiating a new DefaultDrmSessionManagerProvider. Explicitly construct and"
+                + " pass an instance in order to retain the old behavior."));
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
-      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    this.loadErrorHandlingPolicy =
+        checkNotNull(
+            loadErrorHandlingPolicy,
+            "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
+                + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
+                + " pass an instance in order to retain the old behavior.");
     delegateFactoryLoader.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
     return this;
   }
@@ -367,16 +448,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                             SubtitleDecoderFactory.DEFAULT.createDecoder(format), format)
                         : new UnknownSubtitlesExtractor(format)
                   };
+          ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
+              new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
+          if (loadErrorHandlingPolicy != null) {
+            progressiveMediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+          }
           mediaSources[i + 1] =
-              new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
-                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
-                  .createMediaSource(
-                      MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
+              progressiveMediaSourceFactory.createMediaSource(
+                  MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
         } else {
+          SingleSampleMediaSource.Factory singleSampleMediaSourceFactory =
+              new SingleSampleMediaSource.Factory(dataSourceFactory);
+          if (loadErrorHandlingPolicy != null) {
+            singleSampleMediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+          }
           mediaSources[i + 1] =
-              new SingleSampleMediaSource.Factory(dataSourceFactory)
-                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
-                  .createMediaSource(subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
+              singleSampleMediaSourceFactory.createMediaSource(
+                  subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
         }
       }
 
@@ -437,19 +525,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /** Loads media source factories lazily. */
   private static final class DelegateFactoryLoader {
-    private final DataSource.Factory dataSourceFactory;
     private final ExtractorsFactory extractorsFactory;
     private final Map<Integer, @NullableType Supplier<MediaSource.Factory>>
         mediaSourceFactorySuppliers;
     private final Set<Integer> supportedTypes;
     private final Map<Integer, MediaSource.Factory> mediaSourceFactories;
 
+    private DataSource.@MonotonicNonNull Factory dataSourceFactory;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
-    public DelegateFactoryLoader(
-        DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
-      this.dataSourceFactory = dataSourceFactory;
+    public DelegateFactoryLoader(ExtractorsFactory extractorsFactory) {
       this.extractorsFactory = extractorsFactory;
       mediaSourceFactorySuppliers = new HashMap<>();
       supportedTypes = new HashSet<>();
@@ -485,16 +571,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       return mediaSourceFactory;
     }
 
-    public void setDrmSessionManagerProvider(
-        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+    public void setDataSourceFactory(DataSource.Factory dataSourceFactory) {
+      if (dataSourceFactory != this.dataSourceFactory) {
+        this.dataSourceFactory = dataSourceFactory;
+        // TODO(b/233577470): Call MediaSource.Factory.setDataSourceFactory on each value when it
+        // exists on the interface.
+        mediaSourceFactories.clear();
+      }
+    }
+
+    public void setDrmSessionManagerProvider(DrmSessionManagerProvider drmSessionManagerProvider) {
       this.drmSessionManagerProvider = drmSessionManagerProvider;
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
       }
     }
 
-    public void setLoadErrorHandlingPolicy(
-        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    public void setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
@@ -502,11 +595,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
 
     private void ensureAllSuppliersAreLoaded() {
-      maybeLoadSupplier(C.TYPE_DASH);
-      maybeLoadSupplier(C.TYPE_SS);
-      maybeLoadSupplier(C.TYPE_HLS);
-      maybeLoadSupplier(C.TYPE_RTSP);
-      maybeLoadSupplier(C.TYPE_OTHER);
+      maybeLoadSupplier(C.CONTENT_TYPE_DASH);
+      maybeLoadSupplier(C.CONTENT_TYPE_SS);
+      maybeLoadSupplier(C.CONTENT_TYPE_HLS);
+      maybeLoadSupplier(C.CONTENT_TYPE_RTSP);
+      maybeLoadSupplier(C.CONTENT_TYPE_OTHER);
     }
 
     @Nullable
@@ -519,34 +612,36 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       try {
         Class<? extends MediaSource.Factory> clazz;
         switch (contentType) {
-          case C.TYPE_DASH:
+          case C.CONTENT_TYPE_DASH:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
             break;
-          case C.TYPE_SS:
+          case C.CONTENT_TYPE_SS:
             clazz =
                 Class.forName(
                         "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
             break;
-          case C.TYPE_HLS:
+          case C.CONTENT_TYPE_HLS:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
             break;
-          case C.TYPE_RTSP:
+          case C.CONTENT_TYPE_RTSP:
             clazz =
                 Class.forName("com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
             mediaSourceFactorySupplier = () -> newInstance(clazz);
             break;
-          case C.TYPE_OTHER:
+          case C.CONTENT_TYPE_OTHER:
             mediaSourceFactorySupplier =
-                () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
+                () ->
+                    new ProgressiveMediaSource.Factory(
+                        checkNotNull(dataSourceFactory), extractorsFactory);
             break;
           default:
             // Do nothing.

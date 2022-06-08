@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -47,9 +47,8 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -483,23 +482,12 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
   }
 
   @Override
-  @SuppressWarnings("deprecation") // Implementing and calling deprecate listener method
-  public final void onTracksChanged(
-      TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+  public void onTracksChanged(Tracks tracks) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
-  }
-
-  @Override
-  public void onTracksInfoChanged(TracksInfo tracksInfo) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksInfoChanged(eventTime, tracksInfo));
+        listener -> listener.onTracksChanged(eventTime, tracks));
   }
 
   @SuppressWarnings("deprecation") // Implementing deprecated method.
@@ -706,11 +694,19 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         listener -> listener.onMetadata(eventTime, metadata));
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public void onCues(List<Cue> cues) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cues));
+  }
+
+  @Override
+  public void onCues(CueGroup cueGroup) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cueGroup));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
