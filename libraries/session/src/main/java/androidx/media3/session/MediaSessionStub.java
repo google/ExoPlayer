@@ -83,10 +83,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -109,7 +109,8 @@ import java.util.concurrent.ExecutionException;
     this.sessionImpl = new WeakReference<>(sessionImpl);
     sessionManager = MediaSessionManager.getSessionManager(sessionImpl.getContext());
     connectedControllersManager = new ConnectedControllersManager<>(sessionImpl);
-    pendingControllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    // ConcurrentHashMap has a bug in APIs 21-22 that can result in lost updates.
+    pendingControllers = Collections.synchronizedSet(new HashSet<>());
   }
 
   public ConnectedControllersManager<IBinder> getConnectedControllersManager() {

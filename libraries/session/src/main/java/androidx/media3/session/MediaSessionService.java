@@ -43,10 +43,10 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -472,7 +472,8 @@ public abstract class MediaSessionService extends Service {
       Context context = serviceReference.getApplicationContext();
       handler = new Handler(context.getMainLooper());
       mediaSessionManager = MediaSessionManager.getSessionManager(context);
-      pendingControllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      // ConcurrentHashMap has a bug in APIs 21-22 that can result in lost updates.
+      pendingControllers = Collections.synchronizedSet(new HashSet<>());
     }
 
     @Override
