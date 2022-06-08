@@ -45,6 +45,10 @@
     *   Change the return type of `AudioAttributes.getAudioAttributesV21()` from
         `android.media.AudioAttributes` to a new `AudioAttributesV21` wrapper
         class, to prevent slow ART verification on API < 21.
+    *   Query the platform (API 29+) or assume the audio encoding channel count
+        for audio passthrough when the format audio channel count is unset,
+        which occurs with HLS chunkless preparation
+        ([10204](https://github.com/google/ExoPlayer/issues/10204)).
 *   Ad playback / IMA:
     *   Decrease ad polling rate from every 100ms to every 200ms, to line up
         with Media Rating Council (MRC) recommendations.
