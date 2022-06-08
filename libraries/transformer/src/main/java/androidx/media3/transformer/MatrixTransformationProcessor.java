@@ -37,7 +37,7 @@ import java.util.Arrays;
  * Transformed vertices that are moved outside of this range after any of the transformation
  * matrices are clipped to the NDC range.
  *
- * <p>The background color of the output frame will be black.
+ * <p>The background color of the output frame will be (r=0, g=0, b=0, a=0).
  */
 @UnstableApi
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
