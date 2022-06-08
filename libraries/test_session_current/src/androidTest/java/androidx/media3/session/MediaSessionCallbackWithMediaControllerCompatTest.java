@@ -56,11 +56,16 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -75,6 +80,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
   private static final String TAG = "MSCallbackWithMCCTest";
 
+  private static final String TEST_URI = "http://test.test";
   private static final String EXPECTED_CONTROLLER_PACKAGE_NAME =
       (Util.SDK_INT < 21 || Util.SDK_INT >= 24) ? SUPPORT_APP_PACKAGE_NAME : LEGACY_CONTROLLER;
 
@@ -88,6 +94,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   private RemoteMediaControllerCompat controller;
   private MockPlayer player;
   private AudioManager audioManager;
+  private ListeningExecutorService executorService;
 
   @Before
   public void setUp() {
@@ -95,6 +102,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     handler = threadTestRule.getHandler();
     player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
     audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    // Intentionally use an Executor with another thread to test asynchronous workflows involving
+    // background tasks.
+    executorService = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
   }
 
   @After
@@ -107,6 +117,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
       controller.cleanUp();
       controller = null;
     }
+    executorService.shutdownNow();
   }
 
   @Test
@@ -294,10 +305,22 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
   @Test
   public void addQueueItem() throws Exception {
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
+          }
+        };
     session =
         new MediaSession.Builder(context, player)
             .setId("addQueueItem")
-            .setCallback(new TestSessionCallback())
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
@@ -305,49 +328,73 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     handler.postAndSync(
         () -> {
-          player.timeline = MediaTestUtils.createTimeline(/* windowCount= */ 10);
+          List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 10);
+          player.setMediaItems(mediaItems);
+          player.timeline = MediaTestUtils.createTimeline(mediaItems);
           player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
         });
 
     // Prepare an item to add.
     String mediaId = "newMediaItemId";
-    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder().setMediaId(mediaId).build();
+    Uri mediaUri = Uri.parse("https://test.test");
+    MediaDescriptionCompat desc =
+        new MediaDescriptionCompat.Builder().setMediaId(mediaId).setMediaUri(mediaUri).build();
     controller.addQueueItem(desc);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM, TIMEOUT_MS);
-    assertThat(player.mediaItems).hasSize(1);
-    assertThat(player.mediaItems.get(0).mediaId).isEqualTo(mediaId);
+    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).mediaId).isEqualTo(mediaId);
+    assertThat(requestedMediaItems.get().get(0).requestMetadata.mediaUri).isEqualTo(mediaUri);
+    assertThat(player.mediaItems).hasSize(11);
+    assertThat(player.mediaItems.get(10)).isEqualTo(resolvedMediaItem);
   }
 
   @Test
   public void addQueueItemWithIndex() throws Exception {
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
+          }
+        };
     session =
         new MediaSession.Builder(context, player)
             .setId("addQueueItemWithIndex")
-            .setCallback(new TestSessionCallback())
+            .setCallback(callback)
             .build();
     controller =
         new RemoteMediaControllerCompat(
             context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
 
-    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 10);
     handler.postAndSync(
         () -> {
+          List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 10);
           player.setMediaItems(mediaItems);
-          player.timeline = new PlaylistTimeline(mediaItems);
+          player.timeline = MediaTestUtils.createTimeline(mediaItems);
           player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
         });
 
     // Prepare an item to add.
     int testIndex = 1;
     String mediaId = "media_id";
-    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder().setMediaId(mediaId).build();
+    Uri mediaUri = Uri.parse("https://test.test");
+    MediaDescriptionCompat desc =
+        new MediaDescriptionCompat.Builder().setMediaId(mediaId).setMediaUri(mediaUri).build();
     controller.addQueueItem(desc, testIndex);
 
-    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEM_WITH_INDEX, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).mediaId).isEqualTo(mediaId);
+    assertThat(requestedMediaItems.get().get(0).requestMetadata.mediaUri).isEqualTo(mediaUri);
     assertThat(player.index).isEqualTo(testIndex);
     assertThat(player.mediaItems).hasSize(11);
-    assertThat(player.mediaItems.get(1).mediaId).isEqualTo(mediaId);
+    assertThat(player.mediaItems.get(1)).isEqualTo(resolvedMediaItem);
   }
 
   @Test
@@ -788,16 +835,16 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Uri mediaUri = Uri.parse("foo://bar");
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
-    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
     MediaSession.Callback callback =
-        new TestSessionCallback() {
+        new MediaSession.Callback() {
           @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            assertThat(uri).isEqualTo(mediaUri);
-            assertThat(TestUtils.equals(bundle, extras)).isTrue();
-            latch.countDown();
-            return RESULT_SUCCESS;
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
           }
         };
     session =
@@ -811,8 +858,12 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().prepareFromUri(mediaUri, bundle);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).requestMetadata.mediaUri).isEqualTo(mediaUri);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 
   @Test
@@ -820,16 +871,16 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     Uri request = Uri.parse("foo://bar");
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
-    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
     MediaSession.Callback callback =
-        new TestSessionCallback() {
+        new MediaSession.Callback() {
           @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            assertThat(uri).isEqualTo(request);
-            assertThat(TestUtils.equals(bundle, extras)).isTrue();
-            latch.countDown();
-            return RESULT_SUCCESS;
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
           }
         };
     session =
@@ -843,8 +894,13 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().playFromUri(request, bundle);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).requestMetadata.mediaUri).isEqualTo(request);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 
   @Test
@@ -852,17 +908,16 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     String request = "media_id";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
-    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
     MediaSession.Callback callback =
-        new TestSessionCallback() {
+        new MediaSession.Callback() {
           @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            assertThat(uri.toString())
-                .isEqualTo("androidx://media3-session/prepareFromMediaId?id=" + request);
-            assertThat(TestUtils.equals(bundle, extras)).isTrue();
-            latch.countDown();
-            return RESULT_SUCCESS;
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
           }
         };
     session =
@@ -876,8 +931,12 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().prepareFromMediaId(request, bundle);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).mediaId).isEqualTo(request);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 
   @Test
@@ -885,17 +944,16 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     String mediaId = "media_id";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
-    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
     MediaSession.Callback callback =
-        new TestSessionCallback() {
+        new MediaSession.Callback() {
           @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            assertThat(uri.toString())
-                .isEqualTo("androidx://media3-session/playFromMediaId?id=" + mediaId);
-            assertThat(TestUtils.equals(bundle, extras)).isTrue();
-            latch.countDown();
-            return RESULT_SUCCESS;
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
           }
         };
     session =
@@ -909,8 +967,13 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().playFromMediaId(mediaId, bundle);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).mediaId).isEqualTo(mediaId);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 
   @Test
@@ -918,17 +981,16 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     String query = "test_query";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
-    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
     MediaSession.Callback callback =
-        new TestSessionCallback() {
+        new MediaSession.Callback() {
           @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            assertThat(uri.toString())
-                .isEqualTo("androidx://media3-session/prepareFromSearch?query=" + query);
-            assertThat(TestUtils.equals(bundle, extras)).isTrue();
-            latch.countDown();
-            return RESULT_SUCCESS;
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
           }
         };
     session =
@@ -942,8 +1004,12 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().prepareFromSearch(query, bundle);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).requestMetadata.searchQuery).isEqualTo(query);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 
   @Test
@@ -951,17 +1017,16 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     String query = "test_query";
     Bundle bundle = new Bundle();
     bundle.putString("key", "value");
-    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
     MediaSession.Callback callback =
-        new TestSessionCallback() {
+        new MediaSession.Callback() {
           @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            assertThat(uri.toString())
-                .isEqualTo("androidx://media3-session/playFromSearch?query=" + query);
-            assertThat(TestUtils.equals(bundle, extras)).isTrue();
-            latch.countDown();
-            return RESULT_SUCCESS;
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            requestedMediaItems.set(mediaItems);
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
           }
         };
     session =
@@ -975,8 +1040,13 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
 
     controller.getTransportControls().playFromSearch(query, bundle);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+    assertThat(requestedMediaItems.get()).hasSize(1);
+    assertThat(requestedMediaItems.get().get(0).requestMetadata.searchQuery).isEqualTo(query);
+    TestUtils.equals(requestedMediaItems.get().get(0).requestMetadata.extras, bundle);
+    assertThat(player.mediaItems).containsExactly(resolvedMediaItem);
   }
 
   @Test

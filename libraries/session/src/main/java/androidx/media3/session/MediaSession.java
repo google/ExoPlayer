@@ -973,48 +973,6 @@ public class MediaSession {
      * <p>The implementation should create proper {@link MediaItem media item(s)} for the given
      * {@code uri} and call {@link Player#setMediaItems}.
      *
-     * <p>When {@link MediaControllerCompat} is connected and sends commands with following methods,
-     * the {@code uri} will have the following patterns:
-     *
-     * <table>
-     * <caption>Uri patterns corresponding to MediaControllerCompat command methods</caption>
-     * <tr>
-     *   <th>Method</th>
-     *   <th>Uri pattern</th>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}</td>
-     *   <td>The {@code uri} passed as argument</td>
-     * </tr>
-     * <tr>
-     *   <td>
-     *     {@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
-     *   </td>
-     *   <td>{@code androidx://media3-session/prepareFromMediaId?id=[mediaId]}</td>
-     * </tr>
-     * <tr>
-     *   <td>
-     *     {@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
-     *   </td>
-     *   <td>{@code androidx://media3-session/prepareFromSearch?query=[query]}</td>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}</td>
-     *   <td>The {@code uri} passed as argument</td>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}</td>
-     *   <td>{@code androidx://media3-session/playFromMediaId?id=[mediaId]}</td>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}</td>
-     *   <td>{@code androidx://media3-session/playFromSearch?query=[query]}</td>
-     * </tr>
-     * </table>
-     *
-     * <p>{@link Player#prepare()} or {@link Player#play()} should follow if this is called by above
-     * methods.
-     *
      * @param session The session for this event.
      * @param controller The controller information.
      * @param uri The uri.
@@ -1057,7 +1015,8 @@ public class MediaSession {
 
     /**
      * Called when a controller requested to add new {@linkplain MediaItem media items} to the
-     * playlist.
+     * playlist via one of the {@code Player.addMediaItem(s)} or {@code Player.setMediaItem(s)}
+     * methods.
      *
      * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
      * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
@@ -1066,7 +1025,28 @@ public class MediaSession {
      * MediaItem#requestMetadata}.
      *
      * <p>Return a {@link ListenableFuture} with the resolved {@link MediaItem media items}. You can
-     * also return the items directly by using Guava's {@link Futures#immediateFuture(Object)}.
+     * also return the items directly by using Guava's {@link Futures#immediateFuture(Object)}. Once
+     * the {@link MediaItem media items} have been resolved, the session will call {@link
+     * Player#setMediaItems} or {@link Player#addMediaItems} as requested.
+     *
+     * <p>Interoperability: This method will be called in response to the following {@link
+     * MediaControllerCompat} methods:
+     *
+     * <ul>
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
+     *   <li>{@link MediaControllerCompat.TransportControls#addQueueItem addQueueItem}
+     * </ul>
+     *
+     * The values of {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri}, {@link
+     * MediaItem.RequestMetadata#searchQuery} and {@link MediaItem.RequestMetadata#extras} will be
+     * set to match the legacy method call. The session will call {@link Player#setMediaItems} or
+     * {@link Player#addMediaItems}, followed by {@link Player#prepare()} and {@link Player#play()}
+     * as appropriate once the {@link MediaItem} has been resolved.
      *
      * @param mediaSession The session for this event.
      * @param controller The controller information.
