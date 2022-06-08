@@ -29,7 +29,6 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
-import android.opengl.GLES20;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -517,12 +516,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             outputTexture.fboId,
             outputTexture.width,
             outputTexture.height);
-        clearOutputFrame();
+        GlUtil.clearOutputFrame();
         textureProcessors.get(i).drawFrame(inputTexId, presentationTimeUs);
         inputTexId = outputTexture.texId;
       }
       GlUtil.focusEglSurface(eglDisplay, eglContext, outputEglSurface, outputWidth, outputHeight);
-      clearOutputFrame();
+      GlUtil.clearOutputFrame();
       getLast(textureProcessors).drawFrame(inputTexId, presentationTimeUs);
 
       EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, inputFrameTimeNs);
@@ -533,7 +532,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int finalInputTexId = inputTexId;
         debugSurfaceViewWrapper.maybeRenderToSurfaceView(
             () -> {
-              clearOutputFrame();
+              GlUtil.clearOutputFrame();
               try {
                 getLast(textureProcessors).drawFrame(finalInputTexId, finalPresentationTimeUs);
               } catch (FrameProcessingException e) {
@@ -551,12 +550,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 : new FrameProcessingException(e, presentationTimeUs));
       }
     }
-  }
-
-  private static void clearOutputFrame() {
-    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
-    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-    GlUtil.checkGlError();
   }
 
   /**

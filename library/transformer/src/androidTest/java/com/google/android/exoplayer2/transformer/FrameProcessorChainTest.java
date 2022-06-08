@@ -135,7 +135,7 @@ public final class FrameProcessorChainTest {
         /* enableExperimentalHdrEditing= */ false);
   }
 
-  private static class FakeTextureProcessor implements SingleFrameGlTextureProcessor {
+  private static class FakeTextureProcessor extends SingleFrameGlTextureProcessor {
 
     private final Size outputSize;
 
@@ -150,8 +150,5 @@ public final class FrameProcessorChainTest {
 
     @Override
     public void drawFrame(int inputTexId, long presentationTimeNs) {}
-
-    @Override
-    public void release() {}
   }
 }

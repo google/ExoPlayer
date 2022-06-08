@@ -40,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Runs a MediaPipe graph on input frames. The implementation is currently limited to graphs that
  * can immediately produce one output frame per input frame.
  */
-/* package */ final class MediaPipeProcessor implements SingleFrameGlTextureProcessor {
+/* package */ final class MediaPipeProcessor extends SingleFrameGlTextureProcessor {
 
   private static final LibraryLoader LOADER =
       new LibraryLoader("mediapipe_jni") {
@@ -160,6 +160,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void release() {
+    super.release();
     checkStateNotNull(frameProcessor).close();
   }
 }

@@ -16,36 +16,40 @@
 package com.google.android.exoplayer2.transformer;
 
 import android.util.Size;
+import androidx.annotation.CallSuper;
+import com.google.android.exoplayer2.util.GlUtil;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Manages a GLSL shader program for processing a frame. Implementations generally copy input pixels
  * into an output frame, with changes to pixels specific to the implementation.
  *
- * <p>Methods must be called in the following order:
- *
- * <ol>
- *   <li>{@link #configure(int, int)}, to configure the frame processor based on the input
- *       dimensions.
- *   <li>{@link #drawFrame(int, long)}, to process one frame.
- *   <li>{@link #release()}, upon conclusion of processing.
- * </ol>
+ * <p>{@code SingleFrameGlTextureProcessor} implementations must produce exactly one output frame
+ * per input frame with the same presentation timestamp. For more flexibility, implement {@link
+ * GlTextureProcessor} directly.
  *
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
  */
-// TODO(b/227625423): Add GlTextureProcessor interface for async texture processors and make this an
-//  abstract class with a default implementation of GlTextureProcessor methods.
-public interface SingleFrameGlTextureProcessor {
+public abstract class SingleFrameGlTextureProcessor implements GlTextureProcessor {
+
+  private @MonotonicNonNull Listener listener;
+  private int inputWidth;
+  private int inputHeight;
+  private @MonotonicNonNull TextureInfo outputTexture;
+  private boolean outputTextureInUse;
 
   /**
    * Configures the texture processor based on the input dimensions.
    *
-   * <p>This method can be called multiple times.
+   * <p>This method must be called before {@linkplain #drawFrame(int,long) drawing} the first frame
+   * and before drawing subsequent frames with different input dimensions.
    *
    * @param inputWidth The input width, in pixels.
    * @param inputHeight The input height, in pixels.
    * @return The output {@link Size} of frames processed through {@link #drawFrame(int, long)}.
    */
-  Size configure(int inputWidth, int inputHeight);
+  public abstract Size configure(int inputWidth, int inputHeight);
 
   /**
    * Draws one frame.
@@ -61,8 +65,81 @@ public interface SingleFrameGlTextureProcessor {
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    * @throws FrameProcessingException If an error occurs while processing or drawing the frame.
    */
-  void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException;
+  public abstract void drawFrame(int inputTexId, long presentationTimeUs)
+      throws FrameProcessingException;
 
-  /** Releases all resources. */
-  void release();
+  @Override
+  public final void setListener(Listener listener) {
+    this.listener = listener;
+  }
+
+  @Override
+  public final boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+    if (outputTextureInUse) {
+      return false;
+    }
+
+    try {
+      if (outputTexture == null
+          || inputTexture.width != inputWidth
+          || inputTexture.height != inputHeight) {
+        configureOutputTexture(inputTexture.width, inputTexture.height);
+      }
+      outputTextureInUse = true;
+      GlUtil.focusFramebufferUsingCurrentContext(
+          outputTexture.fboId, outputTexture.width, outputTexture.height);
+      GlUtil.clearOutputFrame();
+      drawFrame(inputTexture.texId, presentationTimeUs);
+      if (listener != null) {
+        listener.onInputFrameProcessed(inputTexture);
+        listener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
+      }
+    } catch (FrameProcessingException | RuntimeException e) {
+      if (listener != null) {
+        listener.onFrameProcessingError(
+            e instanceof FrameProcessingException
+                ? (FrameProcessingException) e
+                : new FrameProcessingException(e));
+      }
+    }
+    return true;
+  }
+
+  @EnsuresNonNull("outputTexture")
+  private void configureOutputTexture(int inputWidth, int inputHeight) {
+    this.inputWidth = inputWidth;
+    this.inputHeight = inputHeight;
+    Size outputSize = configure(inputWidth, inputHeight);
+    if (outputTexture == null
+        || outputSize.getWidth() != outputTexture.width
+        || outputSize.getHeight() != outputTexture.height) {
+      if (outputTexture != null) {
+        GlUtil.deleteTexture(outputTexture.texId);
+      }
+      int outputTexId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight());
+      int outputFboId = GlUtil.createFboForTexture(outputTexId);
+      outputTexture =
+          new TextureInfo(outputTexId, outputFboId, outputSize.getWidth(), outputSize.getHeight());
+    }
+  }
+
+  @Override
+  public final void releaseOutputFrame(TextureInfo outputTexture) {
+    outputTextureInUse = false;
+  }
+
+  @Override
+  public final void signalEndOfInputStream() {
+    if (listener != null) {
+      listener.onOutputStreamEnded();
+    }
+  }
+
+  @Override
+  @CallSuper
+  public void release() {
+    if (outputTexture != null) {
+      GlUtil.deleteTexture(outputTexture.texId);
+    }
+  }
 }
