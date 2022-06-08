@@ -44,7 +44,7 @@ import java.util.Locale;
  */
 // TODO(b/227625365): Delete this class and use a texture processor from the Transformer library,
 //  once overlaying a bitmap and text is supported in Transformer.
-/* package */ final class BitmapOverlayProcessor implements SingleFrameGlTextureProcessor {
+/* package */ final class BitmapOverlayProcessor extends SingleFrameGlTextureProcessor {
   static {
     GlUtil.glAssertionsEnabled = true;
   }
@@ -147,6 +147,7 @@ import java.util.Locale;
 
   @Override
   public void release() {
+    super.release();
     if (glProgram != null) {
       glProgram.delete();
     }
