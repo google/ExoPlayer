@@ -47,10 +47,6 @@ import org.junit.runner.RunWith;
 public final class PresentationPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
-  public static final String CROP_SMALLER_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/crop_smaller.png";
-  public static final String CROP_LARGER_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/crop_larger.png";
   public static final String ASPECT_RATIO_SCALE_TO_FIT_NARROW_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/aspect_ratio_scale_to_fit_narrow.png";
   public static final String ASPECT_RATIO_SCALE_TO_FIT_WIDE_PNG_ASSET_PATH =
@@ -103,58 +99,6 @@ public final class PresentationPixelTest {
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
-
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
-
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  @Test
-  public void drawFrame_cropSmaller_producesExpectedOutput() throws Exception {
-    String testId = "drawFrame_cropSmaller";
-    presentationTextureProcessor =
-        new Presentation.Builder()
-            .setCrop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
-            .build()
-            .toGlTextureProcessor(context);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_SMALLER_PNG_ASSET_PATH);
-
-    presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
-
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
-    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  @Test
-  public void drawFrame_cropLarger_producesExpectedOutput() throws Exception {
-    String testId = "drawFrame_cropSmaller";
-    presentationTextureProcessor =
-        new Presentation.Builder()
-            .setCrop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
-            .build()
-            .toGlTextureProcessor(context);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =

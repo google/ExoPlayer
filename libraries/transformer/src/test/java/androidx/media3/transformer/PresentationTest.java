@@ -16,10 +16,8 @@
 package androidx.media3.transformer;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import android.util.Size;
-import androidx.media3.common.util.GlUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,75 +55,6 @@ public final class PresentationTest {
   }
 
   @Test
-  public void configure_setCrop_changesDimensions() {
-    int inputWidth = 300;
-    int inputHeight = 200;
-    float left = -.5f;
-    float right = .5f;
-    float bottom = .5f;
-    float top = 1f;
-    Presentation presentation =
-        new Presentation.Builder().setCrop(left, right, bottom, top).build();
-
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
-
-    int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
-    int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
-    assertThat(outputSize.getWidth()).isEqualTo(expectedPostCropWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(expectedPostCropHeight);
-  }
-
-  @Test
-  public void configure_setCropAndSetResolution_changesDimensions() {
-    int inputWidth = 300;
-    int inputHeight = 200;
-    float left = -.5f;
-    float right = .5f;
-    float bottom = .5f;
-    float top = 1f;
-    int requestedHeight = 100;
-    Presentation presentation =
-        new Presentation.Builder()
-            .setCrop(left, right, bottom, top)
-            .setResolution(requestedHeight)
-            .build();
-
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
-
-    int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
-    int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
-    assertThat(outputSize.getWidth())
-        .isEqualTo(
-            Math.round((float) requestedHeight * expectedPostCropWidth / expectedPostCropHeight));
-    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
-  }
-
-  @Test
-  public void configure_setResolutionAndCrop_changesDimensions() {
-    int inputWidth = 300;
-    int inputHeight = 200;
-    float left = -.5f;
-    float right = .5f;
-    float bottom = .5f;
-    float top = 1f;
-    int requestedHeight = 100;
-    Presentation presentation =
-        new Presentation.Builder()
-            .setResolution(requestedHeight)
-            .setCrop(left, right, bottom, top)
-            .build();
-
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
-
-    int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
-    int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
-    assertThat(outputSize.getWidth())
-        .isEqualTo(
-            Math.round((float) requestedHeight * expectedPostCropWidth / expectedPostCropHeight));
-    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
-  }
-
-  @Test
   public void configure_setAspectRatio_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
@@ -157,31 +86,5 @@ public final class PresentationTest {
 
     assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * requestedHeight));
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
-  }
-
-  @Test
-  public void configure_setAspectRatioAndCrop_throwsIllegalStateException() {
-    Presentation.Builder presentationBuilder =
-        new Presentation.Builder()
-            .setAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT);
-
-    assertThrows(
-        IllegalStateException.class,
-        () ->
-            presentationBuilder.setCrop(
-                /* left= */ -.5f, /* right= */ .5f, /* bottom= */ .5f, /* top= */ 1f));
-  }
-
-  @Test
-  public void configure_setCropAndAspectRatio_throwsIllegalStateException() {
-    Presentation.Builder presentationBuilder =
-        new Presentation.Builder()
-            .setCrop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ .5f, /* top= */ 1f);
-
-    assertThrows(
-        IllegalStateException.class,
-        () ->
-            presentationBuilder.setAspectRatio(
-                /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT));
   }
 }

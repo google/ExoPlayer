@@ -67,6 +67,8 @@ public final class FrameProcessorChainPixelTest {
       "media/bitmap/sample_mp4_first_frame/translate_then_rotate.png";
   public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/request_output_height.png";
+  public static final String CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/crop_then_aspect_ratio.png";
   public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/rotate_45_scale_to_fit.png";
 
@@ -217,6 +219,28 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
+  public void processData_withCropAndPresentation_producesExpectedOutput() throws Exception {
+    String testId = "processData_withCropAndPresentation";
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        new Crop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ -.5f, /* top= */ .5f),
+        new Presentation.Builder()
+            .setAspectRatio(/* aspectRatio= */ .5f, Presentation.LAYOUT_SCALE_TO_FIT)
+            .build());
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
   public void processData_withScaleToFitTransformation_rotate45_producesExpectedOutput()
       throws Exception {
     String testId = "processData_withScaleToFitTransformation_rotate45";
@@ -242,10 +266,8 @@ public final class FrameProcessorChainPixelTest {
           throws Exception {
     String testId =
         "processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation";
-    Presentation centerCrop =
-        new Presentation.Builder()
-            .setCrop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f)
-            .build();
+    Crop centerCrop =
+        new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
     ImmutableList.Builder<GlEffect> full10StepRotationAndCenterCrop = new ImmutableList.Builder<>();
     for (int i = 0; i < 10; i++) {
       full10StepRotationAndCenterCrop.add(new Rotation(/* degrees= */ 36));
