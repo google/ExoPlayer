@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -33,11 +32,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Controls how a frame is presented with options to set the output resolution, crop the input, and
- * choose how to map the input pixels onto the output frame geometry (for example, by stretching the
- * input frame to match the specified output frame, or fitting the input frame using letterboxing).
+ * Controls how a frame is presented with options to set the output resolution and choose how to map
+ * the input pixels onto the output frame geometry (for example, by stretching the input frame to
+ * match the specified output frame, or fitting the input frame using letterboxing).
  *
- * <p>Cropping or aspect ratio is applied before setting resolution.
+ * <p>Aspect ratio is applied before setting resolution.
  *
  * <p>The background color of the output frame will be black, with alpha = 0 if applicable.
  */
@@ -104,21 +103,13 @@ public final class Presentation implements MatrixTransformation {
   public static final class Builder {
 
     // Optional fields.
-    private int heightPixels;
-    private float cropLeft;
-    private float cropRight;
-    private float cropBottom;
-    private float cropTop;
+    private int outputHeight;
     private float aspectRatio;
     private @Layout int layout;
 
     /** Creates a builder with default values. */
     public Builder() {
-      heightPixels = C.LENGTH_UNSET;
-      cropLeft = -1f;
-      cropRight = 1f;
-      cropBottom = -1f;
-      cropTop = 1f;
+      outputHeight = C.LENGTH_UNSET;
       aspectRatio = C.LENGTH_UNSET;
     }
 
@@ -136,44 +127,7 @@ public final class Presentation implements MatrixTransformation {
      * @return This builder.
      */
     public Builder setResolution(int height) {
-      this.heightPixels = height;
-      return this;
-    }
-
-    /**
-     * Crops a smaller (or larger frame), per normalized device coordinates (NDC), where the input
-     * frame corresponds to the square ranging from -1 to 1 on the x and y axes.
-     *
-     * <p>{@code left} and {@code bottom} default to -1, and {@code right} and {@code top} default
-     * to 1, which corresponds to not applying any crop. To crop to a smaller subset of the input
-     * frame, use values between -1 and 1. To crop to a larger frame, use values below -1 and above
-     * 1.
-     *
-     * <p>Width and height values set may be rescaled by {@link #setResolution(int)}, which is
-     * applied after cropping changes.
-     *
-     * <p>Only one of {@code setCrop} or {@link #setAspectRatio(float, int)} can be called for one
-     * {@link Presentation}.
-     *
-     * @param left The left edge of the output frame, in NDC. Must be less than {@code right}.
-     * @param right The right edge of the output frame, in NDC. Must be greater than {@code left}.
-     * @param bottom The bottom edge of the output frame, in NDC. Must be less than {@code top}.
-     * @param top The top edge of the output frame, in NDC. Must be greater than {@code bottom}.
-     * @return This builder.
-     */
-    public Builder setCrop(float left, float right, float bottom, float top) {
-      checkArgument(
-          right > left, "right value " + right + " should be greater than left value " + left);
-      checkArgument(
-          top > bottom, "top value " + top + " should be greater than bottom value " + bottom);
-      checkState(
-          aspectRatio == C.LENGTH_UNSET,
-          "setAspectRatio and setCrop cannot be called in the same instance");
-      cropLeft = left;
-      cropRight = right;
-      cropBottom = bottom;
-      cropTop = top;
-
+      this.outputHeight = height;
       return this;
     }
 
@@ -187,9 +141,6 @@ public final class Presentation implements MatrixTransformation {
      * <p>Width and height values set may be rescaled by {@link #setResolution(int)}, which is
      * applied after aspect ratio changes.
      *
-     * <p>Only one of {@link #setCrop(float, float, float, float)} or {@code setAspectRatio} can be
-     * called for one {@link Presentation}.
-     *
      * @param aspectRatio The aspect ratio (width/height ratio) of the output frame. Must be
      *     positive.
      * @return This builder.
@@ -201,17 +152,13 @@ public final class Presentation implements MatrixTransformation {
               || layout == LAYOUT_SCALE_TO_FIT_WITH_CROP
               || layout == LAYOUT_STRETCH_TO_FIT,
           "invalid layout " + layout);
-      checkState(
-          cropLeft == -1f && cropRight == 1f && cropBottom == -1f && cropTop == 1f,
-          "setAspectRatio and setCrop cannot be called in the same instance");
       this.aspectRatio = aspectRatio;
       this.layout = layout;
       return this;
     }
 
     public Presentation build() {
-      return new Presentation(
-          heightPixels, cropLeft, cropRight, cropBottom, cropTop, aspectRatio, layout);
+      return new Presentation(outputHeight, aspectRatio, layout);
     }
   }
 
@@ -220,10 +167,6 @@ public final class Presentation implements MatrixTransformation {
   }
 
   private final int requestedHeightPixels;
-  private final float cropLeft;
-  private final float cropRight;
-  private final float cropBottom;
-  private final float cropTop;
   private final float requestedAspectRatio;
   private final @Layout int layout;
 
@@ -232,19 +175,8 @@ public final class Presentation implements MatrixTransformation {
   private @MonotonicNonNull Matrix transformationMatrix;
 
   /** Creates a new instance. */
-  private Presentation(
-      int requestedHeightPixels,
-      float cropLeft,
-      float cropRight,
-      float cropBottom,
-      float cropTop,
-      float requestedAspectRatio,
-      @Layout int layout) {
+  private Presentation(int requestedHeightPixels, float requestedAspectRatio, @Layout int layout) {
     this.requestedHeightPixels = requestedHeightPixels;
-    this.cropLeft = cropLeft;
-    this.cropRight = cropRight;
-    this.cropBottom = cropBottom;
-    this.cropTop = cropTop;
     this.requestedAspectRatio = requestedAspectRatio;
     this.layout = layout;
 
@@ -262,12 +194,7 @@ public final class Presentation implements MatrixTransformation {
     outputWidth = inputWidth;
     outputHeight = inputHeight;
 
-    if (cropLeft != -1f || cropRight != 1f || cropBottom != -1f || cropTop != 1f) {
-      checkState(
-          requestedAspectRatio == C.LENGTH_UNSET,
-          "aspect ratio and crop cannot both be set in the same instance");
-      applyCrop();
-    } else if (requestedAspectRatio != C.LENGTH_UNSET) {
+    if (requestedAspectRatio != C.LENGTH_UNSET) {
       applyAspectRatio();
     }
 
@@ -282,20 +209,6 @@ public final class Presentation implements MatrixTransformation {
   @Override
   public Matrix getMatrix(long presentationTimeUs) {
     return checkStateNotNull(transformationMatrix, "configure must be called first");
-  }
-
-  @RequiresNonNull("transformationMatrix")
-  private void applyCrop() {
-    float scaleX = (cropRight - cropLeft) / GlUtil.LENGTH_NDC;
-    float scaleY = (cropTop - cropBottom) / GlUtil.LENGTH_NDC;
-    float centerX = (cropLeft + cropRight) / 2;
-    float centerY = (cropBottom + cropTop) / 2;
-
-    transformationMatrix.postTranslate(-centerX, -centerY);
-    transformationMatrix.postScale(1f / scaleX, 1f / scaleY);
-
-    outputWidth = outputWidth * scaleX;
-    outputHeight = outputHeight * scaleY;
   }
 
   @RequiresNonNull("transformationMatrix")
