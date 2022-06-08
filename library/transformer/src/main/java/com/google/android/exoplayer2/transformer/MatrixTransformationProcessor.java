@@ -39,7 +39,7 @@ import java.util.Arrays;
  * <p>The background color of the output frame will be black.
  */
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
-/* package */ final class MatrixTransformationProcessor implements SingleFrameGlTextureProcessor {
+/* package */ final class MatrixTransformationProcessor extends SingleFrameGlTextureProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -169,6 +169,7 @@ import java.util.Arrays;
 
   @Override
   public void release() {
+    super.release();
     glProgram.delete();
   }
 

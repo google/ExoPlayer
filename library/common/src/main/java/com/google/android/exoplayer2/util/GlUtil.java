@@ -342,6 +342,13 @@ public final class GlUtil {
     }
   }
 
+  /** Fills the pixels in the current output render target with (r=0, g=0, b=0, a=0). */
+  public static void clearOutputFrame() {
+    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
+    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    GlUtil.checkGlError();
+  }
+
   /**
    * Makes the specified {@code eglSurface} the render target, using a viewport of {@code width} by
    * {@code height} pixels.
@@ -366,6 +373,22 @@ public final class GlUtil {
       int width,
       int height) {
     Api17.focusRenderTarget(eglDisplay, eglContext, eglSurface, framebuffer, width, height);
+  }
+
+  /**
+   * Makes the specified {@code framebuffer} the render target, using a viewport of {@code width} by
+   * {@code height} pixels.
+   *
+   * <p>The caller must ensure that there is a current OpenGL context before calling this method.
+   *
+   * @param framebuffer The identifier of the framebuffer object to bind as the output render
+   *     target.
+   * @param width The viewport width, in pixels.
+   * @param height The viewport height, in pixels.
+   */
+  @RequiresApi(17)
+  public static void focusFramebufferUsingCurrentContext(int framebuffer, int width, int height) {
+    Api17.focusFramebufferUsingCurrentContext(framebuffer, width, height);
   }
 
   /**
@@ -612,14 +635,22 @@ public final class GlUtil {
         int framebuffer,
         int width,
         int height) {
+      EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+      checkEglException("Error making context current");
+      focusFramebufferUsingCurrentContext(framebuffer, width, height);
+    }
+
+    @DoNotInline
+    public static void focusFramebufferUsingCurrentContext(int framebuffer, int width, int height) {
+      checkEglException(
+          !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
       int[] boundFramebuffer = new int[1];
       GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFramebuffer, /* offset= */ 0);
       if (boundFramebuffer[0] != framebuffer) {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
       }
       checkGlError();
-      EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-      checkEglException("Error making context current");
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
       checkGlError();
     }

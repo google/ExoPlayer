@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 
 /** Copies frames from an external texture and applies color transformations for HDR if needed. */
-/* package */ class ExternalTextureProcessor implements SingleFrameGlTextureProcessor {
+/* package */ class ExternalTextureProcessor extends SingleFrameGlTextureProcessor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
@@ -115,6 +115,7 @@ import java.io.IOException;
 
   @Override
   public void release() {
+    super.release();
     if (glProgram != null) {
       glProgram.delete();
     }

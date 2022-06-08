@@ -30,7 +30,7 @@ import java.io.IOException;
  * A {@link SingleFrameGlTextureProcessor} that periodically dims the frames such that pixels are
  * darker the further they are away from the frame center.
  */
-/* package */ final class PeriodicVignetteProcessor implements SingleFrameGlTextureProcessor {
+/* package */ final class PeriodicVignetteProcessor extends SingleFrameGlTextureProcessor {
   static {
     GlUtil.glAssertionsEnabled = true;
   }
@@ -108,6 +108,7 @@ import java.io.IOException;
 
   @Override
   public void release() {
+    super.release();
     if (glProgram != null) {
       glProgram.delete();
     }
