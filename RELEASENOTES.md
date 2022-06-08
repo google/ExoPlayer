@@ -143,6 +143,8 @@
     *   Replace `MediaSession.MediaItemFiler` with
         `MediaSession.Callback.onAddMediaItems` to allow asynchronous resolution
         of requests.
+    *   Forward legacy `MediaController` calls to play media to
+        `MediaSession.Callback.onAddMediaItems` instead of `onSetMediaUri`.
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceholderDataSource`.
     *   Workaround OkHttp interrupt handling.

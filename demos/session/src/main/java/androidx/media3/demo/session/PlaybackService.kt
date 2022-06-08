@@ -19,7 +19,6 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.TaskStackBuilder
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.media3.common.AudioAttributes
@@ -182,37 +181,21 @@ class PlaybackService : MediaLibraryService() {
       return Futures.immediateFuture(LibraryResult.ofItemList(children, params))
     }
 
-    override fun onSetMediaUri(
-      session: MediaSession,
-      controller: ControllerInfo,
-      uri: Uri,
-      extras: Bundle
-    ): Int {
-
-      if (uri.toString().startsWith(SEARCH_QUERY_PREFIX) ||
-          uri.toString().startsWith(SEARCH_QUERY_PREFIX_COMPAT)
-      ) {
-        val searchQuery =
-          uri.getQueryParameter("query") ?: return SessionResult.RESULT_ERROR_NOT_SUPPORTED
-        setMediaItemFromSearchQuery(searchQuery)
-
-        return SessionResult.RESULT_SUCCESS
-      } else {
-        return SessionResult.RESULT_ERROR_NOT_SUPPORTED
-      }
-    }
-
     override fun onAddMediaItems(
       mediaSession: MediaSession,
       controller: MediaSession.ControllerInfo,
       mediaItems: List<MediaItem>
     ): ListenableFuture<List<MediaItem>> {
       val updatedMediaItems: List<MediaItem> =
-        mediaItems.map { mediaItem -> MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem }
+        mediaItems.map { mediaItem ->
+          if (mediaItem.requestMetadata.searchQuery != null)
+            getMediaItemFromSearchQuery(mediaItem.requestMetadata.searchQuery!!)
+          else MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem
+        }
       return Futures.immediateFuture(updatedMediaItems)
     }
 
-    private fun setMediaItemFromSearchQuery(query: String) {
+    private fun getMediaItemFromSearchQuery(query: String): MediaItem {
       // Only accept query with pattern "play [Title]" or "[Title]"
       // Where [Title]: must be exactly matched
       // If no media with exact name found, play a random media instead
@@ -223,8 +206,7 @@ class PlaybackService : MediaLibraryService() {
           query
         }
 
-      val item = MediaItemTree.getItemFromTitle(mediaTitle) ?: MediaItemTree.getRandomItem()
-      player.setMediaItem(item)
+      return MediaItemTree.getItemFromTitle(mediaTitle) ?: MediaItemTree.getRandomItem()
     }
   }
 
