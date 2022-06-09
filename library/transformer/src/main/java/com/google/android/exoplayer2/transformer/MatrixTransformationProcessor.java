@@ -41,10 +41,6 @@ import java.util.Arrays;
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 /* package */ final class MatrixTransformationProcessor extends SingleFrameGlTextureProcessor {
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
       "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
@@ -88,10 +84,10 @@ import java.util.Arrays;
    * @param context The {@link Context}.
    * @param matrixTransformation A {@link MatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
-   * @throws IOException If a problem occurs while reading shader files.
+   * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public MatrixTransformationProcessor(Context context, MatrixTransformation matrixTransformation)
-      throws IOException {
+      throws FrameProcessingException {
     this(context, ImmutableList.of(matrixTransformation));
   }
 
@@ -101,10 +97,10 @@ import java.util.Arrays;
    * @param context The {@link Context}.
    * @param matrixTransformation A {@link GlMatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
-   * @throws IOException If a problem occurs while reading shader files.
+   * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public MatrixTransformationProcessor(Context context, GlMatrixTransformation matrixTransformation)
-      throws IOException {
+      throws FrameProcessingException {
     this(context, ImmutableList.of(matrixTransformation));
   }
 
@@ -114,11 +110,11 @@ import java.util.Arrays;
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
    *     apply to each frame in order.
-   * @throws IOException If a problem occurs while reading shader files.
+   * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public MatrixTransformationProcessor(
       Context context, ImmutableList<GlMatrixTransformation> matrixTransformations)
-      throws IOException {
+      throws FrameProcessingException {
     this.matrixTransformations = matrixTransformations;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
@@ -126,7 +122,11 @@ import java.util.Arrays;
     tempResultMatrix = new float[16];
     Matrix.setIdentityM(compositeTransformationMatrix, /* smOffset= */ 0);
     visiblePolygon = NDC_SQUARE;
-    glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
+    try {
+      glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
+    } catch (IOException | GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
   }
 
   @Override
@@ -168,9 +168,15 @@ import java.util.Arrays;
   }
 
   @Override
-  public void release() {
+  public void release() throws FrameProcessingException {
     super.release();
-    glProgram.delete();
+    if (glProgram != null) {
+      try {
+        glProgram.delete();
+      } catch (GlUtil.GlException e) {
+        throw new FrameProcessingException(e);
+      }
+    }
   }
 
   /**

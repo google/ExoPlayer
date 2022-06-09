@@ -23,7 +23,6 @@ import android.graphics.Matrix;
 import android.util.Size;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.GlUtil;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -37,10 +36,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ class EncoderCompatibilityTransformation implements MatrixTransformation {
   // TODO(b/218488308): Allow reconfiguration of the output size, as encoders may not support the
   //  requested output resolution.
-
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
 
   private int outputRotationDegrees;
   private @MonotonicNonNull Matrix transformationMatrix;

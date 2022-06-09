@@ -53,13 +53,9 @@ public final class MatrixTransformationProcessorPixelTest {
   public static final String ROTATE_90_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/rotate90.png";
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
   private final Context context = getApplicationContext();
-  private final EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-  private final EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
+  private @MonotonicNonNull EGLDisplay eglDisplay;
+  private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTransformationFrameProcessor;
   private int inputTexId;
   private int outputTexId;
@@ -67,7 +63,9 @@ public final class MatrixTransformationProcessorPixelTest {
   private int height;
 
   @Before
-  public void createTextures() throws IOException {
+  public void createGlObjects() throws IOException, GlUtil.GlException {
+    eglDisplay = GlUtil.createEglDisplay();
+    eglContext = GlUtil.createEglContext(eglDisplay);
     Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     width = inputBitmap.getWidth();
     height = inputBitmap.getHeight();
@@ -81,11 +79,13 @@ public final class MatrixTransformationProcessorPixelTest {
   }
 
   @After
-  public void release() {
+  public void release() throws GlUtil.GlException, FrameProcessingException {
     if (matrixTransformationFrameProcessor != null) {
       matrixTransformationFrameProcessor.release();
     }
-    GlUtil.destroyEglContext(eglDisplay, eglContext);
+    if (eglContext != null && eglDisplay != null) {
+      GlUtil.destroyEglContext(eglDisplay, eglContext);
+    }
   }
 
   @Test

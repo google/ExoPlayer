@@ -45,9 +45,6 @@ import java.util.Locale;
 // TODO(b/227625365): Delete this class and use a texture processor from the Transformer library,
 //  once overlaying a bitmap and text is supported in Transformer.
 /* package */ final class BitmapOverlayProcessor extends SingleFrameGlTextureProcessor {
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
 
   private static final String VERTEX_SHADER_PATH = "vertex_shader_copy_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "fragment_shader_bitmap_overlay_es2.glsl";
@@ -67,9 +64,9 @@ import java.util.Locale;
   /**
    * Creates a new instance.
    *
-   * @throws IOException If a problem occurs while reading shader files.
+   * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public BitmapOverlayProcessor(Context context) throws IOException {
+  public BitmapOverlayProcessor(Context context) throws FrameProcessingException {
     paint = new Paint();
     paint.setTextSize(64);
     paint.setAntiAlias(true);
@@ -87,10 +84,14 @@ import java.util.Locale;
     } catch (PackageManager.NameNotFoundException e) {
       throw new IllegalStateException(e);
     }
-    bitmapTexId = GlUtil.createTexture(BITMAP_WIDTH_HEIGHT, BITMAP_WIDTH_HEIGHT);
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, overlayBitmap, /* border= */ 0);
+    try {
+      bitmapTexId = GlUtil.createTexture(BITMAP_WIDTH_HEIGHT, BITMAP_WIDTH_HEIGHT);
+      GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, overlayBitmap, /* border= */ 0);
 
-    glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+      glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+    } catch (GlUtil.GlException | IOException e) {
+      throw new FrameProcessingException(e);
+    }
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition",
@@ -141,15 +142,19 @@ import java.util.Locale;
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new FrameProcessingException(e, presentationTimeUs);
     }
   }
 
   @Override
-  public void release() {
+  public void release() throws FrameProcessingException {
     super.release();
     if (glProgram != null) {
-      glProgram.delete();
+      try {
+        glProgram.delete();
+      } catch (GlUtil.GlException e) {
+        throw new FrameProcessingException(e);
+      }
     }
   }
 

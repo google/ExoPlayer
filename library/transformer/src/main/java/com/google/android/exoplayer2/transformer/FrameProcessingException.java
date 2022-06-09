@@ -21,6 +21,26 @@ import com.google.android.exoplayer2.C;
 public final class FrameProcessingException extends Exception {
 
   /**
+   * Wraps the given exception in a {@code FrameProcessingException} if it is not already a {@code
+   * FrameProcessingException} and returns the exception otherwise.
+   */
+  public static FrameProcessingException from(Exception exception) {
+    return from(exception, /* presentationTimeUs= */ C.TIME_UNSET);
+  }
+
+  /**
+   * Wraps the given exception in a {@code FrameProcessingException} with the given timestamp if it
+   * is not already a {@code FrameProcessingException} and returns the exception otherwise.
+   */
+  public static FrameProcessingException from(Exception exception, long presentationTimeUs) {
+    if (exception instanceof FrameProcessingException) {
+      return (FrameProcessingException) exception;
+    } else {
+      return new FrameProcessingException(exception, presentationTimeUs);
+    }
+  }
+
+  /**
    * The microsecond timestamp of the frame being processed while the exception occurred or {@link
    * C#TIME_UNSET} if unknown.
    */
