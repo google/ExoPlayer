@@ -28,6 +28,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.TimedValueQueue;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
@@ -70,6 +71,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
   }
 
   private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;
+  private static final String TAG = "VPGlSurfaceView";
 
   private final VideoRenderer renderer;
   private final Handler mainHandler;
@@ -239,7 +241,11 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
     @Override
     public synchronized void onSurfaceCreated(GL10 gl, EGLConfig config) {
-      texture = GlUtil.createExternalTexture();
+      try {
+        texture = GlUtil.createExternalTexture();
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Failed to create an external texture", e);
+      }
       surfaceTexture = new SurfaceTexture(texture);
       surfaceTexture.setOnFrameAvailableListener(
           surfaceTexture -> {

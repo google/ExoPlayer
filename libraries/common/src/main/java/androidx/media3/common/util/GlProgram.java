@@ -54,7 +54,7 @@ public final class GlProgram {
    * @throws IOException When failing to read shader files.
    */
   public GlProgram(Context context, String vertexShaderFilePath, String fragmentShaderFilePath)
-      throws IOException {
+      throws IOException, GlUtil.GlException {
     this(
         GlUtil.loadAsset(context, vertexShaderFilePath),
         GlUtil.loadAsset(context, fragmentShaderFilePath));
@@ -69,7 +69,7 @@ public final class GlProgram {
    * @param vertexShaderGlsl The vertex shader program.
    * @param fragmentShaderGlsl The fragment shader program.
    */
-  public GlProgram(String vertexShaderGlsl, String fragmentShaderGlsl) {
+  public GlProgram(String vertexShaderGlsl, String fragmentShaderGlsl) throws GlUtil.GlException {
     programId = GLES20.glCreateProgram();
     GlUtil.checkGlError();
 
@@ -81,10 +81,9 @@ public final class GlProgram {
     GLES20.glLinkProgram(programId);
     int[] linkStatus = new int[] {GLES20.GL_FALSE};
     GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, /* offset= */ 0);
-    if (linkStatus[0] != GLES20.GL_TRUE) {
-      GlUtil.throwGlException(
-          "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
-    }
+    GlUtil.checkGlException(
+        linkStatus[0] == GLES20.GL_TRUE,
+        "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
     GLES20.glUseProgram(programId);
     attributeByName = new HashMap<>();
     int[] attributeCount = new int[1];
@@ -107,16 +106,15 @@ public final class GlProgram {
     GlUtil.checkGlError();
   }
 
-  private static void addShader(int programId, int type, String glsl) {
+  private static void addShader(int programId, int type, String glsl) throws GlUtil.GlException {
     int shader = GLES20.glCreateShader(type);
     GLES20.glShaderSource(shader, glsl);
     GLES20.glCompileShader(shader);
 
     int[] result = new int[] {GLES20.GL_FALSE};
     GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, /* offset= */ 0);
-    if (result[0] != GLES20.GL_TRUE) {
-      GlUtil.throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
-    }
+    GlUtil.checkGlException(
+        result[0] == GLES20.GL_TRUE, GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
 
     GLES20.glAttachShader(programId, shader);
     GLES20.glDeleteShader(shader);
@@ -146,13 +144,13 @@ public final class GlProgram {
    *
    * <p>Call this in the rendering loop to switch between different programs.
    */
-  public void use() {
+  public void use() throws GlUtil.GlException {
     GLES20.glUseProgram(programId);
     GlUtil.checkGlError();
   }
 
   /** Deletes the program. Deleted programs cannot be used again. */
-  public void delete() {
+  public void delete() throws GlUtil.GlException {
     GLES20.glDeleteProgram(programId);
     GlUtil.checkGlError();
   }
@@ -161,7 +159,7 @@ public final class GlProgram {
    * Returns the location of an {@link Attribute}, which has been enabled as a vertex attribute
    * array.
    */
-  public int getAttributeArrayLocationAndEnable(String attributeName) {
+  public int getAttributeArrayLocationAndEnable(String attributeName) throws GlUtil.GlException {
     int location = getAttributeLocation(attributeName);
     GLES20.glEnableVertexAttribArray(location);
     GlUtil.checkGlError();
@@ -196,7 +194,7 @@ public final class GlProgram {
   }
 
   /** Binds all attributes and uniforms in the program. */
-  public void bindAttributesAndUniforms() {
+  public void bindAttributesAndUniforms() throws GlUtil.GlException {
     for (Attribute attribute : attributes) {
       attribute.bind();
     }
@@ -277,7 +275,7 @@ public final class GlProgram {
      *
      * <p>Should be called before each drawing call.
      */
-    public void bind() {
+    public void bind() throws GlUtil.GlException {
       Buffer buffer = checkNotNull(this.buffer, "call setBuffer before bind");
       GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, /* buffer= */ 0);
       GLES20.glVertexAttribPointer(
@@ -363,7 +361,7 @@ public final class GlProgram {
      *
      * <p>Should be called before each drawing call.
      */
-    public void bind() {
+    public void bind() throws GlUtil.GlException {
       switch (type) {
         case GLES20.GL_FLOAT:
           GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);

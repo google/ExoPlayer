@@ -23,7 +23,6 @@ import android.graphics.Matrix;
 import android.util.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.util.GlUtil;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -37,10 +36,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ class EncoderCompatibilityTransformation implements MatrixTransformation {
   // TODO(b/218488308): Allow reconfiguration of the output size, as encoders may not support the
   //  requested output resolution.
-
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
 
   private int outputRotationDegrees;
   private @MonotonicNonNull Matrix transformationMatrix;
