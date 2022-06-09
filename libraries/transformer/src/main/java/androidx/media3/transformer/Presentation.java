@@ -24,7 +24,6 @@ import android.graphics.Matrix;
 import android.util.Size;
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
-import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -162,10 +161,6 @@ public final class Presentation implements MatrixTransformation {
     public Presentation build() {
       return new Presentation(outputHeight, aspectRatio, layout);
     }
-  }
-
-  static {
-    GlUtil.glAssertionsEnabled = true;
   }
 
   private final int requestedHeightPixels;

@@ -41,7 +41,6 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
@@ -64,10 +63,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 // TODO(b/227625423): Factor out FrameProcessor interface and rename this class to GlFrameProcessor.
 /* package */ final class FrameProcessorChain {
-
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
 
   /**
    * Listener for asynchronous frame processing events.
@@ -150,7 +145,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       List<GlEffect> effects,
       boolean enableExperimentalHdrEditing,
       ExecutorService singleThreadExecutorService)
-      throws IOException {
+      throws GlUtil.GlException, FrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
@@ -204,7 +199,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ExternalTextureProcessor externalTextureProcessor,
       float pixelWidthHeightRatio,
       List<GlEffect> effects)
-      throws IOException {
+      throws FrameProcessingException {
     ImmutableList.Builder<SingleFrameGlTextureProcessor> textureProcessors =
         new ImmutableList.Builder<SingleFrameGlTextureProcessor>().add(externalTextureProcessor);
 
@@ -532,22 +527,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int finalInputTexId = inputTexId;
         debugSurfaceViewWrapper.maybeRenderToSurfaceView(
             () -> {
-              GlUtil.clearOutputFrame();
               try {
+                GlUtil.clearOutputFrame();
                 getLast(textureProcessors).drawFrame(finalInputTexId, finalPresentationTimeUs);
-              } catch (FrameProcessingException e) {
+              } catch (GlUtil.GlException | FrameProcessingException e) {
                 Log.d(TAG, "Error rendering to debug preview", e);
               }
             });
       }
 
       checkState(pendingFrameCount.getAndDecrement() > 0);
-    } catch (FrameProcessingException | RuntimeException e) {
+    } catch (FrameProcessingException | GlUtil.GlException | RuntimeException e) {
       if (!stopProcessing.getAndSet(true)) {
-        listener.onFrameProcessingError(
-            e instanceof FrameProcessingException
-                ? (FrameProcessingException) e
-                : new FrameProcessingException(e, presentationTimeUs));
+        listener.onFrameProcessingError(FrameProcessingException.from(e, presentationTimeUs));
       }
     }
   }
@@ -565,8 +557,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         textureProcessors.get(i).release();
       }
       GlUtil.destroyEglContext(eglDisplay, eglContext);
-    } catch (RuntimeException e) {
-      listener.onFrameProcessingError(new FrameProcessingException(e));
+    } catch (FrameProcessingException | GlUtil.GlException | RuntimeException e) {
+      listener.onFrameProcessingError(FrameProcessingException.from(e));
     }
   }
 
@@ -600,7 +592,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * otherwise.
      */
     @WorkerThread
-    public synchronized void maybeRenderToSurfaceView(Runnable renderRunnable) {
+    public synchronized void maybeRenderToSurfaceView(Runnable renderRunnable)
+        throws GlUtil.GlException {
       if (surface == null) {
         return;
       }

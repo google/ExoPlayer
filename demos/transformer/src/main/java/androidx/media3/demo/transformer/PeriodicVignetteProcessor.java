@@ -31,9 +31,6 @@ import java.io.IOException;
  * darker the further they are away from the frame center.
  */
 /* package */ final class PeriodicVignetteProcessor extends SingleFrameGlTextureProcessor {
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
 
   private static final String VERTEX_SHADER_PATH = "vertex_shader_copy_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "fragment_shader_vignette_es2.glsl";
@@ -60,7 +57,7 @@ import java.io.IOException;
    * @param minInnerRadius The lower bound of the radius that is unaffected by the effect.
    * @param maxInnerRadius The upper bound of the radius that is unaffected by the effect.
    * @param outerRadius The radius after which all pixels are black.
-   * @throws IOException If a problem occurs while reading shader files.
+   * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public PeriodicVignetteProcessor(
       Context context,
@@ -69,12 +66,16 @@ import java.io.IOException;
       float minInnerRadius,
       float maxInnerRadius,
       float outerRadius)
-      throws IOException {
+      throws FrameProcessingException {
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
     this.minInnerRadius = minInnerRadius;
     this.deltaInnerRadius = maxInnerRadius - minInnerRadius;
-    glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+    try {
+      glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+    } catch (IOException | GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
     glProgram.setFloatsUniform("uCenter", new float[] {centerX, centerY});
     glProgram.setFloatsUniform("uOuterRadius", new float[] {outerRadius});
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
@@ -102,15 +103,19 @@ import java.io.IOException;
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new FrameProcessingException(e, presentationTimeUs);
     }
   }
 
   @Override
-  public void release() {
+  public void release() throws FrameProcessingException {
     super.release();
     if (glProgram != null) {
-      glProgram.delete();
+      try {
+        glProgram.delete();
+      } catch (GlUtil.GlException e) {
+        throw new FrameProcessingException(e);
+      }
     }
   }
 }

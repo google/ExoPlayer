@@ -60,13 +60,9 @@ public final class PresentationPixelTest {
   public static final String ASPECT_RATIO_STRETCH_TO_FIT_WIDE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/aspect_ratio_stretch_to_fit_wide.png";
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
-  private final Context context = getApplicationContext();
-  private final EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-  private final EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
+  private Context context = getApplicationContext();
+  private @MonotonicNonNull EGLDisplay eglDisplay;
+  private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlTextureProcessor presentationTextureProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
@@ -75,7 +71,9 @@ public final class PresentationPixelTest {
   private int inputHeight;
 
   @Before
-  public void createTextures() throws IOException {
+  public void createGlObjects() throws IOException, GlUtil.GlException {
+    eglDisplay = GlUtil.createEglDisplay();
+    eglContext = GlUtil.createEglContext(eglDisplay);
     Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
@@ -85,11 +83,13 @@ public final class PresentationPixelTest {
   }
 
   @After
-  public void release() {
+  public void release() throws GlUtil.GlException, FrameProcessingException {
     if (presentationTextureProcessor != null) {
       presentationTextureProcessor.release();
     }
-    GlUtil.destroyEglContext(eglDisplay, eglContext);
+    if (eglContext != null && eglDisplay != null) {
+      GlUtil.destroyEglContext(eglDisplay, eglContext);
+    }
   }
 
   @Test
@@ -282,12 +282,12 @@ public final class PresentationPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
-  private void setupOutputTexture(int outputWidth, int outputHeight) {
+  private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
     outputTexId = GlUtil.createTexture(outputWidth, outputHeight);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
-        eglDisplay,
-        eglContext,
+        checkNotNull(eglDisplay),
+        checkNotNull(eglContext),
         checkNotNull(placeholderEglSurface),
         frameBuffer,
         outputWidth,

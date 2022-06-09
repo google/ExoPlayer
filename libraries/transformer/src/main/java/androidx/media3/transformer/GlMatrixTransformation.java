@@ -19,7 +19,6 @@ import android.content.Context;
 import android.opengl.Matrix;
 import android.util.Size;
 import androidx.media3.common.util.UnstableApi;
-import java.io.IOException;
 
 /**
  * Specifies a 4x4 transformation {@link Matrix} to apply in the vertex shader for each frame.
@@ -52,7 +51,8 @@ public interface GlMatrixTransformation extends GlEffect {
   float[] getGlMatrixArray(long presentationTimeUs);
 
   @Override
-  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context) throws IOException {
+  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context)
+      throws FrameProcessingException {
     return new MatrixTransformationProcessor(context, this);
   }
 }

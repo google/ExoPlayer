@@ -96,7 +96,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
         listener.onInputFrameProcessed(inputTexture);
         listener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
       }
-    } catch (FrameProcessingException | RuntimeException e) {
+    } catch (FrameProcessingException | GlUtil.GlException | RuntimeException e) {
       if (listener != null) {
         listener.onFrameProcessingError(
             e instanceof FrameProcessingException
@@ -108,7 +108,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   }
 
   @EnsuresNonNull("outputTexture")
-  private void configureOutputTexture(int inputWidth, int inputHeight) {
+  private void configureOutputTexture(int inputWidth, int inputHeight) throws GlUtil.GlException {
     this.inputWidth = inputWidth;
     this.inputHeight = inputHeight;
     Size outputSize = configure(inputWidth, inputHeight);
@@ -139,9 +139,13 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
 
   @Override
   @CallSuper
-  public void release() {
+  public void release() throws FrameProcessingException {
     if (outputTexture != null) {
-      GlUtil.deleteTexture(outputTexture.texId);
+      try {
+        GlUtil.deleteTexture(outputTexture.texId);
+      } catch (GlUtil.GlException e) {
+        throw new FrameProcessingException(e);
+      }
     }
   }
 }

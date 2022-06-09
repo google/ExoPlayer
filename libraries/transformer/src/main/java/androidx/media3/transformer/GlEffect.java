@@ -17,7 +17,6 @@ package androidx.media3.transformer;
 
 import android.content.Context;
 import androidx.media3.common.util.UnstableApi;
-import java.io.IOException;
 
 /**
  * Interface for a video frame effect with a {@link SingleFrameGlTextureProcessor} implementation.
@@ -31,5 +30,6 @@ public interface GlEffect {
 
   /** Returns a {@link SingleFrameGlTextureProcessor} that applies the effect. */
   // TODO(b/227625423): use GlTextureProcessor here once this interface exists.
-  SingleFrameGlTextureProcessor toGlTextureProcessor(Context context) throws IOException;
+  SingleFrameGlTextureProcessor toGlTextureProcessor(Context context)
+      throws FrameProcessingException;
 }
