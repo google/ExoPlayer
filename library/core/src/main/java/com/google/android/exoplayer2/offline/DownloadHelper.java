@@ -107,6 +107,7 @@ public final class DownloadHelper {
           DefaultTrackSelector.Parameters.DEFAULT_WITHOUT_CONTEXT
               .buildUpon()
               .setForceHighestSupportedBitrate(true)
+              .setConstrainAudioChannelCountToDeviceCapabilities(false)
               .build();
 
   /** Returns the default parameters used for track selection for downloading. */
@@ -114,6 +115,7 @@ public final class DownloadHelper {
     return DefaultTrackSelector.Parameters.getDefaults(context)
         .buildUpon()
         .setForceHighestSupportedBitrate(true)
+        .setConstrainAudioChannelCountToDeviceCapabilities(false)
         .build();
   }
 

@@ -369,6 +369,7 @@ import java.util.concurrent.TimeoutException;
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
 
+      trackSelector.setAudioAttributes(audioAttributes);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
@@ -1364,6 +1365,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     audioFocusManager.setAudioAttributes(handleAudioFocus ? newAudioAttributes : null);
+    trackSelector.setAudioAttributes(newAudioAttributes);
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
