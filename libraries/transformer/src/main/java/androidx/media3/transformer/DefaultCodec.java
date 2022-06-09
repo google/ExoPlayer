@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
 import android.media.MediaFormat;
@@ -54,6 +55,8 @@ public final class DefaultCodec implements Codec {
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
 
+  private final boolean decoderNeedsFrameDroppingWorkaround;
+
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
 
@@ -65,6 +68,7 @@ public final class DefaultCodec implements Codec {
   /**
    * Creates a {@code DefaultCodec}.
    *
+   * @param context The {@link Context}.
    * @param configurationFormat The {@link Format} to configure the {@code DefaultCodec}. See {@link
    *     #getConfigurationFormat()}. The {@link Format#sampleMimeType sampleMimeType} must not be
    *     {@code null}.
@@ -75,6 +79,7 @@ public final class DefaultCodec implements Codec {
    * @param outputSurface The output {@link Surface} if the {@link MediaCodec} outputs to a surface.
    */
   public DefaultCodec(
+      Context context,
       Format configurationFormat,
       MediaFormat configurationMediaFormat,
       String mediaCodecName,
@@ -110,6 +115,7 @@ public final class DefaultCodec implements Codec {
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
+    decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
   }
 
   @Override
@@ -124,15 +130,12 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public int getMaxPendingFrameCount() {
-    if (SDK_INT < 29) {
-      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-      // bounds. From API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
-      // dropping even when the surface is full. Frame dropping is never desired, so allow a maximum
-      // of one frame to be pending at a time.
+    if (decoderNeedsFrameDroppingWorkaround) {
+      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
       // TODO(b/226330223): Investigate increasing this limit.
       return 1;
     }
-    if (Ascii.toUpperCase(mediaCodec.getCodecInfo().getCanonicalName()).startsWith("OMX.")) {
+    if (Ascii.toUpperCase(getName()).startsWith("OMX.")) {
       // Some OMX decoders don't correctly track their number of output buffers available, and get
       // stuck if too many frames are rendered without being processed, so limit the number of
       // pending frames to avoid getting stuck. This value is experimentally determined. See also
@@ -261,7 +264,7 @@ public final class DefaultCodec implements Codec {
    * {@inheritDoc}
    *
    * <p>This name is of the actual codec, which may not be the same as the {@code mediaCodecName}
-   * passed to {@link #DefaultCodec(Format, MediaFormat, String, boolean, Surface)}.
+   * passed to {@link #DefaultCodec(Context, Format, MediaFormat, String, boolean, Surface)}.
    *
    * @see MediaCodec#getCanonicalName()
    */
@@ -423,5 +426,14 @@ public final class DefaultCodec implements Codec {
     TraceUtil.beginSection("startCodec");
     codec.start();
     TraceUtil.endSection();
+  }
+
+  private static boolean decoderNeedsFrameDroppingWorkaround(Context context) {
+    // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+    // bounds. From API 29, if the app targets API 29 or later, the {@link
+    // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is full.
+    // Frame dropping is never desired, so a workaround is needed for older API levels.
+    return SDK_INT < 29
+        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
   }
 }

@@ -16,9 +16,11 @@
 
 package androidx.media3.transformer;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import android.content.Context;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import androidx.media3.common.Format;
@@ -34,6 +36,7 @@ import org.robolectric.shadows.ShadowMediaCodecList;
 /** Unit test for {@link DefaultEncoderFactory}. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultEncoderFactoryTest {
+  private final Context context = getApplicationContext();
 
   @Before
   public void setUp() {
@@ -65,7 +68,7 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
     Format actualVideoFormat =
-        new DefaultEncoderFactory()
+        new DefaultEncoderFactory(context)
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -83,7 +86,7 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H265, 1920, 1080, 30);
     Format actualVideoFormat =
-        new DefaultEncoderFactory()
+        new DefaultEncoderFactory(context)
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -101,7 +104,7 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 3840, 2160, 60);
     Format actualVideoFormat =
-        new DefaultEncoderFactory()
+        new DefaultEncoderFactory(context)
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -119,7 +122,7 @@ public class DefaultEncoderFactoryTest {
         assertThrows(
             TransformationException.class,
             () ->
-                new DefaultEncoderFactory()
+                new DefaultEncoderFactory(context)
                     .createForVideoEncoding(
                         requestedVideoFormat,
                         /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H265)));
@@ -136,6 +139,7 @@ public class DefaultEncoderFactoryTest {
         TransformationException.class,
         () ->
             new DefaultEncoderFactory(
+                    context,
                     /* videoEncoderSelector= */ mimeType -> ImmutableList.of(),
                     /* enableFallback= */ true)
                 .createForVideoEncoding(

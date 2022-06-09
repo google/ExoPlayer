@@ -52,7 +52,7 @@ public final class TranscodeQualityTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory())
+            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
 
@@ -119,7 +119,7 @@ public final class TranscodeQualityTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory())
+            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
 
