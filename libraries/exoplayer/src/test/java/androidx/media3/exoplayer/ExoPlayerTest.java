@@ -37,6 +37,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -8979,6 +8980,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_MEDIA_ITEMS_METADATA)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_MEDIA_ITEM)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_AUDIO_ATTRIBUTES)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_VOLUME)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_DEVICE_VOLUME)).isTrue();
@@ -12128,6 +12130,7 @@ public final class ExoPlayerTest {
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
         COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         COMMAND_GET_AUDIO_ATTRIBUTES,
         COMMAND_GET_VOLUME,
         COMMAND_GET_DEVICE_VOLUME,

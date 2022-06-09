@@ -889,32 +889,6 @@ public class MediaSession {
      * @param controller The controller information.
      * @param playerCommand A {@link Player.Command command}.
      * @return {@link SessionResult#RESULT_SUCCESS} to proceed, or another code to ignore.
-     * @see Player.Command#COMMAND_PLAY_PAUSE
-     * @see Player.Command#COMMAND_PREPARE
-     * @see Player.Command#COMMAND_STOP
-     * @see Player.Command#COMMAND_SEEK_TO_DEFAULT_POSITION
-     * @see Player.Command#COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SEEK_TO_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SET_SPEED_AND_PITCH
-     * @see Player.Command#COMMAND_SET_SHUFFLE_MODE
-     * @see Player.Command#COMMAND_SET_REPEAT_MODE
-     * @see Player.Command#COMMAND_GET_CURRENT_MEDIA_ITEM
-     * @see Player.Command#COMMAND_GET_TIMELINE
-     * @see Player.Command#COMMAND_GET_MEDIA_ITEMS_METADATA
-     * @see Player.Command#COMMAND_SET_MEDIA_ITEMS_METADATA
-     * @see Player.Command#COMMAND_CHANGE_MEDIA_ITEMS
-     * @see Player.Command#COMMAND_GET_AUDIO_ATTRIBUTES
-     * @see Player.Command#COMMAND_GET_VOLUME
-     * @see Player.Command#COMMAND_GET_DEVICE_VOLUME
-     * @see Player.Command#COMMAND_SET_VOLUME
-     * @see Player.Command#COMMAND_SET_DEVICE_VOLUME
-     * @see Player.Command#COMMAND_ADJUST_DEVICE_VOLUME
-     * @see Player.Command#COMMAND_SET_VIDEO_SURFACE
-     * @see Player.Command#COMMAND_GET_TEXT
-     * @see Player.Command#COMMAND_SET_TRACK_SELECTION_PARAMETERS
-     * @see Player.Command#COMMAND_GET_TRACKS
      */
     default @SessionResult.Code int onPlayerCommandRequest(
         MediaSession session, ControllerInfo controller, @Player.Command int playerCommand) {

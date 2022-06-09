@@ -303,7 +303,8 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_SET_DEVICE_VOLUME,
                   COMMAND_ADJUST_DEVICE_VOLUME,
                   COMMAND_SET_VIDEO_SURFACE,
-                  COMMAND_GET_TEXT)
+                  COMMAND_GET_TEXT,
+                  COMMAND_SET_MEDIA_ITEM)
               .addIf(
                   COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
               .build();

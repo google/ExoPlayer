@@ -29,6 +29,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -817,12 +818,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) -> iSession.setMediaItem(controllerStub, seq, mediaItem.toBundle()));
 
     setMediaItemsInternal(
@@ -834,12 +835,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithStartPosition(
                 controllerStub, seq, mediaItem.toBundle(), startPositionMs));
@@ -853,12 +854,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithResetPosition(
                 controllerStub, seq, mediaItem.toBundle(), resetPosition));
