@@ -29,6 +29,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -846,7 +847,7 @@ import java.util.concurrent.ExecutionException;
     dispatchSessionTaskWithPlayerCommand(
         caller,
         seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (sessionImpl, controller) ->
             sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
         (sessionImpl, controller, sequence, future) ->
@@ -873,7 +874,7 @@ import java.util.concurrent.ExecutionException;
     dispatchSessionTaskWithPlayerCommand(
         caller,
         seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (sessionImpl, controller) ->
             sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
         (sessionImpl, controller, sequence, future) ->
@@ -905,7 +906,7 @@ import java.util.concurrent.ExecutionException;
     dispatchSessionTaskWithPlayerCommand(
         caller,
         seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (sessionImpl, controller) ->
             sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
         (sessionImpl, controller, sequence, future) ->

@@ -26,6 +26,8 @@
     *   Add `MediaItem.RequestMetadata` to represent metadata needed to play
         media when the exact `LocalConfiguration` is not known. Also remove
         `MediaMetadata.mediaUrl` as this is now included in `RequestMetadata`.
+    *   Add `Player.Command.COMMAND_SET_MEDIA_ITEM` to enable players to allow
+        setting a single item.
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.

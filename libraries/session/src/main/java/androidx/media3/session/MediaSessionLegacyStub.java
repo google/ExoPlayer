@@ -24,6 +24,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
@@ -679,7 +680,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private void handleMediaRequest(MediaItem mediaItem, boolean play) {
     dispatchSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         controller -> {
           ListenableFuture<List<MediaItem>> mediaItemsFuture =
               sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem));

@@ -22,6 +22,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS;
 import static androidx.media3.session.MediaUtils.createPlayerCommandsWith;
@@ -131,6 +132,12 @@ public class MediaSessionPermissionTest {
     testOnCommandRequest(
         COMMAND_SET_MEDIA_ITEMS_METADATA,
         controller -> controller.setPlaylistMetadata(MediaMetadata.EMPTY));
+  }
+
+  @Test
+  public void setMediaItem() throws Exception {
+    testOnCommandRequest(
+        COMMAND_SET_MEDIA_ITEM, controller -> controller.setMediaItem(MediaItem.EMPTY));
   }
 
   @Test
