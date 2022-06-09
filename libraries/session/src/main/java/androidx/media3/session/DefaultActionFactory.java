@@ -66,20 +66,25 @@ import androidx.media3.common.util.Util;
 
   @Override
   public NotificationCompat.Action createMediaAction(
-      IconCompat icon, CharSequence title, @Player.Command int command) {
-    return new NotificationCompat.Action(icon, title, createMediaActionPendingIntent(command));
+      MediaSession mediaSession, IconCompat icon, CharSequence title, @Player.Command int command) {
+    return new NotificationCompat.Action(
+        icon, title, createMediaActionPendingIntent(mediaSession, command));
   }
 
   @Override
   public NotificationCompat.Action createCustomAction(
-      IconCompat icon, CharSequence title, String customAction, Bundle extras) {
+      MediaSession mediaSession,
+      IconCompat icon,
+      CharSequence title,
+      String customAction,
+      Bundle extras) {
     return new NotificationCompat.Action(
-        icon, title, createCustomActionPendingIntent(customAction, extras));
+        icon, title, createCustomActionPendingIntent(mediaSession, customAction, extras));
   }
 
   @Override
   public NotificationCompat.Action createCustomActionFromCustomCommandButton(
-      CommandButton customCommandButton) {
+      MediaSession mediaSession, CommandButton customCommandButton) {
     checkArgument(
         customCommandButton.sessionCommand != null
             && customCommandButton.sessionCommand.commandCode
@@ -88,13 +93,16 @@ import androidx.media3.common.util.Util;
     return new NotificationCompat.Action(
         IconCompat.createWithResource(service, customCommandButton.iconResId),
         customCommandButton.displayName,
-        createCustomActionPendingIntent(customCommand.customAction, customCommand.customExtras));
+        createCustomActionPendingIntent(
+            mediaSession, customCommand.customAction, customCommand.customExtras));
   }
 
   @Override
-  public PendingIntent createMediaActionPendingIntent(@Player.Command long command) {
+  public PendingIntent createMediaActionPendingIntent(
+      MediaSession mediaSession, @Player.Command long command) {
     int keyCode = toKeyCode(command);
     Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+    intent.setData(mediaSession.getImpl().getUri());
     intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
     if (Util.SDK_INT >= 26 && command == COMMAND_PLAY_PAUSE) {
@@ -126,8 +134,10 @@ import androidx.media3.common.util.Util;
     return KEYCODE_UNKNOWN;
   }
 
-  private PendingIntent createCustomActionPendingIntent(String action, Bundle extras) {
+  private PendingIntent createCustomActionPendingIntent(
+      MediaSession mediaSession, String action, Bundle extras) {
     Intent intent = new Intent(ACTION_CUSTOM);
+    intent.setData(mediaSession.getImpl().getUri());
     intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(EXTRAS_KEY_ACTION_CUSTOM, action);
     intent.putExtra(EXTRAS_KEY_ACTION_CUSTOM_EXTRAS, extras);

@@ -43,12 +43,16 @@ public final class MediaNotification {
      * Creates a {@link NotificationCompat.Action} for a notification. These actions will be handled
      * by the library.
      *
+     * @param mediaSession The media session to which the action will be sent.
      * @param icon The icon to show for this action.
      * @param title The title of the action.
      * @param command A command to send when users trigger this action.
      */
     NotificationCompat.Action createMediaAction(
-        IconCompat icon, CharSequence title, @Player.Command int command);
+        MediaSession mediaSession,
+        IconCompat icon,
+        CharSequence title,
+        @Player.Command int command);
 
     /**
      * Creates a {@link NotificationCompat.Action} for a notification with a custom action. Actions
@@ -56,6 +60,7 @@ public final class MediaNotification {
      * to the {@linkplain MediaNotification.Provider#handleCustomCommand notification provider} that
      * provided them.
      *
+     * @param mediaSession The media session to which the action will be sent.
      * @param icon The icon to show for this action.
      * @param title The title of the action.
      * @param customAction The custom action set.
@@ -63,7 +68,11 @@ public final class MediaNotification {
      * @see MediaNotification.Provider#handleCustomCommand
      */
     NotificationCompat.Action createCustomAction(
-        IconCompat icon, CharSequence title, String customAction, Bundle extras);
+        MediaSession mediaSession,
+        IconCompat icon,
+        CharSequence title,
+        String customAction,
+        Bundle extras);
 
     /**
      * Creates a {@link NotificationCompat.Action} for a notification from a custom command button.
@@ -76,18 +85,21 @@ public final class MediaNotification {
      * SessionCommand#customExtras command's extras} will be passed to {@link
      * Provider#handleCustomCommand(MediaSession, String, Bundle)} when the action is executed.
      *
+     * @param mediaSession The media session to which the action will be sent.
      * @param customCommandButton A {@linkplain CommandButton custom command button}.
      * @see MediaNotification.Provider#handleCustomCommand
      */
     NotificationCompat.Action createCustomActionFromCustomCommandButton(
-        CommandButton customCommandButton);
+        MediaSession mediaSession, CommandButton customCommandButton);
 
     /**
      * Creates a {@link PendingIntent} for a media action that will be handled by the library.
      *
+     * @param mediaSession The media session to which the action will be sent.
      * @param command The intent's command.
      */
-    PendingIntent createMediaActionPendingIntent(@Player.Command long command);
+    PendingIntent createMediaActionPendingIntent(
+        MediaSession mediaSession, @Player.Command long command);
   }
 
   /**
