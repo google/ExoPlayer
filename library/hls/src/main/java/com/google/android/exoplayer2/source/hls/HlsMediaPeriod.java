@@ -553,8 +553,10 @@ public final class HlsMediaPeriod
     this.sampleStreamWrappers = sampleStreamWrappers.toArray(new HlsSampleStreamWrapper[0]);
     this.manifestUrlIndicesPerWrapper = manifestUrlIndicesPerWrapper.toArray(new int[0][]);
     pendingPrepareCount = this.sampleStreamWrappers.length;
-    // Set timestamp master and trigger preparation (if not already prepared)
-    this.sampleStreamWrappers[0].setIsTimestampMaster(true);
+    // Set timestamp masters and trigger preparation (if not already prepared)
+    for (int i = 0; i < audioVideoSampleStreamWrapperCount; i++) {
+      this.sampleStreamWrappers[i].setIsTimestampMaster(true);
+    }
     for (HlsSampleStreamWrapper sampleStreamWrapper : this.sampleStreamWrappers) {
       sampleStreamWrapper.continuePreparing();
     }
