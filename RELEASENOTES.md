@@ -266,6 +266,8 @@ This release corresponds to the
         `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
     *   Remove constructor `DefaultTrackSelector(ExoTrackSelection.Factory)`.
         Use `DefaultTrackSelector(Context, ExoTrackSelection.Factory)` instead.
+    *   Remove `Transformer.Builder.setContext`. The `Context` should be passed
+        to the `Transformer.Builder` constructor instead.
 
 ### 1.0.0-alpha03 (2022-03-14)
 

@@ -94,9 +94,7 @@ public final class Transformer {
   public static final class Builder {
 
     // Mandatory field.
-    // TODO(huangdarwin): Update @MonotonicNonNull to final after deprecated {@link
-    // #setContext(Context)} is removed.
-    private @MonotonicNonNull Context context;
+    private final Context context;
 
     // Optional fields.
     private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
@@ -114,23 +112,6 @@ public final class Transformer {
     private Codec.DecoderFactory decoderFactory;
 
     /**
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
-    @Deprecated
-    public Builder() {
-      muxerFactory = new FrameworkMuxer.Factory();
-      looper = Util.getCurrentOrMainLooper();
-      clock = Clock.DEFAULT;
-      listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = Codec.EncoderFactory.DEFAULT;
-      decoderFactory = Codec.DecoderFactory.DEFAULT;
-      debugViewProvider = DebugViewProvider.NONE;
-      containerMimeType = MimeTypes.VIDEO_MP4;
-      transformationRequest = new TransformationRequest.Builder().build();
-      videoFrameEffects = ImmutableList.of();
-    }
-
-    /**
      * Creates a builder with default values.
      *
      * @param context The {@link Context}.
@@ -141,8 +122,8 @@ public final class Transformer {
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = Codec.EncoderFactory.DEFAULT;
-      decoderFactory = Codec.DecoderFactory.DEFAULT;
+      encoderFactory = new DefaultEncoderFactory(this.context);
+      decoderFactory = new DefaultDecoderFactory(this.context);
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
@@ -165,15 +146,6 @@ public final class Transformer {
       this.decoderFactory = transformer.decoderFactory;
       this.debugViewProvider = transformer.debugViewProvider;
       this.clock = transformer.clock;
-    }
-
-    /**
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
-    @Deprecated
-    public Builder setContext(Context context) {
-      this.context = context.getApplicationContext();
-      return this;
     }
 
     /**
@@ -344,7 +316,7 @@ public final class Transformer {
     /**
      * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
      *
-     * <p>The default value is {@link Codec.EncoderFactory#DEFAULT}.
+     * <p>The default value is a {@link DefaultEncoderFactory} instance.
      *
      * @param encoderFactory The {@link Codec.EncoderFactory} instance.
      * @return This builder.
@@ -357,7 +329,7 @@ public final class Transformer {
     /**
      * Sets the {@link Codec.DecoderFactory} that will be used by the transformer.
      *
-     * <p>The default value is {@link Codec.DecoderFactory#DEFAULT}.
+     * <p>The default value is a {@link DefaultDecoderFactory} instance.
      *
      * @param decoderFactory The {@link Codec.DecoderFactory} instance.
      * @return This builder.
