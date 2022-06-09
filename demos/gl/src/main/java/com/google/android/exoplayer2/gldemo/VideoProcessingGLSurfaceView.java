@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -70,6 +71,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
   }
 
   private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;
+  private static final String TAG = "VPGlSurfaceView";
 
   private final VideoRenderer renderer;
   private final Handler mainHandler;
@@ -239,7 +241,11 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
     @Override
     public synchronized void onSurfaceCreated(GL10 gl, EGLConfig config) {
-      texture = GlUtil.createExternalTexture();
+      try {
+        texture = GlUtil.createExternalTexture();
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Failed to create an external texture", e);
+      }
       surfaceTexture = new SurfaceTexture(texture);
       surfaceTexture.setOnFrameAvailableListener(
           surfaceTexture -> {

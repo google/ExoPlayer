@@ -30,10 +30,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class Crop implements MatrixTransformation {
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
   private final float left;
   private final float right;
   private final float bottom;

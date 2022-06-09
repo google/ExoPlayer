@@ -83,10 +83,6 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
     }
   }
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
   private final Matrix transformationMatrix;
   private @MonotonicNonNull Matrix adjustedTransformationMatrix;
 

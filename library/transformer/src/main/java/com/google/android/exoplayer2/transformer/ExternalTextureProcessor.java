@@ -28,10 +28,6 @@ import java.io.IOException;
 /** Copies frames from an external texture and applies color transformations for HDR if needed. */
 /* package */ class ExternalTextureProcessor extends SingleFrameGlTextureProcessor {
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
   private static final String VERTEX_SHADER_TEX_TRANSFORM_PATH =
       "shaders/vertex_shader_tex_transform_es2.glsl";
   private static final String VERTEX_SHADER_TEX_TRANSFORM_ES3_PATH =
@@ -54,10 +50,10 @@ import java.io.IOException;
    * Creates a new instance.
    *
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
-   * @throws IOException If a problem occurs while reading shader files.
+   * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public ExternalTextureProcessor(Context context, boolean enableExperimentalHdrEditing)
-      throws IOException {
+      throws FrameProcessingException {
     String vertexShaderFilePath =
         enableExperimentalHdrEditing
             ? VERTEX_SHADER_TEX_TRANSFORM_ES3_PATH
@@ -66,7 +62,11 @@ import java.io.IOException;
         enableExperimentalHdrEditing
             ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
-    glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
+    try {
+      glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
+    } catch (IOException | GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
         "aFramePosition",
@@ -109,15 +109,19 @@ import java.io.IOException;
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new FrameProcessingException(e, presentationTimeUs);
     }
   }
 
   @Override
-  public void release() {
+  public void release() throws FrameProcessingException {
     super.release();
     if (glProgram != null) {
-      glProgram.delete();
+      try {
+        glProgram.delete();
+      } catch (GlUtil.GlException e) {
+        throw new FrameProcessingException(e);
+      }
     }
   }
 }

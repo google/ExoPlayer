@@ -78,13 +78,6 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;
 
-  /** A runtime exception to be thrown if some EGL operations failed. */
-  public static final class GlException extends RuntimeException {
-    private GlException(String msg) {
-      super(msg);
-    }
-  }
-
   private final Handler handler;
   private final int[] textureIdHolder;
   @Nullable private final TextureImageListener callback;
@@ -124,7 +117,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
    *
    * @param secureMode The {@link SecureMode} to be used for EGL surface.
    */
-  public void init(@SecureMode int secureMode) {
+  public void init(@SecureMode int secureMode) throws GlUtil.GlException {
     display = getDefaultDisplay();
     EGLConfig config = chooseEGLConfig(display);
     context = createEGLContext(display, config, secureMode);
@@ -205,22 +198,18 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
     }
   }
 
-  private static EGLDisplay getDefaultDisplay() {
+  private static EGLDisplay getDefaultDisplay() throws GlUtil.GlException {
     EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-    if (display == null) {
-      throw new GlException("eglGetDisplay failed");
-    }
+    GlUtil.checkGlException(display != null, "eglGetDisplay failed");
 
     int[] version = new int[2];
     boolean eglInitialized =
         EGL14.eglInitialize(display, version, /* majorOffset= */ 0, version, /* minorOffset= */ 1);
-    if (!eglInitialized) {
-      throw new GlException("eglInitialize failed");
-    }
+    GlUtil.checkGlException(eglInitialized, "eglInitialize failed");
     return display;
   }
 
-  private static EGLConfig chooseEGLConfig(EGLDisplay display) {
+  private static EGLConfig chooseEGLConfig(EGLDisplay display) throws GlUtil.GlException {
     EGLConfig[] configs = new EGLConfig[1];
     int[] numConfigs = new int[1];
     boolean success =
@@ -233,18 +222,17 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
             /* config_size= */ 1,
             numConfigs,
             /* num_configOffset= */ 0);
-    if (!success || numConfigs[0] <= 0 || configs[0] == null) {
-      throw new GlException(
-          Util.formatInvariant(
-              /* format= */ "eglChooseConfig failed: success=%b, numConfigs[0]=%d, configs[0]=%s",
-              success, numConfigs[0], configs[0]));
-    }
+    GlUtil.checkGlException(
+        success && numConfigs[0] > 0 && configs[0] != null,
+        Util.formatInvariant(
+            /* format= */ "eglChooseConfig failed: success=%b, numConfigs[0]=%d, configs[0]=%s",
+            success, numConfigs[0], configs[0]));
 
     return configs[0];
   }
 
   private static EGLContext createEGLContext(
-      EGLDisplay display, EGLConfig config, @SecureMode int secureMode) {
+      EGLDisplay display, EGLConfig config, @SecureMode int secureMode) throws GlUtil.GlException {
     int[] glAttributes;
     if (secureMode == SECURE_MODE_NONE) {
       glAttributes = new int[] {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
@@ -261,14 +249,13 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
     EGLContext context =
         EGL14.eglCreateContext(
             display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes, 0);
-    if (context == null) {
-      throw new GlException("eglCreateContext failed");
-    }
+    GlUtil.checkGlException(context != null, "eglCreateContext failed");
     return context;
   }
 
   private static EGLSurface createEGLSurface(
-      EGLDisplay display, EGLConfig config, EGLContext context, @SecureMode int secureMode) {
+      EGLDisplay display, EGLConfig config, EGLContext context, @SecureMode int secureMode)
+      throws GlUtil.GlException {
     EGLSurface surface;
     if (secureMode == SECURE_MODE_SURFACELESS_CONTEXT) {
       surface = EGL14.EGL_NO_SURFACE;
@@ -296,20 +283,16 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
             };
       }
       surface = EGL14.eglCreatePbufferSurface(display, config, pbufferAttributes, /* offset= */ 0);
-      if (surface == null) {
-        throw new GlException("eglCreatePbufferSurface failed");
-      }
+      GlUtil.checkGlException(surface != null, "eglCreatePbufferSurface failed");
     }
 
     boolean eglMadeCurrent =
         EGL14.eglMakeCurrent(display, /* draw= */ surface, /* read= */ surface, context);
-    if (!eglMadeCurrent) {
-      throw new GlException("eglMakeCurrent failed");
-    }
+    GlUtil.checkGlException(eglMadeCurrent, "eglMakeCurrent failed");
     return surface;
   }
 
-  private static void generateTextureIds(int[] textureIdHolder) {
+  private static void generateTextureIds(int[] textureIdHolder) throws GlUtil.GlException {
     GLES20.glGenTextures(/* n= */ 1, textureIdHolder, /* offset= */ 0);
     GlUtil.checkGlError();
   }

@@ -186,7 +186,8 @@ public class BitmapTestUtil {
    * @param height The height of the pixel rectangle to read.
    * @return A {@link Bitmap} with the framebuffer's values.
    */
-  public static Bitmap createArgb8888BitmapFromCurrentGlFramebuffer(int width, int height) {
+  public static Bitmap createArgb8888BitmapFromCurrentGlFramebuffer(int width, int height)
+      throws GlUtil.GlException {
     ByteBuffer rgba8888Buffer = ByteBuffer.allocateDirect(width * height * 4);
     GLES20.glReadPixels(
         0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, rgba8888Buffer);
@@ -206,7 +207,7 @@ public class BitmapTestUtil {
    * @param bitmap A {@link Bitmap}.
    * @return The identifier of the newly created texture.
    */
-  public static int createGlTextureFromBitmap(Bitmap bitmap) {
+  public static int createGlTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
     int texId = GlUtil.createTexture(bitmap.getWidth(), bitmap.getHeight());
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.

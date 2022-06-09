@@ -110,6 +110,10 @@ public interface GlTextureProcessor {
   /** Notifies the texture processor that no further input frames will become available. */
   void signalEndOfInputStream();
 
-  /** Releases all resources. */
-  void release();
+  /**
+   * Releases all resources.
+   *
+   * @throws FrameProcessingException If an error occurs while releasing resources.
+   */
+  void release() throws FrameProcessingException;
 }

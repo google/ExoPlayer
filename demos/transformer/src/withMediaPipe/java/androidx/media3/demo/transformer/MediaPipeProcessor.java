@@ -79,12 +79,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
-   * @throws IOException If a problem occurs while reading shader files or initializing MediaPipe
-   *     resources.
+   * @throws FrameProcessingException If a problem occurs while reading shader files or initializing
+   *     MediaPipe resources.
    */
   public MediaPipeProcessor(
       Context context, String graphName, String inputStreamName, String outputStreamName)
-      throws IOException {
+      throws FrameProcessingException {
     checkState(LOADER.isAvailable());
 
     frameProcessorConditionVariable = new ConditionVariable();
@@ -104,7 +104,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           frameProcessorPendingError = error;
           frameProcessorConditionVariable.open();
         });
-    glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
+    try {
+      glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
+    } catch (IOException | GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
   }
 
   @Override
@@ -152,14 +156,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+      throw new FrameProcessingException(e, presentationTimeUs);
     } finally {
       checkStateNotNull(outputFrame).release();
     }
   }
 
   @Override
-  public void release() {
+  public void release() throws FrameProcessingException {
     super.release();
     checkStateNotNull(frameProcessor).close();
   }
