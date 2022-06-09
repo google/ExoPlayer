@@ -100,7 +100,8 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_GET_MEDIA_ITEMS_METADATA,
               COMMAND_SET_MEDIA_ITEMS_METADATA,
               COMMAND_CHANGE_MEDIA_ITEMS,
-              COMMAND_GET_TRACKS)
+              COMMAND_GET_TRACKS,
+              COMMAND_SET_MEDIA_ITEM)
           .build();
 
   public static final float MIN_SPEED_SUPPORTED = 0.5f;
