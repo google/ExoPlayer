@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -109,7 +111,8 @@ public abstract class TrackSelector {
    *     it has previously made are no longer valid.
    * @param bandwidthMeter A bandwidth meter which can be used by track selections to select tracks.
    */
-  public final void init(InvalidationListener listener, BandwidthMeter bandwidthMeter) {
+  @CallSuper
+  public void init(InvalidationListener listener, BandwidthMeter bandwidthMeter) {
     this.listener = listener;
     this.bandwidthMeter = bandwidthMeter;
   }
@@ -118,9 +121,10 @@ public abstract class TrackSelector {
    * Called by the player to release the selector. The selector cannot be used until {@link
    * #init(InvalidationListener, BandwidthMeter)} is called again.
    */
-  public final void release() {
-    this.listener = null;
-    this.bandwidthMeter = null;
+  @CallSuper
+  public void release() {
+    listener = null;
+    bandwidthMeter = null;
   }
 
   /**
@@ -173,6 +177,11 @@ public abstract class TrackSelector {
    */
   public boolean isSetParametersSupported() {
     return false;
+  }
+
+  /** Called by the player to set the {@link AudioAttributes} that will be used for playback. */
+  public void setAudioAttributes(AudioAttributes audioAttributes) {
+    // Default implementation is no-op.
   }
 
   /**
