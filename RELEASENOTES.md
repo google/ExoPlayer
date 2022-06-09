@@ -127,6 +127,8 @@
         ([#10165](https://github.com/google/ExoPlayer/issues/10165)).
     *   Add RTP reader for VP9
         ([#47](https://github.com/androidx/media/pull/64)).
+    *   Add RTP reader for OPUS
+        ([#53](https://github.com/androidx/media/pull/53)).
 *   Session:
     *   Fix NPE in MediaControllerImplLegacy
         ([#59](https://github.com/androidx/media/pull/59)).
