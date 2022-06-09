@@ -218,33 +218,46 @@ public final class AndroidTestUtil {
     writeTestSummaryToFile(context, testId, testJson);
   }
 
-  /**
-   * A {@link Codec.EncoderFactory} that forces encoding, wrapping {@link DefaultEncoderFactory}.
-   */
-  public static final Codec.EncoderFactory FORCE_ENCODE_ENCODER_FACTORY =
-      new Codec.EncoderFactory() {
-        @Override
-        public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
-            throws TransformationException {
-          return Codec.EncoderFactory.DEFAULT.createForAudioEncoding(format, allowedMimeTypes);
-        }
+  /** A customizable forwarding {@link Codec.EncoderFactory} that forces encoding. */
+  public static final class ForceEncodeEncoderFactory implements Codec.EncoderFactory {
 
-        @Override
-        public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
-            throws TransformationException {
-          return Codec.EncoderFactory.DEFAULT.createForVideoEncoding(format, allowedMimeTypes);
-        }
+    private final Codec.EncoderFactory encoderFactory;
 
-        @Override
-        public boolean audioNeedsEncoding() {
-          return true;
-        }
+    /** Creates an instance that wraps {@link DefaultEncoderFactory}. */
+    public ForceEncodeEncoderFactory() {
+      encoderFactory = Codec.EncoderFactory.DEFAULT;
+    }
 
-        @Override
-        public boolean videoNeedsEncoding() {
-          return true;
-        }
-      };
+    /**
+     * Creates an instance that wraps {@link DefaultEncoderFactory} that wraps another {@link
+     * Codec.EncoderFactory}.
+     */
+    public ForceEncodeEncoderFactory(Codec.EncoderFactory wrappedEncoderFactory) {
+      this.encoderFactory = wrappedEncoderFactory;
+    }
+
+    @Override
+    public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException {
+      return encoderFactory.createForAudioEncoding(format, allowedMimeTypes);
+    }
+
+    @Override
+    public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException {
+      return encoderFactory.createForVideoEncoding(format, allowedMimeTypes);
+    }
+
+    @Override
+    public boolean audioNeedsEncoding() {
+      return true;
+    }
+
+    @Override
+    public boolean videoNeedsEncoding() {
+      return true;
+    }
+  }
 
   /**
    * Returns a {@link JSONObject} containing device specific details from {@link Build}, including
