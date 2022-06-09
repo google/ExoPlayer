@@ -44,6 +44,7 @@ public final class RtpPayloadFormat {
   private static final String RTP_MEDIA_MPEG4_VIDEO = "MP4V-ES";
   private static final String RTP_MEDIA_H264 = "H264";
   private static final String RTP_MEDIA_H265 = "H265";
+  private static final String RTP_MEDIA_OPUS = "OPUS";
   private static final String RTP_MEDIA_PCM_L8 = "L8";
   private static final String RTP_MEDIA_PCM_L16 = "L16";
   private static final String RTP_MEDIA_PCMA = "PCMA";
@@ -61,6 +62,7 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_H265:
       case RTP_MEDIA_MPEG4_VIDEO:
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_OPUS:
       case RTP_MEDIA_PCM_L8:
       case RTP_MEDIA_PCM_L16:
       case RTP_MEDIA_PCMA:
@@ -90,6 +92,8 @@ public final class RtpPayloadFormat {
         return MimeTypes.AUDIO_AMR_WB;
       case RTP_MEDIA_MPEG4_GENERIC:
         return MimeTypes.AUDIO_AAC;
+      case RTP_MEDIA_OPUS:
+        return MimeTypes.AUDIO_OPUS;
       case RTP_MEDIA_PCM_L8:
       case RTP_MEDIA_PCM_L16:
         return MimeTypes.AUDIO_RAW;
