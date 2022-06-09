@@ -140,6 +140,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     MediaStyle mediaStyle = new MediaStyle();
     int[] compactViewIndices =
         addNotificationActions(
+            mediaSession,
             getMediaButtons(player.getAvailableCommands(), customLayout, player.getPlayWhenReady()),
             builder,
             actionFactory);
@@ -173,7 +174,8 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     if (player.isCommandAvailable(COMMAND_STOP) || Util.SDK_INT < 21) {
       // We must include a cancel intent for pre-L devices.
-      mediaStyle.setCancelButtonIntent(actionFactory.createMediaActionPendingIntent(COMMAND_STOP));
+      mediaStyle.setCancelButtonIntent(
+          actionFactory.createMediaActionPendingIntent(mediaSession, COMMAND_STOP));
     }
 
     long playbackStartTimeMs = getPlaybackStartTimeEpochMs(player);
@@ -186,7 +188,8 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     Notification notification =
         builder
             .setContentIntent(mediaSession.getSessionActivity())
-            .setDeleteIntent(actionFactory.createMediaActionPendingIntent(COMMAND_STOP))
+            .setDeleteIntent(
+                actionFactory.createMediaActionPendingIntent(mediaSession, COMMAND_STOP))
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.media3_notification_small_icon)
             .setStyle(mediaStyle)
@@ -292,6 +295,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * buttons are marked with {@link DefaultMediaNotificationProvider#COMMAND_KEY_COMPACT_VIEW_INDEX}
    * to declare the index in compact view of the given command button in the button extras.
    *
+   * @param mediaSession The media session to which the actions will be sent.
    * @param mediaButtons The command buttons to be included in the notification.
    * @param builder The builder to add the actions to.
    * @param actionFactory The actions factory to be used to build notifications.
@@ -300,6 +304,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    *     notification}.
    */
   protected int[] addNotificationActions(
+      MediaSession mediaSession,
       List<CommandButton> mediaButtons,
       NotificationCompat.Builder builder,
       MediaNotification.ActionFactory actionFactory) {
@@ -309,11 +314,13 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     for (int i = 0; i < mediaButtons.size(); i++) {
       CommandButton commandButton = mediaButtons.get(i);
       if (commandButton.sessionCommand != null) {
-        builder.addAction(actionFactory.createCustomActionFromCustomCommandButton(commandButton));
+        builder.addAction(
+            actionFactory.createCustomActionFromCustomCommandButton(mediaSession, commandButton));
       } else {
         checkState(commandButton.playerCommand != COMMAND_INVALID);
         builder.addAction(
             actionFactory.createMediaAction(
+                mediaSession,
                 IconCompat.createWithResource(context, commandButton.iconResId),
                 commandButton.displayName,
                 commandButton.playerCommand));

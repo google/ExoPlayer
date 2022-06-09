@@ -16,10 +16,13 @@
 package androidx.media3.session;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -39,12 +42,18 @@ public class DefaultActionFactoryTest {
   public void createMediaPendingIntent_intentIsMediaAction() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    MediaSession mockMediaSession = mock(MediaSession.class);
+    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
+    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
+    Uri dataUri = Uri.parse("http://example.com");
+    when(mockMediaSessionImpl.getUri()).thenReturn(dataUri);
 
     PendingIntent pendingIntent =
-        actionFactory.createMediaActionPendingIntent(Player.COMMAND_PLAY_PAUSE);
+        actionFactory.createMediaActionPendingIntent(mockMediaSession, Player.COMMAND_PLAY_PAUSE);
 
     ShadowPendingIntent shadowPendingIntent = shadowOf(pendingIntent);
     assertThat(actionFactory.isMediaAction(shadowPendingIntent.getSavedIntent())).isTrue();
+    assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(dataUri);
   }
 
   @Test
@@ -71,7 +80,11 @@ public class DefaultActionFactoryTest {
   public void createCustomActionFromCustomCommandButton() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-
+    MediaSession mockMediaSession = mock(MediaSession.class);
+    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
+    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
+    Uri dataUri = Uri.parse("http://example.com");
+    when(mockMediaSessionImpl.getUri()).thenReturn(dataUri);
     Bundle commandBundle = new Bundle();
     commandBundle.putString("command-key", "command-value");
     Bundle buttonBundle = new Bundle();
@@ -85,8 +98,11 @@ public class DefaultActionFactoryTest {
             .build();
 
     NotificationCompat.Action notificationAction =
-        actionFactory.createCustomActionFromCustomCommandButton(customSessionCommand);
+        actionFactory.createCustomActionFromCustomCommandButton(
+            mockMediaSession, customSessionCommand);
 
+    ShadowPendingIntent shadowPendingIntent = shadowOf(notificationAction.actionIntent);
+    assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(dataUri);
     assertThat(String.valueOf(notificationAction.title)).isEqualTo("name");
     assertThat(notificationAction.getIconCompat().getResId())
         .isEqualTo(R.drawable.media3_notification_pause);
@@ -99,7 +115,6 @@ public class DefaultActionFactoryTest {
       createCustomActionFromCustomCommandButton_notACustomAction_throwsIllegalArgumentException() {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-
     CommandButton customSessionCommand =
         new CommandButton.Builder()
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
@@ -109,7 +124,9 @@ public class DefaultActionFactoryTest {
 
     Assert.assertThrows(
         IllegalArgumentException.class,
-        () -> actionFactory.createCustomActionFromCustomCommandButton(customSessionCommand));
+        () ->
+            actionFactory.createCustomActionFromCustomCommandButton(
+                mock(MediaSession.class), customSessionCommand));
   }
 
   /** A test service for unit tests. */

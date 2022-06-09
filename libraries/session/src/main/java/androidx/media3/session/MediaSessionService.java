@@ -354,18 +354,10 @@ public abstract class MediaSessionService extends Service {
       if (keyEvent != null) {
         session.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
       }
-    } else if (actionFactory.isCustomAction(intent)) {
+    } else if (session != null && actionFactory.isCustomAction(intent)) {
       @Nullable String customAction = actionFactory.getCustomAction(intent);
       if (customAction == null) {
         return START_STICKY;
-      }
-      if (session == null) {
-        ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
-        session = onGetSession(controllerInfo);
-        if (session == null) {
-          return START_STICKY;
-        }
-        addSession(session);
       }
       Bundle customExtras = actionFactory.getCustomActionExtras(intent);
       getMediaNotificationManager().onCustomAction(session, customAction, customExtras);

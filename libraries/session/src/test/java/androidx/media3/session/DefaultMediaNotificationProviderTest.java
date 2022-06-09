@@ -22,7 +22,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -119,6 +121,7 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider(ApplicationProvider.getApplicationContext());
     NotificationCompat.Builder mockNotificationBuilder = mock(NotificationCompat.Builder.class);
     MediaNotification.ActionFactory mockActionFactory = mock(MediaNotification.ActionFactory.class);
+    MediaSession mockMediaSession = mock(MediaSession.class);
     CommandButton commandButton1 =
         new CommandButton.Builder()
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
@@ -155,6 +158,7 @@ public class DefaultMediaNotificationProviderTest {
 
     int[] compactViewIndices =
         defaultMediaNotificationProvider.addNotificationActions(
+            mockMediaSession,
             ImmutableList.of(commandButton1, commandButton2, commandButton3, commandButton4),
             mockNotificationBuilder,
             mockActionFactory);
@@ -163,10 +167,17 @@ public class DefaultMediaNotificationProviderTest {
     InOrder inOrder = Mockito.inOrder(mockActionFactory);
     inOrder
         .verify(mockActionFactory)
-        .createMediaAction(any(), eq("displayName"), eq(commandButton1.playerCommand));
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton2);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton3);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton4);
+        .createMediaAction(
+            eq(mockMediaSession), any(), eq("displayName"), eq(commandButton1.playerCommand));
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton2);
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton3);
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton4);
     verifyNoMoreInteractions(mockActionFactory);
     assertThat(compactViewIndices).asList().containsExactly(1, 3, 2).inOrder();
   }
@@ -177,6 +188,7 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider(ApplicationProvider.getApplicationContext());
     NotificationCompat.Builder mockNotificationBuilder = mock(NotificationCompat.Builder.class);
     MediaNotification.ActionFactory mockActionFactory = mock(MediaNotification.ActionFactory.class);
+    MediaSession mockMediaSession = mock(MediaSession.class);
     CommandButton commandButton1 =
         new CommandButton.Builder()
             .setDisplayName("displayName")
@@ -192,6 +204,7 @@ public class DefaultMediaNotificationProviderTest {
 
     int[] compactViewIndices =
         defaultMediaNotificationProvider.addNotificationActions(
+            mockMediaSession,
             ImmutableList.of(commandButton1, commandButton2),
             mockNotificationBuilder,
             mockActionFactory);
@@ -202,10 +215,13 @@ public class DefaultMediaNotificationProviderTest {
     List<NotificationCompat.Action> actions = actionCaptor.getAllValues();
     assertThat(actions).hasSize(2);
     InOrder inOrder = Mockito.inOrder(mockActionFactory);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton1);
     inOrder
         .verify(mockActionFactory)
-        .createMediaAction(any(), eq("displayName"), eq(commandButton2.playerCommand));
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton1);
+    inOrder
+        .verify(mockActionFactory)
+        .createMediaAction(
+            eq(mockMediaSession), any(), eq("displayName"), eq(commandButton2.playerCommand));
     verifyNoMoreInteractions(mockActionFactory);
     assertThat(compactViewIndices).asList().containsExactly(1);
   }
@@ -217,6 +233,7 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider(ApplicationProvider.getApplicationContext());
     NotificationCompat.Builder mockNotificationBuilder = mock(NotificationCompat.Builder.class);
     MediaNotification.ActionFactory mockActionFactory = mock(MediaNotification.ActionFactory.class);
+    MediaSession mockMediaSession = mock(MediaSession.class);
     CommandButton commandButton1 =
         new CommandButton.Builder()
             .setDisplayName("displayName")
@@ -226,10 +243,15 @@ public class DefaultMediaNotificationProviderTest {
 
     int[] compactViewIndices =
         defaultMediaNotificationProvider.addNotificationActions(
-            ImmutableList.of(commandButton1), mockNotificationBuilder, mockActionFactory);
+            mockMediaSession,
+            ImmutableList.of(commandButton1),
+            mockNotificationBuilder,
+            mockActionFactory);
 
     InOrder inOrder = Mockito.inOrder(mockActionFactory);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton1);
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton1);
     verifyNoMoreInteractions(mockActionFactory);
     assertThat(compactViewIndices).asList().isEmpty();
   }
@@ -240,6 +262,7 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider(ApplicationProvider.getApplicationContext());
     NotificationCompat.Builder mockNotificationBuilder = mock(NotificationCompat.Builder.class);
     MediaNotification.ActionFactory mockActionFactory = mock(MediaNotification.ActionFactory.class);
+    MediaSession mockMediaSession = mock(MediaSession.class);
     Bundle commandButtonBundle1 = new Bundle();
     commandButtonBundle1.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 2);
     CommandButton commandButton1 =
@@ -262,13 +285,18 @@ public class DefaultMediaNotificationProviderTest {
 
     int[] compactViewIndices =
         defaultMediaNotificationProvider.addNotificationActions(
+            mockMediaSession,
             ImmutableList.of(commandButton1, commandButton2),
             mockNotificationBuilder,
             mockActionFactory);
 
     InOrder inOrder = Mockito.inOrder(mockActionFactory);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton1);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton2);
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton1);
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton2);
     verifyNoMoreInteractions(mockActionFactory);
     assertThat(compactViewIndices).asList().isEmpty();
   }
@@ -279,6 +307,7 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider(ApplicationProvider.getApplicationContext());
     NotificationCompat.Builder mockNotificationBuilder = mock(NotificationCompat.Builder.class);
     MediaNotification.ActionFactory mockActionFactory = mock(MediaNotification.ActionFactory.class);
+    MediaSession mockMediaSession = mock(MediaSession.class);
     Bundle commandButtonBundle = new Bundle();
     commandButtonBundle.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 1);
     CommandButton commandButton1 =
@@ -291,10 +320,15 @@ public class DefaultMediaNotificationProviderTest {
 
     int[] compactViewIndices =
         defaultMediaNotificationProvider.addNotificationActions(
-            ImmutableList.of(commandButton1), mockNotificationBuilder, mockActionFactory);
+            mockMediaSession,
+            ImmutableList.of(commandButton1),
+            mockNotificationBuilder,
+            mockActionFactory);
 
     InOrder inOrder = Mockito.inOrder(mockActionFactory);
-    inOrder.verify(mockActionFactory).createCustomActionFromCustomCommandButton(commandButton1);
+    inOrder
+        .verify(mockActionFactory)
+        .createCustomActionFromCustomCommandButton(mockMediaSession, commandButton1);
     verifyNoMoreInteractions(mockActionFactory);
     // [INDEX_UNSET, 1, INDEX_UNSET] cropped up to the first INDEX_UNSET value
     assertThat(compactViewIndices).asList().isEmpty();
@@ -307,6 +341,10 @@ public class DefaultMediaNotificationProviderTest {
     NotificationCompat.Builder mockNotificationBuilder = mock(NotificationCompat.Builder.class);
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    MediaSession mockMediaSession = mock(MediaSession.class);
+    MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
+    when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
+    when(mockMediaSessionImpl.getUri()).thenReturn(Uri.parse("http://example.com"));
     Bundle commandButtonBundle = new Bundle();
     commandButtonBundle.putString("testKey", "testValue");
     CommandButton commandButton1 =
@@ -318,12 +356,17 @@ public class DefaultMediaNotificationProviderTest {
             .build();
 
     defaultMediaNotificationProvider.addNotificationActions(
-        ImmutableList.of(commandButton1), mockNotificationBuilder, defaultActionFactory);
+        mockMediaSession,
+        ImmutableList.of(commandButton1),
+        mockNotificationBuilder,
+        defaultActionFactory);
 
     ArgumentCaptor<NotificationCompat.Action> actionCaptor =
         ArgumentCaptor.forClass(NotificationCompat.Action.class);
     verify(mockNotificationBuilder).addAction(actionCaptor.capture());
     verifyNoMoreInteractions(mockNotificationBuilder);
+    verify(mockMediaSessionImpl).getUri();
+    verifyNoMoreInteractions(mockMediaSessionImpl);
     List<NotificationCompat.Action> actions = actionCaptor.getAllValues();
     assertThat(actions).hasSize(1);
     assertThat(String.valueOf(actions.get(0).title)).isEqualTo("displayName1");
