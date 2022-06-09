@@ -101,6 +101,9 @@ import com.google.common.collect.ImmutableMap;
    */
   private static final int DEFAULT_VP8_HEIGHT = 240;
 
+  /** RFC7587 Section 6.1 Sampling rate for OPUS is fixed at 48KHz. */
+  private static final int OPUS_CLOCK_RATE = 48_000;
+
   /**
    * Default width for VP9.
    *
@@ -200,6 +203,12 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(
             !fmtpParameters.containsKey(PARAMETER_AMR_INTERLEAVING),
             "Interleaving mode is not currently supported.");
+        break;
+      case MimeTypes.AUDIO_OPUS:
+        checkArgument(channelCount != C.INDEX_UNSET);
+        // RFC7587 Section 6.1: the RTP timestamp is incremented with a 48000 Hz clock rate
+        // for all modes of Opus and all sampling rates.
+        checkArgument(clockRate == OPUS_CLOCK_RATE, "Invalid OPUS clock rate.");
         break;
       case MimeTypes.VIDEO_MP4V:
         checkArgument(!fmtpParameters.isEmpty());
