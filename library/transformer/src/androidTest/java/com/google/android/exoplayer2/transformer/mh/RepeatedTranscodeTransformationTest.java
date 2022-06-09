@@ -48,7 +48,7 @@ public final class RepeatedTranscodeTransformationTest {
                 new Transformer.Builder(context)
                     .setTransformationRequest(
                         new TransformationRequest.Builder().setRotationDegrees(45).build())
-                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory())
                     .build())
             .build();
 
@@ -78,7 +78,7 @@ public final class RepeatedTranscodeTransformationTest {
                     .setRemoveAudio(true)
                     .setTransformationRequest(
                         new TransformationRequest.Builder().setRotationDegrees(45).build())
-                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory())
                     .build())
             .build();
 
@@ -107,7 +107,7 @@ public final class RepeatedTranscodeTransformationTest {
                 new Transformer.Builder(context)
                     .setRemoveVideo(true)
                     .setTransformationRequest(new TransformationRequest.Builder().build())
-                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory())
                     .build())
             .build();
 
