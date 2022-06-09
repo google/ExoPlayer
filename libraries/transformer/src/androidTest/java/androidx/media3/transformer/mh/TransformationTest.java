@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.transformer.AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
@@ -30,6 +29,7 @@ import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
+import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.TransformationRequest;
@@ -52,9 +52,7 @@ public class TransformationTest {
     String testId = TAG + "_transform";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder(context)
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
-            .build();
+        new Transformer.Builder(context).setEncoderFactory(new ForceEncodeEncoderFactory()).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
         .build()
@@ -80,10 +78,11 @@ public class TransformationTest {
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
-                    /* enableFallback= */ true))
+                new ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        EncoderSelector.DEFAULT,
+                        new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
+                        /* enableFallback= */ true)))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
@@ -105,7 +104,7 @@ public class TransformationTest {
     }
 
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
+        new Transformer.Builder(context).setEncoderFactory(new ForceEncodeEncoderFactory()).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
         .setTimeoutSeconds(180)
@@ -126,7 +125,7 @@ public class TransformationTest {
       return;
     }
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY).build();
+        new Transformer.Builder(context).setEncoderFactory(new ForceEncodeEncoderFactory()).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
         .setTimeoutSeconds(180)
@@ -140,7 +139,7 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new ForceEncodeEncoderFactory())
             .setRemoveAudio(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -155,7 +154,7 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new ForceEncodeEncoderFactory())
             .setRemoveVideo(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
