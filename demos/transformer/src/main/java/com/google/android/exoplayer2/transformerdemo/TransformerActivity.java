@@ -260,6 +260,7 @@ public final class TransformerActivity extends AppCompatActivity {
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
           .setEncoderFactory(
               new DefaultEncoderFactory(
+                  /* context= */ this,
                   EncoderSelector.DEFAULT,
                   /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
 

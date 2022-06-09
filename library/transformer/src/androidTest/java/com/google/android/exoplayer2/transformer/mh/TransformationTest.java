@@ -52,7 +52,9 @@ public class TransformationTest {
     String testId = TAG + "_transform";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(new ForceEncodeEncoderFactory()).build();
+        new Transformer.Builder(context)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
         .build()
@@ -80,6 +82,7 @@ public class TransformationTest {
             .setEncoderFactory(
                 new ForceEncodeEncoderFactory(
                     /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        context,
                         EncoderSelector.DEFAULT,
                         new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
                         /* enableFallback= */ true)))
@@ -104,7 +107,9 @@ public class TransformationTest {
     }
 
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(new ForceEncodeEncoderFactory()).build();
+        new Transformer.Builder(context)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
         .setTimeoutSeconds(180)
@@ -125,7 +130,9 @@ public class TransformationTest {
       return;
     }
     Transformer transformer =
-        new Transformer.Builder(context).setEncoderFactory(new ForceEncodeEncoderFactory()).build();
+        new Transformer.Builder(context)
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
+            .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
         .setTimeoutSeconds(180)
@@ -139,7 +146,7 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(new ForceEncodeEncoderFactory())
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -154,7 +161,7 @@ public class TransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
-            .setEncoderFactory(new ForceEncodeEncoderFactory())
+            .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .setRemoveVideo(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)

@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
 
+import android.content.Context;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Pair;
@@ -44,6 +45,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static final int DEFAULT_FRAME_RATE = 30;
   private static final String TAG = "DefaultEncoderFactory";
 
+  private final Context context;
   private final EncoderSelector videoEncoderSelector;
   private final VideoEncoderSettings requestedVideoEncoderSettings;
   private final boolean enableFallback;
@@ -52,13 +54,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}, a
    * default {@link VideoEncoderSettings}, and with format fallback enabled.
    */
-  public DefaultEncoderFactory() {
-    this(EncoderSelector.DEFAULT, /* enableFallback= */ true);
+  public DefaultEncoderFactory(Context context) {
+    this(context, EncoderSelector.DEFAULT, /* enableFallback= */ true);
   }
 
   /** Creates a new instance using a default {@link VideoEncoderSettings}. */
-  public DefaultEncoderFactory(EncoderSelector videoEncoderSelector, boolean enableFallback) {
-    this(videoEncoderSelector, VideoEncoderSettings.DEFAULT, enableFallback);
+  public DefaultEncoderFactory(
+      Context context, EncoderSelector videoEncoderSelector, boolean enableFallback) {
+    this(context, videoEncoderSelector, VideoEncoderSettings.DEFAULT, enableFallback);
   }
 
   /**
@@ -79,14 +82,17 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * and {@link VideoEncoderSettings#level} can cause codec configuration failure. Setting an
    * unsupported {@link VideoEncoderSettings#bitrateMode} may cause encoder instantiation failure.
    *
+   * @param context The {@link Context}.
    * @param videoEncoderSelector The {@link EncoderSelector}.
    * @param requestedVideoEncoderSettings The {@link VideoEncoderSettings}.
    * @param enableFallback Whether to enable fallback.
    */
   public DefaultEncoderFactory(
+      Context context,
       EncoderSelector videoEncoderSelector,
       VideoEncoderSettings requestedVideoEncoderSettings,
       boolean enableFallback) {
+    this.context = context;
     this.videoEncoderSelector = videoEncoderSelector;
     this.requestedVideoEncoderSettings = requestedVideoEncoderSettings;
     this.enableFallback = enableFallback;
@@ -118,7 +124,12 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       throw createTransformationException(format);
     }
     return new DefaultCodec(
-        format, mediaFormat, mediaCodecName, /* isDecoder= */ false, /* outputSurface= */ null);
+        context,
+        format,
+        mediaFormat,
+        mediaCodecName,
+        /* isDecoder= */ false,
+        /* outputSurface= */ null);
   }
 
   @Override
@@ -208,6 +219,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     return new DefaultCodec(
+        context,
         format,
         mediaFormat,
         encoderInfo.getName(),
