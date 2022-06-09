@@ -39,6 +39,24 @@
         `DefaultTrackSelector.Parameters.buildUpon` to return
         `DefaultTrackSelector.Parameters.Builder` instead of the deprecated
         `DefaultTrackSelector.ParametersBuilder`.
+    *   Add
+        `DefaultTrackSelector.Parameters.constrainAudioChannelCountToDeviceCapabilities`.
+        which is enabled by default. When enabled, the `DefaultTrackSelector`
+        will prefer audio tracks whose channel count does not exceed the device
+        output capabilities. On handheld devices, the `DefaultTrackSelector`
+        will prefer stereo/mono over multichannel audio formats, unless the
+        multichannel format can be
+        [Spatialized](https://developer.android.com/reference/android/media/Spatializer)
+        (Android 12L+) or is a Dolby surround sound format. In addition, on
+        devices that support audio spatialization, the `DefaultTrackSelector`
+        will monitor for changes in the
+        [Spatializer properties](https://developer.android.com/reference/android/media/Spatializer.OnSpatializerStateChangedListener)
+        and trigger a new track selection upon these. Devices with a
+        `television`
+        [UI mode](https://developer.android.com/guide/topics/resources/providing-resources#UiModeQualifier)
+        are excluded from these constraints and the format with the highest
+        channel count will be preferred. To enable this feature, the
+        `DefaultTrackSelector` instance must be constructed with a `Context`.
 *   Video:
     *   Rename `DummySurface` to `PlaceholderSurface`.
     *   Add AV1 support to the `MediaCodecVideoRenderer.getCodecMaxInputSize`.
@@ -171,6 +189,8 @@
         `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
         `getDefaultTrackSelectorParameters(Context)` instead when possible, and
         `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
+    *   Remove constructor `DefaultTrackSelector(ExoTrackSelection.Factory)`.
+        Use `DefaultTrackSelector(Context, ExoTrackSelection.Factory)` instead.
 
 ### 1.0.0-alpha03 (2022-03-14)
 

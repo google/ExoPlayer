@@ -17,7 +17,9 @@ package androidx.media3.exoplayer.trackselection;
 
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
@@ -112,7 +114,8 @@ public abstract class TrackSelector {
    *     it has previously made are no longer valid.
    * @param bandwidthMeter A bandwidth meter which can be used by track selections to select tracks.
    */
-  public final void init(InvalidationListener listener, BandwidthMeter bandwidthMeter) {
+  @CallSuper
+  public void init(InvalidationListener listener, BandwidthMeter bandwidthMeter) {
     this.listener = listener;
     this.bandwidthMeter = bandwidthMeter;
   }
@@ -121,9 +124,10 @@ public abstract class TrackSelector {
    * Called by the player to release the selector. The selector cannot be used until {@link
    * #init(InvalidationListener, BandwidthMeter)} is called again.
    */
-  public final void release() {
-    this.listener = null;
-    this.bandwidthMeter = null;
+  @CallSuper
+  public void release() {
+    listener = null;
+    bandwidthMeter = null;
   }
 
   /**
@@ -176,6 +180,11 @@ public abstract class TrackSelector {
    */
   public boolean isSetParametersSupported() {
     return false;
+  }
+
+  /** Called by the player to set the {@link AudioAttributes} that will be used for playback. */
+  public void setAudioAttributes(AudioAttributes audioAttributes) {
+    // Default implementation is no-op.
   }
 
   /**
