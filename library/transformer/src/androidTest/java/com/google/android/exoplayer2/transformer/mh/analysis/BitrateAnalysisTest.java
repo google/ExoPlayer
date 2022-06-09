@@ -118,6 +118,7 @@ public class BitrateAnalysisTest {
             .setEncoderFactory(
                 new AndroidTestUtil.ForceEncodeEncoderFactory(
                     /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        context,
                         EncoderSelector.DEFAULT,
                         new VideoEncoderSettings.Builder()
                             .setBitrate(bitrate)
