@@ -116,13 +116,14 @@ public class BitrateAnalysisTest {
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder()
-                        .setBitrate(bitrate)
-                        .setBitrateMode(bitrateMode)
-                        .build(),
-                    /* enableFallback= */ false))
+                new AndroidTestUtil.ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        EncoderSelector.DEFAULT,
+                        new VideoEncoderSettings.Builder()
+                            .setBitrate(bitrate)
+                            .setBitrateMode(bitrateMode)
+                            .build(),
+                        /* enableFallback= */ false)))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)

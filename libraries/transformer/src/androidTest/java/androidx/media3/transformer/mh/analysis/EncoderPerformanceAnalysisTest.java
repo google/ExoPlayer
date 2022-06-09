@@ -126,12 +126,13 @@ public class EncoderPerformanceAnalysisTest {
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder()
-                        .setEncoderPerformanceParameters(operatingRate, priority)
-                        .build(),
-                    /* enableFallback= */ false))
+                new AndroidTestUtil.ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        EncoderSelector.DEFAULT,
+                        new VideoEncoderSettings.Builder()
+                            .setEncoderPerformanceParameters(operatingRate, priority)
+                            .build(),
+                        /* enableFallback= */ false)))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
