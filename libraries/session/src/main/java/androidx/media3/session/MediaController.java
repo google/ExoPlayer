@@ -52,12 +52,11 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
@@ -74,7 +73,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  * process like another app but may be in the same process as this controller. It implements {@link
  * Player} and the player commands are sent to the underlying {@link Player} of the connected {@link
  * MediaSession}. It also has session-specific commands that can be handled by {@link
- * MediaSession.SessionCallback}.
+ * MediaSession.Callback}.
  *
  * <p>Topics covered here:
  *
@@ -323,6 +322,14 @@ public class MediaController implements Player {
         MediaController controller, SessionCommand command, Bundle args) {
       return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED));
     }
+
+    /**
+     * Called when the session extras have changed.
+     *
+     * @param controller The controller.
+     * @param extras The session extras that have changed.
+     */
+    default void onExtrasChanged(MediaController controller, Bundle extras) {}
   }
 
   /* package */ interface ConnectionCallback {
@@ -394,6 +401,11 @@ public class MediaController implements Player {
     impl.stop();
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1178,6 +1190,9 @@ public class MediaController implements Player {
     impl.moveMediaItems(fromIndex, toIndex, newIndex);
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1192,6 +1207,9 @@ public class MediaController implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isDynamic;
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1206,6 +1224,9 @@ public class MediaController implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isLive();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1255,6 +1276,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getCurrentPeriodIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1268,6 +1292,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getCurrentMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1288,6 +1315,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getPreviousMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1308,6 +1338,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getNextMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1315,6 +1348,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1322,6 +1358,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1329,6 +1368,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1348,6 +1390,9 @@ public class MediaController implements Player {
     return isConnected() && impl.hasNextMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1355,6 +1400,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1362,6 +1410,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1385,6 +1436,9 @@ public class MediaController implements Player {
     impl.seekToPreviousMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1583,9 +1637,9 @@ public class MediaController implements Player {
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return isConnected() ? impl.getCurrentCues() : ImmutableList.of();
+    return isConnected() ? impl.getCurrentCues() : CueGroup.EMPTY;
   }
 
   @Override
@@ -1981,7 +2035,7 @@ public class MediaController implements Player {
 
     void clearVideoTextureView(@Nullable TextureView textureView);
 
-    List<Cue> getCurrentCues();
+    CueGroup getCurrentCues();
 
     float getVolume();
 

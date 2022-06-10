@@ -102,6 +102,27 @@ import com.google.common.collect.ImmutableMap;
   private static final int DEFAULT_VP8_HEIGHT = 240;
 
   /**
+   * Default width for VP9.
+   *
+   * <p>VP9 RFC (<a href=https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9>this draft
+   * RFC</a>) never uses codec specific data (like width and height) in the fmtp attribute. These
+   * values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/vpx/C2SoftVpxDec.cpp;drc=749a74cc3e081c16ea0e8c530953d0a247177867;l=70>Android's
+   * software VP9 decoder</a>.
+   */
+  private static final int DEFAULT_VP9_WIDTH = 320;
+  /**
+   * Default height for VP9.
+   *
+   * <p>VP9 RFC (<a href=https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9>this draft
+   * RFC</a>) never uses codec specific data (like width and height) in the fmtp attribute. These
+   * values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/vpx/C2SoftVpxDec.cpp;drc=749a74cc3e081c16ea0e8c530953d0a247177867;l=70>Android's
+   * software VP9 decoder</a>.
+   */
+  private static final int DEFAULT_VP9_HEIGHT = 240;
+
+  /**
    * Default height for H263.
    *
    * <p>RFC4629 does not mandate codec specific data (like width and height) in the fmtp attribute.
@@ -119,6 +140,9 @@ import com.google.common.collect.ImmutableMap;
    * >Android's software H263 decoder</a>.
    */
   private static final int DEFAULT_H263_HEIGHT = 288;
+
+  /** RFC7587 Section 6.1 Sampling rate for OPUS is fixed at 48KHz. */
+  private static final int OPUS_CLOCK_RATE = 48_000;
 
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
@@ -199,6 +223,12 @@ import com.google.common.collect.ImmutableMap;
             !fmtpParameters.containsKey(PARAMETER_AMR_INTERLEAVING),
             "Interleaving mode is not currently supported.");
         break;
+      case MimeTypes.AUDIO_OPUS:
+        checkArgument(channelCount != C.INDEX_UNSET);
+        // RFC7587 Section 6.1: the RTP timestamp is incremented with a 48000 Hz clock rate
+        // for all modes of Opus and all sampling rates.
+        checkArgument(clockRate == OPUS_CLOCK_RATE, "Invalid OPUS clock rate.");
+        break;
       case MimeTypes.VIDEO_MP4V:
         checkArgument(!fmtpParameters.isEmpty());
         processMPEG4FmtpAttribute(formatBuilder, fmtpParameters);
@@ -220,6 +250,10 @@ import com.google.common.collect.ImmutableMap;
         // VP8 never uses fmtp width and height attributes (RFC7741 Section 6.2), setting default
         // width and height.
         formatBuilder.setWidth(DEFAULT_VP8_WIDTH).setHeight(DEFAULT_VP8_HEIGHT);
+        break;
+      case MimeTypes.VIDEO_VP9:
+        // VP9 never uses fmtp width and height attributes, setting default width and height.
+        formatBuilder.setWidth(DEFAULT_VP9_WIDTH).setHeight(DEFAULT_VP9_HEIGHT);
         break;
       case MimeTypes.AUDIO_RAW:
         formatBuilder.setPcmEncoding(RtpPayloadFormat.getRawPcmEncodingType(mediaEncoding));

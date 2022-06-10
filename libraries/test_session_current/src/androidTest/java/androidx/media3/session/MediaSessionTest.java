@@ -35,7 +35,6 @@ import androidx.media.MediaSessionManager;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaSession.SessionCallback;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestHandler;
@@ -85,14 +84,14 @@ public class MediaSessionTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId(TAG)
-                .setSessionCallback(
-                    new SessionCallback() {
+                .setCallback(
+                    new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
                           MediaSession session, MediaSession.ControllerInfo controller) {
                         if (TextUtils.equals(
                             context.getPackageName(), controller.getPackageName())) {
-                          return SessionCallback.super.onConnect(session, controller);
+                          return MediaSession.Callback.super.onConnect(session, controller);
                         }
                         return MediaSession.ConnectionResult.reject();
                       }
@@ -322,8 +321,8 @@ public class MediaSessionTest {
   public void sendCustomCommand_onConnect() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     SessionCommand testCommand = new SessionCommand("test", /* extras= */ Bundle.EMPTY);
-    SessionCallback testSessionCallback =
-        new SessionCallback() {
+    MediaSession.Callback testSessionCallback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, MediaSession.ControllerInfo controller) {
@@ -336,7 +335,7 @@ public class MediaSessionTest {
             } catch (ExecutionException | InterruptedException | TimeoutException e) {
               assertWithMessage("Fail to get result of the returned future.").fail();
             }
-            return SessionCallback.super.onConnect(session, controller);
+            return MediaSession.Callback.super.onConnect(session, controller);
           }
 
           @Override
@@ -355,9 +354,7 @@ public class MediaSessionTest {
         };
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(
-            new MediaSession.Builder(context, player)
-                .setSessionCallback(testSessionCallback)
-                .build());
+            new MediaSession.Builder(context, player).setCallback(testSessionCallback).build());
     controllerTestRule.createRemoteController(session.getToken());
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
@@ -373,14 +370,14 @@ public class MediaSessionTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId("getSessionCompatToken_returnsCompatibleWithMediaControllerCompat")
-                .setSessionCallback(
-                    new SessionCallback() {
+                .setCallback(
+                    new MediaSession.Callback() {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
                           MediaSession session, MediaSession.ControllerInfo controller) {
                         if (TextUtils.equals(
                             expectedControllerCompatPackageName, controller.getPackageName())) {
-                          return SessionCallback.super.onConnect(session, controller);
+                          return MediaSession.Callback.super.onConnect(session, controller);
                         }
                         return MediaSession.ConnectionResult.reject();
                       }
@@ -412,14 +409,14 @@ public class MediaSessionTest {
   public void getControllerVersion() throws Exception {
     CountDownLatch connectedLatch = new CountDownLatch(1);
     AtomicInteger controllerVersionRef = new AtomicInteger();
-    SessionCallback sessionCallback =
-        new SessionCallback() {
+    MediaSession.Callback sessionCallback =
+        new MediaSession.Callback() {
           @Override
           public MediaSession.ConnectionResult onConnect(
               MediaSession session, MediaSession.ControllerInfo controller) {
             controllerVersionRef.set(controller.getControllerVersion());
             connectedLatch.countDown();
-            return SessionCallback.super.onConnect(session, controller);
+            return MediaSession.Callback.super.onConnect(session, controller);
           }
         };
 
@@ -427,7 +424,7 @@ public class MediaSessionTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player)
                 .setId("getControllerVersion")
-                .setSessionCallback(sessionCallback)
+                .setCallback(sessionCallback)
                 .build());
     controllerTestRule.createRemoteController(session.getToken());
 

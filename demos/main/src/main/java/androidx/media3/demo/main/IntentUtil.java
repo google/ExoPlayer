@@ -177,7 +177,7 @@ public class IntentUtil {
         headers.put(keyRequestPropertiesArray[i], keyRequestPropertiesArray[i + 1]);
       }
     }
-    @Nullable UUID drmUuid = Util.getDrmUuid(Util.castNonNull(drmSchemeExtra));
+    @Nullable UUID drmUuid = Util.getDrmUuid(drmSchemeExtra);
     if (drmUuid != null) {
       builder.setDrmConfiguration(
           new MediaItem.DrmConfiguration.Builder(drmUuid)
@@ -188,7 +188,7 @@ public class IntentUtil {
                   intent.getBooleanExtra(
                       DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
               .setLicenseRequestHeaders(headers)
-              .forceSessionsForAudioAndVideoTracks(
+              .setForceSessionsForAudioAndVideoTracks(
                   intent.getBooleanExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, false))
               .build());
     }

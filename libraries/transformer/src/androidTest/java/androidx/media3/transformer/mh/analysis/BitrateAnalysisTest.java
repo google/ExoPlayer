@@ -19,6 +19,8 @@ import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR;
 import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -99,23 +101,36 @@ public class BitrateAnalysisTest {
     }
 
     Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
+        /* encodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri)
+            .buildUpon()
+            .setAverageBitrate(bitrate)
+            .build())) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder()
-                        .setBitrate(bitrate)
-                        .setBitrateMode(bitrateMode)
-                        .build(),
-                    /* enableFallback= */ false))
+                new AndroidTestUtil.ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        context,
+                        EncoderSelector.DEFAULT,
+                        new VideoEncoderSettings.Builder()
+                            .setBitrate(bitrate)
+                            .setBitrateMode(bitrateMode)
+                            .build(),
+                        /* enableFallback= */ false)))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
-        .setCalculateSsim(true)
+        .setMaybeCalculateSsim(true)
         .build()
-        .run(testId, fileUri);
+        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
   }
 }

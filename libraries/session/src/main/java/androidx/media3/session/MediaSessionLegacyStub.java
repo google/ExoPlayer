@@ -24,6 +24,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
@@ -34,6 +35,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
+import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
@@ -81,6 +83,9 @@ import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.SessionCommand.CommandCode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
@@ -190,6 +195,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   @Override
+  public void onCustomAction(String action, @Nullable Bundle args) {
+    SessionCommand command = new SessionCommand(action, /* extras= */ Bundle.EMPTY);
+    dispatchSessionTaskWithSessionCommand(
+        command,
+        controller ->
+            ignoreFuture(
+                sessionImpl.onCustomCommandOnHandler(
+                    controller, command, args != null ? args : Bundle.EMPTY)));
+  }
+
+  @Override
   public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
     @Nullable KeyEvent keyEvent = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
     if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
@@ -258,39 +274,25 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Override
   public void onPrepareFromMediaId(String mediaId, @Nullable Bundle extras) {
-    Uri mediaUri =
-        new Uri.Builder()
-            .scheme(MediaConstants.MEDIA_URI_SCHEME)
-            .authority(MediaConstants.MEDIA_URI_AUTHORITY)
-            .path(MediaConstants.MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID)
-            .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_ID, mediaId)
-            .build();
-    onPrepareFromUri(mediaUri, extras);
+    handleMediaRequest(
+        createMediaItemForMediaRequest(
+            mediaId, /* mediaUri= */ null, /* searchQuery= */ null, extras),
+        /* play= */ false);
   }
 
   @Override
   public void onPrepareFromSearch(String query, @Nullable Bundle extras) {
-    Uri mediaUri =
-        new Uri.Builder()
-            .scheme(MediaConstants.MEDIA_URI_SCHEME)
-            .authority(MediaConstants.MEDIA_URI_AUTHORITY)
-            .path(MediaConstants.MEDIA_URI_PATH_PREPARE_FROM_SEARCH)
-            .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_QUERY, query)
-            .build();
-    onPrepareFromUri(mediaUri, extras);
+    handleMediaRequest(
+        createMediaItemForMediaRequest(/* mediaId= */ null, /* mediaUri= */ null, query, extras),
+        /* play= */ false);
   }
 
   @Override
   public void onPrepareFromUri(Uri mediaUri, @Nullable Bundle extras) {
-    dispatchSessionTaskWithSessionCommand(
-        SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI,
-        controller -> {
-          if (sessionImpl.onSetMediaUriOnHandler(
-                  controller, mediaUri, extras == null ? Bundle.EMPTY : extras)
-              == RESULT_SUCCESS) {
-            sessionImpl.getPlayerWrapper().prepare();
-          }
-        });
+    handleMediaRequest(
+        createMediaItemForMediaRequest(
+            /* mediaId= */ null, mediaUri, /* searchQuery= */ null, extras),
+        /* play= */ false);
   }
 
   @Override
@@ -313,47 +315,25 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Override
   public void onPlayFromMediaId(String mediaId, @Nullable Bundle extras) {
-    Uri mediaUri =
-        new Uri.Builder()
-            .scheme(MediaConstants.MEDIA_URI_SCHEME)
-            .authority(MediaConstants.MEDIA_URI_AUTHORITY)
-            .path(MediaConstants.MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID)
-            .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_ID, mediaId)
-            .build();
-    onPlayFromUri(mediaUri, extras);
+    handleMediaRequest(
+        createMediaItemForMediaRequest(
+            mediaId, /* mediaUri= */ null, /* searchQuery= */ null, extras),
+        /* play= */ true);
   }
 
   @Override
   public void onPlayFromSearch(String query, @Nullable Bundle extras) {
-    Uri mediaUri =
-        new Uri.Builder()
-            .scheme(MediaConstants.MEDIA_URI_SCHEME)
-            .authority(MediaConstants.MEDIA_URI_AUTHORITY)
-            .path(MediaConstants.MEDIA_URI_PATH_PLAY_FROM_SEARCH)
-            .appendQueryParameter(MediaConstants.MEDIA_URI_QUERY_QUERY, query)
-            .build();
-    onPlayFromUri(mediaUri, extras);
+    handleMediaRequest(
+        createMediaItemForMediaRequest(/* mediaId= */ null, /* mediaUri= */ null, query, extras),
+        /* play= */ true);
   }
 
   @Override
   public void onPlayFromUri(Uri mediaUri, @Nullable Bundle extras) {
-    dispatchSessionTaskWithSessionCommand(
-        SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI,
-        controller -> {
-          if (sessionImpl.onSetMediaUriOnHandler(
-                  controller, mediaUri, extras == null ? Bundle.EMPTY : extras)
-              == RESULT_SUCCESS) {
-            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
-            @Player.State int playbackState = playerWrapper.getPlaybackState();
-            if (playbackState == Player.STATE_IDLE) {
-              playerWrapper.prepare();
-            } else if (playbackState == STATE_ENDED) {
-              playerWrapper.seekTo(
-                  playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
-            }
-            playerWrapper.play();
-          }
-        });
+    handleMediaRequest(
+        createMediaItemForMediaRequest(
+            /* mediaId= */ null, mediaUri, /* searchQuery= */ null, extras),
+        /* play= */ true);
   }
 
   @Override
@@ -458,11 +438,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   @Override
-  public void onCustomAction(String action, @Nullable Bundle extras) {
-    // no-op
-  }
-
-  @Override
   public void onSetCaptioningEnabled(boolean enabled) {
     // no-op
   }
@@ -491,40 +466,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Override
   public void onAddQueueItem(@Nullable MediaDescriptionCompat description) {
-    if (description == null) {
-      return;
-    }
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        controller -> {
-          @Nullable String mediaId = description.getMediaId();
-          if (TextUtils.isEmpty(mediaId)) {
-            Log.w(TAG, "onAddQueueItem(): Media ID shouldn't be empty");
-            return;
-          }
-          MediaItem mediaItem = MediaUtils.convertToMediaItem(description);
-          sessionImpl.getPlayerWrapper().addMediaItem(mediaItem);
-        },
-        sessionCompat.getCurrentControllerInfo());
+    handleOnAddQueueItem(description, /* index= */ C.INDEX_UNSET);
   }
 
   @Override
   public void onAddQueueItem(@Nullable MediaDescriptionCompat description, int index) {
-    if (description == null) {
-      return;
-    }
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        controller -> {
-          @Nullable String mediaId = description.getMediaId();
-          if (TextUtils.isEmpty(mediaId)) {
-            Log.w(TAG, "onAddQueueItem(): Media ID shouldn't be empty");
-            return;
-          }
-          MediaItem mediaItem = MediaUtils.convertToMediaItem(description);
-          sessionImpl.getPlayerWrapper().addMediaItem(index, mediaItem);
-        },
-        sessionCompat.getCurrentControllerInfo());
+    handleOnAddQueueItem(description, index);
   }
 
   @Override
@@ -635,10 +582,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private void dispatchSessionTaskWithSessionCommand(
       SessionCommand sessionCommand, SessionTask task) {
     dispatchSessionTaskWithSessionCommandInternal(
-        sessionCommand,
-        SessionCommand.COMMAND_CODE_CUSTOM,
-        task,
-        sessionCompat.getCurrentControllerInfo());
+        sessionCommand, COMMAND_CODE_CUSTOM, task, sessionCompat.getCurrentControllerInfo());
   }
 
   private void dispatchSessionTaskWithSessionCommandInternal(
@@ -705,7 +649,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       controller =
           new ControllerInfo(
               remoteUserInfo,
-              /* controllerVersion= */ 0,
+              ControllerInfo.LEGACY_CONTROLLER_VERSION,
               sessionManager.isTrustedForMediaControl(remoteUserInfo),
               controllerCb,
               /* connectionHints= */ Bundle.EMPTY);
@@ -732,6 +676,85 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   public void setLegacyControllerDisconnectTimeoutMs(long timeoutMs) {
     connectionTimeoutMs = timeoutMs;
+  }
+
+  private void handleMediaRequest(MediaItem mediaItem, boolean play) {
+    dispatchSessionTaskWithPlayerCommand(
+        COMMAND_SET_MEDIA_ITEM,
+        controller -> {
+          ListenableFuture<List<MediaItem>> mediaItemsFuture =
+              sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem));
+          Futures.addCallback(
+              mediaItemsFuture,
+              new FutureCallback<List<MediaItem>>() {
+                @Override
+                public void onSuccess(List<MediaItem> mediaItems) {
+                  postOrRun(
+                      sessionImpl.getApplicationHandler(),
+                      () -> {
+                        Player player = sessionImpl.getPlayerWrapper();
+                        player.setMediaItems(mediaItems);
+                        @Player.State int playbackState = player.getPlaybackState();
+                        if (playbackState == Player.STATE_IDLE) {
+                          player.prepare();
+                        } else if (playbackState == Player.STATE_ENDED) {
+                          player.seekTo(/* positionMs= */ C.TIME_UNSET);
+                        }
+                        if (play) {
+                          player.play();
+                        }
+                      });
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                  // Do nothing, the session is free to ignore these requests.
+                }
+              },
+              MoreExecutors.directExecutor());
+        },
+        sessionCompat.getCurrentControllerInfo());
+  }
+
+  private void handleOnAddQueueItem(@Nullable MediaDescriptionCompat description, int index) {
+    if (description == null) {
+      return;
+    }
+    dispatchSessionTaskWithPlayerCommand(
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        controller -> {
+          @Nullable String mediaId = description.getMediaId();
+          if (TextUtils.isEmpty(mediaId)) {
+            Log.w(TAG, "onAddQueueItem(): Media ID shouldn't be empty");
+            return;
+          }
+          MediaItem mediaItem = MediaUtils.convertToMediaItem(description);
+          ListenableFuture<List<MediaItem>> mediaItemsFuture =
+              sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem));
+          Futures.addCallback(
+              mediaItemsFuture,
+              new FutureCallback<List<MediaItem>>() {
+                @Override
+                public void onSuccess(List<MediaItem> mediaItems) {
+                  postOrRun(
+                      sessionImpl.getApplicationHandler(),
+                      () -> {
+                        if (index == C.INDEX_UNSET) {
+                          sessionImpl.getPlayerWrapper().addMediaItems(mediaItems);
+                        } else {
+                          sessionImpl.getPlayerWrapper().addMediaItems(index, mediaItems);
+                        }
+                      });
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                  // Do nothing, the session is free to ignore these requests.
+                }
+              },
+              MoreExecutors.directExecutor());
+        },
+        sessionCompat.getCurrentControllerInfo());
   }
 
   private static void sendCustomCommandResultWhenReady(
@@ -770,6 +793,22 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private static void setQueueTitle(
       MediaSessionCompat sessionCompat, @Nullable CharSequence title) {
     sessionCompat.setQueueTitle(title);
+  }
+
+  private static MediaItem createMediaItemForMediaRequest(
+      @Nullable String mediaId,
+      @Nullable Uri mediaUri,
+      @Nullable String searchQuery,
+      @Nullable Bundle extras) {
+    return new MediaItem.Builder()
+        .setMediaId(mediaId == null ? MediaItem.DEFAULT_MEDIA_ID : mediaId)
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder()
+                .setMediaUri(mediaUri)
+                .setSearchQuery(searchQuery)
+                .setExtras(extras)
+                .build())
+        .build();
   }
 
   /* @FunctionalInterface */
@@ -873,6 +912,18 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       sessionImpl
           .getSessionCompat()
           .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
+    }
+
+    @Override
+    public void setCustomLayout(int seq, List<CommandButton> layout) {
+      sessionImpl
+          .getSessionCompat()
+          .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
+    }
+
+    @Override
+    public void onSessionExtrasChanged(int seq, Bundle sessionExtras) {
+      sessionImpl.getSessionCompat().setExtras(sessionExtras);
     }
 
     @Override

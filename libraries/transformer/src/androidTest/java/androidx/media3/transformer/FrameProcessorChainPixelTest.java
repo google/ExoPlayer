@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.transformer.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -35,7 +36,10 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
@@ -53,6 +57,8 @@ import org.junit.runner.RunWith;
 public final class FrameProcessorChainPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String SCALE_WIDE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/scale_wide.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/translate_right.png";
   public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
@@ -61,6 +67,8 @@ public final class FrameProcessorChainPixelTest {
       "media/bitmap/sample_mp4_first_frame/translate_then_rotate.png";
   public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/request_output_height.png";
+  public static final String CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/crop_then_aspect_ratio.png";
   public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/rotate_45_scale_to_fit.png";
 
@@ -74,7 +82,10 @@ public final class FrameProcessorChainPixelTest {
    */
   private static final int FRAME_PROCESSING_WAIT_MS = 5000;
   /** The ratio of width over height, for each pixel in a frame. */
-  private static final float PIXEL_WIDTH_HEIGHT_RATIO = 1;
+  private static final float DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO = 1;
+
+  private final AtomicReference<FrameProcessingException> frameProcessingException =
+      new AtomicReference<>();
 
   private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
   private @MonotonicNonNull ImageReader outputImageReader;
@@ -90,7 +101,7 @@ public final class FrameProcessorChainPixelTest {
   @Test
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     String testId = "processData_noEdits";
-    setUpAndPrepareFirstFrame();
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -105,13 +116,31 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withAdvancedFrameProcessor_translateRight_producesExpectedOutput()
+  public void processData_withPixelWidthHeightRatio_producesExpectedOutput() throws Exception {
+    String testId = "processData_withPixelWidthHeightRatio";
+    setUpAndPrepareFirstFrame(/* pixelWidthHeightRatio= */ 2f);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_WIDE_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_withMatrixTransformation_translateRight_producesExpectedOutput()
       throws Exception {
-    String testId = "processData_withAdvancedFrameProcessor_translateRight";
+    String testId = "processData_withMatrixTransformation_translateRight";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    GlFrameProcessor glFrameProcessor = new AdvancedFrameProcessor(translateRightMatrix);
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        (MatrixTransformation) (long presentationTimeNs) -> translateRightMatrix);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -126,16 +155,15 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withAdvancedAndScaleToFitFrameProcessors_producesExpectedOutput()
+  public void processData_withMatrixAndScaleToFitTransformation_producesExpectedOutput()
       throws Exception {
-    String testId = "processData_withAdvancedAndScaleToFitFrameProcessors";
+    String testId = "processData_withMatrixAndScaleToFitTransformation";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    GlFrameProcessor translateRightFrameProcessor =
-        new AdvancedFrameProcessor(translateRightMatrix);
-    GlFrameProcessor rotate45FrameProcessor =
-        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
-    setUpAndPrepareFirstFrame(translateRightFrameProcessor, rotate45FrameProcessor);
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix,
+        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -150,16 +178,15 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withScaleToFitAndAdvancedFrameProcessors_producesExpectedOutput()
+  public void processData_withScaleToFitAndMatrixTransformation_producesExpectedOutput()
       throws Exception {
-    String testId = "processData_withScaleToFitAndAdvancedFrameProcessors";
-    GlFrameProcessor rotate45FrameProcessor =
-        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
+    String testId = "processData_withScaleToFitAndMatrixTransformation";
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
-    GlFrameProcessor translateRightFrameProcessor =
-        new AdvancedFrameProcessor(translateRightMatrix);
-    setUpAndPrepareFirstFrame(rotate45FrameProcessor, translateRightFrameProcessor);
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build(),
+        (MatrixTransformation) (long presentationTimeUs) -> translateRightMatrix);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -174,12 +201,10 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withPresentationFrameProcessor_setResolution_producesExpectedOutput()
-      throws Exception {
-    String testId = "processData_withPresentationFrameProcessor_setResolution";
-    GlFrameProcessor glFrameProcessor =
-        new PresentationFrameProcessor.Builder().setResolution(480).build();
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+  public void processData_withPresentation_setResolution_producesExpectedOutput() throws Exception {
+    String testId = "processData_withPresentation_setResolution";
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, new Presentation.Builder().setResolution(480).build());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -194,12 +219,34 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withScaleToFitFrameProcessor_rotate45_producesExpectedOutput()
+  public void processData_withCropAndPresentation_producesExpectedOutput() throws Exception {
+    String testId = "processData_withCropAndPresentation";
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        new Crop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ -.5f, /* top= */ .5f),
+        new Presentation.Builder()
+            .setAspectRatio(/* aspectRatio= */ .5f, Presentation.LAYOUT_SCALE_TO_FIT)
+            .build());
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_withScaleToFitTransformation_rotate45_producesExpectedOutput()
       throws Exception {
-    String testId = "processData_withScaleToFitFrameProcessor_rotate45";
-    GlFrameProcessor glFrameProcessor =
-        new ScaleToFitFrameProcessor.Builder().setRotationDegrees(45).build();
-    setUpAndPrepareFirstFrame(glFrameProcessor);
+    String testId = "processData_withScaleToFitTransformation_rotate45";
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        new ScaleToFitTransformation.Builder().setRotationDegrees(45).build());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -213,15 +260,54 @@ public final class FrameProcessorChainPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
+  @Test
+  public void
+      processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation()
+          throws Exception {
+    String testId =
+        "processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation";
+    Crop centerCrop =
+        new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
+    ImmutableList.Builder<GlEffect> full10StepRotationAndCenterCrop = new ImmutableList.Builder<>();
+    for (int i = 0; i < 10; i++) {
+      full10StepRotationAndCenterCrop.add(new Rotation(/* degrees= */ 36));
+    }
+    full10StepRotationAndCenterCrop.add(centerCrop);
+
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, centerCrop);
+    Bitmap centerCropResultBitmap = processFirstFrameAndEnd();
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, full10StepRotationAndCenterCrop.build());
+    Bitmap fullRotationAndCenterCropResultBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "centerCrop", centerCropResultBitmap);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId,
+        /* bitmapLabel= */ "full10StepRotationAndCenterCrop",
+        fullRotationAndCenterCropResultBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            centerCropResultBitmap, fullRotationAndCenterCropResultBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
   /**
    * Set up and prepare the first frame from an input video, as well as relevant test
    * infrastructure. The frame will be sent towards the {@link FrameProcessorChain}, and may be
    * accessed on the {@link FrameProcessorChain}'s output {@code outputImageReader}.
    *
-   * @param frameProcessors The {@link GlFrameProcessor GlFrameProcessors} that will apply changes
-   *     to the input frame.
+   * @param pixelWidthHeightRatio The ratio of width over height for each pixel.
+   * @param effects The {@link GlEffect GlEffects} to apply to the input frame.
    */
-  private void setUpAndPrepareFirstFrame(GlFrameProcessor... frameProcessors) throws Exception {
+  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, GlEffect... effects)
+      throws Exception {
+    setUpAndPrepareFirstFrame(pixelWidthHeightRatio, asList(effects));
+  }
+
+  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, List<GlEffect> effects)
+      throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
@@ -241,10 +327,12 @@ public final class FrameProcessorChainPixelTest {
       frameProcessorChain =
           FrameProcessorChain.create(
               context,
-              PIXEL_WIDTH_HEIGHT_RATIO,
+              /* listener= */ this.frameProcessingException::set,
+              pixelWidthHeightRatio,
               inputWidth,
               inputHeight,
-              asList(frameProcessors),
+              /* streamOffsetUs= */ 0L,
+              effects,
               /* enableExperimentalHdrEditing= */ false);
       Size outputSize = frameProcessorChain.getOutputSize();
       outputImageReader =
@@ -304,16 +392,49 @@ public final class FrameProcessorChainPixelTest {
     }
   }
 
-  private Bitmap processFirstFrameAndEnd() throws InterruptedException, TransformationException {
+  private Bitmap processFirstFrameAndEnd() throws InterruptedException {
     checkNotNull(frameProcessorChain).signalEndOfInputStream();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
     assertThat(frameProcessorChain.isEnded()).isTrue();
-    frameProcessorChain.getAndRethrowBackgroundExceptions();
+    assertThat(frameProcessingException.get()).isNull();
 
     Image frameProcessorChainOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(frameProcessorChainOutputImage);
     frameProcessorChainOutputImage.close();
     return actualBitmap;
+  }
+
+  /**
+   * Specifies a counter-clockwise rotation while accounting for the aspect ratio difference between
+   * the input frame in pixel coordinates and NDC.
+   *
+   * <p>Unlike {@link ScaleToFitTransformation}, this does not adjust the output size or scale to
+   * preserve input pixels. Pixels rotated out of the frame are clipped.
+   */
+  private static final class Rotation implements MatrixTransformation {
+
+    private final float degrees;
+    private @MonotonicNonNull Matrix adjustedTransformationMatrix;
+
+    public Rotation(float degrees) {
+      this.degrees = degrees;
+    }
+
+    @Override
+    public Size configure(int inputWidth, int inputHeight) {
+      adjustedTransformationMatrix = new Matrix();
+      adjustedTransformationMatrix.postRotate(degrees);
+      float inputAspectRatio = (float) inputWidth / inputHeight;
+      adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
+      adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
+
+      return new Size(inputWidth, inputHeight);
+    }
+
+    @Override
+    public Matrix getMatrix(long presentationTimeUs) {
+      return checkStateNotNull(adjustedTransformationMatrix);
+    }
   }
 }

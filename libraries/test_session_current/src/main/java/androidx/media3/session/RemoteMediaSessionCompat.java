@@ -173,6 +173,10 @@ public class RemoteMediaSessionCompat {
     binder.setCaptioningEnabled(sessionTag, enabled);
   }
 
+  public void setExtras(Bundle extras) throws RemoteException {
+    binder.setSessionExtras(sessionTag, extras);
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // Non-public methods
   ////////////////////////////////////////////////////////////////////////////////

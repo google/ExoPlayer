@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
 import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
@@ -29,7 +28,9 @@ import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_SESSION_SERVICE;
+import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
@@ -63,6 +64,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.session.RemoteMediaSession.RemoteMockPlayer;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -1742,37 +1744,110 @@ public class MediaControllerListenerTest {
   }
 
   @Test
-  public void onCustomLayoutChanged() throws Exception {
+  public void setCustomLayout_onSetCustomLayoutCalled() throws Exception {
     List<CommandButton> buttons = new ArrayList<>();
-
-    CommandButton button =
+    Bundle extras1 = new Bundle();
+    extras1.putString("key", "value-1");
+    CommandButton button1 =
         new CommandButton.Builder()
-            .setPlayerCommand(COMMAND_PLAY_PAUSE)
-            .setDisplayName("button")
+            .setSessionCommand(new SessionCommand("action1", extras1))
+            .setDisplayName("actionName1")
+            .setIconResId(1)
             .build();
-    buttons.add(button);
-
+    Bundle extras2 = new Bundle();
+    extras2.putString("key", "value-2");
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("action2", extras2))
+            .setDisplayName("actionName2")
+            .setIconResId(2)
+            .build();
+    buttons.add(button1);
+    buttons.add(button2);
     CountDownLatch latch = new CountDownLatch(1);
+    List<String> receivedActions = new ArrayList<>();
+    List<String> receivedDisplayNames = new ArrayList<>();
+    List<String> receivedBundleValues = new ArrayList<>();
+    List<Integer> receivedIconResIds = new ArrayList<>();
+    List<Integer> receivedCommandCodes = new ArrayList<>();
     MediaController.Listener listener =
         new MediaController.Listener() {
           @Override
           public ListenableFuture<SessionResult> onSetCustomLayout(
               MediaController controller, List<CommandButton> layout) {
-            assertThat(layout).hasSize(buttons.size());
-            for (int i = 0; i < layout.size(); i++) {
-              assertThat(layout.get(i).playerCommand).isEqualTo(buttons.get(i).playerCommand);
-              assertThat(layout.get(i).displayName.toString())
-                  .isEqualTo(buttons.get(i).displayName.toString());
+            for (CommandButton button : layout) {
+              receivedActions.add(button.sessionCommand.customAction);
+              receivedDisplayNames.add(String.valueOf(button.displayName));
+              receivedBundleValues.add(button.sessionCommand.customExtras.getString("key"));
+              receivedCommandCodes.add(button.sessionCommand.commandCode);
+              receivedIconResIds.add(button.iconResId);
             }
             latch.countDown();
             return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
           }
         };
+    RemoteMediaSession session = createRemoteMediaSession(TEST_WITH_CUSTOM_COMMANDS);
+    controllerTestRule.createController(session.getToken(), /* connectionHints= */ null, listener);
+
+    session.setCustomLayout(buttons);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedActions).containsExactly("action1", "action2").inOrder();
+    assertThat(receivedCommandCodes)
+        .containsExactly(SessionCommand.COMMAND_CODE_CUSTOM, SessionCommand.COMMAND_CODE_CUSTOM)
+        .inOrder();
+    assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
+    assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
+    assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+  }
+
+  @Test
+  public void setSessionExtras_onExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = TestUtils.createTestBundle();
+    sessionExtras.putString("key-0", "value-0");
+    CountDownLatch latch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onExtrasChanged(MediaController controller, Bundle extras) {
+            receivedSessionExtras.add(extras);
+            latch.countDown();
+          }
+        };
     controllerTestRule.createController(
         remoteSession.getToken(), /* connectionHints= */ null, listener);
 
-    remoteSession.setCustomLayout(buttons);
+    remoteSession.setSessionExtras(sessionExtras);
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedSessionExtras).hasSize(1);
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+  }
+
+  @Test
+  public void setSessionExtras_specificMedia3Controller_onExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = TestUtils.createTestBundle();
+    sessionExtras.putString("key-0", "value-0");
+    CountDownLatch latch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onExtrasChanged(MediaController controller, Bundle extras) {
+            receivedSessionExtras.add(extras);
+            latch.countDown();
+          }
+        };
+    Bundle connectionHints = new Bundle();
+    connectionHints.putString(KEY_CONTROLLER, "controller_key_1");
+    controllerTestRule.createController(remoteSession.getToken(), connectionHints, listener);
+
+    remoteSession.setSessionExtras("controller_key_1", sessionExtras);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedSessionExtras).hasSize(1);
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
   }
 
   @Test
@@ -1811,7 +1886,7 @@ public class MediaControllerListenerTest {
     AudioAttributes testAttributes =
         new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_MOVIE)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
             .build();
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
@@ -1842,12 +1917,14 @@ public class MediaControllerListenerTest {
     List<Cue> testCues = ImmutableList.of(testCue1, testCue2);
 
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setCurrentCues(testCues).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentCues(new CueGroup(testCues))
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
 
-    assertThat(threadTestRule.getHandler().postAndSync(controller::getCurrentCues))
+    assertThat(threadTestRule.getHandler().postAndSync(controller::getCurrentCues).cues)
         .isEqualTo(testCues);
   }
 
@@ -1858,7 +1935,9 @@ public class MediaControllerListenerTest {
     List<Cue> testCues = ImmutableList.of(testCue1, testCue2);
 
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setCurrentCues(testCues).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentCues(new CueGroup(testCues))
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
@@ -1869,11 +1948,11 @@ public class MediaControllerListenerTest {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onCues(List<Cue> cues) {
+          public void onCues(CueGroup cueGroup) {
             cuesFromParam.clear();
-            cuesFromParam.addAll(cues);
+            cuesFromParam.addAll(cueGroup.cues);
             cuesFromGetter.clear();
-            cuesFromGetter.addAll(controller.getCurrentCues());
+            cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
         };
@@ -1900,16 +1979,18 @@ public class MediaControllerListenerTest {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onCues(List<Cue> cues) {
-            cuesFromParam.addAll(cues);
-            cuesFromGetter.addAll(controller.getCurrentCues());
+          public void onCues(CueGroup cueGroup) {
+            cuesFromParam.addAll(cueGroup.cues);
+            cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
         };
     controller.addListener(listener);
 
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setCurrentCues(testCues).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentCues(new CueGroup(testCues))
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -1930,15 +2011,15 @@ public class MediaControllerListenerTest {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onCues(List<Cue> cues) {
-            cuesFromParam.addAll(cues);
-            cuesFromGetter.addAll(controller.getCurrentCues());
+          public void onCues(CueGroup cueGroup) {
+            cuesFromParam.addAll(cueGroup.cues);
+            cuesFromGetter.addAll(controller.getCurrentCues().cues);
             latch.countDown();
           }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().notifyCuesChanged(testCues);
+    remoteSession.getMockPlayer().notifyCuesChanged(new CueGroup(testCues));
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(cuesFromParam).isEqualTo(testCues);

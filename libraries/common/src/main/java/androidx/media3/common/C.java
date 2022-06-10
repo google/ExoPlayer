@@ -333,12 +333,16 @@ public final class C {
   @IntDef({SPATIALIZATION_BEHAVIOR_AUTO, SPATIALIZATION_BEHAVIOR_NEVER})
   public @interface SpatializationBehavior {}
 
-  // TODO[b/190759307]: Update constant values and javadoc to use SDK once compile SDK target is set
-  //  to 32.
-  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO */
-  public static final int SPATIALIZATION_BEHAVIOR_AUTO = 0;
-  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER */
-  public static final int SPATIALIZATION_BEHAVIOR_NEVER = 1;
+  /**
+   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO
+   */
+  public static final int SPATIALIZATION_BEHAVIOR_AUTO =
+      AudioAttributes.SPATIALIZATION_BEHAVIOR_AUTO;
+  /**
+   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER
+   */
+  public static final int SPATIALIZATION_BEHAVIOR_NEVER =
+      AudioAttributes.SPATIALIZATION_BEHAVIOR_NEVER;
 
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
@@ -396,9 +400,15 @@ public final class C {
   @UnstableApi public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
   /**
-   * Content types for audio attributes. One of {@link #CONTENT_TYPE_MOVIE}, {@link
-   * #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link #CONTENT_TYPE_SPEECH} or
-   * {@link #CONTENT_TYPE_UNKNOWN}.
+   * Content types for audio attributes. One of:
+   *
+   * <ul>
+   *   <li>{@link #AUDIO_CONTENT_TYPE_MOVIE}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_MUSIC}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_SONIFICATION}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_SPEECH}
+   *   <li>{@link #AUDIO_CONTENT_TYPE_UNKNOWN}
+   * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -406,34 +416,46 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
-    CONTENT_TYPE_MOVIE,
-    CONTENT_TYPE_MUSIC,
-    CONTENT_TYPE_SONIFICATION,
-    CONTENT_TYPE_SPEECH,
-    CONTENT_TYPE_UNKNOWN
+    AUDIO_CONTENT_TYPE_MOVIE,
+    AUDIO_CONTENT_TYPE_MUSIC,
+    AUDIO_CONTENT_TYPE_SONIFICATION,
+    AUDIO_CONTENT_TYPE_SPEECH,
+    AUDIO_CONTENT_TYPE_UNKNOWN
   })
   public @interface AudioContentType {}
+  /** See {@link AudioAttributes#CONTENT_TYPE_MOVIE}. */
+  public static final int AUDIO_CONTENT_TYPE_MOVIE = AudioAttributes.CONTENT_TYPE_MOVIE;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_MOVIE
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_MOVIE} instead.
    */
-  public static final int CONTENT_TYPE_MOVIE = android.media.AudioAttributes.CONTENT_TYPE_MOVIE;
+  @UnstableApi @Deprecated public static final int CONTENT_TYPE_MOVIE = AUDIO_CONTENT_TYPE_MOVIE;
+  /** See {@link AudioAttributes#CONTENT_TYPE_MUSIC}. */
+  public static final int AUDIO_CONTENT_TYPE_MUSIC = AudioAttributes.CONTENT_TYPE_MUSIC;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_MUSIC
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_MUSIC} instead.
    */
-  public static final int CONTENT_TYPE_MUSIC = android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+  @UnstableApi @Deprecated public static final int CONTENT_TYPE_MUSIC = AUDIO_CONTENT_TYPE_MUSIC;
+  /** See {@link AudioAttributes#CONTENT_TYPE_SONIFICATION}. */
+  public static final int AUDIO_CONTENT_TYPE_SONIFICATION =
+      AudioAttributes.CONTENT_TYPE_SONIFICATION;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_SONIFICATION} instead.
    */
-  public static final int CONTENT_TYPE_SONIFICATION =
-      android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION;
+  @UnstableApi @Deprecated
+  public static final int CONTENT_TYPE_SONIFICATION = AUDIO_CONTENT_TYPE_SONIFICATION;
+  /** See {@link AudioAttributes#CONTENT_TYPE_SPEECH}. */
+  public static final int AUDIO_CONTENT_TYPE_SPEECH = AudioAttributes.CONTENT_TYPE_SPEECH;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_SPEECH
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_SPEECH} instead.
    */
-  public static final int CONTENT_TYPE_SPEECH = android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+  @UnstableApi @Deprecated public static final int CONTENT_TYPE_SPEECH = AUDIO_CONTENT_TYPE_SPEECH;
+  /** See {@link AudioAttributes#CONTENT_TYPE_UNKNOWN}. */
+  public static final int AUDIO_CONTENT_TYPE_UNKNOWN = AudioAttributes.CONTENT_TYPE_UNKNOWN;
   /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN
+   * @deprecated Use {@link #AUDIO_CONTENT_TYPE_UNKNOWN} instead.
    */
-  public static final int CONTENT_TYPE_UNKNOWN = android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
+  @UnstableApi @Deprecated
+  public static final int CONTENT_TYPE_UNKNOWN = AUDIO_CONTENT_TYPE_UNKNOWN;
 
   /**
    * Flags for audio attributes. Possible flag value is {@link #FLAG_AUDIBILITY_ENFORCED}.
@@ -725,30 +747,59 @@ public final class C {
   public static final String LANGUAGE_UNDETERMINED = "und";
 
   /**
-   * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
-   * #TYPE_HLS}, {@link #TYPE_RTSP} or {@link #TYPE_OTHER}.
+   * Represents a streaming or other media type. One of:
+   *
+   * <ul>
+   *   <li>{@link #CONTENT_TYPE_DASH}
+   *   <li>{@link #CONTENT_TYPE_SS}
+   *   <li>{@link #CONTENT_TYPE_HLS}
+   *   <li>{@link #CONTENT_TYPE_RTSP}
+   *   <li>{@link #CONTENT_TYPE_OTHER}
+   * </ul>
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
-  @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
-  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
+  @IntDef({
+    CONTENT_TYPE_DASH,
+    CONTENT_TYPE_SS,
+    CONTENT_TYPE_HLS,
+    CONTENT_TYPE_RTSP,
+    CONTENT_TYPE_OTHER
+  })
   public @interface ContentType {}
-  /** Value returned by {@link Util#inferContentType} for DASH manifests. */
-  @UnstableApi public static final int TYPE_DASH = 0;
-  /** Value returned by {@link Util#inferContentType} for Smooth Streaming manifests. */
-  @UnstableApi public static final int TYPE_SS = 1;
-  /** Value returned by {@link Util#inferContentType} for HLS manifests. */
-  @UnstableApi public static final int TYPE_HLS = 2;
-  /** Value returned by {@link Util#inferContentType} for RTSP. */
-  @UnstableApi public static final int TYPE_RTSP = 3;
+  /** Value representing a DASH manifest. */
+  public static final int CONTENT_TYPE_DASH = 0;
   /**
-   * Value returned by {@link Util#inferContentType} for files other than DASH, HLS or Smooth
-   * Streaming manifests, or RTSP URIs.
+   * @deprecated Use {@link #CONTENT_TYPE_DASH} instead.
    */
-  @UnstableApi public static final int TYPE_OTHER = 4;
+  @Deprecated @UnstableApi public static final int TYPE_DASH = CONTENT_TYPE_DASH;
+  /** Value representing a Smooth Streaming manifest. */
+  public static final int CONTENT_TYPE_SS = 1;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_SS} instead.
+   */
+  @Deprecated @UnstableApi public static final int TYPE_SS = CONTENT_TYPE_SS;
+  /** Value representing an HLS manifest. */
+  public static final int CONTENT_TYPE_HLS = 2;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_HLS} instead.
+   */
+  @Deprecated @UnstableApi public static final int TYPE_HLS = CONTENT_TYPE_HLS;
+  /** Value representing an RTSP stream. */
+  public static final int CONTENT_TYPE_RTSP = 3;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_RTSP} instead.
+   */
+  @Deprecated @UnstableApi public static final int TYPE_RTSP = CONTENT_TYPE_RTSP;
+  /** Value representing files other than DASH, HLS or Smooth Streaming manifests, or RTSP URIs. */
+  public static final int CONTENT_TYPE_OTHER = 4;
+  /**
+   * @deprecated Use {@link #CONTENT_TYPE_OTHER} instead.
+   */
+  @Deprecated @UnstableApi public static final int TYPE_OTHER = CONTENT_TYPE_OTHER;
 
   /** A return value for methods where the end of an input was encountered. */
   @UnstableApi public static final int RESULT_END_OF_INPUT = -1;

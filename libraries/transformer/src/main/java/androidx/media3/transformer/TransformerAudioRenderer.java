@@ -42,8 +42,15 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
       TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener) {
-    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
+    super(
+        C.TRACK_TYPE_AUDIO,
+        muxerWrapper,
+        mediaClock,
+        transformationRequest,
+        asyncErrorListener,
+        fallbackListener);
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     decoderInputBuffer =
@@ -75,6 +82,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
       samplePipeline =
           new AudioTranscodingSamplePipeline(
               inputFormat,
+              streamOffsetUs,
               transformationRequest,
               decoderFactory,
               encoderFactory,

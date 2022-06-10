@@ -57,6 +57,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -768,6 +769,81 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   }
 
   @Test
+  public void setCustomLayout_onPlaybackStateCompatChangedCalled() throws Exception {
+    List<CommandButton> buttons = new ArrayList<>();
+    Bundle extras1 = new Bundle();
+    extras1.putString("key", "value-1");
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("action1", extras1))
+            .setDisplayName("actionName1")
+            .setIconResId(1)
+            .build();
+    Bundle extras2 = new Bundle();
+    extras2.putString("key", "value-2");
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setSessionCommand(new SessionCommand("action2", extras2))
+            .setDisplayName("actionName2")
+            .setIconResId(2)
+            .build();
+    buttons.add(button1);
+    buttons.add(button2);
+    List<String> receivedActions = new ArrayList<>();
+    List<String> receivedDisplayNames = new ArrayList<>();
+    List<String> receivedBundleValues = new ArrayList<>();
+    List<Integer> receivedIconResIds = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            List<PlaybackStateCompat.CustomAction> layout = state.getCustomActions();
+            for (PlaybackStateCompat.CustomAction action : layout) {
+              receivedActions.add(action.getAction());
+              receivedDisplayNames.add(String.valueOf(action.getName()));
+              receivedBundleValues.add(action.getExtras().getString("key"));
+              receivedIconResIds.add(action.getIcon());
+            }
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    session.setCustomLayout(buttons);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedActions).containsExactly("action1", "action2").inOrder();
+    assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
+    assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
+    assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+  }
+
+  @Test
+  public void setSessionExtras_cnExtrasChangedCalled() throws Exception {
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("key-0", "value-0");
+    CountDownLatch latch = new CountDownLatch(1);
+    List<Bundle> receivedSessionExtras = new ArrayList<>();
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onExtrasChanged(Bundle extras) {
+            receivedSessionExtras.add(extras);
+            receivedSessionExtras.add(controllerCompat.getExtras());
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    session.setSessionExtras(sessionExtras);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+    assertThat(TestUtils.equals(receivedSessionExtras.get(1), sessionExtras)).isTrue();
+  }
+
+  @Test
   public void currentMediaItemChange() throws Exception {
     int testItemIndex = 3;
     long testPosition = 1234;
@@ -929,7 +1005,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(TextUtils.equals(description.getDescription(), mediaItem.mediaMetadata.description))
         .isTrue();
     assertThat(description.getIconUri()).isEqualTo(mediaItem.mediaMetadata.artworkUri);
-    assertThat(description.getMediaUri()).isEqualTo(mediaItem.mediaMetadata.mediaUri);
+    assertThat(description.getMediaUri()).isEqualTo(mediaItem.requestMetadata.mediaUri);
     assertThat(TestUtils.equals(description.getExtras(), mediaItem.mediaMetadata.extras)).isTrue();
   }
 

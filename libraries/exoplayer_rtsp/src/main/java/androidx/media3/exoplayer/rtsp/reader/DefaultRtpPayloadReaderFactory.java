@@ -39,6 +39,8 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
       case MimeTypes.AUDIO_AMR_NB:
       case MimeTypes.AUDIO_AMR_WB:
         return new RtpAmrReader(payloadFormat);
+      case MimeTypes.AUDIO_OPUS:
+        return new RtpOpusReader(payloadFormat);
       case MimeTypes.AUDIO_RAW:
       case MimeTypes.AUDIO_ALAW:
       case MimeTypes.AUDIO_MLAW:
@@ -53,6 +55,8 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
         return new RtpMpeg4Reader(payloadFormat);
       case MimeTypes.VIDEO_VP8:
         return new RtpVp8Reader(payloadFormat);
+      case MimeTypes.VIDEO_VP9:
+        return new RtpVp9Reader(payloadFormat);
       default:
         // No supported reader, returning null.
     }

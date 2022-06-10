@@ -27,6 +27,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -443,7 +444,10 @@ public class SampleChooserActivity extends AppCompatActivity
       } else {
         @Nullable
         String adaptiveMimeType =
-            Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(uri, extension));
+            Util.getAdaptiveMimeTypeForContentType(
+                TextUtils.isEmpty(extension)
+                    ? Util.inferContentType(uri)
+                    : Util.inferContentTypeForExtension(extension));
         mediaItem
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
@@ -454,7 +458,7 @@ public class SampleChooserActivity extends AppCompatActivity
               new MediaItem.DrmConfiguration.Builder(drmUuid)
                   .setLicenseUri(drmLicenseUri)
                   .setLicenseRequestHeaders(drmLicenseRequestHeaders)
-                  .forceSessionsForAudioAndVideoTracks(drmSessionForClearContent)
+                  .setForceSessionsForAudioAndVideoTracks(drmSessionForClearContent)
                   .setMultiSession(drmMultiSession)
                   .setForceDefaultLicenseUri(drmForceDefaultLicenseUri)
                   .build());

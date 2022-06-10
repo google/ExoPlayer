@@ -27,10 +27,12 @@
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
+  <string name="trim" translatable="false">Trim</string>
   <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
-  <string name="select_demo_frameprocessors" translatable="false">Add demo effects</string>
+  <string name="select_demo_effects" translatable="false">Add demo effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
+  <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
   <string name="transform" translatable="false">Transform</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
@@ -41,4 +43,5 @@
   <string name="center_x">Center X</string>
   <string name="center_y">Center Y</string>
   <string name="radius_range">Radius range</string>
+  <string name="trim_range">Bounds in seconds</string>
 </resources>

@@ -56,6 +56,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   public AudioTranscodingSamplePipeline(
       Format inputFormat,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -108,6 +109,9 @@ import org.checkerframework.dataflow.qual.Pure;
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
             transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));
+
+    // Use the same stream offset as the input stream for encoder input buffers.
+    nextEncoderInputBufferTimeUs = streamOffsetUs;
   }
 
   @Override

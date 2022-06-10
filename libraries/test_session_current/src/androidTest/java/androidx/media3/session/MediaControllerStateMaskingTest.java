@@ -2315,8 +2315,9 @@ public class MediaControllerStateMaskingTest {
   }
 
   @Test
-  public void removeMediaItems_removeCurrentItemWhenShuffledModeDisabled_masksIndices()
-      throws Exception {
+  public void
+      removeMediaItems_removeCurrentItemWhenShuffledModeDisabledFromMiddleToEnd_masksIndices()
+          throws Exception {
     String firstMediaId = "firstMediaId";
     String secondMediaId = "secondMediaId";
     String thirdMediaId = "thirdMediaId";
@@ -2334,6 +2335,17 @@ public class MediaControllerStateMaskingTest {
         /* testCurrentPeriodIndex= */ 0,
         /* testTimeline= */ testTimeline,
         /* testMediaId= */ firstMediaId);
+  }
+
+  @Test
+  public void removeMediaItems_removeCurrentItemWhenShuffledModeDisabledFromTheMiddle_masksIndices()
+      throws Exception {
+    String firstMediaId = "firstMediaId";
+    String secondMediaId = "secondMediaId";
+    String thirdMediaId = "thirdMediaId";
+    String fourthMediaId = "fourthMediaId";
+    Timeline testTimeline =
+        createTimeline(createMediaItems(firstMediaId, secondMediaId, thirdMediaId, fourthMediaId));
 
     // Remove middle of the timeline.
     assertRemoveMediaItems(
@@ -2348,7 +2360,7 @@ public class MediaControllerStateMaskingTest {
   }
 
   @Test
-  public void removeMediaItems_removeCurrentItemWhenShuffledModeEnabled_masksIndices()
+  public void removeMediaItems_removeCurrentItemWhenShuffledModeEnabledWithNoNextItem_masksIndices()
       throws Exception {
     String firstMediaId = "firstMediaId";
     String secondMediaId = "secondMediaId";
@@ -2368,6 +2380,16 @@ public class MediaControllerStateMaskingTest {
             createMediaItems(firstMediaId, secondMediaId, thirdMediaId, fourthMediaId),
             /* shuffledIndices= */ new int[] {1, 2, 3, 0}),
         /* testMediaId= */ secondMediaId);
+  }
+
+  @Test
+  public void
+      removeMediaItems_removeCurrentItemWhenShuffledModeEnabledWithNextItemAndChangedIndex_masksIndices()
+          throws Exception {
+    String firstMediaId = "firstMediaId";
+    String secondMediaId = "secondMediaId";
+    String thirdMediaId = "thirdMediaId";
+    String fourthMediaId = "fourthMediaId";
 
     // Subsequent window index exists in the shuffled list after the fromIndex--current window index
     // should subtract size of removed items.
@@ -2382,6 +2404,16 @@ public class MediaControllerStateMaskingTest {
             createMediaItems(firstMediaId, secondMediaId, thirdMediaId, fourthMediaId),
             /* shuffledIndices= */ new int[] {0, 3, 1, 2}),
         /* testMediaId= */ fourthMediaId);
+  }
+
+  @Test
+  public void
+      removeMediaItems_removeCurrentItemWhenShuffledModeEnabledWithNextItemAndSameIndex_masksIndices()
+          throws Exception {
+    String firstMediaId = "firstMediaId";
+    String secondMediaId = "secondMediaId";
+    String thirdMediaId = "thirdMediaId";
+    String fourthMediaId = "fourthMediaId";
 
     // Subsequent window index exists in the shuffled list before the fromIndex--current window
     // index should not subtract size of removed items.

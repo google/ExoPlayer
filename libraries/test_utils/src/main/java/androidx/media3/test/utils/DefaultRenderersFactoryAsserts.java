@@ -24,14 +24,13 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.Metadata;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.video.VideoRendererEventListener;
 import androidx.test.core.app.ApplicationProvider;
-import java.util.List;
 
 /** Assertions for {@link DefaultRenderersFactory}. */
 @UnstableApi
@@ -96,7 +95,7 @@ public final class DefaultRenderersFactoryAsserts {
         new Handler(Looper.getMainLooper()),
         new VideoRendererEventListener() {},
         new AudioRendererEventListener() {},
-        (List<Cue> cues) -> {},
+        (CueGroup cueGroup) -> {},
         (Metadata metadata) -> {});
   }
 }

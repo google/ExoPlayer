@@ -61,12 +61,12 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import com.google.common.collect.ImmutableList;
@@ -102,6 +102,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
   private static boolean assertLibraryParams;
 
   @GuardedBy("MockMediaLibraryService.class")
+  @Nullable
   private static LibraryParams expectedParams;
 
   MediaLibrarySession session;
@@ -142,7 +143,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
     MockPlayer player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
-    MediaLibrarySessionCallback callback = registry.getSessionCallback();
+    MediaLibrarySession.Callback callback = registry.getSessionCallback();
     session =
         new MediaLibrarySession.Builder(
                 MockMediaLibraryService.this,
@@ -162,14 +163,14 @@ public class MockMediaLibraryService extends MediaLibraryService {
     super.attachBaseContext(base);
   }
 
-  public static void setAssertLibraryParams(LibraryParams expectedParams) {
+  public static void setAssertLibraryParams(@Nullable LibraryParams expectedParams) {
     synchronized (MockMediaLibraryService.class) {
       assertLibraryParams = true;
       MockMediaLibraryService.expectedParams = expectedParams;
     }
   }
 
-  private class TestLibrarySessionCallback implements MediaLibrarySessionCallback {
+  private class TestLibrarySessionCallback implements MediaLibrarySession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
@@ -178,7 +179,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
         return MediaSession.ConnectionResult.reject();
       }
       MediaSession.ConnectionResult connectionResult =
-          checkNotNull(MediaLibrarySessionCallback.super.onConnect(session, controller));
+          checkNotNull(MediaLibrarySession.Callback.super.onConnect(session, controller));
       SessionCommands.Builder builder = connectionResult.availableSessionCommands.buildUpon();
       builder.add(new SessionCommand(CUSTOM_ACTION, /* extras= */ Bundle.EMPTY));
       builder.add(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, /* extras= */ Bundle.EMPTY));
@@ -365,9 +366,10 @@ public class MockMediaLibraryService extends MediaLibraryService {
           return Futures.immediateFuture(
               new SessionResult(SessionResult.RESULT_SUCCESS, CUSTOM_ACTION_EXTRAS));
         case CUSTOM_ACTION_ASSERT_PARAMS:
+          @Nullable Bundle paramsBundle = args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS);
+          @Nullable
           LibraryParams params =
-              BundleableUtil.fromNullableBundle(
-                  LibraryParams.CREATOR, args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS));
+              paramsBundle == null ? null : LibraryParams.CREATOR.fromBundle(paramsBundle);
           setAssertLibraryParams(params);
           return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
         default: // fall out
@@ -439,6 +441,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
   private static MediaItem createMediaItemWithMetadata(String mediaId) {
     MediaMetadata mediaMetadata = MediaTestUtils.createMediaMetadata();
-    return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
+    return new MediaItem.Builder()
+        .setMediaId(mediaId)
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder()
+                .setMediaUri(CommonConstants.METADATA_MEDIA_URI)
+                .build())
+        .setMediaMetadata(mediaMetadata)
+        .build();
   }
 }

@@ -64,7 +64,7 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/selected_file_text_view"
-    app:layout_constraintBottom_toTopOf="@+id/select_demo_frameprocessors_button">
+    app:layout_constraintBottom_toTopOf="@+id/select_demo_effects_button">
     <TableLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
@@ -163,6 +163,16 @@
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView
+          android:id="@+id/trim"
+          android:text="@string/trim" />
+        <CheckBox
+          android:id="@+id/trim_checkbox"
+          android:layout_gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
           android:text="@string/enable_fallback" />
         <CheckBox
           android:id="@+id/enable_fallback_checkbox"
@@ -192,13 +202,13 @@
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
   <Button
-    android:id="@+id/select_demo_frameprocessors_button"
+    android:id="@+id/select_demo_effects_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="32dp"
     android:layout_marginStart="32dp"
     android:layout_marginEnd="32dp"
-    android:text="@string/select_demo_frameprocessors"
+    android:text="@string/select_demo_effects"
     app:layout_constraintBottom_toTopOf="@+id/transform_button"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />

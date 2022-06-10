@@ -1994,7 +1994,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * @throws ExoPlaybackException If an error occurs processing the signal.
    */
-  @TargetApi(23) // codecDrainAction == DRAIN_ACTION_UPDATE_DRM_SESSION implies SDK_INT >= 23.
+  // codecDrainAction == DRAIN_ACTION_FLUSH_AND_UPDATE_DRM_SESSION implies SDK_INT >= 23.
+  @TargetApi(23)
   private void processEndOfStream() throws ExoPlaybackException {
     switch (codecDrainAction) {
       case DRAIN_ACTION_REINITIALIZE:

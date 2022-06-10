@@ -28,7 +28,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
-import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
 import com.google.common.collect.ImmutableList;
@@ -106,9 +105,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * segments into account, in microseconds.
    */
   private long frameTimeDeltaUs;
+  /**
+   * The presentation time for the last {@linkplain #dropOrTransformSample(ByteBuffer, long)
+   * processed sample}.
+   */
+  private long lastSamplePresentationTimeUs;
 
   public SefSlowMotionFlattener(Format format) {
     scratch = new byte[NAL_START_CODE_LENGTH];
+    lastSamplePresentationTimeUs = C.TIME_UNSET;
     MetadataInfo metadataInfo = getMetadataInfo(format.metadata);
     slowMotionData = metadataInfo.slowMotionData;
     List<SlowMotionData.Segment> segments =
@@ -132,34 +137,45 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Applies slow motion flattening by either indicating that the buffer's data should be dropped or
    * transforming it in place.
    *
+   * <p>After calling this method, call {@link #getSamplePresentationTimeUs()} to get the new
+   * presentation time for the sample (whether it was dropped or not).
+   *
    * @return Whether the buffer should be dropped.
    */
-  @RequiresNonNull("#1.data")
-  public boolean dropOrTransformSample(DecoderInputBuffer buffer) {
+  public boolean dropOrTransformSample(ByteBuffer buffer, long bufferTimeUs) {
     if (slowMotionData == null) {
       // The input is not an SEF slow motion video.
+      lastSamplePresentationTimeUs = bufferTimeUs;
       return false;
     }
 
-    ByteBuffer data = buffer.data;
-    int originalPosition = data.position();
-    data.position(originalPosition + NAL_START_CODE_LENGTH);
-    data.get(scratch, 0, 4); // Read nal_unit_header_svc_extension.
+    int originalPosition = buffer.position();
+    buffer.position(originalPosition + NAL_START_CODE_LENGTH);
+    buffer.get(scratch, 0, 4); // Read nal_unit_header_svc_extension.
     int nalUnitType = scratch[0] & 0x1F;
     boolean svcExtensionFlag = ((scratch[1] & 0xFF) >> 7) == 1;
     checkState(
         nalUnitType == NAL_UNIT_TYPE_PREFIX && svcExtensionFlag,
         "Missing SVC extension prefix NAL unit.");
     int layer = (scratch[3] & 0xFF) >> 5;
-    boolean shouldKeepFrame = processCurrentFrame(layer, buffer.timeUs);
+    boolean shouldKeepFrame = processCurrentFrame(layer, bufferTimeUs);
     // Update the timestamp regardless of whether the buffer is dropped as the timestamp may be
     // reused for the empty end-of-stream buffer.
-    buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
+    lastSamplePresentationTimeUs = getCurrentFrameOutputTimeUs(bufferTimeUs);
     if (shouldKeepFrame) {
-      data.position(originalPosition);
+      buffer.position(originalPosition);
       return false;
     }
     return true;
+  }
+
+  /**
+   * Returns the new presentation time for the last sample handled via {@link
+   * #dropOrTransformSample(ByteBuffer, long)}.
+   */
+  public long getSamplePresentationTimeUs() {
+    checkState(lastSamplePresentationTimeUs != C.TIME_UNSET);
+    return lastSamplePresentationTimeUs;
   }
 
   /**

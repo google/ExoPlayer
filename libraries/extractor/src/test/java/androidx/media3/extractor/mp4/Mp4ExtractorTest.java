@@ -98,12 +98,6 @@ public final class Mp4ExtractorTest {
   }
 
   @Test
-  public void mp4SampleWithAv1Track() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        Mp4Extractor::new, "media/mp4/sample_av1.mp4", simulationConfig);
-  }
-
-  @Test
   public void mp4SampleWithColorInfo() throws Exception {
     ExtractorAsserts.assertBehavior(
         Mp4Extractor::new, "media/mp4/sample_with_color_info.mp4", simulationConfig);

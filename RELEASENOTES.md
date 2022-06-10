@@ -12,6 +12,22 @@
         by the user of the device. Apps can opt-out of contributing to platform
         diagnostics for ExoPlayer with
         `ExoPlayer.Builder.setUsePlatformDiagnostics(false)`.
+    *   Fix bug that tracks are reset too often when using `MergingMediaSource`,
+        for example when side-loading subtitles and changing the selected
+        subtitle mid-playback
+        ([#10248](https://github.com/google/ExoPlayer/issues/10248)).
+    *   Stop detecting 5G-NSA network type on API 29 and 30. These playbacks
+        will assume a 4G network.
+    *   Disallow passing `null` to
+        `MediaSource.Factory.setDrmSessionManagerProvider` and
+        `MediaSource.Factory.setLoadErrorHandlingPolicy`. Instances of
+        `DefaultDrmSessionManagerProvider` and `DefaultLoadErrorHandlingPolicy`
+        can be passed explicitly if required.
+    *   Add `MediaItem.RequestMetadata` to represent metadata needed to play
+        media when the exact `LocalConfiguration` is not known. Also remove
+        `MediaMetadata.mediaUrl` as this is now included in `RequestMetadata`.
+    *   Add `Player.Command.COMMAND_SET_MEDIA_ITEM` to enable players to allow
+        setting a single item.
 *   Track selection:
     *   Flatten `TrackSelectionOverrides` class into `TrackSelectionParameters`,
         and promote `TrackSelectionOverride` to a top level class.
@@ -19,17 +35,58 @@
         `Tracks.Group`. `Player.getCurrentTracksInfo` and
         `Player.Listener.onTracksInfoChanged` have also been renamed to
         `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
+    *   Change `DefaultTrackSelector.buildUponParameters` and
+        `DefaultTrackSelector.Parameters.buildUpon` to return
+        `DefaultTrackSelector.Parameters.Builder` instead of the deprecated
+        `DefaultTrackSelector.ParametersBuilder`.
+    *   Add
+        `DefaultTrackSelector.Parameters.constrainAudioChannelCountToDeviceCapabilities`.
+        which is enabled by default. When enabled, the `DefaultTrackSelector`
+        will prefer audio tracks whose channel count does not exceed the device
+        output capabilities. On handheld devices, the `DefaultTrackSelector`
+        will prefer stereo/mono over multichannel audio formats, unless the
+        multichannel format can be
+        [Spatialized](https://developer.android.com/reference/android/media/Spatializer)
+        (Android 12L+) or is a Dolby surround sound format. In addition, on
+        devices that support audio spatialization, the `DefaultTrackSelector`
+        will monitor for changes in the
+        [Spatializer properties](https://developer.android.com/reference/android/media/Spatializer.OnSpatializerStateChangedListener)
+        and trigger a new track selection upon these. Devices with a
+        `television`
+        [UI mode](https://developer.android.com/guide/topics/resources/providing-resources#UiModeQualifier)
+        are excluded from these constraints and the format with the highest
+        channel count will be preferred. To enable this feature, the
+        `DefaultTrackSelector` instance must be constructed with a `Context`.
 *   Video:
-    *   Rename `DummySurface` to `PlaceHolderSurface`.
+    *   Rename `DummySurface` to `PlaceholderSurface`.
+    *   Add AV1 support to the `MediaCodecVideoRenderer.getCodecMaxInputSize`.
 *   Audio:
     *   Use LG AC3 audio decoder advertising non-standard MIME type.
+    *   Change the return type of `AudioAttributes.getAudioAttributesV21()` from
+        `android.media.AudioAttributes` to a new `AudioAttributesV21` wrapper
+        class, to prevent slow ART verification on API < 21.
+    *   Query the platform (API 29+) or assume the audio encoding channel count
+        for audio passthrough when the format audio channel count is unset,
+        which occurs with HLS chunkless preparation
+        ([10204](https://github.com/google/ExoPlayer/issues/10204)).
 *   Ad playback / IMA:
-    *   Decrease ad polling rate from every 100ms to every 200ms, to line up with
-        Media Rating Council (MRC) recommendations.
+    *   Decrease ad polling rate from every 100ms to every 200ms, to line up
+        with Media Rating Council (MRC) recommendations.
+*   Text:
+    *   Change `Player.getCurrentCues()` to return `CueGroup` instead of
+        `List<Cue>`.
+    *   SSA: Support `OutlineColour` style setting when `BorderStyle == 3` (i.e.
+        `OutlineColour` sets the background of the cue)
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+    *   CEA-708: Parse data into multiple service blocks and ignore blocks not
+        associated with the currently selected service number.
+    *   Remove `RawCcExtractor`, which was only used to handle a Google-internal
+        subtitle format.
 *   Extractors:
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
-    *   Parse bitrates from `esds` boxes.
-    *   MP4: Parse initialization data from AV1 tracks.
+    *   MP4: Parse bitrates from `esds` boxes.
+    *   Ogg: Allow duplicate Opus ID and comment headers
+        ([#10038](https://github.com/google/ExoPlayer/issues/10038)).
 *   UI:
     *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
         `LegacyPlayerView`, in the case that `useController=false`
@@ -49,17 +106,38 @@
     *   Don't show forced text tracks in the `PlayerView` track selector, and
         keep a suitable forced text track selected if "None" is selected
         ([#9432](https://github.com/google/ExoPlayer/issues/9432)).
+*   DASH:
+    *   Parse channel count from DTS `AudioChannelConfiguration` elements. This
+        re-enables audio passthrough for DTS streams
+        ([#10159](https://github.com/google/ExoPlayer/issues/10159)).
+    *   Disallow passing `null` to
+        `DashMediaSource.Factory.setCompositeSequenceableLoaderFactory`.
+        Instances of `DefaultCompositeSequenceableLoaderFactory` can be passed
+        explicitly if required.
 *   HLS:
-    *   Fallback to chunkful preparation if the playlist CODECS attribute
-        does not contain the audio codec
+    *   Fallback to chunkful preparation if the playlist CODECS attribute does
+        not contain the audio codec
         ([#10065](https://github.com/google/ExoPlayer/issues/10065)).
+    *   Disallow passing `null` to
+        `HlsMediaSource.Factory.setCompositeSequenceableLoaderFactory`,
+        `HlsMediaSource.Factory.setPlaylistParserFactory`, and
+        `HlsMediaSource.Factory.setPlaylistTrackerFactory`. Instances of
+        `DefaultCompositeSequenceableLoaderFactory`,
+        `DefaultHlsPlaylistParserFactory`, or a reference to
+        `DefaultHlsPlaylistTracker.FACTORY` can be passed explicitly if
+        required.
+*   Smooth Streaming:
+    *   Disallow passing `null` to
+        `SsMediaSource.Factory.setCompositeSequenceableLoaderFactory`. Instances
+        of `DefaultCompositeSequenceableLoaderFactory` can be passed explicitly
+        if required.
 *   RTSP:
     *   Add RTP reader for MPEG4
-        ([#35](https://github.com/androidx/media/pull/35))
+        ([#35](https://github.com/androidx/media/pull/35)).
     *   Add RTP reader for HEVC
         ([#36](https://github.com/androidx/media/pull/36)).
-    *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved
-        AMR streams are supported. Compound AMR RTP payload is not supported.
+    *   Add RTP reader for AMR. Currently only mono-channel, non-interleaved AMR
+        streams are supported. Compound AMR RTP payload is not supported.
         ([#46](https://github.com/androidx/media/pull/46))
     *   Add RTP reader for VP8
         ([#47](https://github.com/androidx/media/pull/47)).
@@ -67,13 +145,37 @@
         ([#56](https://github.com/androidx/media/pull/56)).
     *   Fix RTSP basic authorization header.
         ([#9544](https://github.com/google/ExoPlayer/issues/9544)).
+    *   Stop checking mandatory SDP fields as ExoPlayer doesn't need them
+        ([#10049](https://github.com/google/ExoPlayer/issues/10049)).
     *   Throw checked exception when parsing RTSP timing
         ([#10165](https://github.com/google/ExoPlayer/issues/10165)).
+    *   Add RTP reader for VP9
+        ([#47](https://github.com/androidx/media/pull/64)).
+    *   Add RTP reader for OPUS
+        ([#53](https://github.com/androidx/media/pull/53)).
 *   Session:
     *   Fix NPE in MediaControllerImplLegacy
-        ([#59](https://github.com/androidx/media/pull/59))
+        ([#59](https://github.com/androidx/media/pull/59)).
+    *   Update session position info on timeline
+        change([#51](https://github.com/androidx/media/issues/51)).
+    *   Fix NPE in MediaControllerImplBase after releasing controller
+        ([#74](https://github.com/androidx/media/issues/74)).
+    *   Rename `MediaSession.MediaSessionCallback` to `MediaSession.Callback`,
+        `MediaLibrarySession.MediaLibrarySessionCallback` to
+        `MediaLibrarySession.Callback` and
+        `MediaSession.Builder.setSessionCallback` to `setCallback`.
+    *   Replace `MediaSession.MediaItemFiler` with
+        `MediaSession.Callback.onAddMediaItems` to allow asynchronous resolution
+        of requests.
+    *   Forward legacy `MediaController` calls to play media to
+        `MediaSession.Callback.onAddMediaItems` instead of `onSetMediaUri`.
 *   Data sources:
-    *   Rename `DummyDataSource` to `PlaceHolderDataSource`.
+    *   Rename `DummyDataSource` to `PlaceholderDataSource`.
+    *   Workaround OkHttp interrupt handling.
+*   FFmpeg extension:
+    *   Update CMake version to `3.21.0+` to avoid a CMake bug causing
+        AndroidStudio's gradle sync to fail
+        ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 *   Remove deprecated symbols:
     *   Remove `Player.Listener.onTracksChanged`. Use
         `Player.Listener.onTracksInfoChanged` instead.
@@ -87,10 +189,10 @@
         `DEFAULT_TRACK_SELECTOR_PARAMETERS` constants. Use
         `getDefaultTrackSelectorParameters(Context)` instead when possible, and
         `DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT` otherwise.
-    *   FFmpeg extension:
-        *   Update CMake version to `3.21.0+` to avoid a CMake bug causing
-            AndroidStudio's gradle sync to fail
-            ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
+    *   Remove constructor `DefaultTrackSelector(ExoTrackSelection.Factory)`.
+        Use `DefaultTrackSelector(Context, ExoTrackSelection.Factory)` instead.
+    *   Remove `Transformer.Builder.setContext`. The `Context` should be passed
+        to the `Transformer.Builder` constructor instead.
 
 ### 1.0.0-alpha03 (2022-03-14)
 

@@ -59,6 +59,11 @@ public final class TestMediaBrowserListener implements MediaBrowser.Listener {
   }
 
   @Override
+  public void onExtrasChanged(MediaController controller, Bundle extras) {
+    delegate.onExtrasChanged(controller, extras);
+  }
+
+  @Override
   public void onAvailableSessionCommandsChanged(
       MediaController controller, SessionCommands commands) {
     delegate.onAvailableSessionCommandsChanged(controller, commands);

@@ -19,6 +19,8 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationTestResult;
@@ -46,7 +48,7 @@ public final class RepeatedTranscodeTransformationTest {
                 new Transformer.Builder(context)
                     .setTransformationRequest(
                         new TransformationRequest.Builder().setRotationDegrees(45).build())
-                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();
 
@@ -56,7 +58,7 @@ public final class RepeatedTranscodeTransformationTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
-              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
+              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -76,7 +78,7 @@ public final class RepeatedTranscodeTransformationTest {
                     .setRemoveAudio(true)
                     .setTransformationRequest(
                         new TransformationRequest.Builder().setRotationDegrees(45).build())
-                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();
 
@@ -86,7 +88,7 @@ public final class RepeatedTranscodeTransformationTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
-              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
+              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
@@ -105,7 +107,7 @@ public final class RepeatedTranscodeTransformationTest {
                 new Transformer.Builder(context)
                     .setRemoveVideo(true)
                     .setTransformationRequest(new TransformationRequest.Builder().build())
-                    .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+                    .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();
 
@@ -115,7 +117,7 @@ public final class RepeatedTranscodeTransformationTest {
       TransformationTestResult testResult =
           transformerRunner.run(
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
-              AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING);
+              MediaItem.fromUri(Uri.parse(AndroidTestUtil.MP4_REMOTE_10_SECONDS_URI_STRING)));
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 

@@ -32,6 +32,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import com.google.android.material.slider.RangeSlider;
@@ -55,44 +56,55 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SCALE_X = "scale_x";
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
+  public static final String TRIM_START_MS = "trim_start_ms";
+  public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
-  public static final String DEMO_FRAME_PROCESSORS_SELECTIONS = "demo_frame_processors_selections";
+  public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
   public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
   public static final String PERIODIC_VIGNETTE_OUTER_RADIUS = "periodic_vignette_outer_radius";
   private static final String[] INPUT_URIS = {
-    "https://html5demos.com/assets/dizzy.mp4",
-    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_4s.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
-    "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
+    "https://html5demos.com/assets/dizzy.mp4",
     "https://html5demos.com/assets/dizzy.webm",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/8k24fps_4s.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_4s.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_avc_aac.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_rotated_avc_aac.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-hdr-hdr10.mp4",
   };
   private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
-    "MP4 with H264 video and AAC audio",
-    "Short MP4 with H265 video and AAC audio",
-    "MP4 with H265 video and AAC audio",
-    "Long MP4 with H264 video and AAC audio",
-    "WebM with VP8 video and Vorbis audio",
-    "4K 60fps MP4 with H264 video and AAC audio (portrait, timestamps always increase)",
-    "8k 24fps MP4 with H265 video and AAC audio",
-    "MP4 with H264 video and AAC audio (portrait, H > W, 0\u00B0)",
-    "MP4 with H264 video and AAC audio (portrait, H < W, 90\u00B0)",
+    "720p H264 video and AAC audio",
+    "1080p H265 video and AAC audio",
+    "360p H264 video and AAC audio",
+    "360p VP8 video and Vorbis audio",
+    "4K H264 video and AAC audio (portrait, no B-frames)",
+    "8k H265 video and AAC audio",
+    "Short 1080p H265 video and AAC audio",
+    "Long 180p H264 video and AAC audio",
+    "H264 video and AAC audio (portrait, H > W, 0\u00B0)",
+    "H264 video and AAC audio (portrait, H < W, 90\u00B0)",
     "SEF slow motion with 240 fps",
-    "MP4 with HDR (HDR10) H265 video (encoding may fail)",
+    "480p DASH (non-square pixels)",
+    "HDR (HDR10) H265 video (encoding may fail)",
   };
-  private static final String[] DEMO_FRAME_PROCESSORS = {
-    "Dizzy crop", "Periodic vignette", "3D spin", "Overlay logo & timer", "Zoom in start"
+  private static final String[] DEMO_EFFECTS = {
+    "Dizzy crop",
+    "Edge detector (Media Pipe)",
+    "Periodic vignette",
+    "3D spin",
+    "Overlay logo & timer",
+    "Zoom in start",
   };
-  private static final int PERIODIC_VIGNETTE_INDEX = 1;
+  private static final int PERIODIC_VIGNETTE_INDEX = 2;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
@@ -106,12 +118,15 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner resolutionHeightSpinner;
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
+  private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
-  private @MonotonicNonNull Button selectDemoFrameProcessorsButton;
-  private boolean @MonotonicNonNull [] demoFrameProcessorsSelections;
+  private @MonotonicNonNull Button selectDemoEffectsButton;
+  private boolean @MonotonicNonNull [] demoEffectsSelections;
   private int inputUriPosition;
+  private long trimStartMs;
+  private long trimEndMs;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
   private float periodicVignetteInnerRadius;
@@ -179,15 +194,20 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateSpinner.setAdapter(rotateAdapter);
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
+    trimCheckBox = findViewById(R.id.trim_checkbox);
+    trimCheckBox.setOnCheckedChangeListener(this::selectTrimBounds);
+    trimStartMs = C.TIME_UNSET;
+    trimEndMs = C.TIME_UNSET;
+
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
     enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
     findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
 
-    demoFrameProcessorsSelections = new boolean[DEMO_FRAME_PROCESSORS.length];
-    selectDemoFrameProcessorsButton = findViewById(R.id.select_demo_frameprocessors_button);
-    selectDemoFrameProcessorsButton.setOnClickListener(this::selectFrameProcessors);
+    demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
+    selectDemoEffectsButton = findViewById(R.id.select_demo_effects_button);
+    selectDemoEffectsButton.setOnClickListener(this::selectDemoEffects);
   }
 
   @Override
@@ -215,13 +235,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "trimCheckBox",
     "enableFallbackCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "demoFrameProcessorsSelections"
+    "demoEffectsSelections"
   })
   private void startTransformation(View view) {
-    Intent transformerIntent = new Intent(this, TransformerActivity.class);
+    Intent transformerIntent = new Intent(/* packageContext= */ this, TransformerActivity.class);
     Bundle bundle = new Bundle();
     bundle.putBoolean(SHOULD_REMOVE_AUDIO, removeAudioCheckbox.isChecked());
     bundle.putBoolean(SHOULD_REMOVE_VIDEO, removeVideoCheckbox.isChecked());
@@ -249,11 +270,15 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (!SAME_AS_INPUT_OPTION.equals(selectedRotate)) {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
+    if (trimCheckBox.isChecked()) {
+      bundle.putLong(TRIM_START_MS, trimStartMs);
+      bundle.putLong(TRIM_END_MS, trimEndMs);
+    }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
-    bundle.putBooleanArray(DEMO_FRAME_PROCESSORS_SELECTIONS, demoFrameProcessorsSelections);
+    bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
@@ -276,14 +301,33 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .show();
   }
 
-  private void selectFrameProcessors(View view) {
+  private void selectDemoEffects(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.select_demo_frameprocessors)
+        .setTitle(R.string.select_demo_effects)
         .setMultiChoiceItems(
-            DEMO_FRAME_PROCESSORS,
-            checkNotNull(demoFrameProcessorsSelections),
-            this::selectFrameProcessor)
+            DEMO_EFFECTS, checkNotNull(demoEffectsSelections), this::selectDemoEffect)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
+        .create()
+        .show();
+  }
+
+  private void selectTrimBounds(View view, boolean isChecked) {
+    if (!isChecked) {
+      return;
+    }
+    View dialogView = getLayoutInflater().inflate(R.layout.trim_options, /* root= */ null);
+    RangeSlider radiusRangeSlider =
+        checkNotNull(dialogView.findViewById(R.id.trim_bounds_range_slider));
+    radiusRangeSlider.setValues(0f, 60f); // seconds
+    new AlertDialog.Builder(/* context= */ this)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              List<Float> radiusRange = radiusRangeSlider.getValues();
+              trimStartMs = 1000 * radiusRange.get(0).longValue();
+              trimEndMs = 1000 * radiusRange.get(1).longValue();
+            })
         .create()
         .show();
   }
@@ -294,9 +338,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
   }
 
-  @RequiresNonNull("demoFrameProcessorsSelections")
-  private void selectFrameProcessor(DialogInterface dialog, int which, boolean isChecked) {
-    demoFrameProcessorsSelections[which] = isChecked;
+  @RequiresNonNull("demoEffectsSelections")
+  private void selectDemoEffect(DialogInterface dialog, int which, boolean isChecked) {
+    demoEffectsSelections[which] = isChecked;
     if (!isChecked || which != PERIODIC_VIGNETTE_INDEX) {
       return;
     }
@@ -335,7 +379,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "selectDemoFrameProcessorsButton"
+    "selectDemoEffectsButton"
   })
   private void onRemoveAudio(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -355,7 +399,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "selectDemoFrameProcessorsButton"
+    "selectDemoEffectsButton"
   })
   private void onRemoveVideo(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -374,7 +418,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
-    "selectDemoFrameProcessorsButton"
+    "selectDemoEffectsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     audioMimeSpinner.setEnabled(isAudioEnabled);
@@ -385,7 +429,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableRequestSdrToneMappingCheckBox.setEnabled(
         isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
-    selectDemoFrameProcessorsButton.setEnabled(isVideoEnabled);
+    selectDemoEffectsButton.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);

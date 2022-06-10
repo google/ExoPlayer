@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.SequencedFutureManager.SequencedFuture;
@@ -59,7 +58,7 @@ import com.google.common.util.concurrent.ListenableFuture;
         new RemoteLibrarySessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.getLibraryRoot(controllerStub, seq, BundleableUtil.toNullableBundle(params));
+            iSession.getLibraryRoot(controllerStub, seq, params == null ? null : params.toBundle());
           }
         });
   }
@@ -73,7 +72,7 @@ import com.google.common.util.concurrent.ListenableFuture;
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
             iSession.subscribe(
-                controllerStub, seq, parentId, BundleableUtil.toNullableBundle(params));
+                controllerStub, seq, parentId, params == null ? null : params.toBundle());
           }
         });
   }
@@ -104,7 +103,7 @@ import com.google.common.util.concurrent.ListenableFuture;
                 parentId,
                 page,
                 pageSize,
-                BundleableUtil.toNullableBundle(params));
+                params == null ? null : params.toBundle());
           }
         });
   }
@@ -129,7 +128,7 @@ import com.google.common.util.concurrent.ListenableFuture;
         new RemoteLibrarySessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
-            iSession.search(controllerStub, seq, query, BundleableUtil.toNullableBundle(params));
+            iSession.search(controllerStub, seq, query, params == null ? null : params.toBundle());
           }
         });
   }
@@ -148,7 +147,7 @@ import com.google.common.util.concurrent.ListenableFuture;
                 query,
                 page,
                 pageSize,
-                BundleableUtil.toNullableBundle(params));
+                params == null ? null : params.toBundle());
           }
         });
   }

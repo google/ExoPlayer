@@ -42,7 +42,8 @@ oneway interface IMediaController {
   void onAvailableCommandsChangedFromSession(
       int seq, in Bundle sessionCommandsBundle, in Bundle playerCommandsBundle) = 3009;
   void onRenderedFirstFrame(int seq) = 3010;
-  // Next Id for MediaController: 3011
+  void onExtrasChanged(int seq, in Bundle extras) = 3011;
+  // Next Id for MediaController: 3012
 
   void onChildrenChanged(
       int seq, String parentId, int itemCount, in @nullable Bundle libraryParams) = 4000;

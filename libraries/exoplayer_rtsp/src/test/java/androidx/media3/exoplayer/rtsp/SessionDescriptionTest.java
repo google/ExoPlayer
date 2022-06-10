@@ -86,6 +86,48 @@ public class SessionDescriptionTest {
   }
 
   @Test
+  public void parse_sdpStringWithoutMandatoryFields_succeeds() throws Exception {
+    // This SDP string is similar to the one in parse_sdpString_succeeds(), it doesn't include the
+    // mandatory SDP fields origin, session name, session info and timing.
+    String testMediaSdpInfo =
+        "v=0\r\n"
+            + "u=http://www.example.com/lectures/sdp.ps\r\n"
+            + "e=seminar@example.com (Seminar Management)\r\n"
+            + "c=IN IP4 0.0.0.0\r\n"
+            + "a=control:*\r\n"
+            + "m=audio 3456 RTP/AVP 0\r\n"
+            + "a=control:audio\r\n"
+            + "a=rtpmap:0 PCMU/8000\r\n"
+            + "a=3GPP-Adaption-Support:1\r\n"
+            + "m=video 2232 RTP/AVP 31\r\n"
+            + "a=control:video\r\n"
+            + "a=rtpmap:31 H261/90000\r\n";
+
+    SessionDescription sessionDescription = SessionDescriptionParser.parse(testMediaSdpInfo);
+
+    SessionDescription expectedSession =
+        new SessionDescription.Builder()
+            .setUri(Uri.parse("http://www.example.com/lectures/sdp.ps"))
+            .setEmailAddress("seminar@example.com (Seminar Management)")
+            .setConnection("IN IP4 0.0.0.0")
+            .addAttribute(ATTR_CONTROL, "*")
+            .addMediaDescription(
+                new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 3456, RTP_AVP_PROFILE, 0)
+                    .addAttribute(ATTR_CONTROL, "audio")
+                    .addAttribute(ATTR_RTPMAP, "0 PCMU/8000")
+                    .addAttribute("3GPP-Adaption-Support", "1")
+                    .build())
+            .addMediaDescription(
+                new MediaDescription.Builder(MEDIA_TYPE_VIDEO, 2232, RTP_AVP_PROFILE, 31)
+                    .addAttribute(ATTR_CONTROL, "video")
+                    .addAttribute(ATTR_RTPMAP, "31 H261/90000")
+                    .build())
+            .build();
+
+    assertThat(sessionDescription).isEqualTo(expectedSession);
+  }
+
+  @Test
   public void parse_sdpString2_succeeds() throws Exception {
     String testMediaSdpInfo =
         "v=0\r\n"

@@ -19,6 +19,8 @@ package androidx.media3.transformer.mh;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.TransformationRequest;
@@ -36,23 +38,36 @@ public final class TranscodeQualityTest {
   @Test
   public void transformWithDecodeEncode_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
+    String testId = "transformWithDecodeEncode_ssim";
+
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setCalculateSsim(true)
+            .setMaybeCalculateSsim(true)
             .build()
             .run(
-                /* testId= */ "transformWithDecodeEncode_ssim",
-                AndroidTestUtil.MP4_ASSET_URI_STRING);
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
 
-    assertThat(result.ssim).isGreaterThan(0.90);
+    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+      assertThat(result.ssim).isGreaterThan(0.90);
+    }
   }
 
   @Test
@@ -63,8 +78,8 @@ public final class TranscodeQualityTest {
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_FORMAT
+        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT
             .buildUpon()
             .setSampleMimeType(MimeTypes.VIDEO_H265)
             .build())) {
@@ -80,17 +95,22 @@ public final class TranscodeQualityTest {
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setCalculateSsim(true)
+            .setMaybeCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_URI_STRING);
+            .run(
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
 
-    assertThat(result.ssim).isGreaterThan(0.90);
+    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+      assertThat(result.ssim).isGreaterThan(0.90);
+    }
   }
 
   @Test
-  public void transcodeAvcToAvc360p_ssimIsGreaterThan90Percent() throws Exception {
+  public void transcodeAvcToAvc320x240_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transcodeAvcToAvc360p_ssim";
+    String testId = "transcodeAvcToAvc320x240_ssim";
 
     // Note: We never skip this test as the input and output formats should be within CDD
     // requirements on all supported API versions.
@@ -99,16 +119,23 @@ public final class TranscodeQualityTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(AndroidTestUtil.FORCE_ENCODE_ENCODER_FACTORY)
+            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
             .setRemoveAudio(true)
             .build();
 
     TransformationTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
-            .setCalculateSsim(true)
+            .setMaybeCalculateSsim(true)
             .build()
-            .run(testId, AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_360P_15S_URI_STRING);
+            .run(
+                testId,
+                MediaItem.fromUri(
+                    Uri.parse(
+                        AndroidTestUtil
+                            .MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING)));
 
-    assertThat(result.ssim).isGreaterThan(0.90);
+    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+      assertThat(result.ssim).isGreaterThan(0.90);
+    }
   }
 }

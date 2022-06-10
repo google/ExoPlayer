@@ -99,7 +99,7 @@ public class CommonConstants {
   public static final String KEY_IS_PLAYING_AD = "isPlayingAd";
   public static final String KEY_CURRENT_AD_GROUP_INDEX = "currentAdGroupIndex";
   public static final String KEY_CURRENT_AD_INDEX_IN_AD_GROUP = "currentAdIndexInAdGroup";
-  public static final String KEY_CURRENT_CUES = "currentCues";
+  public static final String KEY_CURRENT_CUE_GROUP = "currentCueGroup";
   public static final String KEY_MEDIA_METADATA = "mediaMetadata";
   public static final String KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS = "maxSeekToPreviousPositionMs";
   public static final String KEY_TRACK_SELECTION_PARAMETERS = "trackSelectionParameters";

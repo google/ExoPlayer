@@ -110,6 +110,7 @@ public final class DownloadHelper {
           DefaultTrackSelector.Parameters.DEFAULT_WITHOUT_CONTEXT
               .buildUpon()
               .setForceHighestSupportedBitrate(true)
+              .setConstrainAudioChannelCountToDeviceCapabilities(false)
               .build();
 
   /** Returns the default parameters used for track selection for downloading. */
@@ -117,6 +118,7 @@ public final class DownloadHelper {
     return DefaultTrackSelector.Parameters.getDefaults(context)
         .buildUpon()
         .setForceHighestSupportedBitrate(true)
+        .setConstrainAudioChannelCountToDeviceCapabilities(false)
         .build();
   }
 
@@ -516,6 +518,7 @@ public final class DownloadHelper {
     if (mediaPreparer != null) {
       mediaPreparer.release();
     }
+    trackSelector.release();
   }
 
   /**
@@ -745,7 +748,7 @@ public final class DownloadHelper {
       List<SelectionOverride> overrides) {
     try {
       assertPreparedWithMedia();
-      DefaultTrackSelector.ParametersBuilder builder = trackSelectorParameters.buildUpon();
+      DefaultTrackSelector.Parameters.Builder builder = trackSelectorParameters.buildUpon();
       for (int i = 0; i < mappedTrackInfos[periodIndex].getRendererCount(); i++) {
         builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ i != rendererIndex);
       }
@@ -951,16 +954,18 @@ public final class DownloadHelper {
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    return new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY)
-        .setDrmSessionManagerProvider(
-            drmSessionManager != null ? unusedMediaItem -> drmSessionManager : null)
-        .createMediaSource(mediaItem);
+    DefaultMediaSourceFactory mediaSourceFactory =
+        new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY);
+    if (drmSessionManager != null) {
+      mediaSourceFactory.setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+    }
+    return mediaSourceFactory.createMediaSource(mediaItem);
   }
 
   private static boolean isProgressive(MediaItem.LocalConfiguration localConfiguration) {
     return Util.inferContentTypeForUriAndMimeType(
             localConfiguration.uri, localConfiguration.mimeType)
-        == C.TYPE_OTHER;
+        == C.CONTENT_TYPE_OTHER;
   }
 
   private static final class MediaPreparer

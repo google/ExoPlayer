@@ -38,7 +38,6 @@ import static androidx.media3.session.MediaConstants.MEDIA_URI_QUERY_QUERY;
 import static androidx.media3.session.MediaConstants.MEDIA_URI_QUERY_URI;
 import static androidx.media3.session.MediaConstants.MEDIA_URI_SET_MEDIA_URI_PREFIX;
 import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED;
-import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_EXTRAS_CHANGED;
 import static androidx.media3.session.MediaUtils.POSITION_DIFF_TOLERANCE_MS;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
@@ -91,7 +90,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
@@ -753,7 +752,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int newCurrentMediaItemIndex =
         calculateCurrentItemIndexAfterAddItems(currentMediaItemIndex, index, mediaItems.size());
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
+        controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
+            newQueueTimeline, newCurrentMediaItemIndex);
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
             maskedPlayerInfo,
@@ -801,7 +801,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               + " new current item");
     }
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
+        controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
+            newQueueTimeline, newCurrentMediaItemIndex);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -846,7 +847,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         calculateCurrentItemIndexAfterRemoveItems(currentMediaItemIndex, fromIndex, toIndex);
     if (currentMediaItemIndexAfterRemove == C.INDEX_UNSET) {
       currentMediaItemIndexAfterRemove =
-          Util.constrainValue(fromIndex, /* min= */ 0, /* toIndex= */ lastItemIndexAfterRemove);
+          Util.constrainValue(fromIndex, /* min= */ 0, /* max= */ lastItemIndexAfterRemove);
       Log.w(
           TAG,
           "Currently playing item will be removed and added back to mimic move."
@@ -861,7 +862,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     QueueTimeline newQueueTimeline =
         queueTimeline.copyWithMovedMediaItems(fromIndex, toIndex, newIndex);
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
+        controllerInfo.playerInfo.copyWithTimelineAndMediaItemIndex(
+            newQueueTimeline, newCurrentMediaItemIndex);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -1049,9 +1051,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     Log.w(TAG, "Session doesn't support getting Cue");
-    return ImmutableList.of();
+    return CueGroup.EMPTY;
   }
 
   @Override
@@ -1550,8 +1552,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         pendingLegacyPlayerInfo =
             pendingLegacyPlayerInfo.copyWithExtraBinderGetters(
                 convertToSafePlaybackStateCompat(controllerCompat.getPlaybackState()),
-                controllerCompat.getShuffleMode(),
-                controllerCompat.getRepeatMode());
+                controllerCompat.getRepeatMode(),
+                controllerCompat.getShuffleMode());
         boolean isCaptioningEnabled = controllerCompat.isCaptioningEnabled();
         onCaptioningEnabledChanged(isCaptioningEnabled);
 
@@ -1603,14 +1605,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onExtrasChanged(Bundle extras) {
-      instance.notifyControllerListener(
-          listener ->
-              ignoreFuture(
-                  listener.onCustomCommand(
-                      instance,
-                      new SessionCommand(
-                          SESSION_COMMAND_ON_EXTRAS_CHANGED, /* extras= */ Bundle.EMPTY),
-                      extras)));
+      instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
     }
 
     @Override
@@ -2039,7 +2034,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             /* playlistMetadata= */ playlistMetadata,
             /* volume= */ 1.0f,
             /* audioAttributes= */ audioAttributes,
-            /* cues= */ Collections.emptyList(),
+            /* cueGroup= */ CueGroup.EMPTY,
             /* deviceInfo= */ deviceInfo,
             /* deviceVolume= */ deviceVolume,
             /* deviceMuted= */ deviceMuted,

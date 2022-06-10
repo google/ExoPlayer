@@ -32,6 +32,8 @@ interface IRemoteMediaSession {
   void release(String sessionId);
   void setAvailableCommands(String sessionId, in Bundle sessionCommands, in Bundle playerCommands);
   void setCustomLayout(String sessionId, in List<Bundle> layout);
+  void setSessionExtras(String sessionId, in Bundle extras);
+  void setSessionExtrasForController(String sessionId, in String controllerKey, in Bundle extras);
 
   // Player Methods
   void setPlayWhenReady(String sessionId, boolean playWhenReady, int reason);
@@ -77,7 +79,7 @@ interface IRemoteMediaSession {
   void notifySeekBackIncrementChanged(String sessionId, long seekBackIncrementMs);
   void notifySeekForwardIncrementChanged(String sessionId, long seekForwardIncrementMs);
   void notifyDeviceVolumeChanged(String sessionId, int volume, boolean muted);
-  void notifyCuesChanged(String sessionId, in List<Bundle> cues);
+  void notifyCuesChanged(String sessionId, in Bundle cueGroup);
   void notifyDeviceInfoChanged(String sessionId, in Bundle deviceInfo);
   void notifyMediaMetadataChanged(String sessionId, in Bundle mediaMetadata);
   void notifyRenderedFirstFrame(String sessionId);

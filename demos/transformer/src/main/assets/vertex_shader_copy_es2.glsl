@@ -16,9 +16,8 @@
 // ES 2 vertex shader that leaves the coordinates unchanged.
 
 attribute vec4 aFramePosition;
-attribute vec4 aTexSamplingCoord;
 varying vec2 vTexSamplingCoord;
 void main() {
   gl_Position = aFramePosition;
-  vTexSamplingCoord = aTexSamplingCoord.xy;
+  vTexSamplingCoord = vec2(aFramePosition.x * 0.5 + 0.5, aFramePosition.y * 0.5 + 0.5);
 }

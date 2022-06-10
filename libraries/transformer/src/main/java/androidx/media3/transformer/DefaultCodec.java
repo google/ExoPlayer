@@ -19,7 +19,9 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.SDK_INT;
 
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
 import android.media.MediaFormat;
@@ -31,6 +33,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -52,6 +55,8 @@ public final class DefaultCodec implements Codec {
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
 
+  private final boolean decoderNeedsFrameDroppingWorkaround;
+
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
 
@@ -63,6 +68,7 @@ public final class DefaultCodec implements Codec {
   /**
    * Creates a {@code DefaultCodec}.
    *
+   * @param context The {@link Context}.
    * @param configurationFormat The {@link Format} to configure the {@code DefaultCodec}. See {@link
    *     #getConfigurationFormat()}. The {@link Format#sampleMimeType sampleMimeType} must not be
    *     {@code null}.
@@ -73,6 +79,7 @@ public final class DefaultCodec implements Codec {
    * @param outputSurface The output {@link Surface} if the {@link MediaCodec} outputs to a surface.
    */
   public DefaultCodec(
+      Context context,
       Format configurationFormat,
       MediaFormat configurationMediaFormat,
       String mediaCodecName,
@@ -108,6 +115,7 @@ public final class DefaultCodec implements Codec {
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
+    decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
   }
 
   @Override
@@ -118,6 +126,26 @@ public final class DefaultCodec implements Codec {
   @Override
   public Surface getInputSurface() {
     return checkStateNotNull(inputSurface);
+  }
+
+  @Override
+  public int getMaxPendingFrameCount() {
+    if (decoderNeedsFrameDroppingWorkaround) {
+      // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
+      // TODO(b/226330223): Investigate increasing this limit.
+      return 1;
+    }
+    if (Ascii.toUpperCase(getName()).startsWith("OMX.")) {
+      // Some OMX decoders don't correctly track their number of output buffers available, and get
+      // stuck if too many frames are rendered without being processed, so limit the number of
+      // pending frames to avoid getting stuck. This value is experimentally determined. See also
+      // b/213455700, b/230097284, and b/229978305.
+      // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
+      return 10;
+    }
+    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
+    // throughput.
+    return UNLIMITED_PENDING_FRAME_COUNT;
   }
 
   @Override
@@ -230,6 +258,23 @@ public final class DefaultCodec implements Codec {
       inputSurface.release();
     }
     mediaCodec.release();
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This name is of the actual codec, which may not be the same as the {@code mediaCodecName}
+   * passed to {@link #DefaultCodec(Context, Format, MediaFormat, String, boolean, Surface)}.
+   *
+   * @see MediaCodec#getCanonicalName()
+   */
+  @Override
+  public String getName() {
+    if (SDK_INT >= 29) {
+      return mediaCodec.getCanonicalName();
+    }
+
+    return mediaCodec.getName();
   }
 
   /**
@@ -353,7 +398,7 @@ public final class DefaultCodec implements Codec {
           .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
           .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
     } else if (MimeTypes.isAudio(mimeType)) {
-      // TODO(internal b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
+      // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
       // simulate more realistic codec input/output formats in tests.
       formatBuilder
           .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
@@ -381,5 +426,14 @@ public final class DefaultCodec implements Codec {
     TraceUtil.beginSection("startCodec");
     codec.start();
     TraceUtil.endSection();
+  }
+
+  private static boolean decoderNeedsFrameDroppingWorkaround(Context context) {
+    // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+    // bounds. From API 29, if the app targets API 29 or later, the {@link
+    // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is full.
+    // Frame dropping is never desired, so a workaround is needed for older API levels.
+    return SDK_INT < 29
+        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
   }
 }

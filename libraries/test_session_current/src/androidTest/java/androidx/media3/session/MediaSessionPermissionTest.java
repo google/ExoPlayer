@@ -22,6 +22,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS;
 import static androidx.media3.session.MediaUtils.createPlayerCommandsWith;
@@ -39,6 +40,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
@@ -51,6 +53,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.ext.truth.os.BundleSubject;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
@@ -134,6 +137,12 @@ public class MediaSessionPermissionTest {
   }
 
   @Test
+  public void setMediaItem() throws Exception {
+    testOnCommandRequest(
+        COMMAND_SET_MEDIA_ITEM, controller -> controller.setMediaItem(MediaItem.EMPTY));
+  }
+
+  @Test
   public void setMediaItems() throws Exception {
     testOnCommandRequest(
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -151,6 +160,7 @@ public class MediaSessionPermissionTest {
   public void removeMediaItems() throws Exception {
     testOnCommandRequest(
         COMMAND_CHANGE_MEDIA_ITEMS,
+        /* mediaItems= */ MediaTestUtils.createMediaItems(/* size= */ 5),
         controller -> controller.removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1));
   }
 
@@ -177,7 +187,7 @@ public class MediaSessionPermissionTest {
   @Test
   public void setMediaUri() throws Exception {
     Uri uri = Uri.parse("media://uri");
-    createSessionWithAvailableCommands(
+    createSession(
         createSessionCommandsWith(new SessionCommand(COMMAND_CODE_SESSION_SET_MEDIA_URI)),
         Player.Commands.EMPTY);
     controllerTestRule
@@ -189,7 +199,7 @@ public class MediaSessionPermissionTest {
     assertThat(callback.uri).isEqualTo(uri);
     BundleSubject.assertThat(callback.extras).isEmpty();
 
-    createSessionWithAvailableCommands(
+    createSession(
         createSessionCommandsWith(new SessionCommand(COMMAND_CODE_SESSION_SET_RATING)),
         Player.Commands.EMPTY);
     controllerTestRule
@@ -203,7 +213,7 @@ public class MediaSessionPermissionTest {
   public void setRating() throws Exception {
     String mediaId = "testSetRating";
     Rating rating = new StarRating(5, 3.5f);
-    createSessionWithAvailableCommands(
+    createSession(
         createSessionCommandsWith(new SessionCommand(COMMAND_CODE_SESSION_SET_RATING)),
         Player.Commands.EMPTY);
     controllerTestRule.createRemoteController(session.getToken()).setRating(mediaId, rating);
@@ -213,7 +223,7 @@ public class MediaSessionPermissionTest {
     assertThat(callback.mediaId).isEqualTo(mediaId);
     assertThat(callback.rating).isEqualTo(rating);
 
-    createSessionWithAvailableCommands(
+    createSession(
         createSessionCommandsWith(new SessionCommand(COMMAND_CODE_SESSION_SET_MEDIA_URI)),
         Player.Commands.EMPTY);
     controllerTestRule.createRemoteController(session.getToken()).setRating(mediaId, rating);
@@ -225,7 +235,7 @@ public class MediaSessionPermissionTest {
   public void changingPermissionForSessionCommandWithSetAvailableCommands() throws Exception {
     String mediaId = "testSetRating";
     Rating rating = new StarRating(5, 3.5f);
-    createSessionWithAvailableCommands(
+    createSession(
         createSessionCommandsWith(new SessionCommand(COMMAND_CODE_SESSION_SET_RATING)),
         Player.Commands.EMPTY);
     RemoteMediaController controller =
@@ -253,7 +263,7 @@ public class MediaSessionPermissionTest {
     Player.Commands commandsWithoutPlayPause = createPlayerCommandsWithout(playPauseCommand);
 
     // Create session with play/pause command.
-    createSessionWithAvailableCommands(SessionCommands.EMPTY, commandsWithPlayPause);
+    createSession(SessionCommands.EMPTY, commandsWithPlayPause);
     // Create player with play/pause command.
     player.commands = commandsWithPlayPause;
     player.notifyAvailableCommandsChanged(commandsWithPlayPause);
@@ -300,7 +310,7 @@ public class MediaSessionPermissionTest {
     void run(RemoteMediaController controller) throws Exception;
   }
 
-  private static class MySessionCallback implements MediaSession.SessionCallback {
+  private static class MySessionCallback implements MediaSession.Callback {
     public CountDownLatch countDownLatch;
 
     public @Player.Command int command;
@@ -334,8 +344,7 @@ public class MediaSessionPermissionTest {
       onCommandRequestCalled = true;
       this.command = command;
       countDownLatch.countDown();
-      return MediaSession.SessionCallback.super.onPlayerCommandRequest(
-          session, controller, command);
+      return MediaSession.Callback.super.onPlayerCommandRequest(session, controller, command);
     }
 
     @Override
@@ -361,12 +370,19 @@ public class MediaSessionPermissionTest {
     }
   }
 
-  private void createSessionWithAvailableCommands(
-      SessionCommands sessionCommands, Player.Commands playerCommands) {
+  private void createSession(SessionCommands sessionCommands, Player.Commands playerCommands) {
+    createSession(sessionCommands, playerCommands, /* mediaItems= */ ImmutableList.of());
+  }
+
+  private void createSession(
+      SessionCommands sessionCommands, Player.Commands playerCommands, List<MediaItem> mediaItems) {
     player =
         new MockPlayer.Builder()
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .build();
+    // Add media items directly on the mock player's list so that the player's interaction state
+    // does not change.
+    player.mediaItems.addAll(mediaItems);
     callback =
         new MySessionCallback() {
           @Override
@@ -382,10 +398,7 @@ public class MediaSessionPermissionTest {
       this.session.release();
     }
     this.session =
-        new MediaSession.Builder(context, player)
-            .setId(SESSION_ID)
-            .setSessionCallback(callback)
-            .build();
+        new MediaSession.Builder(context, player).setId(SESSION_ID).setCallback(callback).build();
   }
 
   private SessionCommands createSessionCommandsWith(SessionCommand command) {
@@ -393,16 +406,19 @@ public class MediaSessionPermissionTest {
   }
 
   private void testOnCommandRequest(int commandCode, PermissionTestTask runnable) throws Exception {
-    createSessionWithAvailableCommands(
-        SessionCommands.EMPTY, createPlayerCommandsWith(commandCode));
+    testOnCommandRequest(commandCode, /* mediaItems= */ ImmutableList.of(), runnable);
+  }
+
+  private void testOnCommandRequest(
+      int commandCode, List<MediaItem> mediaItems, PermissionTestTask runnable) throws Exception {
+    createSession(SessionCommands.EMPTY, createPlayerCommandsWith(commandCode), mediaItems);
     runnable.run(controllerTestRule.createRemoteController(session.getToken()));
 
     assertThat(callback.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(callback.onCommandRequestCalled).isTrue();
     assertThat(callback.command).isEqualTo(commandCode);
 
-    createSessionWithAvailableCommands(
-        SessionCommands.EMPTY, createPlayerCommandsWithout(commandCode));
+    createSession(SessionCommands.EMPTY, createPlayerCommandsWithout(commandCode), mediaItems);
     runnable.run(controllerTestRule.createRemoteController(session.getToken()));
 
     assertThat(callback.countDownLatch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();

@@ -40,7 +40,7 @@ import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -358,7 +358,7 @@ public interface ExoPlayer extends Player {
      * @deprecated Use {@link Player#getCurrentCues()} instead.
      */
     @Deprecated
-    List<Cue> getCurrentCues();
+    CueGroup getCurrentCues();
   }
 
   /**
@@ -1175,7 +1175,6 @@ public interface ExoPlayer extends Player {
    *
    * @param listener The listener to be added.
    */
-  @UnstableApi
   void addAnalyticsListener(AnalyticsListener listener);
 
   /**
@@ -1183,7 +1182,6 @@ public interface ExoPlayer extends Player {
    *
    * @param listener The listener to be removed.
    */
-  @UnstableApi
   void removeAnalyticsListener(AnalyticsListener listener);
 
   /** Returns the number of renderers. */

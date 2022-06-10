@@ -38,7 +38,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -48,6 +48,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -214,8 +215,7 @@ public class MockPlayer implements Player {
   public int currentAdIndexInAdGroup;
   @Nullable public PlaybackParameters playbackParameters;
   public Timeline timeline;
-  public MediaItem mediaItem;
-  public List<MediaItem> mediaItems;
+  public ArrayList<MediaItem> mediaItems;
   public boolean resetPosition;
   public int startMediaItemIndex;
   public long startPositionMs;
@@ -234,7 +234,7 @@ public class MockPlayer implements Player {
   @Nullable public SurfaceView surfaceView;
   @Nullable public TextureView textureView;
   public float volume;
-  public List<Cue> cues;
+  public CueGroup cueGroup;
   public DeviceInfo deviceInfo;
   public int deviceVolume;
   public boolean deviceMuted;
@@ -260,14 +260,13 @@ public class MockPlayer implements Player {
       mediaItems = MediaTestUtils.createMediaItems(builder.itemCount);
       timeline = new PlaylistTimeline(mediaItems);
     } else {
-      mediaItems = ImmutableList.of();
+      mediaItems = new ArrayList<>();
       timeline = Timeline.EMPTY;
     }
 
     // Sets default audio attributes to prevent setVolume() from being called with the play().
     audioAttributes = AudioAttributes.DEFAULT;
 
-    mediaItem = MediaItem.EMPTY;
     playlistMetadata = MediaMetadata.EMPTY;
     index = C.INDEX_UNSET;
     fromIndex = C.INDEX_UNSET;
@@ -277,7 +276,7 @@ public class MockPlayer implements Player {
     repeatMode = Player.REPEAT_MODE_OFF;
     videoSize = VideoSize.UNKNOWN;
     volume = 1.0f;
-    cues = ImmutableList.of();
+    cueGroup = CueGroup.EMPTY;
     deviceInfo = DeviceInfo.UNKNOWN;
     seekPositionMs = C.TIME_UNSET;
     seekMediaItemIndex = C.INDEX_UNSET;
@@ -311,6 +310,11 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_STOP)).open();
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @Deprecated
   @Override
   public void stop(boolean reset) {
@@ -621,8 +625,8 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
-    return cues;
+  public CueGroup getCurrentCues() {
+    return cueGroup;
   }
 
   @Override
@@ -709,40 +713,40 @@ public class MockPlayer implements Player {
 
   @Override
   public void setMediaItem(MediaItem mediaItem) {
-    this.mediaItem = mediaItem;
+    this.mediaItems = new ArrayList<>(ImmutableList.of(mediaItem));
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM)).open();
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    this.mediaItem = mediaItem;
+    this.mediaItems = new ArrayList<>(ImmutableList.of(mediaItem));
     this.startPositionMs = startPositionMs;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM_WITH_START_POSITION)).open();
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    this.mediaItem = mediaItem;
+    this.mediaItems = new ArrayList<>(ImmutableList.of(mediaItem));
     this.resetPosition = resetPosition;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems) {
-    this.mediaItems = mediaItems;
+    this.mediaItems = new ArrayList<>(mediaItems);
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    this.mediaItems = mediaItems;
+    this.mediaItems = new ArrayList<>(mediaItems);
     this.resetPosition = resetPosition;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION)).open();
   }
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    this.mediaItems = mediaItems;
+    this.mediaItems = new ArrayList<>(mediaItems);
     this.startMediaItemIndex = startIndex;
     this.startPositionMs = startPositionMs;
     checkNotNull(conditionVariables.get(METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX)).open();
@@ -759,6 +763,9 @@ public class MockPlayer implements Player {
     checkNotNull(conditionVariables.get(METHOD_SET_PLAYLIST_METADATA)).open();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
@@ -770,6 +777,9 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @Deprecated
   @Override
   public boolean isCurrentWindowLive() {
@@ -781,6 +791,9 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
@@ -816,6 +829,9 @@ public class MockPlayer implements Player {
     return currentPeriodIndex;
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public int getCurrentWindowIndex() {
@@ -827,6 +843,9 @@ public class MockPlayer implements Player {
     return currentMediaItemIndex;
   }
 
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public int getPreviousWindowIndex() {
@@ -838,6 +857,9 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @Deprecated
   @Override
   public int getNextWindowIndex() {
@@ -851,33 +873,34 @@ public class MockPlayer implements Player {
 
   @Override
   public void addMediaItem(MediaItem mediaItem) {
-    this.mediaItem = mediaItem;
+    this.mediaItems.add(mediaItem);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEM)).open();
   }
 
   @Override
   public void addMediaItem(int index, MediaItem mediaItem) {
     this.index = index;
-    this.mediaItem = mediaItem;
+    this.mediaItems.add(index, mediaItem);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEM_WITH_INDEX)).open();
   }
 
   @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
-    this.mediaItems = mediaItems;
+    this.mediaItems.addAll(mediaItems);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     this.index = index;
-    this.mediaItems = mediaItems;
+    this.mediaItems.addAll(index, mediaItems);
     checkNotNull(conditionVariables.get(METHOD_ADD_MEDIA_ITEMS_WITH_INDEX)).open();
   }
 
   @Override
   public void removeMediaItem(int index) {
     this.index = index;
+    this.mediaItems.remove(index);
     checkNotNull(conditionVariables.get(METHOD_REMOVE_MEDIA_ITEM)).open();
   }
 
@@ -885,11 +908,13 @@ public class MockPlayer implements Player {
   public void removeMediaItems(int fromIndex, int toIndex) {
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
+    Util.removeRange(mediaItems, fromIndex, toIndex);
     checkNotNull(conditionVariables.get(METHOD_REMOVE_MEDIA_ITEMS)).open();
   }
 
   @Override
   public void clearMediaItems() {
+    this.mediaItems.clear();
     checkNotNull(conditionVariables.get(METHOD_CLEAR_MEDIA_ITEMS)).open();
   }
 
@@ -897,6 +922,7 @@ public class MockPlayer implements Player {
   public void moveMediaItem(int currentIndex, int newIndex) {
     this.index = currentIndex;
     this.newIndex = newIndex;
+    Util.moveItems(mediaItems, currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
     checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEM)).open();
   }
 
@@ -905,27 +931,40 @@ public class MockPlayer implements Player {
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
     this.newIndex = newIndex;
+    Util.moveItems(mediaItems, fromIndex, toIndex, newIndex);
     checkNotNull(conditionVariables.get(METHOD_MOVE_MEDIA_ITEMS)).open();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasPrevious() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasNext() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasPreviousWindow() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public boolean hasNextWindow() {
@@ -942,24 +981,36 @@ public class MockPlayer implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void previous() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void next() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   @Override
   public void seekToNextWindow() {
@@ -1134,9 +1185,11 @@ public class MockPlayer implements Player {
     }
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   public void notifyCuesChanged() {
     for (Listener listener : listeners) {
-      listener.onCues(cues);
+      listener.onCues(cueGroup.cues);
+      listener.onCues(cueGroup);
     }
   }
 

@@ -16,6 +16,7 @@
 package androidx.media3.decoder.opus;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -26,7 +27,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,11 +68,6 @@ public final class OpusDecoderTest {
 
   private static final ImmutableList<byte[]> FULL_INITIALIZATION_DATA =
       ImmutableList.of(HEADER, CUSTOM_PRE_SKIP_BYTES, CUSTOM_SEEK_PRE_ROLL_BYTES);
-
-  @Before
-  public void setUp() {
-    assertThat(LOADER.isAvailable()).isTrue();
-  }
 
   @Test
   public void getChannelCount() {
@@ -120,6 +115,7 @@ public final class OpusDecoderTest {
 
   @Test
   public void decode_removesPreSkipFromOutput() throws OpusDecoderException {
+    assumeTrue(LOADER.isAvailable());
     OpusDecoder decoder =
         new OpusDecoder(
             /* numInputBuffers= */ 0,
@@ -139,6 +135,7 @@ public final class OpusDecoderTest {
   @Test
   public void decode_whenDiscardPaddingDisabled_returnsDiscardPadding()
       throws OpusDecoderException {
+    assumeTrue(LOADER.isAvailable());
     OpusDecoder decoder =
         new OpusDecoder(
             /* numInputBuffers= */ 0,
@@ -159,6 +156,7 @@ public final class OpusDecoderTest {
 
   @Test
   public void decode_whenDiscardPaddingEnabled_removesDiscardPadding() throws OpusDecoderException {
+    assumeTrue(LOADER.isAvailable());
     OpusDecoder decoder =
         new OpusDecoder(
             /* numInputBuffers= */ 0,
@@ -200,8 +198,12 @@ public final class OpusDecoderTest {
     return ImmutableList.of(HEADER, preSkip, CUSTOM_SEEK_PRE_ROLL_BYTES);
   }
 
+  // The cast to ByteBuffer is required for Java 8 compatibility. See
+  // https://issues.apache.org/jira/browse/MRESOLVER-85
+  @SuppressWarnings("UnnecessaryCast")
   private static ByteBuffer createSupplementalData(long value) {
-    return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(value).rewind();
+    return (ByteBuffer)
+        ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(value).rewind();
   }
 
   private static DecoderInputBuffer createInputBuffer(

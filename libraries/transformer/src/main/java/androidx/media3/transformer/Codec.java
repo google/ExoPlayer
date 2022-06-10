@@ -35,12 +35,11 @@ import java.util.List;
  */
 @UnstableApi
 public interface Codec {
+  /** Default value for the pending frame count, which represents applying no limit. */
+  int UNLIMITED_PENDING_FRAME_COUNT = Integer.MAX_VALUE;
 
   /** A factory for {@linkplain Codec decoder} instances. */
   interface DecoderFactory {
-
-    /** A default {@code DecoderFactory} implementation. */
-    DecoderFactory DEFAULT = new DefaultDecoderFactory();
 
     /**
      * Returns a {@link Codec} for audio decoding.
@@ -69,9 +68,6 @@ public interface Codec {
 
   /** A factory for {@linkplain Codec encoder} instances. */
   interface EncoderFactory {
-
-    /** A default {@code EncoderFactory} implementation. */
-    EncoderFactory DEFAULT = new DefaultEncoderFactory();
 
     /**
      * Returns a {@link Codec} for audio encoding.
@@ -131,6 +127,9 @@ public interface Codec {
    */
   Format getConfigurationFormat();
 
+  /** Returns the name of the underlying codec. */
+  String getName();
+
   /**
    * Returns the input {@link Surface} of an underlying video encoder.
    *
@@ -138,6 +137,14 @@ public interface Codec {
    * encoders don't use a {@link Surface} as input.
    */
   Surface getInputSurface();
+
+  /**
+   * Returns the maximum number of frames that may be pending in the output {@code Codec} at a time,
+   * or {@link #UNLIMITED_PENDING_FRAME_COUNT} if it's not necessary to enforce a limit.
+   */
+  default int getMaxPendingFrameCount() {
+    return UNLIMITED_PENDING_FRAME_COUNT;
+  }
 
   /**
    * Dequeues a writable input buffer, if available.

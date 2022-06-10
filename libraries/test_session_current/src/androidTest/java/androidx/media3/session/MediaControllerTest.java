@@ -520,7 +520,7 @@ public class MediaControllerTest {
   @Test
   public void getAudioAttributes_returnsAudioAttributesOfPlayerInSession() throws Exception {
     AudioAttributes testAttributes =
-        new AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).build();
+        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build();
 
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder().setAudioAttributes(testAttributes).build();

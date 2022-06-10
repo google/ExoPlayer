@@ -19,6 +19,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -40,8 +42,9 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EncoderSelector;
-import androidx.media3.transformer.GlFrameProcessor;
+import androidx.media3.transformer.GlEffect;
 import androidx.media3.transformer.ProgressHolder;
+import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationResult;
@@ -54,6 +57,7 @@ import com.google.common.base.Ticker;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -149,9 +153,10 @@ public final class TransformerActivity extends AppCompatActivity {
       externalCacheFile = createExternalCacheFile("transformer-output.mp4");
       String filePath = externalCacheFile.getAbsolutePath();
       @Nullable Bundle bundle = intent.getExtras();
+      MediaItem mediaItem = createMediaItem(bundle, uri);
       Transformer transformer = createTransformer(bundle, filePath);
       transformationStopwatch.start();
-      transformer.startTransformation(MediaItem.fromUri(uri), filePath);
+      transformer.startTransformation(mediaItem, filePath);
       this.transformer = transformer;
     } catch (IOException e) {
       throw new IllegalStateException(e);
@@ -176,6 +181,24 @@ public final class TransformerActivity extends AppCompatActivity {
             }
           }
         });
+  }
+
+  private MediaItem createMediaItem(@Nullable Bundle bundle, Uri uri) {
+    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder().setUri(uri);
+    if (bundle != null) {
+      long trimStartMs =
+          bundle.getLong(ConfigurationActivity.TRIM_START_MS, /* defaultValue= */ C.TIME_UNSET);
+      long trimEndMs =
+          bundle.getLong(ConfigurationActivity.TRIM_END_MS, /* defaultValue= */ C.TIME_UNSET);
+      if (trimStartMs != C.TIME_UNSET && trimEndMs != C.TIME_UNSET) {
+        mediaItemBuilder.setClippingConfiguration(
+            new MediaItem.ClippingConfiguration.Builder()
+                .setStartPositionMs(trimStartMs)
+                .setEndPositionMs(trimEndMs)
+                .build());
+      }
+    }
+    return mediaItemBuilder.build();
   }
 
   // Create a cache file, resetting it if it already exists.
@@ -237,38 +260,64 @@ public final class TransformerActivity extends AppCompatActivity {
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
           .setEncoderFactory(
               new DefaultEncoderFactory(
+                  /* context= */ this,
                   EncoderSelector.DEFAULT,
                   /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
 
-      ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
+      ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
       @Nullable
-      boolean[] selectedFrameProcessors =
-          bundle.getBooleanArray(ConfigurationActivity.DEMO_FRAME_PROCESSORS_SELECTIONS);
-      if (selectedFrameProcessors != null) {
-        if (selectedFrameProcessors[0]) {
-          frameProcessors.add(AdvancedFrameProcessorFactory.createDizzyCropFrameProcessor());
+      boolean[] selectedEffects =
+          bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
+      if (selectedEffects != null) {
+        if (selectedEffects[0]) {
+          effects.add(MatrixTransformationFactory.createDizzyCropEffect());
         }
-        if (selectedFrameProcessors[1]) {
-          frameProcessors.add(
-              new PeriodicVignetteFrameProcessor(
-                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
-                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
-                  /* minInnerRadius= */ bundle.getFloat(
-                      ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
-                  /* maxInnerRadius= */ bundle.getFloat(
-                      ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
-                  bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
+        if (selectedEffects[1]) {
+          try {
+            Class<?> clazz = Class.forName("androidx.media3.demo.transformer.MediaPipeProcessor");
+            Constructor<?> constructor =
+                clazz.getConstructor(Context.class, String.class, String.class, String.class);
+            effects.add(
+                (Context context) -> {
+                  try {
+                    return (SingleFrameGlTextureProcessor)
+                        constructor.newInstance(
+                            context,
+                            /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
+                            /* inputStreamName= */ "input_video",
+                            /* outputStreamName= */ "output_video");
+                  } catch (Exception e) {
+                    runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
+                    throw new RuntimeException("Failed to load MediaPipe processor", e);
+                  }
+                });
+          } catch (Exception e) {
+            showToast(R.string.no_media_pipe_error);
+          }
         }
-        if (selectedFrameProcessors[2]) {
-          frameProcessors.add(AdvancedFrameProcessorFactory.createSpin3dFrameProcessor());
+        if (selectedEffects[2]) {
+          effects.add(
+              (Context context) ->
+                  new PeriodicVignetteProcessor(
+                      context,
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                      /* minInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                      /* maxInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedFrameProcessors[3]) {
-          frameProcessors.add(new BitmapOverlayFrameProcessor());
+        if (selectedEffects[3]) {
+          effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
-        if (selectedFrameProcessors[4]) {
-          frameProcessors.add(AdvancedFrameProcessorFactory.createZoomInTransitionFrameProcessor());
+        if (selectedEffects[4]) {
+          effects.add(BitmapOverlayProcessor::new);
         }
-        transformerBuilder.setFrameProcessors(frameProcessors.build());
+        if (selectedEffects[5]) {
+          effects.add(MatrixTransformationFactory.createZoomInTransition());
+        }
+        transformerBuilder.setVideoFrameEffects(effects.build());
       }
     }
     return transformerBuilder
@@ -360,6 +409,10 @@ public final class TransformerActivity extends AppCompatActivity {
     if (checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
       requestPermissions(new String[] {READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
     }
+  }
+
+  private void showToast(@StringRes int messageResource) {
+    Toast.makeText(getApplicationContext(), getString(messageResource), Toast.LENGTH_LONG).show();
   }
 
   private final class DemoDebugViewProvider implements Transformer.DebugViewProvider {

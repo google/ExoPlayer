@@ -17,14 +17,13 @@ package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.BundleableUtil.fromBundleNullableList;
-import static androidx.media3.common.util.BundleableUtil.fromNullableBundle;
 import static androidx.media3.common.util.BundleableUtil.toBundleArrayList;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -252,10 +251,10 @@ public final class Tracks implements Bundleable {
     @UnstableApi
     public static final Creator<Group> CREATOR =
         bundle -> {
+          // Can't create a Tracks.Group without a TrackGroup
           TrackGroup trackGroup =
-              fromNullableBundle(
-                  TrackGroup.CREATOR, bundle.getBundle(keyForField(FIELD_TRACK_GROUP)));
-          checkNotNull(trackGroup); // Can't create a trackGroup info without a trackGroup
+              TrackGroup.CREATOR.fromBundle(
+                  checkNotNull(bundle.getBundle(keyForField(FIELD_TRACK_GROUP))));
           final @C.FormatSupport int[] trackSupport =
               MoreObjects.firstNonNull(
                   bundle.getIntArray(keyForField(FIELD_TRACK_SUPPORT)), new int[trackGroup.length]);
@@ -274,7 +273,7 @@ public final class Tracks implements Bundleable {
   }
 
   /** Empty tracks. */
-  @UnstableApi public static final Tracks EMPTY = new Tracks(ImmutableList.of());
+  public static final Tracks EMPTY = new Tracks(ImmutableList.of());
 
   private final ImmutableList<Group> groups;
 
@@ -408,11 +407,12 @@ public final class Tracks implements Bundleable {
   @UnstableApi
   public static final Creator<Tracks> CREATOR =
       bundle -> {
+        @Nullable
+        List<Bundle> groupBundles = bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS));
         List<Group> groups =
-            fromBundleNullableList(
-                Group.CREATOR,
-                bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS)),
-                /* defaultValue= */ ImmutableList.of());
+            groupBundles == null
+                ? ImmutableList.of()
+                : BundleableUtil.fromBundleList(Group.CREATOR, groupBundles);
         return new Tracks(groups);
       };
 

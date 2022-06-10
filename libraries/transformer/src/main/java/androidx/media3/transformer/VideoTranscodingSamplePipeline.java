@@ -27,6 +27,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -34,13 +35,12 @@ import org.checkerframework.dataflow.qual.Pure;
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
-
-  private static final int FRAME_COUNT_UNLIMITED = -1;
-
   private final int outputRotationDegrees;
+  private final int maxPendingFrameCount;
+
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
-  private final int maxPendingFrameCount;
+  private final ArrayList<Long> decodeOnlyPresentationTimestamps;
 
   private final FrameProcessorChain frameProcessorChain;
 
@@ -52,18 +52,21 @@ import org.checkerframework.dataflow.qual.Pure;
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      ImmutableList<GlEffect> effects,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
       FallbackListener fallbackListener,
+      FrameProcessorChain.Listener frameProcessorChainListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    decodeOnlyPresentationTimestamps = new ArrayList<>();
 
     // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
     int decodedWidth =
@@ -71,36 +74,41 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    ImmutableList.Builder<GlFrameProcessor> frameProcessorsListBuilder =
-        new ImmutableList.Builder<GlFrameProcessor>().addAll(frameProcessors);
+    ImmutableList.Builder<GlEffect> effectsListBuilder =
+        new ImmutableList.Builder<GlEffect>().addAll(effects);
     if (transformationRequest.scaleX != 1f
         || transformationRequest.scaleY != 1f
         || transformationRequest.rotationDegrees != 0f) {
-      frameProcessorsListBuilder.add(
-          new ScaleToFitFrameProcessor.Builder()
+      effectsListBuilder.add(
+          new ScaleToFitTransformation.Builder()
               .setScale(transformationRequest.scaleX, transformationRequest.scaleY)
               .setRotationDegrees(transformationRequest.rotationDegrees)
               .build());
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
-      frameProcessorsListBuilder.add(
-          new PresentationFrameProcessor.Builder()
-              .setResolution(transformationRequest.outputHeight)
-              .build());
+      effectsListBuilder.add(
+          new Presentation.Builder().setResolution(transformationRequest.outputHeight).build());
     }
-    EncoderCompatibilityFrameProcessor encoderCompatibilityFrameProcessor =
-        new EncoderCompatibilityFrameProcessor();
-    frameProcessorsListBuilder.add(encoderCompatibilityFrameProcessor);
-    frameProcessorChain =
-        FrameProcessorChain.create(
-            context,
-            inputFormat.pixelWidthHeightRatio,
-            /* inputWidth= */ decodedWidth,
-            /* inputHeight= */ decodedHeight,
-            frameProcessorsListBuilder.build(),
-            transformationRequest.enableHdrEditing);
+    EncoderCompatibilityTransformation encoderCompatibilityTransformation =
+        new EncoderCompatibilityTransformation();
+    effectsListBuilder.add(encoderCompatibilityTransformation);
+    try {
+      frameProcessorChain =
+          FrameProcessorChain.create(
+              context,
+              frameProcessorChainListener,
+              inputFormat.pixelWidthHeightRatio,
+              /* inputWidth= */ decodedWidth,
+              /* inputHeight= */ decodedHeight,
+              streamOffsetUs,
+              effectsListBuilder.build(),
+              transformationRequest.enableHdrEditing);
+    } catch (FrameProcessingException e) {
+      throw TransformationException.createForFrameProcessorChain(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
     Size requestedEncoderSize = frameProcessorChain.getOutputSize();
-    outputRotationDegrees = encoderCompatibilityFrameProcessor.getOutputRotationDegrees();
+    outputRotationDegrees = encoderCompatibilityTransformation.getOutputRotationDegrees();
 
     Format requestedEncoderFormat =
         new Format.Builder()
@@ -135,7 +143,7 @@ import org.checkerframework.dataflow.qual.Pure;
             inputFormat,
             frameProcessorChain.getInputSurface(),
             transformationRequest.enableRequestSdrToneMapping);
-    maxPendingFrameCount = getMaxPendingFrameCount();
+    maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
 
   @Override
@@ -146,12 +154,14 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void queueInputBuffer() throws TransformationException {
+    if (decoderInputBuffer.isDecodeOnly()) {
+      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
+    }
     decoder.queueInputBuffer(decoderInputBuffer);
   }
 
   @Override
   public boolean processData() throws TransformationException {
-    frameProcessorChain.getAndRethrowBackgroundExceptions();
     if (frameProcessorChain.isEnded()) {
       if (!signaledEndOfStreamToEncoder) {
         encoder.signalEndOfInputStream();
@@ -250,11 +260,17 @@ import org.checkerframework.dataflow.qual.Pure;
    * @throws TransformationException If a problem occurs while processing the frame.
    */
   private boolean maybeProcessDecoderOutput() throws TransformationException {
-    if (decoder.getOutputBufferInfo() == null) {
+    @Nullable MediaCodec.BufferInfo decoderOutputBufferInfo = decoder.getOutputBufferInfo();
+    if (decoderOutputBufferInfo == null) {
       return false;
     }
 
-    if (maxPendingFrameCount != FRAME_COUNT_UNLIMITED
+    if (isDecodeOnlyBuffer(decoderOutputBufferInfo.presentationTimeUs)) {
+      decoder.releaseOutputBuffer(/* render= */ false);
+      return true;
+    }
+
+    if (maxPendingFrameCount != Codec.UNLIMITED_PENDING_FRAME_COUNT
         && frameProcessorChain.getPendingFrameCount() == maxPendingFrameCount) {
       return false;
     }
@@ -264,30 +280,16 @@ import org.checkerframework.dataflow.qual.Pure;
     return true;
   }
 
-  /**
-   * Returns the maximum number of frames that may be pending in the output {@link
-   * FrameProcessorChain} at a time, or {@link #FRAME_COUNT_UNLIMITED} if it's not necessary to
-   * enforce a limit.
-   */
-  private static int getMaxPendingFrameCount() {
-    if (Util.SDK_INT < 29) {
-      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-      // bounds, while from API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
-      // dropping even when the surface is full. We never want frame dropping so allow a maximum of
-      // one frame to be pending at a time.
-      // TODO(b/226330223): Investigate increasing this limit.
-      return 1;
+  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
+    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
+    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
+    int size = decodeOnlyPresentationTimestamps.size();
+    for (int i = 0; i < size; i++) {
+      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
+        decodeOnlyPresentationTimestamps.remove(i);
+        return true;
+      }
     }
-    if (Util.SDK_INT < 33
-        && ("OnePlus".equals(Util.MANUFACTURER) || "samsung".equals(Util.MANUFACTURER))) {
-      // Some OMX decoders don't correctly track their number of output buffers available, and get
-      // stuck if too many frames are rendered without being processed, so we limit the number of
-      // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700.
-      return 10;
-    }
-    // Otherwise don't limit the number of frames that can be pending at a time, to maximize
-    // throughput.
-    return FRAME_COUNT_UNLIMITED;
+    return false;
   }
 }

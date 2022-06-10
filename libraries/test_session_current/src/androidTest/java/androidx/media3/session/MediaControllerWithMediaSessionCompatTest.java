@@ -440,19 +440,16 @@ public class MediaControllerWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(timelineRef.get().getWindowCount()).isEqualTo(1);
-    MediaMetadata metadata =
-        timelineRef
-            .get()
-            .getWindow(/* windowIndex= */ 0, new Timeline.Window())
-            .mediaItem
-            .mediaMetadata;
+    MediaItem mediaItem =
+        timelineRef.get().getWindow(/* windowIndex= */ 0, new Timeline.Window()).mediaItem;
+    MediaMetadata metadata = mediaItem.mediaMetadata;
     assertThat(TextUtils.equals(metadata.title, testTitle)).isTrue();
     assertThat(TextUtils.equals(metadata.subtitle, testSubtitle)).isTrue();
     assertThat(TextUtils.equals(metadata.description, testDescription)).isTrue();
     assertThat(metadata.artworkUri).isEqualTo(testIconUri);
     if (Util.SDK_INT < 21 || Util.SDK_INT >= 23) {
       // TODO(b/199055952): Test mediaUri for all API levels once the bug is fixed.
-      assertThat(metadata.mediaUri).isEqualTo(testMediaUri);
+      assertThat(mediaItem.requestMetadata.mediaUri).isEqualTo(testMediaUri);
     }
     assertThat(TestUtils.equals(metadata.extras, testExtras)).isTrue();
   }
@@ -536,13 +533,14 @@ public class MediaControllerWithMediaSessionCompatTest {
     session.setMetadata(metadataCompat);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(itemRef.get().mediaId).isEqualTo(testMediaId);
-    MediaMetadata metadata = itemRef.get().mediaMetadata;
+    MediaItem mediaItem = itemRef.get();
+    assertThat(mediaItem.mediaId).isEqualTo(testMediaId);
+    assertThat(mediaItem.requestMetadata.mediaUri).isEqualTo(Uri.parse(testMediaUri));
+    MediaMetadata metadata = mediaItem.mediaMetadata;
     assertThat(TextUtils.equals(metadata.title, testTitle)).isTrue();
     assertThat(TextUtils.equals(metadata.subtitle, testSubtitle)).isTrue();
     assertThat(TextUtils.equals(metadata.description, testDescription)).isTrue();
     assertThat(metadata.artworkUri).isEqualTo(Uri.parse(testIconUri));
-    assertThat(metadata.mediaUri).isEqualTo(Uri.parse(testMediaUri));
   }
 
   @Test

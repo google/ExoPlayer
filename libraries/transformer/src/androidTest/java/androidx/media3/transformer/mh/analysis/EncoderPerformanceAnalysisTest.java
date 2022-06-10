@@ -22,6 +22,7 @@ import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import android.content.Context;
 import android.media.MediaFormat;
 import android.net.Uri;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -51,6 +52,7 @@ public class EncoderPerformanceAnalysisTest {
 
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
+          AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING,
           AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
           AndroidTestUtil.MP4_REMOTE_4K60_PORTRAIT_URI_STRING);
 
@@ -98,6 +100,14 @@ public class EncoderPerformanceAnalysisTest {
             "analyzePerformance_%s_OpRate_%d_Priority_%d", filename, operatingRate, priority);
     Context context = ApplicationProvider.getApplicationContext();
 
+    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+        context,
+        testId,
+        /* decodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
+        /* encodingFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri))) {
+      return;
+    }
+
     if (Util.SDK_INT < 23) {
       recordTestSkipped(
           context,
@@ -116,17 +126,19 @@ public class EncoderPerformanceAnalysisTest {
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    EncoderSelector.DEFAULT,
-                    new VideoEncoderSettings.Builder()
-                        .setEncoderPerformanceParameters(operatingRate, priority)
-                        .build(),
-                    /* enableFallback= */ false))
+                new AndroidTestUtil.ForceEncodeEncoderFactory(
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
+                        context,
+                        EncoderSelector.DEFAULT,
+                        new VideoEncoderSettings.Builder()
+                            .setEncoderPerformanceParameters(operatingRate, priority)
+                            .build(),
+                        /* enableFallback= */ false)))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setInputValues(inputValues)
         .build()
-        .run(testId, fileUri);
+        .run(testId, MediaItem.fromUri(Uri.parse(fileUri)));
   }
 }

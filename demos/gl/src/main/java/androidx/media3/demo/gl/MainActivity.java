@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -156,13 +157,18 @@ public final class MainActivity extends Activity {
 
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
     MediaSource mediaSource;
-    @C.ContentType int type = Util.inferContentType(uri, intent.getStringExtra(EXTENSION_EXTRA));
-    if (type == C.TYPE_DASH) {
+    @Nullable String fileExtension = intent.getStringExtra(EXTENSION_EXTRA);
+    @C.ContentType
+    int type =
+        TextUtils.isEmpty(fileExtension)
+            ? Util.inferContentType(uri)
+            : Util.inferContentTypeForExtension(fileExtension);
+    if (type == C.CONTENT_TYPE_DASH) {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
-    } else if (type == C.TYPE_OTHER) {
+    } else if (type == C.CONTENT_TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)

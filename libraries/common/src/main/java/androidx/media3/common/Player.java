@@ -32,7 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
@@ -294,7 +294,9 @@ public interface Player {
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
+      if (mediaItem != null) {
+        bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      }
       bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
       bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
@@ -309,10 +311,10 @@ public interface Player {
     private static PositionInfo fromBundle(Bundle bundle) {
       int mediaItemIndex =
           bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
       @Nullable
       MediaItem mediaItem =
-          BundleableUtil.fromNullableBundle(
-              MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
+          mediaItemBundle == null ? null : MediaItem.CREATOR.fromBundle(mediaItemBundle);
       int periodIndex =
           bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
       long positionMs =
@@ -382,6 +384,7 @@ public interface Player {
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         COMMAND_GET_TRACKS,
+        COMMAND_SET_MEDIA_ITEM,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -1024,15 +1027,28 @@ public interface Player {
     /**
      * Called when there is a change in the {@link Cue Cues}.
      *
-     * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-     * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param cues The {@link Cue Cues}. May be empty.
+     * @deprecated Use {@link #onCues(CueGroup)} instead.
      */
+    @Deprecated
+    @UnstableApi
     default void onCues(List<Cue> cues) {}
+
+    /**
+     * Called when there is a change in the {@link CueGroup}.
+     *
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     */
+    default void onCues(CueGroup cueGroup) {}
 
     /**
      * Called when there is metadata associated with the current playback time.
@@ -1387,7 +1403,8 @@ public interface Player {
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
    * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
-   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACKS}.
+   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS}, {@link #COMMAND_GET_TRACKS} or {@link
+   * #COMMAND_SET_MEDIA_ITEM}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1426,6 +1443,7 @@ public interface Player {
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
     COMMAND_GET_TRACKS,
+    COMMAND_SET_MEDIA_ITEM,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1505,6 +1523,8 @@ public interface Player {
   int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 29;
   /** Command to get details of the current track selection. */
   int COMMAND_GET_TRACKS = 30;
+  /** Command to set a {@link MediaItem MediaItem}. */
+  int COMMAND_SET_MEDIA_ITEM = 31;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -2469,8 +2489,8 @@ public interface Player {
    */
   VideoSize getVideoSize();
 
-  /** Returns the current {@link Cue Cues}. This list may be empty. */
-  List<Cue> getCurrentCues();
+  /** Returns the current {@link CueGroup}. */
+  CueGroup getCurrentCues();
 
   /** Gets the device information. */
   DeviceInfo getDeviceInfo();

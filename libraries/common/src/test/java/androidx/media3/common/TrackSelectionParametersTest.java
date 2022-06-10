@@ -201,7 +201,7 @@ public final class TrackSelectionParametersTest {
         new TrackSelectionParameters.Builder(getApplicationContext()).addOverride(override).build();
 
     TrackSelectionParameters fromBundle =
-        TrackSelectionParameters.CREATOR.fromBundle(trackSelectionParameters.toBundle());
+        TrackSelectionParameters.fromBundle(trackSelectionParameters.toBundle());
 
     assertThat(fromBundle).isEqualTo(trackSelectionParameters);
     assertThat(trackSelectionParameters.overrides)

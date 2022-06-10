@@ -60,7 +60,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.RepeatModeUtil;
 import androidx.media3.common.util.UnstableApi;
@@ -171,6 +171,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
+  /** Listener to be notified about changes of the visibility of the UI controls. */
+  public interface ControllerVisibilityListener {
+
+    /**
+     * Called when the visibility changes.
+     *
+     * @param visibility The new visibility. Either {@link View#VISIBLE} or {@link View#GONE}.
+     */
+    void onVisibilityChanged(int visibility);
+  }
+
+  /**
+   * Listener invoked when the fullscreen button is clicked. The implementation is responsible for
+   * changing the UI layout.
+   */
+  public interface FullscreenButtonClickListener {
+
+    /**
+     * Called when the fullscreen button is clicked.
+     *
+     * @param isFullScreen {@code true} if the video rendering surface should be fullscreen, {@code
+     *     false} otherwise.
+     */
+    void onFullscreenButtonClick(boolean isFullScreen);
+  }
+
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
    * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
@@ -215,7 +241,16 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
   @Nullable private Player player;
   private boolean useController;
-  @Nullable private PlayerControlView.VisibilityListener controllerVisibilityListener;
+
+  // At most one of controllerVisibilityListener and legacyControllerVisibilityListener is non-null.
+  @Nullable private ControllerVisibilityListener controllerVisibilityListener;
+
+  @SuppressWarnings("deprecation")
+  @Nullable
+  private PlayerControlView.VisibilityListener legacyControllerVisibilityListener;
+
+  @Nullable private FullscreenButtonClickListener fullscreenButtonClickListener;
+
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -518,7 +553,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         updateAspectRatio();
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
-        subtitleView.setCues(player.getCurrentCues());
+        subtitleView.setCues(player.getCurrentCues().cues);
       }
       player.addListener(componentListener);
       maybeShowController(false);
@@ -596,7 +631,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /** Returns whether the playback controls can be shown. */
-  @UnstableApi
   public boolean getUseController() {
     return useController;
   }
@@ -610,7 +644,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param useController Whether the playback controls can be shown.
    */
-  @UnstableApi
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
     setClickable(useController || hasOnClickListeners());
@@ -687,7 +720,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *
    * @param errorMessageProvider The error message provider.
    */
-  @UnstableApi
   public void setErrorMessageProvider(
       @Nullable ErrorMessageProvider<? super PlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {
@@ -855,35 +887,79 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   /**
    * Sets the {@link PlayerControlView.VisibilityListener}.
    *
+   * <p>Removes any listener set by {@link
+   * #setControllerVisibilityListener(PlayerControlView.VisibilityListener)}.
+   *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
    */
+  @SuppressWarnings("deprecation") // Clearing the legacy listener.
+  public void setControllerVisibilityListener(@Nullable ControllerVisibilityListener listener) {
+    this.controllerVisibilityListener = listener;
+    setControllerVisibilityListener((PlayerControlView.VisibilityListener) null);
+  }
+
+  /**
+   * Sets the {@link PlayerControlView.VisibilityListener}.
+   *
+   * <p>Removes any listener set by {@link
+   * #setControllerVisibilityListener(ControllerVisibilityListener)}.
+   *
+   * @deprecated Use {@link #setControllerVisibilityListener(ControllerVisibilityListener)} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @UnstableApi
   public void setControllerVisibilityListener(
       @Nullable PlayerControlView.VisibilityListener listener) {
     Assertions.checkStateNotNull(controller);
-    if (this.controllerVisibilityListener == listener) {
+    if (this.legacyControllerVisibilityListener == listener) {
       return;
     }
-    if (this.controllerVisibilityListener != null) {
-      controller.removeVisibilityListener(this.controllerVisibilityListener);
+
+    if (this.legacyControllerVisibilityListener != null) {
+      controller.removeVisibilityListener(this.legacyControllerVisibilityListener);
     }
-    this.controllerVisibilityListener = listener;
+    this.legacyControllerVisibilityListener = listener;
     if (listener != null) {
       controller.addVisibilityListener(listener);
     }
+    setControllerVisibilityListener((ControllerVisibilityListener) null);
+  }
+
+  /**
+   * Sets the {@link FullscreenButtonClickListener}.
+   *
+   * <p>Clears any listener set by {@link
+   * #setControllerOnFullScreenModeChangedListener(PlayerControlView.OnFullScreenModeChangedListener)}.
+   *
+   * @param listener The listener to be notified when the fullscreen button is clicked, or null to
+   *     remove the current listener and hide the fullscreen button.
+   */
+  @SuppressWarnings("deprecation") // Calling the deprecated method on PlayerControlView for now.
+  public void setFullscreenButtonClickListener(@Nullable FullscreenButtonClickListener listener) {
+    Assertions.checkStateNotNull(controller);
+    this.fullscreenButtonClickListener = listener;
+    controller.setOnFullScreenModeChangedListener(componentListener);
   }
 
   /**
    * Sets the {@link PlayerControlView.OnFullScreenModeChangedListener}.
    *
+   * <p>Clears any listener set by {@link
+   * #setFullscreenButtonClickListener(FullscreenButtonClickListener)}.
+   *
    * @param listener The listener to be notified when the fullscreen button is clicked, or null to
    *     remove the current listener and hide the fullscreen button.
+   * @deprecated Use {@link #setFullscreenButtonClickListener(FullscreenButtonClickListener)}
+   *     instead.
    */
+  @Deprecated
   @UnstableApi
   public void setControllerOnFullScreenModeChangedListener(
       @Nullable PlayerControlView.OnFullScreenModeChangedListener listener) {
     Assertions.checkStateNotNull(controller);
+    this.fullscreenButtonClickListener = null;
     controller.setOnFullScreenModeChangedListener(listener);
   }
 
@@ -1426,11 +1502,15 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
   }
 
+  // Implementing the deprecated PlayerControlView.VisibilityListener and
+  // PlayerControlView.OnFullScreenModeChangedListener for now.
+  @SuppressWarnings("deprecation")
   private final class ComponentListener
       implements Player.Listener,
           OnLayoutChangeListener,
           OnClickListener,
-          PlayerControlView.VisibilityListener {
+          PlayerControlView.VisibilityListener,
+          PlayerControlView.OnFullScreenModeChangedListener {
 
     private final Period period;
     private @Nullable Object lastPeriodUidWithTracks;
@@ -1442,9 +1522,9 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     // Player.Listener implementation
 
     @Override
-    public void onCues(List<Cue> cues) {
+    public void onCues(CueGroup cueGroup) {
       if (subtitleView != null) {
-        subtitleView.setCues(cues);
+        subtitleView.setCues(cueGroup.cues);
       }
     }
 
@@ -1540,6 +1620,18 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     @Override
     public void onVisibilityChange(int visibility) {
       updateContentDescription();
+      if (controllerVisibilityListener != null) {
+        controllerVisibilityListener.onVisibilityChanged(visibility);
+      }
+    }
+
+    // PlayerControlView.OnFullScreenModeChangedListener implementation
+
+    @Override
+    public void onFullScreenModeChanged(boolean isFullScreen) {
+      if (fullscreenButtonClickListener != null) {
+        fullscreenButtonClickListener.onFullscreenButtonClick(isFullScreen);
+      }
     }
   }
 }

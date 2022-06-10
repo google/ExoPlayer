@@ -17,13 +17,13 @@ package androidx.media3.transformer;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,121 +34,121 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameProcessorChainTest {
+  private final AtomicReference<FrameProcessingException> frameProcessingException =
+      new AtomicReference<>();
 
   @Test
-  public void create_withSupportedPixelWidthHeightRatio_completesSuccessfully()
-      throws TransformationException {
-    Context context = getApplicationContext();
-
-    FrameProcessorChain.create(
-        context,
-        /* pixelWidthHeightRatio= */ 1,
-        /* inputWidth= */ 200,
-        /* inputHeight= */ 100,
-        /* frameProcessors= */ ImmutableList.of(),
-        /* enableExperimentalHdrEditing= */ false);
-  }
-
-  @Test
-  public void create_withUnsupportedPixelWidthHeightRatio_throwsException() {
-    Context context = getApplicationContext();
-
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class,
-            () ->
-                FrameProcessorChain.create(
-                    context,
-                    /* pixelWidthHeightRatio= */ 2,
-                    /* inputWidth= */ 200,
-                    /* inputHeight= */ 100,
-                    /* frameProcessors= */ ImmutableList.of(),
-                    /* enableExperimentalHdrEditing= */ false));
-
-    assertThat(exception).hasCauseThat().isInstanceOf(UnsupportedOperationException.class);
-    assertThat(exception).hasCauseThat().hasMessageThat().contains("pixelWidthHeightRatio");
-  }
-
-  @Test
-  public void getOutputSize_withoutFrameProcessors_returnsInputSize()
-      throws TransformationException {
+  public void getOutputSize_noOperation_returnsInputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
-            inputSize, /* frameProcessorOutputSizes= */ ImmutableList.of());
+        createFrameProcessorChainWithFakeTextureProcessors(
+            /* pixelWidthHeightRatio= */ 1f,
+            inputSize,
+            /* textureProcessorOutputSizes= */ ImmutableList.of());
 
     Size outputSize = frameProcessorChain.getOutputSize();
 
     assertThat(outputSize).isEqualTo(inputSize);
+    assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
-  public void getOutputSize_withOneFrameProcessor_returnsItsOutputSize()
-      throws TransformationException {
+  public void getOutputSize_withWidePixels_returnsWiderOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
-    Size frameProcessorOutputSize = new Size(300, 250);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
-            inputSize, /* frameProcessorOutputSizes= */ ImmutableList.of(frameProcessorOutputSize));
+        createFrameProcessorChainWithFakeTextureProcessors(
+            /* pixelWidthHeightRatio= */ 2f,
+            inputSize,
+            /* textureProcessorOutputSizes= */ ImmutableList.of());
+
+    Size outputSize = frameProcessorChain.getOutputSize();
+
+    assertThat(outputSize).isEqualTo(new Size(400, 100));
+    assertThat(frameProcessingException.get()).isNull();
+  }
+
+  @Test
+  public void getOutputSize_withTallPixels_returnsTallerOutputSize() throws Exception {
+    Size inputSize = new Size(200, 100);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeTextureProcessors(
+            /* pixelWidthHeightRatio= */ .5f,
+            inputSize,
+            /* textureProcessorOutputSizes= */ ImmutableList.of());
+
+    Size outputSize = frameProcessorChain.getOutputSize();
+
+    assertThat(outputSize).isEqualTo(new Size(200, 200));
+    assertThat(frameProcessingException.get()).isNull();
+  }
+
+  @Test
+  public void getOutputSize_withOneTextureProcessor_returnsItsOutputSize() throws Exception {
+    Size inputSize = new Size(200, 100);
+    Size textureProcessorOutputSize = new Size(300, 250);
+    FrameProcessorChain frameProcessorChain =
+        createFrameProcessorChainWithFakeTextureProcessors(
+            /* pixelWidthHeightRatio= */ 1f,
+            inputSize,
+            /* textureProcessorOutputSizes= */ ImmutableList.of(textureProcessorOutputSize));
 
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
-    assertThat(frameProcessorChainOutputSize).isEqualTo(frameProcessorOutputSize);
+    assertThat(frameProcessorChainOutputSize).isEqualTo(textureProcessorOutputSize);
+    assertThat(frameProcessingException.get()).isNull();
   }
 
   @Test
-  public void getOutputSize_withThreeFrameProcessors_returnsLastOutputSize()
-      throws TransformationException {
+  public void getOutputSize_withThreeTextureProcessors_returnsLastOutputSize() throws Exception {
     Size inputSize = new Size(200, 100);
     Size outputSize1 = new Size(300, 250);
     Size outputSize2 = new Size(400, 244);
     Size outputSize3 = new Size(150, 160);
     FrameProcessorChain frameProcessorChain =
-        createFrameProcessorChainWithFakeFrameProcessors(
+        createFrameProcessorChainWithFakeTextureProcessors(
+            /* pixelWidthHeightRatio= */ 1f,
             inputSize,
-            /* frameProcessorOutputSizes= */ ImmutableList.of(
+            /* textureProcessorOutputSizes= */ ImmutableList.of(
                 outputSize1, outputSize2, outputSize3));
 
     Size frameProcessorChainOutputSize = frameProcessorChain.getOutputSize();
 
     assertThat(frameProcessorChainOutputSize).isEqualTo(outputSize3);
+    assertThat(frameProcessingException.get()).isNull();
   }
 
-  private static FrameProcessorChain createFrameProcessorChainWithFakeFrameProcessors(
-      Size inputSize, List<Size> frameProcessorOutputSizes) throws TransformationException {
-    ImmutableList.Builder<GlFrameProcessor> frameProcessors = new ImmutableList.Builder<>();
-    for (Size element : frameProcessorOutputSizes) {
-      frameProcessors.add(new FakeFrameProcessor(element));
+  private FrameProcessorChain createFrameProcessorChainWithFakeTextureProcessors(
+      float pixelWidthHeightRatio, Size inputSize, List<Size> textureProcessorOutputSizes)
+      throws FrameProcessingException {
+    ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
+    for (Size element : textureProcessorOutputSizes) {
+      effects.add((Context context) -> new FakeTextureProcessor(element));
     }
     return FrameProcessorChain.create(
         getApplicationContext(),
-        /* pixelWidthHeightRatio= */ 1,
+        /* listener= */ this.frameProcessingException::set,
+        pixelWidthHeightRatio,
         inputSize.getWidth(),
         inputSize.getHeight(),
-        frameProcessors.build(),
+        /* streamOffsetUs= */ 0L,
+        effects.build(),
         /* enableExperimentalHdrEditing= */ false);
   }
 
-  private static class FakeFrameProcessor implements GlFrameProcessor {
+  private static class FakeTextureProcessor extends SingleFrameGlTextureProcessor {
 
     private final Size outputSize;
 
-    private FakeFrameProcessor(Size outputSize) {
+    private FakeTextureProcessor(Size outputSize) {
       this.outputSize = outputSize;
     }
 
     @Override
-    public void initialize(Context context, int inputTexId, int inputWidth, int inputHeight) {}
-
-    @Override
-    public Size getOutputSize() {
+    public Size configure(int inputWidth, int inputHeight) {
       return outputSize;
     }
 
     @Override
-    public void drawFrame(long presentationTimeNs) {}
-
-    @Override
-    public void release() {}
+    public void drawFrame(int inputTexId, long presentationTimeNs) {}
   }
 }

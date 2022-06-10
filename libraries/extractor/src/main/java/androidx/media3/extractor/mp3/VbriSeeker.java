@@ -89,7 +89,7 @@ import androidx.media3.extractor.SeekPoint;
         default:
           return null;
       }
-      position += segmentSize * scale;
+      position += segmentSize * ((long) scale);
     }
     if (inputLength != C.LENGTH_UNSET && inputLength != position) {
       Log.w(TAG, "VBRI data size mismatch: " + inputLength + ", " + position);

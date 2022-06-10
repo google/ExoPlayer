@@ -35,7 +35,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TVideoRenderer";
 
   private final Context context;
-  private final ImmutableList<GlFrameProcessor> frameProcessors;
+  private final boolean clippingStartsAtKeyFrame;
+  private final ImmutableList<GlEffect> effects;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
@@ -48,14 +49,23 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      boolean clippingStartsAtKeyFrame,
+      ImmutableList<GlEffect> effects,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider) {
-    super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
+    super(
+        C.TRACK_TYPE_VIDEO,
+        muxerWrapper,
+        mediaClock,
+        transformationRequest,
+        asyncErrorListener,
+        fallbackListener);
     this.context = context;
-    this.frameProcessors = frameProcessors;
+    this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
+    this.effects = effects;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
@@ -89,12 +99,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new VideoTranscodingSamplePipeline(
               context,
               inputFormat,
+              streamOffsetUs,
               transformationRequest,
-              frameProcessors,
+              effects,
               decoderFactory,
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
               fallbackListener,
+              /* frameProcessorChainListener= */ exception ->
+                  asyncErrorListener.onTransformationException(
+                      TransformationException.createForFrameProcessorChain(
+                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)),
               debugViewProvider);
     }
     if (transformationRequest.flattenForSlowMotion) {
@@ -104,6 +119,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    if ((streamStartPositionUs - streamOffsetUs) != 0 && !clippingStartsAtKeyFrame) {
+      return false;
+    }
     if (encoderFactory.videoNeedsEncoding()) {
       return false;
     }
@@ -121,6 +139,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
+    if (inputFormat.pixelWidthHeightRatio != 1f) {
+      return false;
+    }
     if (transformationRequest.rotationDegrees != 0f) {
       return false;
     }
@@ -134,7 +155,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && transformationRequest.outputHeight != inputFormat.height) {
       return false;
     }
-    if (!frameProcessors.isEmpty()) {
+    if (!effects.isEmpty()) {
       return false;
     }
     return true;
@@ -151,9 +172,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @RequiresNonNull({"samplePipeline", "#1.data"})
   protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
       throws TransformationException {
+    if (sefSlowMotionFlattener == null) {
+      samplePipeline.queueInputBuffer();
+      return;
+    }
+
     ByteBuffer data = inputBuffer.data;
+    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
     boolean shouldDropSample =
-        sefSlowMotionFlattener != null && sefSlowMotionFlattener.dropOrTransformSample(inputBuffer);
+        sefSlowMotionFlattener.dropOrTransformSample(data, presentationTimeUs);
+    inputBuffer.timeUs = streamOffsetUs + sefSlowMotionFlattener.getSamplePresentationTimeUs();
     if (shouldDropSample) {
       data.clear();
     } else {

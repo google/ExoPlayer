@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.List;
 import javax.microedition.khronos.egl.EGL10;
 
 /** OpenGL ES utilities. */
@@ -42,19 +43,16 @@ import javax.microedition.khronos.egl.EGL10;
 @UnstableApi
 public final class GlUtil {
 
-  /** Thrown when an OpenGL error occurs and {@link #glAssertionsEnabled} is {@code true}. */
-  public static final class GlException extends RuntimeException {
+  /** Thrown when an OpenGL error occurs. */
+  public static final class GlException extends Exception {
     /** Creates an instance with the specified error message. */
     public GlException(String message) {
       super(message);
     }
   }
 
-  /** Whether to throw a {@link GlException} in case of an OpenGL error. */
-  public static boolean glAssertionsEnabled = false;
-
-  /** Number of vertices in a rectangle. */
-  public static final int RECTANGLE_VERTICES_COUNT = 4;
+  /** Number of elements in a 3d homogeneous coordinate vector describing a vertex. */
+  public static final int HOMOGENEOUS_COORDINATE_VECTOR_SIZE = 4;
 
   /** Length of the normalized device coordinate (NDC) space, which spans from -1 to 1. */
   public static final float LENGTH_NDC = 2f;
@@ -120,6 +118,20 @@ public final class GlUtil {
     };
   }
 
+  /** Flattens the list of 4 element NDC coordinate vectors into a buffer. */
+  public static float[] createVertexBuffer(List<float[]> vertexList) {
+    float[] vertexBuffer = new float[HOMOGENEOUS_COORDINATE_VECTOR_SIZE * vertexList.size()];
+    for (int i = 0; i < vertexList.size(); i++) {
+      System.arraycopy(
+          /* src= */ vertexList.get(i),
+          /* srcPos= */ 0,
+          /* dest= */ vertexBuffer,
+          /* destPos= */ HOMOGENEOUS_COORDINATE_VECTOR_SIZE * i,
+          /* length= */ HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
+    }
+    return vertexBuffer;
+  }
+
   /**
    * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.
    *
@@ -167,13 +179,13 @@ public final class GlUtil {
 
   /** Returns an initialized default {@link EGLDisplay}. */
   @RequiresApi(17)
-  public static EGLDisplay createEglDisplay() {
+  public static EGLDisplay createEglDisplay() throws GlException {
     return Api17.createEglDisplay();
   }
 
   /** Returns a new {@link EGLContext} for the specified {@link EGLDisplay}. */
   @RequiresApi(17)
-  public static EGLContext createEglContext(EGLDisplay eglDisplay) {
+  public static EGLContext createEglContext(EGLDisplay eglDisplay) throws GlException {
     return Api17.createEglContext(eglDisplay, /* version= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
@@ -182,7 +194,8 @@ public final class GlUtil {
    * RGBA 1010102 config.
    */
   @RequiresApi(17)
-  public static EGLContext createEglContextEs3Rgba1010102(EGLDisplay eglDisplay) {
+  public static EGLContext createEglContextEs3Rgba1010102(EGLDisplay eglDisplay)
+      throws GlException {
     return Api17.createEglContext(eglDisplay, /* version= */ 3, EGL_CONFIG_ATTRIBUTES_RGBA_1010102);
   }
 
@@ -193,7 +206,7 @@ public final class GlUtil {
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurface(EGLDisplay eglDisplay, Object surface) {
+  public static EGLSurface getEglSurface(EGLDisplay eglDisplay, Object surface) throws GlException {
     return Api17.getEglSurface(
         eglDisplay, surface, EGL_CONFIG_ATTRIBUTES_RGBA_8888, EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
   }
@@ -206,7 +219,8 @@ public final class GlUtil {
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurfaceBt2020Pq(EGLDisplay eglDisplay, Object surface) {
+  public static EGLSurface getEglSurfaceBt2020Pq(EGLDisplay eglDisplay, Object surface)
+      throws GlException {
     return Api17.getEglSurface(
         eglDisplay,
         surface,
@@ -222,7 +236,8 @@ public final class GlUtil {
    * @param height The height of the pixel buffer.
    */
   @RequiresApi(17)
-  private static EGLSurface createPbufferSurface(EGLDisplay eglDisplay, int width, int height) {
+  private static EGLSurface createPbufferSurface(EGLDisplay eglDisplay, int width, int height)
+      throws GlException {
     int[] pbufferAttributes =
         new int[] {
           EGL14.EGL_WIDTH, width,
@@ -241,7 +256,7 @@ public final class GlUtil {
    * @return {@link EGL14#EGL_NO_SURFACE} if supported and a 1x1 pixel buffer surface otherwise.
    */
   @RequiresApi(17)
-  public static EGLSurface createPlaceholderEglSurface(EGLDisplay eglDisplay) {
+  public static EGLSurface createPlaceholderEglSurface(EGLDisplay eglDisplay) throws GlException {
     return isSurfacelessContextExtensionSupported()
         ? EGL14.EGL_NO_SURFACE
         : createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
@@ -254,7 +269,8 @@ public final class GlUtil {
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    */
   @RequiresApi(17)
-  public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay) {
+  public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
+      throws GlException {
     EGLSurface eglSurface = createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
     focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
   }
@@ -268,7 +284,7 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static void focusPlaceholderEglSurfaceBt2020Pq(
-      EGLContext eglContext, EGLDisplay eglDisplay) {
+      EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
     int[] pbufferAttributes =
         new int[] {
           EGL14.EGL_WIDTH,
@@ -286,10 +302,10 @@ public final class GlUtil {
   }
 
   /**
-   * If there is an OpenGl error, logs the error and if {@link #glAssertionsEnabled} is true throws
-   * a {@link GlException}.
+   * Logs all OpenGL errors that occurred since this method was last called and throws a {@link
+   * GlException} for the last error.
    */
-  public static void checkGlError() {
+  public static void checkGlError() throws GlException {
     int lastError = GLES20.GL_NO_ERROR;
     int error;
     while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
@@ -297,7 +313,7 @@ public final class GlUtil {
       lastError = error;
     }
     if (lastError != GLES20.GL_NO_ERROR) {
-      throwGlException("glError: " + gluErrorString(lastError));
+      throw new GlException("glError: " + gluErrorString(lastError));
     }
   }
 
@@ -308,9 +324,10 @@ public final class GlUtil {
    * @param height The height for a texture.
    * @throws GlException If the texture width or height is invalid.
    */
-  public static void assertValidTextureSize(int width, int height) {
+  public static void assertValidTextureSize(int width, int height) throws GlException {
     // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
-    //  (ex. downscaling appropriately) in a FrameProcessor instead of asserting incorrect values.
+    //  (ex. downscaling appropriately) in a texture processor instead of asserting incorrect
+    //  values.
 
     // For valid GL sizes, see:
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
@@ -318,11 +335,19 @@ public final class GlUtil {
     GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSizeBuffer, 0);
     int maxTextureSize = maxTextureSizeBuffer[0];
     if (width < 0 || height < 0) {
-      throwGlException("width or height is less than 0");
+      throw new GlException("width or height is less than 0");
     }
     if (width > maxTextureSize || height > maxTextureSize) {
-      throwGlException("width or height is greater than GL_MAX_TEXTURE_SIZE " + maxTextureSize);
+      throw new GlException(
+          "width or height is greater than GL_MAX_TEXTURE_SIZE " + maxTextureSize);
     }
+  }
+
+  /** Fills the pixels in the current output render target with (r=0, g=0, b=0, a=0). */
+  public static void clearOutputFrame() throws GlException {
+    GLES20.glClearColor(/* red= */ 0, /* green= */ 0, /* blue= */ 0, /* alpha= */ 0);
+    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    GlUtil.checkGlError();
   }
 
   /**
@@ -331,7 +356,8 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static void focusEglSurface(
-      EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface eglSurface, int width, int height) {
+      EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface eglSurface, int width, int height)
+      throws GlException {
     Api17.focusRenderTarget(
         eglDisplay, eglContext, eglSurface, /* framebuffer= */ 0, width, height);
   }
@@ -347,8 +373,26 @@ public final class GlUtil {
       EGLSurface eglSurface,
       int framebuffer,
       int width,
-      int height) {
+      int height)
+      throws GlException {
     Api17.focusRenderTarget(eglDisplay, eglContext, eglSurface, framebuffer, width, height);
+  }
+
+  /**
+   * Makes the specified {@code framebuffer} the render target, using a viewport of {@code width} by
+   * {@code height} pixels.
+   *
+   * <p>The caller must ensure that there is a current OpenGL context before calling this method.
+   *
+   * @param framebuffer The identifier of the framebuffer object to bind as the output render
+   *     target.
+   * @param width The viewport width, in pixels.
+   * @param height The viewport height, in pixels.
+   */
+  @RequiresApi(17)
+  public static void focusFramebufferUsingCurrentContext(int framebuffer, int width, int height)
+      throws GlException {
+    Api17.focusFramebufferUsingCurrentContext(framebuffer, width, height);
   }
 
   /**
@@ -356,7 +400,7 @@ public final class GlUtil {
    *
    * @param textureId The ID of the texture to delete.
    */
-  public static void deleteTexture(int textureId) {
+  public static void deleteTexture(int textureId) throws GlException {
     GLES20.glDeleteTextures(/* n= */ 1, new int[] {textureId}, /* offset= */ 0);
     checkGlError();
   }
@@ -367,7 +411,7 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static void destroyEglContext(
-      @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) {
+      @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
     Api17.destroyEglContext(eglDisplay, eglContext);
   }
 
@@ -412,7 +456,7 @@ public final class GlUtil {
    * Creates a GL_TEXTURE_EXTERNAL_OES with default configuration of GL_LINEAR filtering and
    * GL_CLAMP_TO_EDGE wrapping.
    */
-  public static int createExternalTexture() {
+  public static int createExternalTexture() throws GlException {
     int texId = generateTexture();
     bindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
     return texId;
@@ -424,7 +468,7 @@ public final class GlUtil {
    * @param width of the new texture in pixels
    * @param height of the new texture in pixels
    */
-  public static int createTexture(int width, int height) {
+  public static int createTexture(int width, int height) throws GlException {
     assertValidTextureSize(width, height);
     int texId = generateTexture();
     bindTexture(GLES20.GL_TEXTURE_2D, texId);
@@ -444,8 +488,8 @@ public final class GlUtil {
   }
 
   /** Returns a new GL texture identifier. */
-  private static int generateTexture() {
-    checkEglException(
+  private static int generateTexture() throws GlException {
+    checkGlException(
         !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
 
     int[] texId = new int[1];
@@ -463,7 +507,7 @@ public final class GlUtil {
    *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
    *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
    */
-  /* package */ static void bindTexture(int textureTarget, int texId) {
+  public static void bindTexture(int textureTarget, int texId) throws GlException {
     GLES20.glBindTexture(textureTarget, texId);
     checkGlError();
     GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
@@ -481,8 +525,8 @@ public final class GlUtil {
    *
    * @param texId The identifier of the texture to attach to the framebuffer.
    */
-  public static int createFboForTexture(int texId) {
-    checkEglException(
+  public static int createFboForTexture(int texId) throws GlException {
+    checkGlException(
         !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
 
     int[] fboId = new int[1];
@@ -496,23 +540,19 @@ public final class GlUtil {
     return fboId[0];
   }
 
-  /* package */ static void throwGlException(String errorMsg) {
-    if (glAssertionsEnabled) {
-      throw new GlException(errorMsg);
-    } else {
-      Log.e(TAG, errorMsg);
-    }
-  }
-
-  private static void checkEglException(boolean expression, String errorMessage) {
+  /**
+   * Throws a {@link GlException} with the given message if {@code expression} evaluates to {@code
+   * false}.
+   */
+  public static void checkGlException(boolean expression, String errorMessage) throws GlException {
     if (!expression) {
-      throwGlException(errorMessage);
+      throw new GlException(errorMessage);
     }
   }
 
-  private static void checkEglException(String errorMessage) {
+  private static void checkEglException(String errorMessage) throws GlException {
     int error = EGL14.eglGetError();
-    checkEglException(error == EGL14.EGL_SUCCESS, errorMessage + ", error code: " + error);
+    checkGlException(error == EGL14.EGL_SUCCESS, errorMessage + ", error code: " + error);
   }
 
   @RequiresApi(17)
@@ -520,24 +560,24 @@ public final class GlUtil {
     private Api17() {}
 
     @DoNotInline
-    public static EGLDisplay createEglDisplay() {
+    public static EGLDisplay createEglDisplay() throws GlException {
       EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-      checkEglException(!eglDisplay.equals(EGL14.EGL_NO_DISPLAY), "No EGL display.");
-      if (!EGL14.eglInitialize(
-          eglDisplay,
-          /* unusedMajor */ new int[1],
-          /* majorOffset= */ 0,
-          /* unusedMinor */ new int[1],
-          /* minorOffset= */ 0)) {
-        throwGlException("Error in eglInitialize.");
-      }
+      checkGlException(!eglDisplay.equals(EGL14.EGL_NO_DISPLAY), "No EGL display.");
+      checkGlException(
+          EGL14.eglInitialize(
+              eglDisplay,
+              /* unusedMajor */ new int[1],
+              /* majorOffset= */ 0,
+              /* unusedMinor */ new int[1],
+              /* minorOffset= */ 0),
+          "Error in eglInitialize.");
       checkGlError();
       return eglDisplay;
     }
 
     @DoNotInline
     public static EGLContext createEglContext(
-        EGLDisplay eglDisplay, int version, int[] configAttributes) {
+        EGLDisplay eglDisplay, int version, int[] configAttributes) throws GlException {
       int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, version, EGL14.EGL_NONE};
       EGLContext eglContext =
           EGL14.eglCreateContext(
@@ -548,7 +588,7 @@ public final class GlUtil {
               /* offset= */ 0);
       if (eglContext == null) {
         EGL14.eglTerminate(eglDisplay);
-        throwGlException(
+        throw new GlException(
             "eglCreateContext() failed to create a valid context. The device may not support EGL"
                 + " version "
                 + version);
@@ -562,7 +602,8 @@ public final class GlUtil {
         EGLDisplay eglDisplay,
         Object surface,
         int[] configAttributes,
-        int[] windowSurfaceAttributes) {
+        int[] windowSurfaceAttributes)
+        throws GlException {
       EGLSurface eglSurface =
           EGL14.eglCreateWindowSurface(
               eglDisplay,
@@ -576,7 +617,7 @@ public final class GlUtil {
 
     @DoNotInline
     public static EGLSurface createEglPbufferSurface(
-        EGLDisplay eglDisplay, int[] configAttributes, int[] pbufferAttributes) {
+        EGLDisplay eglDisplay, int[] configAttributes, int[] pbufferAttributes) throws GlException {
       EGLSurface eglSurface =
           EGL14.eglCreatePbufferSurface(
               eglDisplay,
@@ -594,22 +635,32 @@ public final class GlUtil {
         EGLSurface eglSurface,
         int framebuffer,
         int width,
-        int height) {
+        int height)
+        throws GlException {
+      EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+      checkEglException("Error making context current");
+      focusFramebufferUsingCurrentContext(framebuffer, width, height);
+    }
+
+    @DoNotInline
+    public static void focusFramebufferUsingCurrentContext(int framebuffer, int width, int height)
+        throws GlException {
+      checkGlException(
+          !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
       int[] boundFramebuffer = new int[1];
       GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFramebuffer, /* offset= */ 0);
       if (boundFramebuffer[0] != framebuffer) {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
       }
       checkGlError();
-      EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-      checkEglException("Error making context current");
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
       checkGlError();
     }
 
     @DoNotInline
     public static void destroyEglContext(
-        @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) {
+        @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
       if (eglDisplay == null) {
         return;
       }
@@ -627,7 +678,8 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    private static EGLConfig getEglConfig(EGLDisplay eglDisplay, int[] attributes) {
+    private static EGLConfig getEglConfig(EGLDisplay eglDisplay, int[] attributes)
+        throws GlException {
       EGLConfig[] eglConfigs = new EGLConfig[1];
       if (!EGL14.eglChooseConfig(
           eglDisplay,
@@ -638,7 +690,7 @@ public final class GlUtil {
           /* config_size= */ 1,
           /* unusedNumConfig */ new int[1],
           /* num_configOffset= */ 0)) {
-        throwGlException("eglChooseConfig failed.");
+        throw new GlException("eglChooseConfig failed.");
       }
       return eglConfigs[0];
     }

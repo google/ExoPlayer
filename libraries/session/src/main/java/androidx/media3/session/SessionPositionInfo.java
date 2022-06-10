@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.C;
 import androidx.media3.common.Player.PositionInfo;
-import androidx.media3.common.util.BundleableUtil;
 import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -209,11 +208,11 @@ import java.lang.annotation.Target;
   public static final Creator<SessionPositionInfo> CREATOR = SessionPositionInfo::fromBundle;
 
   private static SessionPositionInfo fromBundle(Bundle bundle) {
+    @Nullable Bundle positionInfoBundle = bundle.getBundle(keyForField(FIELD_POSITION_INFO));
     PositionInfo positionInfo =
-        BundleableUtil.fromNullableBundle(
-            PositionInfo.CREATOR,
-            bundle.getBundle(keyForField(FIELD_POSITION_INFO)),
-            /* defaultValue= */ DEFAULT_POSITION_INFO);
+        positionInfoBundle == null
+            ? DEFAULT_POSITION_INFO
+            : PositionInfo.CREATOR.fromBundle(positionInfoBundle);
     boolean isPlayingAd =
         bundle.getBoolean(keyForField(FIELD_IS_PLAYING_AD), /* defaultValue= */ false);
     long eventTimeMs =

@@ -61,6 +61,7 @@ import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -93,9 +94,7 @@ public final class Transformer {
   public static final class Builder {
 
     // Mandatory field.
-    // TODO(huangdarwin): Update @MonotonicNonNull to final after deprecated {@link
-    // #setContext(Context)} is removed.
-    private @MonotonicNonNull Context context;
+    private final Context context;
 
     // Optional fields.
     private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
@@ -104,28 +103,13 @@ public final class Transformer {
     private boolean removeVideo;
     private String containerMimeType;
     private TransformationRequest transformationRequest;
-    private ImmutableList<GlFrameProcessor> frameProcessors;
+    private ImmutableList<GlEffect> videoFrameEffects;
     private ListenerSet<Transformer.Listener> listeners;
     private DebugViewProvider debugViewProvider;
     private Looper looper;
     private Clock clock;
     private Codec.EncoderFactory encoderFactory;
-
-    /**
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
-    @Deprecated
-    public Builder() {
-      muxerFactory = new FrameworkMuxer.Factory();
-      looper = Util.getCurrentOrMainLooper();
-      clock = Clock.DEFAULT;
-      listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = Codec.EncoderFactory.DEFAULT;
-      debugViewProvider = DebugViewProvider.NONE;
-      containerMimeType = MimeTypes.VIDEO_MP4;
-      transformationRequest = new TransformationRequest.Builder().build();
-      frameProcessors = ImmutableList.of();
-    }
+    private Codec.DecoderFactory decoderFactory;
 
     /**
      * Creates a builder with default values.
@@ -138,11 +122,12 @@ public final class Transformer {
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = Codec.EncoderFactory.DEFAULT;
+      encoderFactory = new DefaultEncoderFactory(this.context);
+      decoderFactory = new DefaultDecoderFactory(this.context);
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
-      frameProcessors = ImmutableList.of();
+      videoFrameEffects = ImmutableList.of();
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
@@ -154,21 +139,13 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.containerMimeType = transformer.containerMimeType;
       this.transformationRequest = transformer.transformationRequest;
-      this.frameProcessors = transformer.frameProcessors;
+      this.videoFrameEffects = transformer.videoFrameEffects;
       this.listeners = transformer.listeners;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
+      this.decoderFactory = transformer.decoderFactory;
       this.debugViewProvider = transformer.debugViewProvider;
       this.clock = transformer.clock;
-    }
-
-    /**
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
-    @Deprecated
-    public Builder setContext(Context context) {
-      this.context = context.getApplicationContext();
-      return this;
     }
 
     /**
@@ -187,20 +164,20 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@linkplain GlFrameProcessor frame processors} to apply to each frame.
+     * Sets the {@linkplain GlEffect effects} to apply to each video frame.
      *
-     * <p>The {@linkplain GlFrameProcessor frame processors} are applied before any {@linkplain
+     * <p>The {@linkplain GlEffect effects} are applied before any {@linkplain
      * TransformationRequest.Builder#setScale(float, float) scale}, {@linkplain
      * TransformationRequest.Builder#setRotationDegrees(float) rotation}, or {@linkplain
      * TransformationRequest.Builder#setResolution(int) resolution} changes specified in the {@link
      * #setTransformationRequest(TransformationRequest) TransformationRequest} but after {@linkplain
      * TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
      *
-     * @param frameProcessors The {@linkplain GlFrameProcessor frame processors}.
+     * @param effects The {@linkplain GlEffect effects} to apply to each video frame.
      * @return This builder.
      */
-    public Builder setFrameProcessors(List<GlFrameProcessor> frameProcessors) {
-      this.frameProcessors = ImmutableList.copyOf(frameProcessors);
+    public Builder setVideoFrameEffects(List<GlEffect> effects) {
+      this.videoFrameEffects = ImmutableList.copyOf(effects);
       return this;
     }
 
@@ -339,13 +316,26 @@ public final class Transformer {
     /**
      * Sets the {@link Codec.EncoderFactory} that will be used by the transformer.
      *
-     * <p>The default value is {@link Codec.EncoderFactory#DEFAULT}.
+     * <p>The default value is a {@link DefaultEncoderFactory} instance.
      *
      * @param encoderFactory The {@link Codec.EncoderFactory} instance.
      * @return This builder.
      */
     public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
       this.encoderFactory = encoderFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Codec.DecoderFactory} that will be used by the transformer.
+     *
+     * <p>The default value is a {@link DefaultDecoderFactory} instance.
+     *
+     * @param decoderFactory The {@link Codec.DecoderFactory} instance.
+     * @return This builder.
+     */
+    public Builder setDecoderFactory(Codec.DecoderFactory decoderFactory) {
+      this.decoderFactory = decoderFactory;
       return this;
     }
 
@@ -432,12 +422,12 @@ public final class Transformer {
           removeVideo,
           containerMimeType,
           transformationRequest,
-          frameProcessors,
+          videoFrameEffects,
           listeners,
           looper,
           clock,
           encoderFactory,
-          Codec.DecoderFactory.DEFAULT,
+          decoderFactory,
           debugViewProvider);
     }
 
@@ -495,7 +485,9 @@ public final class Transformer {
      * @param inputMediaItem The {@link MediaItem} for which the transformation is requested.
      * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
      *     building {@link Transformer}.
-     * @param fallbackTransformationRequest The alternative {@link TransformationRequest}.
+     * @param fallbackTransformationRequest The alternative {@link TransformationRequest}, with
+     *     supported {@link TransformationRequest#outputHeight} and {@link
+     *     TransformationRequest#videoMimeType} values set.
      */
     default void onFallbackApplied(
         MediaItem inputMediaItem,
@@ -554,13 +546,13 @@ public final class Transformer {
   private final boolean removeVideo;
   private final String containerMimeType;
   private final TransformationRequest transformationRequest;
-  private final ImmutableList<GlFrameProcessor> frameProcessors;
+  private final ImmutableList<GlEffect> videoFrameEffects;
   private final Looper looper;
   private final Clock clock;
-  private final Codec.EncoderFactory encoderFactory;
-  private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final ListenerSet<Transformer.Listener> listeners;
+  @VisibleForTesting /* package */ final Codec.DecoderFactory decoderFactory;
+  @VisibleForTesting /* package */ final Codec.EncoderFactory encoderFactory;
 
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;
@@ -575,7 +567,7 @@ public final class Transformer {
       boolean removeVideo,
       String containerMimeType,
       TransformationRequest transformationRequest,
-      ImmutableList<GlFrameProcessor> frameProcessors,
+      ImmutableList<GlEffect> videoFrameEffects,
       ListenerSet<Transformer.Listener> listeners,
       Looper looper,
       Clock clock,
@@ -590,7 +582,7 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.containerMimeType = containerMimeType;
     this.transformationRequest = transformationRequest;
-    this.frameProcessors = frameProcessors;
+    this.videoFrameEffects = videoFrameEffects;
     this.listeners = listeners;
     this.looper = looper;
     this.clock = clock;
@@ -668,6 +660,12 @@ public final class Transformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && transformationRequest.flattenForSlowMotion) {
+      // TODO(b/233986762): Support clipping with SEF flattening.
+      throw new UnsupportedEncodingException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
     startTransformation(mediaItem, muxerFactory.create(path, containerMimeType));
   }
 
@@ -721,6 +719,8 @@ public final class Transformer {
                 DEFAULT_BUFFER_FOR_PLAYBACK_MS / 10,
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
+    TransformerPlayerListener playerListener =
+        new TransformerPlayerListener(mediaItem, muxerWrapper, looper);
     ExoPlayer.Builder playerBuilder =
         new ExoPlayer.Builder(
                 context,
@@ -730,10 +730,12 @@ public final class Transformer {
                     removeAudio,
                     removeVideo,
                     transformationRequest,
-                    frameProcessors,
+                    mediaItem.clippingConfiguration.startsAtKeyFrame,
+                    videoFrameEffects,
                     encoderFactory,
                     decoderFactory,
                     new FallbackListener(mediaItem, listeners, transformationRequest),
+                    /* asyncErrorListener= */ playerListener,
                     debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -748,7 +750,7 @@ public final class Transformer {
 
     player = playerBuilder.build();
     player.setMediaItem(mediaItem);
-    player.addListener(new TransformerPlayerListener(mediaItem, muxerWrapper));
+    player.addListener(playerListener);
     player.prepare();
 
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
@@ -842,10 +844,12 @@ public final class Transformer {
     private final boolean removeAudio;
     private final boolean removeVideo;
     private final TransformationRequest transformationRequest;
-    private final ImmutableList<GlFrameProcessor> frameProcessors;
+    private final boolean clippingStartsAtKeyFrame;
+    private final ImmutableList<GlEffect> videoFrameEffects;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final FallbackListener fallbackListener;
+    private final AsyncErrorListener asyncErrorListener;
     private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
@@ -854,20 +858,24 @@ public final class Transformer {
         boolean removeAudio,
         boolean removeVideo,
         TransformationRequest transformationRequest,
-        ImmutableList<GlFrameProcessor> frameProcessors,
+        boolean clippingStartsAtKeyFrame,
+        ImmutableList<GlEffect> videoFrameEffects,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         FallbackListener fallbackListener,
+        AsyncErrorListener asyncErrorListener,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
       this.transformationRequest = transformationRequest;
-      this.frameProcessors = frameProcessors;
+      this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
+      this.videoFrameEffects = videoFrameEffects;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.fallbackListener = fallbackListener;
+      this.asyncErrorListener = asyncErrorListener;
       this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
@@ -890,6 +898,7 @@ public final class Transformer {
                 transformationRequest,
                 encoderFactory,
                 decoderFactory,
+                asyncErrorListener,
                 fallbackListener);
         index++;
       }
@@ -900,9 +909,11 @@ public final class Transformer {
                 muxerWrapper,
                 mediaClock,
                 transformationRequest,
-                frameProcessors,
+                clippingStartsAtKeyFrame,
+                videoFrameEffects,
                 encoderFactory,
                 decoderFactory,
+                asyncErrorListener,
                 fallbackListener,
                 debugViewProvider);
         index++;
@@ -911,14 +922,17 @@ public final class Transformer {
     }
   }
 
-  private final class TransformerPlayerListener implements Player.Listener {
+  private final class TransformerPlayerListener implements Player.Listener, AsyncErrorListener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
+    private final Handler handler;
 
-    public TransformerPlayerListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+    public TransformerPlayerListener(
+        MediaItem mediaItem, MuxerWrapper muxerWrapper, Looper looper) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
+      handler = new Handler(looper);
     }
 
     @Override
@@ -959,11 +973,12 @@ public final class Transformer {
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      @Nullable Throwable cause = error.getCause();
       TransformationException transformationException =
-          cause instanceof TransformationException
-              ? (TransformationException) cause
-              : TransformationException.createForPlaybackException(error);
+          TransformationException.createForPlaybackException(error);
+      handleTransformationException(transformationException);
+    }
+
+    private void handleTransformationException(TransformationException transformationException) {
       if (isCancelling) {
         // Resources are already being released.
         listeners.queueEvent(
@@ -1013,5 +1028,24 @@ public final class Transformer {
       }
       listeners.flushEvents();
     }
+
+    @Override
+    public void onTransformationException(TransformationException exception) {
+      if (Looper.myLooper() == looper) {
+        handleTransformationException(exception);
+      } else {
+        handler.post(() -> handleTransformationException(exception));
+      }
+    }
+  }
+
+  /** Listener for exceptions that occur during a transformation. */
+  /* package */ interface AsyncErrorListener {
+    /**
+     * Called when a {@link TransformationException} occurs.
+     *
+     * <p>Can be called from any thread.
+     */
+    void onTransformationException(TransformationException exception);
   }
 }

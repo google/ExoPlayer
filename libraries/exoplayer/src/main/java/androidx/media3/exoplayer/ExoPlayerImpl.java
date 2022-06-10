@@ -73,6 +73,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
@@ -196,7 +197,7 @@ import java.util.concurrent.TimeoutException;
   private AudioAttributes audioAttributes;
   private float volume;
   private boolean skipSilenceEnabled;
-  private List<Cue> currentCues;
+  private CueGroup currentCueGroup;
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
   @Nullable private CameraMotionListener cameraMotionListener;
   private boolean throwsWhenUsingWrongThread;
@@ -302,7 +303,8 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_SET_DEVICE_VOLUME,
                   COMMAND_ADJUST_DEVICE_VOLUME,
                   COMMAND_SET_VIDEO_SURFACE,
-                  COMMAND_GET_TEXT)
+                  COMMAND_GET_TEXT,
+                  COMMAND_SET_MEDIA_ITEM)
               .addIf(
                   COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
               .build();
@@ -353,7 +355,7 @@ import java.util.concurrent.TimeoutException;
       } else {
         audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
-      currentCues = ImmutableList.of();
+      currentCueGroup = CueGroup.EMPTY;
       throwsWhenUsingWrongThread = true;
 
       addListener(analyticsCollector);
@@ -378,6 +380,7 @@ import java.util.concurrent.TimeoutException;
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
 
+      trackSelector.setAudioAttributes(audioAttributes);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
@@ -936,7 +939,7 @@ import java.util.concurrent.TimeoutException;
     verifyApplicationThread();
     audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
     stopInternal(reset, /* error= */ null);
-    currentCues = ImmutableList.of();
+    currentCueGroup = CueGroup.EMPTY;
   }
 
   @Override
@@ -980,6 +983,7 @@ import java.util.concurrent.TimeoutException;
     playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
     playbackInfo.totalBufferedDurationUs = 0;
     analyticsCollector.release();
+    trackSelector.release();
     removeSurfaceCallbacks();
     if (ownedSurface != null) {
       ownedSurface.release();
@@ -989,7 +993,7 @@ import java.util.concurrent.TimeoutException;
       checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
-    currentCues = ImmutableList.of();
+    currentCueGroup = CueGroup.EMPTY;
     playerReleased = true;
   }
 
@@ -1372,6 +1376,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     audioFocusManager.setAudioAttributes(handleAudioFocus ? newAudioAttributes : null);
+    trackSelector.setAudioAttributes(newAudioAttributes);
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
@@ -1586,9 +1591,9 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return currentCues;
+    return currentCueGroup;
   }
 
   @Override
@@ -2849,11 +2854,15 @@ import java.util.concurrent.TimeoutException;
     }
 
     // TextOutput implementation
-
     @Override
     public void onCues(List<Cue> cues) {
-      currentCues = cues;
       listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cues));
+    }
+
+    @Override
+    public void onCues(CueGroup cueGroup) {
+      currentCueGroup = cueGroup;
+      listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cueGroup));
     }
 
     // MetadataOutput implementation

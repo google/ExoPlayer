@@ -51,7 +51,7 @@ import java.util.concurrent.Future;
 /* package */ class MediaLibrarySessionImpl extends MediaSessionImpl {
 
   private final MediaLibrarySession instance;
-  private final MediaLibrarySession.MediaLibrarySessionCallback callback;
+  private final MediaLibrarySession.Callback callback;
 
   @GuardedBy("lock")
   private final ArrayMap<ControllerCb, Set<String>> subscriptions;
@@ -62,10 +62,9 @@ import java.util.concurrent.Future;
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      MediaLibrarySession.MediaLibrarySessionCallback callback,
-      MediaSession.MediaItemFiller mediaItemFiller,
+      MediaLibrarySession.Callback callback,
       Bundle tokenExtras) {
-    super(instance, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    super(instance, context, id, player, sessionActivity, callback, tokenExtras);
     this.instance = instance;
     this.callback = callback;
     subscriptions = new ArrayMap<>();

@@ -90,6 +90,9 @@ public final class TransformationRequest {
      * Mp4Extractor#FLAG_READ_SEF_DATA} is set on the {@link Mp4Extractor} used. Otherwise, the slow
      * motion metadata will be ignored and the input won't be flattened.
      *
+     * <p>Using slow motion flattening together with {@link
+     * androidx.media3.common.MediaItem.ClippingConfiguration} is not supported yet.
+     *
      * @param flattenForSlowMotion Whether to flatten for slow motion.
      * @return This builder.
      */
