@@ -55,6 +55,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -219,8 +220,8 @@ public final class Util {
       return false;
     }
     for (Uri uri : uris) {
-      if (isLocalFileUri(uri)) {
-        return requestExternalStoragePermission(activity);
+      if (maybeRequestReadExternalStoragePermission(activity, uri)) {
+        return true;
       }
     }
     return false;
@@ -245,16 +246,37 @@ public final class Util {
       if (mediaItem.localConfiguration == null) {
         continue;
       }
-      if (isLocalFileUri(mediaItem.localConfiguration.uri)) {
-        return requestExternalStoragePermission(activity);
+      if (maybeRequestReadExternalStoragePermission(activity, mediaItem.localConfiguration.uri)) {
+        return true;
       }
-      for (int i = 0; i < mediaItem.localConfiguration.subtitleConfigurations.size(); i++) {
-        if (isLocalFileUri(mediaItem.localConfiguration.subtitleConfigurations.get(i).uri)) {
-          return requestExternalStoragePermission(activity);
+      List<MediaItem.SubtitleConfiguration> subtitleConfigs =
+          mediaItem.localConfiguration.subtitleConfigurations;
+      for (int i = 0; i < subtitleConfigs.size(); i++) {
+        if (maybeRequestReadExternalStoragePermission(activity, subtitleConfigs.get(i).uri)) {
+          return true;
         }
       }
     }
     return false;
+  }
+
+  private static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri uri) {
+    return Util.SDK_INT >= 23 && (isLocalFileUri(uri) || isMediaStoreExternalContentUri(uri))
+        ? requestExternalStoragePermission(activity)
+        : false;
+  }
+
+  private static boolean isMediaStoreExternalContentUri(Uri uri) {
+    if (!"content".equals(uri.getScheme()) || !MediaStore.AUTHORITY.equals(uri.getAuthority())) {
+      return false;
+    }
+    List<String> pathSegments = uri.getPathSegments();
+    if (pathSegments.isEmpty()) {
+      return false;
+    }
+    String firstPathSegment = pathSegments.get(0);
+    return MediaStore.VOLUME_EXTERNAL.equals(firstPathSegment)
+        || MediaStore.VOLUME_EXTERNAL_PRIMARY.equals(firstPathSegment);
   }
 
   /**
