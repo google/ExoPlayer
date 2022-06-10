@@ -3890,13 +3890,19 @@ public final class ExoPlayerTest {
     ShadowAudioManager shadowAudioManager = shadowOf(context.getSystemService(AudioManager.class));
     shadowAudioManager.setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
 
-    PlayerStateGrabber playerStateGrabber = new PlayerStateGrabber();
+    AtomicBoolean playWhenReady = new AtomicBoolean();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true)
             .play()
             .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(playerStateGrabber)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(ExoPlayer player) {
+                    playWhenReady.set(player.getPlayWhenReady());
+                  }
+                })
             .build();
     AtomicBoolean seenPlaybackSuppression = new AtomicBoolean();
     Player.Listener listener =
@@ -3914,7 +3920,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilActionScheduleFinished(TIMEOUT_MS);
 
-    assertThat(playerStateGrabber.playWhenReady).isFalse();
+    assertThat(playWhenReady.get()).isFalse();
     assertThat(seenPlaybackSuppression.get()).isFalse();
   }
 
@@ -12214,19 +12220,6 @@ public final class ExoPlayerTest {
     }
   }
 
-  private static final class PlayerStateGrabber extends PlayerRunnable {
-
-    public boolean playWhenReady;
-    public @Player.State int playbackState;
-    @Nullable public Timeline timeline;
-
-    @Override
-    public void run(ExoPlayer player) {
-      playWhenReady = player.getPlayWhenReady();
-      playbackState = player.getPlaybackState();
-      timeline = player.getCurrentTimeline();
-    }
-  }
   /**
    * Provides a wrapper for a {@link Runnable} which does collect playback states and window counts.
    * Can be used with {@link ActionSchedule.Builder#executeRunnable(Runnable)} to verify that a
