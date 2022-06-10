@@ -302,18 +302,22 @@ public final class GlUtil {
   }
 
   /**
-   * Logs all OpenGL errors that occurred since this method was last called and throws a {@link
-   * GlException} for the last error.
+   * Collects all OpenGL errors that occurred since this method was last called and throws a {@link
+   * GlException} with the combined error message.
    */
   public static void checkGlError() throws GlException {
-    int lastError = GLES20.GL_NO_ERROR;
+    StringBuilder errorMessageBuilder = new StringBuilder();
+    boolean foundError = false;
     int error;
     while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-      Log.e(TAG, "glError: " + gluErrorString(error));
-      lastError = error;
+      if (foundError) {
+        errorMessageBuilder.append('\n');
+      }
+      errorMessageBuilder.append("glError: ").append(gluErrorString(error));
+      foundError = true;
     }
-    if (lastError != GLES20.GL_NO_ERROR) {
-      throw new GlException("glError: " + gluErrorString(lastError));
+    if (foundError) {
+      throw new GlException(errorMessageBuilder.toString());
     }
   }
 
