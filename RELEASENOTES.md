@@ -69,6 +69,10 @@
         for audio passthrough when the format audio channel count is unset,
         which occurs with HLS chunkless preparation
         ([10204](https://github.com/google/ExoPlayer/issues/10204)).
+*   DRM
+    *   Ensure the DRM session is always correctly updated when seeking
+        immediately after a format change
+        ([10274](https://github.com/google/ExoPlayer/issues/10274)).
 *   Ad playback / IMA:
     *   Decrease ad polling rate from every 100ms to every 200ms, to line up
         with Media Rating Council (MRC) recommendations.
