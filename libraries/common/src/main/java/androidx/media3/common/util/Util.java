@@ -2600,6 +2600,7 @@ public final class Util {
    * @param newFromIndex The new from index.
    */
   @UnstableApi
+  @SuppressWarnings("ExtendsObject") // See go/lsc-extends-object
   public static <T extends Object> void moveItems(
       List<T> items, int fromIndex, int toIndex, int newFromIndex) {
     ArrayDeque<T> removedItems = new ArrayDeque<>();
