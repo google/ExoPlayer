@@ -1280,7 +1280,7 @@ public final class MediaPeriodQueueTest {
           countDownLatch.countDown();
         },
         /* mediaTransferListener= */ null,
-        new PlayerId());
+        PlayerId.UNSET);
     if (!countDownLatch.await(/* timeout= */ 2, SECONDS)) {
       fail();
     }
