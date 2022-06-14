@@ -31,11 +31,13 @@
   <plurals name="exo_controls_rewind_by_amount_description">
     <item quantity="one">Reculer de %d seconde</item>
     <item quantity="other">Reculer de %d secondes</item>
+    <item quantity="many">Reculer de %d secondes</item>
   </plurals>
   <string name="exo_controls_fastforward_description">Avance rapide</string>
   <plurals name="exo_controls_fastforward_by_amount_description">
     <item quantity="one">Avancer rapidement de %d seconde</item>
     <item quantity="other">Avancer rapidement de %d secondes</item>
+    <item quantity="many">Avancer rapidement de %d secondes</item>
   </plurals>
   <string name="exo_controls_repeat_off_description">Ne rien lire en boucle</string>
   <string name="exo_controls_repeat_one_description">Lire une chanson en boucle</string>
