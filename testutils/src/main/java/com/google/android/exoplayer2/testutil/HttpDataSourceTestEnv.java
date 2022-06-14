@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.android.exoplayer2.testutil.WebServerDispatcher.getRequestPath;
 
 import android.net.Uri;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 
 /** A JUnit {@link Rule} that creates test resources for {@link HttpDataSource} contract tests. */
+@RequiresApi(19)
 public class HttpDataSourceTestEnv extends ExternalResource {
   private static int seed = 0;
   private static final WebServerDispatcher.Resource RANGE_SUPPORTED =
