@@ -1644,6 +1644,10 @@ public final class Util {
           // 8 ch output is not supported before Android L.
           return AudioFormat.CHANNEL_INVALID;
         }
+      case 12:
+        return Util.SDK_INT >= 32
+            ? AudioFormat.CHANNEL_OUT_7POINT1POINT4
+            : AudioFormat.CHANNEL_INVALID;
       default:
         return AudioFormat.CHANNEL_INVALID;
     }
