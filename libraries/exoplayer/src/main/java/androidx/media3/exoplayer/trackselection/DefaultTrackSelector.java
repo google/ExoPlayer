@@ -3685,10 +3685,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     public boolean canBeSpatialized(AudioAttributes audioAttributes, Format format) {
+      // For E-AC3 JOC, the format is object based. When the channel count is 16, this maps to 12
+      // linear channels and the rest are used for objects. See
+      // https://github.com/google/ExoPlayer/pull/10322#discussion_r895265881
+      int linearChannelCount =
+          MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType) && format.channelCount == 16
+              ? 12
+              : format.channelCount;
       AudioFormat.Builder builder =
           new AudioFormat.Builder()
               .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-              .setChannelMask(Util.getAudioTrackChannelConfig(format.channelCount));
+              .setChannelMask(Util.getAudioTrackChannelConfig(linearChannelCount));
       if (format.sampleRate != Format.NO_VALUE) {
         builder.setSampleRate(format.sampleRate);
       }
