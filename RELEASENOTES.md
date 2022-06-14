@@ -69,6 +69,10 @@
         for audio passthrough when the format audio channel count is unset,
         which occurs with HLS chunkless preparation
         ([10204](https://github.com/google/ExoPlayer/issues/10204)).
+    *   Configure `AudioTrack` with channel mask
+        `AudioFormat.CHANNEL_OUT_7POINT1POINT4` if the decoder outputs 12
+        channel PCM audio
+        ([#10322](#https://github.com/google/ExoPlayer/pull/10322).
 *   DRM
     *   Ensure the DRM session is always correctly updated when seeking
         immediately after a format change
