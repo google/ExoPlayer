@@ -75,7 +75,7 @@ import androidx.media3.common.util.Util;
     VolumeChangeReceiver receiver = new VolumeChangeReceiver();
     IntentFilter filter = new IntentFilter(VOLUME_CHANGED_ACTION);
     try {
-      applicationContext.registerReceiver(receiver, filter);
+      Util.registerReceiverNotExported(applicationContext, receiver, filter);
       this.receiver = receiver;
     } catch (RuntimeException e) {
       Log.w(TAG, "Error registering stream volume receiver", e);

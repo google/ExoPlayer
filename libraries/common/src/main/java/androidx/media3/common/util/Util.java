@@ -34,9 +34,11 @@ import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.UiModeManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -187,6 +189,54 @@ public final class Util {
       outputStream.write(buffer, 0, bytesRead);
     }
     return outputStream.toByteArray();
+  }
+
+  /**
+   * Registers a {@link BroadcastReceiver} that's not intended to receive broadcasts from other
+   * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
+   * #SDK_INT} is 33 or above.
+   *
+   * @param context The context on which {@link Context#registerReceiver} will be called.
+   * @param receiver The {@link BroadcastReceiver} to register. This value may be null.
+   * @param filter Selects the Intent broadcasts to be received.
+   * @return The first sticky intent found that matches {@code filter}, or null if there are none.
+   */
+  @UnstableApi
+  @Nullable
+  public static Intent registerReceiverNotExported(
+      Context context, @Nullable BroadcastReceiver receiver, IntentFilter filter) {
+    if (SDK_INT < 33) {
+      return context.registerReceiver(receiver, filter);
+    } else {
+      return context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+    }
+  }
+
+  /**
+   * Registers a {@link BroadcastReceiver} that's not intended to receive broadcasts from other
+   * apps. This will be enforced by specifying {@link Context#RECEIVER_NOT_EXPORTED} if {@link
+   * #SDK_INT} is 33 or above.
+   *
+   * @param context The context on which {@link Context#registerReceiver} will be called.
+   * @param receiver The {@link BroadcastReceiver} to register. This value may be null.
+   * @param filter Selects the Intent broadcasts to be received.
+   * @param handler Handler identifying the thread that will receive the Intent.
+   * @return The first sticky intent found that matches {@code filter}, or null if there are none.
+   */
+  @UnstableApi
+  @Nullable
+  public static Intent registerReceiverNotExported(
+      Context context, BroadcastReceiver receiver, IntentFilter filter, Handler handler) {
+    if (SDK_INT < 33) {
+      return context.registerReceiver(receiver, filter, /* broadcastPermission= */ null, handler);
+    } else {
+      return context.registerReceiver(
+          receiver,
+          filter,
+          /* broadcastPermission= */ null,
+          handler,
+          Context.RECEIVER_NOT_EXPORTED);
+    }
   }
 
   /**
