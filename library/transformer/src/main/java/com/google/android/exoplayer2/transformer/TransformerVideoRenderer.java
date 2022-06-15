@@ -106,10 +106,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
               fallbackListener,
-              /* frameProcessorChainListener= */ exception ->
-                  asyncErrorListener.onTransformationException(
-                      TransformationException.createForFrameProcessorChain(
-                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)),
+              asyncErrorListener,
               debugViewProvider);
     }
     if (transformationRequest.flattenForSlowMotion) {
