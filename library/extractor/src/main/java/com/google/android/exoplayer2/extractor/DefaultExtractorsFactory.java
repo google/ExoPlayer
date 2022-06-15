@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
+import com.google.android.exoplayer2.extractor.avi.AviExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
 import com.google.android.exoplayer2.extractor.jpeg.JpegExtractor;
@@ -101,8 +102,11 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.AC3,
         FileTypes.AC4,
         FileTypes.MP3,
-        FileTypes.JPEG,
+        // The following extractors are not part of the optimized ordering, and were appended
+        // without further analysis.
+        FileTypes.AVI,
         FileTypes.MIDI,
+        FileTypes.JPEG,
       };
 
   private static final ExtensionLoader FLAC_EXTENSION_LOADER =
@@ -307,7 +311,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   @Override
   public synchronized Extractor[] createExtractors(
       Uri uri, Map<String, List<String>> responseHeaders) {
-    List<Extractor> extractors = new ArrayList<>(/* initialCapacity= */ 14);
+    List<Extractor> extractors =
+        new ArrayList<>(/* initialCapacity= */ DEFAULT_EXTRACTOR_ORDER.length);
 
     @FileTypes.Type
     int responseHeadersInferredFileType = inferFileTypeFromResponseHeaders(responseHeaders);
@@ -409,6 +414,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         if (midiExtractor != null) {
           extractors.add(midiExtractor);
         }
+        break;
+      case FileTypes.AVI:
+        extractors.add(new AviExtractor());
         break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:
