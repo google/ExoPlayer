@@ -37,11 +37,11 @@
     <item quantity="one">%d секунд алға айналдыру</item>
     <item quantity="other">%d секунд алға айналдыру</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ешқайсысын қайталамау</string>
-  <string name="exo_controls_repeat_one_description">Біреуін қайталау</string>
-  <string name="exo_controls_repeat_all_description">Барлығын қайталау</string>
-  <string name="exo_controls_shuffle_on_description">Араластыру режимі қосулы.</string>
-  <string name="exo_controls_shuffle_off_description">Араластыру режимі өшірулі.</string>
+  <string name="exo_controls_repeat_off_description">Қазіргі режим: еш мазмұн қайталанбайды. Қайталау режимін ауыстыру.</string>
+  <string name="exo_controls_repeat_one_description">Қазіргі режим: бір мазмұн қайталанады. Қайталау режимін ауыстыру.</string>
+  <string name="exo_controls_repeat_all_description">Қазіргі режим: барлық мазмұн қайталанады Қайталау режимін ауыстыру.</string>
+  <string name="exo_controls_shuffle_on_description">Араластыру режимін өшіру</string>
+  <string name="exo_controls_shuffle_off_description">Араластыру режимін қосу</string>
   <string name="exo_controls_vr_description">VR режимі</string>
   <string name="exo_controls_cc_enabled_description">Субтитрді өшіру</string>
   <string name="exo_controls_cc_disabled_description">Субтитрді қосу</string>

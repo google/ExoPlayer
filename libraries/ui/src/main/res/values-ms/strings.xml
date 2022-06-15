@@ -37,11 +37,11 @@
     <item quantity="one">Mundar laju %d saat</item>
     <item quantity="other">Mundar laju %d saat</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Jangan ulang</string>
-  <string name="exo_controls_repeat_one_description">Ulang satu</string>
-  <string name="exo_controls_repeat_all_description">Ulang semua</string>
-  <string name="exo_controls_shuffle_on_description">Hidupkan rombak</string>
-  <string name="exo_controls_shuffle_off_description">Matikan rombak</string>
+  <string name="exo_controls_repeat_off_description">Mod semasa: Tidak berulang. Togol mod ulang.</string>
+  <string name="exo_controls_repeat_one_description">Mod semasa: Ulang satu. Togol mod ulang.</string>
+  <string name="exo_controls_repeat_all_description">Mod semasa: Ulang semua. Togol mod ulang.</string>
+  <string name="exo_controls_shuffle_on_description">Lumpuhkan mod rombak</string>
+  <string name="exo_controls_shuffle_off_description">Dayakan mod rombak</string>
   <string name="exo_controls_vr_description">Mod VR</string>
   <string name="exo_controls_cc_enabled_description">Lumpuhkan sari kata</string>
   <string name="exo_controls_cc_disabled_description">Dayakan sari kata</string>

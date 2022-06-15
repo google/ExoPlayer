@@ -37,11 +37,11 @@
     <item quantity="one">በ%d ሰከንዶች በፍጥነት ወደፊት ያሳልፉ</item>
     <item quantity="other">በ%d ሰከንዶች በፍጥነት ወደፊት ያሳልፉ</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">ምንም አትድገም</string>
-  <string name="exo_controls_repeat_one_description">አንድ ድገም</string>
-  <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>
-  <string name="exo_controls_shuffle_on_description">መበወዝ በርቷል</string>
-  <string name="exo_controls_shuffle_off_description">መበወዝ ጠፍቷል</string>
+  <string name="exo_controls_repeat_off_description">የአሁኑ ሁነታ፦ ምንም አትድገም። የመድገም ሁነታን ቀያይር።</string>
+  <string name="exo_controls_repeat_one_description">የአሁን ሁነታ፦ አንዱን ድገም። የመድገም ሁነታን ቀያይር።</string>
+  <string name="exo_controls_repeat_all_description">የአሁን ሁነታ፦ ሁሉም ድገም። የመድገም ሁነታን ቀያይር።</string>
+  <string name="exo_controls_shuffle_on_description">የበውዝ ሁነታን አሰናክል</string>
+  <string name="exo_controls_shuffle_off_description">የበውዝ ሁነታን አንቃ</string>
   <string name="exo_controls_vr_description">የቪአር ሁነታ</string>
   <string name="exo_controls_cc_enabled_description">የግርጌ ጽሑፎችን አሰናክል</string>
   <string name="exo_controls_cc_disabled_description">የግርጌ ጽሑፎችን አንቃ</string>

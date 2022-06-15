@@ -37,11 +37,11 @@
     <item quantity="one">%d ثانیه سریع به‌جلو بردن</item>
     <item quantity="other">%d ثانیه سریع به‌جلو بردن</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">تکرار هیچ‌کدام</string>
-  <string name="exo_controls_repeat_one_description">یکبار تکرار</string>
-  <string name="exo_controls_repeat_all_description">تکرار همه</string>
-  <string name="exo_controls_shuffle_on_description">پخش درهم روشن</string>
-  <string name="exo_controls_shuffle_off_description">پخش درهم خاموش</string>
+  <string name="exo_controls_repeat_off_description">حالت کنونی: تکرار هیچ‌کدام. روشن/ خاموش کردن حالت تکرار.</string>
+  <string name="exo_controls_repeat_one_description">حالت کنونی: تکرار یک مورد. روشن/ خاموش کردن حالت تکرار.</string>
+  <string name="exo_controls_repeat_all_description">حالت کنونی: تکرار همه. روشن/ خاموش کردن حالت تکرار.</string>
+  <string name="exo_controls_shuffle_on_description">غیرفعال کردن حالت درهم</string>
+  <string name="exo_controls_shuffle_off_description">فعال کردن حالت درهم</string>
   <string name="exo_controls_vr_description">حالت واقعیت مجازی</string>
   <string name="exo_controls_cc_enabled_description">غیرفعال کردن زیرنویس</string>
   <string name="exo_controls_cc_disabled_description">فعال کردن زیرنویس</string>

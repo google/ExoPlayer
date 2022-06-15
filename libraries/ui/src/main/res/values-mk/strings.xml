@@ -37,11 +37,11 @@
     <item quantity="one">Премотајте напред %d секунда</item>
     <item quantity="other">Премотајте напред %d секунди</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Не повторувај ниту една</string>
-  <string name="exo_controls_repeat_one_description">Повтори една</string>
-  <string name="exo_controls_repeat_all_description">Повтори ги сите</string>
-  <string name="exo_controls_shuffle_on_description">Мешањето е вклучено</string>
-  <string name="exo_controls_shuffle_off_description">Мешањето е исклучено</string>
+  <string name="exo_controls_repeat_off_description">Тековно: не повторувај. Вклучи/исклучи повторување.</string>
+  <string name="exo_controls_repeat_one_description">Тековно: повтори една. Вклучи/исклучи повторување.</string>
+  <string name="exo_controls_repeat_all_description">Тековно: повтори ги сите. Вклучи/исклучи повторување.</string>
+  <string name="exo_controls_shuffle_on_description">Оневозможи режим на мешање</string>
+  <string name="exo_controls_shuffle_off_description">Овозможи режим на мешање</string>
   <string name="exo_controls_vr_description">Режим на VR</string>
   <string name="exo_controls_cc_enabled_description">Оневозможете ги титловите</string>
   <string name="exo_controls_cc_disabled_description">Овозможете ги титловите</string>

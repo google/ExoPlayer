@@ -37,11 +37,11 @@
     <item quantity="one">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</item>
     <item quantity="other">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">কোনও আইটেম আবার চালাবেন না</string>
-  <string name="exo_controls_repeat_one_description">একটি আইটেম আবার চালান</string>
-  <string name="exo_controls_repeat_all_description">সবগুলি আইটেম আবার চালান</string>
-  <string name="exo_controls_shuffle_on_description">শাফেল মোড চালু করা হয়েছে</string>
-  <string name="exo_controls_shuffle_off_description">শাফেল মোড বন্ধ করা হয়েছে</string>
+  <string name="exo_controls_repeat_off_description">\'বর্তমান\' মোড: রিপিট হয় না। \'রিপিট\' মোড টগল হয়।</string>
+  <string name="exo_controls_repeat_one_description">\'বর্তমান\' মোড: একটি রিপিট হয়। \'রিপিট\' মোড টগল হয়।</string>
+  <string name="exo_controls_repeat_all_description">\'বর্তমান\' মোড: সব রিপিট হয়। \'রিপিট\' মোড টগল হয়।</string>
+  <string name="exo_controls_shuffle_on_description">\'শাফেল\' মোড বন্ধ করে</string>
+  <string name="exo_controls_shuffle_off_description">\'শাফেল\' মোড চালু করে</string>
   <string name="exo_controls_vr_description">ভিআর মোড</string>
   <string name="exo_controls_cc_enabled_description">সাবটাইটেল বন্ধ করুন</string>
   <string name="exo_controls_cc_disabled_description">সাবটাইটেল চালু করুন</string>

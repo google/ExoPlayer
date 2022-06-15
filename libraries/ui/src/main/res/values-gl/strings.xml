@@ -37,11 +37,11 @@
     <item quantity="one">Avanza rapidamente %d segundo</item>
     <item quantity="other">Avanza rapidamente %d segundos</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Non repetir</string>
-  <string name="exo_controls_repeat_one_description">Repetir unha pista</string>
-  <string name="exo_controls_repeat_all_description">Repetir todas as pistas</string>
-  <string name="exo_controls_shuffle_on_description">Reprodución aleatoria activada</string>
-  <string name="exo_controls_shuffle_off_description">Reprodución aleat. desactivada</string>
+  <string name="exo_controls_repeat_off_description">Modo actual: Non repetir. Alternar modo de repetición.</string>
+  <string name="exo_controls_repeat_one_description">Modo actual: Repetir unha pista. Alternar modo de repetición.</string>
+  <string name="exo_controls_repeat_all_description">Modo actual: Repetir todas as pistas. Alternar modo de repetición.</string>
+  <string name="exo_controls_shuffle_on_description">Desactivar modo de reprodución aleatoria</string>
+  <string name="exo_controls_shuffle_off_description">Activar modo de reprodución aleatoria</string>
   <string name="exo_controls_vr_description">Modo RV</string>
   <string name="exo_controls_cc_enabled_description">Desactiva os subtítulos</string>
   <string name="exo_controls_cc_disabled_description">Activa os subtítulos</string>

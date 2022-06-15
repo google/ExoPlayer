@@ -21,4 +21,5 @@
   <string name="media3_controls_seek_to_next_description">Mag-seek sa susunod na item</string>
   <string name="media3_controls_seek_back_description">Mag-seek pabalik</string>
   <string name="media3_controls_seek_forward_description">Mag-seek pasulong</string>
+  <string name="authentication_required">Kinakailangan ang pag-authenticate</string>
 </resources>

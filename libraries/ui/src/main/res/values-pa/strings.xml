@@ -37,11 +37,11 @@
     <item quantity="one">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</item>
     <item quantity="other">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">ਕਿਸੇ ਨੂੰ ਨਾ ਦੁਹਰਾਓ</string>
-  <string name="exo_controls_repeat_one_description">ਇੱਕ ਵਾਰ ਦੁਹਰਾਓ</string>
-  <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>
-  <string name="exo_controls_shuffle_on_description">\'ਬੇਤਰਤੀਬ ਕਰੋ\' ਮੋਡ ਚਾਲੂ ਹੈ</string>
-  <string name="exo_controls_shuffle_off_description">\'ਬੇਤਰਤੀਬ ਕਰੋ\' ਮੋਡ ਬੰਦ ਹੈ</string>
+  <string name="exo_controls_repeat_off_description">ਮੌਜੂਦਾ ਮੋਡ: ਕਿਸੇ ਨੂੰ ਨਾ ਦੁਹਰਾਓ। ਦੁਹਰਾਓ ਮੋਡ ਟੌਗਲ ਕਰੋ।</string>
+  <string name="exo_controls_repeat_one_description">ਮੌਜੂਦਾ ਮੋਡ: ਇੱਕ ਨੂੰ ਦੁਹਰਾਓ। ਦੁਹਰਾਓ ਮੋਡ ਟੌਗਲ ਕਰੋ।</string>
+  <string name="exo_controls_repeat_all_description">ਮੌਜੂਦਾ ਮੋਡ: ਸਭ ਦੁਹਰਾਓ। ਦੁਹਰਾਓ ਮੋਡ ਟੌਗਲ ਕਰੋ।</string>
+  <string name="exo_controls_shuffle_on_description">ਬੇਤਰਤੀਬ ਮੋਡ ਬੰਦ ਕਰੋ</string>
+  <string name="exo_controls_shuffle_off_description">ਬੇਤਰਤੀਬ ਮੋਡ ਚਾਲੂ ਕਰੋ</string>
   <string name="exo_controls_vr_description">VR ਮੋਡ</string>
   <string name="exo_controls_cc_enabled_description">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਬੰਦ ਕਰੋ</string>
   <string name="exo_controls_cc_disabled_description">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਚਾਲੂ ਕਰੋ</string>

@@ -21,4 +21,5 @@
   <string name="media3_controls_seek_to_next_description">ရှေ့တစ်ခုသို့ ရစ်ရန်</string>
   <string name="media3_controls_seek_back_description">နောက်သို့ ရစ်ရန်</string>
   <string name="media3_controls_seek_forward_description">ရှေ့သို့ ရစ်ရန်</string>
+  <string name="authentication_required">အထောက်အထားစိစစ်ခြင်း လိုအပ်သည်</string>
 </resources>
