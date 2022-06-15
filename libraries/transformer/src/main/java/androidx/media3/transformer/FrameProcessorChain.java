@@ -71,8 +71,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>This listener is only called from the {@link FrameProcessorChain}'s background thread.
    */
   public interface Listener {
-    /** Called when an exception occurs during asynchronous frame processing. */
+    /**
+     * Called when an exception occurs during asynchronous frame processing.
+     *
+     * <p>If an error occurred, consuming and producing further frames will not work as expected and
+     * the {@link FrameProcessorChain} should be released.
+     */
     void onFrameProcessingError(FrameProcessingException exception);
+
+    /** Called after the frame processor has produced its final output frame. */
+    void onFrameProcessingEnded();
   }
 
   /**
@@ -454,22 +462,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return pendingFrameCount.get();
   }
 
-  /** Informs the {@code FrameProcessorChain} that no further input frames should be accepted. */
+  /**
+   * Informs the {@code FrameProcessorChain} that no further input frames should be accepted.
+   *
+   * @throws IllegalStateException If called more than once.
+   */
   public void signalEndOfInputStream() {
+    checkState(!inputStreamEnded);
     inputStreamEnded = true;
-  }
-
-  /** Returns whether all frames have been processed. */
-  public boolean isEnded() {
-    return inputStreamEnded && getPendingFrameCount() == 0;
+    futures.add(singleThreadExecutorService.submit(this::signalEndOfOutputStream));
   }
 
   /**
    * Releases all resources.
    *
-   * <p>If the frame processor chain is released before it has {@linkplain #isEnded() ended}, it
-   * will attempt to cancel processing any input frames that have already become available. Input
-   * frames that become available after release are ignored.
+   * <p>If the frame processor chain is released before it has {@linkplain
+   * Listener#onFrameProcessingEnded() ended}, it will attempt to cancel processing any input frames
+   * that have already become available. Input frames that become available after release are
+   * ignored.
    *
    * <p>This method blocks until all OpenGL resources are released or releasing times out.
    */
@@ -560,6 +570,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!stopProcessing.getAndSet(true)) {
         listener.onFrameProcessingError(FrameProcessingException.from(e, presentationTimeUs));
       }
+    }
+  }
+
+  /** Calls {@link Listener#onFrameProcessingEnded()} once no more frames are pending. */
+  @WorkerThread
+  private void signalEndOfOutputStream() {
+    if (getPendingFrameCount() == 0) {
+      listener.onFrameProcessingEnded();
+    } else {
+      futures.add(singleThreadExecutorService.submit(this::signalEndOfOutputStream));
     }
   }
 
