@@ -37,11 +37,11 @@
     <item quantity="one">%d saniye ileri sar</item>
     <item quantity="other">%d saniye ileri sar</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Hiçbirini tekrarlama</string>
-  <string name="exo_controls_repeat_one_description">Birini tekrarla</string>
-  <string name="exo_controls_repeat_all_description">Tümünü tekrarla</string>
-  <string name="exo_controls_shuffle_on_description">Karıştırma açık</string>
-  <string name="exo_controls_shuffle_off_description">Karıştırma kapalı</string>
+  <string name="exo_controls_repeat_off_description">Geçerli mod: Tekrarlama. Tekrarlamayı aç/kapat.</string>
+  <string name="exo_controls_repeat_one_description">Geçerli mod: Birini tekrarla. Tekrarlamayı aç/kapat.</string>
+  <string name="exo_controls_repeat_all_description">Geçerli mod: Tümünü tekrarla. Tekrarlamayı aç/kapat.</string>
+  <string name="exo_controls_shuffle_on_description">Karıştırma modunu devre dışı bırak</string>
+  <string name="exo_controls_shuffle_off_description">Karıştırma modunu etkinleştir</string>
   <string name="exo_controls_vr_description">VR modu</string>
   <string name="exo_controls_cc_enabled_description">Altyazıları devre dışı bırak</string>
   <string name="exo_controls_cc_disabled_description">Altyazıları etkinleştir</string>

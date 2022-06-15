@@ -37,11 +37,11 @@
     <item quantity="one">I-fast forward nang %d segundo</item>
     <item quantity="other">I-fast forward nang %d na segundo</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Walang uulitin</string>
-  <string name="exo_controls_repeat_one_description">Mag-ulit ng isa</string>
-  <string name="exo_controls_repeat_all_description">Ulitin lahat</string>
-  <string name="exo_controls_shuffle_on_description">Naka-on ang pag-shuffle</string>
-  <string name="exo_controls_shuffle_off_description">Naka-off ang pag-shuffle</string>
+  <string name="exo_controls_repeat_off_description">Current mode: Walang uulitin. I-toggle ang repeat mode.</string>
+  <string name="exo_controls_repeat_one_description">Current mode: Walang uulitin. I-toggle ang repeat mode.</string>
+  <string name="exo_controls_repeat_all_description">Current mode: Ulitin lahat. I-toggle ang repeat mode.</string>
+  <string name="exo_controls_shuffle_on_description">I-disable ang shuffle mode</string>
+  <string name="exo_controls_shuffle_off_description">I-enable ang shuffle mode</string>
   <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_controls_cc_enabled_description">I-disable ang mga subtitle</string>
   <string name="exo_controls_cc_disabled_description">I-enable ang mga subtitle</string>

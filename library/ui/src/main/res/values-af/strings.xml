@@ -37,11 +37,11 @@
     <item quantity="one">Spoel %d sekonde vinnig vorentoe</item>
     <item quantity="other">Spoel %d sekondes vinnig vorentoe</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Herhaal niks</string>
-  <string name="exo_controls_repeat_one_description">Herhaal een</string>
-  <string name="exo_controls_repeat_all_description">Herhaal alles</string>
-  <string name="exo_controls_shuffle_on_description">Skommel is aan</string>
-  <string name="exo_controls_shuffle_off_description">Skommel is af</string>
+  <string name="exo_controls_repeat_off_description">Huidige modus: herhaal niks. Wissel herhaalmodus.</string>
+  <string name="exo_controls_repeat_one_description">Huidige modus: herhaal een. Wissel herhaalmodus.</string>
+  <string name="exo_controls_repeat_all_description">Huidige modus: herhaal alles. Wissel herhaalmodus.</string>
+  <string name="exo_controls_shuffle_on_description">Deaktiveer skommelmodus</string>
+  <string name="exo_controls_shuffle_off_description">Aktiveer skommelmodus</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_controls_cc_enabled_description">Deaktiveer onderskrifte</string>
   <string name="exo_controls_cc_disabled_description">Aktiveer onderskrifte</string>

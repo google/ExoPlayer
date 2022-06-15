@@ -41,11 +41,11 @@
     <item quantity="many">Пераматаць уперад на %d секунд</item>
     <item quantity="other">Пераматаць уперад на %d секунды</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Не паўтараць нічога</string>
-  <string name="exo_controls_repeat_one_description">Паўтарыць адзін элемент</string>
-  <string name="exo_controls_repeat_all_description">Паўтарыць усе</string>
-  <string name="exo_controls_shuffle_on_description">Перамешванне ўключана</string>
-  <string name="exo_controls_shuffle_off_description">Перамешванне выключана</string>
+  <string name="exo_controls_repeat_off_description">Цяпер: без паўтораў. Змяніць.</string>
+  <string name="exo_controls_repeat_one_description">Цяпер: паўтараць фрагмент. Змяніць.</string>
+  <string name="exo_controls_repeat_all_description">Цяпер: паўтараць усё. Змяніць.</string>
+  <string name="exo_controls_shuffle_on_description">Выключыць рэжым перамешвання</string>
+  <string name="exo_controls_shuffle_off_description">Уключыць рэжым перамешвання</string>
   <string name="exo_controls_vr_description">VR-рэжым</string>
   <string name="exo_controls_cc_enabled_description">Выключыць субцітры</string>
   <string name="exo_controls_cc_disabled_description">Уключыць субцітры</string>
@@ -74,7 +74,7 @@
   <string name="exo_track_role_alternate">Альтэрнатыўны запіс</string>
   <string name="exo_track_role_supplementary">Дадатковы запіс</string>
   <string name="exo_track_role_commentary">Каментарыі</string>
-  <string name="exo_track_role_closed_captions">Цітры</string>
+  <string name="exo_track_role_closed_captions">Субцітры</string>
   <string name="exo_track_bitrate">%1$.2f Мбіт/с</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
