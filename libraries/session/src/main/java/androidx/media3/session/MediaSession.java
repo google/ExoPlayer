@@ -88,7 +88,7 @@ import java.util.List;
  *   <li><a href="#ThreadingModel">Threading Model</a>
  *   <li><a href="#KeyEvents">Media Key Events Mapping</a>
  *   <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
- *   <li><a href="#CompatibilitySession">Backward Compatibility with Legacy Session APIs</a>
+ *   <li><a href="#BackwardCompatibility">Backward Compatibility with Legacy Session APIs</a>
  *   <li><a href="#CompatibilityController">Backward Compatibility with Legacy Controller APIs</a>
  * </ol>
  *
@@ -201,10 +201,10 @@ import java.util.List;
  *
  * <h2 id="CompatibilityController">Backward Compatibility with Legacy Controller APIs</h2>
  *
- * <p>In addition to {@link MediaController}, session also supports connection from the legacy
- * controller APIs - {@link android.media.session.MediaController framework controller} and {@link
- * MediaControllerCompat AndroidX controller compat}. However, {@link ControllerInfo} may not be
- * precise for legacy controllers. See {@link ControllerInfo} for the details.
+ * <p>In addition to {@link MediaController}, the session also supports connections from the legacy
+ * controller APIs - {@linkplain android.media.session.MediaController framework controller} and
+ * {@linkplain MediaControllerCompat AndroidX controller compat}. However, {@link ControllerInfo}
+ * may not be precise for legacy controllers. See {@link ControllerInfo} for the details.
  *
  * <p>Unknown package name nor UID doesn't mean that you should disallow connection nor commands.
  * For SDK levels where such issues happen, session tokens could only be obtained by trusted

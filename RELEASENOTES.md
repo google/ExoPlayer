@@ -179,6 +179,8 @@
         of requests.
     *   Forward legacy `MediaController` calls to play media to
         `MediaSession.Callback.onAddMediaItems` instead of `onSetMediaUri`.
+    *   Support `setMediaItems(s)` methods when `MediaController` connects to a
+        legacy media session.
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceholderDataSource`.
     *   Workaround OkHttp interrupt handling.

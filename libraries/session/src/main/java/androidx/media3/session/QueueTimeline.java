@@ -79,11 +79,11 @@ import java.util.Map;
         newMediaItemsBuilder.build(), unmodifiableMediaItemToQueueIdMap, fakeMediaItem);
   }
 
-  public QueueTimeline copyWithNewMediaItems(int addToIndex, List<MediaItem> newMediaItems) {
+  public QueueTimeline copyWithNewMediaItems(int index, List<MediaItem> newMediaItems) {
     ImmutableList.Builder<MediaItem> newMediaItemsBuilder = new ImmutableList.Builder<>();
-    newMediaItemsBuilder.addAll(mediaItems.subList(0, addToIndex));
+    newMediaItemsBuilder.addAll(mediaItems.subList(0, index));
     newMediaItemsBuilder.addAll(newMediaItems);
-    newMediaItemsBuilder.addAll(mediaItems.subList(addToIndex, mediaItems.size()));
+    newMediaItemsBuilder.addAll(mediaItems.subList(index, mediaItems.size()));
     return new QueueTimeline(
         newMediaItemsBuilder.build(), unmodifiableMediaItemToQueueIdMap, fakeMediaItem);
   }
