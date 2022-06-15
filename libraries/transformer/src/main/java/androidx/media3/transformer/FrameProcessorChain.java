@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -40,6 +39,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -58,8 +58,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * and is processed on a background thread as it becomes available. All input frames should be
  * {@linkplain #registerInputFrame() registered} before they are rendered to the input surface.
  * {@link #getPendingFrameCount()} can be used to check whether there are frames that have not been
- * fully processed yet. Output is written to its {@linkplain #setOutputSurface(Surface, int, int,
- * SurfaceView) output surface}.
+ * fully processed yet. Output is written to the provided {@linkplain #create(Context, Listener,
+ * float, int, int, long, List, SurfaceInfo.Provider, Transformer.DebugViewProvider, boolean) output
+ * surface}.
  */
 // TODO(b/227625423): Factor out FrameProcessor interface and rename this class to GlFrameProcessor.
 /* package */ final class FrameProcessorChain {
@@ -84,11 +85,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param inputWidth The input frame width, in pixels.
    * @param inputHeight The input frame height, in pixels.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
+   * @param outputSurfaceProvider A {@link SurfaceInfo.Provider} managing the output {@link
+   *     Surface}.
+   * @param debugViewProvider A {@link Transformer.DebugViewProvider}.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
-   * @return A new instance.
+   * @return A new instance or {@code null}, if no output surface was provided.
    * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
    *     creating and configuring the OpenGL components.
    */
+  // TODO(b/227625423): Remove @Nullable here and allow the output surface to be @Nullable until
+  //  the output surface is requested when the output size becomes available asynchronously
+  //  via the final GlTextureProcessor.
+  @Nullable
   public static FrameProcessorChain create(
       Context context,
       Listener listener,
@@ -97,6 +105,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int inputHeight,
       long streamOffsetUs,
       List<GlEffect> effects,
+      SurfaceInfo.Provider outputSurfaceProvider,
+      Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
@@ -104,21 +114,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
+    Future<Optional<FrameProcessorChain>> frameProcessorChainFuture =
+        singleThreadExecutorService.submit(
+            () ->
+                Optional.fromNullable(
+                    createOpenGlObjectsAndFrameProcessorChain(
+                        context,
+                        listener,
+                        pixelWidthHeightRatio,
+                        inputWidth,
+                        inputHeight,
+                        streamOffsetUs,
+                        effects,
+                        outputSurfaceProvider,
+                        debugViewProvider,
+                        enableExperimentalHdrEditing,
+                        singleThreadExecutorService)));
+
     try {
-      return singleThreadExecutorService
-          .submit(
-              () ->
-                  createOpenGlObjectsAndFrameProcessorChain(
-                      context,
-                      listener,
-                      pixelWidthHeightRatio,
-                      inputWidth,
-                      inputHeight,
-                      streamOffsetUs,
-                      effects,
-                      enableExperimentalHdrEditing,
-                      singleThreadExecutorService))
-          .get();
+      return frameProcessorChainFuture.get().orNull();
     } catch (ExecutionException e) {
       throw new FrameProcessingException(e);
     } catch (InterruptedException e) {
@@ -135,6 +149,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>This method must be executed using the {@code singleThreadExecutorService}.
    */
   @WorkerThread
+  @Nullable
   private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
       Context context,
       Listener listener,
@@ -143,6 +158,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int inputHeight,
       long streamOffsetUs,
       List<GlEffect> effects,
+      SurfaceInfo.Provider outputSurfaceProvider,
+      Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing,
       ExecutorService singleThreadExecutorService)
       throws GlUtil.GlException, FrameProcessingException {
@@ -164,45 +181,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
-    ExternalTextureProcessor externalTextureProcessor =
-        new ExternalTextureProcessor(context, enableExperimentalHdrEditing);
-    ImmutableList<SingleFrameGlTextureProcessor> textureProcessors =
-        getTextureProcessors(context, externalTextureProcessor, pixelWidthHeightRatio, effects);
-
-    // Initialize texture processors.
-    int inputExternalTexId = GlUtil.createExternalTexture();
-    Size outputSize = externalTextureProcessor.configure(inputWidth, inputHeight);
-    ImmutableList.Builder<TextureInfo> intermediateTextures = new ImmutableList.Builder<>();
-    for (int i = 1; i < textureProcessors.size(); i++) {
-      int texId = GlUtil.createTexture(outputSize.getWidth(), outputSize.getHeight());
-      int fboId = GlUtil.createFboForTexture(texId);
-      intermediateTextures.add(
-          new TextureInfo(texId, fboId, outputSize.getWidth(), outputSize.getHeight()));
-      SingleFrameGlTextureProcessor textureProcessor = textureProcessors.get(i);
-      outputSize = textureProcessor.configure(outputSize.getWidth(), outputSize.getHeight());
-    }
-    return new FrameProcessorChain(
-        eglDisplay,
-        eglContext,
-        singleThreadExecutorService,
-        inputExternalTexId,
-        streamOffsetUs,
-        intermediateTextures.build(),
-        textureProcessors,
-        outputSize,
-        listener,
-        enableExperimentalHdrEditing);
-  }
-
-  private static ImmutableList<SingleFrameGlTextureProcessor> getTextureProcessors(
-      Context context,
-      ExternalTextureProcessor externalTextureProcessor,
-      float pixelWidthHeightRatio,
-      List<GlEffect> effects)
-      throws FrameProcessingException {
-    ImmutableList.Builder<SingleFrameGlTextureProcessor> textureProcessors =
-        new ImmutableList.Builder<SingleFrameGlTextureProcessor>().add(externalTextureProcessor);
-
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
     // Scale to expand the frame to apply the pixelWidthHeightRatio.
@@ -218,6 +196,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               .build());
     }
 
+    ExternalTextureProcessor externalTextureProcessor =
+        new ExternalTextureProcessor(context, enableExperimentalHdrEditing);
+    int inputExternalTexId = GlUtil.createExternalTexture();
+    Size outputSize = externalTextureProcessor.configure(inputWidth, inputHeight);
+    ImmutableList.Builder<TextureInfo> intermediateTextures = new ImmutableList.Builder<>();
+    ImmutableList.Builder<SingleFrameGlTextureProcessor> textureProcessors =
+        new ImmutableList.Builder<SingleFrameGlTextureProcessor>().add(externalTextureProcessor);
+
     // Combine consecutive GlMatrixTransformations into a single SingleFrameGlTextureProcessor and
     // convert all other GlEffects to SingleFrameGlTextureProcessors.
     for (int i = 0; i < effects.size(); i++) {
@@ -226,21 +212,100 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         matrixTransformationListBuilder.add((GlMatrixTransformation) effect);
         continue;
       }
+
       ImmutableList<GlMatrixTransformation> matrixTransformations =
           matrixTransformationListBuilder.build();
       if (!matrixTransformations.isEmpty()) {
-        textureProcessors.add(new MatrixTransformationProcessor(context, matrixTransformations));
+        MatrixTransformationProcessor matrixTransformationProcessor =
+            new MatrixTransformationProcessor(context, matrixTransformations);
+        intermediateTextures.add(createTexture(outputSize.getWidth(), outputSize.getHeight()));
+        outputSize =
+            matrixTransformationProcessor.configure(outputSize.getWidth(), outputSize.getHeight());
+        textureProcessors.add(matrixTransformationProcessor);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
       }
-      textureProcessors.add(effect.toGlTextureProcessor(context));
+      intermediateTextures.add(createTexture(outputSize.getWidth(), outputSize.getHeight()));
+      SingleFrameGlTextureProcessor textureProcessor = effect.toGlTextureProcessor(context);
+      outputSize = textureProcessor.configure(outputSize.getWidth(), outputSize.getHeight());
+      textureProcessors.add(textureProcessor);
     }
+
+    // TODO(b/227625423): Request the output surface during processing when the output size becomes
+    //  available asynchronously via the final GlTextureProcessor instead of requesting it here.
+    //  This will also avoid needing to return null here when no surface is provided.
+    Size requestedOutputSize =
+        MatrixUtils.configureAndGetOutputSize(
+            outputSize.getWidth(), outputSize.getHeight(), matrixTransformationListBuilder.build());
+    @Nullable
+    SurfaceInfo outputSurfaceInfo =
+        outputSurfaceProvider.getSurfaceInfo(
+            requestedOutputSize.getWidth(), requestedOutputSize.getHeight());
+    if (outputSurfaceInfo == null) {
+      Log.d(TAG, "No output surface provided.");
+      return null;
+    }
+
+    if (outputSurfaceInfo.orientationDegrees != 0) {
+      matrixTransformationListBuilder.add(
+          new ScaleToFitTransformation.Builder()
+              .setRotationDegrees(outputSurfaceInfo.orientationDegrees)
+              .build());
+    }
+    if (outputSurfaceInfo.width != outputSize.getWidth()
+        || outputSurfaceInfo.height != outputSize.getHeight()) {
+      matrixTransformationListBuilder.add(
+          new Presentation.Builder()
+              .setAspectRatio(
+                  outputSurfaceInfo.width / (float) outputSurfaceInfo.height,
+                  Presentation.LAYOUT_SCALE_TO_FIT)
+              .setResolution(outputSurfaceInfo.height)
+              .build());
+    }
+
+    // Convert final list of matrix transformations (including additional transformations for the
+    // output surface) to a SingleFrameGlTextureProcessors.
     ImmutableList<GlMatrixTransformation> matrixTransformations =
         matrixTransformationListBuilder.build();
     if (!matrixTransformations.isEmpty()) {
-      textureProcessors.add(new MatrixTransformationProcessor(context, matrixTransformations));
+      intermediateTextures.add(createTexture(outputSize.getWidth(), outputSize.getHeight()));
+      MatrixTransformationProcessor matrixTransformationProcessor =
+          new MatrixTransformationProcessor(context, matrixTransformations);
+      outputSize =
+          matrixTransformationProcessor.configure(outputSize.getWidth(), outputSize.getHeight());
+      checkState(outputSize.getWidth() == outputSurfaceInfo.width);
+      checkState(outputSize.getHeight() == outputSurfaceInfo.height);
+      textureProcessors.add(matrixTransformationProcessor);
     }
 
-    return textureProcessors.build();
+    EGLSurface outputEglSurface;
+    if (enableExperimentalHdrEditing) {
+      // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
+      outputEglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurfaceInfo.surface);
+    } else {
+      outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
+    }
+    return new FrameProcessorChain(
+        eglDisplay,
+        eglContext,
+        singleThreadExecutorService,
+        inputExternalTexId,
+        streamOffsetUs,
+        intermediateTextures.build(),
+        textureProcessors.build(),
+        outputSurfaceInfo.width,
+        outputSurfaceInfo.height,
+        outputEglSurface,
+        listener,
+        debugViewProvider.getDebugPreviewSurfaceView(
+            outputSurfaceInfo.width, outputSurfaceInfo.height),
+        enableExperimentalHdrEditing);
+  }
+
+  private static TextureInfo createTexture(int outputWidth, int outputHeight)
+      throws GlUtil.GlException {
+    int texId = GlUtil.createTexture(outputWidth, outputHeight);
+    int fboId = GlUtil.createFboForTexture(texId);
+    return new TextureInfo(texId, fboId, outputWidth, outputHeight);
   }
 
   private static final String TAG = "FrameProcessorChain";
@@ -282,8 +347,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * SingleFrameGlTextureProcessor}.
    */
   private final ImmutableList<TextureInfo> intermediateTextures;
-  /** The last texture processor's output {@link Size}. */
-  private final Size recommendedOutputSize;
 
   private final Listener listener;
 
@@ -293,15 +356,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   private final AtomicBoolean stopProcessing;
 
-  private int outputWidth;
-  private int outputHeight;
-  private @MonotonicNonNull Surface outputSurface;
-
+  private final int outputWidth;
+  private final int outputHeight;
   /**
    * Wraps the output {@link Surface} that is populated with the output of the final {@link
    * SingleFrameGlTextureProcessor} for each frame.
    */
-  private @MonotonicNonNull EGLSurface outputEglSurface;
+  private final EGLSurface outputEglSurface;
   /**
    * Wraps a debug {@link SurfaceView} that is populated with the output of the final {@link
    * SingleFrameGlTextureProcessor} for each frame.
@@ -320,8 +381,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long streamOffsetUs,
       ImmutableList<TextureInfo> intermediateTextures,
       ImmutableList<SingleFrameGlTextureProcessor> textureProcessors,
-      Size recommendedOutputSize,
+      int outputWidth,
+      int outputHeight,
+      EGLSurface outputEglSurface,
       Listener listener,
+      @Nullable SurfaceView debugSurfaceView,
       boolean enableExperimentalHdrEditing) {
     checkState(!textureProcessors.isEmpty());
 
@@ -332,7 +396,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.streamOffsetUs = streamOffsetUs;
     this.intermediateTextures = intermediateTextures;
     this.textureProcessors = textureProcessors;
-    this.recommendedOutputSize = recommendedOutputSize;
+    this.outputWidth = outputWidth;
+    this.outputHeight = outputHeight;
+    this.outputEglSurface = outputEglSurface;
     this.listener = listener;
     this.stopProcessing = new AtomicBoolean();
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
@@ -342,47 +408,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurface = new Surface(inputSurfaceTexture);
     textureTransformMatrix = new float[16];
-    outputWidth = C.LENGTH_UNSET;
-    outputHeight = C.LENGTH_UNSET;
-  }
-
-  /**
-   * Returns the recommended output size.
-   *
-   * <p>This is the recommended size to use for the {@linkplain #setOutputSurface(Surface, int, int,
-   * SurfaceView) output surface}.
-   */
-  public Size getOutputSize() {
-    return recommendedOutputSize;
-  }
-
-  /**
-   * Sets the output {@link Surface}.
-   *
-   * <p>The recommended output size is given by {@link #getOutputSize()}. Setting a different output
-   * size may cause poor quality or distortion.
-   *
-   * @param outputSurface The output {@link Surface}.
-   * @param outputWidth The output width, in pixels.
-   * @param outputHeight The output height, in pixels.
-   * @param debugSurfaceView Optional debug {@link SurfaceView} to show output.
-   */
-  public void setOutputSurface(
-      Surface outputSurface,
-      int outputWidth,
-      int outputHeight,
-      @Nullable SurfaceView debugSurfaceView) {
-    // TODO(b/218488308): Don't override output size for encoder fallback. Instead allow the final
-    //  SingleFrameGlTextureProcessor to be re-configured or append another
-    //  SingleFrameGlTextureProcessor.
-    this.outputSurface = outputSurface;
-    this.outputWidth = outputWidth;
-    this.outputHeight = outputHeight;
-
     if (debugSurfaceView != null) {
       debugSurfaceViewWrapper = new SurfaceViewWrapper(debugSurfaceView);
     }
+  }
 
+  /** Returns the input {@link Surface}. */
+  public Surface getInputSurface() {
+    // TODO(b/227625423): Allow input surface to be recreated for input size change.
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
           if (stopProcessing.get()) {
@@ -398,10 +431,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             }
           }
         });
-  }
-
-  /** Returns the input {@link Surface}. */
-  public Surface getInputSurface() {
     return inputSurface;
   }
 
@@ -478,16 +507,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long presentationTimeUs = C.TIME_UNSET;
     try {
       checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-
-      if (outputEglSurface == null) {
-        checkStateNotNull(outputSurface);
-        if (enableExperimentalHdrEditing) {
-          // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
-          outputEglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurface);
-        } else {
-          outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-        }
-      }
 
       inputSurfaceTexture.updateTexImage();
       long inputFrameTimeNs = inputSurfaceTexture.getTimestamp();

@@ -63,6 +63,8 @@ public final class FrameProcessorChainPixelTest {
       "media/bitmap/sample_mp4_first_frame/translate_right.png";
   public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/rotate_then_translate.png";
+  public static final String ROTATE_THEN_SCALE_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/rotate45_then_scale2w.png";
   public static final String TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/translate_then_rotate.png";
   public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
@@ -88,7 +90,7 @@ public final class FrameProcessorChainPixelTest {
       new AtomicReference<>();
 
   private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
-  private @MonotonicNonNull ImageReader outputImageReader;
+  private volatile @MonotonicNonNull ImageReader outputImageReader;
   private @MonotonicNonNull MediaFormat mediaFormat;
 
   @After
@@ -261,6 +263,30 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
+  public void processData_withTwoWrappedScaleToFitTransformations_producesExpectedOutput()
+      throws Exception {
+    String testId = "processData_withTwoWrappedScaleToFitTransformations";
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        new GlEffectWrapper(new ScaleToFitTransformation.Builder().setRotationDegrees(45).build()),
+        new GlEffectWrapper(
+            new ScaleToFitTransformation.Builder()
+                .setScale(/* scaleX= */ 2, /* scaleY= */ 1)
+                .build()));
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_THEN_SCALE_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
   public void
       processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation()
           throws Exception {
@@ -325,27 +351,27 @@ public final class FrameProcessorChainPixelTest {
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       frameProcessorChain =
-          FrameProcessorChain.create(
-              context,
-              /* listener= */ this.frameProcessingException::set,
-              pixelWidthHeightRatio,
-              inputWidth,
-              inputHeight,
-              /* streamOffsetUs= */ 0L,
-              effects,
-              /* enableExperimentalHdrEditing= */ false);
-      Size outputSize = frameProcessorChain.getOutputSize();
-      outputImageReader =
-          ImageReader.newInstance(
-              outputSize.getWidth(),
-              outputSize.getHeight(),
-              PixelFormat.RGBA_8888,
-              /* maxImages= */ 1);
-      frameProcessorChain.setOutputSurface(
-          outputImageReader.getSurface(),
-          outputSize.getWidth(),
-          outputSize.getHeight(),
-          /* debugSurfaceView= */ null);
+          checkNotNull(
+              FrameProcessorChain.create(
+                  context,
+                  /* listener= */ this.frameProcessingException::set,
+                  pixelWidthHeightRatio,
+                  inputWidth,
+                  inputHeight,
+                  /* streamOffsetUs= */ 0L,
+                  effects,
+                  /* outputSurfaceProvider= */ (requestedWidth, requestedHeight) -> {
+                    outputImageReader =
+                        ImageReader.newInstance(
+                            requestedWidth,
+                            requestedHeight,
+                            PixelFormat.RGBA_8888,
+                            /* maxImages= */ 1);
+                    return new SurfaceInfo(
+                        outputImageReader.getSurface(), requestedWidth, requestedHeight);
+                  },
+                  Transformer.DebugViewProvider.NONE,
+                  /* enableExperimentalHdrEditing= */ false));
       frameProcessorChain.registerInputFrame();
 
       // Queue the first video frame from the extractor.
@@ -435,6 +461,29 @@ public final class FrameProcessorChainPixelTest {
     @Override
     public Matrix getMatrix(long presentationTimeUs) {
       return checkStateNotNull(adjustedTransformationMatrix);
+    }
+  }
+
+  /**
+   * Wraps a {@link GlEffect} to prevent the {@link FrameProcessorChain} from detecting its class
+   * and optimizing it.
+   *
+   * <p>This ensures that {@link FrameProcessorChain} uses a separate {@link GlTextureProcessor} for
+   * the wrapped {@link GlEffect} rather than merging it with preceding or subsequent {@link
+   * GlEffect} instances and applying them in one combined {@link GlTextureProcessor}.
+   */
+  private static final class GlEffectWrapper implements GlEffect {
+
+    private final GlEffect effect;
+
+    public GlEffectWrapper(GlEffect effect) {
+      this.effect = effect;
+    }
+
+    @Override
+    public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context)
+        throws FrameProcessingException {
+      return effect.toGlTextureProcessor(context);
     }
   }
 }
