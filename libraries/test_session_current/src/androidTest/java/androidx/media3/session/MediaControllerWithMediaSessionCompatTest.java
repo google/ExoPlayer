@@ -29,7 +29,6 @@ import static androidx.media3.common.Player.STATE_BUFFERING;
 import static androidx.media3.common.Player.STATE_READY;
 import static androidx.media3.session.MediaConstants.ARGUMENT_CAPTIONING_ENABLED;
 import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED;
-import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_ALBUM_TITLE;
@@ -37,10 +36,8 @@ import static androidx.media3.test.session.common.CommonConstants.METADATA_ARTIS
 import static androidx.media3.test.session.common.CommonConstants.METADATA_DESCRIPTION;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_TITLE;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
-import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.app.PendingIntent;
@@ -85,8 +82,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -565,77 +560,6 @@ public class MediaControllerWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(isPlayingAdRef.get()).isTrue();
-  }
-
-  @Test
-  public void setMediaUri_resultSetAfterPrepare() throws Exception {
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-
-    Uri testUri = Uri.parse("androidx://test");
-    ListenableFuture<SessionResult> future =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri, /* extras= */ Bundle.EMPTY));
-
-    SessionResult result;
-    try {
-      result = future.get(NO_RESPONSE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      assertWithMessage("TimeoutException is expected").fail();
-    } catch (TimeoutException e) {
-      // expected.
-    }
-
-    threadTestRule.getHandler().postAndSync(controller::prepare);
-
-    result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-  }
-
-  @Test
-  public void setMediaUri_resultSetAfterPlay() throws Exception {
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-
-    Uri testUri = Uri.parse("androidx://test");
-    ListenableFuture<SessionResult> future =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri, /* extras= */ Bundle.EMPTY));
-
-    SessionResult result;
-    try {
-      result = future.get(NO_RESPONSE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      assertWithMessage("TimeoutException is expected").fail();
-    } catch (TimeoutException e) {
-      // expected.
-    }
-
-    threadTestRule.getHandler().postAndSync(controller::play);
-
-    result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-  }
-
-  @Test
-  public void setMediaUris_multipleCalls_previousCallReturnsResultInfoSkipped() throws Exception {
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-
-    Uri testUri1 = Uri.parse("androidx://test1");
-    Uri testUri2 = Uri.parse("androidx://test2");
-    ListenableFuture<SessionResult> future1 =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri1, /* extras= */ Bundle.EMPTY));
-    ListenableFuture<SessionResult> future2 =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri2, /* extras= */ Bundle.EMPTY));
-
-    threadTestRule.getHandler().postAndSync(controller::prepare);
-
-    SessionResult result1 = future1.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    SessionResult result2 = future2.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    assertThat(result1.resultCode).isEqualTo(RESULT_INFO_SKIPPED);
-    assertThat(result2.resultCode).isEqualTo(RESULT_SUCCESS);
   }
 
   @Test

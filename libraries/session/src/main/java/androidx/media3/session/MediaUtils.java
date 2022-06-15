@@ -30,6 +30,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
@@ -1058,7 +1059,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         COMMAND_SEEK_TO_NEXT,
         COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         COMMAND_GET_MEDIA_ITEMS_METADATA,
-        COMMAND_GET_CURRENT_MEDIA_ITEM);
+        COMMAND_GET_CURRENT_MEDIA_ITEM,
+        COMMAND_SET_MEDIA_ITEM);
     boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
     if (includePlaylistCommands) {
       playerCommandsBuilder.add(COMMAND_CHANGE_MEDIA_ITEMS);

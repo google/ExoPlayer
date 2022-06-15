@@ -81,13 +81,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  *   <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
  *   <li><a href="#ThreadingModel">Threading Model</a>
  *   <li><a href="#PackageVisibilityFilter">Package Visibility Filter</a>
+ *   <li><a href="#BackwardCompatibility">Backward Compatibility with legacy media sessions</a>
  * </ol>
  *
  * <h2 id="ControllerLifeCycle">Controller Lifecycle</h2>
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
  * session token type is {@link SessionToken#TYPE_SESSION}), the controller will connect to the
- * specific session.
+ * specific session.F
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSessionService}
  * (i.e. session token type is {@link SessionToken#TYPE_SESSION_SERVICE} or {@link
@@ -127,6 +128,34 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  * <!-- Or, as a package name -->
  * <package android:name="package_name_of_the_other_app" />
  * }</pre>
+ *
+ * <h2 id="BackwardCompatibility">Backward Compatibility with legacy media sessions</h2>
+ *
+ * <p>In addition to {@link MediaSession}, the controller also supports connecting to a legacy media
+ * session - {@linkplain android.media.session.MediaSession framework session} and {@linkplain
+ * MediaSessionCompat AndroidX session compat}.
+ *
+ * <p>To request legacy sessions to play media, use one of the {@link #setMediaItem} methods and set
+ * either {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri} or {@link
+ * MediaItem.RequestMetadata#searchQuery}. Once the controller is {@linkplain #prepare() prepared},
+ * the controller triggers one of the following callbacks depending on the provided information and
+ * the value of {@link #getPlayWhenReady()}:
+ *
+ * <ul>
+ *   <li>{@link MediaSessionCompat.Callback#onPrepareFromUri onPrepareFromUri}
+ *   <li>{@link MediaSessionCompat.Callback#onPlayFromUri onPlayFromUri}
+ *   <li>{@link MediaSessionCompat.Callback#onPrepareFromMediaId onPrepareFromMediaId}
+ *   <li>{@link MediaSessionCompat.Callback#onPlayFromMediaId onPlayFromMediaId}
+ *   <li>{@link MediaSessionCompat.Callback#onPrepareFromSearch onPrepareFromSearch}
+ *   <li>{@link MediaSessionCompat.Callback#onPlayFromSearch onPlayFromSearch}
+ * </ul>
+ *
+ * Other playlist change methods, like {@link #addMediaItem} or {@link #removeMediaItem}, trigger
+ * the {@link MediaSessionCompat.Callback#onAddQueueItem onAddQueueItem} and {@link
+ * MediaSessionCompat.Callback#onRemoveQueueItem} onRemoveQueueItem} callbacks. Check {@link
+ * #getAvailableCommands()} to see if playlist modifications are {@linkplain
+ * androidx.media3.common.Player.Command#COMMAND_CHANGE_MEDIA_ITEMS supported} by the legacy
+ * session.
  */
 public class MediaController implements Player {
 
@@ -478,13 +507,6 @@ public class MediaController implements Player {
     return impl.isConnected();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, then this will be grouped together with
-   * previously called {@link #setMediaUri}. See {@link #setMediaUri} for details.
-   */
   @Override
   public void play() {
     verifyApplicationThread();
@@ -505,13 +527,6 @@ public class MediaController implements Player {
     impl.pause();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, then this will be grouped together with
-   * previously called {@link #setMediaUri}. See {@link #setMediaUri} for details.
-   */
   @Override
   public void prepare() {
     verifyApplicationThread();
@@ -980,44 +995,6 @@ public class MediaController implements Player {
    * <p>The {@link Player.Listener#onTimelineChanged} and/or {@link
    * Player.Listener#onMediaItemTransition} would be called when it's completed.
    *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this call will be grouped together with
-   * later {@link #prepare} or {@link #play}, depending on the uri pattern as follows:
-   *
-   * <table>
-   * <caption>Uri patterns and following API calls for MediaControllerCompat methods</caption>
-   * <tr>
-   * <th>Uri patterns</th><th>Following API calls</th><th>Method</th>
-   * </tr><tr>
-   * <td rowspan="2">{@code androidx://media3-session/setMediaUri?uri=[uri]}</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
-   * </tr><tr>
-   * <td rowspan="2">{@code androidx://media3-session/setMediaUri?id=[mediaId]}</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
-   * </tr><tr>
-   * <td rowspan="2">{@code androidx://media3-session/setMediaUri?query=[query]}</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
-   * </tr><tr>
-   * <td rowspan="2">Does not match with any pattern above</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
-   * </tr></table>
-   *
    * <p>Returned {@link ListenableFuture} will return {@link SessionResult#RESULT_SUCCESS} when it's
    * handled together with {@link #prepare} or {@link #play}. If this API is called multiple times
    * without prepare or play, then {@link SessionResult#RESULT_INFO_SKIPPED} will be returned for
@@ -1027,15 +1004,6 @@ public class MediaController implements Player {
    * @param extras A {@link Bundle} to send extra information. May be empty.
    * @return A {@link ListenableFuture} of {@link SessionResult} representing the pending
    *     completion.
-   * @see MediaConstants#MEDIA_URI_AUTHORITY
-   * @see MediaConstants#MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID
-   * @see MediaConstants#MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID
-   * @see MediaConstants#MEDIA_URI_PATH_PREPARE_FROM_SEARCH
-   * @see MediaConstants#MEDIA_URI_PATH_PLAY_FROM_SEARCH
-   * @see MediaConstants#MEDIA_URI_PATH_SET_MEDIA_URI
-   * @see MediaConstants#MEDIA_URI_QUERY_ID
-   * @see MediaConstants#MEDIA_URI_QUERY_QUERY
-   * @see MediaConstants#MEDIA_URI_QUERY_URI
    */
   public ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras) {
     verifyApplicationThread();
