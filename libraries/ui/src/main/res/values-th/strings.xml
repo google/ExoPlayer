@@ -37,11 +37,11 @@
     <item quantity="one">กรอไปข้างหน้า %d วินาที</item>
     <item quantity="other">กรอไปข้างหน้า %d วินาที</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">ไม่เล่นซ้ำ</string>
-  <string name="exo_controls_repeat_one_description">เล่นซ้ำเพลงเดียว</string>
-  <string name="exo_controls_repeat_all_description">เล่นซ้ำทั้งหมด</string>
-  <string name="exo_controls_shuffle_on_description">เปิดการสุ่มเพลงอยู่</string>
-  <string name="exo_controls_shuffle_off_description">ปิดการสุ่มเพลงอยู่</string>
+  <string name="exo_controls_repeat_off_description">โหมดปัจจุบัน: ไม่เล่นซ้ำ สลับโหมดเล่นซ้ำ</string>
+  <string name="exo_controls_repeat_one_description">โหมดปัจจุบัน: เล่นซ้ำรายการเดียว สลับโหมดเล่นซ้ำ</string>
+  <string name="exo_controls_repeat_all_description">โหมดปัจจุบัน: เล่นซ้ำทั้งหมด สลับโหมดเล่นซ้ำ</string>
+  <string name="exo_controls_shuffle_on_description">ปิดใช้โหมดสุ่มเพลง</string>
+  <string name="exo_controls_shuffle_off_description">เปิดใช้โหมดสุ่มเพลง</string>
   <string name="exo_controls_vr_description">โหมด VR</string>
   <string name="exo_controls_cc_enabled_description">ปิดใช้คำบรรยาย</string>
   <string name="exo_controls_cc_disabled_description">เปิดใช้คำบรรยาย</string>

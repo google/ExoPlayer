@@ -21,4 +21,5 @@
   <string name="media3_controls_seek_to_next_description">ਅਗਲੀ ਆਈਟਮ \'ਤੇ ਜਾਓ</string>
   <string name="media3_controls_seek_back_description">ਪਿੱਛੇ ਲਿਜਾਓ</string>
   <string name="media3_controls_seek_forward_description">ਅੱਗੇ ਵਧਾਓ</string>
+  <string name="authentication_required">ਪ੍ਰਮਾਣੀਕਰਨ ਲੋੜੀਂਦਾ ਹੈ</string>
 </resources>

@@ -41,11 +41,11 @@
     <item quantity="many">Przewiń do przodu o %d sekund</item>
     <item quantity="other">Przewiń do przodu o %d sekundy</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Nie powtarzaj</string>
-  <string name="exo_controls_repeat_one_description">Powtórz jeden</string>
-  <string name="exo_controls_repeat_all_description">Powtórz wszystkie</string>
-  <string name="exo_controls_shuffle_on_description">Włącz odtwarzanie losowe</string>
-  <string name="exo_controls_shuffle_off_description">Wyłącz odtwarzanie losowe</string>
+  <string name="exo_controls_repeat_off_description">Bieżący tryb: Nie powtarzaj. Przełącz na tryb powtarzania.</string>
+  <string name="exo_controls_repeat_one_description">Bieżący tryb: Powtórz jeden. Przełącz na tryb powtarzania.</string>
+  <string name="exo_controls_repeat_all_description">Bieżący tryb: Powtórz wszystkie. Przełącz na tryb powtarzania.</string>
+  <string name="exo_controls_shuffle_on_description">Wyłącz tryb odtwarzania losowego</string>
+  <string name="exo_controls_shuffle_off_description">Włącz tryb odtwarzania losowego</string>
   <string name="exo_controls_vr_description">Tryb VR</string>
   <string name="exo_controls_cc_enabled_description">Wyłącz napisy</string>
   <string name="exo_controls_cc_disabled_description">Włącz napisy</string>

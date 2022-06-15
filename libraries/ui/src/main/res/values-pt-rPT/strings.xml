@@ -29,19 +29,19 @@
   <string name="exo_controls_stop_description">Parar</string>
   <string name="exo_controls_rewind_description">Recuar</string>
   <plurals name="exo_controls_rewind_by_amount_description">
-    <item quantity="one">Retroceder %d segundo(s)</item>
+    <item quantity="one">Retroceder %d segundo</item>
     <item quantity="other">Retroceder %d segundos</item>
   </plurals>
   <string name="exo_controls_fastforward_description">Avançar</string>
   <plurals name="exo_controls_fastforward_by_amount_description">
-    <item quantity="one">Avançar %d segundo(s)</item>
+    <item quantity="one">Avançar %d segundo</item>
     <item quantity="other">Avançar %d segundos</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Não repetir nenhum</string>
-  <string name="exo_controls_repeat_one_description">Repetir um</string>
-  <string name="exo_controls_repeat_all_description">Repetir tudo</string>
-  <string name="exo_controls_shuffle_on_description">Reprodução aleatória ativada</string>
-  <string name="exo_controls_shuffle_off_description">Reprodução aleatória desativ.</string>
+  <string name="exo_controls_repeat_off_description">Modo atual: não repetir. Ative/des. repetição.</string>
+  <string name="exo_controls_repeat_one_description">Modo atual: repetir um. Ative/des. repetição.</string>
+  <string name="exo_controls_repeat_all_description">Modo atual: repet. tudo. Ative/des. repetição.</string>
+  <string name="exo_controls_shuffle_on_description">Desativar modo aleatório</string>
+  <string name="exo_controls_shuffle_off_description">Ativar modo aleatório</string>
   <string name="exo_controls_vr_description">Modo de RV</string>
   <string name="exo_controls_cc_enabled_description">Desativar legendas</string>
   <string name="exo_controls_cc_disabled_description">Ativar legendas</string>

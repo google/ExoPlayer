@@ -37,11 +37,11 @@
     <item quantity="one">%d초 빨리 감기</item>
     <item quantity="other">%d초 빨리 감기</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">반복 안함</string>
-  <string name="exo_controls_repeat_one_description">현재 미디어 반복</string>
-  <string name="exo_controls_repeat_all_description">모두 반복</string>
-  <string name="exo_controls_shuffle_on_description">셔플 사용</string>
-  <string name="exo_controls_shuffle_off_description">셔플 사용 안함</string>
+  <string name="exo_controls_repeat_off_description">현재 모드: 반복 안함. 반목 모드 전환.</string>
+  <string name="exo_controls_repeat_one_description">현재 모드: 한 개 반복. 반목 모드 전환.</string>
+  <string name="exo_controls_repeat_all_description">현재 모드: 모두 반복. 반목 모드 전환.</string>
+  <string name="exo_controls_shuffle_on_description">셔플 모드 사용 중지</string>
+  <string name="exo_controls_shuffle_off_description">셔플 모드 사용 설정</string>
   <string name="exo_controls_vr_description">가상 현실 모드</string>
   <string name="exo_controls_cc_enabled_description">자막 사용 중지</string>
   <string name="exo_controls_cc_disabled_description">자막 사용 설정</string>

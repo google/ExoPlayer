@@ -37,11 +37,11 @@
     <item quantity="one">Siirry eteenpäin %d sekunti</item>
     <item quantity="other">Siirry eteenpäin %d sekuntia</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ei uudelleentoistoa</string>
-  <string name="exo_controls_repeat_one_description">Toista yksi uudelleen</string>
-  <string name="exo_controls_repeat_all_description">Toista kaikki uudelleen</string>
-  <string name="exo_controls_shuffle_on_description">Satunnaistoisto käytössä</string>
-  <string name="exo_controls_shuffle_off_description">Satunnaistoisto ei käytössä</string>
+  <string name="exo_controls_repeat_off_description">Tila: Älä toista. Vaihda.</string>
+  <string name="exo_controls_repeat_one_description">Tila: Toista yksi. Vaihda.</string>
+  <string name="exo_controls_repeat_all_description">Tila: Toista kaikki. Vaihda.</string>
+  <string name="exo_controls_shuffle_on_description">Poista satunnaistoisto käytöstä</string>
+  <string name="exo_controls_shuffle_off_description">Ota satunnaistoisto käyttöön</string>
   <string name="exo_controls_vr_description">VR-tila</string>
   <string name="exo_controls_cc_enabled_description">Poista tekstitykset käytöstä</string>
   <string name="exo_controls_cc_disabled_description">Ota tekstitykset käyttöön</string>
