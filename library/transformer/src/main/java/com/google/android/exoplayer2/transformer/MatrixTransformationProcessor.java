@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -131,16 +130,7 @@ import java.util.Arrays;
 
   @Override
   public Size configure(int inputWidth, int inputHeight) {
-    checkArgument(inputWidth > 0, "inputWidth must be positive");
-    checkArgument(inputHeight > 0, "inputHeight must be positive");
-
-    Size outputSize = new Size(inputWidth, inputHeight);
-    for (int i = 0; i < matrixTransformations.size(); i++) {
-      outputSize =
-          matrixTransformations.get(i).configure(outputSize.getWidth(), outputSize.getHeight());
-    }
-
-    return outputSize;
+    return MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
   }
 
   @Override

@@ -17,25 +17,29 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.media.MediaCodec;
-import android.util.Size;
+import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
-  private final int outputRotationDegrees;
   private final int maxPendingFrameCount;
 
   private final DecoderInputBuffer decoderInputBuffer;
@@ -44,7 +48,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private final FrameProcessorChain frameProcessorChain;
 
-  private final Codec encoder;
+  private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
   private boolean signaledEndOfStreamToEncoder;
@@ -59,7 +63,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
       FallbackListener fallbackListener,
-      FrameProcessorChain.Listener frameProcessorChainListener,
+      Transformer.AsyncErrorListener asyncErrorListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
@@ -89,54 +93,45 @@ import org.checkerframework.dataflow.qual.Pure;
       effectsListBuilder.add(
           new Presentation.Builder().setResolution(transformationRequest.outputHeight).build());
     }
-    EncoderCompatibilityTransformation encoderCompatibilityTransformation =
-        new EncoderCompatibilityTransformation();
-    effectsListBuilder.add(encoderCompatibilityTransformation);
+
+    AtomicReference<TransformationException> encoderInitializationException =
+        new AtomicReference<>();
+    encoderWrapper =
+        new EncoderWrapper(
+            encoderFactory,
+            inputFormat,
+            allowedOutputMimeTypes,
+            transformationRequest,
+            fallbackListener,
+            encoderInitializationException);
+
+    @Nullable FrameProcessorChain frameProcessorChain;
     try {
       frameProcessorChain =
           FrameProcessorChain.create(
               context,
-              frameProcessorChainListener,
+              /* listener= */ exception ->
+                  asyncErrorListener.onTransformationException(
+                      TransformationException.createForFrameProcessorChain(
+                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)),
               inputFormat.pixelWidthHeightRatio,
               /* inputWidth= */ decodedWidth,
               /* inputHeight= */ decodedHeight,
               streamOffsetUs,
               effectsListBuilder.build(),
+              /* outputSurfaceProvider= */ encoderWrapper,
+              debugViewProvider,
               transformationRequest.enableHdrEditing);
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessorChain(
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
-    Size requestedEncoderSize = frameProcessorChain.getOutputSize();
-    outputRotationDegrees = encoderCompatibilityTransformation.getOutputRotationDegrees();
 
-    Format requestedEncoderFormat =
-        new Format.Builder()
-            .setWidth(requestedEncoderSize.getWidth())
-            .setHeight(requestedEncoderSize.getHeight())
-            .setRotationDegrees(0)
-            .setFrameRate(inputFormat.frameRate)
-            .setSampleMimeType(
-                transformationRequest.videoMimeType != null
-                    ? transformationRequest.videoMimeType
-                    : inputFormat.sampleMimeType)
-            .build();
-
-    encoder = encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
-    Format encoderSupportedFormat = encoder.getConfigurationFormat();
-    fallbackListener.onTransformationRequestFinalized(
-        createFallbackTransformationRequest(
-            transformationRequest,
-            /* hasOutputFormatRotation= */ outputRotationDegrees == 0,
-            requestedEncoderFormat,
-            encoderSupportedFormat));
-
-    frameProcessorChain.setOutputSurface(
-        /* outputSurface= */ encoder.getInputSurface(),
-        /* outputWidth= */ encoderSupportedFormat.width,
-        /* outputHeight= */ encoderSupportedFormat.height,
-        debugViewProvider.getDebugPreviewSurfaceView(
-            encoderSupportedFormat.width, encoderSupportedFormat.height));
+    if (frameProcessorChain == null) {
+      // Failed to create FrameProcessorChain because the encoder could not provide a surface.
+      throw checkStateNotNull(encoderInitializationException.get());
+    }
+    this.frameProcessorChain = frameProcessorChain;
 
     decoder =
         decoderFactory.createForVideoDecoding(
@@ -164,7 +159,7 @@ import org.checkerframework.dataflow.qual.Pure;
   public boolean processData() throws TransformationException {
     if (frameProcessorChain.isEnded()) {
       if (!signaledEndOfStreamToEncoder) {
-        encoder.signalEndOfInputStream();
+        encoderWrapper.signalEndOfInputStream();
         signaledEndOfStreamToEncoder = true;
       }
       return false;
@@ -187,20 +182,17 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   @Nullable
   public Format getOutputFormat() throws TransformationException {
-    @Nullable Format format = encoder.getOutputFormat();
-    return format == null
-        ? null
-        : format.buildUpon().setRotationDegrees(outputRotationDegrees).build();
+    return encoderWrapper.getOutputFormat();
   }
 
   @Override
   @Nullable
   public DecoderInputBuffer getOutputBuffer() throws TransformationException {
-    encoderOutputBuffer.data = encoder.getOutputBuffer();
+    encoderOutputBuffer.data = encoderWrapper.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
     }
-    MediaCodec.BufferInfo bufferInfo = checkNotNull(encoder.getOutputBufferInfo());
+    MediaCodec.BufferInfo bufferInfo = checkNotNull(encoderWrapper.getOutputBufferInfo());
     encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;
@@ -208,19 +200,19 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void releaseOutputBuffer() throws TransformationException {
-    encoder.releaseOutputBuffer(/* render= */ false);
+    encoderWrapper.releaseOutputBuffer(/* render= */ false);
   }
 
   @Override
   public boolean isEnded() {
-    return encoder.isEnded();
+    return encoderWrapper.isEnded();
   }
 
   @Override
   public void release() {
     frameProcessorChain.release();
     decoder.release();
-    encoder.release();
+    encoderWrapper.release();
   }
 
   /**
@@ -291,5 +283,152 @@ import org.checkerframework.dataflow.qual.Pure;
       }
     }
     return false;
+  }
+
+  /**
+   * Wraps an {@linkplain Codec encoder} and provides its input {@link Surface}.
+   *
+   * <p>The encoder is created once the {@link Surface} is {@linkplain #getSurfaceInfo(int, int)
+   * requested}. If it is {@linkplain #getSurfaceInfo(int, int) requested} again with different
+   * dimensions, the same encoder is used and the provided dimensions stay fixed.
+   */
+  @VisibleForTesting
+  /* package */ static final class EncoderWrapper implements SurfaceInfo.Provider {
+
+    private final Codec.EncoderFactory encoderFactory;
+    private final Format inputFormat;
+    private final List<String> allowedOutputMimeTypes;
+    private final TransformationRequest transformationRequest;
+    private final FallbackListener fallbackListener;
+    private final AtomicReference<TransformationException> encoderInitializationException;
+
+    private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
+
+    private volatile @MonotonicNonNull Codec encoder;
+    private volatile int outputRotationDegrees;
+    private volatile boolean releaseEncoder;
+
+    public EncoderWrapper(
+        Codec.EncoderFactory encoderFactory,
+        Format inputFormat,
+        List<String> allowedOutputMimeTypes,
+        TransformationRequest transformationRequest,
+        FallbackListener fallbackListener,
+        AtomicReference<TransformationException> encoderInitializationException) {
+
+      this.encoderFactory = encoderFactory;
+      this.inputFormat = inputFormat;
+      this.allowedOutputMimeTypes = allowedOutputMimeTypes;
+      this.transformationRequest = transformationRequest;
+      this.fallbackListener = fallbackListener;
+      this.encoderInitializationException = encoderInitializationException;
+    }
+
+    @Override
+    @Nullable
+    public SurfaceInfo getSurfaceInfo(int requestedWidth, int requestedHeight) {
+      if (releaseEncoder) {
+        return null;
+      }
+      if (encoderSurfaceInfo != null) {
+        return encoderSurfaceInfo;
+      }
+
+      // Encoders commonly support higher maximum widths than maximum heights. This may rotate the
+      // frame before encoding, so the encoded frame's width >= height, and sets
+      // rotationDegrees in the output Format to ensure the frame is displayed in the correct
+      // orientation.
+      boolean flipOrientation = requestedWidth < requestedHeight;
+      if (flipOrientation) {
+        int temp = requestedWidth;
+        requestedWidth = requestedHeight;
+        requestedHeight = temp;
+        outputRotationDegrees = 90;
+      }
+
+      Format requestedEncoderFormat =
+          new Format.Builder()
+              .setWidth(requestedWidth)
+              .setHeight(requestedHeight)
+              .setRotationDegrees(0)
+              .setFrameRate(inputFormat.frameRate)
+              .setSampleMimeType(
+                  transformationRequest.videoMimeType != null
+                      ? transformationRequest.videoMimeType
+                      : inputFormat.sampleMimeType)
+              .build();
+
+      try {
+        encoder =
+            encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
+      } catch (TransformationException e) {
+        encoderInitializationException.set(e);
+        return null;
+      }
+      Format encoderSupportedFormat = encoder.getConfigurationFormat();
+      fallbackListener.onTransformationRequestFinalized(
+          createFallbackTransformationRequest(
+              transformationRequest,
+              /* hasOutputFormatRotation= */ flipOrientation,
+              requestedEncoderFormat,
+              encoderSupportedFormat));
+
+      encoderSurfaceInfo =
+          new SurfaceInfo(
+              encoder.getInputSurface(),
+              encoderSupportedFormat.width,
+              encoderSupportedFormat.height,
+              outputRotationDegrees);
+
+      if (releaseEncoder) {
+        encoder.release();
+      }
+      return encoderSurfaceInfo;
+    }
+
+    public void signalEndOfInputStream() throws TransformationException {
+      if (encoder != null) {
+        encoder.signalEndOfInputStream();
+      }
+    }
+
+    @Nullable
+    public Format getOutputFormat() throws TransformationException {
+      if (encoder == null) {
+        return null;
+      }
+      @Nullable Format outputFormat = encoder.getOutputFormat();
+      if (outputFormat != null && outputRotationDegrees != 0) {
+        outputFormat = outputFormat.buildUpon().setRotationDegrees(outputRotationDegrees).build();
+      }
+      return outputFormat;
+    }
+
+    @Nullable
+    public ByteBuffer getOutputBuffer() throws TransformationException {
+      return encoder != null ? encoder.getOutputBuffer() : null;
+    }
+
+    @Nullable
+    public MediaCodec.BufferInfo getOutputBufferInfo() throws TransformationException {
+      return encoder != null ? encoder.getOutputBufferInfo() : null;
+    }
+
+    public void releaseOutputBuffer(boolean render) throws TransformationException {
+      if (encoder != null) {
+        encoder.releaseOutputBuffer(render);
+      }
+    }
+
+    public boolean isEnded() {
+      return encoder != null && encoder.isEnded();
+    }
+
+    public void release() {
+      if (encoder != null) {
+        encoder.release();
+      }
+      releaseEncoder = true;
+    }
   }
 }
