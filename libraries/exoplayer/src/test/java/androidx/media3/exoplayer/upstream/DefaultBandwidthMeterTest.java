@@ -38,6 +38,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.Random;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
@@ -125,6 +126,7 @@ public final class DefaultBandwidthMeterTest {
             /* subType= */ 0,
             /* isAvailable= */ true,
             CONNECTED);
+    setNetworkCountryIso("non-existent-country-to-force-default-values");
   }
 
   @Test
@@ -378,6 +380,7 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimateFast).isGreaterThan(initialEstimateSlow);
   }
 
+  @Ignore // 5G-SA isn't widespread enough yet to define a slow and fast country for testing.
   @Test
   @Config(minSdk = 29) // 5G-SA detection support was added in API 29.
   public void
