@@ -31,19 +31,17 @@
   <plurals name="exo_controls_rewind_by_amount_description">
     <item quantity="one">Reculer de %d seconde</item>
     <item quantity="other">Reculer de %d secondes</item>
-    <item quantity="many">Reculer de %d secondes</item>
   </plurals>
   <string name="exo_controls_fastforward_description">Avance rapide</string>
   <plurals name="exo_controls_fastforward_by_amount_description">
     <item quantity="one">Avancer rapidement de %d seconde</item>
     <item quantity="other">Avancer rapidement de %d secondes</item>
-    <item quantity="many">Avancer rapidement de %d secondes</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ne rien lire en boucle</string>
-  <string name="exo_controls_repeat_one_description">Lire une chanson en boucle</string>
-  <string name="exo_controls_repeat_all_description">Tout lire en boucle</string>
-  <string name="exo_controls_shuffle_on_description">Lecture aléatoire activée</string>
-  <string name="exo_controls_shuffle_off_description">Lecture aléatoire désactivée</string>
+  <string name="exo_controls_repeat_off_description">Mode actuel : aucune répétition. Basculer le mode répétition.</string>
+  <string name="exo_controls_repeat_one_description">Mode actuel : répéter une fois. Basculer le mode répétition.</string>
+  <string name="exo_controls_repeat_all_description">Mode actuel : tout répéter. Basculer le mode répétition.</string>
+  <string name="exo_controls_shuffle_on_description">Désactiver le mode lecture aléatoire</string>
+  <string name="exo_controls_shuffle_off_description">Activer le mode lecture aléatoire</string>
   <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_controls_cc_enabled_description">Désactiver les sous-titres</string>
   <string name="exo_controls_cc_disabled_description">Activer les sous-titres</string>

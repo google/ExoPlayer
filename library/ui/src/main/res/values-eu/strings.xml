@@ -37,11 +37,11 @@
     <item quantity="one">Aurreratu %d segundo</item>
     <item quantity="other">Aurreratu %d segundo</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ez errepikatu</string>
-  <string name="exo_controls_repeat_one_description">Errepikatu bat</string>
-  <string name="exo_controls_repeat_all_description">Errepikatu guztiak</string>
-  <string name="exo_controls_shuffle_on_description">Ausazko erreprodukzioa aktibatuta</string>
-  <string name="exo_controls_shuffle_off_description">Ausazko erreprodukzioa desaktibatuta</string>
+  <string name="exo_controls_repeat_off_description">Oraingo modua: ez errepikatu. Aldatu errepikatzeko modua.</string>
+  <string name="exo_controls_repeat_one_description">Oraingo modua: errepikatu bat. Aldatu errepikatzeko modua.</string>
+  <string name="exo_controls_repeat_all_description">Oraingo modua: errepikatu guztiak. Aldatu errepikatzeko modua.</string>
+  <string name="exo_controls_shuffle_on_description">Desgaitu ausaz erreproduzitzeko modua</string>
+  <string name="exo_controls_shuffle_off_description">Gaitu ausaz erreproduzitzeko modua</string>
   <string name="exo_controls_vr_description">EBko modua</string>
   <string name="exo_controls_cc_enabled_description">Desgaitu azpitituluak</string>
   <string name="exo_controls_cc_disabled_description">Gaitu azpitituluak</string>

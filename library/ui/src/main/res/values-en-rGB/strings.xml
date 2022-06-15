@@ -37,11 +37,11 @@
     <item quantity="one">Fast-forward %d second</item>
     <item quantity="other">Fast-forward %d seconds</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Repeat none</string>
-  <string name="exo_controls_repeat_one_description">Repeat one</string>
-  <string name="exo_controls_repeat_all_description">Repeat all</string>
-  <string name="exo_controls_shuffle_on_description">Shuffle on</string>
-  <string name="exo_controls_shuffle_off_description">Shuffle off</string>
+  <string name="exo_controls_repeat_off_description">Current mode: Repeat none. Toggle repeat mode.</string>
+  <string name="exo_controls_repeat_one_description">Current mode: Repeat one. Toggle repeat mode.</string>
+  <string name="exo_controls_repeat_all_description">Current mode: Repeat all. Toggle repeat mode.</string>
+  <string name="exo_controls_shuffle_on_description">Disable shuffle mode</string>
+  <string name="exo_controls_shuffle_off_description">Enable shuffle mode</string>
   <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_controls_cc_enabled_description">Disable subtitles</string>
   <string name="exo_controls_cc_disabled_description">Enable subtitles</string>

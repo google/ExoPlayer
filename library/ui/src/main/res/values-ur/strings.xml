@@ -37,11 +37,11 @@
     <item quantity="one">%d سیکنڈ تیزی سے فارورڈ کریں</item>
     <item quantity="other">%d سیکنڈز تیزی سے فارورڈ کریں</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">کسی کو نہ دہرائیں</string>
-  <string name="exo_controls_repeat_one_description">ایک کو دہرائیں</string>
-  <string name="exo_controls_repeat_all_description">سبھی کو دہرائیں</string>
-  <string name="exo_controls_shuffle_on_description">شفل آن</string>
-  <string name="exo_controls_shuffle_off_description">شفل آف</string>
+  <string name="exo_controls_repeat_off_description">موجودہ موڈ: کچھ نہ دہرائیں۔ رپیٹ موڈ ٹوگل کریں۔</string>
+  <string name="exo_controls_repeat_one_description">موجودہ موڈ: ایک دہرائیں۔ رپیٹ موڈ ٹوگل کریں۔</string>
+  <string name="exo_controls_repeat_all_description">موجودہ موڈ: سبھی دہرائیں۔ رپیٹ موڈ ٹوگل کریں۔</string>
+  <string name="exo_controls_shuffle_on_description">شفل موڈ کو غیر فعال کریں</string>
+  <string name="exo_controls_shuffle_off_description">شفل موڈ کو فعال کریں</string>
   <string name="exo_controls_vr_description">VR موڈ</string>
   <string name="exo_controls_cc_enabled_description">سب ٹائٹلز کو غیر فعال کریں</string>
   <string name="exo_controls_cc_disabled_description">سب ٹائٹلز کو فعال کریں</string>

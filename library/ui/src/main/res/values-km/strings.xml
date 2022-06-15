@@ -37,11 +37,11 @@
     <item quantity="one">ខា​ទៅមុខ %d វិនាទី</item>
     <item quantity="other">ខា​ទៅមុខ %d វិនាទី</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">មិន​លេង​ឡើងវិញ</string>
-  <string name="exo_controls_repeat_one_description">លេង​ឡើង​វិញ​ម្ដង</string>
-  <string name="exo_controls_repeat_all_description">លេង​ឡើងវិញ​ទាំងអស់</string>
-  <string name="exo_controls_shuffle_on_description">បើក​ការ​ច្របល់</string>
-  <string name="exo_controls_shuffle_off_description">បិទ​ការ​ច្របល់</string>
+  <string name="exo_controls_repeat_off_description">មុខងារបច្ចុប្បន្ន៖ មិនចាក់ឡើងវិញ។ បិទ/បើកមុខងារចាក់ឡើងវិញ។</string>
+  <string name="exo_controls_repeat_one_description">មុខងារបច្ចុប្បន្ន៖ ចាក់ឡើងវិញមួយ។ បិទ/បើកមុខងារចាក់ឡើងវិញ។</string>
+  <string name="exo_controls_repeat_all_description">មុខងារបច្ចុប្បន្ន៖ ចាក់ឡើងវិញទាំងអស់។ បិទ/បើកមុខងារចាក់ឡើងវិញ។</string>
+  <string name="exo_controls_shuffle_on_description">បិទ​មុខងារច្របល់</string>
+  <string name="exo_controls_shuffle_off_description">បើក​មុខងារច្របល់</string>
   <string name="exo_controls_vr_description">មុខងារ VR</string>
   <string name="exo_controls_cc_enabled_description">បិទអក្សររត់</string>
   <string name="exo_controls_cc_disabled_description">បើកអក្សររត់</string>

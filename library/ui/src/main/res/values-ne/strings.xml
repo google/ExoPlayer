@@ -37,11 +37,11 @@
     <item quantity="one">%d सेकेन्ड फास्ट फर्वार्ड गर्नुहोस्</item>
     <item quantity="other">%d सेकेन्ड फास्ट फर्वार्ड गर्नुहोस्</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">कुनै पनि नदोहोर्‍याउनुहोस्</string>
-  <string name="exo_controls_repeat_one_description">एउटा दोहोर्‍याउनुहोस्</string>
-  <string name="exo_controls_repeat_all_description">सबै दोहोर्‍याउनुहोस्</string>
-  <string name="exo_controls_shuffle_on_description">मिसाउने सुविधा सक्रिय छ</string>
-  <string name="exo_controls_shuffle_off_description">मिसाउने सुविधा निष्क्रिय छ</string>
+  <string name="exo_controls_repeat_off_description">हालको मोड: नदोहोरिने। दोहोरिने मोड टगल गर्नुहोस्।</string>
+  <string name="exo_controls_repeat_one_description">हालको मोड: एक पटक दोहोरिने। दोहोरिने मोड टगल गर्नुहोस्।</string>
+  <string name="exo_controls_repeat_all_description">हालको मोड: सबै दोहोरिने। दोहोरिने मोड टगल गर्नुहोस्।</string>
+  <string name="exo_controls_shuffle_on_description">सफल मोड अफ गर्नुहोस्</string>
+  <string name="exo_controls_shuffle_off_description">सफल मोड अन गर्नुहोस्</string>
   <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_controls_cc_enabled_description">सबटाइटलहरू असक्षम पार्नुहोस्</string>
   <string name="exo_controls_cc_disabled_description">सबटाइटलहरू सक्षम पार्नुहोस्</string>

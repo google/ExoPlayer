@@ -41,11 +41,11 @@
     <item quantity="many">Перемотати вперед на %d секунд</item>
     <item quantity="other">Перемотати вперед на %d секунди</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Не повторювати</string>
-  <string name="exo_controls_repeat_one_description">Повторити 1</string>
-  <string name="exo_controls_repeat_all_description">Повторити всі</string>
-  <string name="exo_controls_shuffle_on_description">Перемішування ввімкнено</string>
-  <string name="exo_controls_shuffle_off_description">Перемішування вимкнено</string>
+  <string name="exo_controls_repeat_off_description">Поточний режим: не повторювати. Перемкнути режим повторення.</string>
+  <string name="exo_controls_repeat_one_description">Поточний режим: повторювати один медіафайл. Перемкнути режим повторення.</string>
+  <string name="exo_controls_repeat_all_description">Поточний режим: повторювати все. Перемкнути режим повторення.</string>
+  <string name="exo_controls_shuffle_on_description">Вимкнути режим перемішування</string>
+  <string name="exo_controls_shuffle_off_description">Увімкнути режим перемішування</string>
   <string name="exo_controls_vr_description">Режим віртуальної реальності</string>
   <string name="exo_controls_cc_enabled_description">Вимкнути субтитри</string>
   <string name="exo_controls_cc_disabled_description">Увімкнути субтитри</string>
