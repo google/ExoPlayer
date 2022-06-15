@@ -89,9 +89,10 @@ public final class FrameProcessorChainPixelTest {
   private final AtomicReference<FrameProcessingException> frameProcessingException =
       new AtomicReference<>();
 
+  private @MonotonicNonNull MediaFormat mediaFormat;
   private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
   private volatile @MonotonicNonNull ImageReader outputImageReader;
-  private @MonotonicNonNull MediaFormat mediaFormat;
+  private volatile boolean frameProcessingEnded;
 
   @After
   public void release() {
@@ -354,7 +355,17 @@ public final class FrameProcessorChainPixelTest {
           checkNotNull(
               FrameProcessorChain.create(
                   context,
-                  /* listener= */ this.frameProcessingException::set,
+                  new FrameProcessorChain.Listener() {
+                    @Override
+                    public void onFrameProcessingError(FrameProcessingException exception) {
+                      frameProcessingException.set(exception);
+                    }
+
+                    @Override
+                    public void onFrameProcessingEnded() {
+                      frameProcessingEnded = true;
+                    }
+                  },
                   pixelWidthHeightRatio,
                   inputWidth,
                   inputHeight,
@@ -421,7 +432,7 @@ public final class FrameProcessorChainPixelTest {
   private Bitmap processFirstFrameAndEnd() throws InterruptedException {
     checkNotNull(frameProcessorChain).signalEndOfInputStream();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
-    assertThat(frameProcessorChain.isEnded()).isTrue();
+    assertThat(frameProcessingEnded).isTrue();
     assertThat(frameProcessingException.get()).isNull();
 
     Image frameProcessorChainOutputImage = checkNotNull(outputImageReader).acquireLatestImage();

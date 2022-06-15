@@ -51,8 +51,6 @@ import org.checkerframework.dataflow.qual.Pure;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
-  private boolean signaledEndOfStreamToEncoder;
-
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
@@ -110,10 +108,23 @@ import org.checkerframework.dataflow.qual.Pure;
       frameProcessorChain =
           FrameProcessorChain.create(
               context,
-              /* listener= */ exception ->
+              new FrameProcessorChain.Listener() {
+                @Override
+                public void onFrameProcessingError(FrameProcessingException exception) {
                   asyncErrorListener.onTransformationException(
                       TransformationException.createForFrameProcessorChain(
-                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED)),
+                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED));
+                }
+
+                @Override
+                public void onFrameProcessingEnded() {
+                  try {
+                    encoderWrapper.signalEndOfInputStream();
+                  } catch (TransformationException exception) {
+                    asyncErrorListener.onTransformationException(exception);
+                  }
+                }
+              },
               inputFormat.pixelWidthHeightRatio,
               /* inputWidth= */ decodedWidth,
               /* inputHeight= */ decodedHeight,
@@ -157,13 +168,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    if (frameProcessorChain.isEnded()) {
-      if (!signaledEndOfStreamToEncoder) {
-        encoderWrapper.signalEndOfInputStream();
-        signaledEndOfStreamToEncoder = true;
-      }
-      return false;
-    }
     if (decoder.isEnded()) {
       return false;
     }
