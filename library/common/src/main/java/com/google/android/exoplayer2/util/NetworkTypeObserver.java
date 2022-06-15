@@ -93,7 +93,7 @@ public final class NetworkTypeObserver {
     networkType = C.NETWORK_TYPE_UNKNOWN;
     IntentFilter filter = new IntentFilter();
     filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-    context.registerReceiver(/* receiver= */ new Receiver(), filter);
+    Util.registerReceiverNotExported(context, new Receiver(), filter);
   }
 
   /**

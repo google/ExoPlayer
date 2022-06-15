@@ -88,12 +88,10 @@ public final class AudioCapabilitiesReceiver {
     if (externalSurroundSoundSettingObserver != null) {
       externalSurroundSoundSettingObserver.register();
     }
-    Intent stickyIntent = null;
+    @Nullable Intent stickyIntent = null;
     if (receiver != null) {
       IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG);
-      stickyIntent =
-          context.registerReceiver(
-              receiver, intentFilter, /* broadcastPermission= */ null, handler);
+      stickyIntent = Util.registerReceiverNotExported(context, receiver, intentFilter, handler);
     }
     audioCapabilities = AudioCapabilities.getCapabilities(context, stickyIntent);
     return audioCapabilities;
