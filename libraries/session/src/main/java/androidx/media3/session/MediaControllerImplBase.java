@@ -828,7 +828,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         Collections.singletonList(mediaItem),
         /* startIndex= */ C.INDEX_UNSET,
         /* startPositionMs= */ C.TIME_UNSET,
-        /* resetToDefaultPosition= */ false);
+        /* resetToDefaultPosition= */ true);
   }
 
   @Override
@@ -887,7 +887,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         mediaItems,
         /* startIndex= */ C.INDEX_UNSET,
         /* startPositionMs= */ C.TIME_UNSET,
-        /* resetToDefaultPosition= */ false);
+        /* resetToDefaultPosition= */ true);
   }
 
   @Override
@@ -1832,12 +1832,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       throw new IllegalSeekPositionException(newTimeline, startIndex, startPositionMs);
     }
 
+    boolean correctedStartIndex = false;
     if (resetToDefaultPosition) {
       startIndex = newTimeline.getFirstWindowIndex(playerInfo.shuffleModeEnabled);
       startPositionMs = C.TIME_UNSET;
     } else if (startIndex == C.INDEX_UNSET) {
       startIndex = playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex;
       startPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      if (startIndex >= newTimeline.getWindowCount()) {
+        correctedStartIndex = true;
+        startIndex = newTimeline.getFirstWindowIndex(playerInfo.shuffleModeEnabled);
+        startPositionMs = C.TIME_UNSET;
+      }
     }
     PositionInfo newPositionInfo;
     SessionPositionInfo newSessionPositionInfo;
@@ -1905,7 +1911,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     // Mask the playback state.
     int maskingPlaybackState = newPlayerInfo.playbackState;
     if (startIndex != C.INDEX_UNSET && newPlayerInfo.playbackState != STATE_IDLE) {
-      if (newTimeline.isEmpty() || startIndex >= newTimeline.getWindowCount()) {
+      if (newTimeline.isEmpty() || correctedStartIndex) {
         // Setting an empty timeline or invalid seek transitions to ended.
         maskingPlaybackState = STATE_ENDED;
       } else {

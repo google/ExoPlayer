@@ -185,6 +185,9 @@
         `MediaSession.Callback.onSetMediaUri`. The same functionality can be
         achieved by using `MediaController.setMediaItem` and
         `MediaSession.Callback.onAddMediaItems`.
+    *   Fix `IndexOutOfBoundsException` when setting less media items than in
+        the current playlist
+        ([#86](https://github.com/androidx/media/issues/86)).
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceholderDataSource`.
     *   Workaround OkHttp interrupt handling.
