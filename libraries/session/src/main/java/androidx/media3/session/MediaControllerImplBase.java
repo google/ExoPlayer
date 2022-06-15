@@ -76,7 +76,6 @@ import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.MediaUtils.intersect;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
-import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_PERMISSION_DENIED;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
@@ -93,7 +92,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -932,14 +930,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     setMediaItemsInternal(
         mediaItems, startIndex, startPositionMs, /* resetToDefaultPosition= */ false);
-  }
-
-  @Override
-  public ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras) {
-    return dispatchRemoteSessionTaskWithSessionCommand(
-        COMMAND_CODE_SESSION_SET_MEDIA_URI,
-        (RemoteSessionTask)
-            (iSession, seq) -> iSession.setMediaUri(controllerStub, seq, uri, extras));
   }
 
   @Override

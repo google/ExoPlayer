@@ -25,7 +25,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -178,10 +177,6 @@ public class RemoteMediaController {
    */
   public void createAndSetFakeMediaItems(int size) throws RemoteException {
     binder.createAndSetFakeMediaItems(controllerId, size);
-  }
-
-  public void setMediaUri(Uri uri, Bundle extras) throws RemoteException {
-    binder.setMediaUri(controllerId, uri, extras);
   }
 
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) throws RemoteException {

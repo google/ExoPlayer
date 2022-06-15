@@ -44,7 +44,6 @@ import static java.lang.Math.min;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -665,12 +664,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (isPrepared()) {
       initializeLegacyPlaylist();
     }
-  }
-
-  @Override
-  public ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras) {
-    Log.w(TAG, "Session doesn't support setMediaUri");
-    return Futures.immediateCancelledFuture();
   }
 
   @Override

@@ -24,6 +24,7 @@ import static androidx.media3.common.Player.STATE_BUFFERING;
 import static androidx.media3.session.MediaTestUtils.createTimeline;
 import static androidx.media3.session.MediaUtils.createPlayerCommandsWith;
 import static androidx.media3.session.MediaUtils.createPlayerCommandsWithout;
+import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
@@ -1535,7 +1536,8 @@ public class MediaControllerListenerTest {
 
     SessionCommands commands =
         new SessionCommands.Builder()
-            .add(new SessionCommand(SessionCommand.COMMAND_CODE_SESSION_SET_RATING))
+            .addAllSessionCommands()
+            .remove(COMMAND_CODE_SESSION_SET_RATING)
             .build();
     remoteSession.setAvailableCommands(commands, Player.Commands.EMPTY);
 

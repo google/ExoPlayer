@@ -27,7 +27,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.media3.common.MediaItem;
@@ -237,43 +236,6 @@ public class MediaSessionCallbackTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(sessionCommandRef.get()).isEqualTo(testCommand);
     assertThat(TestUtils.equals(testArgs, argsRef.get())).isTrue();
-  }
-
-  @Test
-  public void onSetMediaUri() throws Exception {
-    Uri testUri = Uri.parse("foo://boo");
-    Bundle testExtras = TestUtils.createTestBundle();
-    CountDownLatch latch = new CountDownLatch(1);
-    AtomicReference<Uri> uriRef = new AtomicReference<>();
-    AtomicReference<Bundle> extrasRef = new AtomicReference<>();
-    MediaSession.Callback callback =
-        new MediaSession.Callback() {
-          @Override
-          public int onSetMediaUri(
-              MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-            if (!TextUtils.equals(controller.getPackageName(), SUPPORT_APP_PACKAGE_NAME)) {
-              return RESULT_INFO_SKIPPED;
-            }
-
-            uriRef.set(uri);
-            extrasRef.set(extras);
-            latch.countDown();
-            return RESULT_SUCCESS;
-          }
-        };
-    MediaSession session =
-        sessionTestRule.ensureReleaseAfterTest(
-            new MediaSession.Builder(context, player)
-                .setCallback(callback)
-                .setId("testOnSetMediaUri")
-                .build());
-    RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
-
-    controller.setMediaUri(testUri, testExtras);
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(uriRef.get()).isEqualTo(testUri);
-    assertThat(TestUtils.equals(testExtras, extrasRef.get())).isTrue();
   }
 
   @Test

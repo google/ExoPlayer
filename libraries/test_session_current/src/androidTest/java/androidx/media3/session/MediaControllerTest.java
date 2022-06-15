@@ -943,7 +943,7 @@ public class MediaControllerTest {
   public void isSessionCommandAvailable_withAvailablePredefinedSessionCommand_returnsTrue()
       throws Exception {
     @SessionCommand.CommandCode
-    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
+    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
     SessionCommand sessionCommand = new SessionCommand(sessionCommandCode);
     Bundle tokenExtras = new Bundle();
     tokenExtras.putBundle(
@@ -969,7 +969,7 @@ public class MediaControllerTest {
   public void isSessionCommandAvailable_withUnavailablePredefinedSessionCommand_returnsFalse()
       throws Exception {
     @SessionCommand.CommandCode
-    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
+    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
     SessionCommand sessionCommand = new SessionCommand(sessionCommandCode);
     Bundle tokenExtras = new Bundle();
     tokenExtras.putBundle(

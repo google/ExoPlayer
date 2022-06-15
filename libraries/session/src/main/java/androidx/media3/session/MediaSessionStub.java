@@ -49,10 +49,8 @@ import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_SE
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_SEARCH;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE;
-import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -1011,21 +1009,6 @@ import java.util.concurrent.ExecutionException;
                 future,
                 (player, mediaItems) ->
                     player.setMediaItems(mediaItems, startIndex, startPositionMs)));
-  }
-
-  @Override
-  public void setMediaUri(
-      @Nullable IMediaController caller, int seq, @Nullable Uri uri, @Nullable Bundle extras) {
-    if (caller == null || uri == null || extras == null) {
-      return;
-    }
-    dispatchSessionTaskWithSessionCommand(
-        caller,
-        seq,
-        COMMAND_CODE_SESSION_SET_MEDIA_URI,
-        (sessionImpl, controller) ->
-            new SessionResult(sessionImpl.onSetMediaUriOnHandler(controller, uri, extras)),
-        MediaSessionStub::sendSessionResult);
   }
 
   @Override

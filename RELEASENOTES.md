@@ -181,6 +181,10 @@
         `MediaSession.Callback.onAddMediaItems` instead of `onSetMediaUri`.
     *   Support `setMediaItems(s)` methods when `MediaController` connects to a
         legacy media session.
+    *   Remove `MediaController.setMediaUri` and
+        `MediaSession.Callback.onSetMediaUri`. The same functionality can be
+        achieved by using `MediaController.setMediaItem` and
+        `MediaSession.Callback.onAddMediaItems`.
 *   Data sources:
     *   Rename `DummyDataSource` to `PlaceholderDataSource`.
     *   Workaround OkHttp interrupt handling.

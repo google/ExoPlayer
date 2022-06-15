@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -24,99 +23,6 @@ import androidx.media3.session.MediaLibraryService.LibraryParams;
 
 /** Constants that can be shared between media session and controller. */
 public final class MediaConstants {
-
-  /**
-   * A {@link Uri} scheme used in a media uri.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.Callback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_SCHEME = "androidx";
-
-  /**
-   * A {@link Uri} authority used in a media uri.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.Callback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_AUTHORITY = "media3-session";
-
-  /**
-   * A {@link Uri} path used by {@code
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#playFromMediaId}.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.Callback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID = "playFromMediaId";
-
-  /**
-   * A {@link Uri} path used by {@code
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#playFromSearch}.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.Callback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_PATH_PLAY_FROM_SEARCH = "playFromSearch";
-
-  /**
-   * A {@link Uri} path used by {@link
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#prepareFromMediaId}.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.Callback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID = "prepareFromMediaId";
-
-  /**
-   * A {@link Uri} path used by {@link
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#prepareFromSearch}.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.Callback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
-
-  /**
-   * A {@link Uri} path for encoding how the uri will be translated when connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}.
-   *
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_PATH_SET_MEDIA_URI = "setMediaUri";
-
-  // From scheme to path, plus path delimiter
-  /* package */ static final String MEDIA_URI_SET_MEDIA_URI_PREFIX =
-      new Uri.Builder()
-              .scheme(MEDIA_URI_SCHEME)
-              .authority(MEDIA_URI_AUTHORITY)
-              .path(MEDIA_URI_PATH_SET_MEDIA_URI)
-              .build()
-              .toString()
-          + "?";
-
-  /**
-   * A {@link Uri} query for media id.
-   *
-   * @see MediaSession.Callback#onSetMediaUri
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_QUERY_ID = "id";
-
-  /**
-   * A {@link Uri} query for search query.
-   *
-   * @see MediaSession.Callback#onSetMediaUri
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_QUERY_QUERY = "query";
-
-  /**
-   * A {@link Uri} query for media uri.
-   *
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_QUERY_URI = "uri";
 
   /**
    * Bundle key to indicate a preference that a region of space for the skip to next control should

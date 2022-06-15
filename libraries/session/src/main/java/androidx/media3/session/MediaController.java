@@ -24,7 +24,6 @@ import static androidx.media3.common.util.Util.postOrRun;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -985,36 +984,6 @@ public class MediaController implements Player {
     impl.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
-  /**
-   * Requests that the connected {@link MediaSession} sets a specific {@link Uri} for playback. Use
-   * this, or {@link #setMediaItems} to specify which item(s) to play.
-   *
-   * <p>This can be called multiple times in any states. This would override previous call of this,
-   * or {@link #setMediaItems}.
-   *
-   * <p>The {@link Player.Listener#onTimelineChanged} and/or {@link
-   * Player.Listener#onMediaItemTransition} would be called when it's completed.
-   *
-   * <p>Returned {@link ListenableFuture} will return {@link SessionResult#RESULT_SUCCESS} when it's
-   * handled together with {@link #prepare} or {@link #play}. If this API is called multiple times
-   * without prepare or play, then {@link SessionResult#RESULT_INFO_SKIPPED} will be returned for
-   * previous calls.
-   *
-   * @param uri The uri of the item(s) to play.
-   * @param extras A {@link Bundle} to send extra information. May be empty.
-   * @return A {@link ListenableFuture} of {@link SessionResult} representing the pending
-   *     completion.
-   */
-  public ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras) {
-    verifyApplicationThread();
-    checkNotNull(uri);
-    checkNotNull(extras);
-    if (isConnected()) {
-      return impl.setMediaUri(uri, extras);
-    }
-    return createDisconnectedFuture();
-  }
-
   @Override
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
     verifyApplicationThread();
@@ -1927,8 +1896,6 @@ public class MediaController implements Player {
     void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition);
 
     void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs);
-
-    ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras);
 
     void setPlaylistMetadata(MediaMetadata playlistMetadata);
 

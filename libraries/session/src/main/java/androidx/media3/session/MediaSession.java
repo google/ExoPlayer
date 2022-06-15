@@ -941,24 +941,6 @@ public class MediaSession {
     }
 
     /**
-     * Called when a controller requested to set the specific media item(s) represented by a URI
-     * through {@link MediaController#setMediaUri(Uri, Bundle)}.
-     *
-     * <p>The implementation should create proper {@link MediaItem media item(s)} for the given
-     * {@code uri} and call {@link Player#setMediaItems}.
-     *
-     * @param session The session for this event.
-     * @param controller The controller information.
-     * @param uri The uri.
-     * @param extras An extra {@link Bundle}. May be empty.
-     * @return A result code.
-     */
-    default @SessionResult.Code int onSetMediaUri(
-        MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-      return RESULT_ERROR_NOT_SUPPORTED;
-    }
-
-    /**
      * Called when a controller sent a custom command through {@link
      * MediaController#sendCustomCommand(SessionCommand, Bundle)}.
      *

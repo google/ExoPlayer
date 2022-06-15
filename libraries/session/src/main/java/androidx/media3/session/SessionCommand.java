@@ -49,7 +49,6 @@ public final class SessionCommand implements Bundleable {
   @Target(TYPE_USE)
   @IntDef({
     COMMAND_CODE_CUSTOM,
-    COMMAND_CODE_SESSION_SET_MEDIA_URI,
     COMMAND_CODE_SESSION_SET_RATING,
     COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
     COMMAND_CODE_LIBRARY_SUBSCRIBE,
@@ -74,11 +73,8 @@ public final class SessionCommand implements Bundleable {
   /** Command code for {@link MediaController#setRating(String, Rating)}. */
   public static final int COMMAND_CODE_SESSION_SET_RATING = 40010;
 
-  /** Command code for {@link MediaController#setMediaUri}. */
-  public static final int COMMAND_CODE_SESSION_SET_MEDIA_URI = 40011;
-
   /* package */ static final ImmutableList<Integer> SESSION_COMMANDS =
-      ImmutableList.of(COMMAND_CODE_SESSION_SET_RATING, COMMAND_CODE_SESSION_SET_MEDIA_URI);
+      ImmutableList.of(COMMAND_CODE_SESSION_SET_RATING);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Library commands (i.e. commands to {@link MediaLibrarySession#MediaLibrarySessionCallback})
