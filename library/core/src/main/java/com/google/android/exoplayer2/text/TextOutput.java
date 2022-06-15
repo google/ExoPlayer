@@ -35,7 +35,7 @@ public interface TextOutput {
    * Called when there is a change in the {@link CueGroup}.
    *
    * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
-   * in the cues You should only implement one or the other.
+   * in the cues. You should only implement one or the other.
    */
   void onCues(CueGroup cueGroup);
 }
