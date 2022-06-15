@@ -23,7 +23,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -363,16 +362,6 @@ public class MediaControllerProviderService extends Service {
               itemList.add(MediaTestUtils.createMediaItem(mediaId));
             }
             controller.setMediaItems(itemList);
-          });
-    }
-
-    @Override
-    @SuppressWarnings("FutureReturnValueIgnored")
-    public void setMediaUri(String controllerId, Uri uri, Bundle extras) throws RemoteException {
-      runOnHandler(
-          () -> {
-            MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setMediaUri(uri, extras);
           });
     }
 

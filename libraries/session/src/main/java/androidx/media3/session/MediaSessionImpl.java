@@ -442,11 +442,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     callback.onDisconnected(instance, controller);
   }
 
-  public @SessionResult.Code int onSetMediaUriOnHandler(
-      ControllerInfo controller, Uri uri, Bundle extras) {
-    return callback.onSetMediaUri(instance, controller, uri, extras);
-  }
-
   public @SessionResult.Code int onPlayerCommandRequestOnHandler(
       ControllerInfo controller, @Player.Command int playerCommand) {
     return callback.onPlayerCommandRequest(instance, controller, playerCommand);

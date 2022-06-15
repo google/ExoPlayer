@@ -32,7 +32,6 @@ oneway interface IMediaSession {
 
   // Id < 3000 is reserved to avoid potential collision with media2 1.x.
 
-  void setMediaUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 3000;
   void setVolume(IMediaController caller, int seq, float volume) = 3001;
   void setDeviceVolume(IMediaController caller, int seq, int volume) = 3002;
   void increaseDeviceVolume(IMediaController caller, int seq) = 3003;
