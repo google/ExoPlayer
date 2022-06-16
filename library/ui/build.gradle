@@ -15,6 +15,12 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android.buildTypes.debug.testCoverageEnabled true
 
+android {
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+}
+
 dependencies {
     implementation project(modulePrefix + 'library-common')
     api 'androidx.media:media:' + androidxMediaVersion
