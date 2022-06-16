@@ -11,6 +11,9 @@
 
 ### 1.0.0-beta01 (2022-06-16)
 
+This release corresponds to the
+[ExoPlayer 2.18.0 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.0).
+
 *   Core library:
     *   Enable support for Android platform diagnostics via
         `MediaMetricsManager`. ExoPlayer will forward playback events and
