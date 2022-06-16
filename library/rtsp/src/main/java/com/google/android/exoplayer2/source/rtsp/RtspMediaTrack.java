@@ -123,6 +123,25 @@ import com.google.common.collect.ImmutableMap;
    */
   private static final int DEFAULT_VP9_HEIGHT = 240;
 
+  /**
+   * Default height for H263.
+   *
+   * <p>RFC4629 does not mandate codec specific data (like width and height) in the fmtp attribute.
+   * These values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mpeg4_h263/C2SoftMpeg4Dec.cpp;l=130
+   * >Android's software H263 decoder</a>.
+   */
+  private static final int DEFAULT_H263_WIDTH = 352;
+  /**
+   * Default height for H263.
+   *
+   * <p>RFC4629 does not mandate codec specific data (like width and height) in the fmtp attribute.
+   * These values are taken from <a
+   * href=https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mpeg4_h263/C2SoftMpeg4Dec.cpp;l=130
+   * >Android's software H263 decoder</a>.
+   */
+  private static final int DEFAULT_H263_HEIGHT = 288;
+
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
   /** The track's URI. */
@@ -211,6 +230,11 @@ import com.google.common.collect.ImmutableMap;
       case MimeTypes.VIDEO_MP4V:
         checkArgument(!fmtpParameters.isEmpty());
         processMPEG4FmtpAttribute(formatBuilder, fmtpParameters);
+        break;
+      case MimeTypes.VIDEO_H263:
+        // H263 never uses fmtp width and height attributes (RFC4629 Section 8.2), setting default
+        // width and height.
+        formatBuilder.setWidth(DEFAULT_H263_WIDTH).setHeight(DEFAULT_H263_HEIGHT);
         break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());
