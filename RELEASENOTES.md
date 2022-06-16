@@ -3,7 +3,7 @@
 ### 2.18.0 (2022-06-16)
 
 This release corresponds to the
-[AndroidX media3 1.0.0-beta01](https://github.com/androidx/media/releases/tag/1.0.0-beta01).
+[AndroidX media3 1.0.0-beta01 release](https://github.com/androidx/media/releases/tag/1.0.0-beta01).
 
 *   Core library:
     *   Enable support for Android platform diagnostics via
