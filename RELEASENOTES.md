@@ -1,6 +1,15 @@
-# Release notes
+ Release notes
 
 ### Unreleased changes
+
+*   Extractors:
+    *   Add support for AVI
+        ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
+*   RTSP:
+    *   Add RTP reader for H263
+        ([#63](https://github.com/androidx/media/pull/63)).
+
+### 1.0.0-beta01 (2022-06-16)
 
 *   Core library:
     *   Enable support for Android platform diagnostics via
@@ -40,7 +49,7 @@
         `DefaultTrackSelector.Parameters.Builder` instead of the deprecated
         `DefaultTrackSelector.ParametersBuilder`.
     *   Add
-        `DefaultTrackSelector.Parameters.constrainAudioChannelCountToDeviceCapabilities`.
+        `DefaultTrackSelector.Parameters.constrainAudioChannelCountToDeviceCapabilities`
         which is enabled by default. When enabled, the `DefaultTrackSelector`
         will prefer audio tracks whose channel count does not exceed the device
         output capabilities. On handheld devices, the `DefaultTrackSelector`
@@ -77,9 +86,6 @@
     *   Ensure the DRM session is always correctly updated when seeking
         immediately after a format change
         ([10274](https://github.com/google/ExoPlayer/issues/10274)).
-*   Ad playback / IMA:
-    *   Decrease ad polling rate from every 100ms to every 200ms, to line up
-        with Media Rating Council (MRC) recommendations.
 *   Text:
     *   Change `Player.getCurrentCues()` to return `CueGroup` instead of
         `List<Cue>`.
@@ -95,18 +101,16 @@
     *   MP4: Parse bitrates from `esds` boxes.
     *   Ogg: Allow duplicate Opus ID and comment headers
         ([#10038](https://github.com/google/ExoPlayer/issues/10038)).
-    *   Add support for AVI
-        ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
 *   UI:
-    *   Fix delivery of events to `OnClickListener`s set on `PlayerView` and
-        `LegacyPlayerView`, in the case that `useController=false`
+    *   Fix delivery of events to `OnClickListener`s set on `PlayerView`, in the
+        case that `useController=false`
         ([#9605](https://github.com/google/ExoPlayer/issues/9605)). Also fix
         delivery of events to `OnLongClickListener` for all view configurations.
     *   Fix incorrectly treating a sequence of touch events that exit the bounds
-        of `PlayerView` and `LegacyPlayerView` before `ACTION_UP` as a click
+        of `PlayerView` before `ACTION_UP` as a click
         ([#9861](https://github.com/google/ExoPlayer/issues/9861)).
-    *   Fix `PlayerView` accessibility issue where it was not possible to
-        tapping would toggle playback rather than hiding the controls
+    *   Fix `PlayerView` accessibility issue where tapping might toggle playback
+        rather than hiding the controls
         ([#8627](https://github.com/google/ExoPlayer/issues/8627)).
     *   Rewrite `TrackSelectionView` and `TrackSelectionDialogBuilder` to work
         with the `Player` interface rather than `ExoPlayer`. This allows the
@@ -163,36 +167,42 @@
         ([#47](https://github.com/androidx/media/pull/64)).
     *   Add RTP reader for OPUS
         ([#53](https://github.com/androidx/media/pull/53)).
-    *   Add RTP reader for H263
-        ([#63](https://github.com/androidx/media/pull/63)).
 *   Session:
-    *   Fix NPE in MediaControllerImplLegacy
-        ([#59](https://github.com/androidx/media/pull/59)).
-    *   Update session position info on timeline
-        change([#51](https://github.com/androidx/media/issues/51)).
-    *   Fix NPE in MediaControllerImplBase after releasing controller
-        ([#74](https://github.com/androidx/media/issues/74)).
-    *   Rename `MediaSession.MediaSessionCallback` to `MediaSession.Callback`,
-        `MediaLibrarySession.MediaLibrarySessionCallback` to
-        `MediaLibrarySession.Callback` and
-        `MediaSession.Builder.setSessionCallback` to `setCallback`.
-    *   Replace `MediaSession.MediaItemFiler` with
+    *   Replace `MediaSession.MediaItemFiller` with
         `MediaSession.Callback.onAddMediaItems` to allow asynchronous resolution
         of requests.
-    *   Forward legacy `MediaController` calls to play media to
-        `MediaSession.Callback.onAddMediaItems` instead of `onSetMediaUri`.
     *   Support `setMediaItems(s)` methods when `MediaController` connects to a
         legacy media session.
     *   Remove `MediaController.setMediaUri` and
         `MediaSession.Callback.onSetMediaUri`. The same functionality can be
         achieved by using `MediaController.setMediaItem` and
         `MediaSession.Callback.onAddMediaItems`.
+    *   Forward legacy `MediaController` calls to play media to
+        `MediaSession.Callback.onAddMediaItems` instead of `onSetMediaUri`.
+    *   Add `MediaNotification.Provider` and `DefaultMediaNotificationProvider`
+        to provide customization of the notification.
+    *   Add `BitmapLoader` and `SimpleBitmapLoader` for downloading artwork
+        images.
+    *   Add `MediaSession.setCustomLayout()` to provide backwards compatibility
+        with the legacy session.
+    *   Add `MediaSession.setSessionExtras()` to provide feature parity with
+        legacy session.
+    *   Rename `MediaSession.MediaSessionCallback` to `MediaSession.Callback`,
+        `MediaLibrarySession.MediaLibrarySessionCallback` to
+        `MediaLibrarySession.Callback` and
+        `MediaSession.Builder.setSessionCallback` to `setCallback`.
+    *   Fix NPE in `MediaControllerImplLegacy`
+        ([#59](https://github.com/androidx/media/pull/59)).
+    *   Update session position info on timeline
+        change([#51](https://github.com/androidx/media/issues/51)).
+    *   Fix NPE in `MediaControllerImplBase` after releasing controller
+        ([#74](https://github.com/androidx/media/issues/74)).
     *   Fix `IndexOutOfBoundsException` when setting less media items than in
         the current playlist
         ([#86](https://github.com/androidx/media/issues/86)).
-*   Data sources:
-    *   Rename `DummyDataSource` to `PlaceholderDataSource`.
-    *   Workaround OkHttp interrupt handling.
+*   Ad playback / IMA:
+    *   Decrease ad polling rate from every 100ms to every 200ms, to line up
+        with Media Rating Council (MRC) recommendations.
 *   FFmpeg extension:
     *   Update CMake version to `3.21.0+` to avoid a CMake bug causing
         AndroidStudio's gradle sync to fail
