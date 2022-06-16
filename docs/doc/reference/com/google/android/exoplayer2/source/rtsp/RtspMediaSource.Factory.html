@@ -411,8 +411,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionManagerProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(@Nullable
-                                                            <a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManager)</pre>
+<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManager)</pre>
 <div class="block">Does nothing. <a href="RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtspMediaSource</code></a> does not support DRM.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -428,15 +427,11 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(@Nullable
-                                                          <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
 <div class="block">Does nothing. <a href="RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtspMediaSource</code></a> does not support error handling policies.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>loadErrorHandlingPolicy</code> - A <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>, or <code>null</code> to use the
-     <a href="../../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>

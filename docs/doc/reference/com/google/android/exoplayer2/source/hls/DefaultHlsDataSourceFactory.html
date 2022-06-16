@@ -180,7 +180,7 @@ implements <a href="HlsDataSourceFactory.html" title="interface in com.google.an
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDataSource(int)">createDataSource</a></span>&#8203;(int&nbsp;dataType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDataSource(@com.google.android.exoplayer2.C.DataTypeint)">createDataSource</a></span>&#8203;(@com.google.android.exoplayer2.C.DataType int&nbsp;dataType)</code></th>
 <td class="colLast">
 <div class="block">Creates a <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for the given data type.</div>
 </td>
@@ -232,21 +232,20 @@ implements <a href="HlsDataSourceFactory.html" title="interface in com.google.an
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createDataSource(int)">
+<a id="createDataSource(@com.google.android.exoplayer2.C.DataTypeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createDataSource</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;createDataSource&#8203;(int&nbsp;dataType)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsDataSourceFactory.html#createDataSource(int)">HlsDataSourceFactory</a></code></span></div>
+<pre class="methodSignature">public&nbsp;<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;createDataSource&#8203;(@com.google.android.exoplayer2.C.DataType int&nbsp;dataType)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsDataSourceFactory.html#createDataSource(@com.google.android.exoplayer2.C.DataTypeint)">HlsDataSourceFactory</a></code></span></div>
 <div class="block">Creates a <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for the given data type.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="HlsDataSourceFactory.html#createDataSource(int)">createDataSource</a></code>&nbsp;in interface&nbsp;<code><a href="HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a></code></dd>
+<dd><code><a href="HlsDataSourceFactory.html#createDataSource(@com.google.android.exoplayer2.C.DataTypeint)">createDataSource</a></code>&nbsp;in interface&nbsp;<code><a href="HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataType</code> - The data type for which the <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> will be used. One of <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>
-     <code>.DATA_TYPE_*</code> constants.</dd>
+<dd><code>dataType</code> - The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>C.DataType</code></a> for which the <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> will be used.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for the given data type.</dd>
 </dl>

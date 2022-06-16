@@ -128,7 +128,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public interface <span class="typeNameLabel">ShuffleOrder</span></pre>
 <div class="block">Shuffled order of indices.
 
- <p>The shuffle order must be immutable to ensure thread safety.</div>
+ <p>The shuffle order must be immutable to ensure thread safety.
+
+ <p>The order must be consistent when traversed both <a href="#getNextIndex(int)">forwards</a> and
+ <a href="#getPreviousIndex(int)">backwards</a>.</div>
 </li>
 </ul>
 </div>

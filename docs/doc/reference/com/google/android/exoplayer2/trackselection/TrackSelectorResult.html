@@ -182,8 +182,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tracksInfo">tracksInfo</a></span></code></th>
+<td class="colFirst"><code><a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tracks">tracks</a></span></code></th>
 <td class="colLast">
 <div class="block">Describe the tracks and which one were selected.</div>
 </td>
@@ -206,9 +206,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,com.google.android.exoplayer2.TracksInfo,java.lang.Object)">TrackSelectorResult</a></span>&#8203;(@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[]&nbsp;rendererConfigurations,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,com.google.android.exoplayer2.Tracks,java.lang.Object)">TrackSelectorResult</a></span>&#8203;(@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[]&nbsp;rendererConfigurations,
                    @NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;selections,
-                   <a href="../TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a>&nbsp;tracksInfo,
+                   <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks,
                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -218,8 +218,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,com.google.android.exoplayer2.TracksInfo,java.lang.Object)"><code>TrackSelectorResult(RendererConfiguration[], ExoTrackSelection[],
-     TracksInfo, Object)</code></a>.</div>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,com.google.android.exoplayer2.Tracks,java.lang.Object)"><code>TrackSelectorResult(RendererConfiguration[], ExoTrackSelection[],
+     Tracks, Object)</code></a>.</div>
 </div>
 </td>
 </tr>
@@ -318,13 +318,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">A <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> array containing the track selection for each renderer.</div>
 </li>
 </ul>
-<a id="tracksInfo">
+<a id="tracks">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>tracksInfo</h4>
-<pre>public final&nbsp;<a href="../TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a> tracksInfo</pre>
+<h4>tracks</h4>
+<pre>public final&nbsp;<a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a> tracks</pre>
 <div class="block">Describe the tracks and which one were selected.</div>
 </li>
 </ul>
@@ -362,8 +362,8 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,com.google.android.exoplayer2.TracksInfo,java.lang.Object)"><code>TrackSelectorResult(RendererConfiguration[], ExoTrackSelection[],
-     TracksInfo, Object)</code></a>.</div>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,com.google.android.exoplayer2.Tracks,java.lang.Object)"><code>TrackSelectorResult(RendererConfiguration[], ExoTrackSelection[],
+     Tracks, Object)</code></a>.</div>
 </div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -375,7 +375,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.RendererConfiguration[],com.google.android.exoplayer2.trackselection.ExoTrackSelection[],com.google.android.exoplayer2.TracksInfo,java.lang.Object)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.RendererConfiguration[],com.google.android.exoplayer2.trackselection.ExoTrackSelection[],com.google.android.exoplayer2.Tracks,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -383,7 +383,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
 <h4>TrackSelectorResult</h4>
 <pre>public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[]&nbsp;rendererConfigurations,
                            @NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;selections,
-                           <a href="../TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a>&nbsp;tracksInfo,
+                           <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks,
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</pre>
 <dl>
@@ -391,7 +391,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
 <dd><code>rendererConfigurations</code> - A <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2"><code>RendererConfiguration</code></a> for each renderer. A null entry
      indicates the corresponding renderer should be disabled.</dd>
 <dd><code>selections</code> - A <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> array containing the selection for each renderer.</dd>
-<dd><code>tracksInfo</code> - Description of the available tracks and which one were selected.</dd>
+<dd><code>tracks</code> - Description of the available tracks and which one were selected.</dd>
 <dd><code>info</code> - An opaque object that will be returned to <a href="TrackSelector.html#onSelectionActivated(java.lang.Object)"><code>TrackSelector.onSelectionActivated(Object)</code></a> should the selection be activated. May be
      <code>null</code>.</dd>
 </dl>

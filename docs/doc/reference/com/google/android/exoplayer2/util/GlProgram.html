@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>GlUtil.Program (ExoPlayer library)</title>
+<title>GlProgram (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,7 +19,7 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="GlUtil.Program (ExoPlayer library)";
+            parent.document.title="GlProgram (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -114,31 +114,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
-<h2 title="Class GlUtil.Program" class="title">Class GlUtil.Program</h2>
+<h2 title="Class GlProgram" class="title">Class GlProgram</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.util.GlUtil.Program</li>
+<li>com.google.android.exoplayer2.util.GlProgram</li>
 </ul>
 </li>
 </ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-<dl>
-<dt>Enclosing class:</dt>
-<dd><a href="GlUtil.html" title="class in com.google.android.exoplayer2.util">GlUtil</a></dd>
-</dl>
 <hr>
-<pre>public static final class <span class="typeNameLabel">GlUtil.Program</span>
+<pre>public final class <span class="typeNameLabel">GlProgram</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">Represents a GLSL shader program.
 
- <p>After constructing a program, keep a reference for its lifetime and call <a href="#delete()"><code>delete()</code></a>
- (or release the current GL context) when it's no longer needed.</div>
+ <p>After constructing a program, keep a reference for its lifetime and call <a href="#delete()"><code>delete()</code></a> (or
+ release the current GL context) when it's no longer needed.</div>
 </li>
 </ul>
 </div>
@@ -159,16 +155,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,java.lang.String)">Program</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderFilePath,
-       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderFilePath)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,java.lang.String)">GlProgram</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderFilePath,
+         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderFilePath)</code></th>
 <td class="colLast">
 <div class="block">Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String)">Program</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderGlsl,
-       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderGlsl)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String)">GlProgram</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderGlsl,
+         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderGlsl)</code></th>
 <td class="colLast">
 <div class="block">Creates a GL shader program from vertex and fragment shader GLSL GLES20 code.</div>
 </td>
@@ -209,7 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeArrayLocationAndEnable(java.lang.String)">getAttributeArrayLocationAndEnable</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;attributeName)</code></th>
 <td class="colLast">
-<div class="block">Returns the location of an <code>GlUtil.Attribute</code>, which has been enabled as a vertex attribute
+<div class="block">Returns the location of an <code>GlProgram.Attribute</code>, which has been enabled as a vertex attribute
  array.</div>
 </td>
 </tr>
@@ -217,7 +213,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUniformLocation(java.lang.String)">getUniformLocation</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uniformName)</code></th>
 <td class="colLast">
-<div class="block">Returns the location of a <code>GlUtil.Uniform</code>.</div>
+<div class="block">Returns the location of a <code>GlProgram.Uniform</code>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -249,7 +245,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSamplerTexIdUniform(java.lang.String,int,int)">setSamplerTexIdUniform</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                       int&nbsp;texId,
-                      int&nbsp;unit)</code></th>
+                      int&nbsp;texUnitIndex)</code></th>
 <td class="colLast">
 <div class="block">Sets a texture sampler type uniform.</div>
 </td>
@@ -290,11 +286,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>Program</h4>
-<pre>public&nbsp;Program&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderFilePath,
-               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderFilePath)
-        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<h4>GlProgram</h4>
+<pre>public&nbsp;GlProgram&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderFilePath,
+                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderFilePath)
+          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -311,9 +307,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>Program</h4>
-<pre>public&nbsp;Program&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderGlsl,
-               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderGlsl)</pre>
+<h4>GlProgram</h4>
+<pre>public&nbsp;GlProgram&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;vertexShaderGlsl,
+                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fragmentShaderGlsl)</pre>
 <div class="block">Creates a GL shader program from vertex and fragment shader GLSL GLES20 code.
 
  <p>This involves slow steps, like compiling, linking, and switching the GL program, so do not
@@ -335,6 +331,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getUniformLocation(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUniformLocation</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getUniformLocation&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uniformName)</pre>
+<div class="block">Returns the location of a <code>GlProgram.Uniform</code>.</div>
+</li>
+</ul>
 <a id="use()">
 <!--   -->
 </a>
@@ -364,18 +370,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getAttributeArrayLocationAndEnable</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getAttributeArrayLocationAndEnable&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;attributeName)</pre>
-<div class="block">Returns the location of an <code>GlUtil.Attribute</code>, which has been enabled as a vertex attribute
+<div class="block">Returns the location of an <code>GlProgram.Attribute</code>, which has been enabled as a vertex attribute
  array.</div>
-</li>
-</ul>
-<a id="getUniformLocation(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getUniformLocation</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getUniformLocation&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uniformName)</pre>
-<div class="block">Returns the location of a <code>GlUtil.Uniform</code>.</div>
 </li>
 </ul>
 <a id="setBufferAttribute(java.lang.String,float[],int)">
@@ -398,8 +394,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setSamplerTexIdUniform</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setSamplerTexIdUniform&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                    int&nbsp;texId,
-                                   int&nbsp;unit)</pre>
+                                   int&nbsp;texUnitIndex)</pre>
 <div class="block">Sets a texture sampler type uniform.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>name</code> - The uniform's name.</dd>
+<dd><code>texId</code> - The texture identifier.</dd>
+<dd><code>texUnitIndex</code> - The texture unit index. Use a different index (0, 1, 2, ...) for each
+     texture sampler in the program.</dd>
+</dl>
 </li>
 </ul>
 <a id="setFloatUniform(java.lang.String,float)">

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -296,20 +296,29 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekPoints(long,int)">getSeekPoints</a></span>&#8203;(long&nbsp;timeUs,
+             int&nbsp;trackId)</code></th>
+<td class="colLast">
+<div class="block">Equivalent to <a href="../SeekMap.html#getSeekPoints(long)"><code>SeekMap.getSeekPoints(long)</code></a>, except it adds the <code>trackId</code>
+ parameter.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">init</a></span>&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</code></th>
 <td class="colLast">
 <div class="block">Initializes the extractor with an <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeekable()">isSeekable</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether seeking is supported.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">read</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
     <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)</code></th>
@@ -317,14 +326,14 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <div class="block">Extracts data read from a provided <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases all kept resources.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long,long)">seek</a></span>&#8203;(long&nbsp;position,
     long&nbsp;timeUs)</code></th>
@@ -332,7 +341,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <div class="block">Notifies the extractor that a seek has occurred.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sniff(com.google.android.exoplayer2.extractor.ExtractorInput)">sniff</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
 <td class="colLast">
@@ -624,7 +633,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <a id="getSeekPoints(long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSeekPoints</h4>
 <pre class="methodSignature">public&nbsp;<a href="../SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>&nbsp;getSeekPoints&#8203;(long&nbsp;timeUs)</pre>
@@ -640,6 +649,25 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <dd><code><a href="../SeekMap.html#getSeekPoints(long)">getSeekPoints</a></code>&nbsp;in interface&nbsp;<code><a href="../SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - A seek time in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding seek points.</dd>
+</dl>
+</li>
+</ul>
+<a id="getSeekPoints(long,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getSeekPoints</h4>
+<pre class="methodSignature">public&nbsp;<a href="../SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>&nbsp;getSeekPoints&#8203;(long&nbsp;timeUs,
+                                        int&nbsp;trackId)</pre>
+<div class="block">Equivalent to <a href="../SeekMap.html#getSeekPoints(long)"><code>SeekMap.getSeekPoints(long)</code></a>, except it adds the <code>trackId</code>
+ parameter.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeUs</code> - A seek time in microseconds.</dd>
+<dd><code>trackId</code> - The id of the track on which to seek for <a href="../SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekMap.SeekPoints</code></a>. May be <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the extractor is expected to define the strategy for generating <a href="../SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekMap.SeekPoints</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The corresponding seek points.</dd>
 </dl>

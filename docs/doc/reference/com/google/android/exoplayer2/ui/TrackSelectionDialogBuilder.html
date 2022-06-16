@@ -177,19 +177,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.CharSequence,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,int)">TrackSelectionDialogBuilder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.CharSequence,com.google.android.exoplayer2.Player,@com.google.android.exoplayer2.C.TrackTypeint)">TrackSelectionDialogBuilder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                            <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;title,
-                           <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
-                           int&nbsp;rendererIndex)</code></th>
+                           <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                           @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</code></th>
 <td class="colLast">
-<div class="block">Creates a builder for a track selection dialog which automatically updates a <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
+<div class="block">Creates a builder for a track selection dialog.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.CharSequence,com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,int,com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder.DialogCallback)">TrackSelectionDialogBuilder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.CharSequence,java.util.List,com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder.DialogCallback)">TrackSelectionDialogBuilder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                            <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;title,
-                           <a href="../trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
-                           int&nbsp;rendererIndex,
+                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Tracks.Group.html" title="class in com.google.android.exoplayer2" target="_top">Tracks.Group</a>&gt;&nbsp;trackGroups,
                            <a href="TrackSelectionDialogBuilder.DialogCallback.html" title="interface in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder.DialogCallback</a>&nbsp;callback)</code></th>
 <td class="colLast">
 <div class="block">Creates a builder for a track selection dialog.</div>
@@ -243,16 +242,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOverride(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)">setOverride</a></span>&#8203;(<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;override)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOverride(com.google.android.exoplayer2.trackselection.TrackSelectionOverride)">setOverride</a></span>&#8203;(<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&nbsp;override)</code></th>
 <td class="colLast">
-<div class="block">Sets the initial selection override to show.</div>
+<div class="block">Sets the single initial override.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOverrides(java.util.List)">setOverrides</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.SelectionOverride</a>&gt;&nbsp;overrides)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOverrides(java.util.Map)">setOverrides</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;&nbsp;overrides)</code></th>
 <td class="colLast">
-<div class="block">Sets the list of initial selection overrides to show.</div>
+<div class="block">Sets the initial track overrides.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -309,7 +308,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(android.content.Context,java.lang.CharSequence,com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,int,com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder.DialogCallback)">
+<a id="&lt;init&gt;(android.content.Context,java.lang.CharSequence,java.util.List,com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder.DialogCallback)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -317,22 +316,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>TrackSelectionDialogBuilder</h4>
 <pre>public&nbsp;TrackSelectionDialogBuilder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                    <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;title,
-                                   <a href="../trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
-                                   int&nbsp;rendererIndex,
+                                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Tracks.Group.html" title="class in com.google.android.exoplayer2" target="_top">Tracks.Group</a>&gt;&nbsp;trackGroups,
                                    <a href="TrackSelectionDialogBuilder.DialogCallback.html" title="interface in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder.DialogCallback</a>&nbsp;callback)</pre>
 <div class="block">Creates a builder for a track selection dialog.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The context of the dialog.</dd>
 <dd><code>title</code> - The title of the dialog.</dd>
-<dd><code>mappedTrackInfo</code> - The <a href="../trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector.MappedTrackInfo</code></a> containing the track information.</dd>
-<dd><code>rendererIndex</code> - The renderer index in the <code>mappedTrackInfo</code> for which the track
-     selection is shown.</dd>
+<dd><code>trackGroups</code> - The <a href="../Tracks.Group.html" title="class in com.google.android.exoplayer2"><code>track groups</code></a>.</dd>
 <dd><code>callback</code> - The <a href="TrackSelectionDialogBuilder.DialogCallback.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackSelectionDialogBuilder.DialogCallback</code></a> invoked when a track selection has been made.</dd>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(android.content.Context,java.lang.CharSequence,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,int)">
+<a id="&lt;init&gt;(android.content.Context,java.lang.CharSequence,com.google.android.exoplayer2.Player,@com.google.android.exoplayer2.C.TrackTypeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -340,17 +336,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>TrackSelectionDialogBuilder</h4>
 <pre>public&nbsp;TrackSelectionDialogBuilder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                    <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;title,
-                                   <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
-                                   int&nbsp;rendererIndex)</pre>
-<div class="block">Creates a builder for a track selection dialog which automatically updates a <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
+                                   <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                   @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
+<div class="block">Creates a builder for a track selection dialog.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The context of the dialog.</dd>
 <dd><code>title</code> - The title of the dialog.</dd>
-<dd><code>trackSelector</code> - A <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> whose current selection is used to set up
-     the dialog and which is updated when new tracks are selected in the dialog.</dd>
-<dd><code>rendererIndex</code> - The renderer index in the <code>trackSelector</code> for which the track
-     selection is shown.</dd>
+<dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> whose tracks should be selected.</dd>
+<dd><code>trackType</code> - The type of tracks to show for selection.</dd>
 </dl>
 </li>
 </ul>
@@ -397,37 +391,38 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="setOverride(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)">
+<a id="setOverride(com.google.android.exoplayer2.trackselection.TrackSelectionOverride)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setOverride</h4>
 <pre class="methodSignature">public&nbsp;<a href="TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a>&nbsp;setOverride&#8203;(@Nullable
-                                               <a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;override)</pre>
-<div class="block">Sets the initial selection override to show.</div>
+                                               <a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&nbsp;override)</pre>
+<div class="block">Sets the single initial override.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>override</code> - The initial override to show, or null for no override.</dd>
+<dd><code>override</code> - The initial override, or <code>null</code> for no override.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a id="setOverrides(java.util.List)">
+<a id="setOverrides(java.util.Map)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setOverrides</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a>&nbsp;setOverrides&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.SelectionOverride</a>&gt;&nbsp;overrides)</pre>
-<div class="block">Sets the list of initial selection overrides to show.
-
- <p>Note that only the first override will be used unless <a href="#setAllowMultipleOverrides(boolean)"><code>setAllowMultipleOverrides(boolean)</code></a> is set to <code>true</code>.</div>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a>&nbsp;setOverrides&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;&nbsp;overrides)</pre>
+<div class="block">Sets the initial track overrides. Any overrides that do not correspond to track groups that
+ were passed to the constructor will be ignored. If <a href="#setAllowMultipleOverrides(boolean)"><code>setAllowMultipleOverrides(boolean)</code></a>
+ hasn't been set to <code>true</code> then all but one override will be ignored. The retained
+ override will be the one whose track group was first in the list of track groups passed to the
+ constructor.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>overrides</code> - The list of initial overrides to show. There must be at most one override for
-     each track group.</dd>
+<dd><code>overrides</code> - The initially selected track overrides.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder, for convenience.</dd>
 </dl>
