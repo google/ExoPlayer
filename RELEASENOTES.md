@@ -163,6 +163,8 @@
         ([#47](https://github.com/androidx/media/pull/64)).
     *   Add RTP reader for OPUS
         ([#53](https://github.com/androidx/media/pull/53)).
+    *   Add RTP reader for H263
+        ([#63](https://github.com/androidx/media/pull/63)).
 *   Session:
     *   Fix NPE in MediaControllerImplLegacy
         ([#59](https://github.com/androidx/media/pull/59)).
