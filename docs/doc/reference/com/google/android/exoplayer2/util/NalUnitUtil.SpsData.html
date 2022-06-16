@@ -182,35 +182,40 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#picOrderCntLsbLength">picOrderCntLsbLength</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxNumRefFrames">maxNumRefFrames</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#picOrderCntLsbLength">picOrderCntLsbLength</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#picOrderCountType">picOrderCountType</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#profileIdc">profileIdc</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#separateColorPlaneFlag">separateColorPlaneFlag</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seqParameterSetId">seqParameterSetId</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
 <td class="colLast">&nbsp;</td>
@@ -233,10 +238,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,int,int,int,float,boolean,boolean,int,int,int,boolean)">SpsData</a></span>&#8203;(int&nbsp;profileIdc,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,int,int,int,int,float,boolean,boolean,int,int,int,boolean)">SpsData</a></span>&#8203;(int&nbsp;profileIdc,
        int&nbsp;constraintsFlagsAndReservedZero2Bits,
        int&nbsp;levelIdc,
        int&nbsp;seqParameterSetId,
+       int&nbsp;maxNumRefFrames,
        int&nbsp;width,
        int&nbsp;height,
        float&nbsp;pixelWidthHeightRatio,
@@ -316,6 +322,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>seqParameterSetId</h4>
 <pre>public final&nbsp;int seqParameterSetId</pre>
+</li>
+</ul>
+<a id="maxNumRefFrames">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxNumRefFrames</h4>
+<pre>public final&nbsp;int maxNumRefFrames</pre>
 </li>
 </ul>
 <a id="width">
@@ -409,7 +424,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,int,int,int,int,int,float,boolean,boolean,int,int,int,boolean)">
+<a id="&lt;init&gt;(int,int,int,int,int,int,int,float,boolean,boolean,int,int,int,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -419,6 +434,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                int&nbsp;constraintsFlagsAndReservedZero2Bits,
                int&nbsp;levelIdc,
                int&nbsp;seqParameterSetId,
+               int&nbsp;maxNumRefFrames,
                int&nbsp;width,
                int&nbsp;height,
                float&nbsp;pixelWidthHeightRatio,

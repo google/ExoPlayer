@@ -212,6 +212,55 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Four initial bytes that must prefix NAL units for decoding.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_AUD">NAL_UNIT_TYPE_AUD</a></span></code></th>
+<td class="colLast">
+<div class="block">Access unit delimiter.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_IDR">NAL_UNIT_TYPE_IDR</a></span></code></th>
+<td class="colLast">
+<div class="block">Coded slice of an IDR picture.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_NON_IDR">NAL_UNIT_TYPE_NON_IDR</a></span></code></th>
+<td class="colLast">
+<div class="block">Coded slice of a non-IDR picture.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_PARTITION_A">NAL_UNIT_TYPE_PARTITION_A</a></span></code></th>
+<td class="colLast">
+<div class="block">Coded slice data partition A.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_PPS">NAL_UNIT_TYPE_PPS</a></span></code></th>
+<td class="colLast">
+<div class="block">Picture parameter set.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_SEI">NAL_UNIT_TYPE_SEI</a></span></code></th>
+<td class="colLast">
+<div class="block">Supplemental enhancement information.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_SPS">NAL_UNIT_TYPE_SPS</a></span></code></th>
+<td class="colLast">
+<div class="block">Sequence parameter set.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -373,6 +422,104 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a id="NAL_UNIT_TYPE_NON_IDR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_NON_IDR</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_NON_IDR</pre>
+<div class="block">Coded slice of a non-IDR picture.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_NON_IDR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NAL_UNIT_TYPE_PARTITION_A">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_PARTITION_A</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_PARTITION_A</pre>
+<div class="block">Coded slice data partition A.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_PARTITION_A">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NAL_UNIT_TYPE_IDR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_IDR</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_IDR</pre>
+<div class="block">Coded slice of an IDR picture.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_IDR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NAL_UNIT_TYPE_SEI">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_SEI</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_SEI</pre>
+<div class="block">Supplemental enhancement information.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_SEI">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NAL_UNIT_TYPE_SPS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_SPS</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_SPS</pre>
+<div class="block">Sequence parameter set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_SPS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NAL_UNIT_TYPE_PPS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_PPS</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_PPS</pre>
+<div class="block">Picture parameter set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_PPS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NAL_UNIT_TYPE_AUD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_UNIT_TYPE_AUD</h4>
+<pre>public static final&nbsp;int NAL_UNIT_TYPE_AUD</pre>
+<div class="block">Access unit delimiter.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.NAL_UNIT_TYPE_AUD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="NAL_START_CODE">
 <!--   -->
 </a>

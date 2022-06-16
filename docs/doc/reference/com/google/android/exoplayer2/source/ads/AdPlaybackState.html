@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -319,7 +319,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -331,13 +331,21 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromAdPlaybackState(java.lang.Object,com.google.android.exoplayer2.source.ads.AdPlaybackState)">fromAdPlaybackState</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
+                   <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of the ad playback state with the given ads ID.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroup(int)">getAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
 <div class="block">Returns the specified <a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState.AdGroup</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexAfterPositionUs(long,long)">getAdGroupIndexAfterPositionUs</a></span>&#8203;(long&nbsp;positionUs,
                               long&nbsp;periodDurationUs)</code></th>
@@ -345,7 +353,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns the index of the next ad group after <code>positionUs</code> that should be played.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexForPositionUs(long,long)">getAdGroupIndexForPositionUs</a></span>&#8203;(long&nbsp;positionUs,
                             long&nbsp;periodDurationUs)</code></th>
@@ -354,12 +362,12 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  the content at <code>positionUs</code>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAdInErrorState(int,int)">isAdInErrorState</a></span>&#8203;(int&nbsp;adGroupIndex,
                 int&nbsp;adIndexInAdGroup)</code></th>
@@ -367,19 +375,19 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns whether the specified ad has been marked as in <a href="#AD_STATE_ERROR"><code>AD_STATE_ERROR</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdCount(int,int)">withAdCount</a></span>&#8203;(int&nbsp;adGroupIndex,
            int&nbsp;adCount)</code></th>
@@ -387,7 +395,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(int,long...)">withAdDurationsUs</a></span>&#8203;(int&nbsp;adGroupIndex,
                  long...&nbsp;adDurationsUs)</code></th>
@@ -396,14 +404,14 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  group.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(long%5B%5D%5B%5D)">withAdDurationsUs</a></span>&#8203;(long[][]&nbsp;adDurationUs)</code></th>
 <td class="colLast">
 <div class="block">Returns an instance with the specified ad durations, in microseconds.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdGroupTimeUs(int,long)">withAdGroupTimeUs</a></span>&#8203;(int&nbsp;adGroupIndex,
                  long&nbsp;adGroupTimeUs)</code></th>
@@ -411,7 +419,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with the specified ad group time.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdLoadError(int,int)">withAdLoadError</a></span>&#8203;(int&nbsp;adGroupIndex,
                int&nbsp;adIndexInAdGroup)</code></th>
@@ -419,7 +427,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with the specified ad marked as having a load error.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdResumePositionUs(long)">withAdResumePositionUs</a></span>&#8203;(long&nbsp;adResumePositionUs)</code></th>
 <td class="colLast">
@@ -427,7 +435,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  start of the current ad.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdUri(int,int,android.net.Uri)">withAdUri</a></span>&#8203;(int&nbsp;adGroupIndex,
          int&nbsp;adIndexInAdGroup,
@@ -436,14 +444,14 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with the specified ad URI.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentDurationUs(long)">withContentDurationUs</a></span>&#8203;(long&nbsp;contentDurationUs)</code></th>
 <td class="colLast">
 <div class="block">Returns an instance with the specified content duration, in microseconds.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentResumeOffsetUs(int,long)">withContentResumeOffsetUs</a></span>&#8203;(int&nbsp;adGroupIndex,
                          long&nbsp;contentResumeOffsetUs)</code></th>
@@ -452,7 +460,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  for the specified ad group.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withIsServerSideInserted(int,boolean)">withIsServerSideInserted</a></span>&#8203;(int&nbsp;adGroupIndex,
                         boolean&nbsp;isServerSideInserted)</code></th>
@@ -461,7 +469,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  specified ad group.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withNewAdGroup(int,long)">withNewAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex,
               long&nbsp;adGroupTimeUs)</code></th>
@@ -469,7 +477,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with a new ad group.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withPlayedAd(int,int)">withPlayedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
             int&nbsp;adIndexInAdGroup)</code></th>
@@ -477,7 +485,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with the specified ad marked as played.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withRemovedAdGroupCount(int)">withRemovedAdGroupCount</a></span>&#8203;(int&nbsp;removedAdGroupCount)</code></th>
 <td class="colLast">
@@ -485,7 +493,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  groups</code></a>.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withResetAdGroup(int)">withResetAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
@@ -493,7 +501,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
  skipped, error) to either available or unavailable, which allows to play them again.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAd(int,int)">withSkippedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
              int&nbsp;adIndexInAdGroup)</code></th>
@@ -501,7 +509,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <div class="block">Returns an instance with the specified ad marked as skipped.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAdGroup(int)">withSkippedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
@@ -1016,6 +1024,24 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                         int&nbsp;adGroupIndex)</pre>
 <div class="block">Returns an instance with all ads in the specified ad group reset from final states (played,
  skipped, error) to either available or unavailable, which allows to play them again.</div>
+</li>
+</ul>
+<a id="fromAdPlaybackState(java.lang.Object,com.google.android.exoplayer2.source.ads.AdPlaybackState)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fromAdPlaybackState</h4>
+<pre class="methodSignature">public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;fromAdPlaybackState&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
+                                                  <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="block">Returns a copy of the ad playback state with the given ads ID.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adsId</code> - The new ads ID.</dd>
+<dd><code>adPlaybackState</code> - The ad playback state to copy.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new ad playback state.</dd>
+</dl>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">

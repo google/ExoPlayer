@@ -268,7 +268,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <td class="colFirst"><code><a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
+<div class="block">Sets an optional <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -309,7 +309,16 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <li class="blockList">
 <h4>Factory</h4>
 <pre>public&nbsp;Factory&#8203;(<a href="../../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
-<div class="block">Creates a new factory for <a href="SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>s.</div>
+<div class="block">Creates a new factory for <a href="SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>s.
+
+ <p>The factory will use the following default components:
+
+ <ul>
+   <li><a href="DefaultSsChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>DefaultSsChunkSource.Factory</code></a>
+   <li><a href="../../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a>
+   <li><a href="../../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>
+   <li><a href="../DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultCompositeSequenceableLoaderFactory</code></a>
+ </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSourceFactory</code> - A factory for <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances that will be used to load
@@ -326,7 +335,14 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <pre>public&nbsp;Factory&#8203;(<a href="SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a>&nbsp;chunkSourceFactory,
                @Nullable
                <a href="../../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;manifestDataSourceFactory)</pre>
-<div class="block">Creates a new factory for <a href="SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>s.</div>
+<div class="block">Creates a new factory for <a href="SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>s. The factory will use the following default
+ components:
+
+ <ul>
+   <li><a href="../../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a>
+   <li><a href="../../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>
+   <li><a href="../DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultCompositeSequenceableLoaderFactory</code></a>
+ </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunkSourceFactory</code> - A factory for <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a> instances.</dd>
@@ -352,14 +368,12 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre class="methodSignature">public&nbsp;<a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(@Nullable
-                                                        <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
-<div class="block">Sets the <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>. The default value is created by calling <a href="../../upstream/DefaultLoadErrorHandlingPolicy.html#%3Cinit%3E()"><code>DefaultLoadErrorHandlingPolicy()</code></a>.</div>
+<pre class="methodSignature">public&nbsp;<a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">MediaSource.Factory</a></code></span></div>
+<div class="block">Sets an optional <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>loadErrorHandlingPolicy</code> - A <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -406,10 +420,9 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompositeSequenceableLoaderFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setCompositeSequenceableLoaderFactory&#8203;(@Nullable
-                                                                   <a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</pre>
+<pre class="methodSignature">public&nbsp;<a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setCompositeSequenceableLoaderFactory&#8203;(<a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</pre>
 <div class="block">Sets the factory to create composite <a href="../SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
- loads data from multiple streams (video, audio etc.). The default is an instance of <a href="../DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultCompositeSequenceableLoaderFactory</code></a>.</div>
+ loads data from multiple streams (video, audio etc.).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>compositeSequenceableLoaderFactory</code> - A factory to create composite <a href="../SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source loads data from multiple streams (video,
@@ -425,13 +438,10 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionManagerProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(@Nullable
-                                                          <a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
+<pre class="methodSignature">public&nbsp;<a href="SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets the <a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManagerProvider</code></a> used to obtain a <a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
- <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
-
- <p>If not set, <a href="../../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a> is used.</div>
+ <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -210,27 +210,19 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetImmediateCodecStartAfterFlushEnabled(boolean)">experimentalSetImmediateCodecStartAfterFlushEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
-<td class="colLast">
-<div class="block">Enable calling <a href="https://developer.android.com/reference/android/media/MediaCodec.html#start()" title="class or interface in android.media" class="externalLink"><code>MediaCodec.start()</code></a> immediately after <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#flush()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.flush()</code></a> on the
- playback thread, when operating the codec in asynchronous mode.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean)">experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
 <td class="colLast">
 <div class="block">Enable synchronizing codec interactions with asynchronous buffer queueing.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceDisableAsynchronous()">forceDisableAsynchronous</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Forces the factory to always create <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapter</code></a> instances.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceEnableAsynchronous()">forceEnableAsynchronous</a></span>()</code></th>
 <td class="colLast">
@@ -325,26 +317,6 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>enabled</code> - Whether codec interactions will be synchronized with asynchronous buffer
      queueing.</dd>
-</dl>
-</li>
-</ul>
-<a id="experimentalSetImmediateCodecStartAfterFlushEnabled(boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>experimentalSetImmediateCodecStartAfterFlushEnabled</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;experimentalSetImmediateCodecStartAfterFlushEnabled&#8203;(boolean&nbsp;enabled)</pre>
-<div class="block">Enable calling <a href="https://developer.android.com/reference/android/media/MediaCodec.html#start()" title="class or interface in android.media" class="externalLink"><code>MediaCodec.start()</code></a> immediately after <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#flush()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.flush()</code></a> on the
- playback thread, when operating the codec in asynchronous mode. If disabled, <a href="https://developer.android.com/reference/android/media/MediaCodec.html#start()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.start()</code></a> will be called by the callback thread after pending callbacks are handled.
-
- <p>By default, this feature is enabled.
-
- <p>This method is experimental, and will be renamed or removed in a future release.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enabled</code> - Whether <a href="https://developer.android.com/reference/android/media/MediaCodec.html#start()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.start()</code></a> will be called on the playback thread
-     immediately after <a href="https://developer.android.com/reference/android/media/MediaCodec.html#flush()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.flush()</code></a>.</dd>
 </dl>
 </li>
 </ul>

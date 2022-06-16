@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -191,12 +191,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoResolutionFromMpeg4VideoConfig(byte%5B%5D)">getVideoResolutionFromMpeg4VideoConfig</a></span>&#8203;(byte[]&nbsp;videoSpecificConfig)</code></th>
+<td class="colLast">
+<div class="block">Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAlacAudioSpecificConfig(byte%5B%5D)">parseAlacAudioSpecificConfig</a></span>&#8203;(byte[]&nbsp;audioSpecificConfig)</code></th>
 <td class="colLast">
 <div class="block">Parses an ALAC AudioSpecificConfig (i.e.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCea708InitializationData(java.util.List)">parseCea708InitializationData</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
 <td class="colLast">
@@ -204,7 +211,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  formatted for displays with 16:9 aspect ratio.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static byte[][]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#splitNalUnits(byte%5B%5D)">splitNalUnits</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
@@ -283,6 +290,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the CEA-708 closed caption service is formatted for displays with 16:9 aspect
      ratio.</dd>
+</dl>
+</li>
+</ul>
+<a id="getVideoResolutionFromMpeg4VideoConfig(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVideoResolutionFromMpeg4VideoConfig</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;getVideoResolutionFromMpeg4VideoConfig&#8203;(byte[]&nbsp;videoSpecificConfig)</pre>
+<div class="block">Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>videoSpecificConfig</code> - A byte array containing the MPEG-4 Visual configuration information
+     to parse.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A pair of the video's width and height.</dd>
 </dl>
 </li>
 </ul>

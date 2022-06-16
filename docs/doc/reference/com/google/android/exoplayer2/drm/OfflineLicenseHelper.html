@@ -206,9 +206,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">newWidevineInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">newWidevineInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                    boolean&nbsp;forceDefaultLicenseUrl,
-                   <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
+                   <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
@@ -216,9 +216,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.Factory,java.util.Map,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">newWidevineInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.DataSource.Factory,java.util.Map,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">newWidevineInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                    boolean&nbsp;forceDefaultLicenseUrl,
-                   <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
+                   <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalKeyRequestParameters,
                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
@@ -227,8 +227,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newWidevineInstance(java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">newWidevineInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
-                   <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newWidevineInstance(java.lang.String,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">newWidevineInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
+                   <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
@@ -325,14 +325,14 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="newWidevineInstance(java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
+<a id="newWidevineInstance(java.lang.String,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>newWidevineInstance</h4>
 <pre class="methodSignature">public static&nbsp;<a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&nbsp;newWidevineInstance&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
-                                                       <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
+                                                       <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                                                        <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
 <div class="block">Instantiates a new instance which uses Widevine CDM. Call <a href="#release()"><code>release()</code></a> when the instance
  is no longer required.</div>
@@ -340,7 +340,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>defaultLicenseUrl</code> - The default license URL. Used for key requests that do not specify
      their own license URL.</dd>
-<dd><code>httpDataSourceFactory</code> - A factory from which to obtain <a href="../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances.</dd>
+<dd><code>dataSourceFactory</code> - A factory from which to obtain <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</dd>
 <dd><code>eventDispatcher</code> - A <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> used to distribute
      DRM-related events.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -348,7 +348,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 </dl>
 </li>
 </ul>
-<a id="newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
+<a id="newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -356,7 +356,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>newWidevineInstance</h4>
 <pre class="methodSignature">public static&nbsp;<a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&nbsp;newWidevineInstance&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                                                        boolean&nbsp;forceDefaultLicenseUrl,
-                                                       <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
+                                                       <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                                                        <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
 <div class="block">Instantiates a new instance which uses Widevine CDM. Call <a href="#release()"><code>release()</code></a> when the instance
  is no longer required.</div>
@@ -366,7 +366,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
      their own license URL.</dd>
 <dd><code>forceDefaultLicenseUrl</code> - Whether to use <code>defaultLicenseUrl</code> for key requests that
      include their own license URL.</dd>
-<dd><code>httpDataSourceFactory</code> - A factory from which to obtain <a href="../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances.</dd>
+<dd><code>dataSourceFactory</code> - A factory from which to obtain <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</dd>
 <dd><code>eventDispatcher</code> - A <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> used to distribute
      DRM-related events.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -374,7 +374,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 </dl>
 </li>
 </ul>
-<a id="newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.Factory,java.util.Map,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
+<a id="newWidevineInstance(java.lang.String,boolean,com.google.android.exoplayer2.upstream.DataSource.Factory,java.util.Map,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -382,7 +382,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>newWidevineInstance</h4>
 <pre class="methodSignature">public static&nbsp;<a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&nbsp;newWidevineInstance&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                                                        boolean&nbsp;forceDefaultLicenseUrl,
-                                                       <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;httpDataSourceFactory,
+                                                       <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                                                        @Nullable
                                                        <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalKeyRequestParameters,
                                                        <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>

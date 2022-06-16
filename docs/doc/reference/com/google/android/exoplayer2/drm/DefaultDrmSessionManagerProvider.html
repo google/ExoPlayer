@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -172,7 +172,7 @@ implements <a href="DrmSessionManagerProvider.html" title="interface in com.goog
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -187,16 +187,20 @@ implements <a href="DrmSessionManagerProvider.html" title="interface in com.goog
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></span>&#8203;(<a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.DataSource.Factory)">setDrmHttpDataSourceFactory</a></span>&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;drmDataSourceFactory)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> to be used for creating <a href="HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> which executes key and provisioning requests over HTTP.</div>
+<div class="block">Sets the <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> which is used to create <a href="HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallback</code></a>
+ instances.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUserAgent(java.lang.String)">setDrmUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional user agent to be used for DRM requests.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Pass a custom <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> to <a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>setDrmHttpDataSourceFactory(DataSource.Factory)</code></a> which sets the desired user agent on
+     outgoing requests.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -242,19 +246,19 @@ implements <a href="DrmSessionManagerProvider.html" title="interface in com.goog
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">
+<a id="setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.DataSource.Factory)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmHttpDataSourceFactory</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDrmHttpDataSourceFactory&#8203;(@Nullable
-                                        <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</pre>
-<div class="block">Sets the <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> to be used for creating <a href="HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> which executes key and provisioning requests over HTTP. If <code>null</code>
- is passed the <a href="../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a> is used.</div>
+                                        <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;drmDataSourceFactory)</pre>
+<div class="block">Sets the <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> which is used to create <a href="HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallback</code></a>
+ instances. If <code>null</code> is passed a <a href="../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a> is used.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory or <code>null</code> to use <a href="../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
+<dd><code>drmDataSourceFactory</code> - The data source factory or <code>null</code> to use <a href="../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -264,15 +268,13 @@ implements <a href="DrmSessionManagerProvider.html" title="interface in com.goog
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmUserAgent</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setDrmUserAgent&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setDrmUserAgent&#8203;(@Nullable
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
-<div class="block">Sets the optional user agent to be used for DRM requests.
-
- <p>In case a factory has been set by <a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)"><code>setDrmHttpDataSourceFactory(HttpDataSource.Factory)</code></a>, this user agent is ignored.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userAgent</code> - The user agent to be used for DRM requests.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Pass a custom <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> to <a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>setDrmHttpDataSourceFactory(DataSource.Factory)</code></a> which sets the desired user agent on
+     outgoing requests.</div>
+</div>
 </li>
 </ul>
 <a id="get(com.google.android.exoplayer2.MediaItem)">

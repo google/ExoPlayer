@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -173,7 +173,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -186,9 +186,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceSessionsForAudioAndVideoTracks(boolean)">forceSessionsForAudioAndVideoTracks</a></span>&#8203;(boolean&nbsp;useClearSessionsForAudioAndVideoTracks)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceSessionsForAudioAndVideoTracks(boolean)">forceSessionsForAudioAndVideoTracks</a></span>&#8203;(boolean&nbsp;forceSessionsForAudioAndVideoTracks)</code></th>
 <td class="colLast">
-<div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setForceSessionsForAudioAndVideoTracks(boolean)"><code>setForceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -209,40 +211,47 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setForceSessionsForAudioAndVideoTracks(boolean)">setForceSessionsForAudioAndVideoTracks</a></span>&#8203;(boolean&nbsp;forceSessionsForAudioAndVideoTracks)</code></th>
+<td class="colLast">
+<div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeySetId(byte%5B%5D)">setKeySetId</a></span>&#8203;(byte[]&nbsp;keySetId)</code></th>
 <td class="colLast">
 <div class="block">Sets the key set ID of the offline license.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLicenseRequestHeaders(java.util.Map)">setLicenseRequestHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;licenseRequestHeaders)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional request headers attached to DRM license requests.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLicenseUri(android.net.Uri)">setLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional default DRM license server URI.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLicenseUri(java.lang.String)">setLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional default DRM license server URI.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMultiSession(boolean)">setMultiSession</a></span>&#8203;(boolean&nbsp;multiSession)</code></th>
 <td class="colLast">
 <div class="block">Sets whether multi session is enabled.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayClearContentWithoutKey(boolean)">setPlayClearContentWithoutKey</a></span>&#8203;(boolean&nbsp;playClearContentWithoutKey)</code></th>
 <td class="colLast">
@@ -250,7 +259,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  encrypted part of the content have yet to be loaded.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScheme(java.util.UUID)">setScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;scheme)</code></th>
 <td class="colLast">
@@ -385,7 +394,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>forceSessionsForAudioAndVideoTracks</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a>&nbsp;forceSessionsForAudioAndVideoTracks&#8203;(boolean&nbsp;useClearSessionsForAudioAndVideoTracks)</pre>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@InlineMe(replacement="this.setForceSessionsForAudioAndVideoTracks(forceSessionsForAudioAndVideoTracks)")
+public&nbsp;<a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a>&nbsp;forceSessionsForAudioAndVideoTracks&#8203;(boolean&nbsp;forceSessionsForAudioAndVideoTracks)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setForceSessionsForAudioAndVideoTracks(boolean)"><code>setForceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setForceSessionsForAudioAndVideoTracks(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setForceSessionsForAudioAndVideoTracks</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.DrmConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration.Builder</a>&nbsp;setForceSessionsForAudioAndVideoTracks&#8203;(boolean&nbsp;forceSessionsForAudioAndVideoTracks)</pre>
 <div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.
 
  <p>This method overrides what has been set by previously calling <a href="#setForcedSessionTrackTypes(java.util.List)"><code>setForcedSessionTrackTypes(List)</code></a>.</div>
@@ -401,9 +424,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a list of <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track type</code></a> constants for which to use a DRM session even
  when the tracks are in the clear.
 
- <p>For the common case of using a DRM session for <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>, <a href="#forceSessionsForAudioAndVideoTracks(boolean)"><code>forceSessionsForAudioAndVideoTracks(boolean)</code></a> can be used.
+ <p>For the common case of using a DRM session for <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>, <a href="#setForceSessionsForAudioAndVideoTracks(boolean)"><code>setForceSessionsForAudioAndVideoTracks(boolean)</code></a> can be used.
 
- <p>This method overrides what has been set by previously calling <a href="#forceSessionsForAudioAndVideoTracks(boolean)"><code>forceSessionsForAudioAndVideoTracks(boolean)</code></a>.</div>
+ <p>This method overrides what has been set by previously calling <a href="#setForceSessionsForAudioAndVideoTracks(boolean)"><code>setForceSessionsForAudioAndVideoTracks(boolean)</code></a>.</div>
 </li>
 </ul>
 <a id="setKeySetId(byte[])">
