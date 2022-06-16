@@ -261,9 +261,9 @@ public final class Util {
   }
 
   private static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri uri) {
-    return SDK_INT >= 23 && (isLocalFileUri(uri) || isMediaStoreExternalContentUri(uri))
-        ? requestExternalStoragePermission(activity)
-        : false;
+    return SDK_INT >= 23
+        && (isLocalFileUri(uri) || isMediaStoreExternalContentUri(uri))
+        && requestExternalStoragePermission(activity);
   }
 
   private static boolean isMediaStoreExternalContentUri(Uri uri) {
