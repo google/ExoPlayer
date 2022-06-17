@@ -29,6 +29,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -395,6 +396,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private void invokeUpdateOutputInternal(List<Cue> cues) {
     output.onCues(cues);
+    output.onCues(new CueGroup(cues));
   }
 
   /**

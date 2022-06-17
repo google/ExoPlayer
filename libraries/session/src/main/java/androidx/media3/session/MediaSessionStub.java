@@ -29,6 +29,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -48,10 +49,8 @@ import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_SE
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_SEARCH;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE;
-import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -83,10 +82,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -109,19 +108,21 @@ import java.util.concurrent.ExecutionException;
     this.sessionImpl = new WeakReference<>(sessionImpl);
     sessionManager = MediaSessionManager.getSessionManager(sessionImpl.getContext());
     connectedControllersManager = new ConnectedControllersManager<>(sessionImpl);
-    pendingControllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    // ConcurrentHashMap has a bug in APIs 21-22 that can result in lost updates.
+    pendingControllers = Collections.synchronizedSet(new HashSet<>());
   }
 
   public ConnectedControllersManager<IBinder> getConnectedControllersManager() {
     return connectedControllersManager;
   }
 
-  private static void sendSessionResult(
-      ControllerInfo controller, int seq, @SessionResult.Code int resultCode) {
-    sendSessionResult(controller, seq, new SessionResult(resultCode));
+  private static <K extends MediaSessionImpl> void sendSessionResult(
+      K sessionImpl, ControllerInfo controller, int seq, @SessionResult.Code int resultCode) {
+    sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
   }
 
-  private static void sendSessionResult(ControllerInfo controller, int seq, SessionResult result) {
+  private static <K extends MediaSessionImpl> void sendSessionResult(
+      K sessionImpl, ControllerInfo controller, int seq, SessionResult result) {
     try {
       checkStateNotNull(controller.getControllerCb()).onSessionResult(seq, result);
     } catch (RemoteException e) {
@@ -129,8 +130,8 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static void sendSessionResultWhenReady(
-      ControllerInfo controller, int seq, ListenableFuture<SessionResult> future) {
+  private static <K extends MediaSessionImpl> void sendSessionResultWhenReady(
+      K sessionImpl, ControllerInfo controller, int seq, ListenableFuture<SessionResult> future) {
     future.addListener(
         () -> {
           SessionResult result;
@@ -141,7 +142,37 @@ import java.util.concurrent.ExecutionException;
           } catch (ExecutionException | InterruptedException unused) {
             result = new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN);
           }
-          sendSessionResult(controller, seq, result);
+          sendSessionResult(sessionImpl, controller, seq, result);
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  private static <K extends MediaSessionImpl> void handleMediaItemsWhenReady(
+      K sessionImpl,
+      ControllerInfo controller,
+      int seq,
+      ListenableFuture<List<MediaItem>> future,
+      MediaItemPlayerTask mediaItemPlayerTask) {
+    future.addListener(
+        () -> {
+          SessionResult result;
+          try {
+            List<MediaItem> mediaItems =
+                checkNotNull(future.get(), "MediaItem list must not be null");
+            postOrRun(
+                sessionImpl.getApplicationHandler(),
+                () -> mediaItemPlayerTask.run(sessionImpl.getPlayerWrapper(), mediaItems));
+            result = new SessionResult(SessionResult.RESULT_SUCCESS);
+          } catch (CancellationException unused) {
+            result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
+          } catch (ExecutionException | InterruptedException exception) {
+            result =
+                new SessionResult(
+                    exception.getCause() instanceof UnsupportedOperationException
+                        ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
+                        : SessionResult.RESULT_ERROR_UNKNOWN);
+          }
+          sendSessionResult(sessionImpl, controller, seq, result);
         },
         MoreExecutors.directExecutor());
   }
@@ -155,8 +186,11 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static <V> void sendLibraryResultWhenReady(
-      ControllerInfo controller, int seq, ListenableFuture<LibraryResult<V>> future) {
+  private static <V, K extends MediaSessionImpl> void sendLibraryResultWhenReady(
+      K sessionImpl,
+      ControllerInfo controller,
+      int seq,
+      ListenableFuture<LibraryResult<V>> future) {
     future.addListener(
         () -> {
           LibraryResult<V> result;
@@ -177,7 +211,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @Player.Command int command,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -213,22 +247,25 @@ import java.util.concurrent.ExecutionException;
       @Player.Command int command,
       K sessionImpl,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     return () -> {
       if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
         sendSessionResult(
-            controller, seq, new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
+            sessionImpl,
+            controller,
+            seq,
+            new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
         return;
       }
       @SessionResult.Code
       int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
       if (resultCode != SessionResult.RESULT_SUCCESS) {
         // Don't run rejected command.
-        sendSessionResult(controller, seq, new SessionResult(resultCode));
+        sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
         return;
       }
       T result = task.run(sessionImpl, controller);
-      postTask.run(controller, seq, result);
+      postTask.run(sessionImpl, controller, seq, result);
     };
   }
 
@@ -237,7 +274,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @CommandCode int commandCode,
       SessionTask<T, MediaLibrarySessionImpl> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, MediaLibrarySessionImpl> postTask) {
     dispatchSessionTaskWithSessionCommandInternal(
         caller, seq, /* sessionCommand= */ null, commandCode, task, postTask);
   }
@@ -247,7 +284,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @CommandCode int commandCode,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     dispatchSessionTaskWithSessionCommandInternal(
         caller, seq, /* sessionCommand= */ null, commandCode, task, postTask);
   }
@@ -257,7 +294,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       SessionCommand sessionCommand,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     dispatchSessionTaskWithSessionCommandInternal(
         caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, task, postTask);
   }
@@ -268,7 +305,7 @@ import java.util.concurrent.ExecutionException;
       @Nullable SessionCommand sessionCommand,
       @CommandCode int commandCode,
       SessionTask<T, K> task,
-      PostSessionTask<T> postTask) {
+      PostSessionTask<T, K> postTask) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -292,6 +329,7 @@ import java.util.concurrent.ExecutionException;
               if (!connectedControllersManager.isSessionCommandAvailable(
                   controller, sessionCommand)) {
                 sendSessionResult(
+                    sessionImpl,
                     controller,
                     seq,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
@@ -300,6 +338,7 @@ import java.util.concurrent.ExecutionException;
             } else {
               if (!connectedControllersManager.isSessionCommandAvailable(controller, commandCode)) {
                 sendSessionResult(
+                    sessionImpl,
                     controller,
                     seq,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
@@ -307,7 +346,7 @@ import java.util.concurrent.ExecutionException;
               }
             }
             T result = task.run(sessionImpl, controller);
-            postTask.run(controller, seq, result);
+            postTask.run(sessionImpl, controller, seq, result);
           });
     } finally {
       Binder.restoreCallingIdentity(token);
@@ -806,14 +845,12 @@ import java.util.concurrent.ExecutionException;
     dispatchSessionTaskWithPlayerCommand(
         caller,
         seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl.getPlayerWrapper().setMediaItem(mediaItemWithPlaybackProperties);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        COMMAND_SET_MEDIA_ITEM,
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::setMediaItems));
   }
 
   @Override
@@ -835,16 +872,17 @@ import java.util.concurrent.ExecutionException;
     dispatchSessionTaskWithPlayerCommand(
         caller,
         seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItem(mediaItemWithPlaybackProperties, startPositionMs);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        COMMAND_SET_MEDIA_ITEM,
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) ->
+                    player.setMediaItems(mediaItems, /* startIndex= */ 0, startPositionMs)));
   }
 
   @Override
@@ -866,16 +904,16 @@ import java.util.concurrent.ExecutionException;
     dispatchSessionTaskWithPlayerCommand(
         caller,
         seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItem(mediaItemWithPlaybackProperties, resetPosition);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        COMMAND_SET_MEDIA_ITEM,
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition)));
   }
 
   @Override
@@ -898,20 +936,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemWithPlaybackPropertiesListBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItemList) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemWithPlaybackPropertiesListBuilder.add(mediaItemWithPlaybackProperties);
-          }
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItems(mediaItemWithPlaybackPropertiesListBuilder.build());
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::setMediaItems));
   }
 
   @Override
@@ -936,20 +965,15 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemWithPlaybackPropertiesListBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItemList) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemWithPlaybackPropertiesListBuilder.add(mediaItemWithPlaybackProperties);
-          }
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItems(mediaItemWithPlaybackPropertiesListBuilder.build(), resetPosition);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition)));
   }
 
   @Override
@@ -975,37 +999,16 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemWithPlaybackPropertiesListBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItemList) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemWithPlaybackPropertiesListBuilder.add(mediaItemWithPlaybackProperties);
-          }
-
-          sessionImpl
-              .getPlayerWrapper()
-              .setMediaItems(
-                  mediaItemWithPlaybackPropertiesListBuilder.build(), startIndex, startPositionMs);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
-  }
-
-  @Override
-  public void setMediaUri(
-      @Nullable IMediaController caller, int seq, @Nullable Uri uri, @Nullable Bundle extras) {
-    if (caller == null || uri == null || extras == null) {
-      return;
-    }
-    dispatchSessionTaskWithSessionCommand(
-        caller,
-        seq,
-        COMMAND_CODE_SESSION_SET_MEDIA_URI,
         (sessionImpl, controller) ->
-            new SessionResult(sessionImpl.onSetMediaUriOnHandler(controller, uri, extras)),
-        MediaSessionStub::sendSessionResult);
+            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) ->
+                    player.setMediaItems(mediaItems, startIndex, startPositionMs)));
   }
 
   @Override
@@ -1048,13 +1051,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl.getPlayerWrapper().addMediaItem(mediaItemWithPlaybackProperties);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::addMediaItems));
   }
 
   @Override
@@ -1074,13 +1075,15 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          MediaItem mediaItemWithPlaybackProperties =
-              sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-          sessionImpl.getPlayerWrapper().addMediaItem(index, mediaItemWithPlaybackProperties);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) ->
+            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, mediaItems) -> player.addMediaItems(index, mediaItems)));
   }
 
   @Override
@@ -1102,21 +1105,10 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemsWithPlaybackPropertiesBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItems) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemsWithPlaybackPropertiesBuilder.add(mediaItemWithPlaybackProperties);
-          }
-
-          sessionImpl
-              .getPlayerWrapper()
-              .addMediaItems(mediaItemsWithPlaybackPropertiesBuilder.build());
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) -> sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl, controller, sequence, future, Player::addMediaItems));
   }
 
   @Override
@@ -1141,21 +1133,14 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          ImmutableList.Builder<MediaItem> mediaItemsWithPlaybackPropertiesBuilder =
-              ImmutableList.builder();
-          for (MediaItem mediaItem : mediaItems) {
-            MediaItem mediaItemWithPlaybackProperties =
-                sessionImpl.fillInLocalConfiguration(controller, mediaItem);
-            mediaItemsWithPlaybackPropertiesBuilder.add(mediaItemWithPlaybackProperties);
-          }
-
-          sessionImpl
-              .getPlayerWrapper()
-              .addMediaItems(index, mediaItemsWithPlaybackPropertiesBuilder.build());
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        (sessionImpl, controller) -> sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+        (sessionImpl, controller, sequence, future) ->
+            handleMediaItemsWhenReady(
+                sessionImpl,
+                controller,
+                sequence,
+                future,
+                (player, items) -> player.addMediaItems(index, items)));
   }
 
   @Override
@@ -1492,7 +1477,7 @@ import java.util.concurrent.ExecutionException;
     TrackSelectionParameters trackSelectionParameters;
     try {
       trackSelectionParameters =
-          TrackSelectionParameters.CREATOR.fromBundle(trackSelectionParametersBundle);
+          TrackSelectionParameters.fromBundle(trackSelectionParametersBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for TrackSelectionParameters", e);
       return;
@@ -1521,7 +1506,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1576,7 +1561,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1602,7 +1587,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1637,7 +1622,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1663,7 +1648,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        BundleableUtil.fromNullableBundle(LibraryParams.CREATOR, libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithLibrarySessionCommand(
         caller,
         seq,
@@ -1696,8 +1681,12 @@ import java.util.concurrent.ExecutionException;
     T run(K sessionImpl, ControllerInfo controller);
   }
 
-  private interface PostSessionTask<T> {
-    void run(ControllerInfo controller, int seq, T result);
+  private interface PostSessionTask<T, K extends MediaSessionImpl> {
+    void run(K sessionImpl, ControllerInfo controller, int seq, T result);
+  }
+
+  private interface MediaItemPlayerTask {
+    void run(PlayerWrapper player, List<MediaItem> mediaItems);
   }
 
   /* package */ static final class Controller2Cb implements ControllerCb {
@@ -1769,7 +1758,7 @@ import java.util.concurrent.ExecutionException;
         int seq, String parentId, int itemCount, @Nullable LibraryParams params)
         throws RemoteException {
       iController.onChildrenChanged(
-          seq, parentId, itemCount, BundleableUtil.toNullableBundle(params));
+          seq, parentId, itemCount, params == null ? null : params.toBundle());
     }
 
     @SuppressWarnings("nullness:argument") // params can be null.
@@ -1778,7 +1767,7 @@ import java.util.concurrent.ExecutionException;
         int seq, String query, int itemCount, @Nullable LibraryParams params)
         throws RemoteException {
       iController.onSearchResultChanged(
-          seq, query, itemCount, BundleableUtil.toNullableBundle(params));
+          seq, query, itemCount, params == null ? null : params.toBundle());
     }
 
     @Override
@@ -1795,6 +1784,11 @@ import java.util.concurrent.ExecutionException;
     @Override
     public void onRenderedFirstFrame(int seq) throws RemoteException {
       iController.onRenderedFirstFrame(seq);
+    }
+
+    @Override
+    public void onSessionExtrasChanged(int seq, Bundle sessionExtras) throws RemoteException {
+      iController.onExtrasChanged(seq, sessionExtras);
     }
 
     @Override

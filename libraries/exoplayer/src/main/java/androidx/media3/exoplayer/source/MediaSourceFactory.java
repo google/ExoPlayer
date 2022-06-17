@@ -22,7 +22,9 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 
-/** @deprecated Use {@link MediaSource.Factory}. */
+/**
+ * @deprecated Use {@link MediaSource.Factory}.
+ */
 @UnstableApi
 @Deprecated
 public interface MediaSourceFactory extends MediaSource.Factory {

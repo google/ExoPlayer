@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
@@ -48,14 +47,14 @@ public class RemoteMediaBrowser extends RemoteMediaController {
   /** {@link MediaBrowser} methods. */
   public LibraryResult<MediaItem> getLibraryRoot(@Nullable LibraryParams params)
       throws RemoteException {
-    Bundle result = binder.getLibraryRoot(controllerId, BundleableUtil.toNullableBundle(params));
+    Bundle result = binder.getLibraryRoot(controllerId, params == null ? null : params.toBundle());
     return LibraryResult.ITEM_CREATOR.fromBundle(result);
   }
 
   public LibraryResult<Void> subscribe(String parentId, @Nullable LibraryParams params)
       throws RemoteException {
     Bundle result =
-        binder.subscribe(controllerId, parentId, BundleableUtil.toNullableBundle(params));
+        binder.subscribe(controllerId, parentId, params == null ? null : params.toBundle());
     return LibraryResult.VOID_CREATOR.fromBundle(result);
   }
 
@@ -69,7 +68,7 @@ public class RemoteMediaBrowser extends RemoteMediaController {
       throws RemoteException {
     Bundle result =
         binder.getChildren(
-            controllerId, parentId, page, pageSize, BundleableUtil.toNullableBundle(params));
+            controllerId, parentId, page, pageSize, params == null ? null : params.toBundle());
     return LibraryResult.ITEM_LIST_CREATOR.fromBundle(result);
   }
 
@@ -80,7 +79,7 @@ public class RemoteMediaBrowser extends RemoteMediaController {
 
   public LibraryResult<Void> search(String query, @Nullable LibraryParams params)
       throws RemoteException {
-    Bundle result = binder.search(controllerId, query, BundleableUtil.toNullableBundle(params));
+    Bundle result = binder.search(controllerId, query, params == null ? null : params.toBundle());
     return LibraryResult.VOID_CREATOR.fromBundle(result);
   }
 
@@ -88,7 +87,7 @@ public class RemoteMediaBrowser extends RemoteMediaController {
       String query, int page, int pageSize, @Nullable LibraryParams params) throws RemoteException {
     Bundle result =
         binder.getSearchResult(
-            controllerId, query, page, pageSize, BundleableUtil.toNullableBundle(params));
+            controllerId, query, page, pageSize, params == null ? null : params.toBundle());
     return LibraryResult.ITEM_LIST_CREATOR.fromBundle(result);
   }
 

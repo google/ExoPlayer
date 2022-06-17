@@ -24,7 +24,9 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
 
-/** @deprecated Use {@link androidx.media3.extractor.metadata.vorbis.VorbisComment} instead. */
+/**
+ * @deprecated Use {@link androidx.media3.extractor.metadata.vorbis.VorbisComment} instead.
+ */
 @Deprecated
 @UnstableApi
 public class VorbisComment implements Metadata.Entry {

@@ -68,7 +68,6 @@ import org.chromium.net.UrlResponseInfo;
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
  * construct the instance.
  */
-@UnstableApi
 public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   static {
@@ -132,6 +131,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     CronetEngine}, or {@link DefaultHttpDataSource} for cases where {@link
      *     CronetEngineWrapper#getCronetEngine()} would have returned {@code null}.
      */
+    @UnstableApi
     @Deprecated
     public Factory(CronetEngineWrapper cronetEngineWrapper, Executor executor) {
       this.cronetEngine = cronetEngineWrapper.getCronetEngine();
@@ -142,6 +142,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
     }
 
+    @UnstableApi
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
@@ -161,6 +162,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     agent of the underlying {@link CronetEngine}.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       if (internalFallbackFactory != null) {
@@ -179,6 +181,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     UrlRequest.Builder#REQUEST_PRIORITY_*} constants.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setRequestPriority(int requestPriority) {
       this.requestPriority = requestPriority;
       return this;
@@ -192,6 +195,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      * @param connectTimeoutMs The connect timeout, in milliseconds, that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setConnectionTimeoutMs(int connectTimeoutMs) {
       this.connectTimeoutMs = connectTimeoutMs;
       if (internalFallbackFactory != null) {
@@ -208,6 +212,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setResetTimeoutOnRedirects(boolean resetTimeoutOnRedirects) {
       this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
       return this;
@@ -223,6 +228,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     to the redirect url in the "Cookie" header.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setHandleSetCookieRequests(boolean handleSetCookieRequests) {
       this.handleSetCookieRequests = handleSetCookieRequests;
       return this;
@@ -236,6 +242,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      * @param readTimeoutMs The connect timeout, in milliseconds, that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setReadTimeoutMs(int readTimeoutMs) {
       this.readTimeoutMs = readTimeoutMs;
       if (internalFallbackFactory != null) {
@@ -254,6 +261,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     predicate that was previously set.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
       if (internalFallbackFactory != null) {
@@ -266,6 +274,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      * Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
      * POST request.
      */
+    @UnstableApi
     public Factory setKeepPostFor302Redirects(boolean keepPostFor302Redirects) {
       this.keepPostFor302Redirects = keepPostFor302Redirects;
       if (internalFallbackFactory != null) {
@@ -284,6 +293,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       if (internalFallbackFactory != null) {
@@ -303,12 +313,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      * @deprecated Do not use {@link CronetDataSource} or its factory in cases where a suitable
      *     {@link CronetEngine} is not available. Use the fallback factory directly in such cases.
      */
+    @UnstableApi
     @Deprecated
     public Factory setFallbackFactory(@Nullable HttpDataSource.Factory fallbackFactory) {
       this.fallbackFactory = fallbackFactory;
       return this;
     }
 
+    @UnstableApi
     @Override
     public HttpDataSource createDataSource() {
       if (cronetEngine == null) {
@@ -337,6 +349,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /** Thrown when an error is encountered when trying to open a {@link CronetDataSource}. */
+  @UnstableApi
   public static final class OpenException extends HttpDataSourceException {
 
     /**
@@ -345,7 +358,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public final int cronetConnectionStatus;
 
-    /** @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
       super(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -361,7 +376,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
-    /** @deprecated Use {@link #OpenException(String, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(String, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
       super(errorMessage, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -385,9 +402,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /** The default connection timeout, in milliseconds. */
-  public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
+  @UnstableApi public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
   /** The default read timeout, in milliseconds. */
-  public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
+  @UnstableApi public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
   /* package */ final UrlRequest.Callback urlRequestCallback;
 
@@ -432,6 +449,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   private volatile long currentConnectTimeoutMs;
 
+  @UnstableApi
   protected CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
@@ -463,12 +481,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
-   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
-   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
-   *
-   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
-   *     predicate that was previously set.
+   * @deprecated Use {@link CronetDataSource.Factory#setContentTypePredicate(Predicate)} instead.
    */
+  @UnstableApi
   @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
     this.contentTypePredicate = contentTypePredicate;
@@ -476,21 +491,25 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   // HttpDataSource implementation.
 
+  @UnstableApi
   @Override
   public void setRequestProperty(String name, String value) {
     requestProperties.set(name, value);
   }
 
+  @UnstableApi
   @Override
   public void clearRequestProperty(String name) {
     requestProperties.remove(name);
   }
 
+  @UnstableApi
   @Override
   public void clearAllRequestProperties() {
     requestProperties.clear();
   }
 
+  @UnstableApi
   @Override
   public int getResponseCode() {
     return responseInfo == null || responseInfo.getHttpStatusCode() <= 0
@@ -498,17 +517,20 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         : responseInfo.getHttpStatusCode();
   }
 
+  @UnstableApi
   @Override
   public Map<String, List<String>> getResponseHeaders() {
     return responseInfo == null ? Collections.emptyMap() : responseInfo.getAllHeaders();
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public Uri getUri() {
     return responseInfo == null ? null : Uri.parse(responseInfo.getUrl());
   }
 
+  @UnstableApi
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     Assertions.checkNotNull(dataSpec);
@@ -640,6 +662,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return bytesRemaining;
   }
 
+  @UnstableApi
   @Override
   public int read(byte[] buffer, int offset, int length) throws HttpDataSourceException {
     Assertions.checkState(opened);
@@ -711,6 +734,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @throws HttpDataSourceException If an error occurs reading from the source.
    * @throws IllegalArgumentException If {@code buffer} is not a direct ByteBuffer.
    */
+  @UnstableApi
   public int read(ByteBuffer buffer) throws HttpDataSourceException {
     Assertions.checkState(opened);
 
@@ -755,6 +779,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return bytesRead;
   }
 
+  @UnstableApi
   @Override
   public synchronized void close() {
     if (currentUrlRequest != null) {
@@ -775,17 +800,20 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /** Returns current {@link UrlRequest}. May be null if the data source is not opened. */
+  @UnstableApi
   @Nullable
   protected UrlRequest getCurrentUrlRequest() {
     return currentUrlRequest;
   }
 
   /** Returns current {@link UrlResponseInfo}. May be null if the data source is not opened. */
+  @UnstableApi
   @Nullable
   protected UrlResponseInfo getCurrentUrlResponseInfo() {
     return responseInfo;
   }
 
+  @UnstableApi
   protected UrlRequest.Builder buildRequestBuilder(DataSpec dataSpec) throws IOException {
     UrlRequest.Builder requestBuilder =
         cronetEngine

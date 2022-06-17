@@ -15,106 +15,86 @@
  */
 package androidx.media3.session;
 
-import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.media3.session.MediaLibraryService.LibraryParams;
 
 /** Constants that can be shared between media session and controller. */
 public final class MediaConstants {
 
   /**
-   * A {@link Uri} scheme used in a media uri.
+   * Bundle key to indicate a preference that a region of space for the skip to next control should
+   * always be blocked out in the UI, even when the seek to next standard action is not supported.
    *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * <p>This may be used when the session temporarily disallows {@link
+   * androidx.media3.common.Player#COMMAND_SEEK_TO_NEXT} by design.
+   *
+   * @see MediaSession#setSessionExtras(Bundle)
+   * @see MediaSessionCompat#setExtras(Bundle)
+   * @see MediaController.Listener#onExtrasChanged(MediaController, Bundle)
+   * @see MediaControllerCompat.Callback#onExtrasChanged(Bundle)
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_NEXT
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
    */
-  public static final String MEDIA_URI_SCHEME = "androidx";
+  public static final String EXTRAS_KEY_SLOT_RESERVATION_SEEK_TO_NEXT =
+      "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_NEXT";
 
   /**
-   * A {@link Uri} authority used in a media uri.
+   * Bundle key to indicate a preference that a region of space for the skip to previous control
+   * should always be blocked out in the UI, even when the seek to previous standard action is not
+   * supported.
    *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * <p>This may be used when the session temporarily disallows {@link
+   * androidx.media3.common.Player#COMMAND_SEEK_TO_PREVIOUS} by design.
+   *
+   * @see MediaSession#setSessionExtras(Bundle)
+   * @see MediaSessionCompat#setExtras(Bundle)
+   * @see MediaController.Listener#onExtrasChanged(MediaController, Bundle)
+   * @see MediaControllerCompat.Callback#onExtrasChanged(Bundle)
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_PREVIOUS
+   * @see androidx.media3.common.Player#COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
    */
-  public static final String MEDIA_URI_AUTHORITY = "media3-session";
+  public static final String EXTRAS_KEY_SLOT_RESERVATION_SEEK_TO_PREV =
+      "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_PREVIOUS";
 
   /**
-   * A {@link Uri} path used by {@code
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#playFromMediaId}.
+   * The extras key for the localized error resolution string.
    *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * <p>Use this key to populate the extras bundle of the {@link LibraryParams} when {@link
+   * LibraryResult#ofError(int, LibraryParams) creating a LibraryResult} for an unsuccessful service
+   * call.
+   *
+   * @see
+   *     androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL
    */
-  public static final String MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID = "playFromMediaId";
+  public static final String EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT =
+      "android.media.extras.ERROR_RESOLUTION_ACTION_LABEL";
+  /**
+   * The extras key for the error resolution intent.
+   *
+   * <p>Use this key to populate the extras bundle of the {@link LibraryParams} when {@link
+   * LibraryResult#ofError(int, LibraryParams) creating a LibraryResult} for an unsuccessful service
+   * call.
+   *
+   * @see
+   *     androidx.media.utils.MediaConstants#PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT
+   */
+  public static final String EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT =
+      "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
 
   /**
-   * A {@link Uri} path used by {@code
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#playFromSearch}.
+   * The legacy error code for expired authentication.
    *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_PATH_PLAY_FROM_SEARCH = "playFromSearch";
-
-  /**
-   * A {@link Uri} path used by {@link
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#prepareFromMediaId}.
+   * <p>Use this error code to indicate an expired authentication when {@link
+   * LibraryResult#ofError(int, LibraryParams) creating a LibraryResult} for an unsuccessful service
+   * call.
    *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
+   * @see PlaybackStateCompat#ERROR_CODE_AUTHENTICATION_EXPIRED
    */
-  public static final String MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID = "prepareFromMediaId";
+  public static final int ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT = 3;
 
-  /**
-   * A {@link Uri} path used by {@link
-   * android.support.v4.media.session.MediaControllerCompat.TransportControls#prepareFromSearch}.
-   *
-   * @see MediaController#setMediaUri
-   * @see MediaSession.SessionCallback#onSetMediaUri
-   */
-  public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
-
-  /**
-   * A {@link Uri} path for encoding how the uri will be translated when connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}.
-   *
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_PATH_SET_MEDIA_URI = "setMediaUri";
-
-  // From scheme to path, plus path delimiter
-  /* package */ static final String MEDIA_URI_SET_MEDIA_URI_PREFIX =
-      new Uri.Builder()
-              .scheme(MEDIA_URI_SCHEME)
-              .authority(MEDIA_URI_AUTHORITY)
-              .path(MEDIA_URI_PATH_SET_MEDIA_URI)
-              .build()
-              .toString()
-          + "?";
-
-  /**
-   * A {@link Uri} query for media id.
-   *
-   * @see MediaSession.SessionCallback#onSetMediaUri
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_QUERY_ID = "id";
-
-  /**
-   * A {@link Uri} query for search query.
-   *
-   * @see MediaSession.SessionCallback#onSetMediaUri
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_QUERY_QUERY = "query";
-
-  /**
-   * A {@link Uri} query for media uri.
-   *
-   * @see MediaController#setMediaUri
-   */
-  public static final String MEDIA_URI_QUERY_URI = "uri";
-
-  /* package */ static final String SESSION_COMMAND_ON_EXTRAS_CHANGED =
-      "androidx.media3.session.SESSION_COMMAND_ON_EXTRAS_CHANGED";
   /* package */ static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
       "androidx.media3.session.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED";
   /* package */ static final String SESSION_COMMAND_REQUEST_SESSION3_TOKEN =

@@ -21,7 +21,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -39,17 +39,24 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
+import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EncoderSelector;
+import androidx.media3.transformer.GlEffect;
 import androidx.media3.transformer.ProgressHolder;
+import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
+import androidx.media3.transformer.TransformationResult;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -145,9 +152,10 @@ public final class TransformerActivity extends AppCompatActivity {
       externalCacheFile = createExternalCacheFile("transformer-output.mp4");
       String filePath = externalCacheFile.getAbsolutePath();
       @Nullable Bundle bundle = intent.getExtras();
+      MediaItem mediaItem = createMediaItem(bundle, uri);
       Transformer transformer = createTransformer(bundle, filePath);
       transformationStopwatch.start();
-      transformer.startTransformation(MediaItem.fromUri(uri), filePath);
+      transformer.startTransformation(mediaItem, filePath);
       this.transformer = transformer;
     } catch (IOException e) {
       throw new IllegalStateException(e);
@@ -172,6 +180,24 @@ public final class TransformerActivity extends AppCompatActivity {
             }
           }
         });
+  }
+
+  private MediaItem createMediaItem(@Nullable Bundle bundle, Uri uri) {
+    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder().setUri(uri);
+    if (bundle != null) {
+      long trimStartMs =
+          bundle.getLong(ConfigurationActivity.TRIM_START_MS, /* defaultValue= */ C.TIME_UNSET);
+      long trimEndMs =
+          bundle.getLong(ConfigurationActivity.TRIM_END_MS, /* defaultValue= */ C.TIME_UNSET);
+      if (trimStartMs != C.TIME_UNSET && trimEndMs != C.TIME_UNSET) {
+        mediaItemBuilder.setClippingConfiguration(
+            new MediaItem.ClippingConfiguration.Builder()
+                .setStartPositionMs(trimStartMs)
+                .setEndPositionMs(trimEndMs)
+                .build());
+      }
+    }
+    return mediaItemBuilder.build();
   }
 
   // Create a cache file, resetting it if it already exists.
@@ -214,22 +240,88 @@ public final class TransformerActivity extends AppCompatActivity {
       if (resolutionHeight != C.LENGTH_UNSET) {
         requestBuilder.setResolution(resolutionHeight);
       }
-      Matrix transformationMatrix = getTransformationMatrix(bundle);
-      if (!transformationMatrix.isIdentity()) {
-        requestBuilder.setTransformationMatrix(transformationMatrix);
-      }
+
+      float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
+      float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
+      requestBuilder.setScale(scaleX, scaleY);
+
+      float rotateDegrees =
+          bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
+      requestBuilder.setRotationDegrees(rotateDegrees);
+
+      requestBuilder.setEnableRequestSdrToneMapping(
+          bundle.getBoolean(ConfigurationActivity.ENABLE_REQUEST_SDR_TONE_MAPPING));
       requestBuilder.experimental_setEnableHdrEditing(
           bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder
           .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
-          .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO));
+          .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
+          .setEncoderFactory(
+              new DefaultEncoderFactory(
+                  EncoderSelector.DEFAULT,
+                  /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
+
+      ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
+      @Nullable
+      boolean[] selectedEffects =
+          bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
+      if (selectedEffects != null) {
+        if (selectedEffects[0]) {
+          effects.add(MatrixTransformationFactory.createDizzyCropEffect());
+        }
+        if (selectedEffects[1]) {
+          try {
+            Class<?> clazz = Class.forName("androidx.media3.demo.transformer.MediaPipeProcessor");
+            Constructor<?> constructor =
+                clazz.getConstructor(String.class, String.class, String.class);
+            effects.add(
+                () -> {
+                  try {
+                    return (SingleFrameGlTextureProcessor)
+                        constructor.newInstance(
+                            /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
+                            /* inputStreamName= */ "input_video",
+                            /* outputStreamName= */ "output_video");
+                  } catch (Exception e) {
+                    runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
+                    throw new RuntimeException("Failed to load MediaPipe processor", e);
+                  }
+                });
+          } catch (Exception e) {
+            showToast(R.string.no_media_pipe_error);
+          }
+        }
+        if (selectedEffects[2]) {
+          effects.add(
+              () ->
+                  new PeriodicVignetteProcessor(
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                      /* minInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                      /* maxInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
+        }
+        if (selectedEffects[3]) {
+          effects.add(MatrixTransformationFactory.createSpin3dEffect());
+        }
+        if (selectedEffects[4]) {
+          effects.add(BitmapOverlayProcessor::new);
+        }
+        if (selectedEffects[5]) {
+          effects.add(MatrixTransformationFactory.createZoomInTransition());
+        }
+        transformerBuilder.setVideoFrameEffects(effects.build());
+      }
     }
     return transformerBuilder
         .addListener(
             new Transformer.Listener() {
               @Override
-              public void onTransformationCompleted(MediaItem mediaItem) {
+              public void onTransformationCompleted(
+                  MediaItem mediaItem, TransformationResult transformationResult) {
                 TransformerActivity.this.onTransformationCompleted(filePath);
               }
 
@@ -241,26 +333,6 @@ public final class TransformerActivity extends AppCompatActivity {
             })
         .setDebugViewProvider(new DemoDebugViewProvider())
         .build();
-  }
-
-  private static Matrix getTransformationMatrix(Bundle bundle) {
-    Matrix transformationMatrix = new Matrix();
-
-    float translateX = bundle.getFloat(ConfigurationActivity.TRANSLATE_X, /* defaultValue= */ 0);
-    float translateY = bundle.getFloat(ConfigurationActivity.TRANSLATE_Y, /* defaultValue= */ 0);
-    // TODO(b/213198690): Get resolution for aspect ratio and scale all translations' translateX
-    // by this aspect ratio.
-    transformationMatrix.postTranslate(translateX, translateY);
-
-    float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
-    float scaleY = bundle.getFloat(ConfigurationActivity.SCALE_Y, /* defaultValue= */ 1);
-    transformationMatrix.postScale(scaleX, scaleY);
-
-    float rotateDegrees =
-        bundle.getFloat(ConfigurationActivity.ROTATE_DEGREES, /* defaultValue= */ 0);
-    transformationMatrix.postRotate(rotateDegrees);
-
-    return transformationMatrix;
   }
 
   @RequiresNonNull({
@@ -333,6 +405,10 @@ public final class TransformerActivity extends AppCompatActivity {
     if (checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
       requestPermissions(new String[] {READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
     }
+  }
+
+  private void showToast(@StringRes int messageResource) {
+    Toast.makeText(getApplicationContext(), getString(messageResource), Toast.LENGTH_LONG).show();
   }
 
   private final class DemoDebugViewProvider implements Transformer.DebugViewProvider {

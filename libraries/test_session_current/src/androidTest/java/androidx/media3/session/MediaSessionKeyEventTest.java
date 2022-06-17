@@ -92,7 +92,7 @@ public class MediaSessionKeyEventTest {
     player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
     sessionCallback = new TestSessionCallback();
-    session = new MediaSession.Builder(context, player).setSessionCallback(sessionCallback).build();
+    session = new MediaSession.Builder(context, player).setCallback(sessionCallback).build();
 
     // Here's the requirement for an app to receive media key events via MediaSession.
     // - SDK < 26: Player should be playing for receiving key events
@@ -202,13 +202,13 @@ public class MediaSessionKeyEventTest {
     }
   }
 
-  private static class TestSessionCallback implements MediaSession.SessionCallback {
+  private static class TestSessionCallback implements MediaSession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
         MediaSession session, ControllerInfo controller) {
       if (expectedControllerPackageName.equals(controller.getPackageName())) {
-        return MediaSession.SessionCallback.super.onConnect(session, controller);
+        return MediaSession.Callback.super.onConnect(session, controller);
       }
       return MediaSession.ConnectionResult.reject();
     }

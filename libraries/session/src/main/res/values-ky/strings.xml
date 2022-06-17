@@ -21,4 +21,5 @@
   <string name="media3_controls_seek_to_next_description">Кийинки нерсеге өтүү</string>
   <string name="media3_controls_seek_back_description">Артка түрдүрүү</string>
   <string name="media3_controls_seek_forward_description">Алдыга түрдүрүү</string>
+  <string name="authentication_required">Аныктыгын текшерүү талап кылынат</string>
 </resources>

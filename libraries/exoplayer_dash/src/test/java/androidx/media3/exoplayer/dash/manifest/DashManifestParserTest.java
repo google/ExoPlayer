@@ -274,14 +274,6 @@ public class DashManifestParserTest {
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
     Format format = adaptationSets.get(0).representations.get(0).format;
-    assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_RAWCC);
-    assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA608);
-    assertThat(format.codecs).isEqualTo("cea608");
-    assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE | C.ROLE_FLAG_MAIN);
-    assertThat(format.selectionFlags).isEqualTo(0);
-    assertThat(adaptationSets.get(0).type).isEqualTo(C.TRACK_TYPE_TEXT);
-
-    format = adaptationSets.get(1).representations.get(0).format;
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_MP4);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isEqualTo("stpp.ttml.im1t");
@@ -291,11 +283,11 @@ public class DashManifestParserTest {
 
     // Ensure that forced-subtitle and forced_subtitle are both parsed as a 'forced' text track.
     // https://github.com/google/ExoPlayer/issues/9727
-    format = adaptationSets.get(2).representations.get(0).format;
+    format = adaptationSets.get(1).representations.get(0).format;
     assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE);
     assertThat(format.selectionFlags).isEqualTo(C.SELECTION_FLAG_FORCED);
 
-    format = adaptationSets.get(3).representations.get(0).format;
+    format = adaptationSets.get(2).representations.get(0).format;
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isNull();
@@ -627,11 +619,10 @@ public class DashManifestParserTest {
 
     assertThat(manifest.getPeriodCount()).isEqualTo(1);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
-    assertThat(adaptationSets).hasSize(4);
+    assertThat(adaptationSets).hasSize(3);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(0))).isEqualTo(C.TIME_UNSET);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(1))).isEqualTo(C.TIME_UNSET);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(2))).isEqualTo(C.TIME_UNSET);
-    assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(3))).isEqualTo(C.TIME_UNSET);
   }
 
   @Test

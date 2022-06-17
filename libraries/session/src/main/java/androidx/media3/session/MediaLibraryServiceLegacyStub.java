@@ -24,6 +24,7 @@ import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media3.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 
+import android.annotation.SuppressLint;
 import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -116,6 +117,7 @@ import java.util.concurrent.atomic.AtomicReference;
   // TODO(b/192455639): Optimize potential multiple calls of
   //                    MediaBrowserCompat.SubscriptionCallback#onChildrenLoaded() with the same
   //                    content.
+  @SuppressLint("RestrictedApi")
   @Override
   public void onSubscribe(String id, Bundle option) {
     @Nullable ControllerInfo controller = getCurrentController();
@@ -141,6 +143,7 @@ import java.util.concurrent.atomic.AtomicReference;
         });
   }
 
+  @SuppressLint("RestrictedApi")
   @Override
   public void onUnsubscribe(String id) {
     @Nullable ControllerInfo controller = getCurrentController();
@@ -317,7 +320,7 @@ import java.util.concurrent.atomic.AtomicReference;
   public ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo) {
     return new ControllerInfo(
         remoteUserInfo,
-        /* controllerVersion= */ 0,
+        ControllerInfo.LEGACY_CONTROLLER_VERSION,
         getMediaSessionManager().isTrustedForMediaControl(remoteUserInfo),
         new BrowserLegacyCb(remoteUserInfo),
         /* connectionHints= */ Bundle.EMPTY);

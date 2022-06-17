@@ -75,6 +75,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
       samplePipeline =
           new AudioTranscodingSamplePipeline(
               inputFormat,
+              streamOffsetUs,
               transformationRequest,
               decoderFactory,
               encoderFactory,
@@ -85,6 +86,9 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    if (encoderFactory.audioNeedsEncoding()) {
+      return false;
+    }
     if (transformationRequest.audioMimeType != null
         && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
       return false;

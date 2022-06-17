@@ -21,9 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer}.
- */
+/** Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer}. */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultRenderersFactoryTest {
 

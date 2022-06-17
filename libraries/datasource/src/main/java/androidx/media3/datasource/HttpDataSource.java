@@ -38,12 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 /** An HTTP {@link DataSource}. */
-@UnstableApi
 public interface HttpDataSource extends DataSource {
 
   /** A factory for {@link HttpDataSource} instances. */
   interface Factory extends DataSource.Factory {
 
+    @UnstableApi
     @Override
     HttpDataSource createDataSource();
 
@@ -59,6 +59,7 @@ public interface HttpDataSource extends DataSource {
      * @param defaultRequestProperties The default request properties.
      * @return This factory.
      */
+    @UnstableApi
     Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties);
   }
 
@@ -67,6 +68,7 @@ public interface HttpDataSource extends DataSource {
    * a thread safe way to avoid the potential of creating snapshots of an inconsistent or unintended
    * state.
    */
+  @UnstableApi
   final class RequestProperties {
 
     private final Map<String, String> requestProperties;
@@ -141,6 +143,7 @@ public interface HttpDataSource extends DataSource {
   }
 
   /** Base implementation of {@link Factory} that sets default request properties. */
+  @UnstableApi
   abstract class BaseFactory implements Factory {
 
     private final RequestProperties defaultRequestProperties;
@@ -172,6 +175,7 @@ public interface HttpDataSource extends DataSource {
   }
 
   /** A {@link Predicate} that rejects content types often used for pay-walls. */
+  @UnstableApi
   Predicate<String> REJECT_PAYWALL_TYPES =
       contentType -> {
         if (contentType == null) {
@@ -208,6 +212,7 @@ public interface HttpDataSource extends DataSource {
      * Returns a {@code HttpDataSourceException} whose error code is assigned according to the cause
      * and type.
      */
+    @UnstableApi
     public static HttpDataSourceException createForIOException(
         IOException cause, DataSpec dataSpec, @Type int type) {
       @PlaybackException.ErrorCode int errorCode;
@@ -231,7 +236,7 @@ public interface HttpDataSource extends DataSource {
     }
 
     /** The {@link DataSpec} associated with the current connection. */
-    public final DataSpec dataSpec;
+    @UnstableApi public final DataSpec dataSpec;
 
     public final @Type int type;
 
@@ -239,6 +244,7 @@ public interface HttpDataSource extends DataSource {
      * @deprecated Use {@link #HttpDataSourceException(DataSpec, int, int)
      *     HttpDataSourceException(DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)}.
      */
+    @UnstableApi
     @Deprecated
     public HttpDataSourceException(DataSpec dataSpec, @Type int type) {
       this(dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
@@ -252,6 +258,7 @@ public interface HttpDataSource extends DataSource {
      *     PlaybackException.ErrorCode}.
      * @param type See {@link Type}.
      */
+    @UnstableApi
     public HttpDataSourceException(
         DataSpec dataSpec, @PlaybackException.ErrorCode int errorCode, @Type int type) {
       super(assignErrorCode(errorCode, type));
@@ -264,6 +271,7 @@ public interface HttpDataSource extends DataSource {
      *     HttpDataSourceException(String, DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
      *     int)}.
      */
+    @UnstableApi
     @Deprecated
     public HttpDataSourceException(String message, DataSpec dataSpec, @Type int type) {
       this(message, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
@@ -278,6 +286,7 @@ public interface HttpDataSource extends DataSource {
      *     PlaybackException.ErrorCode}.
      * @param type See {@link Type}.
      */
+    @UnstableApi
     public HttpDataSourceException(
         String message,
         DataSpec dataSpec,
@@ -293,6 +302,7 @@ public interface HttpDataSource extends DataSource {
      *     HttpDataSourceException(IOException, DataSpec,
      *     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)}.
      */
+    @UnstableApi
     @Deprecated
     public HttpDataSourceException(IOException cause, DataSpec dataSpec, @Type int type) {
       this(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
@@ -307,6 +317,7 @@ public interface HttpDataSource extends DataSource {
      *     PlaybackException.ErrorCode}.
      * @param type See {@link Type}.
      */
+    @UnstableApi
     public HttpDataSourceException(
         IOException cause,
         DataSpec dataSpec,
@@ -322,6 +333,7 @@ public interface HttpDataSource extends DataSource {
      *     HttpDataSourceException(String, IOException, DataSpec,
      *     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)}.
      */
+    @UnstableApi
     @Deprecated
     public HttpDataSourceException(
         String message, IOException cause, DataSpec dataSpec, @Type int type) {
@@ -338,6 +350,7 @@ public interface HttpDataSource extends DataSource {
      *     PlaybackException.ErrorCode}.
      * @param type See {@link Type}.
      */
+    @UnstableApi
     public HttpDataSourceException(
         String message,
         @Nullable IOException cause,
@@ -365,6 +378,7 @@ public interface HttpDataSource extends DataSource {
    */
   final class CleartextNotPermittedException extends HttpDataSourceException {
 
+    @UnstableApi
     public CleartextNotPermittedException(IOException cause, DataSpec dataSpec) {
       super(
           "Cleartext HTTP traffic not permitted. See"
@@ -381,6 +395,7 @@ public interface HttpDataSource extends DataSource {
 
     public final String contentType;
 
+    @UnstableApi
     public InvalidContentTypeException(String contentType, DataSpec dataSpec) {
       super(
           "Invalid content type: " + contentType,
@@ -403,7 +418,7 @@ public interface HttpDataSource extends DataSource {
     @Nullable public final String responseMessage;
 
     /** An unmodifiable map of the response header fields and values. */
-    public final Map<String, List<String>> headerFields;
+    @UnstableApi public final Map<String, List<String>> headerFields;
 
     /** The response body. */
     public final byte[] responseBody;
@@ -412,6 +427,7 @@ public interface HttpDataSource extends DataSource {
      * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
      *     byte[])}.
      */
+    @UnstableApi
     @Deprecated
     public InvalidResponseCodeException(
         int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
@@ -428,6 +444,7 @@ public interface HttpDataSource extends DataSource {
      * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
      *     byte[])}.
      */
+    @UnstableApi
     @Deprecated
     public InvalidResponseCodeException(
         int responseCode,
@@ -443,6 +460,7 @@ public interface HttpDataSource extends DataSource {
           /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
     }
 
+    @UnstableApi
     public InvalidResponseCodeException(
         int responseCode,
         @Nullable String responseMessage,
@@ -470,12 +488,15 @@ public interface HttpDataSource extends DataSource {
    * (in order of decreasing priority) the {@code dataSpec}, {@link #setRequestProperty} and the
    * default parameters set in the {@link Factory}.
    */
+  @UnstableApi
   @Override
   long open(DataSpec dataSpec) throws HttpDataSourceException;
 
+  @UnstableApi
   @Override
   void close() throws HttpDataSourceException;
 
+  @UnstableApi
   @Override
   int read(byte[] buffer, int offset, int length) throws HttpDataSourceException;
 
@@ -490,6 +511,7 @@ public interface HttpDataSource extends DataSource {
    * @param name The name of the header field.
    * @param value The value of the field.
    */
+  @UnstableApi
   void setRequestProperty(String name, String value);
 
   /**
@@ -498,17 +520,21 @@ public interface HttpDataSource extends DataSource {
    *
    * @param name The name of the header field.
    */
+  @UnstableApi
   void clearRequestProperty(String name);
 
   /** Clears all request headers that were set by {@link #setRequestProperty(String, String)}. */
+  @UnstableApi
   void clearAllRequestProperties();
 
   /**
    * When the source is open, returns the HTTP response status code associated with the last {@link
    * #open} call. Otherwise, returns a negative value.
    */
+  @UnstableApi
   int getResponseCode();
 
+  @UnstableApi
   @Override
   Map<String, List<String>> getResponseHeaders();
 }

@@ -62,14 +62,13 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
-import androidx.media3.session.MediaSession.MediaItemFiller;
-import androidx.media3.session.MediaSession.SessionCallback;
 import androidx.media3.session.SequencedFutureManager.SequencedFuture;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.ref.WeakReference;
@@ -104,12 +103,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   protected final Object lock = new Object();
 
   private final Uri sessionUri;
-
   private final PlayerInfoChangedHandler onPlayerInfoChangedHandler;
-
-  private final SessionCallback callback;
-  private final MediaItemFiller mediaItemFiller;
-
+  private final MediaSession.Callback callback;
   private final Context context;
   private final MediaSessionStub sessionStub;
   private final MediaSessionLegacyStub sessionLegacyStub;
@@ -124,8 +119,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   @Nullable private PlayerListener playerListener;
 
   private PlayerInfo playerInfo;
-  private PlayerInfo lastPlayerInfo;
-
   private PlayerWrapper playerWrapper;
 
   @GuardedBy("lock")
@@ -144,8 +137,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      SessionCallback callback,
-      MediaItemFiller mediaItemFiller,
+      MediaSession.Callback callback,
       Bundle tokenExtras) {
     this.context = context;
     this.instance = instance;
@@ -159,10 +151,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     applicationHandler = new Handler(player.getApplicationLooper());
     this.callback = callback;
-    this.mediaItemFiller = mediaItemFiller;
 
     playerInfo = PlayerInfo.DEFAULT;
-    lastPlayerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
 
     sessionId = id;
@@ -346,6 +336,24 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         controller, (controller1, seq) -> controller1.setCustomLayout(seq, layout));
   }
 
+  public void setCustomLayout(List<CommandButton> layout) {
+    playerWrapper.setCustomLayout(ImmutableList.copyOf(layout));
+    dispatchRemoteControllerTaskWithoutReturn(
+        (controller, seq) -> controller.setCustomLayout(seq, layout));
+  }
+
+  public void setSessionExtras(Bundle sessionExtras) {
+    dispatchRemoteControllerTaskWithoutReturn(
+        (controller, seq) -> controller.onSessionExtrasChanged(seq, sessionExtras));
+  }
+
+  public void setSessionExtras(ControllerInfo controller, Bundle sessionExtras) {
+    if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
+      dispatchRemoteControllerTaskWithoutReturn(
+          controller, (callback, seq) -> callback.onSessionExtrasChanged(seq, sessionExtras));
+    }
+  }
+
   public void setAvailableCommands(
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
@@ -369,8 +377,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         (controller, seq) -> controller.sendCustomCommand(seq, command, args));
   }
 
-  private void dispatchOnPlayerInfoChanged(boolean excludeTimeline) {
-    lastPlayerInfo = playerInfo;
+  private void dispatchOnPlayerInfoChanged(PlayerInfo playerInfo, boolean excludeTimeline) {
 
     List<ControllerInfo> controllers =
         sessionStub.getConnectedControllersManager().getConnectedControllers();
@@ -435,11 +442,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     callback.onDisconnected(instance, controller);
   }
 
-  public @SessionResult.Code int onSetMediaUriOnHandler(
-      ControllerInfo controller, Uri uri, Bundle extras) {
-    return callback.onSetMediaUri(instance, controller, uri, extras);
-  }
-
   public @SessionResult.Code int onPlayerCommandRequestOnHandler(
       ControllerInfo controller, @Player.Command int playerCommand) {
     return callback.onPlayerCommandRequest(instance, controller, playerCommand);
@@ -493,9 +495,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return applicationHandler;
   }
 
-  protected MediaItem fillInLocalConfiguration(
-      MediaSession.ControllerInfo controller, MediaItem mediaItem) {
-    return mediaItemFiller.fillInLocalConfiguration(instance, controller, mediaItem);
+  protected ListenableFuture<List<MediaItem>> onAddMediaItemsOnHandler(
+      ControllerInfo controller, List<MediaItem> mediaItems) {
+    return checkNotNull(
+        callback.onAddMediaItems(instance, controller, mediaItems),
+        "onAddMediaItems must return a non-null future");
   }
 
   protected boolean isReleased() {
@@ -914,7 +918,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      session.playerInfo = session.playerInfo.copyWithTimeline(timeline);
+      session.playerInfo =
+          session.playerInfo.copyWithTimelineAndSessionPositionInfo(
+              timeline, player.createSessionPositionInfoForBundling());
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onTimelineChanged(seq, timeline, reason));
@@ -1011,7 +1017,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     @Override
-    public void onCues(List<Cue> cues) {
+    public void onCues(CueGroup cueGroup) {
       @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
@@ -1021,7 +1027,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      session.playerInfo = new PlayerInfo.Builder(session.playerInfo).setCues(cues).build();
+      session.playerInfo = new PlayerInfo.Builder(session.playerInfo).setCues(cueGroup).build();
       session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
     }
 
@@ -1181,9 +1187,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     public void handleMessage(Message msg) {
       if (msg.what == MSG_PLAYER_INFO_CHANGED) {
         playerInfo =
-            playerInfo.copyWithSessionPositionInfo(
+            playerInfo.copyWithTimelineAndSessionPositionInfo(
+                getPlayerWrapper().getCurrentTimeline(),
                 getPlayerWrapper().createSessionPositionInfoForBundling());
-        dispatchOnPlayerInfoChanged(excludeTimeline);
+        dispatchOnPlayerInfoChanged(playerInfo, excludeTimeline);
         excludeTimeline = true;
       } else {
         throw new IllegalStateException("Invalid message what=" + msg.what);

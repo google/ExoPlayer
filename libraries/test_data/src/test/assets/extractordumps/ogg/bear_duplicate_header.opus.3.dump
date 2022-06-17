@@ -1,0 +1,25 @@
+seekMap:
+  isSeekable = true
+  duration = 2747500
+  getPosition(0) = [[timeUs=0, position=250]]
+  getPosition(1) = [[timeUs=1, position=250]]
+  getPosition(1373750) = [[timeUs=1373750, position=250]]
+  getPosition(2747500) = [[timeUs=2747500, position=250]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 126
+  sample count = 1
+  format 0:
+    sampleMimeType = audio/opus
+    channelCount = 2
+    sampleRate = 48000
+    metadata = entries=[VC: encoder=Lavf54.20.4]
+    initializationData:
+      data = length 19, hash BFE794DB
+      data = length 8, hash CA22068C
+      data = length 8, hash 79C07075
+  sample 0:
+    time = 2741000
+    flags = 1
+    data = length 126, hash 505E117B
+tracksEnded = true

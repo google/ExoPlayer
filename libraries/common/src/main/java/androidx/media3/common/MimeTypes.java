@@ -56,6 +56,10 @@ public final class MimeTypes {
   @UnstableApi public static final String VIDEO_FLV = BASE_TYPE_VIDEO + "/x-flv";
   public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
   public static final String VIDEO_OGG = BASE_TYPE_VIDEO + "/ogg";
+  public static final String VIDEO_AVI = BASE_TYPE_VIDEO + "/x-msvideo";
+  public static final String VIDEO_MJPEG = BASE_TYPE_VIDEO + "/mjpeg";
+  public static final String VIDEO_MP42 = BASE_TYPE_VIDEO + "/mp42";
+  public static final String VIDEO_MP43 = BASE_TYPE_VIDEO + "/mp43";
   @UnstableApi public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
   // audio/ MIME types
@@ -87,6 +91,7 @@ public final class MimeTypes {
   public static final String AUDIO_AMR_NB = BASE_TYPE_AUDIO + "/3gpp";
   public static final String AUDIO_AMR_WB = BASE_TYPE_AUDIO + "/amr-wb";
   public static final String AUDIO_FLAC = BASE_TYPE_AUDIO + "/flac";
+  public static final String AUDIO_MIDI = BASE_TYPE_AUDIO + "/midi";
   public static final String AUDIO_ALAC = BASE_TYPE_AUDIO + "/alac";
   public static final String AUDIO_MSGSM = BASE_TYPE_AUDIO + "/gsm";
   public static final String AUDIO_OGG = BASE_TYPE_AUDIO + "/ogg";
@@ -108,11 +113,10 @@ public final class MimeTypes {
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
 
-  @UnstableApi
   public static final String APPLICATION_MATROSKA = BASE_TYPE_APPLICATION + "/x-matroska";
 
   public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
-  @UnstableApi public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
+  public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_CEA608 = BASE_TYPE_APPLICATION + "/cea-608";
@@ -135,7 +139,7 @@ public final class MimeTypes {
   @UnstableApi public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
   @UnstableApi public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
-  @UnstableApi public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
+  public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
 
   // image/ MIME types
 

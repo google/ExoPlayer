@@ -24,12 +24,10 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.analytics.PlayerId;
-import androidx.media3.exoplayer.drm.DefaultDrmSessionManagerProvider;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.upstream.Allocator;
-import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
 
@@ -69,23 +67,18 @@ public interface MediaSource {
      * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a
      * {@link MediaItem}.
      *
-     * <p>If not set, {@link DefaultDrmSessionManagerProvider} is used.
-     *
      * @return This factory, for convenience.
      */
     @UnstableApi
-    Factory setDrmSessionManagerProvider(
-        @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
+    Factory setDrmSessionManagerProvider(DrmSessionManagerProvider drmSessionManagerProvider);
 
     /**
      * Sets an optional {@link LoadErrorHandlingPolicy}.
      *
-     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}, or {@code null} to use the
-     *     {@link DefaultLoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
      */
     @UnstableApi
-    Factory setLoadErrorHandlingPolicy(@Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
+    Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy);
 
     /**
      * Returns the {@link C.ContentType content types} supported by media sources created by this

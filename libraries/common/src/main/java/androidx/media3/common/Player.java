@@ -32,7 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
@@ -57,8 +57,8 @@ import java.util.List;
  * <ul>
  *   <li>They can provide a {@link Timeline} representing the structure of the media being played,
  *       which can be obtained by calling {@link #getCurrentTimeline()}.
- *   <li>They can provide a {@link TracksInfo} defining the currently available tracks and which are
- *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracksInfo()}.
+ *   <li>They can provide a {@link Tracks} defining the currently available tracks and which are
+ *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracks()}.
  * </ul>
  */
 public interface Player {
@@ -142,7 +142,9 @@ public interface Player {
      * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object windowUid;
-    /** @deprecated Use {@link #mediaItemIndex} instead. */
+    /**
+     * @deprecated Use {@link #mediaItemIndex} instead.
+     */
     @UnstableApi @Deprecated public final int windowIndex;
     /** The media item index. */
     public final int mediaItemIndex;
@@ -292,7 +294,9 @@ public interface Player {
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
+      if (mediaItem != null) {
+        bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      }
       bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
       bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
@@ -307,10 +311,10 @@ public interface Player {
     private static PositionInfo fromBundle(Bundle bundle) {
       int mediaItemIndex =
           bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
       @Nullable
       MediaItem mediaItem =
-          BundleableUtil.fromNullableBundle(
-              MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
+          mediaItemBundle == null ? null : MediaItem.CREATOR.fromBundle(mediaItemBundle);
       int periodIndex =
           bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
       long positionMs =
@@ -379,7 +383,8 @@ public interface Player {
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-        COMMAND_GET_TRACK_INFOS,
+        COMMAND_GET_TRACKS,
+        COMMAND_SET_MEDIA_ITEM,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -519,6 +524,11 @@ public interface Player {
     /** Returns whether the set of commands contains the specified {@link Command}. */
     public boolean contains(@Command int command) {
       return flags.contains(command);
+    }
+
+    /** Returns whether the set of commands contains at least one of the given {@code commands}. */
+    public boolean containsAny(@Command int... commands) {
+      return flags.containsAny(commands);
     }
 
     /** Returns the number of commands in this set. */
@@ -669,41 +679,24 @@ public interface Player {
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
     /**
-     * Called when the available or selected tracks change.
+     * Called when the tracks change.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
-     *     concrete implementation may include null elements if it has a fixed number of renderer
-     *     components, wishes to report a TrackSelection for each of them, and has one or more
-     *     renderer components that is not assigned any selected tracks.
-     * @deprecated Use {@link #onTracksInfoChanged(TracksInfo)} instead.
+     * @param tracks The available tracks information. Never null, but may be of length zero.
      */
-    @UnstableApi
-    @Deprecated
-    default void onTracksChanged(
-        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
-
-    /**
-     * Called when the available or selected tracks change.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param tracksInfo The available tracks information. Never null, but may be of length zero.
-     */
-    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
+    default void onTracksChanged(Tracks tracks) {}
 
     /**
      * Called when the combined {@link MediaMetadata} changes.
      *
-     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
-     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
-     * static or dynamic metadata.
+     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata
+     * MediaItem metadata}, the static metadata in the media's {@link Format#metadata Format}, and
+     * any timed metadata that has been parsed from the media and output via {@link
+     * Listener#onMetadata(Metadata)}. If a field is populated in the {@link
+     * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
+     * timed metadata.
      *
      * <p>This method may be called multiple times in quick succession.
      *
@@ -732,7 +725,9 @@ public interface Player {
      */
     default void onIsLoadingChanged(boolean isLoading) {}
 
-    /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
+    /**
+     * @deprecated Use {@link #onIsLoadingChanged(boolean)} instead.
+     */
     @Deprecated
     @UnstableApi
     default void onLoadingChanged(boolean isLoading) {}
@@ -1032,15 +1027,28 @@ public interface Player {
     /**
      * Called when there is a change in the {@link Cue Cues}.
      *
-     * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
-     * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param cues The {@link Cue Cues}. May be empty.
+     * @deprecated Use {@link #onCues(CueGroup)} instead.
      */
+    @Deprecated
+    @UnstableApi
     default void onCues(List<Cue> cues) {}
+
+    /**
+     * Called when there is a change in the {@link CueGroup}.
+     *
+     * <p>Both {@link #onCues(List)} and {@link #onCues(CueGroup)} are called when there is a change
+     * in the cues. You should only implement one or the other.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     */
+    default void onCues(CueGroup cueGroup) {}
 
     /**
      * Called when there is metadata associated with the current playback time.
@@ -1316,7 +1324,7 @@ public interface Player {
   int EVENT_TIMELINE_CHANGED = 0;
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
-  /** {@link #getCurrentTracksInfo()} changed. */
+  /** {@link #getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 3;
@@ -1395,7 +1403,8 @@ public interface Player {
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
    * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
-   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACK_INFOS}.
+   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS}, {@link #COMMAND_GET_TRACKS} or {@link
+   * #COMMAND_SET_MEDIA_ITEM}.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
@@ -1433,7 +1442,8 @@ public interface Player {
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-    COMMAND_GET_TRACK_INFOS,
+    COMMAND_GET_TRACKS,
+    COMMAND_SET_MEDIA_ITEM,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1446,24 +1456,32 @@ public interface Player {
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 4;
   /** Command to seek anywhere into the current {@link MediaItem}. */
   int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 5;
-  /** @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead.
+   */
   @UnstableApi @Deprecated int COMMAND_SEEK_IN_CURRENT_WINDOW = COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
   /** Command to seek to the default position of the previous {@link MediaItem}. */
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
-  /** @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead.
+   */
   @UnstableApi @Deprecated
   int COMMAND_SEEK_TO_PREVIOUS_WINDOW = COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
   /** Command to seek to an earlier position in the current or previous {@link MediaItem}. */
   int COMMAND_SEEK_TO_PREVIOUS = 7;
   /** Command to seek to the default position of the next {@link MediaItem}. */
   int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 8;
-  /** @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead.
+   */
   @UnstableApi @Deprecated int COMMAND_SEEK_TO_NEXT_WINDOW = COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
   /** Command to seek to a later position in the current or next {@link MediaItem}. */
   int COMMAND_SEEK_TO_NEXT = 9;
   /** Command to seek anywhere in any {@link MediaItem}. */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 10;
-  /** @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead.
+   */
   @UnstableApi @Deprecated int COMMAND_SEEK_TO_WINDOW = COMMAND_SEEK_TO_MEDIA_ITEM;
   /** Command to seek back by a fixed increment into the current {@link MediaItem}. */
   int COMMAND_SEEK_BACK = 11;
@@ -1503,8 +1521,10 @@ public interface Player {
   int COMMAND_GET_TEXT = 28;
   /** Command to set the player's track selection parameters. */
   int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 29;
-  /** Command to get track infos. */
-  int COMMAND_GET_TRACK_INFOS = 30;
+  /** Command to get details of the current track selection. */
+  int COMMAND_GET_TRACKS = 30;
+  /** Command to set a {@link MediaItem MediaItem}. */
+  int COMMAND_SET_MEDIA_ITEM = 31;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -1889,12 +1909,16 @@ public interface Player {
    */
   void seekForward();
 
-  /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean hasPrevious();
 
-  /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean hasPreviousWindow();
@@ -1909,12 +1933,16 @@ public interface Player {
    */
   boolean hasPreviousMediaItem();
 
-  /** @deprecated Use {@link #seekToPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   void previous();
 
-  /** @deprecated Use {@link #seekToPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   void seekToPreviousWindow();
@@ -1961,12 +1989,16 @@ public interface Player {
    */
   void seekToPrevious();
 
-  /** @deprecated Use {@link #hasNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean hasNext();
 
-  /** @deprecated Use {@link #hasNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean hasNextWindow();
@@ -1981,12 +2013,16 @@ public interface Player {
    */
   boolean hasNextMediaItem();
 
-  /** @deprecated Use {@link #seekToNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   void next();
 
-  /** @deprecated Use {@link #seekToNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   void seekToNextWindow();
@@ -2077,35 +2113,11 @@ public interface Player {
   void release();
 
   /**
-   * Returns the available track groups.
+   * Returns the current tracks.
    *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   * @see Listener#onTracksChanged(Tracks)
    */
-  @UnstableApi
-  @Deprecated
-  TrackGroupArray getCurrentTrackGroups();
-
-  /**
-   * Returns the current track selections.
-   *
-   * <p>A concrete implementation may include null elements if it has a fixed number of renderer
-   * components, wishes to report a TrackSelection for each of them, and has one or more renderer
-   * components that is not assigned any selected tracks.
-   *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
-   */
-  @UnstableApi
-  @Deprecated
-  TrackSelectionArray getCurrentTrackSelections();
-
-  /**
-   * Returns the available tracks, as well as the tracks' support, type, and selection status.
-   *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   */
-  TracksInfo getCurrentTracksInfo();
+  Tracks getCurrentTracks();
 
   /**
    * Returns the parameters constraining the track selection.
@@ -2137,11 +2149,11 @@ public interface Player {
    * Returns the current combined {@link MediaMetadata}, or {@link MediaMetadata#EMPTY} if not
    * supported.
    *
-   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in the {@link
-   * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
-   * dynamic metadata.
+   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata MediaItem
+   * metadata}, the static metadata in the media's {@link Format#metadata Format}, and any timed
+   * metadata that has been parsed from the media and output via {@link
+   * Listener#onMetadata(Metadata)}. If a field is populated in the {@link MediaItem#mediaMetadata},
+   * it will be prioritised above the same field coming from static or timed metadata.
    */
   MediaMetadata getMediaMetadata();
 
@@ -2171,7 +2183,9 @@ public interface Player {
   /** Returns the index of the period currently being played. */
   int getCurrentPeriodIndex();
 
-  /** @deprecated Use {@link #getCurrentMediaItemIndex()} instead. */
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   int getCurrentWindowIndex();
@@ -2183,7 +2197,9 @@ public interface Player {
    */
   int getCurrentMediaItemIndex();
 
-  /** @deprecated Use {@link #getNextMediaItemIndex()} instead. */
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   int getNextWindowIndex();
@@ -2200,7 +2216,9 @@ public interface Player {
    */
   int getNextMediaItemIndex();
 
-  /** @deprecated Use {@link #getPreviousMediaItemIndex()} instead. */
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   int getPreviousWindowIndex();
@@ -2262,7 +2280,9 @@ public interface Player {
    */
   long getTotalBufferedDuration();
 
-  /** @deprecated Use {@link #isCurrentMediaItemDynamic()} instead. */
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean isCurrentWindowDynamic();
@@ -2275,7 +2295,9 @@ public interface Player {
    */
   boolean isCurrentMediaItemDynamic();
 
-  /** @deprecated Use {@link #isCurrentMediaItemLive()} instead. */
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean isCurrentWindowLive();
@@ -2301,7 +2323,9 @@ public interface Player {
    */
   long getCurrentLiveOffset();
 
-  /** @deprecated Use {@link #isCurrentMediaItemSeekable()} instead. */
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @UnstableApi
   @Deprecated
   boolean isCurrentWindowSeekable();
@@ -2465,8 +2489,8 @@ public interface Player {
    */
   VideoSize getVideoSize();
 
-  /** Returns the current {@link Cue Cues}. This list may be empty. */
-  List<Cue> getCurrentCues();
+  /** Returns the current {@link CueGroup}. */
+  CueGroup getCurrentCues();
 
   /** Gets the device information. */
   DeviceInfo getDeviceInfo();

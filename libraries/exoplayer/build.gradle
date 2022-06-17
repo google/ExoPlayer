@@ -28,6 +28,10 @@ android {
         }
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
     sourceSets {
         androidTest.assets.srcDir '../test_data/src/test/assets'
         test.assets.srcDir '../test_data/src/test/assets/'

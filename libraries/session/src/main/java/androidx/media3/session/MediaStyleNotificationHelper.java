@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationBuilderWithBuilderAccessor;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -97,8 +96,10 @@ public class MediaStyleNotificationHelper {
       if (extras == null) {
         return null;
       }
-      return BundleableUtil.fromNullableBundle(
-          SessionToken.CREATOR, extras.getBundle(EXTRA_MEDIA3_SESSION));
+      Bundle sessionTokenBundle = extras.getBundle(EXTRA_MEDIA3_SESSION);
+      return sessionTokenBundle == null
+          ? null
+          : SessionToken.CREATOR.fromBundle(sessionTokenBundle);
     }
 
     private static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;

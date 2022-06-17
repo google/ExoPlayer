@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class TestServiceRegistry {
   private MediaSessionService service;
 
   @GuardedBy("TestServiceRegistry.class")
-  private MediaLibrarySessionCallback sessionCallback;
+  private MediaLibrarySession.Callback sessionCallback;
 
   @GuardedBy("TestServiceRegistry.class")
   private SessionServiceCallback sessionServiceCallback;
@@ -82,13 +82,13 @@ public class TestServiceRegistry {
     }
   }
 
-  public void setSessionCallback(MediaLibrarySessionCallback sessionCallback) {
+  public void setSessionCallback(MediaLibrarySession.Callback sessionCallback) {
     synchronized (TestServiceRegistry.class) {
       this.sessionCallback = sessionCallback;
     }
   }
 
-  public MediaLibrarySessionCallback getSessionCallback() {
+  public MediaLibrarySession.Callback getSessionCallback() {
     synchronized (TestServiceRegistry.class) {
       return sessionCallback;
     }

@@ -31,7 +31,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.media3.common.Player;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -44,7 +43,7 @@ import java.util.List;
 
 /** A view for displaying subtitle {@link Cue}s. */
 @UnstableApi
-public final class SubtitleView extends FrameLayout implements Player.Listener {
+public final class SubtitleView extends FrameLayout {
 
   /**
    * An output for displaying subtitles.
@@ -150,11 +149,6 @@ public final class SubtitleView extends FrameLayout implements Player.Listener {
     innerSubtitleView = canvasSubtitleOutput;
     addView(innerSubtitleView);
     viewType = VIEW_TYPE_CANVAS;
-  }
-
-  @Override
-  public void onCues(List<Cue> cues) {
-    setCues(cues);
   }
 
   /**

@@ -218,11 +218,24 @@ public final class LibraryResult<V> implements Bundleable {
    * @param errorCode The error code.
    */
   public static <V> LibraryResult<V> ofError(@Code int errorCode) {
+    return ofError(errorCode, /* params= */ null);
+  }
+
+  /**
+   * Creates an instance with an unsuccessful {@link Code result code} and {@link LibraryParams} to
+   * describe the error.
+   *
+   * <p>{@code errorCode} must not be {@link #RESULT_SUCCESS}.
+   *
+   * @param errorCode The error code.
+   * @param params The optional parameters to describe the error.
+   */
+  public static <V> LibraryResult<V> ofError(@Code int errorCode, @Nullable LibraryParams params) {
     checkArgument(errorCode != RESULT_SUCCESS);
     return new LibraryResult<>(
-        errorCode,
+        /* resultCode= */ errorCode,
         SystemClock.elapsedRealtime(),
-        /* params= */ null,
+        /* params= */ params,
         /* value= */ null,
         VALUE_TYPE_ERROR);
   }
@@ -266,13 +279,17 @@ public final class LibraryResult<V> implements Bundleable {
   private static final int FIELD_VALUE = 3;
   private static final int FIELD_VALUE_TYPE = 4;
 
+  // Casting V to ImmutableList<MediaItem> is safe if valueType == VALUE_TYPE_ITEM_LIST.
+  @SuppressWarnings("unchecked")
   @UnstableApi
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putInt(keyForField(FIELD_RESULT_CODE), resultCode);
     bundle.putLong(keyForField(FIELD_COMPLETION_TIME_MS), completionTimeMs);
-    bundle.putBundle(keyForField(FIELD_PARAMS), BundleableUtil.toNullableBundle(params));
+    if (params != null) {
+      bundle.putBundle(keyForField(FIELD_PARAMS), params.toBundle());
+    }
     bundle.putInt(keyForField(FIELD_VALUE_TYPE), valueType);
 
     if (value == null) {
@@ -280,8 +297,7 @@ public final class LibraryResult<V> implements Bundleable {
     }
     switch (valueType) {
       case VALUE_TYPE_ITEM:
-        bundle.putBundle(
-            keyForField(FIELD_VALUE), BundleableUtil.toNullableBundle((MediaItem) value));
+        bundle.putBundle(keyForField(FIELD_VALUE), ((MediaItem) value).toBundle());
         break;
       case VALUE_TYPE_ITEM_LIST:
         BundleCompat.putBinder(
@@ -356,18 +372,17 @@ public final class LibraryResult<V> implements Bundleable {
         bundle.getLong(
             keyForField(FIELD_COMPLETION_TIME_MS),
             /* defaultValue= */ SystemClock.elapsedRealtime());
+    @Nullable Bundle paramsBundle = bundle.getBundle(keyForField(FIELD_PARAMS));
     @Nullable
     MediaLibraryService.LibraryParams params =
-        BundleableUtil.fromNullableBundle(
-            MediaLibraryService.LibraryParams.CREATOR, bundle.getBundle(keyForField(FIELD_PARAMS)));
+        paramsBundle == null ? null : LibraryParams.CREATOR.fromBundle(paramsBundle);
     @ValueType int valueType = bundle.getInt(keyForField(FIELD_VALUE_TYPE));
     @Nullable Object value;
     switch (valueType) {
       case VALUE_TYPE_ITEM:
         checkState(expectedType == null || expectedType == VALUE_TYPE_ITEM);
-        value =
-            BundleableUtil.fromNullableBundle(
-                MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_VALUE)));
+        @Nullable Bundle valueBundle = bundle.getBundle(keyForField(FIELD_VALUE));
+        value = valueBundle == null ? null : MediaItem.CREATOR.fromBundle(valueBundle);
         break;
       case VALUE_TYPE_ITEM_LIST:
         checkState(expectedType == null || expectedType == VALUE_TYPE_ITEM_LIST);

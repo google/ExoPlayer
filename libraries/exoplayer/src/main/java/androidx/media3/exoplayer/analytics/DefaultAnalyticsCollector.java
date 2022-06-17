@@ -38,12 +38,11 @@ import androidx.media3.common.Player.PlaybackSuppressionReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.Window;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
@@ -485,23 +484,12 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
   }
 
   @Override
-  @SuppressWarnings("deprecation") // Implementing and calling deprecate listener method
-  public final void onTracksChanged(
-      TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+  public void onTracksChanged(Tracks tracks) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
-  }
-
-  @Override
-  public void onTracksInfoChanged(TracksInfo tracksInfo) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksInfoChanged(eventTime, tracksInfo));
+        listener -> listener.onTracksChanged(eventTime, tracks));
   }
 
   @SuppressWarnings("deprecation") // Implementing deprecated method.
@@ -708,11 +696,19 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         listener -> listener.onMetadata(eventTime, metadata));
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public void onCues(List<Cue> cues) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cues));
+  }
+
+  @Override
+  public void onCues(CueGroup cueGroup) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime, AnalyticsListener.EVENT_CUES, listener -> listener.onCues(eventTime, cueGroup));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.

@@ -23,13 +23,13 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.trackselection.TrackSelectionArray;
 import androidx.media3.test.utils.StubExoPlayer;
 
 /** A fake {@link ExoPlayer} for testing content/ad playback. */
@@ -79,7 +79,7 @@ import androidx.media3.test.utils.StubExoPlayer;
     PositionInfo oldPosition =
         new PositionInfo(
             windowUid,
-            /* windowIndex= */ 0,
+            /* mediaItemIndex= */ 0,
             mediaItem,
             periodUid,
             /* periodIndex= */ 0,
@@ -97,7 +97,7 @@ import androidx.media3.test.utils.StubExoPlayer;
       PositionInfo newPosition =
           new PositionInfo(
               windowUid,
-              /* windowIndex= */ 0,
+              /* mediaItemIndex= */ 0,
               mediaItem,
               periodUid,
               /* periodIndex= */ 0,
@@ -128,7 +128,7 @@ import androidx.media3.test.utils.StubExoPlayer;
     PositionInfo oldPosition =
         new PositionInfo(
             windowUid,
-            /* windowIndex= */ 0,
+            /* mediaItemIndex= */ 0,
             mediaItem,
             periodUid,
             /* periodIndex= */ 0,
@@ -146,7 +146,7 @@ import androidx.media3.test.utils.StubExoPlayer;
       PositionInfo newPosition =
           new PositionInfo(
               windowUid,
-              /* windowIndex= */ 0,
+              /* mediaItemIndex= */ 0,
               mediaItem,
               periodUid,
               /* periodIndex= */ 0,
@@ -266,8 +266,8 @@ import androidx.media3.test.utils.StubExoPlayer;
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return TracksInfo.EMPTY;
+  public Tracks getCurrentTracks() {
+    return Tracks.EMPTY;
   }
 
   @Override

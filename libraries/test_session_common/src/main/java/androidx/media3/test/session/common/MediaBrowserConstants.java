@@ -36,6 +36,9 @@ public class MediaBrowserConstants {
   public static final String PARENT_ID_LONG_LIST = "parent_id_long_list";
   public static final String PARENT_ID_NO_CHILDREN = "parent_id_no_children";
   public static final String PARENT_ID_ERROR = "parent_id_error";
+  public static final String PARENT_ID_AUTH_EXPIRED_ERROR = "parent_auth_expired_error";
+  public static final String PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL =
+      "parent_auth_expired_error_label";
 
   public static final List<String> GET_CHILDREN_RESULT = new ArrayList<>();
   public static final int CHILDREN_COUNT = 100;

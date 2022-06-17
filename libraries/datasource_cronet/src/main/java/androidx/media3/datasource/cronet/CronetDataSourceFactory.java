@@ -26,7 +26,9 @@ import androidx.media3.datasource.TransferListener;
 import java.util.concurrent.Executor;
 import org.chromium.net.CronetEngine;
 
-/** @deprecated Use {@link CronetDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link CronetDataSource.Factory} instead.
+ */
 @Deprecated
 @UnstableApi
 public final class CronetDataSourceFactory extends BaseFactory {

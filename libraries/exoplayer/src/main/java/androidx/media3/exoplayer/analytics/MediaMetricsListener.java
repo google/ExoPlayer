@@ -49,9 +49,7 @@ import androidx.media3.common.ParserException;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TracksInfo;
-import androidx.media3.common.TracksInfo.TrackGroupInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.NetworkTypeObserver;
 import androidx.media3.common.util.UnstableApi;
@@ -341,8 +339,7 @@ public final class MediaMetricsListener
       }
     }
     if (events.contains(EVENT_TRACKS_CHANGED) && metricsBuilder != null) {
-      @Nullable
-      DrmInitData drmInitData = getDrmInitData(player.getCurrentTracksInfo().getTrackGroupInfos());
+      @Nullable DrmInitData drmInitData = getDrmInitData(player.getCurrentTracks().getGroups());
       if (drmInitData != null) {
         castNonNull(metricsBuilder).setDrmType(getDrmType(drmInitData));
       }
@@ -373,10 +370,10 @@ public final class MediaMetricsListener
 
   private void maybeReportTrackChanges(Player player, Events events, long realtimeMs) {
     if (events.contains(EVENT_TRACKS_CHANGED)) {
-      TracksInfo tracksInfo = player.getCurrentTracksInfo();
-      boolean isVideoSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO);
-      boolean isAudioSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO);
-      boolean isTextSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_TEXT);
+      Tracks tracks = player.getCurrentTracks();
+      boolean isVideoSelected = tracks.isTypeSelected(C.TRACK_TYPE_VIDEO);
+      boolean isAudioSelected = tracks.isTypeSelected(C.TRACK_TYPE_AUDIO);
+      boolean isTextSelected = tracks.isTypeSelected(C.TRACK_TYPE_TEXT);
       if (isVideoSelected || isAudioSelected || isTextSelected) {
         // Ignore updates with insufficient information where no tracks are selected.
         if (!isVideoSelected) {
@@ -682,13 +679,13 @@ public final class MediaMetricsListener
         Util.inferContentTypeForUriAndMimeType(
             mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
     switch (contentType) {
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         return PlaybackMetrics.STREAM_TYPE_HLS;
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         return PlaybackMetrics.STREAM_TYPE_DASH;
-      case C.TYPE_SS:
+      case C.CONTENT_TYPE_SS:
         return PlaybackMetrics.STREAM_TYPE_SS;
-      case C.TYPE_RTSP:
+      case C.CONTENT_TYPE_RTSP:
       default:
         return PlaybackMetrics.STREAM_TYPE_OTHER;
     }
@@ -823,12 +820,11 @@ public final class MediaMetricsListener
   }
 
   @Nullable
-  private static DrmInitData getDrmInitData(ImmutableList<TrackGroupInfo> trackGroupInfos) {
-    for (TrackGroupInfo trackGroupInfo : trackGroupInfos) {
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+  private static DrmInitData getDrmInitData(ImmutableList<Tracks.Group> trackGroups) {
+    for (Tracks.Group trackGroup : trackGroups) {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable DrmInitData drmInitData = trackGroup.getFormat(trackIndex).drmInitData;
+        if (trackGroup.isTrackSelected(trackIndex)) {
+          @Nullable DrmInitData drmInitData = trackGroup.getTrackFormat(trackIndex).drmInitData;
           if (drmInitData != null) {
             return drmInitData;
           }

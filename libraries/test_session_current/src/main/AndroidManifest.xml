@@ -81,6 +81,7 @@
     </service>
 
     <service android:name="androidx.media3.session.MockMediaSessionService"
+        android:foregroundServiceType="mediaPlayback"
         android:exported="true"
         android:process=":remote">
       <intent-filter>
@@ -89,6 +90,7 @@
     </service>
 
     <service android:name="androidx.media3.session.LocalMockMediaSessionService"
+        android:foregroundServiceType="mediaPlayback"
         android:exported="true">
       <intent-filter>
         <action android:name="androidx.media3.session.MediaSessionService" />
@@ -96,6 +98,7 @@
     </service>
 
     <service android:name="androidx.media3.session.MockMediaLibraryService"
+        android:foregroundServiceType="mediaPlayback"
         android:exported="true"
         android:process=":remote">
       <intent-filter>

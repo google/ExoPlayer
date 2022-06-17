@@ -52,7 +52,6 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private CharSequence displayTitle;
     @Nullable private CharSequence subtitle;
     @Nullable private CharSequence description;
-    @Nullable private Uri mediaUri;
     @Nullable private Rating userRating;
     @Nullable private Rating overallRating;
     @Nullable private byte[] artworkData;
@@ -88,7 +87,6 @@ public final class MediaMetadata implements Bundleable {
       this.displayTitle = mediaMetadata.displayTitle;
       this.subtitle = mediaMetadata.subtitle;
       this.description = mediaMetadata.description;
-      this.mediaUri = mediaMetadata.mediaUri;
       this.userRating = mediaMetadata.userRating;
       this.overallRating = mediaMetadata.overallRating;
       this.artworkData = mediaMetadata.artworkData;
@@ -158,12 +156,6 @@ public final class MediaMetadata implements Bundleable {
     /** Sets the description. */
     public Builder setDescription(@Nullable CharSequence description) {
       this.description = description;
-      return this;
-    }
-
-    /** Sets the media {@link Uri}. */
-    public Builder setMediaUri(@Nullable Uri mediaUri) {
-      this.mediaUri = mediaUri;
       return this;
     }
 
@@ -248,7 +240,9 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** @deprecated Use {@link #setRecordingYear(Integer)} instead. */
+    /**
+     * @deprecated Use {@link #setRecordingYear(Integer)} instead.
+     */
     @UnstableApi
     @Deprecated
     public Builder setYear(@Nullable Integer year) {
@@ -428,9 +422,6 @@ public final class MediaMetadata implements Bundleable {
       }
       if (mediaMetadata.description != null) {
         setDescription(mediaMetadata.description);
-      }
-      if (mediaMetadata.mediaUri != null) {
-        setMediaUri(mediaMetadata.mediaUri);
       }
       if (mediaMetadata.userRating != null) {
         setUserRating(mediaMetadata.userRating);
@@ -634,8 +625,6 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final CharSequence subtitle;
   /** Optional description. */
   @Nullable public final CharSequence description;
-  /** Optional media {@link Uri}. */
-  @Nullable public final Uri mediaUri;
   /** Optional user {@link Rating}. */
   @Nullable public final Rating userRating;
   /** Optional overall {@link Rating}. */
@@ -654,7 +643,9 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final @FolderType Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
-  /** @deprecated Use {@link #recordingYear} instead. */
+  /**
+   * @deprecated Use {@link #recordingYear} instead.
+   */
   @UnstableApi @Deprecated @Nullable public final Integer year;
   /** Optional year of the recording date. */
   @Nullable public final Integer recordingYear;
@@ -718,7 +709,6 @@ public final class MediaMetadata implements Bundleable {
     this.displayTitle = builder.displayTitle;
     this.subtitle = builder.subtitle;
     this.description = builder.description;
-    this.mediaUri = builder.mediaUri;
     this.userRating = builder.userRating;
     this.overallRating = builder.overallRating;
     this.artworkData = builder.artworkData;
@@ -767,7 +757,6 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(displayTitle, that.displayTitle)
         && Util.areEqual(subtitle, that.subtitle)
         && Util.areEqual(description, that.description)
-        && Util.areEqual(mediaUri, that.mediaUri)
         && Util.areEqual(userRating, that.userRating)
         && Util.areEqual(overallRating, that.overallRating)
         && Arrays.equals(artworkData, that.artworkData)
@@ -803,7 +792,6 @@ public final class MediaMetadata implements Bundleable {
         displayTitle,
         subtitle,
         description,
-        mediaUri,
         userRating,
         overallRating,
         Arrays.hashCode(artworkData),
@@ -914,7 +902,6 @@ public final class MediaMetadata implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_DISPLAY_TITLE), displayTitle);
     bundle.putCharSequence(keyForField(FIELD_SUBTITLE), subtitle);
     bundle.putCharSequence(keyForField(FIELD_DESCRIPTION), description);
-    bundle.putParcelable(keyForField(FIELD_MEDIA_URI), mediaUri);
     bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
     bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
     bundle.putCharSequence(keyForField(FIELD_WRITER), writer);
@@ -988,7 +975,6 @@ public final class MediaMetadata implements Bundleable {
         .setDisplayTitle(bundle.getCharSequence(keyForField(FIELD_DISPLAY_TITLE)))
         .setSubtitle(bundle.getCharSequence(keyForField(FIELD_SUBTITLE)))
         .setDescription(bundle.getCharSequence(keyForField(FIELD_DESCRIPTION)))
-        .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
         .setArtworkData(
             bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)),
             bundle.containsKey(keyForField(FIELD_ARTWORK_DATA_TYPE))

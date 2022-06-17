@@ -120,6 +120,11 @@ public class RemoteMediaControllerCompat {
     binder.sendCommand(controllerId, command, params, cb);
   }
 
+  public void sendCustomCommand(SessionCommand customCommand, Bundle params)
+      throws RemoteException {
+    binder.sendCustomActionWithName(controllerId, customCommand.customAction, params);
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // MediaControllerCompat.TransportControls methods
   ////////////////////////////////////////////////////////////////////////////////

@@ -37,11 +37,11 @@
     <item quantity="one">Avancer de %d seconde</item>
     <item quantity="other">Avancer de %d secondes</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ne rien lire en boucle</string>
-  <string name="exo_controls_repeat_one_description">Lire un titre en boucle</string>
-  <string name="exo_controls_repeat_all_description">Tout lire en boucle</string>
-  <string name="exo_controls_shuffle_on_description">Lecture aléatoire activée</string>
-  <string name="exo_controls_shuffle_off_description">Lecture aléatoire désactivée</string>
+  <string name="exo_controls_repeat_off_description">Mode actuel : sans répétition. Changer le mode répétition.</string>
+  <string name="exo_controls_repeat_one_description">Mode actuel : une répétition. Changer le mode répétition.</string>
+  <string name="exo_controls_repeat_all_description">Mode actuel : tout répéter. Changer le mode répétition.</string>
+  <string name="exo_controls_shuffle_on_description">Désactiver le mode aléatoire</string>
+  <string name="exo_controls_shuffle_off_description">Activer le mode aléatoire</string>
   <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_controls_cc_enabled_description">Désactiver les sous-titres</string>
   <string name="exo_controls_cc_disabled_description">Activer les sous-titres</string>

@@ -23,7 +23,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -165,7 +164,9 @@ public class MediaControllerProviderService extends Service {
       return runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            return BundleableUtil.toNullableBundle(controller.getConnectedToken());
+            return controller.getConnectedToken() == null
+                ? null
+                : controller.getConnectedToken().toBundle();
           });
     }
 
@@ -361,16 +362,6 @@ public class MediaControllerProviderService extends Service {
               itemList.add(MediaTestUtils.createMediaItem(mediaId));
             }
             controller.setMediaItems(itemList);
-          });
-    }
-
-    @Override
-    @SuppressWarnings("FutureReturnValueIgnored")
-    public void setMediaUri(String controllerId, Uri uri, Bundle extras) throws RemoteException {
-      runOnHandler(
-          () -> {
-            MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setMediaUri(uri, extras);
           });
     }
 
@@ -664,8 +655,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setTrackSelectionParameters(
-                TrackSelectionParameters.CREATOR.fromBundle(parameters));
+            controller.setTrackSelectionParameters(TrackSelectionParameters.fromBundle(parameters));
           });
     }
 
@@ -680,8 +670,9 @@ public class MediaControllerProviderService extends Service {
           runOnHandler(
               () ->
                   browser.getLibraryRoot(
-                      BundleableUtil.fromNullableBundle(
-                          MediaLibraryService.LibraryParams.CREATOR, libraryParams)));
+                      libraryParams == null
+                          ? null
+                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
       LibraryResult<MediaItem> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -695,8 +686,9 @@ public class MediaControllerProviderService extends Service {
               () ->
                   browser.subscribe(
                       parentId,
-                      BundleableUtil.fromNullableBundle(
-                          MediaLibraryService.LibraryParams.CREATOR, libraryParams)));
+                      libraryParams == null
+                          ? null
+                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
       LibraryResult<Void> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -721,8 +713,9 @@ public class MediaControllerProviderService extends Service {
                       parentId,
                       page,
                       pageSize,
-                      BundleableUtil.fromNullableBundle(
-                          MediaLibraryService.LibraryParams.CREATOR, libraryParams)));
+                      libraryParams == null
+                          ? null
+                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
       LibraryResult<ImmutableList<MediaItem>> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -744,8 +737,9 @@ public class MediaControllerProviderService extends Service {
               () ->
                   browser.search(
                       query,
-                      BundleableUtil.fromNullableBundle(
-                          MediaLibraryService.LibraryParams.CREATOR, libraryParams)));
+                      libraryParams == null
+                          ? null
+                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
       LibraryResult<Void> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -762,8 +756,9 @@ public class MediaControllerProviderService extends Service {
                       query,
                       page,
                       pageSize,
-                      BundleableUtil.fromNullableBundle(
-                          MediaLibraryService.LibraryParams.CREATOR, libraryParams)));
+                      libraryParams == null
+                          ? null
+                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
       LibraryResult<ImmutableList<MediaItem>> result = getFutureResult(future);
       return result.toBundle();
     }

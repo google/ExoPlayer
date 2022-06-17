@@ -16,10 +16,8 @@
 package androidx.media3.common;
 
 import android.util.Pair;
-import androidx.media3.common.util.UnstableApi;
 
 /** Converts throwables into error codes and user readable error messages. */
-@UnstableApi
 public interface ErrorMessageProvider<T extends Throwable> {
 
   /**

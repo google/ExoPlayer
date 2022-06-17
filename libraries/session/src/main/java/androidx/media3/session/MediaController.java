@@ -24,7 +24,6 @@ import static androidx.media3.common.util.Util.postOrRun;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -49,17 +48,14 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
@@ -76,7 +72,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  * process like another app but may be in the same process as this controller. It implements {@link
  * Player} and the player commands are sent to the underlying {@link Player} of the connected {@link
  * MediaSession}. It also has session-specific commands that can be handled by {@link
- * MediaSession.SessionCallback}.
+ * MediaSession.Callback}.
  *
  * <p>Topics covered here:
  *
@@ -84,13 +80,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  *   <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
  *   <li><a href="#ThreadingModel">Threading Model</a>
  *   <li><a href="#PackageVisibilityFilter">Package Visibility Filter</a>
+ *   <li><a href="#BackwardCompatibility">Backward Compatibility with legacy media sessions</a>
  * </ol>
  *
  * <h2 id="ControllerLifeCycle">Controller Lifecycle</h2>
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
  * session token type is {@link SessionToken#TYPE_SESSION}), the controller will connect to the
- * specific session.
+ * specific session.F
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSessionService}
  * (i.e. session token type is {@link SessionToken#TYPE_SESSION_SERVICE} or {@link
@@ -130,6 +127,34 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  * <!-- Or, as a package name -->
  * <package android:name="package_name_of_the_other_app" />
  * }</pre>
+ *
+ * <h2 id="BackwardCompatibility">Backward Compatibility with legacy media sessions</h2>
+ *
+ * <p>In addition to {@link MediaSession}, the controller also supports connecting to a legacy media
+ * session - {@linkplain android.media.session.MediaSession framework session} and {@linkplain
+ * MediaSessionCompat AndroidX session compat}.
+ *
+ * <p>To request legacy sessions to play media, use one of the {@link #setMediaItem} methods and set
+ * either {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri} or {@link
+ * MediaItem.RequestMetadata#searchQuery}. Once the controller is {@linkplain #prepare() prepared},
+ * the controller triggers one of the following callbacks depending on the provided information and
+ * the value of {@link #getPlayWhenReady()}:
+ *
+ * <ul>
+ *   <li>{@link MediaSessionCompat.Callback#onPrepareFromUri onPrepareFromUri}
+ *   <li>{@link MediaSessionCompat.Callback#onPlayFromUri onPlayFromUri}
+ *   <li>{@link MediaSessionCompat.Callback#onPrepareFromMediaId onPrepareFromMediaId}
+ *   <li>{@link MediaSessionCompat.Callback#onPlayFromMediaId onPlayFromMediaId}
+ *   <li>{@link MediaSessionCompat.Callback#onPrepareFromSearch onPrepareFromSearch}
+ *   <li>{@link MediaSessionCompat.Callback#onPlayFromSearch onPlayFromSearch}
+ * </ul>
+ *
+ * Other playlist change methods, like {@link #addMediaItem} or {@link #removeMediaItem}, trigger
+ * the {@link MediaSessionCompat.Callback#onAddQueueItem onAddQueueItem} and {@link
+ * MediaSessionCompat.Callback#onRemoveQueueItem} onRemoveQueueItem} callbacks. Check {@link
+ * #getAvailableCommands()} to see if playlist modifications are {@linkplain
+ * androidx.media3.common.Player.Command#COMMAND_CHANGE_MEDIA_ITEMS supported} by the legacy
+ * session.
  */
 public class MediaController implements Player {
 
@@ -325,6 +350,14 @@ public class MediaController implements Player {
         MediaController controller, SessionCommand command, Bundle args) {
       return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED));
     }
+
+    /**
+     * Called when the session extras have changed.
+     *
+     * @param controller The controller.
+     * @param extras The session extras that have changed.
+     */
+    default void onExtrasChanged(MediaController controller, Bundle extras) {}
   }
 
   /* package */ interface ConnectionCallback {
@@ -396,6 +429,11 @@ public class MediaController implements Player {
     impl.stop();
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -417,6 +455,7 @@ public class MediaController implements Player {
       return;
     }
     released = true;
+    applicationHandler.removeCallbacksAndMessages(null);
     try {
       impl.release();
     } catch (Exception e) {
@@ -467,13 +506,6 @@ public class MediaController implements Player {
     return impl.isConnected();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, then this will be grouped together with
-   * previously called {@link #setMediaUri}. See {@link #setMediaUri} for details.
-   */
   @Override
   public void play() {
     verifyApplicationThread();
@@ -494,13 +526,6 @@ public class MediaController implements Player {
     impl.pause();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, then this will be grouped together with
-   * previously called {@link #setMediaUri}. See {@link #setMediaUri} for details.
-   */
   @Override
   public void prepare() {
     verifyApplicationThread();
@@ -959,83 +984,6 @@ public class MediaController implements Player {
     impl.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
-  /**
-   * Requests that the connected {@link MediaSession} sets a specific {@link Uri} for playback. Use
-   * this, or {@link #setMediaItems} to specify which item(s) to play.
-   *
-   * <p>This can be called multiple times in any states. This would override previous call of this,
-   * or {@link #setMediaItems}.
-   *
-   * <p>The {@link Player.Listener#onTimelineChanged} and/or {@link
-   * Player.Listener#onMediaItemTransition} would be called when it's completed.
-   *
-   * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, this call will be grouped together with
-   * later {@link #prepare} or {@link #play}, depending on the uri pattern as follows:
-   *
-   * <table>
-   * <caption>Uri patterns and following API calls for MediaControllerCompat methods</caption>
-   * <tr>
-   * <th>Uri patterns</th><th>Following API calls</th><th>Method</th>
-   * </tr><tr>
-   * <td rowspan="2">{@code androidx://media3-session/setMediaUri?uri=[uri]}</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
-   * </tr><tr>
-   * <td rowspan="2">{@code androidx://media3-session/setMediaUri?id=[mediaId]}</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
-   * </tr><tr>
-   * <td rowspan="2">{@code androidx://media3-session/setMediaUri?query=[query]}</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
-   * </tr><tr>
-   * <td rowspan="2">Does not match with any pattern above</td>
-   * <td>{@link #prepare}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
-   * </tr><tr>
-   * <td>{@link #play}</td>
-   * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
-   * </tr></table>
-   *
-   * <p>Returned {@link ListenableFuture} will return {@link SessionResult#RESULT_SUCCESS} when it's
-   * handled together with {@link #prepare} or {@link #play}. If this API is called multiple times
-   * without prepare or play, then {@link SessionResult#RESULT_INFO_SKIPPED} will be returned for
-   * previous calls.
-   *
-   * @param uri The uri of the item(s) to play.
-   * @param extras A {@link Bundle} to send extra information. May be empty.
-   * @return A {@link ListenableFuture} of {@link SessionResult} representing the pending
-   *     completion.
-   * @see MediaConstants#MEDIA_URI_AUTHORITY
-   * @see MediaConstants#MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID
-   * @see MediaConstants#MEDIA_URI_PATH_PLAY_FROM_MEDIA_ID
-   * @see MediaConstants#MEDIA_URI_PATH_PREPARE_FROM_SEARCH
-   * @see MediaConstants#MEDIA_URI_PATH_PLAY_FROM_SEARCH
-   * @see MediaConstants#MEDIA_URI_PATH_SET_MEDIA_URI
-   * @see MediaConstants#MEDIA_URI_QUERY_ID
-   * @see MediaConstants#MEDIA_URI_QUERY_QUERY
-   * @see MediaConstants#MEDIA_URI_QUERY_URI
-   */
-  public ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras) {
-    verifyApplicationThread();
-    checkNotNull(uri);
-    checkNotNull(extras);
-    if (isConnected()) {
-      return impl.setMediaUri(uri, extras);
-    }
-    return createDisconnectedFuture();
-  }
-
   @Override
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
     verifyApplicationThread();
@@ -1179,6 +1127,9 @@ public class MediaController implements Player {
     impl.moveMediaItems(fromIndex, toIndex, newIndex);
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1193,6 +1144,9 @@ public class MediaController implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isDynamic;
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1207,6 +1161,9 @@ public class MediaController implements Player {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isLive();
   }
 
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1256,6 +1213,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getCurrentPeriodIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1269,6 +1229,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getCurrentMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1289,6 +1252,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getPreviousMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1309,6 +1275,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getNextMediaItemIndex() : C.INDEX_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1316,6 +1285,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1323,6 +1295,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1330,6 +1305,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1349,6 +1327,9 @@ public class MediaController implements Player {
     return isConnected() && impl.hasNextMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1356,6 +1337,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1363,6 +1347,9 @@ public class MediaController implements Player {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1386,6 +1373,9 @@ public class MediaController implements Player {
     impl.seekToPreviousMediaItem();
   }
 
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @UnstableApi
   @Deprecated
   @Override
@@ -1584,9 +1574,9 @@ public class MediaController implements Player {
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return isConnected() ? impl.getCurrentCues() : ImmutableList.of();
+    return isConnected() ? impl.getCurrentCues() : CueGroup.EMPTY;
   }
 
   @Override
@@ -1681,23 +1671,9 @@ public class MediaController implements Player {
     return isConnected() ? impl.getMediaMetadata() : MediaMetadata.EMPTY;
   }
 
-  /** Returns {@link TrackGroupArray#EMPTY}. */
-  @UnstableApi
   @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return TrackGroupArray.EMPTY;
-  }
-
-  /** Returns an empty {@link TrackSelectionArray}. */
-  @UnstableApi
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return new TrackSelectionArray();
-  }
-
-  @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return TracksInfo.EMPTY; // TODO(b/178486745)
+  public Tracks getCurrentTracks() {
+    return Tracks.EMPTY; // TODO(b/178486745)
   }
 
   @Override
@@ -1921,8 +1897,6 @@ public class MediaController implements Player {
 
     void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs);
 
-    ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras);
-
     void setPlaylistMetadata(MediaMetadata playlistMetadata);
 
     MediaMetadata getPlaylistMetadata();
@@ -1996,7 +1970,7 @@ public class MediaController implements Player {
 
     void clearVideoTextureView(@Nullable TextureView textureView);
 
-    List<Cue> getCurrentCues();
+    CueGroup getCurrentCues();
 
     float getVolume();
 

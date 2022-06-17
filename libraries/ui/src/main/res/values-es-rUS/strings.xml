@@ -37,11 +37,11 @@
     <item quantity="one">Adelantar %d segundo</item>
     <item quantity="other">Adelantar %d segundos</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">No repetir</string>
-  <string name="exo_controls_repeat_one_description">Repetir uno</string>
-  <string name="exo_controls_repeat_all_description">Repetir todo</string>
-  <string name="exo_controls_shuffle_on_description">Reprod. aleatoria activada</string>
-  <string name="exo_controls_shuffle_off_description">Reprod. aleatoria desactivada</string>
+  <string name="exo_controls_repeat_off_description">Ahora: no repite. Cambia modo.</string>
+  <string name="exo_controls_repeat_one_description">Ahora: repetir 1. Cambia modo.</string>
+  <string name="exo_controls_repeat_all_description">Ahora: rep. todo. Cambia modo.</string>
+  <string name="exo_controls_shuffle_on_description">Inhabilitar reproducción aleatoria</string>
+  <string name="exo_controls_shuffle_off_description">Habilitar reproducción aleatoria</string>
   <string name="exo_controls_vr_description">Modo RV</string>
   <string name="exo_controls_cc_enabled_description">Inhabilitar subtítulos</string>
   <string name="exo_controls_cc_disabled_description">Habilitar subtítulos</string>

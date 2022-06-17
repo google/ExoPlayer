@@ -23,7 +23,7 @@ import static androidx.media3.common.Player.COMMAND_GET_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_GET_TEXT;
 import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
-import static androidx.media3.common.Player.COMMAND_GET_TRACK_INFOS;
+import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.common.Player.COMMAND_GET_VOLUME;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_PREPARE;
@@ -37,6 +37,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -108,9 +109,7 @@ import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Util;
@@ -127,6 +126,7 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSourceEventListener;
 import androidx.media3.exoplayer.source.SinglePeriodTimeline;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.source.ads.ServerSideAdInsertionMediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.upstream.Allocation;
@@ -278,7 +278,14 @@ public final class ExoPlayerTest {
     inOrder
         .verify(mockListener)
         .onTracksChanged(
-            eq(new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT))), any());
+            eq(
+                new Tracks(
+                    ImmutableList.of(
+                        new Tracks.Group(
+                            new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT),
+                            /* adaptiveSupported= */ false,
+                            new int[] {C.FORMAT_HANDLED},
+                            /* trackSelected= */ new boolean[] {true})))));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
     assertThat(renderer.getFormatsRead()).containsExactly(ExoPlayerTestRunner.VIDEO_FORMAT);
@@ -650,7 +657,14 @@ public final class ExoPlayerTest {
     inOrder
         .verify(mockPlayerListener)
         .onTracksChanged(
-            eq(new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT))), any());
+            eq(
+                new Tracks(
+                    ImmutableList.of(
+                        new Tracks.Group(
+                            new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT),
+                            /* adaptiveSupported= */ false,
+                            new int[] {C.FORMAT_HANDLED},
+                            /* trackSelected= */ new boolean[] {true})))));
     assertThat(renderer.isEnded).isTrue();
   }
 
@@ -784,12 +798,6 @@ public final class ExoPlayerTest {
     fakeMediaSource.setNewSourceInfo(adErrorTimeline);
     player.play();
     runUntilPlaybackState(player, Player.STATE_ENDED);
-    Timeline.Window window =
-        player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, new Timeline.Window());
-    Timeline.Period period =
-        player
-            .getCurrentTimeline()
-            .getPeriod(/* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true);
     player.release();
 
     // Content to content transition is ignored.
@@ -3418,8 +3426,7 @@ public final class ExoPlayerTest {
             .waitForPendingPlayerCommands()
             .play()
             .build();
-    List<TrackGroupArray> trackGroupsList = new ArrayList<>();
-    List<TrackSelectionArray> trackSelectionsList = new ArrayList<>();
+    List<Tracks> tracksList = new ArrayList<>();
     new ExoPlayerTestRunner.Builder(context)
         .setMediaSources(mediaSource)
         .setSupportedFormats(ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT)
@@ -3427,25 +3434,21 @@ public final class ExoPlayerTest {
         .setPlayerListener(
             new Player.Listener() {
               @Override
-              public void onTracksChanged(
-                  TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-                trackGroupsList.add(trackGroups);
-                trackSelectionsList.add(trackSelections);
+              public void onTracksChanged(Tracks tracks) {
+                tracksList.add(tracks);
               }
             })
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(trackGroupsList).hasSize(3);
+    assertThat(tracksList).hasSize(3);
     // First track groups of the 1st period are reported.
-    // Then the seek to an unprepared period will result in empty track groups and selections being
-    // returned.
+    // Then the seek to an unprepared period will result in empty track groups being returned.
     // Then the track groups of the 2nd period are reported.
-    assertThat(trackGroupsList.get(0).get(0).getFormat(0))
+    assertThat(tracksList.get(0).getGroups().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.VIDEO_FORMAT);
-    assertThat(trackGroupsList.get(1)).isEqualTo(TrackGroupArray.EMPTY);
-    assertThat(trackSelectionsList.get(1).get(0)).isNull();
-    assertThat(trackGroupsList.get(2).get(0).getFormat(0))
+    assertThat(tracksList.get(1)).isEqualTo(Tracks.EMPTY);
+    assertThat(tracksList.get(2).getGroups().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.AUDIO_FORMAT);
   }
 
@@ -7990,8 +7993,7 @@ public final class ExoPlayerTest {
           }
         };
     AtomicReference<Timeline> timelineAfterError = new AtomicReference<>();
-    AtomicReference<TracksInfo> trackInfosAfterError = new AtomicReference<>();
-    AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
+    AtomicReference<Tracks> trackInfosAfterError = new AtomicReference<>();
     AtomicInteger mediaItemIndexAfterError = new AtomicInteger();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
@@ -8004,8 +8006,7 @@ public final class ExoPlayerTest {
                           @Override
                           public void onPlayerError(EventTime eventTime, PlaybackException error) {
                             timelineAfterError.set(player.getCurrentTimeline());
-                            trackInfosAfterError.set(player.getCurrentTracksInfo());
-                            trackSelectionsAfterError.set(player.getCurrentTrackSelections());
+                            trackInfosAfterError.set(player.getCurrentTracks());
                             mediaItemIndexAfterError.set(player.getCurrentMediaItemIndex());
                           }
                         });
@@ -8034,11 +8035,11 @@ public final class ExoPlayerTest {
 
     assertThat(timelineAfterError.get().getWindowCount()).isEqualTo(1);
     assertThat(mediaItemIndexAfterError.get()).isEqualTo(0);
-    assertThat(trackInfosAfterError.get().getTrackGroupInfos()).hasSize(1);
-    assertThat(trackInfosAfterError.get().getTrackGroupInfos().get(0).getTrackGroup().getFormat(0))
+    assertThat(trackInfosAfterError.get().getGroups()).hasSize(1);
+    assertThat(trackInfosAfterError.get().getGroups().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.AUDIO_FORMAT);
-    assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
-    assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.
+    assertThat(trackInfosAfterError.get().isTypeSelected(C.TRACK_TYPE_VIDEO)).isFalse();
+    assertThat(trackInfosAfterError.get().isTypeSelected(C.TRACK_TYPE_AUDIO)).isTrue();
   }
 
   @Test
@@ -8979,6 +8980,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_MEDIA_ITEMS_METADATA)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_MEDIA_ITEM)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_AUDIO_ATTRIBUTES)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_VOLUME)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_DEVICE_VOLUME)).isTrue();
@@ -8988,7 +8990,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_TEXT)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_GET_TRACK_INFOS)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_GET_TRACKS)).isTrue();
   }
 
   @Test
@@ -10422,7 +10424,7 @@ public final class ExoPlayerTest {
     verify(listener, atLeastOnce()).onShuffleModeEnabledChanged(anyBoolean());
     verify(listener, atLeastOnce()).onPlaybackStateChanged(anyInt());
     verify(listener, atLeastOnce()).onIsLoadingChanged(anyBoolean());
-    verify(listener, atLeastOnce()).onTracksChanged(any(), any());
+    verify(listener, atLeastOnce()).onTracksChanged(any());
     verify(listener, atLeastOnce()).onMediaMetadataChanged(any());
     verify(listener, atLeastOnce()).onPlayWhenReadyChanged(anyBoolean(), anyInt());
     verify(listener, atLeastOnce()).onIsPlayingChanged(anyBoolean());
@@ -12128,6 +12130,7 @@ public final class ExoPlayerTest {
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
         COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         COMMAND_GET_AUDIO_ATTRIBUTES,
         COMMAND_GET_VOLUME,
         COMMAND_GET_DEVICE_VOLUME,
@@ -12137,7 +12140,7 @@ public final class ExoPlayerTest {
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-        COMMAND_GET_TRACK_INFOS);
+        COMMAND_GET_TRACKS);
     if (!isTimelineEmpty) {
       builder.add(COMMAND_SEEK_TO_PREVIOUS);
     }
@@ -12154,7 +12157,6 @@ public final class ExoPlayerTest {
 
   /** {@link FakeRenderer} that can sleep and be woken-up. */
   private static class FakeSleepRenderer extends FakeRenderer {
-    private static final long WAKEUP_DEADLINE_MS = 60 * C.MICROS_PER_SECOND;
     private final AtomicBoolean sleepOnNextRender;
     private final AtomicReference<Renderer.WakeupListener> wakeupListenerReceiver;
 
@@ -12168,9 +12170,7 @@ public final class ExoPlayerTest {
       wakeupListenerReceiver.get().onWakeup();
     }
 
-    /**
-     * Call {@link Renderer.WakeupListener#onSleep(long)} on the next {@link #render(long, long)}
-     */
+    /** Call {@link Renderer.WakeupListener#onSleep()} on the next {@link #render(long, long)} */
     public FakeSleepRenderer sleepOnNextRender() {
       sleepOnNextRender.set(true);
       return this;
@@ -12190,7 +12190,7 @@ public final class ExoPlayerTest {
     public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
       super.render(positionUs, elapsedRealtimeUs);
       if (sleepOnNextRender.compareAndSet(/* expectedValue= */ true, /* newValue= */ false)) {
-        wakeupListenerReceiver.get().onSleep(WAKEUP_DEADLINE_MS);
+        wakeupListenerReceiver.get().onSleep();
       }
     }
   }

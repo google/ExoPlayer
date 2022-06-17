@@ -24,7 +24,7 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CONTENT_DU
 import static androidx.media3.test.session.common.CommonConstants.KEY_CONTENT_POSITION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD_GROUP_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD_INDEX_IN_AD_GROUP;
-import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_CUES;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_CUE_GROUP;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LIVE_OFFSET;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
@@ -78,8 +78,7 @@ import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaSession;
@@ -198,6 +197,14 @@ public class RemoteMediaSession {
     binder.setCustomLayout(sessionId, bundleList);
   }
 
+  public void setSessionExtras(Bundle extras) throws RemoteException {
+    binder.setSessionExtras(sessionId, extras);
+  }
+
+  public void setSessionExtras(String controllerKey, Bundle extras) throws RemoteException {
+    binder.setSessionExtrasForController(sessionId, controllerKey, extras);
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // RemoteMockPlayer methods
   ////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +213,7 @@ public class RemoteMediaSession {
   public class RemoteMockPlayer {
 
     public void notifyPlayerError(@Nullable PlaybackException playerError) throws RemoteException {
-      binder.notifyPlayerError(sessionId, BundleableUtil.toNullableBundle(playerError));
+      binder.notifyPlayerError(sessionId, playerError == null ? null : playerError.toBundle());
     }
 
     public void setPlayWhenReady(
@@ -389,8 +396,8 @@ public class RemoteMediaSession {
       binder.notifyDeviceVolumeChanged(sessionId, volume, muted);
     }
 
-    public void notifyCuesChanged(List<Cue> cues) throws RemoteException {
-      binder.notifyCuesChanged(sessionId, BundleableUtil.toBundleList(cues));
+    public void notifyCuesChanged(CueGroup cueGroup) throws RemoteException {
+      binder.notifyCuesChanged(sessionId, cueGroup.toBundle());
     }
 
     public void notifyDeviceInfoChanged(DeviceInfo deviceInfo) throws RemoteException {
@@ -491,7 +498,9 @@ public class RemoteMediaSession {
     }
 
     public MockPlayerConfigBuilder setPlayerError(@Nullable PlaybackException playerError) {
-      bundle.putBundle(KEY_PLAYER_ERROR, BundleableUtil.toNullableBundle(playerError));
+      if (playerError != null) {
+        bundle.putBundle(KEY_PLAYER_ERROR, playerError.toBundle());
+      }
       return this;
     }
 
@@ -595,8 +604,8 @@ public class RemoteMediaSession {
       return this;
     }
 
-    public MockPlayerConfigBuilder setCurrentCues(List<Cue> cues) {
-      bundle.putParcelableArrayList(KEY_CURRENT_CUES, BundleableUtil.toBundleArrayList(cues));
+    public MockPlayerConfigBuilder setCurrentCues(CueGroup cueGroup) {
+      bundle.putBundle(KEY_CURRENT_CUE_GROUP, cueGroup.toBundle());
       return this;
     }
 

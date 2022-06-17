@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.NotificationCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.DeviceInfo;
@@ -87,7 +88,7 @@ import java.util.List;
  *   <li><a href="#ThreadingModel">Threading Model</a>
  *   <li><a href="#KeyEvents">Media Key Events Mapping</a>
  *   <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
- *   <li><a href="#CompatibilitySession">Backward Compatibility with Legacy Session APIs</a>
+ *   <li><a href="#BackwardCompatibility">Backward Compatibility with Legacy Session APIs</a>
  *   <li><a href="#CompatibilityController">Backward Compatibility with Legacy Controller APIs</a>
  * </ol>
  *
@@ -109,10 +110,9 @@ import java.util.List;
  *
  * <p>The instances are thread safe, but should be used on the thread with a looper.
  *
- * <p>{@link SessionCallback} methods will be called from the application thread associated with the
- * {@link Player#getApplicationLooper() application looper} of the underlying player. When a new
- * player is set by {@link #setPlayer}, the player should use the same application looper as the
- * previous one.
+ * <p>{@link Callback} methods will be called from the application thread associated with the {@link
+ * Player#getApplicationLooper() application looper} of the underlying player. When a new player is
+ * set by {@link #setPlayer}, the player should use the same application looper as the previous one.
  *
  * <p>The session listens to events from the underlying player via {@link Player.Listener} and
  * expects the callback methods to be called from the application thread. If the player violates the
@@ -201,10 +201,10 @@ import java.util.List;
  *
  * <h2 id="CompatibilityController">Backward Compatibility with Legacy Controller APIs</h2>
  *
- * <p>In addition to {@link MediaController}, session also supports connection from the legacy
- * controller APIs - {@link android.media.session.MediaController framework controller} and {@link
- * MediaControllerCompat AndroidX controller compat}. However, {@link ControllerInfo} may not be
- * precise for legacy controllers. See {@link ControllerInfo} for the details.
+ * <p>In addition to {@link MediaController}, the session also supports connections from the legacy
+ * controller APIs - {@linkplain android.media.session.MediaController framework controller} and
+ * {@linkplain MediaControllerCompat AndroidX controller compat}. However, {@link ControllerInfo}
+ * may not be precise for legacy controllers. See {@link ControllerInfo} for the details.
  *
  * <p>Unknown package name nor UID doesn't mean that you should disallow connection nor commands.
  * For SDK levels where such issues happen, session tokens could only be obtained by trusted
@@ -231,7 +231,7 @@ public class MediaSession {
    * <p>Any incoming requests from the {@link MediaController} will be handled on the application
    * thread of the underlying {@link Player}.
    */
-  public static final class Builder extends BuilderBase<MediaSession, Builder, SessionCallback> {
+  public static final class Builder extends BuilderBase<MediaSession, Builder, Callback> {
 
     /**
      * Creates a builder for {@link MediaSession}.
@@ -241,12 +241,20 @@ public class MediaSession {
      * @throws IllegalArgumentException if {@link Player#canAdvertiseSession()} returns false.
      */
     public Builder(Context context, Player player) {
-      super(context, player, new SessionCallback() {});
+      super(context, player, new Callback() {});
     }
 
     /**
      * Sets a {@link PendingIntent} to launch an {@link android.app.Activity} for the {@link
      * MediaSession}. This can be used as a quick link to an ongoing media screen.
+     *
+     * <p>A client can use this pending intent to start an activity belonging to this session. When
+     * this pending intent is for instance included in the notification {@linkplain
+     * NotificationCompat.Builder#setContentIntent(PendingIntent) as the content intent}, tapping
+     * the notification will open this activity.
+     *
+     * <p>See <a href="https://developer.android.com/training/notify-user/navigation">'Start an
+     * Activity from a Notification'</a> also.
      *
      * @param pendingIntent The pending intent.
      * @return The builder to allow chaining.
@@ -281,20 +289,8 @@ public class MediaSession {
      * @return The builder to allow chaining.
      */
     @Override
-    public Builder setSessionCallback(SessionCallback callback) {
-      return super.setSessionCallback(callback);
-    }
-
-    /**
-     * Sets the logic used to fill in the fields of a {@link MediaItem} from {@link
-     * MediaController}.
-     *
-     * @param mediaItemFiller The filler.
-     * @return The builder to allow chaining.
-     */
-    @Override
-    public Builder setMediaItemFiller(MediaItemFiller mediaItemFiller) {
-      return super.setMediaItemFiller(mediaItemFiller);
+    public Builder setCallback(Callback callback) {
+      return super.setCallback(callback);
     }
 
     /**
@@ -319,13 +315,15 @@ public class MediaSession {
      */
     @Override
     public MediaSession build() {
-      return new MediaSession(
-          context, id, player, sessionActivity, callback, mediaItemFiller, extras);
+      return new MediaSession(context, id, player, sessionActivity, callback, extras);
     }
   }
 
   /** Information of a {@link MediaController} or a {@link MediaBrowser}. */
   public static final class ControllerInfo {
+
+    /** The {@linkplain #getControllerVersion() controller version} of legacy controllers. */
+    public static final int LEGACY_CONTROLLER_VERSION = 0;
 
     private final RemoteUserInfo remoteUserInfo;
     private final int controllerVersion;
@@ -459,7 +457,7 @@ public class MediaSession {
               /* uid= */ RemoteUserInfo.UNKNOWN_UID);
       return new ControllerInfo(
           legacyRemoteUserInfo,
-          /* controllerVersion= */ 0,
+          ControllerInfo.LEGACY_CONTROLLER_VERSION,
           /* trusted= */ false,
           /* cb= */ null,
           /* connectionHints= */ Bundle.EMPTY);
@@ -475,8 +473,7 @@ public class MediaSession {
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      SessionCallback callback,
-      MediaItemFiller mediaItemFiller,
+      Callback callback,
       Bundle tokenExtras) {
     synchronized (STATIC_LOCK) {
       if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
@@ -484,7 +481,7 @@ public class MediaSession {
       }
       SESSION_ID_TO_SESSION_MAP.put(id, this);
     }
-    impl = createImpl(context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    impl = createImpl(context, id, player, sessionActivity, callback, tokenExtras);
   }
 
   /* package */ MediaSessionImpl createImpl(
@@ -492,11 +489,9 @@ public class MediaSession {
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      SessionCallback callback,
-      MediaItemFiller mediaItemFiller,
+      Callback callback,
       Bundle tokenExtras) {
-    return new MediaSessionImpl(
-        this, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    return new MediaSessionImpl(this, context, id, player, sessionActivity, callback, tokenExtras);
   }
 
   /* package */ MediaSessionImpl getImpl() {
@@ -516,7 +511,18 @@ public class MediaSession {
   }
 
   /**
-   * Sets the underlying {@link Player} for this session to dispatch incoming event to.
+   * Returns the {@link PendingIntent} to launch {@linkplain
+   * Builder#setSessionActivity(PendingIntent) the session activity} or null if not set.
+   *
+   * @return The {@link PendingIntent} to launch an activity belonging to the session.
+   */
+  @Nullable
+  public PendingIntent getSessionActivity() {
+    return impl.getSessionActivity();
+  }
+
+  /**
+   * Sets the underlying {@link Player} for this session to dispatch incoming events to.
    *
    * @param player A player that handles actual media playback in your app.
    * @throws IllegalArgumentException if the new player's application looper differs from the
@@ -532,7 +538,16 @@ public class MediaSession {
     impl.setPlayer(player);
   }
 
-  /** Releases the session. */
+  /**
+   * Releases the session and disconnects all connected controllers.
+   *
+   * <p>The session must not be used after calling this method.
+   *
+   * <p>Releasing the session removes the session's listeners from the player but does not
+   * {@linkplain Player#stop() stop} or {@linkplain Player#release() release} the player. An app can
+   * further use the player after the session is released and needs to make sure to eventually
+   * release the player.
+   */
   public void release() {
     try {
       synchronized (STATIC_LOCK) {
@@ -623,6 +638,27 @@ public class MediaSession {
   }
 
   /**
+   * Broadcasts the custom layout to all connected Media3 controllers and converts the buttons to
+   * custom actions in the legacy media session playback state (see {@code
+   * PlaybackStateCompat.Builder#addCustomAction(PlaybackStateCompat.CustomAction)}) for legacy
+   * controllers.
+   *
+   * <p>When converting, the {@link SessionCommand#customExtras custom extras of the session
+   * command} is used for the extras of the legacy custom action.
+   *
+   * <p>Media3 controllers that connect after calling this method will not receive the broadcast.
+   * You need to call {@link #setCustomLayout(ControllerInfo, List)} in {@link
+   * MediaSession.Callback#onPostConnect(MediaSession, ControllerInfo)} to make these controllers
+   * aware of the custom layout.
+   *
+   * @param layout The ordered list of {@link CommandButton}.
+   */
+  public void setCustomLayout(List<CommandButton> layout) {
+    checkNotNull(layout, "layout must not be null");
+    impl.setCustomLayout(layout);
+  }
+
+  /**
    * Sets the new available commands for the controller.
    *
    * <p>This is a synchronous call. Changes in the available commands take effect immediately
@@ -664,6 +700,32 @@ public class MediaSession {
         command.commandCode == SessionCommand.COMMAND_CODE_CUSTOM,
         "command must be a custom command");
     impl.broadcastCustomCommand(command, args);
+  }
+
+  /**
+   * Sends the session extras to connected controllers.
+   *
+   * <p>This is a synchronous call and doesn't wait for results from the controllers.
+   *
+   * @param sessionExtras The session extras.
+   */
+  public void setSessionExtras(Bundle sessionExtras) {
+    checkNotNull(sessionExtras);
+    impl.setSessionExtras(sessionExtras);
+  }
+
+  /**
+   * Sends the session extras to the connected controller.
+   *
+   * <p>This is a synchronous call and doesn't wait for results from the controller.
+   *
+   * @param controller The controller to send the extras to.
+   * @param sessionExtras The session extras.
+   */
+  public void setSessionExtras(ControllerInfo controller, Bundle sessionExtras) {
+    checkNotNull(controller, "controller must not be null");
+    checkNotNull(sessionExtras);
+    impl.setSessionExtras(controller, sessionExtras);
   }
 
   /**
@@ -750,10 +812,10 @@ public class MediaSession {
    * <p>The callback methods will be called from the application thread associated with the {@link
    * Player#getApplicationLooper() application looper} of the underlying {@link Player}.
    *
-   * <p>If it's not set by {@link MediaSession.Builder#setSessionCallback(SessionCallback)}, the
-   * session will accept all controllers and all incoming commands by default.
+   * <p>If it's not set by {@link MediaSession.Builder#setCallback(Callback)}, the session will
+   * accept all controllers and all incoming commands by default.
    */
-  public interface SessionCallback {
+  public interface Callback {
 
     /**
      * Called when a controller is about to connect to this session. Return a {@link
@@ -827,32 +889,6 @@ public class MediaSession {
      * @param controller The controller information.
      * @param playerCommand A {@link Player.Command command}.
      * @return {@link SessionResult#RESULT_SUCCESS} to proceed, or another code to ignore.
-     * @see Player.Command#COMMAND_PLAY_PAUSE
-     * @see Player.Command#COMMAND_PREPARE
-     * @see Player.Command#COMMAND_STOP
-     * @see Player.Command#COMMAND_SEEK_TO_DEFAULT_POSITION
-     * @see Player.Command#COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SEEK_TO_MEDIA_ITEM
-     * @see Player.Command#COMMAND_SET_SPEED_AND_PITCH
-     * @see Player.Command#COMMAND_SET_SHUFFLE_MODE
-     * @see Player.Command#COMMAND_SET_REPEAT_MODE
-     * @see Player.Command#COMMAND_GET_CURRENT_MEDIA_ITEM
-     * @see Player.Command#COMMAND_GET_TIMELINE
-     * @see Player.Command#COMMAND_GET_MEDIA_ITEMS_METADATA
-     * @see Player.Command#COMMAND_SET_MEDIA_ITEMS_METADATA
-     * @see Player.Command#COMMAND_CHANGE_MEDIA_ITEMS
-     * @see Player.Command#COMMAND_GET_AUDIO_ATTRIBUTES
-     * @see Player.Command#COMMAND_GET_VOLUME
-     * @see Player.Command#COMMAND_GET_DEVICE_VOLUME
-     * @see Player.Command#COMMAND_SET_VOLUME
-     * @see Player.Command#COMMAND_SET_DEVICE_VOLUME
-     * @see Player.Command#COMMAND_ADJUST_DEVICE_VOLUME
-     * @see Player.Command#COMMAND_SET_VIDEO_SURFACE
-     * @see Player.Command#COMMAND_GET_TEXT
-     * @see Player.Command#COMMAND_SET_TRACK_SELECTION_PARAMETERS
-     * @see Player.Command#COMMAND_GET_TRACK_INFOS
      */
     default @SessionResult.Code int onPlayerCommandRequest(
         MediaSession session, ControllerInfo controller, @Player.Command int playerCommand) {
@@ -905,66 +941,6 @@ public class MediaSession {
     }
 
     /**
-     * Called when a controller requested to set the specific media item(s) represented by a URI
-     * through {@link MediaController#setMediaUri(Uri, Bundle)}.
-     *
-     * <p>The implementation should create proper {@link MediaItem media item(s)} for the given
-     * {@code uri} and call {@link Player#setMediaItems}.
-     *
-     * <p>When {@link MediaControllerCompat} is connected and sends commands with following methods,
-     * the {@code uri} will have the following patterns:
-     *
-     * <table>
-     * <caption>Uri patterns corresponding to MediaControllerCompat command methods</caption>
-     * <tr>
-     *   <th>Method</th>
-     *   <th>Uri pattern</th>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}</td>
-     *   <td>The {@code uri} passed as argument</td>
-     * </tr>
-     * <tr>
-     *   <td>
-     *     {@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
-     *   </td>
-     *   <td>{@code androidx://media3-session/prepareFromMediaId?id=[mediaId]}</td>
-     * </tr>
-     * <tr>
-     *   <td>
-     *     {@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
-     *   </td>
-     *   <td>{@code androidx://media3-session/prepareFromSearch?query=[query]}</td>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}</td>
-     *   <td>The {@code uri} passed as argument</td>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}</td>
-     *   <td>{@code androidx://media3-session/playFromMediaId?id=[mediaId]}</td>
-     * </tr>
-     * <tr>
-     *   <td>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}</td>
-     *   <td>{@code androidx://media3-session/playFromSearch?query=[query]}</td>
-     * </tr>
-     * </table>
-     *
-     * <p>{@link Player#prepare()} or {@link Player#play()} should follow if this is called by above
-     * methods.
-     *
-     * @param session The session for this event.
-     * @param controller The controller information.
-     * @param uri The uri.
-     * @param extras An extra {@link Bundle}. May be empty.
-     * @return A result code.
-     */
-    default @SessionResult.Code int onSetMediaUri(
-        MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
-      return RESULT_ERROR_NOT_SUPPORTED;
-    }
-
-    /**
      * Called when a controller sent a custom command through {@link
      * MediaController#sendCustomCommand(SessionCommand, Bundle)}.
      *
@@ -992,29 +968,57 @@ public class MediaSession {
         Bundle args) {
       return Futures.immediateFuture(new SessionResult(RESULT_ERROR_NOT_SUPPORTED));
     }
-  }
-
-  /** An object which fills in the fields of a {@link MediaItem} from {@link MediaController}. */
-  public interface MediaItemFiller {
 
     /**
-     * Called to fill in the {@link MediaItem#localConfiguration} of the media item from
-     * controllers.
+     * Called when a controller requested to add new {@linkplain MediaItem media items} to the
+     * playlist via one of the {@code Player.addMediaItem(s)} or {@code Player.setMediaItem(s)}
+     * methods.
      *
-     * @param session The session for this event.
+     * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
+     * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
+     * playable by the underlying {@link Player}. Typically, this implementation should be able to
+     * identify the correct item by its {@link MediaItem#mediaId} and/or the {@link
+     * MediaItem#requestMetadata}.
+     *
+     * <p>Return a {@link ListenableFuture} with the resolved {@link MediaItem media items}. You can
+     * also return the items directly by using Guava's {@link Futures#immediateFuture(Object)}. Once
+     * the {@link MediaItem media items} have been resolved, the session will call {@link
+     * Player#setMediaItems} or {@link Player#addMediaItems} as requested.
+     *
+     * <p>Interoperability: This method will be called in response to the following {@link
+     * MediaControllerCompat} methods:
+     *
+     * <ul>
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
+     *   <li>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
+     *   <li>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
+     *   <li>{@link MediaControllerCompat.TransportControls#addQueueItem addQueueItem}
+     * </ul>
+     *
+     * The values of {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri}, {@link
+     * MediaItem.RequestMetadata#searchQuery} and {@link MediaItem.RequestMetadata#extras} will be
+     * set to match the legacy method call. The session will call {@link Player#setMediaItems} or
+     * {@link Player#addMediaItems}, followed by {@link Player#prepare()} and {@link Player#play()}
+     * as appropriate once the {@link MediaItem} has been resolved.
+     *
+     * @param mediaSession The session for this event.
      * @param controller The controller information.
-     * @param mediaItem The media item whose local configuration will be filled in.
-     * @return A media item with filled local configuration.
+     * @param mediaItems The list of requested {@link MediaItem media items}.
+     * @return A {@link ListenableFuture} for the list of resolved {@link MediaItem media items}
+     *     that are playable by the underlying {@link Player}.
      */
-    default MediaItem fillInLocalConfiguration(
-        MediaSession session, MediaSession.ControllerInfo controller, MediaItem mediaItem) {
-      return mediaItem;
+    default ListenableFuture<List<MediaItem>> onAddMediaItems(
+        MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+      return Futures.immediateFailedFuture(new UnsupportedOperationException());
     }
   }
 
   /**
-   * A result for {@link SessionCallback#onConnect(MediaSession, ControllerInfo)} to denote the set
-   * of commands that are available for the given {@link ControllerInfo controller}.
+   * A result for {@link Callback#onConnect(MediaSession, ControllerInfo)} to denote the set of
+   * commands that are available for the given {@link ControllerInfo controller}.
    */
   public static final class ConnectionResult {
 
@@ -1076,6 +1080,8 @@ public class MediaSession {
     default void onDisconnected(int seq) throws RemoteException {}
 
     default void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {}
+
+    default void onSessionExtrasChanged(int seq, Bundle sessionExtras) throws RemoteException {}
 
     default void sendCustomCommand(int seq, SessionCommand command, Bundle args)
         throws RemoteException {}
@@ -1175,13 +1181,12 @@ public class MediaSession {
    * applied to the subclasses.
    */
   /* package */ abstract static class BuilderBase<
-      T extends MediaSession, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
+      T extends MediaSession, U extends BuilderBase<T, U, C>, C extends Callback> {
 
     /* package */ final Context context;
     /* package */ final Player player;
     /* package */ String id;
     /* package */ C callback;
-    /* package */ MediaItemFiller mediaItemFiller;
     /* package */ @Nullable PendingIntent sessionActivity;
     /* package */ Bundle extras;
 
@@ -1191,7 +1196,6 @@ public class MediaSession {
       checkArgument(player.canAdvertiseSession());
       id = "";
       this.callback = callback;
-      this.mediaItemFiller = new MediaItemFiller() {};
       extras = Bundle.EMPTY;
     }
 
@@ -1208,14 +1212,8 @@ public class MediaSession {
     }
 
     @SuppressWarnings("unchecked")
-    /* package */ U setSessionCallback(C callback) {
+    /* package */ U setCallback(C callback) {
       this.callback = checkNotNull(callback);
-      return (U) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    /* package */ U setMediaItemFiller(MediaItemFiller mediaItemFiller) {
-      this.mediaItemFiller = checkNotNull(mediaItemFiller);
       return (U) this;
     }
 

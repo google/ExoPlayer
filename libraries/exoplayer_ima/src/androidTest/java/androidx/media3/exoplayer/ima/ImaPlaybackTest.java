@@ -30,9 +30,7 @@ import androidx.media3.common.Player.TimelineChangeReason;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Util;
-import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
-import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
@@ -235,14 +233,13 @@ public final class ImaPlaybackTest {
     protected MediaSource buildSource(
         HostActivity host, DrmSessionManager drmSessionManager, FrameLayout overlayFrameLayout) {
       Context context = host.getApplicationContext();
-      DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
       MediaSource contentMediaSource =
           new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(contentUri));
       return new AdsMediaSource(
           contentMediaSource,
           adTagDataSpec,
           /* adsId= */ adTagDataSpec.uri,
-          new DefaultMediaSourceFactory(dataSourceFactory),
+          new DefaultMediaSourceFactory(context),
           Assertions.checkNotNull(imaAdsLoader),
           () -> overlayFrameLayout);
     }

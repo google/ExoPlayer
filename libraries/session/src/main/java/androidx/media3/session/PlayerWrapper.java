@@ -15,10 +15,12 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.postOrRun;
 
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -40,9 +42,10 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /**
@@ -52,8 +55,55 @@ import java.util.List;
  */
 /* package */ class PlayerWrapper extends ForwardingPlayer {
 
+  private static final int STATUS_CODE_SUCCESS_COMPAT = -1;
+
+  private int legacyStatusCode;
+  @Nullable private String legacyErrorMessage;
+  @Nullable private Bundle legacyErrorExtras;
+  private ImmutableList<CommandButton> customLayout;
+
   public PlayerWrapper(Player player) {
     super(player);
+    legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
+    customLayout = ImmutableList.of();
+  }
+
+  /**
+   * Sets the legacy error code.
+   *
+   * <p>This sets the legacy {@link PlaybackStateCompat} to {@link PlaybackStateCompat#STATE_ERROR}
+   * and calls {@link PlaybackStateCompat.Builder#setErrorMessage(int, CharSequence)} and {@link
+   * PlaybackStateCompat.Builder#setExtras(Bundle)} with the given arguments.
+   *
+   * <p>Use {@link #clearLegacyErrorStatus()} to clear the error state and to resume to the actual
+   * playback state reflecting the player.
+   *
+   * @param errorCode The legacy error code.
+   * @param errorMessage The legacy error message.
+   * @param extras The extras.
+   */
+  public void setLegacyErrorStatus(int errorCode, String errorMessage, Bundle extras) {
+    checkState(errorCode != STATUS_CODE_SUCCESS_COMPAT);
+    legacyStatusCode = errorCode;
+    legacyErrorMessage = errorMessage;
+    legacyErrorExtras = extras;
+  }
+
+  /** Returns the legacy status code. */
+  public int getLegacyStatusCode() {
+    return legacyStatusCode;
+  }
+
+  /** Sets the custom layout. */
+  public void setCustomLayout(ImmutableList<CommandButton> customLayout) {
+    this.customLayout = customLayout;
+  }
+
+  /** Clears the legacy error status. */
+  public void clearLegacyErrorStatus() {
+    legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
+    legacyErrorMessage = null;
+    legacyErrorExtras = null;
   }
 
   @Override
@@ -586,7 +636,7 @@ import java.util.List;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
     return super.getCurrentCues();
   }
@@ -702,6 +752,19 @@ import java.util.List;
   }
 
   public PlaybackStateCompat createPlaybackStateCompat() {
+    if (legacyStatusCode != STATUS_CODE_SUCCESS_COMPAT) {
+      return new PlaybackStateCompat.Builder()
+          .setState(
+              PlaybackStateCompat.STATE_ERROR,
+              /* position= */ PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+              /* playbackSpeed= */ 0,
+              /* updateTime= */ SystemClock.elapsedRealtime())
+          .setActions(0)
+          .setBufferedPosition(0)
+          .setErrorMessage(legacyStatusCode, checkNotNull(legacyErrorMessage))
+          .setExtras(checkNotNull(legacyErrorExtras))
+          .build();
+    }
     @Nullable PlaybackException playerError = getPlayerError();
     int state =
         MediaUtils.convertToPlaybackStateCompatState(
@@ -711,8 +774,6 @@ import java.util.List;
             | PlaybackStateCompat.ACTION_PAUSE
             | PlaybackStateCompat.ACTION_PLAY
             | PlaybackStateCompat.ACTION_REWIND
-            | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
             | PlaybackStateCompat.ACTION_FAST_FORWARD
             | PlaybackStateCompat.ACTION_SET_RATING
             | PlaybackStateCompat.ACTION_SEEK_TO
@@ -728,6 +789,14 @@ import java.util.List;
             | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
             | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
             | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
+    if (getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS)
+        || getAvailableCommands().contains(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
+      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+    }
+    if (getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT)
+        || getAvailableCommands().contains(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
+      allActions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+    }
     long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
     PlaybackStateCompat.Builder builder =
         new PlaybackStateCompat.Builder()
@@ -739,6 +808,22 @@ import java.util.List;
             .setActions(allActions)
             .setActiveQueueItemId(queueItemId)
             .setBufferedPosition(getBufferedPosition());
+
+    for (int i = 0; i < customLayout.size(); i++) {
+      CommandButton commandButton = customLayout.get(i);
+      if (commandButton.sessionCommand != null) {
+        SessionCommand sessionCommand = commandButton.sessionCommand;
+        if (sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM) {
+          builder.addCustomAction(
+              new PlaybackStateCompat.CustomAction.Builder(
+                      sessionCommand.customAction,
+                      commandButton.displayName,
+                      commandButton.iconResId)
+                  .setExtras(sessionCommand.customExtras)
+                  .build());
+        }
+      }
+    }
     if (playerError != null) {
       builder.setErrorMessage(
           PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, Util.castNonNull(playerError.getMessage()));
@@ -808,8 +893,8 @@ import java.util.List;
     return new PositionInfo(
         /* windowUid= */ null,
         getCurrentMediaItemIndex(),
-        /* periodUid= */ null,
         getCurrentMediaItem(),
+        /* periodUid= */ null,
         getCurrentPeriodIndex(),
         getCurrentPosition(),
         getContentPosition(),

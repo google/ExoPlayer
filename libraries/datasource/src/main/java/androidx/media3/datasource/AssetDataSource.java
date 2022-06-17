@@ -37,7 +37,9 @@ public final class AssetDataSource extends BaseDataSource {
   /** Thrown when an {@link IOException} is encountered reading a local asset. */
   public static final class AssetDataSourceException extends DataSourceException {
 
-    /** @deprecated Use {@link #AssetDataSourceException(Throwable, int)}. */
+    /**
+     * @deprecated Use {@link #AssetDataSourceException(Throwable, int)}.
+     */
     @Deprecated
     public AssetDataSourceException(IOException cause) {
       super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
@@ -62,7 +64,9 @@ public final class AssetDataSource extends BaseDataSource {
   private long bytesRemaining;
   private boolean opened;
 
-  /** @param context A context. */
+  /**
+   * @param context A context.
+   */
   public AssetDataSource(Context context) {
     super(/* isNetwork= */ false);
     this.assetManager = context.getAssets();

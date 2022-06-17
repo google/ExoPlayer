@@ -16,13 +16,30 @@ apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 // TODO(b/178560255): Remove the "group" override after the "group" in build.gradle changed
 group 'androidx.media3'
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    sourceSets.androidTest.assets.srcDir '../test_data/src/test/assets/'
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+}
 dependencies {
     api project(modulePrefix + 'lib-common')
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.media:media:' + androidxMediaVersion
-
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    androidTestImplementation project(modulePrefix + 'test-utils')
+    androidTestImplementation project(modulePrefix + 'test-data')
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     testImplementation project(modulePrefix + 'test-utils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

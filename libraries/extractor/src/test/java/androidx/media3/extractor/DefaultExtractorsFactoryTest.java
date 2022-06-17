@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.extractor.amr.AmrExtractor;
+import androidx.media3.extractor.avi.AviExtractor;
 import androidx.media3.extractor.flac.FlacExtractor;
 import androidx.media3.extractor.flv.FlvExtractor;
 import androidx.media3.extractor.jpeg.JpegExtractor;
@@ -70,6 +71,7 @@ public final class DefaultExtractorsFactoryTest {
             Ac3Extractor.class,
             Ac4Extractor.class,
             Mp3Extractor.class,
+            AviExtractor.class,
             JpegExtractor.class)
         .inOrder();
   }
@@ -112,6 +114,7 @@ public final class DefaultExtractorsFactoryTest {
             AdtsExtractor.class,
             Ac3Extractor.class,
             Ac4Extractor.class,
+            AviExtractor.class,
             JpegExtractor.class)
         .inOrder();
   }

@@ -18,9 +18,9 @@ package androidx.media3.exoplayer;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultLoadControl.Builder;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

@@ -45,6 +45,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected boolean muxerWrapperTrackAdded;
   protected boolean muxerWrapperTrackEnded;
   protected long streamOffsetUs;
+  protected long streamStartPositionUs;
   protected @MonotonicNonNull SamplePipeline samplePipeline;
 
   public TransformerBaseRenderer(
@@ -109,6 +110,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected final void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.streamOffsetUs = offsetUs;
+    this.streamStartPositionUs = startPositionUs;
   }
 
   @Override
@@ -176,11 +178,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
+    long samplePresentationTimeUs = samplePipelineOutputBuffer.timeUs - streamStartPositionUs;
+    // TODO(b/204892224): Consider subtracting the first sample timestamp from the sample pipeline
+    //  buffer from all samples so that they are guaranteed to start from zero in the output file.
     if (!muxerWrapper.writeSample(
         getTrackType(),
         checkStateNotNull(samplePipelineOutputBuffer.data),
         samplePipelineOutputBuffer.isKeyFrame(),
-        samplePipelineOutputBuffer.timeUs)) {
+        samplePresentationTimeUs)) {
       return false;
     }
     samplePipeline.releaseOutputBuffer();
@@ -210,7 +215,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           return false;
         }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        samplePipelineInputBuffer.timeUs -= streamOffsetUs;
         checkStateNotNull(samplePipelineInputBuffer.data);
         maybeQueueSampleToPipeline(samplePipelineInputBuffer);
         return true;

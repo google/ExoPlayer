@@ -14,8 +14,18 @@
      limitations under the License.
 -->
 <lint>
-    <issue id="UnsafeOptInUsageError">
-      <ignore
-          regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
-    </issue>
+  <issue id="UnsafeOptInUsageError">
+    <ignore path='libraries/'
+      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+    <ignore path='demos/cast/'
+      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+    <ignore path='demos/gl/'
+      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+    <ignore path='demos/session/'
+      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+    <ignore path='demos/surface/'
+      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+    <ignore path='demos/transformer/'
+      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+  </issue>
 </lint>

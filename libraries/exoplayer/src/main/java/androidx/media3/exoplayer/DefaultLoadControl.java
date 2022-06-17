@@ -21,11 +21,11 @@ import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
@@ -224,7 +224,9 @@ public class DefaultLoadControl implements LoadControl {
       return this;
     }
 
-    /** @deprecated use {@link #build} instead. */
+    /**
+     * @deprecated use {@link #build} instead.
+     */
     @Deprecated
     public DefaultLoadControl createDefaultLoadControl() {
       return build();

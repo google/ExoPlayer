@@ -52,7 +52,6 @@ interface IRemoteMediaController {
   void setMediaItemsWithStartIndex(
       String controllerId, in List<Bundle> mediaItems, int startIndex, long startPositionMs);
   void createAndSetFakeMediaItems(String controllerId, int size);
-  void setMediaUri(String controllerId,  in Uri uri, in Bundle extras);
   void setPlaylistMetadata(String controllerId, in Bundle playlistMetadata);
   void addMediaItem(String controllerId, in Bundle mediaitem);
   void addMediaItemWithIndex(String controllerId, int index, in Bundle mediaitem);

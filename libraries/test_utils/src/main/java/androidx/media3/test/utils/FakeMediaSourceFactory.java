@@ -15,7 +15,6 @@
  */
 package androidx.media3.test.utils;
 
-import androidx.annotation.Nullable;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -39,19 +38,19 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public MediaSourceFactory setDrmSessionManagerProvider(
-      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      DrmSessionManagerProvider drmSessionManagerProvider) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public MediaSourceFactory setLoadErrorHandlingPolicy(
-      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public int[] getSupportedTypes() {
-    return new int[] {C.TYPE_OTHER};
+    return new int[] {C.CONTENT_TYPE_OTHER};
   }
 
   @Override

@@ -43,10 +43,10 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -60,7 +60,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>To extend this class, declare the intent filter in your {@code AndroidManifest.xml}:
  *
  * <pre>{@code
- * <service android:name="NameOfYourService">
+ * <service
+ *   android:name="NameOfYourService"
+ *   android:foregroundServiceType="mediaPlayback">
  *   <intent-filter>
  *     <action android:name="androidx.media3.session.MediaSessionService"/>
  *   </intent-filter>
@@ -85,23 +87,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <h2 id="ServiceLifecycle">Service Lifecycle</h2>
  *
- * <p>A media session service is a bound service. When a {@link MediaController} is created for the
- * service, the controller binds to the service. {@link #onGetSession(ControllerInfo)} will be
- * called from {@link #onBind(Intent)}.
+ * <p>A media session service is a bound service and its <a
+ * href="https://developer.android.com/guide/topics/manifest/service-element#foregroundservicetype">foreground
+ * service type</a> must include <em>mediaPlayback</em>. When a {@link MediaController} is created
+ * for the service, the controller binds to the service. {@link #onGetSession(ControllerInfo)} will
+ * be called from {@link #onBind(Intent)}.
  *
- * <p>After binding, the session's {@link MediaSession.SessionCallback#onConnect(MediaSession,
+ * <p>After binding, the session's {@link MediaSession.Callback#onConnect(MediaSession,
  * MediaSession.ControllerInfo)} will be called to accept or reject the connection request from the
  * controller. If it's accepted, the controller will be available and keep the binding. If it's
  * rejected, the controller will unbind.
  *
- * <p>When a playback is started on the service, the service will obtain a {@link MediaNotification}
- * from the {@link MediaNotification.Provider} that's set with {@link #setMediaNotificationProvider}
- * (or {@link DefaultMediaNotificationProvider}, if no provider is set), and the service will become
- * a <a href="https://developer.android.com/guide/components/foreground-services">foreground
- * service</a>. It's required to keep the playback after the controller is destroyed. The service
- * will become a background service when all playbacks are stopped. Apps targeting {@code SDK_INT >=
- * 28} must request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order
- * to make the service foreground.
+ * <p>{@link #onUpdateNotification(MediaSession)} will be called whenever a notification needs to be
+ * shown, updated or cancelled. The default implementation will display notifications using a
+ * default UI or using a {@link MediaNotification.Provider} that's set with {@link
+ * #setMediaNotificationProvider}. In addition, when playback starts, the service will become a <a
+ * href="https://developer.android.com/guide/components/foreground-services">foreground service</a>.
+ * It's required to keep the playback after the controller is destroyed. The service will become a
+ * background service when all playbacks are stopped. Apps targeting {@code SDK_INT >= 28} must
+ * request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order to make
+ * the service foreground. You can control when to show or hide notifications by overriding {@link
+ * #onUpdateNotification(MediaSession)}. In this case, you must also start or stop the service from
+ * the foreground, when playback starts or stops respectively.
  *
  * <p>The service will be destroyed when all sessions are closed, or no controller is binding to the
  * service while the service is in the background.
@@ -254,12 +261,22 @@ public abstract class MediaSessionService extends Service {
   }
 
   /**
-   * Returns the list of {@link MediaSession sessions} that you've added to this service via {@link
-   * #addSession} or {@link #onGetSession(ControllerInfo)}.
+   * Returns the list of {@linkplain MediaSession sessions} that you've added to this service via
+   * {@link #addSession} or {@link #onGetSession(ControllerInfo)}.
    */
   public final List<MediaSession> getSessions() {
     synchronized (lock) {
       return new ArrayList<>(sessions.values());
+    }
+  }
+
+  /**
+   * Returns whether {@code session} has been added to this service via {@link #addSession} or
+   * {@link #onGetSession(ControllerInfo)}.
+   */
+  public final boolean isSessionAdded(MediaSession session) {
+    synchronized (lock) {
+      return sessions.containsKey(session.getId());
     }
   }
 
@@ -321,11 +338,7 @@ public abstract class MediaSessionService extends Service {
       return START_STICKY;
     }
 
-    DefaultActionFactory actionFactory;
-    synchronized (lock) {
-      actionFactory = checkStateNotNull(this.actionFactory);
-    }
-
+    DefaultActionFactory actionFactory = getActionFactory();
     @Nullable Uri uri = intent.getData();
     @Nullable MediaSession session = uri != null ? MediaSession.getSession(uri) : null;
     if (actionFactory.isMediaAction(intent)) {
@@ -341,12 +354,13 @@ public abstract class MediaSessionService extends Service {
       if (keyEvent != null) {
         session.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
       }
-    } else if (actionFactory.isCustomAction(intent)) {
+    } else if (session != null && actionFactory.isCustomAction(intent)) {
       @Nullable String customAction = actionFactory.getCustomAction(intent);
-      if (session != null && customAction != null) {
-        Bundle customExtras = actionFactory.getCustomActionExtras(intent);
-        getMediaNotificationManager().onCustomAction(session, customAction, customExtras);
+      if (customAction == null) {
+        return START_STICKY;
       }
+      Bundle customExtras = actionFactory.getCustomActionExtras(intent);
+      getMediaNotificationManager().onCustomAction(session, customAction, customExtras);
     }
     return START_STICKY;
   }
@@ -369,11 +383,36 @@ public abstract class MediaSessionService extends Service {
   }
 
   /**
+   * Called when a notification needs to be updated. Override this method to show or cancel your own
+   * notifications.
+   *
+   * <p>This method is called whenever the service has detected a change that requires to show,
+   * update or cancel a notification. The method will be called on the application thread of the app
+   * that the service belongs to.
+   *
+   * <p>Override this method to create your own notification and customize the foreground handling
+   * of your service.
+   *
+   * <p>The default implementation will present a default notification or the notification provided
+   * by the {@link MediaNotification.Provider} that is {@link
+   * #setMediaNotificationProvider(MediaNotification.Provider) set} by the app. Further, the service
+   * is started in the <a
+   * href="https://developer.android.com/guide/components/foreground-services">foreground</a> when
+   * playback is ongoing and put back into background otherwise.
+   *
+   * <p>Apps targeting {@code SDK_INT >= 28} must request the permission, {@link
+   * android.Manifest.permission#FOREGROUND_SERVICE}.
+   *
+   * @param session A session that needs notification update.
+   */
+  public void onUpdateNotification(MediaSession session) {
+    getMediaNotificationManager().updateNotification(session);
+  }
+
+  /**
    * Sets the {@link MediaNotification.Provider} to customize notifications.
    *
-   * <p>This should be called before any session is attached to this service via {@link
-   * #onGetSession(ControllerInfo)} or {@link #addSession(MediaSession)}. Otherwise a default UX
-   * will be shown with {@link DefaultMediaNotificationProvider}.
+   * <p>This should be called before {@link #onCreate()} returns.
    */
   @UnstableApi
   protected final void setMediaNotificationProvider(
@@ -396,12 +435,20 @@ public abstract class MediaSessionService extends Service {
         if (mediaNotificationProvider == null) {
           mediaNotificationProvider = new DefaultMediaNotificationProvider(getApplicationContext());
         }
-        actionFactory = new DefaultActionFactory(/* service= */ this);
         mediaNotificationManager =
             new MediaNotificationManager(
-                /* mediaSessionService= */ this, mediaNotificationProvider, actionFactory);
+                /* mediaSessionService= */ this, mediaNotificationProvider, getActionFactory());
       }
       return mediaNotificationManager;
+    }
+  }
+
+  private DefaultActionFactory getActionFactory() {
+    synchronized (lock) {
+      if (actionFactory == null) {
+        actionFactory = new DefaultActionFactory(/* service= */ this);
+      }
+      return actionFactory;
     }
   }
 
@@ -417,7 +464,8 @@ public abstract class MediaSessionService extends Service {
       Context context = serviceReference.getApplicationContext();
       handler = new Handler(context.getMainLooper());
       mediaSessionManager = MediaSessionManager.getSessionManager(context);
-      pendingControllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      // ConcurrentHashMap has a bug in APIs 21-22 that can result in lost updates.
+      pendingControllers = Collections.synchronizedSet(new HashSet<>());
     }
 
     @Override
@@ -469,7 +517,7 @@ public abstract class MediaSessionService extends Service {
                         remoteUserInfo,
                         /* controllerVersion= */ request.version,
                         isTrusted,
-                        /* controllerCb= */ null,
+                        /* cb= */ null,
                         request.connectionHints);
 
                 @Nullable MediaSession session;

@@ -31,48 +31,55 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.content.Context;
+import android.media.Spatializer;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelection;
-import androidx.media3.common.TrackSelectionOverrides;
-import androidx.media3.common.TrackSelectionOverrides.TrackSelectionOverride;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.TrackSelectionOverride;
+import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.Parameters;
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.ParametersBuilder;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.SelectionOverride;
 import androidx.media3.exoplayer.trackselection.TrackSelector.InvalidationListener;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.media3.test.utils.FakeTimeline;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 /** Unit tests for {@link DefaultTrackSelector}. */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultTrackSelectorTest {
+
+  @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
   private static final RendererCapabilities ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
@@ -140,12 +147,16 @@ public final class DefaultTrackSelectorTest {
 
   @Before
   public void setUp() {
-    initMocks(this);
     when(bandwidthMeter.getBitrateEstimate()).thenReturn(1000000L);
     Context context = ApplicationProvider.getApplicationContext();
     defaultParameters = Parameters.getDefaults(context);
     trackSelector = new DefaultTrackSelector(context);
     trackSelector.init(invalidationListener, bandwidthMeter);
+  }
+
+  @After
+  public void tearDown() {
+    trackSelector.release();
   }
 
   @Test
@@ -171,10 +182,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .addOverride(new TrackSelectionOverride(VIDEO_TRACK_GROUP, ImmutableList.of()))
-                    .build()));
+            .addOverride(new TrackSelectionOverride(VIDEO_TRACK_GROUP, ImmutableList.of()))
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
@@ -225,18 +234,16 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .addOverride(
-                        new TrackSelectionOverride(
-                            videoGroupHighBitrate, /* trackIndices= */ ImmutableList.of()))
-                    .addOverride(
-                        new TrackSelectionOverride(
-                            videoGroupMidBitrate, /* trackIndices= */ ImmutableList.of(0)))
-                    .addOverride(
-                        new TrackSelectionOverride(
-                            videoGroupLowBitrate, /* trackIndices= */ ImmutableList.of()))
-                    .build()));
+            .addOverride(
+                new TrackSelectionOverride(
+                    videoGroupHighBitrate, /* trackIndices= */ ImmutableList.of()))
+            .addOverride(
+                new TrackSelectionOverride(
+                    videoGroupMidBitrate, /* trackIndices= */ ImmutableList.of(0)))
+            .addOverride(
+                new TrackSelectionOverride(
+                    videoGroupLowBitrate, /* trackIndices= */ ImmutableList.of()))
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -260,12 +267,10 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(
-                        new TrackSelectionOverride(
-                            new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), ImmutableList.of()))
-                    .build()));
+            .setOverrideForType(
+                new TrackSelectionOverride(
+                    new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), ImmutableList.of()))
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -309,10 +314,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
-                    .build()));
+            .setOverrideForType(new TrackSelectionOverride(videoGroupH264, /* trackIndex= */ 0))
+            .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
@@ -328,10 +331,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
-                    .build()));
+            .setOverrideForType(new TrackSelectionOverride(videoGroupAv1, /* trackIndex= */ 0))
+            .build());
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
@@ -361,10 +362,9 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
-                    .build()));
+            .setOverrideForType(
+                new TrackSelectionOverride(audioGroupUnsupported, /* trackIndex= */ 0))
+            .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES, audioRendererCapabilties},
@@ -405,7 +405,9 @@ public final class DefaultTrackSelectorTest {
   public void selectVideoAudioTracks_withDisabledAudioType_onlyVideoIsSelected()
       throws ExoPlaybackException {
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO)));
+        defaultParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -420,11 +422,12 @@ public final class DefaultTrackSelectorTest {
 
   /** Tests that a disabled track type can be enabled again. */
   @Test
+  @SuppressWarnings("deprecation")
   public void selectTracks_withClearedDisabledTrackType_selectsAll() throws ExoPlaybackException {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
             .setDisabledTrackTypes(ImmutableSet.of()));
 
     TrackSelectorResult result =
@@ -439,7 +442,9 @@ public final class DefaultTrackSelectorTest {
   public void selectTracks_withDisabledNoneTracksAndNoSampleRenderer_disablesNoSampleRenderer()
       throws ExoPlaybackException {
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_NONE)));
+        defaultParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_NONE, /* disabled= */ true));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -518,7 +523,7 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void setParameterWithNonDefaultParameterNotifyInvalidationListener() {
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    Parameters.Builder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
     trackSelector.setParameters(builder);
     verify(invalidationListener).onTrackSelectionsInvalidated();
   }
@@ -530,7 +535,7 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void setParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain() {
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    Parameters.Builder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
     trackSelector.setParameters(builder);
     trackSelector.setParameters(builder);
     verify(invalidationListener, times(1)).onTrackSelectionsInvalidated();
@@ -876,11 +881,18 @@ public final class DefaultTrackSelectorTest {
    * are the same, and tracks are within renderer's capabilities.
    */
   @Test
-  public void selectTracksWithinCapabilitiesSelectHigherNumChannel() throws Exception {
+  public void
+      selectTracks_audioChannelCountConstraintsDisabledAndTracksWithinCapabilities_selectHigherNumChannel()
+          throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
     Format higherChannelFormat = formatBuilder.setChannelCount(6).build();
     Format lowerChannelFormat = formatBuilder.setChannelCount(2).build();
     TrackGroupArray trackGroups = wrapFormats(higherChannelFormat, lowerChannelFormat);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -956,11 +968,13 @@ public final class DefaultTrackSelectorTest {
 
   /**
    * Tests that track selector will prefer audio tracks with higher channel count over tracks with
-   * higher sample rate when other factors are the same, and tracks are within renderer's
-   * capabilities.
+   * higher sample rate when audio channel count constraints are disabled, other factors are the
+   * same, and tracks are within renderer's capabilities.
    */
   @Test
-  public void selectTracksPreferHigherNumChannelBeforeSampleRate() throws Exception {
+  public void
+      selectTracks_audioChannelCountConstraintsDisabled_preferHigherNumChannelBeforeSampleRate()
+          throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
     Format higherChannelLowerSampleRateFormat =
         formatBuilder.setChannelCount(6).setSampleRate(22050).build();
@@ -968,6 +982,11 @@ public final class DefaultTrackSelectorTest {
         formatBuilder.setChannelCount(2).setSampleRate(44100).build();
     TrackGroupArray trackGroups =
         wrapFormats(higherChannelLowerSampleRateFormat, lowerChannelHigherSampleRateFormat);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -1138,7 +1157,7 @@ public final class DefaultTrackSelectorTest {
     // selected.
     trackGroups = wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault);
     trackSelector.setParameters(
-        defaultParameters.buildUpon().setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+        defaultParameters.buildUpon().setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
 
@@ -1149,8 +1168,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(
-                C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections[0]);
 
@@ -1168,7 +1186,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .getParameters()
             .buildUpon()
-            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT));
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_DEFAULT));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, noFlag);
   }
@@ -1271,7 +1289,7 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, undeterminedUnd);
 
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredTextLanguage("spa");
+    Parameters.Builder builder = defaultParameters.buildUpon().setPreferredTextLanguage("spa");
     trackSelector.setParameters(builder);
     result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, spanish);
@@ -1454,9 +1472,67 @@ public final class DefaultTrackSelectorTest {
     assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1);
   }
 
+  /**
+   * The following test is subject to the execution context. It currently runs on SDK 30 and the
+   * environment matches a handheld device ({@link Util#isTv(Context)} returns {@code false}) and
+   * there is no {@link android.media.Spatializer}. If the execution environment upgrades, the test
+   * may start failing depending on how the Robolectric Spatializer behaves. If the test starts
+   * failing, and Robolectric offers a shadow Spatializer whose behavior can be controlled, revise
+   * this test so that the Spatializer cannot spatialize the multichannel format. Also add tests
+   * where the Spatializer can spatialize multichannel formats and the track selector picks a
+   * multichannel format.
+   */
   @Test
-  public void selectTracks_multipleAudioTracks_selectsAllTracksInBestConfigurationOnly()
-      throws Exception {
+  public void selectTracks_stereoAndMultichannelAACTracks_selectsStereo()
+      throws ExoPlaybackException {
+    Format stereoAudioFormat = AUDIO_FORMAT.buildUpon().setChannelCount(2).setId("0").build();
+    Format multichannelAudioFormat = AUDIO_FORMAT.buildUpon().setChannelCount(6).setId("1").build();
+    TrackGroupArray trackGroups = singleTrackGroup(stereoAudioFormat, multichannelAudioFormat);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections[0].getSelectedFormat()).isSameInstanceAs(stereoAudioFormat);
+  }
+
+  /**
+   * The following test is subject to the execution context. It currently runs on SDK 30 and the
+   * environment matches a handheld device ({@link Util#isTv(Context)} returns {@code false}) and
+   * there is no {@link android.media.Spatializer}. If the execution environment upgrades, the test
+   * may start failing depending on how the Robolectric Spatializer behaves. If the test starts
+   * failing, and Robolectric offers a shadow Spatializer whose behavior can be controlled, revise
+   * this test so that the Spatializer does not support spatialization ({@link
+   * Spatializer#getImmersiveAudioLevel()} returns {@link
+   * Spatializer#SPATIALIZER_IMMERSIVE_LEVEL_NONE}).
+   */
+  @Test
+  public void
+      selectTracks_withAACStereoAndDolbyMultichannelTrackWithinCapabilities_selectsDolbyMultichannelTrack()
+          throws ExoPlaybackException {
+    Format stereoAudioFormat = AUDIO_FORMAT.buildUpon().setChannelCount(2).setId("0").build();
+    Format multichannelAudioFormat =
+        AUDIO_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.AUDIO_AC3)
+            .setChannelCount(6)
+            .setId("1")
+            .build();
+    TrackGroupArray trackGroups = singleTrackGroup(stereoAudioFormat, multichannelAudioFormat);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections[0].getSelectedFormat()).isSameInstanceAs(multichannelAudioFormat);
+  }
+
+  @Test
+  public void
+      selectTracks_audioChannelCountConstraintsDisabledAndMultipleAudioTracks_selectsAllTracksInBestConfigurationOnly()
+          throws Exception {
     TrackGroupArray trackGroups =
         singleTrackGroup(
             buildAudioFormatWithConfiguration(
@@ -1476,6 +1552,10 @@ public final class DefaultTrackSelectorTest {
                 /* channelCount= */ 6,
                 MimeTypes.AUDIO_AAC,
                 /* sampleRate= */ 44100));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -1568,10 +1648,17 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
-  public void selectTracksWithMultipleAudioTracksWithMixedChannelCounts() throws Exception {
+  public void
+      selectTracks_audioChannelCountConstraintsDisabledAndMultipleAudioTracksWithMixedChannelCounts()
+          throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
     Format stereoAudioFormat = formatBuilder.setChannelCount(2).build();
     Format surroundAudioFormat = formatBuilder.setChannelCount(5).build();
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
+            .build());
 
     // Should not adapt between different channel counts, so we expect a fixed selection containing
     // the track with more channels.
@@ -1592,7 +1679,11 @@ public final class DefaultTrackSelectorTest {
 
     // If we constrain the channel count to 4 we expect a fixed selection containing the track with
     // fewer channels.
-    trackSelector.setParameters(defaultParameters.buildUpon().setMaxAudioChannelCount(4));
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
+            .setMaxAudioChannelCount(4));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
@@ -1601,7 +1692,11 @@ public final class DefaultTrackSelectorTest {
 
     // If we constrain the channel count to 2 we expect a fixed selection containing the track with
     // fewer channels.
-    trackSelector.setParameters(defaultParameters.buildUpon().setMaxAudioChannelCount(2));
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
+            .setMaxAudioChannelCount(2));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
@@ -1610,7 +1705,11 @@ public final class DefaultTrackSelectorTest {
 
     // If we constrain the channel count to 1 we expect a fixed selection containing the track with
     // fewer channels.
-    trackSelector.setParameters(defaultParameters.buildUpon().setMaxAudioChannelCount(1));
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
+            .setMaxAudioChannelCount(1));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
@@ -1621,6 +1720,7 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         defaultParameters
             .buildUpon()
+            .setConstrainAudioChannelCountToDeviceCapabilities(false)
             .setMaxAudioChannelCount(1)
             .setExceedAudioConstraintsIfNecessary(false));
     result =
@@ -2233,10 +2333,10 @@ public final class DefaultTrackSelectorTest {
   public void selectTracks_multipleRenderer_allSelected() throws Exception {
     RendererCapabilities[] rendererCapabilities =
         new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES, AUDIO_CAPABILITIES};
-    TrackGroupArray trackGroups = new TrackGroupArray(AUDIO_TRACK_GROUP);
+    TrackGroupArray trackGroupArray = new TrackGroupArray(AUDIO_TRACK_GROUP);
 
     TrackSelectorResult result =
-        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+        trackSelector.selectTracks(rendererCapabilities, trackGroupArray, periodId, TIMELINE);
 
     assertThat(result.length).isEqualTo(3);
     assertThat(result.rendererConfigurations)
@@ -2244,14 +2344,14 @@ public final class DefaultTrackSelectorTest {
         .containsExactly(null, DEFAULT, null)
         .inOrder();
     assertThat(result.selections[0]).isNull();
-    assertFixedSelection(result.selections[1], trackGroups, trackGroups.get(0).getFormat(0));
+    assertFixedSelection(
+        result.selections[1], trackGroupArray, trackGroupArray.get(0).getFormat(0));
     assertThat(result.selections[2]).isNull();
-    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos =
-        result.tracksInfo.getTrackGroupInfos();
-    assertThat(trackGroupInfos).hasSize(1);
-    assertThat(trackGroupInfos.get(0).getTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
-    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isTrue();
-    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
+    ImmutableList<Tracks.Group> trackGroups = result.tracks.getGroups();
+    assertThat(trackGroups).hasSize(1);
+    assertThat(trackGroups.get(0).getMediaTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
+    assertThat(trackGroups.get(0).isTrackSelected(0)).isTrue();
+    assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }
 
   /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
@@ -2265,6 +2365,30 @@ public final class DefaultTrackSelectorTest {
             selectionOverrideToBundle.toBundle());
 
     assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
+  }
+
+  /**
+   * The deprecated {@link DefaultTrackSelector.ParametersBuilder} is implemented by delegating to
+   * an instance of {@link DefaultTrackSelector.Parameters.Builder}. However, it <b>also</b> extends
+   * {@link TrackSelectionParameters.Builder}, and for the delegation-pattern to work correctly it
+   * needs to override <b>every</b> setter method from the superclass (otherwise the setter won't be
+   * propagated to the delegate). This test ensures that invariant.
+   *
+   * <p>The test can be removed when the deprecated {@link DefaultTrackSelector.ParametersBuilder}
+   * is removed.
+   */
+  @SuppressWarnings("deprecation") // Testing deprecated builder
+  @Test
+  public void deprecatedParametersBuilderOverridesAllTrackSelectionParametersBuilderMethods()
+      throws Exception {
+    List<Method> methods = TestUtil.getPublicMethods(TrackSelectionParameters.Builder.class);
+    for (Method method : methods) {
+      assertThat(
+              DefaultTrackSelector.ParametersBuilder.class
+                  .getDeclaredMethod(method.getName(), method.getParameterTypes())
+                  .getDeclaringClass())
+          .isEqualTo(DefaultTrackSelector.ParametersBuilder.class);
+    }
   }
 
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
@@ -2375,11 +2499,12 @@ public final class DefaultTrackSelectorTest {
         .setAllowAudioMixedChannelCountAdaptiveness(true)
         .setAllowAudioMixedDecoderSupportAdaptiveness(false)
         .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3)
+        .setConstrainAudioChannelCountToDeviceCapabilities(false)
         // Text
         .setPreferredTextLanguages("de", "en")
         .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
         .setSelectUndeterminedTextLanguage(true)
-        .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
+        .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
         // General
         .setForceLowestBitrate(false)
         .setForceHighestSupportedBitrate(true)
@@ -2397,13 +2522,10 @@ public final class DefaultTrackSelectorTest {
         .setRendererDisabled(1, true)
         .setRendererDisabled(3, true)
         .setRendererDisabled(5, false)
-        .setTrackSelectionOverrides(
-            new TrackSelectionOverrides.Builder()
-                .setOverrideForType(
-                    new TrackSelectionOverride(
-                        new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
-                        /* trackIndices= */ ImmutableList.of(0, 2, 3)))
-                .build())
+        .setOverrideForType(
+            new TrackSelectionOverride(
+                new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
+                /* trackIndices= */ ImmutableList.of(0, 2, 3)))
         .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();
   }

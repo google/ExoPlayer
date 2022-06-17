@@ -94,8 +94,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
    * <tr>
    *   <td>
    *     {@code 21 <= SDK_INT < 28}<br>
-   *     for {@link MediaLibrarySessionCallback#onConnect onConnect}<br>
-   *     and {@link MediaLibrarySessionCallback#onGetLibraryRoot onGetLibraryRoot}
+   *     for {@link Callback#onConnect onConnect}<br>
+   *     and {@link Callback#onGetLibraryRoot onGetLibraryRoot}
    *   </td>
    *   <td>Actual package name via {@link Context#getPackageName()}</td>
    *   <td>Actual UID</td>
@@ -103,7 +103,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
    * <tr>
    *   <td>
    *     {@code 21 <= SDK_INT < 28}<br>
-   *     for other {@link MediaLibrarySessionCallback callbacks}
+   *     for other {@link Callback callbacks}
    *   </td>
    *   <td>{@link RemoteUserInfo#LEGACY_CONTROLLER}</td>
    *   <td>Negative value</td>
@@ -118,13 +118,13 @@ public abstract class MediaLibraryService extends MediaSessionService {
   public static final class MediaLibrarySession extends MediaSession {
 
     /**
-     * An extended {@link SessionCallback} for the {@link MediaLibrarySession}.
+     * An extended {@link MediaSession.Callback} for the {@link MediaLibrarySession}.
      *
      * <p>When you return {@link LibraryResult} with {@link MediaItem media items}, each item must
      * have valid {@link MediaItem#mediaId} and specify {@link MediaMetadata#folderType} and {@link
      * MediaMetadata#isPlayable} in its {@link MediaItem#mediaMetadata}.
      */
-    public interface MediaLibrarySessionCallback extends SessionCallback {
+    public interface Callback extends MediaSession.Callback {
 
       @Override
       default ConnectionResult onConnect(MediaSession session, ControllerInfo controller) {
@@ -361,8 +361,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
      */
     // Note: Don't override #setSessionCallback() because the callback can be set by the
     // constructor.
-    public static final class Builder
-        extends BuilderBase<MediaLibrarySession, Builder, MediaLibrarySessionCallback> {
+    public static final class Builder extends BuilderBase<MediaLibrarySession, Builder, Callback> {
 
       /**
        * Creates a builder for {@link MediaLibrarySession}.
@@ -377,8 +376,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
       // builder can be only instantiated within the MediaLibraryService.
       // Ideally it's better to make it inner class of service to enforce, but it violates API
       // guideline that Builders should be the inner class of the building target.
-      public Builder(
-          MediaLibraryService service, Player player, MediaLibrarySessionCallback callback) {
+      public Builder(MediaLibraryService service, Player player, Callback callback) {
         super(service, player, callback);
       }
 
@@ -409,17 +407,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
-       * Sets the logic used to fill in the fields of a {@link MediaItem}.
-       *
-       * @param mediaItemFiller The filler.
-       * @return The builder to allow chaining.
-       */
-      @Override
-      public Builder setMediaItemFiller(MediaItemFiller mediaItemFiller) {
-        return super.setMediaItemFiller(mediaItemFiller);
-      }
-
-      /**
        * Sets an extra {@link Bundle} for the {@link MediaLibrarySession}. The {@link
        * MediaLibrarySession#getToken()} session token} will have the {@link
        * SessionToken#getExtras() extras}. If not set, an empty {@link Bundle} will be used.
@@ -441,8 +428,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
        */
       @Override
       public MediaLibrarySession build() {
-        return new MediaLibrarySession(
-            context, id, player, sessionActivity, callback, mediaItemFiller, extras);
+        return new MediaLibrarySession(context, id, player, sessionActivity, callback, extras);
       }
     }
 
@@ -451,10 +437,9 @@ public abstract class MediaLibraryService extends MediaSessionService {
         String id,
         Player player,
         @Nullable PendingIntent sessionActivity,
-        SessionCallback callback,
-        MediaItemFiller mediaItemFiller,
+        MediaSession.Callback callback,
         Bundle tokenExtras) {
-      super(context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+      super(context, id, player, sessionActivity, callback, tokenExtras);
     }
 
     @Override
@@ -463,18 +448,10 @@ public abstract class MediaLibraryService extends MediaSessionService {
         String id,
         Player player,
         @Nullable PendingIntent sessionActivity,
-        SessionCallback callback,
-        MediaItemFiller mediaItemFiller,
+        MediaSession.Callback callback,
         Bundle tokenExtras) {
       return new MediaLibrarySessionImpl(
-          this,
-          context,
-          id,
-          player,
-          sessionActivity,
-          (MediaLibrarySession.MediaLibrarySessionCallback) callback,
-          mediaItemFiller,
-          tokenExtras);
+          this, context, id, player, sessionActivity, (Callback) callback, tokenExtras);
     }
 
     @Override
@@ -483,18 +460,17 @@ public abstract class MediaLibraryService extends MediaSessionService {
     }
 
     /**
-     * Notifies a browser that is {@link MediaLibrarySessionCallback#onSubscribe subscribing} to the
-     * change to a parent's children. If the browser isn't subscribing to the parent, nothing will
-     * happen.
+     * Notifies a browser that is {@link Callback#onSubscribe subscribing} to the change to a
+     * parent's children. If the browser isn't subscribing to the parent, nothing will happen.
      *
      * <p>This only tells the number of child {@link MediaItem media items}. {@link
-     * MediaLibrarySessionCallback#onGetChildren} will be called by the browser afterwards to get
-     * the list of {@link MediaItem media items}.
+     * Callback#onGetChildren} will be called by the browser afterwards to get the list of {@link
+     * MediaItem media items}.
      *
      * @param browser The browser to notify.
      * @param parentId The non-empty id of the parent with changes to its children.
      * @param itemCount The number of children.
-     * @param params The parameters given by {@link MediaLibrarySessionCallback#onSubscribe}.
+     * @param params The parameters given by {@link Callback#onSubscribe}.
      */
     public void notifyChildrenChanged(
         ControllerInfo browser,
@@ -507,9 +483,9 @@ public abstract class MediaLibraryService extends MediaSessionService {
     }
 
     /**
-     * Notifies all browsers that are {@link MediaLibrarySessionCallback#onSubscribe subscribing} to
-     * the parent of the change to its children regardless of the {@link LibraryParams params} given
-     * by {@link MediaLibrarySessionCallback#onSubscribe}.
+     * Notifies all browsers that are {@link Callback#onSubscribe subscribing} to the parent of the
+     * change to its children regardless of the {@link LibraryParams params} given by {@link
+     * Callback#onSubscribe}.
      *
      * @param parentId The non-empty id of the parent with changes to its children.
      * @param itemCount The number of children.
@@ -523,14 +499,12 @@ public abstract class MediaLibraryService extends MediaSessionService {
     }
 
     /**
-     * Notifies a browser of a change to the {@link MediaLibrarySessionCallback#onSearch search}
-     * result.
+     * Notifies a browser of a change to the {@link Callback#onSearch search} result.
      *
      * @param browser The browser to notify.
-     * @param query The non-empty search query given by {@link
-     *     MediaLibrarySessionCallback#onSearch}.
+     * @param query The non-empty search query given by {@link Callback#onSearch}.
      * @param itemCount The number of items that have been found in the search.
-     * @param params The parameters given by {@link MediaLibrarySessionCallback#onSearch}.
+     * @param params The parameters given by {@link Callback#onSearch}.
      */
     public void notifySearchResultChanged(
         ControllerInfo browser,

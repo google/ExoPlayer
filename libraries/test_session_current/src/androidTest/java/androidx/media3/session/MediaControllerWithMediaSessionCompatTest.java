@@ -29,7 +29,6 @@ import static androidx.media3.common.Player.STATE_BUFFERING;
 import static androidx.media3.common.Player.STATE_READY;
 import static androidx.media3.session.MediaConstants.ARGUMENT_CAPTIONING_ENABLED;
 import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED;
-import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_ALBUM_TITLE;
@@ -37,10 +36,8 @@ import static androidx.media3.test.session.common.CommonConstants.METADATA_ARTIS
 import static androidx.media3.test.session.common.CommonConstants.METADATA_DESCRIPTION;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_TITLE;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
-import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.app.PendingIntent;
@@ -85,8 +82,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -166,6 +161,23 @@ public class MediaControllerWithMediaSessionCompatTest {
               }
             });
     threadTestRule.getHandler().postAndSync(controller::release);
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.isConnected()).isFalse();
+  }
+
+  @Test
+  public void disconnected_byControllerReleaseRightAfterCreated() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaController controller =
+        controllerTestRule.createController(
+            session.getSessionToken(),
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            },
+            /* controllerCreationListener= */ MediaController::release);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controller.isConnected()).isFalse();
   }
@@ -423,19 +435,16 @@ public class MediaControllerWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(timelineRef.get().getWindowCount()).isEqualTo(1);
-    MediaMetadata metadata =
-        timelineRef
-            .get()
-            .getWindow(/* windowIndex= */ 0, new Timeline.Window())
-            .mediaItem
-            .mediaMetadata;
+    MediaItem mediaItem =
+        timelineRef.get().getWindow(/* windowIndex= */ 0, new Timeline.Window()).mediaItem;
+    MediaMetadata metadata = mediaItem.mediaMetadata;
     assertThat(TextUtils.equals(metadata.title, testTitle)).isTrue();
     assertThat(TextUtils.equals(metadata.subtitle, testSubtitle)).isTrue();
     assertThat(TextUtils.equals(metadata.description, testDescription)).isTrue();
     assertThat(metadata.artworkUri).isEqualTo(testIconUri);
     if (Util.SDK_INT < 21 || Util.SDK_INT >= 23) {
       // TODO(b/199055952): Test mediaUri for all API levels once the bug is fixed.
-      assertThat(metadata.mediaUri).isEqualTo(testMediaUri);
+      assertThat(mediaItem.requestMetadata.mediaUri).isEqualTo(testMediaUri);
     }
     assertThat(TestUtils.equals(metadata.extras, testExtras)).isTrue();
   }
@@ -519,13 +528,14 @@ public class MediaControllerWithMediaSessionCompatTest {
     session.setMetadata(metadataCompat);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(itemRef.get().mediaId).isEqualTo(testMediaId);
-    MediaMetadata metadata = itemRef.get().mediaMetadata;
+    MediaItem mediaItem = itemRef.get();
+    assertThat(mediaItem.mediaId).isEqualTo(testMediaId);
+    assertThat(mediaItem.requestMetadata.mediaUri).isEqualTo(Uri.parse(testMediaUri));
+    MediaMetadata metadata = mediaItem.mediaMetadata;
     assertThat(TextUtils.equals(metadata.title, testTitle)).isTrue();
     assertThat(TextUtils.equals(metadata.subtitle, testSubtitle)).isTrue();
     assertThat(TextUtils.equals(metadata.description, testDescription)).isTrue();
     assertThat(metadata.artworkUri).isEqualTo(Uri.parse(testIconUri));
-    assertThat(metadata.mediaUri).isEqualTo(Uri.parse(testMediaUri));
   }
 
   @Test
@@ -550,77 +560,6 @@ public class MediaControllerWithMediaSessionCompatTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(isPlayingAdRef.get()).isTrue();
-  }
-
-  @Test
-  public void setMediaUri_resultSetAfterPrepare() throws Exception {
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-
-    Uri testUri = Uri.parse("androidx://test");
-    ListenableFuture<SessionResult> future =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri, /* extras= */ Bundle.EMPTY));
-
-    SessionResult result;
-    try {
-      result = future.get(NO_RESPONSE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      assertWithMessage("TimeoutException is expected").fail();
-    } catch (TimeoutException e) {
-      // expected.
-    }
-
-    threadTestRule.getHandler().postAndSync(controller::prepare);
-
-    result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-  }
-
-  @Test
-  public void setMediaUri_resultSetAfterPlay() throws Exception {
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-
-    Uri testUri = Uri.parse("androidx://test");
-    ListenableFuture<SessionResult> future =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri, /* extras= */ Bundle.EMPTY));
-
-    SessionResult result;
-    try {
-      result = future.get(NO_RESPONSE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      assertWithMessage("TimeoutException is expected").fail();
-    } catch (TimeoutException e) {
-      // expected.
-    }
-
-    threadTestRule.getHandler().postAndSync(controller::play);
-
-    result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-  }
-
-  @Test
-  public void setMediaUris_multipleCalls_previousCallReturnsResultInfoSkipped() throws Exception {
-    MediaController controller = controllerTestRule.createController(session.getSessionToken());
-
-    Uri testUri1 = Uri.parse("androidx://test1");
-    Uri testUri2 = Uri.parse("androidx://test2");
-    ListenableFuture<SessionResult> future1 =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri1, /* extras= */ Bundle.EMPTY));
-    ListenableFuture<SessionResult> future2 =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> controller.setMediaUri(testUri2, /* extras= */ Bundle.EMPTY));
-
-    threadTestRule.getHandler().postAndSync(controller::prepare);
-
-    SessionResult result1 = future1.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    SessionResult result2 = future2.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    assertThat(result1.resultCode).isEqualTo(RESULT_INFO_SKIPPED);
-    assertThat(result2.resultCode).isEqualTo(RESULT_SUCCESS);
   }
 
   @Test

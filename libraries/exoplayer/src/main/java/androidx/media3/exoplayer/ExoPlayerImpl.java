@@ -69,12 +69,11 @@ import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.TracksInfo;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
@@ -86,14 +85,17 @@ import androidx.media3.exoplayer.PlayerMessage.Target;
 import androidx.media3.exoplayer.Renderer.MessageType;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.analytics.MediaMetricsListener;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.ShuffleOrder;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
+import androidx.media3.exoplayer.trackselection.TrackSelectionArray;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelectorResult;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
@@ -195,7 +197,7 @@ import java.util.concurrent.TimeoutException;
   private AudioAttributes audioAttributes;
   private float volume;
   private boolean skipSilenceEnabled;
-  private List<Cue> currentCues;
+  private CueGroup currentCueGroup;
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
   @Nullable private CameraMotionListener cameraMotionListener;
   private boolean throwsWhenUsingWrongThread;
@@ -276,7 +278,7 @@ import java.util.concurrent.TimeoutException;
           new TrackSelectorResult(
               new RendererConfiguration[renderers.length],
               new ExoTrackSelection[renderers.length],
-              TracksInfo.EMPTY,
+              Tracks.EMPTY,
               /* info= */ null);
       period = new Timeline.Period();
       permanentAvailableCommands =
@@ -293,7 +295,7 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_MEDIA_ITEMS_METADATA,
                   COMMAND_SET_MEDIA_ITEMS_METADATA,
                   COMMAND_CHANGE_MEDIA_ITEMS,
-                  COMMAND_GET_TRACK_INFOS,
+                  COMMAND_GET_TRACKS,
                   COMMAND_GET_AUDIO_ATTRIBUTES,
                   COMMAND_GET_VOLUME,
                   COMMAND_GET_DEVICE_VOLUME,
@@ -301,7 +303,8 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_SET_DEVICE_VOLUME,
                   COMMAND_ADJUST_DEVICE_VOLUME,
                   COMMAND_SET_VIDEO_SURFACE,
-                  COMMAND_GET_TEXT)
+                  COMMAND_GET_TEXT,
+                  COMMAND_SET_MEDIA_ITEM)
               .addIf(
                   COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
               .build();
@@ -317,7 +320,11 @@ import java.util.concurrent.TimeoutException;
               playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
       playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
       analyticsCollector.setPlayer(this.wrappingPlayer, applicationLooper);
-      PlayerId playerId = Util.SDK_INT < 31 ? new PlayerId() : Api31.createPlayerId();
+      PlayerId playerId =
+          Util.SDK_INT < 31
+              ? new PlayerId()
+              : Api31.registerMediaMetricsListener(
+                  applicationContext, /* player= */ this, builder.usePlatformDiagnostics);
       internalPlayer =
           new ExoPlayerImplInternal(
               renderers,
@@ -348,7 +355,7 @@ import java.util.concurrent.TimeoutException;
       } else {
         audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
-      currentCues = ImmutableList.of();
+      currentCueGroup = CueGroup.EMPTY;
       throwsWhenUsingWrongThread = true;
 
       addListener(analyticsCollector);
@@ -373,6 +380,7 @@ import java.util.concurrent.TimeoutException;
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
 
+      trackSelector.setAudioAttributes(audioAttributes);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
@@ -931,7 +939,7 @@ import java.util.concurrent.TimeoutException;
     verifyApplicationThread();
     audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
     stopInternal(reset, /* error= */ null);
-    currentCues = ImmutableList.of();
+    currentCueGroup = CueGroup.EMPTY;
   }
 
   @Override
@@ -975,6 +983,7 @@ import java.util.concurrent.TimeoutException;
     playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
     playbackInfo.totalBufferedDurationUs = 0;
     analyticsCollector.release();
+    trackSelector.release();
     removeSurfaceCallbacks();
     if (ownedSurface != null) {
       ownedSurface.release();
@@ -984,7 +993,7 @@ import java.util.concurrent.TimeoutException;
       checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
-    currentCues = ImmutableList.of();
+    currentCueGroup = CueGroup.EMPTY;
     playerReleased = true;
   }
 
@@ -1142,9 +1151,9 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public TracksInfo getCurrentTracksInfo() {
+  public Tracks getCurrentTracks() {
     verifyApplicationThread();
-    return playbackInfo.trackSelectorResult.tracksInfo;
+    return playbackInfo.trackSelectorResult.tracks;
   }
 
   @Override
@@ -1367,6 +1376,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     audioFocusManager.setAudioAttributes(handleAudioFocus ? newAudioAttributes : null);
+    trackSelector.setAudioAttributes(newAudioAttributes);
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
@@ -1581,9 +1591,9 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
+  public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return currentCues;
+    return currentCueGroup;
   }
 
   @Override
@@ -1891,14 +1901,9 @@ import java.util.concurrent.TimeoutException;
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
-      TrackSelectionArray newSelection =
-          new TrackSelectionArray(newPlaybackInfo.trackSelectorResult.selections);
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
-      listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksInfoChanged(newPlaybackInfo.trackSelectorResult.tracksInfo));
+          listener -> listener.onTracksChanged(newPlaybackInfo.trackSelectorResult.tracks));
     }
     if (metadataChanged) {
       final MediaMetadata finalMediaMetadata = mediaMetadata;
@@ -2849,11 +2854,15 @@ import java.util.concurrent.TimeoutException;
     }
 
     // TextOutput implementation
-
     @Override
     public void onCues(List<Cue> cues) {
-      currentCues = cues;
       listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cues));
+    }
+
+    @Override
+    public void onCues(CueGroup cueGroup) {
+      currentCueGroup = cueGroup;
+      listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cueGroup));
     }
 
     // MetadataOutput implementation
@@ -3079,9 +3088,17 @@ import java.util.concurrent.TimeoutException;
     private Api31() {}
 
     @DoNotInline
-    public static PlayerId createPlayerId() {
-      // TODO: Create a MediaMetricsListener and obtain LogSessionId from it.
-      return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
+    public static PlayerId registerMediaMetricsListener(
+        Context context, ExoPlayerImpl player, boolean usePlatformDiagnostics) {
+      @Nullable MediaMetricsListener listener = MediaMetricsListener.create(context);
+      if (listener == null) {
+        Log.w(TAG, "MediaMetricsService unavailable.");
+        return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
+      }
+      if (usePlatformDiagnostics) {
+        player.addAnalyticsListener(listener);
+      }
+      return new PlayerId(listener.getLogSessionId());
     }
   }
 }

@@ -20,7 +20,9 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.TransferListener;
 
-/** @deprecated Use {@link RtmpDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link RtmpDataSource.Factory} instead.
+ */
 @Deprecated
 @UnstableApi
 public final class RtmpDataSourceFactory implements DataSource.Factory {
@@ -31,7 +33,9 @@ public final class RtmpDataSourceFactory implements DataSource.Factory {
     this(null);
   }
 
-  /** @param listener An optional listener. */
+  /**
+   * @param listener An optional listener.
+   */
   public RtmpDataSourceFactory(@Nullable TransferListener listener) {
     this.listener = listener;
   }

@@ -34,18 +34,18 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
   <Button
-    android:id="@+id/choose_file_button"
+    android:id="@+id/select_file_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="32dp"
     android:layout_marginStart="32dp"
     android:layout_marginEnd="32dp"
-    android:text="@string/choose_file_title"
+    android:text="@string/select_file_title"
     app:layout_constraintTop_toBottomOf="@+id/configuration_text_view"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />
   <TextView
-    android:id="@+id/chosen_file_text_view"
+    android:id="@+id/selected_file_text_view"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
@@ -57,14 +57,14 @@
     android:gravity="center"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/choose_file_button" />
+    app:layout_constraintTop_toBottomOf="@+id/select_file_button" />
   <androidx.core.widget.NestedScrollView
     android:layout_width="fill_parent"
     android:layout_height="0dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/chosen_file_text_view"
-    app:layout_constraintBottom_toTopOf="@+id/transform_button">
+    app:layout_constraintTop_toBottomOf="@+id/selected_file_text_view"
+    app:layout_constraintBottom_toTopOf="@+id/select_demo_effects_button">
     <TableLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
@@ -141,17 +141,6 @@
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView
-          android:id="@+id/translate"
-          android:text="@string/translate"/>
-        <Spinner
-          android:id="@+id/translate_spinner"
-          android:layout_gravity="right|center_vertical"
-          android:gravity="right" />
-      </TableRow>
-      <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
-        <TextView
           android:id="@+id/scale"
           android:text="@string/scale"/>
         <Spinner
@@ -174,6 +163,36 @@
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView
+          android:id="@+id/trim"
+          android:text="@string/trim" />
+        <CheckBox
+          android:id="@+id/trim_checkbox"
+          android:layout_gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:text="@string/enable_fallback" />
+        <CheckBox
+          android:id="@+id/enable_fallback_checkbox"
+          android:layout_gravity="right"
+          android:checked="true"/>
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
+          android:id="@+id/request_sdr_tone_mapping"
+          android:text="@string/request_sdr_tone_mapping" />
+        <CheckBox
+          android:id="@+id/request_sdr_tone_mapping_checkbox"
+          android:layout_gravity="right" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
           android:id="@+id/hdr_editing"
           android:text="@string/hdr_editing" />
         <CheckBox
@@ -182,6 +201,17 @@
       </TableRow>
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
+  <Button
+    android:id="@+id/select_demo_effects_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/select_demo_effects"
+    app:layout_constraintBottom_toTopOf="@+id/transform_button"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
   <Button
     android:id="@+id/transform_button"
     android:layout_width="wrap_content"

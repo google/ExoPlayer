@@ -25,10 +25,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
@@ -87,9 +87,10 @@ public class RemoteMediaController {
   // MediaController methods
   ////////////////////////////////////////////////////////////////////////////////
 
+  @Nullable
   public SessionToken getConnectedSessionToken() throws RemoteException {
-    return BundleableUtil.fromNullableBundle(
-        SessionToken.CREATOR, binder.getConnectedSessionToken(controllerId));
+    @Nullable Bundle sessionTokenBundle = binder.getConnectedSessionToken(controllerId);
+    return sessionTokenBundle == null ? null : SessionToken.CREATOR.fromBundle(sessionTokenBundle);
   }
 
   public void play() throws RemoteException {
@@ -133,7 +134,7 @@ public class RemoteMediaController {
   }
 
   public void setPlaybackParameters(PlaybackParameters playbackParameters) throws RemoteException {
-    binder.setPlaybackParameters(controllerId, BundleableUtil.toNullableBundle(playbackParameters));
+    binder.setPlaybackParameters(controllerId, playbackParameters.toBundle());
   }
 
   public void setPlaybackSpeed(float speed) throws RemoteException {
@@ -176,10 +177,6 @@ public class RemoteMediaController {
    */
   public void createAndSetFakeMediaItems(int size) throws RemoteException {
     binder.createAndSetFakeMediaItems(controllerId, size);
-  }
-
-  public void setMediaUri(Uri uri, Bundle extras) throws RemoteException {
-    binder.setMediaUri(controllerId, uri, extras);
   }
 
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) throws RemoteException {

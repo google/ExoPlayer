@@ -37,11 +37,11 @@
     <item quantity="one">තත්පර %dක් වේගයෙන් ඉදිරියට</item>
     <item quantity="other">තත්පර %dක් වේගයෙන් ඉදිරියට</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">කිසිවක් පුනරාවර්තනය නොකරන්න</string>
-  <string name="exo_controls_repeat_one_description">එකක් පුනරාවර්තනය කරන්න</string>
-  <string name="exo_controls_repeat_all_description">සියල්ල පුනරාවර්තනය කරන්න</string>
-  <string name="exo_controls_shuffle_on_description">කලවම් කිරීම ක්‍රියාත්මකයි</string>
-  <string name="exo_controls_shuffle_off_description">කලවම් කිරීම ක්‍රියා විරහිතයි</string>
+  <string name="exo_controls_repeat_off_description">වත්මන් ප්‍රකාරය: කිසිවක් පුනරාවර්තනය නොකරන්න. පුනරාවර්තන ප්‍රකාරය ටොගල කරන්න.</string>
+  <string name="exo_controls_repeat_one_description">වත්මන් ප්‍රකාරය: එකක් පුනරාවර්තනය කරන්න. පුනරාවර්තන ප්‍රකාරය ටොගල කරන්න.</string>
+  <string name="exo_controls_repeat_all_description">වත්මන් ප්‍රකාරය: සියල්ල පුනරාවර්තනය කරන්න. පුනරාවර්තන ප්‍රකාරය ටොගල කරන්න.</string>
+  <string name="exo_controls_shuffle_on_description">කළවම් ප්‍රකාරය අබල කරන්න</string>
+  <string name="exo_controls_shuffle_off_description">කළවම් ප්‍රකාරය සබල කරන්න</string>
   <string name="exo_controls_vr_description">VR ප්‍රකාරය</string>
   <string name="exo_controls_cc_enabled_description">උපසිරැසි අබල කරන්න</string>
   <string name="exo_controls_cc_disabled_description">උපසිරැසි සබල කරන්න</string>

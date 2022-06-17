@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.media3.common.C;
+import androidx.media3.common.ParserException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,8 +56,14 @@ public class RtspSessionTimingTest {
   }
 
   @Test
-  public void parseTiming_withInvalidRangeTiming_throwsIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class, () -> RtspSessionTiming.parseTiming("npt=10.000-2.054"));
+  public void parseTiming_withRangeTimingAndColonSeparator() throws Exception {
+    RtspSessionTiming sessionTiming = RtspSessionTiming.parseTiming("npt:0.000-32.054");
+    assertThat(sessionTiming.getDurationMs()).isEqualTo(32054);
+    assertThat(sessionTiming.isLive()).isFalse();
+  }
+
+  @Test
+  public void parseTiming_withInvalidRangeTiming_throwsParserException() {
+    assertThrows(ParserException.class, () -> RtspSessionTiming.parseTiming("npt=10.000-2.054"));
   }
 }

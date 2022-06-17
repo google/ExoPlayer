@@ -29,6 +29,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
 import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
@@ -75,7 +76,6 @@ import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.MediaUtils.intersect;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
-import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_PERMISSION_DENIED;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
@@ -92,7 +92,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -134,7 +133,7 @@ import androidx.media3.common.Timeline.RemotableTimeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
@@ -309,6 +308,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       serviceConnection = null;
     }
     connectedToken = null;
+    flushCommandQueueHandler.removeCallbacksAndMessages(/* token= */ null);
     this.iSession = null;
     controllerStub.destroy();
     if (iSession != null) {
@@ -816,29 +816,29 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) -> iSession.setMediaItem(controllerStub, seq, mediaItem.toBundle()));
 
     setMediaItemsInternal(
         Collections.singletonList(mediaItem),
         /* startIndex= */ C.INDEX_UNSET,
         /* startPositionMs= */ C.TIME_UNSET,
-        /* resetToDefaultPosition= */ false);
+        /* resetToDefaultPosition= */ true);
   }
 
   @Override
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithStartPosition(
                 controllerStub, seq, mediaItem.toBundle(), startPositionMs));
@@ -852,12 +852,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithResetPosition(
                 controllerStub, seq, mediaItem.toBundle(), resetPosition));
@@ -887,7 +887,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         mediaItems,
         /* startIndex= */ C.INDEX_UNSET,
         /* startPositionMs= */ C.TIME_UNSET,
-        /* resetToDefaultPosition= */ false);
+        /* resetToDefaultPosition= */ true);
   }
 
   @Override
@@ -930,14 +930,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     setMediaItemsInternal(
         mediaItems, startIndex, startPositionMs, /* resetToDefaultPosition= */ false);
-  }
-
-  @Override
-  public ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras) {
-    return dispatchRemoteSessionTaskWithSessionCommand(
-        COMMAND_CODE_SESSION_SET_MEDIA_URI,
-        (RemoteSessionTask)
-            (iSession, seq) -> iSession.setMediaUri(controllerStub, seq, uri, extras));
   }
 
   @Override
@@ -1076,7 +1068,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* positionDiscontinuity= */ false,
-        /* ignored= */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* mediaItemTransition= */ oldTimeline.isEmpty(),
         MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
   }
@@ -1489,8 +1481,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public List<Cue> getCurrentCues() {
-    return playerInfo.cues;
+  public CueGroup getCurrentCues() {
+    return playerInfo.cueGroup;
   }
 
   @Override
@@ -1840,12 +1832,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       throw new IllegalSeekPositionException(newTimeline, startIndex, startPositionMs);
     }
 
+    boolean correctedStartIndex = false;
     if (resetToDefaultPosition) {
       startIndex = newTimeline.getFirstWindowIndex(playerInfo.shuffleModeEnabled);
       startPositionMs = C.TIME_UNSET;
     } else if (startIndex == C.INDEX_UNSET) {
       startIndex = playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex;
       startPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      if (startIndex >= newTimeline.getWindowCount()) {
+        correctedStartIndex = true;
+        startIndex = newTimeline.getFirstWindowIndex(playerInfo.shuffleModeEnabled);
+        startPositionMs = C.TIME_UNSET;
+      }
     }
     PositionInfo newPositionInfo;
     SessionPositionInfo newSessionPositionInfo;
@@ -1913,7 +1911,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     // Mask the playback state.
     int maskingPlaybackState = newPlayerInfo.playbackState;
     if (startIndex != C.INDEX_UNSET && newPlayerInfo.playbackState != STATE_IDLE) {
-      if (newTimeline.isEmpty() || startIndex >= newTimeline.getWindowCount()) {
+      if (newTimeline.isEmpty() || correctedStartIndex) {
         // Setting an empty timeline or invalid seek transitions to ended.
         maskingPlaybackState = STATE_ENDED;
       } else {
@@ -1986,7 +1984,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
           /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ false,
-          /* ignored= */ DISCONTINUITY_REASON_INTERNAL,
+          /* ignored */ DISCONTINUITY_REASON_INTERNAL,
           /* mediaItemTransition= */ false,
           /* ignored */ MEDIA_ITEM_TRANSITION_REASON_REPEAT);
     }
@@ -2261,7 +2259,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   IMediaSession getSessionInterfaceWithSessionCommandIfAble(SessionCommand command) {
     checkArgument(command.commandCode == COMMAND_CODE_CUSTOM);
     if (!sessionCommands.contains(command)) {
-      Log.w(TAG, "Controller isn't allowed to call session command:" + command);
+      Log.w(TAG, "Controller isn't allowed to call custom session command:" + command.customAction);
       return null;
     }
     return iSession;
@@ -2355,6 +2353,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         });
   }
 
+  @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   void onPlayerInfoChanged(
       PlayerInfo newPlayerInfo,
       @TimelineChangeReason int timelineChangedReason,
@@ -2426,10 +2425,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* eventFlag= */ C.INDEX_UNSET,
           listener -> listener.onAudioAttributesChanged(playerInfo.audioAttributes));
     }
-    if (!Util.areEqual(oldPlayerInfo.cues, playerInfo.cues)) {
+    if (!oldPlayerInfo.cueGroup.cues.equals(playerInfo.cueGroup.cues)) {
       // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cues));
+          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup.cues));
+      listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup));
     }
     if (!Util.areEqual(oldPlayerInfo.deviceInfo, playerInfo.deviceInfo)) {
       // TODO(b/187152483): Set proper event code when available.
@@ -2574,14 +2575,31 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isConnected()) {
       return;
     }
+    List<CommandButton> validatedCustomLayout = new ArrayList<>();
+    for (int i = 0; i < layout.size(); i++) {
+      CommandButton button = layout.get(i);
+      if (intersectedPlayerCommands.contains(button.playerCommand)
+          || (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
+          || (button.playerCommand != Player.COMMAND_INVALID
+              && sessionCommands.contains(button.playerCommand))) {
+        validatedCustomLayout.add(button);
+      }
+    }
     instance.notifyControllerListener(
         listener -> {
           ListenableFuture<SessionResult> future =
               checkNotNull(
-                  listener.onSetCustomLayout(instance, layout),
+                  listener.onSetCustomLayout(instance, validatedCustomLayout),
                   "MediaController.Listener#onSetCustomLayout() must not return null");
           sendControllerResultWhenReady(seq, future);
         });
+  }
+
+  public void onExtrasChanged(Bundle extras) {
+    if (!isConnected()) {
+      return;
+    }
+    instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
   }
 
   public void onRenderedFirstFrame() {
@@ -3046,9 +3064,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     public void sendFlushCommandQueueMessage() {
-      // Send message to notify the end of the transaction. It will be handled when the current
-      // looper iteration is over.
-      if (!hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+      if (iSession != null && !hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+        // Send message to notify the end of the transaction. It will be handled when the current
+        // looper iteration is over.
         sendEmptyMessage(MSG_FLUSH_COMMAND_QUEUE);
       }
     }

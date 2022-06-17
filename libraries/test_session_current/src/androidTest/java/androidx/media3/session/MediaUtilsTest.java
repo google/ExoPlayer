@@ -20,7 +20,6 @@ import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_Q
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
@@ -31,7 +30,6 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.text.SpannedString;
 import android.text.TextUtils;
 import androidx.media.AudioAttributesCompat;
 import androidx.media3.common.AudioAttributes;
@@ -44,12 +42,10 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
 import androidx.media3.common.ThumbRating;
-import androidx.media3.common.text.Cue;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -422,17 +418,6 @@ public final class MediaUtilsTest {
             .build();
     assertThat(MediaUtils.convertToAudioAttributes(aaCompat)).isEqualTo(aa);
     assertThat(MediaUtils.convertToAudioAttributesCompat(aa)).isEqualTo(aaCompat);
-  }
-
-  @Test
-  public void filterOutBitmapCues_dropsBitmap() {
-    Cue textCue = new Cue.Builder().setText(SpannedString.valueOf("text")).build();
-    Cue bitmapCue =
-        new Cue.Builder().setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)).build();
-    List<Cue> filteredCues = MediaUtils.filterOutBitmapCues(ImmutableList.of(textCue, bitmapCue));
-
-    assertThat(filteredCues).hasSize(1);
-    assertThat(filteredCues.get(0)).isEqualTo(textCue);
   }
 
   @Test

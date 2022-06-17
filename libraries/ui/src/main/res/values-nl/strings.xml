@@ -37,11 +37,11 @@
     <item quantity="one">%d seconde vooruitspoelen</item>
     <item quantity="other">%d seconden vooruitspoelen</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Niets herhalen</string>
-  <string name="exo_controls_repeat_one_description">Eén herhalen</string>
-  <string name="exo_controls_repeat_all_description">Alles herhalen</string>
-  <string name="exo_controls_shuffle_on_description">Shuffle aan</string>
-  <string name="exo_controls_shuffle_off_description">Shuffle uit</string>
+  <string name="exo_controls_repeat_off_description">Huidige modus: Niets herhalen. Herhaalmodus schakelen.</string>
+  <string name="exo_controls_repeat_one_description">Huidige modus: 1 herhalen. Herhaalmodus schakelen.</string>
+  <string name="exo_controls_repeat_all_description">Huidige modus: Alles herhalen. Herhaalmodus schakelen.</string>
+  <string name="exo_controls_shuffle_on_description">Shuffle uitzetten</string>
+  <string name="exo_controls_shuffle_off_description">Shuffle aanzetten</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_controls_cc_enabled_description">Ondertiteling uitzetten</string>
   <string name="exo_controls_cc_disabled_description">Ondertiteling aanzetten</string>

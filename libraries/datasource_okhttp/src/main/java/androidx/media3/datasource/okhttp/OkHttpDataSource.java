@@ -32,10 +32,14 @@ import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceException;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.HttpDataSource;
+import androidx.media3.datasource.HttpDataSource.HttpDataSourceException;
+import androidx.media3.datasource.HttpDataSource.InvalidContentTypeException;
+import androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException;
 import androidx.media3.datasource.HttpUtil;
 import androidx.media3.datasource.TransferListener;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
+import com.google.common.util.concurrent.SettableFuture;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -43,8 +47,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import okhttp3.CacheControl;
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -60,7 +66,6 @@ import okhttp3.ResponseBody;
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
  * construct the instance.
  */
-@UnstableApi
 public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   static {
@@ -89,6 +94,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       defaultRequestProperties = new RequestProperties();
     }
 
+    @UnstableApi
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
@@ -105,6 +111,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      *     agent of the underlying {@link OkHttpClient}.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
@@ -118,6 +125,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      * @param cacheControl The cache control that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setCacheControl(@Nullable CacheControl cacheControl) {
       this.cacheControl = cacheControl;
       return this;
@@ -134,6 +142,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      *     predicate that was previously set.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
       return this;
@@ -149,11 +158,13 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @UnstableApi
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
     }
 
+    @UnstableApi
     @Override
     public OkHttpDataSource createDataSource() {
       OkHttpDataSource dataSource =
@@ -181,21 +192,30 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   private long bytesToRead;
   private long bytesRead;
 
-  /** @deprecated Use {@link OkHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link OkHttpDataSource.Factory} instead.
+   */
   @SuppressWarnings("deprecation")
+  @UnstableApi
   @Deprecated
   public OkHttpDataSource(Call.Factory callFactory) {
     this(callFactory, /* userAgent= */ null);
   }
 
-  /** @deprecated Use {@link OkHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link OkHttpDataSource.Factory} instead.
+   */
   @SuppressWarnings("deprecation")
+  @UnstableApi
   @Deprecated
   public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent) {
     this(callFactory, userAgent, /* cacheControl= */ null, /* defaultRequestProperties= */ null);
   }
 
-  /** @deprecated Use {@link OkHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link OkHttpDataSource.Factory} instead.
+   */
+  @UnstableApi
   @Deprecated
   public OkHttpDataSource(
       Call.Factory callFactory,
@@ -228,27 +248,32 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * @deprecated Use {@link OkHttpDataSource.Factory#setContentTypePredicate(Predicate)} instead.
    */
+  @UnstableApi
   @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
     this.contentTypePredicate = contentTypePredicate;
   }
 
+  @UnstableApi
   @Override
   @Nullable
   public Uri getUri() {
     return response == null ? null : Uri.parse(response.request().url().toString());
   }
 
+  @UnstableApi
   @Override
   public int getResponseCode() {
     return response == null ? -1 : response.code();
   }
 
+  @UnstableApi
   @Override
   public Map<String, List<String>> getResponseHeaders() {
     return response == null ? Collections.emptyMap() : response.headers().toMultimap();
   }
 
+  @UnstableApi
   @Override
   public void setRequestProperty(String name, String value) {
     Assertions.checkNotNull(name);
@@ -256,17 +281,20 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     requestProperties.set(name, value);
   }
 
+  @UnstableApi
   @Override
   public void clearRequestProperty(String name) {
     Assertions.checkNotNull(name);
     requestProperties.remove(name);
   }
 
+  @UnstableApi
   @Override
   public void clearAllRequestProperties() {
     requestProperties.clear();
   }
 
+  @UnstableApi
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -277,8 +305,9 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     Request request = makeRequest(dataSpec);
     Response response;
     ResponseBody responseBody;
+    Call call = callFactory.newCall(request);
     try {
-      this.response = callFactory.newCall(request).execute();
+      this.response = executeCall(call);
       response = this.response;
       responseBody = Assertions.checkNotNull(response.body());
       responseByteStream = responseBody.byteStream();
@@ -352,6 +381,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     return bytesToRead;
   }
 
+  @UnstableApi
   @Override
   public int read(byte[] buffer, int offset, int length) throws HttpDataSourceException {
     try {
@@ -362,6 +392,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
   }
 
+  @UnstableApi
   @Override
   public void close() {
     if (opened) {
@@ -422,6 +453,35 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
     builder.method(dataSpec.getHttpMethodString(), requestBody);
     return builder.build();
+  }
+
+  /**
+   * This method is an interrupt safe replacement of OkHttp Call.execute() which can get in bad
+   * states if interrupted while writing to the shared connection socket.
+   */
+  private Response executeCall(Call call) throws IOException {
+    SettableFuture<Response> future = SettableFuture.create();
+    call.enqueue(
+        new Callback() {
+          @Override
+          public void onFailure(Call call, IOException e) {
+            future.setException(e);
+          }
+
+          @Override
+          public void onResponse(Call call, Response response) {
+            future.set(response);
+          }
+        });
+
+    try {
+      return future.get();
+    } catch (InterruptedException e) {
+      call.cancel();
+      throw new InterruptedIOException();
+    } catch (ExecutionException ee) {
+      throw new IOException(ee);
+    }
   }
 
   /**

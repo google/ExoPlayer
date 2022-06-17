@@ -41,11 +41,11 @@
     <item quantity="many">Prasukti pirmyn %d sekundės</item>
     <item quantity="other">Prasukti pirmyn %d sekundžių</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Nekartoti nieko</string>
-  <string name="exo_controls_repeat_one_description">Kartoti vieną</string>
-  <string name="exo_controls_repeat_all_description">Kartoti viską</string>
-  <string name="exo_controls_shuffle_on_description">Maišymas įjungtas</string>
-  <string name="exo_controls_shuffle_off_description">Maišymas išjungtas</string>
+  <string name="exo_controls_repeat_off_description">Dabart. rež.: nekart. nieko. Perj. pakart. r.</string>
+  <string name="exo_controls_repeat_one_description">Dabart. rež.: kart. vieną. Perj. pakart. r.</string>
+  <string name="exo_controls_repeat_all_description">Dabart. rež.: kart. viską. Perj. pakart. r.</string>
+  <string name="exo_controls_shuffle_on_description">Išjungti maišymo režimą</string>
+  <string name="exo_controls_shuffle_off_description">Įgalinti maišymo režimą</string>
   <string name="exo_controls_vr_description">VR režimas</string>
   <string name="exo_controls_cc_enabled_description">Išjungti subtitrus</string>
   <string name="exo_controls_cc_disabled_description">Įgalinti subtitrus</string>

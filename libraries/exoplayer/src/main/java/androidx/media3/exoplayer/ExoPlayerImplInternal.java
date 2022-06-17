@@ -44,7 +44,6 @@ import androidx.media3.common.Player.PlayWhenReadyChangeReason;
 import androidx.media3.common.Player.PlaybackSuppressionReason;
 import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
@@ -62,6 +61,7 @@ import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.ShuffleOrder;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.text.TextRenderer;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
@@ -168,15 +168,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
-  /**
-   * Duration under which pausing the main DO_SOME_WORK loop is not expected to yield significant
-   * power saving.
-   *
-   * <p>This value is probably too high, power measurements are needed adjust it, but as renderer
-   * sleep is currently only implemented for audio offload, which uses buffer much bigger than 2s,
-   * this does not matter for now.
-   */
-  private static final long MIN_RENDERER_SLEEP_DURATION_MS = 2000;
   /**
    * Duration for which the player needs to appear stuck before the playback is failed on the
    * assumption that no further progress will be made. To appear stuck, the player's renderers must
@@ -2486,11 +2477,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         Renderer.MSG_SET_WAKEUP_LISTENER,
         new Renderer.WakeupListener() {
           @Override
-          public void onSleep(long wakeupDeadlineMs) {
-            // Do not sleep if the expected sleep time is not long enough to save significant power.
-            if (wakeupDeadlineMs >= MIN_RENDERER_SLEEP_DURATION_MS) {
-              requestForRendererSleep = true;
-            }
+          public void onSleep() {
+            requestForRendererSleep = true;
           }
 
           @Override

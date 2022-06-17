@@ -37,11 +37,11 @@
     <item quantity="one">Maju cepat %d detik</item>
     <item quantity="other">Maju cepat %d detik</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Jangan ulangi</string>
-  <string name="exo_controls_repeat_one_description">Ulangi 1</string>
-  <string name="exo_controls_repeat_all_description">Ulangi semua</string>
-  <string name="exo_controls_shuffle_on_description">Acak aktif</string>
-  <string name="exo_controls_shuffle_off_description">Acak tidak aktif</string>
+  <string name="exo_controls_repeat_off_description">Mode saat ini: Tidak berulang. Alihkan mode berulang.</string>
+  <string name="exo_controls_repeat_one_description">Mode saat ini: Ulang sekali. Alihkan mode berulang.</string>
+  <string name="exo_controls_repeat_all_description">Mode saat ini: Ulang semua. Alihkan mode berulang.</string>
+  <string name="exo_controls_shuffle_on_description">Nonaktifkan mode acak</string>
+  <string name="exo_controls_shuffle_off_description">Aktifkan mode acak</string>
   <string name="exo_controls_vr_description">Mode VR</string>
   <string name="exo_controls_cc_enabled_description">Nonaktifkan subtitel</string>
   <string name="exo_controls_cc_disabled_description">Aktifkan subtitel</string>

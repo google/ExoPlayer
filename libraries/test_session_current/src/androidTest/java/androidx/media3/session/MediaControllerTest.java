@@ -36,6 +36,7 @@ import android.os.RemoteException;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.HeartRating;
+import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MediaMetadata;
@@ -56,6 +57,7 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -64,6 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -192,7 +195,7 @@ public class MediaControllerTest {
   }
 
   @Test
-  public void isConnected_afterDisconnection_returnsFalse() throws Exception {
+  public void isConnected_afterDisconnectionBySessionRelease_returnsFalse() throws Exception {
     CountDownLatch disconnectedLatch = new CountDownLatch(1);
     MediaController controller =
         controllerTestRule.createController(
@@ -207,6 +210,43 @@ public class MediaControllerTest {
     remoteSession.release();
 
     assertThat(disconnectedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.isConnected()).isFalse();
+  }
+
+  @Test
+  public void isConnected_afterDisconnectionByControllerRelease_returnsFalse() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(),
+            /* connectionHints= */ null,
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            });
+    threadTestRule.getHandler().postAndSync(controller::release);
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controller.isConnected()).isFalse();
+  }
+
+  @Test
+  public void isConnected_afterDisconnectionByControllerReleaseRightAfterCreated_returnsFalse()
+      throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(),
+            /* connectionHints= */ null,
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            },
+            /* controllerCreationListener= */ MediaController::release);
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controller.isConnected()).isFalse();
   }
 
@@ -483,7 +523,7 @@ public class MediaControllerTest {
   @Test
   public void getAudioAttributes_returnsAudioAttributesOfPlayerInSession() throws Exception {
     AudioAttributes testAttributes =
-        new AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).build();
+        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build();
 
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder().setAudioAttributes(testAttributes).build();
@@ -906,7 +946,7 @@ public class MediaControllerTest {
   public void isSessionCommandAvailable_withAvailablePredefinedSessionCommand_returnsTrue()
       throws Exception {
     @SessionCommand.CommandCode
-    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
+    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
     SessionCommand sessionCommand = new SessionCommand(sessionCommandCode);
     Bundle tokenExtras = new Bundle();
     tokenExtras.putBundle(
@@ -932,7 +972,7 @@ public class MediaControllerTest {
   public void isSessionCommandAvailable_withUnavailablePredefinedSessionCommand_returnsFalse()
       throws Exception {
     @SessionCommand.CommandCode
-    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
+    int sessionCommandCode = SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
     SessionCommand sessionCommand = new SessionCommand(sessionCommandCode);
     Bundle tokenExtras = new Bundle();
     tokenExtras.putBundle(
@@ -1017,5 +1057,96 @@ public class MediaControllerTest {
         threadTestRule.getHandler().postAndSync(controller::getMediaMetadata);
 
     assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
+  }
+
+  @Test
+  public void
+      setMediaItems_setLessMediaItemsThanCurrentMediaItemIndex_masksCurrentMediaItemIndexAndStateCorrectly()
+          throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> threeItemsList =
+        ImmutableList.of(
+            MediaItem.fromUri("http://www.google.com/1"),
+            MediaItem.fromUri("http://www.google.com/2"),
+            MediaItem.fromUri("http://www.google.com/3"));
+    List<MediaItem> twoItemsList =
+        ImmutableList.of(
+            MediaItem.fromUri("http://www.google.com/1"),
+            MediaItem.fromUri("http://www.google.com/2"));
+
+    int[] currentMediaIndexAndState =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setMediaItems(threeItemsList);
+                  controller.prepare();
+                  controller.seekTo(/* mediaItemIndex= */ 2, /* positionMs= */ C.TIME_UNSET);
+                  controller.setMediaItems(twoItemsList);
+                  return new int[] {
+                    controller.getCurrentMediaItemIndex(), controller.getPlaybackState()
+                  };
+                });
+
+    assertThat(currentMediaIndexAndState[0]).isEqualTo(0);
+    assertThat(currentMediaIndexAndState[1]).isEqualTo(Player.STATE_BUFFERING);
+  }
+
+  @Test
+  public void
+      setMediaItems_setLessMediaItemsThanCurrentMediaItemIndexResetPositionFalse_masksCurrentMediaItemIndexAndStateCorrectly()
+          throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> threeItemsList =
+        ImmutableList.of(
+            MediaItem.fromUri("http://www.google.com/1"),
+            MediaItem.fromUri("http://www.google.com/2"),
+            MediaItem.fromUri("http://www.google.com/3"));
+    List<MediaItem> twoItemsList =
+        ImmutableList.of(
+            MediaItem.fromUri("http://www.google.com/1"),
+            MediaItem.fromUri("http://www.google.com/2"));
+
+    int[] currentMediaItemIndexAndState =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setMediaItems(threeItemsList);
+                  controller.prepare();
+                  controller.seekTo(/* mediaItemIndex= */ 2, /* positionMs= */ C.TIME_UNSET);
+                  controller.setMediaItems(twoItemsList, /* resetPosition= */ false);
+                  return new int[] {
+                    controller.getCurrentMediaItemIndex(), controller.getPlaybackState()
+                  };
+                });
+
+    assertThat(currentMediaItemIndexAndState[0]).isEqualTo(0);
+    assertThat(currentMediaItemIndexAndState[1]).isEqualTo(Player.STATE_ENDED);
+  }
+
+  @Test
+  public void setMediaItems_startIndexTooLarge_throwIllegalSeekPositionException()
+      throws Exception {
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<MediaItem> threeItemsList =
+        ImmutableList.of(
+            MediaItem.fromUri("http://www.google.com/1"),
+            MediaItem.fromUri("http://www.google.com/2"),
+            MediaItem.fromUri("http://www.google.com/3"));
+
+    Assert.assertThrows(
+        IllegalSeekPositionException.class,
+        () ->
+            threadTestRule
+                .getHandler()
+                .postAndSync(
+                    () -> {
+                      controller.setMediaItems(
+                          threeItemsList,
+                          /* startIndex= */ 99,
+                          /* startPositionMs= */ C.TIME_UNSET);
+                      return controller.getCurrentMediaItemIndex();
+                    }));
   }
 }

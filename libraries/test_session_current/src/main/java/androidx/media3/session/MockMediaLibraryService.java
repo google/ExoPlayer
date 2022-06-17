@@ -16,6 +16,8 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT;
 import static androidx.media3.session.MediaTestUtils.assertLibraryParamsEquals;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION;
@@ -30,6 +32,8 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_ERROR;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
@@ -47,20 +51,22 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIB
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import com.google.common.collect.ImmutableList;
@@ -96,6 +102,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
   private static boolean assertLibraryParams;
 
   @GuardedBy("MockMediaLibraryService.class")
+  @Nullable
   private static LibraryParams expectedParams;
 
   MediaLibrarySession session;
@@ -136,7 +143,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
     MockPlayer player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
-    MediaLibrarySessionCallback callback = registry.getSessionCallback();
+    MediaLibrarySession.Callback callback = registry.getSessionCallback();
     session =
         new MediaLibrarySession.Builder(
                 MockMediaLibraryService.this,
@@ -156,14 +163,14 @@ public class MockMediaLibraryService extends MediaLibraryService {
     super.attachBaseContext(base);
   }
 
-  public static void setAssertLibraryParams(LibraryParams expectedParams) {
+  public static void setAssertLibraryParams(@Nullable LibraryParams expectedParams) {
     synchronized (MockMediaLibraryService.class) {
       assertLibraryParams = true;
       MockMediaLibraryService.expectedParams = expectedParams;
     }
   }
 
-  private class TestLibrarySessionCallback implements MediaLibrarySessionCallback {
+  private class TestLibrarySessionCallback implements MediaLibrarySession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
@@ -172,7 +179,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
         return MediaSession.ConnectionResult.reject();
       }
       MediaSession.ConnectionResult connectionResult =
-          checkNotNull(MediaLibrarySessionCallback.super.onConnect(session, controller));
+          checkNotNull(MediaLibrarySession.Callback.super.onConnect(session, controller));
       SessionCommands.Builder builder = connectionResult.availableSessionCommands.buildUpon();
       builder.add(new SessionCommand(CUSTOM_ACTION, /* extras= */ Bundle.EMPTY));
       builder.add(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, /* extras= */ Bundle.EMPTY));
@@ -232,6 +239,21 @@ public class MockMediaLibraryService extends MediaLibraryService {
         return Futures.immediateFuture(LibraryResult.ofItemList(list, params));
       } else if (PARENT_ID_ERROR.equals(parentId)) {
         return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
+      } else if (PARENT_ID_AUTH_EXPIRED_ERROR.equals(parentId)) {
+        Bundle bundle = new Bundle();
+        Intent signInIntent = new Intent("action");
+        int flags = Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0;
+        bundle.putParcelable(
+            EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT,
+            PendingIntent.getActivity(
+                getApplicationContext(), /* requestCode= */ 0, signInIntent, flags));
+        bundle.putString(
+            EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT,
+            PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL);
+        return Futures.immediateFuture(
+            LibraryResult.ofError(
+                LibraryResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED,
+                new LibraryParams.Builder().setExtras(bundle).build()));
       }
       // Includes the case of PARENT_ID_NO_CHILDREN.
       return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));
@@ -344,9 +366,10 @@ public class MockMediaLibraryService extends MediaLibraryService {
           return Futures.immediateFuture(
               new SessionResult(SessionResult.RESULT_SUCCESS, CUSTOM_ACTION_EXTRAS));
         case CUSTOM_ACTION_ASSERT_PARAMS:
+          @Nullable Bundle paramsBundle = args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS);
+          @Nullable
           LibraryParams params =
-              BundleableUtil.fromNullableBundle(
-                  LibraryParams.CREATOR, args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS));
+              paramsBundle == null ? null : LibraryParams.CREATOR.fromBundle(paramsBundle);
           setAssertLibraryParams(params);
           return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
         default: // fall out
@@ -418,6 +441,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
   private static MediaItem createMediaItemWithMetadata(String mediaId) {
     MediaMetadata mediaMetadata = MediaTestUtils.createMediaMetadata();
-    return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
+    return new MediaItem.Builder()
+        .setMediaId(mediaId)
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder()
+                .setMediaUri(CommonConstants.METADATA_MEDIA_URI)
+                .build())
+        .setMediaMetadata(mediaMetadata)
+        .build();
   }
 }

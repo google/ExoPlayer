@@ -37,11 +37,11 @@
     <item quantity="one">Tua nhanh %d giây</item>
     <item quantity="other">Tua nhanh %d giây</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Không lặp lại</string>
-  <string name="exo_controls_repeat_one_description">Lặp lại một</string>
-  <string name="exo_controls_repeat_all_description">Lặp lại tất cả</string>
-  <string name="exo_controls_shuffle_on_description">Chế độ trộn bài đang bật</string>
-  <string name="exo_controls_shuffle_off_description">Chế độ trộn bài đang tắt</string>
+  <string name="exo_controls_repeat_off_description">Chế độ hiện tại: Không lặp lại. Bật/tắt chế độ lặp lại.</string>
+  <string name="exo_controls_repeat_one_description">Chế độ hiện tại: Lặp lại một nội dung. Bật/tắt chế độ lặp lại.</string>
+  <string name="exo_controls_repeat_all_description">Chế độ hiện tại: Lặp lại tất cả nội dung. Bật/tắt chế độ lặp lại.</string>
+  <string name="exo_controls_shuffle_on_description">Tắt chế độ trộn bài</string>
+  <string name="exo_controls_shuffle_off_description">Bật chế độ trộn bài</string>
   <string name="exo_controls_vr_description">Chế độ thực tế ảo</string>
   <string name="exo_controls_cc_enabled_description">Tắt phụ đề</string>
   <string name="exo_controls_cc_disabled_description">Bật phụ đề</string>
