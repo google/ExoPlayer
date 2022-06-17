@@ -146,11 +146,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Creates the OpenGL textures and framebuffers, initializes the {@link
+   * Creates the OpenGL context, surfaces, textures, and framebuffers, initializes the {@link
    * SingleFrameGlTextureProcessor SingleFrameGlTextureProcessors} corresponding to the {@link
    * GlEffect GlEffects}, and returns a new {@code FrameProcessorChain}.
    *
-   * <p>This method must be executed using the {@code singleThreadExecutorService}.
+   * <p>This method must be executed using the {@code singleThreadExecutorService}, as all later
+   * OpenGL commands will be called on that thread.
    */
   @WorkerThread
   @Nullable
