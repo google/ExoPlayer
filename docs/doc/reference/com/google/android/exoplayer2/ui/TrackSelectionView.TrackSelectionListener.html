@@ -149,8 +149,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackSelectionChanged(boolean,java.util.List)">onTrackSelectionChanged</a></span>&#8203;(boolean&nbsp;isDisabled,
-                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.SelectionOverride</a>&gt;&nbsp;overrides)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackSelectionChanged(boolean,java.util.Map)">onTrackSelectionChanged</a></span>&#8203;(boolean&nbsp;isDisabled,
+                       <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;&nbsp;overrides)</code></th>
 <td class="colLast">
 <div class="block">Called when the selected tracks changed.</div>
 </td>
@@ -172,19 +172,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="onTrackSelectionChanged(boolean,java.util.List)">
+<a id="onTrackSelectionChanged(boolean,java.util.Map)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onTrackSelectionChanged</h4>
 <pre class="methodSignature">void&nbsp;onTrackSelectionChanged&#8203;(boolean&nbsp;isDisabled,
-                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.SelectionOverride</a>&gt;&nbsp;overrides)</pre>
+                             <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;&nbsp;overrides)</pre>
 <div class="block">Called when the selected tracks changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isDisabled</code> - Whether the renderer is disabled.</dd>
-<dd><code>overrides</code> - List of selected track selection overrides for the renderer.</dd>
+<dd><code>isDisabled</code> - Whether the disabled option is selected.</dd>
+<dd><code>overrides</code> - The selected track overrides.</dd>
 </dl>
 </li>
 </ul>

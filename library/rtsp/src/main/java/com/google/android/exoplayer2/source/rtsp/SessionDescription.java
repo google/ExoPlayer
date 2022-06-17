@@ -199,13 +199,8 @@ import java.util.HashMap;
      * Builds a new {@link SessionDescription} instance.
      *
      * @return The newly built {@link SessionDescription} instance.
-     * @throws IllegalStateException When one or more of {@link #sessionName}, {@link #timing} and
-     *     {@link #origin} is not set.
      */
     public SessionDescription build() {
-      if (sessionName == null || origin == null || timing == null) {
-        throw new IllegalStateException("One of more mandatory SDP fields are not set.");
-      }
       return new SessionDescription(this);
     }
   }
@@ -237,11 +232,11 @@ import java.util.HashMap;
    */
   public final ImmutableList<MediaDescription> mediaDescriptionList;
   /** The name of a session. */
-  public final String sessionName;
+  @Nullable public final String sessionName;
   /** The origin sender info. */
-  public final String origin;
+  @Nullable public final String origin;
   /** The timing info. */
-  public final String timing;
+  @Nullable public final String timing;
   /** The estimated bitrate in bits per seconds. */
   public final int bitrate;
   /** The uri of a linked content. */
@@ -285,9 +280,9 @@ import java.util.HashMap;
     return bitrate == that.bitrate
         && attributes.equals(that.attributes)
         && mediaDescriptionList.equals(that.mediaDescriptionList)
-        && origin.equals(that.origin)
-        && sessionName.equals(that.sessionName)
-        && timing.equals(that.timing)
+        && Util.areEqual(origin, that.origin)
+        && Util.areEqual(sessionName, that.sessionName)
+        && Util.areEqual(timing, that.timing)
         && Util.areEqual(sessionInfo, that.sessionInfo)
         && Util.areEqual(uri, that.uri)
         && Util.areEqual(emailAddress, that.emailAddress)
@@ -301,9 +296,9 @@ import java.util.HashMap;
     int result = 7;
     result = 31 * result + attributes.hashCode();
     result = 31 * result + mediaDescriptionList.hashCode();
-    result = 31 * result + origin.hashCode();
-    result = 31 * result + sessionName.hashCode();
-    result = 31 * result + timing.hashCode();
+    result = 31 * result + (origin == null ? 0 : origin.hashCode());
+    result = 31 * result + (sessionName == null ? 0 : sessionName.hashCode());
+    result = 31 * result + (timing == null ? 0 : timing.hashCode());
     result = 31 * result + bitrate;
     result = 31 * result + (sessionInfo == null ? 0 : sessionInfo.hashCode());
     result = 31 * result + (uri == null ? 0 : uri.hashCode());

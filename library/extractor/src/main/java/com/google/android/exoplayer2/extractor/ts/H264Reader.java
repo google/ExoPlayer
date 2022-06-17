@@ -42,10 +42,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /** Parses a continuous H264 byte stream and extracts individual frames. */
 public final class H264Reader implements ElementaryStreamReader {
 
-  private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
-  private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
-  private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
-
   private final SeiReader seiReader;
   private final boolean allowNonIdrKeyframes;
   private final boolean detectAccessUnits;
@@ -83,9 +79,9 @@ public final class H264Reader implements ElementaryStreamReader {
     this.allowNonIdrKeyframes = allowNonIdrKeyframes;
     this.detectAccessUnits = detectAccessUnits;
     prefixFlags = new boolean[3];
-    sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
-    pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
-    sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
+    sps = new NalUnitTargetBuffer(NalUnitUtil.NAL_UNIT_TYPE_SPS, 128);
+    pps = new NalUnitTargetBuffer(NalUnitUtil.NAL_UNIT_TYPE_PPS, 128);
+    sei = new NalUnitTargetBuffer(NalUnitUtil.NAL_UNIT_TYPE_SEI, 128);
     pesTimeUs = C.TIME_UNSET;
     seiWrapper = new ParsableByteArray();
   }
@@ -264,11 +260,6 @@ public final class H264Reader implements ElementaryStreamReader {
 
     private static final int DEFAULT_BUFFER_SIZE = 128;
 
-    private static final int NAL_UNIT_TYPE_NON_IDR = 1; // Coded slice of a non-IDR picture
-    private static final int NAL_UNIT_TYPE_PARTITION_A = 2; // Coded slice data partition A
-    private static final int NAL_UNIT_TYPE_IDR = 5; // Coded slice of an IDR picture
-    private static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
-
     private final TrackOutput output;
     private final boolean allowNonIdrKeyframes;
     private final boolean detectAccessUnits;
@@ -329,11 +320,11 @@ public final class H264Reader implements ElementaryStreamReader {
       nalUnitType = type;
       nalUnitTimeUs = pesTimeUs;
       nalUnitStartPosition = position;
-      if ((allowNonIdrKeyframes && nalUnitType == NAL_UNIT_TYPE_NON_IDR)
+      if ((allowNonIdrKeyframes && nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_NON_IDR)
           || (detectAccessUnits
-              && (nalUnitType == NAL_UNIT_TYPE_IDR
-                  || nalUnitType == NAL_UNIT_TYPE_NON_IDR
-                  || nalUnitType == NAL_UNIT_TYPE_PARTITION_A))) {
+              && (nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR
+                  || nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_NON_IDR
+                  || nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_PARTITION_A))) {
         // Store the previous header and prepare to populate the new one.
         SliceHeaderData newSliceHeader = previousSliceHeader;
         previousSliceHeader = sliceHeader;
@@ -423,7 +414,7 @@ public final class H264Reader implements ElementaryStreamReader {
           bottomFieldFlagPresent = true;
         }
       }
-      boolean idrPicFlag = nalUnitType == NAL_UNIT_TYPE_IDR;
+      boolean idrPicFlag = nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR;
       int idrPicId = 0;
       if (idrPicFlag) {
         if (!bitArray.canReadExpGolombCodedNum()) {
@@ -478,7 +469,7 @@ public final class H264Reader implements ElementaryStreamReader {
 
     public boolean endNalUnit(
         long position, int offset, boolean hasOutputFormat, boolean randomAccessIndicator) {
-      if (nalUnitType == NAL_UNIT_TYPE_AUD
+      if (nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_AUD
           || (detectAccessUnits && sliceHeader.isFirstVclNalUnitOfPicture(previousSliceHeader))) {
         // If the NAL unit ending is the start of a new sample, output the previous one.
         if (hasOutputFormat && readingSample) {
@@ -493,8 +484,8 @@ public final class H264Reader implements ElementaryStreamReader {
       boolean treatIFrameAsKeyframe =
           allowNonIdrKeyframes ? sliceHeader.isISlice() : randomAccessIndicator;
       sampleIsKeyframe |=
-          nalUnitType == NAL_UNIT_TYPE_IDR
-              || (treatIFrameAsKeyframe && nalUnitType == NAL_UNIT_TYPE_NON_IDR);
+          nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR
+              || (treatIFrameAsKeyframe && nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_NON_IDR);
       return sampleIsKeyframe;
     }
 

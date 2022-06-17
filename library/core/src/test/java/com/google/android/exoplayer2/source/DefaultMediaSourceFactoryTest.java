@@ -74,21 +74,6 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withNull_usesNonNullDefaults() {
-    DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).build();
-
-    MediaSource mediaSource =
-        defaultMediaSourceFactory
-            .setDrmSessionManagerProvider(null)
-            .setLoadErrorHandlingPolicy(null)
-            .createMediaSource(mediaItem);
-
-    assertThat(mediaSource).isNotNull();
-  }
-
-  @Test
   public void createMediaSource_withSubtitle_isMergingMediaSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
@@ -188,7 +173,26 @@ public final class DefaultMediaSourceFactoryTest {
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .getSupportedTypes();
 
-    assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER);
+    assertThat(supportedTypes).asList().containsExactly(C.CONTENT_TYPE_OTHER);
+  }
+
+  @SuppressWarnings("deprecation") // Testing deprecated setters.
+  @Test
+  public void createMediaSource_withDeprecatedAdsConfiguration_callsAdsLoader() {
+    Uri adTagUri = Uri.parse(URI_MEDIA);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setAdsConfiguration(new MediaItem.AdsConfiguration.Builder(adTagUri).build())
+            .build();
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
+            .setAdsLoaderProvider(ignoredAdsConfiguration -> mock(AdsLoader.class))
+            .setAdViewProvider(mock(AdViewProvider.class));
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(AdsMediaSource.class);
   }
 
   @Test
@@ -201,8 +205,8 @@ public final class DefaultMediaSourceFactoryTest {
             .build();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
-            .setAdsLoaderProvider(ignoredAdsConfiguration -> mock(AdsLoader.class))
-            .setAdViewProvider(mock(AdViewProvider.class));
+            .setLocalAdInsertionComponents(
+                ignoredAdsConfiguration -> mock(AdsLoader.class), mock(AdViewProvider.class));
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 

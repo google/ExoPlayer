@@ -30,34 +30,6 @@ import java.util.List;
 /** Utilities for {@link Bundleable}. */
 public final class BundleableUtil {
 
-  /**
-   * Converts a {@link Bundleable} to a {@link Bundle}. It's a convenience wrapper of {@link
-   * Bundleable#toBundle} that can take nullable values.
-   */
-  @Nullable
-  public static Bundle toNullableBundle(@Nullable Bundleable bundleable) {
-    return bundleable == null ? null : bundleable.toBundle();
-  }
-
-  /**
-   * Converts a {@link Bundle} to a {@link Bundleable}. It's a convenience wrapper of {@link
-   * Bundleable.Creator#fromBundle} that can take nullable values.
-   */
-  @Nullable
-  public static <T extends Bundleable> T fromNullableBundle(
-      Bundleable.Creator<T> creator, @Nullable Bundle bundle) {
-    return bundle == null ? null : creator.fromBundle(bundle);
-  }
-
-  /**
-   * Converts a {@link Bundle} to a {@link Bundleable}. It's a convenience wrapper of {@link
-   * Bundleable.Creator#fromBundle} that provides default value to ensure non-null.
-   */
-  public static <T extends Bundleable> T fromNullableBundle(
-      Bundleable.Creator<T> creator, @Nullable Bundle bundle, T defaultValue) {
-    return bundle == null ? defaultValue : creator.fromBundle(bundle);
-  }
-
   /** Converts a list of {@link Bundleable} to a list {@link Bundle}. */
   public static <T extends Bundleable> ImmutableList<Bundle> toBundleList(List<T> bundleableList) {
     ImmutableList.Builder<Bundle> builder = ImmutableList.builder();
@@ -81,34 +53,6 @@ public final class BundleableUtil {
   }
 
   /**
-   * Converts a list of {@link Bundle} to a list of {@link Bundleable}. Returns {@code defaultValue}
-   * if {@code bundleList} is null.
-   */
-  public static <T extends Bundleable> List<T> fromBundleNullableList(
-      Bundleable.Creator<T> creator, @Nullable List<Bundle> bundleList, List<T> defaultValue) {
-    return (bundleList == null) ? defaultValue : fromBundleList(creator, bundleList);
-  }
-
-  /**
-   * Converts a {@link SparseArray} of {@link Bundle} to a {@link SparseArray} of {@link
-   * Bundleable}. Returns {@code defaultValue} if {@code bundleSparseArray} is null.
-   */
-  public static <T extends Bundleable> SparseArray<T> fromBundleNullableSparseArray(
-      Bundleable.Creator<T> creator,
-      @Nullable SparseArray<Bundle> bundleSparseArray,
-      SparseArray<T> defaultValue) {
-    if (bundleSparseArray == null) {
-      return defaultValue;
-    }
-    // Can't use ImmutableList as it doesn't support null elements.
-    SparseArray<T> result = new SparseArray<>(bundleSparseArray.size());
-    for (int i = 0; i < bundleSparseArray.size(); i++) {
-      result.put(bundleSparseArray.keyAt(i), creator.fromBundle(bundleSparseArray.valueAt(i)));
-    }
-    return result;
-  }
-
-  /**
    * Converts a collection of {@link Bundleable} to an {@link ArrayList} of {@link Bundle} so that
    * the returned list can be put to {@link Bundle} using {@link Bundle#putParcelableArrayList}
    * conveniently.
@@ -120,6 +64,19 @@ public final class BundleableUtil {
       arrayList.add(element.toBundle());
     }
     return arrayList;
+  }
+
+  /**
+   * Converts a {@link SparseArray} of {@link Bundle} to a {@link SparseArray} of {@link
+   * Bundleable}.
+   */
+  public static <T extends Bundleable> SparseArray<T> fromBundleSparseArray(
+      Bundleable.Creator<T> creator, SparseArray<Bundle> bundleSparseArray) {
+    SparseArray<T> result = new SparseArray<>(bundleSparseArray.size());
+    for (int i = 0; i < bundleSparseArray.size(); i++) {
+      result.put(bundleSparseArray.keyAt(i), creator.fromBundle(bundleSparseArray.valueAt(i)));
+    }
+    return result;
   }
 
   /**

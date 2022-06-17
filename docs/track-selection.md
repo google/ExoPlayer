@@ -2,50 +2,63 @@
 title: Track selection
 ---
 
-Track selection determines which of the available media tracks are played by the
-player. This process is configured by [`TrackSelectionParameters`][], which
-support many different options to specify constraints and overrides.
+When a media item contains multiple tracks, track selection is the process that
+determines which of them are chosen for playback. The track selection process is
+configured by [`TrackSelectionParameters`][], which allows many different
+constraints and overrides influencing track selection to be specified.
 
-## Information about existing tracks
+## Querying the available tracks
 
-The player needs to prepare the media to know which tracks are available for
-selection. You can listen to `Player.Listener.onTracksInfoChanged` to get
-notified about changes, which may happen
- * When preparation completes
- * When the available or selected tracks change
- * When the playlist item changes
+You can listen to `Player.Listener.onTracksChanged` to be notified about changes
+to tracks, including:
+
+* The available tracks becoming known when preparation of the media item being
+  played completes. Note that the player needs to prepare a media item to know
+  what tracks it contains.
+* The available tracks changing due to playback transitioning from one media
+  item to another.
+* Changes to the selected tracks.
 
 ~~~
 player.addListener(new Player.Listener() {
   @Override
-  public void onTracksInfoChanged(TracksInfo tracksInfo) {
-    // Update UI using current TracksInfo.
+  public void onTracksChanged(Tracks tracks) {
+    // Update UI using current tracks.
   }
 });
 ~~~
 {: .language-java}
 
-You can also retrieve the current `TracksInfo` by calling
-`player.getCurrentTracksInfo()`.
+You can also query the current tracks by calling `player.getCurrentTracks()`.
+The returned `Tracks` contains a list of `Track.Group`s, where tracks within a
+single `Group` present the same content but in different formats.
 
-`TracksInfo` contains a list of `TrackGroupInfo`s with information about the
-track type, format details, player support and selection status of each
-available track. Tracks are grouped together into one `TrackGroup` if they
-represent the same content that can be used interchangeably by the player (for
-example, all audio tracks of a single language, but with different bitrates).
+As an example of how tracks can be grouped, consider an adaptive playback where
+a main video feed is provided in five bitrates, and an alternative video feed
+(e.g., a different camera angle in a sports match) is provided in two bitrates.
+In this case there will be two video track groups, one corresponding to the main
+video feed containing five tracks, and a second for the alternative video feed
+containing two tracks.
+
+Audio tracks whose languages differ are not grouped, because content in
+different languages is not considered to be the same. Conversely, audio tracks
+in the same language that only differ in properties such as bitrate, sampling
+rate, channel count and so on can be grouped. This also applies to text tracks.
+
+Each `Group` can be queried to determine which tracks are supported for
+playback, which are currently selected, and what `Format` each track uses:
 
 ~~~
-for (TrackGroupInfo groupInfo : tracksInfo.getTrackGroupInfos()) {
+for (Tracks.Group trackGroup : tracks.getGroups()) {
   // Group level information.
-  @C.TrackType int trackType = groupInfo.getTrackType();
-  boolean trackInGroupIsSelected = groupInfo.isSelected();
-  boolean trackInGroupIsSupported = groupInfo.isSupported();
-  TrackGroup group = groupInfo.getTrackGroup();
-  for (int i = 0; i < group.length; i++) {
+  @C.TrackType int trackType = trackGroup.getTrackType();
+  boolean trackInGroupIsSelected = trackGroup.isSelected();
+  boolean trackInGroupIsSupported = trackGroup.isSupported();
+  for (int i = 0; i < trackGroup.length; i++) {
     // Individual track information.
-    boolean isSupported = groupInfo.isTrackSupported(i);
-    boolean isSelected = groupInfo.isTrackSelected(i);
-    Format trackFormat = group.getFormat(i);
+    boolean isSupported = trackGroup.isTrackSupported(i);
+    boolean isSelected = trackGroup.isTrackSelected(i);
+    Format trackFormat = trackGroup.getTrackFormat(i);
   }
 }
 ~~~
@@ -56,22 +69,19 @@ for (TrackGroupInfo groupInfo : tracksInfo.getTrackGroupInfos()) {
   multiple audio track groups) are supported, it only means that they are
   supported individually and the player is not necessarily able to play them at
   the same time.
-* A track is 'selected' if the track selector chose this track for playback
-  using the current `TrackSelectionParameters`. If multiple tracks within one
-  track group are selected, the player uses these tracks for adaptive playback
-  (for example, multiple video tracks with different bitrates). Note that only
-  one of these tracks will be played at any one time. If you want to be notified
-  of in-playback changes to the adaptive video track you can listen to
-  `Player.Listener.onVideoSizeChanged`.
+* A track is 'selected' if it has been chosen for playback given the current
+  `TrackSelectionParameters`. If multiple tracks within one track group are
+  selected, the player uses these tracks for adaptive playback (for example,
+  multiple video tracks with different bitrates). Note that only one of these
+  tracks will be played at any one time.
 
 ## Modifying track selection parameters
 
-The selection process can be configured by setting `TrackSelectionParameters` on
-the `Player` with `Player.setTrackSelectionParameters`. These updates can be
-done before and during playback. In most cases, it's advisable to obtain the
-current parameters and only modify the required aspects with the
-`TrackSelectionParameters.Builder`. The builder class also allows chaining to
-specify multiple options with one command:
+The track selection process can be configured using
+`Player.setTrackSelectionParameters`. This can be done both before and during
+playback. The example below demonstrates how to obtain the current
+`TrackSelectionParameters` from the player, modify them, and update the `Player`
+with the modified result:
 
 ~~~
 player.setTrackSelectionParameters(
@@ -86,84 +96,84 @@ player.setTrackSelectionParameters(
 ### Constraint based track selection
 
 Most options in `TrackSelectionParameters` allow you to specify constraints,
-which are independent of the tracks that are actually available. Typical
-constraints are:
+which are independent of the tracks that are actually available. Available
+constraints include:
 
- * Maximum or minimum video width, height, frame rate, or bitrate.
- * Maximum audio channel count or bitrate.
- * Preferred MIME types for video or audio.
- * Preferred audio languages or role flags.
- * Preferred text languages or role flags.
+ * Maximum and minimum video width, height, frame rate, and bitrate.
+ * Maximum audio channel count and bitrate.
+ * Preferred MIME types for video and audio.
+ * Preferred audio languages and role flags.
+ * Preferred text languages and role flags.
 
-Note that ExoPlayer already applies sensible defaults for most of these values,
-for example restricting video resolution to the display size or preferring the
-audio language that matches the user's system Locale setting.
+ExoPlayer uses sensible defaults for these constraints, for example restricting
+video resolution to the display size and preferring the audio language that
+matches the user's system Locale setting.
 
-There are several benefits to using constraint based track selection instead of
-specifying specific tracks directly:
+There are several benefits to using constraint based track selection rather than
+selecting specific tracks from those that are available:
 
-* You can specify constraints before knowing what tracks the media provides.
-  This allows to immediately select the appropriate tracks for faster startup
-  time and also simplifies track selection code as you don't have to listen for
-  changes in the available tracks.
-* Constraints can be applied consistently across all items in a playlist. For
-  example, selecting an audio language based on user preference will
-  automatically apply to the next playlist item too, whereas overriding a
-  specific track will only apply to the current playlist item for which the
-  track exists.
+* You can specify constraints before knowing what tracks a media item provides.
+  This means that constraints can be specified before the player has prepared a
+  media item, whereas selecting specific tracks requires application code to
+  wait until the available tracks become known.
+* Constraints are applied for all media items in a playlist, even when those
+  items have different available tracks. For example, a preferred audio language
+  constraint will be automatically applied for all media items, even if the
+  `Format` of the track in that language varies from one media item to the next.
+  This is not the case when selecting specific tracks, as described below.
 
 ### Selecting specific tracks
 
-It's possible to specify specific tracks in `TrackSelectionParameters` that
-should be selected for the current set of tracks. Note that a change in the
-available tracks, for example when changing items in a playlist, will also
-invalidate such a track override.
-
-The simplest way to specify track overrides is to specify the `TrackGroup` that
-should be selected for its track type. For example, you can specify an audio
-track group to select this audio group and prevent any other audio track groups
-from being selected:
-
-~~~
-TrackSelectionOverrides overrides =
-    new TrackSelectionOverrides.Builder()
-        .setOverrideForType(new TrackSelectionOverride(audioTrackGroup))
-        .build();
-player.setTrackSelectionParameters(
-    player.getTrackSelectionParameters()
-        .buildUpon().setTrackSelectionOverrides(overrides).build());
-~~~
-{: .language-java}
-
-### Disabling track types or groups
-
-Track types, like video, audio or text, can be disabled completely by using
-`TrackSelectionParameters.Builder.setDisabledTrackTypes`. This will apply
-unconditionally and will also affect other playlist items.
+It's possible to select specific tracks using `TrackSelectionParameters`. First,
+the player's currently available tracks should be queried using
+`Player.getCurrentTracks`. Second, having identified which tracks to select,
+they can be set on `TrackSelectionParameters` using a `TrackSelectionOverride`.
+For example, to select the first track from a specific `audioTrackGroup`:
 
 ~~~
 player.setTrackSelectionParameters(
     player.getTrackSelectionParameters()
         .buildUpon()
-        .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_VIDEO))
+        .setOverrideForType(
+            new TrackSelectionOverride(
+                audioTrackGroup.getMediaTrackGroup(),
+                /* trackIndex= */ 0))
         .build());
 ~~~
 {: .language-java}
 
-Alternatively, it's possible to prevent the selection of track groups for the
-current playlist item only by specifying empty overrides for these groups:
+A `TrackSelectionOverride` will only apply to media items that contain a
+`TrackGroup` exactly matching the one specified in the override. Hence an
+override may not apply to a subsequent media item if that item contains
+different tracks.
+
+### Disabling track types or groups
+
+Track types like video, audio or text, can be disabled completely using
+`TrackSelectionParameters.Builder.setTrackTypeDisabled`. A disabled track type
+will be disabled for all media items:
 
 ~~~
-TrackSelectionOverrides overrides =
-    new TrackSelectionOverrides.Builder()
-        .addOverride(
-             new TrackSelectionOverride(
-                disabledTrackGroup,
-                /* select no tracks for this group */ ImmutableList.of()))
-        .build();
 player.setTrackSelectionParameters(
     player.getTrackSelectionParameters()
-        .buildUpon().setTrackSelectionOverrides(overrides).build());
+        .buildUpon()
+        .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, /* disabled= */ true)
+        .build());
+~~~
+{: .language-java}
+
+Alternatively, it's possible to prevent the selection of tracks from a specific
+`TrackGroup` by specifying an empty override for that group:
+
+~~~
+player.setTrackSelectionParameters(
+    player.getTrackSelectionParameters()
+        .buildUpon()
+        .addOverride(
+            new TrackSelectionOverride(
+                disabledTrackGroup.getMediaTrackGroup(),
+                /* trackIndices= */ ImmutableList.of()))
+        .build());
 ~~~
 {: .language-java}
 

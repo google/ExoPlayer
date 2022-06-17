@@ -156,8 +156,9 @@ public final class Util {
               + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
-  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
-  private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
+  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs
+  private static final Pattern ISM_PATH_PATTERN =
+      Pattern.compile("(?:.*\\.)?isml?(?:/(manifest(.*))?)?", Pattern.CASE_INSENSITIVE);
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
   private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
@@ -1120,6 +1121,25 @@ public final class Util {
   }
 
   /**
+   * Returns the maximum value in the given {@link SparseLongArray}.
+   *
+   * @param sparseLongArray The {@link SparseLongArray}.
+   * @return The maximum value.
+   * @throws NoSuchElementException If the array is empty.
+   */
+  @RequiresApi(18)
+  public static long maxValue(SparseLongArray sparseLongArray) {
+    if (sparseLongArray.size() == 0) {
+      throw new NoSuchElementException();
+    }
+    long max = Long.MIN_VALUE;
+    for (int i = 0; i < sparseLongArray.size(); i++) {
+      max = max(max, sparseLongArray.valueAt(i));
+    }
+    return max;
+  }
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
    * C#TIME_UNSET} and {@link C#TIME_END_OF_SOURCE} values.
    *
@@ -1139,18 +1159,6 @@ public final class Util {
    */
   public static long msToUs(long timeMs) {
     return (timeMs == C.TIME_UNSET || timeMs == C.TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
-  }
-
-  /**
-   * Converts a time in seconds to the corresponding time in microseconds.
-   *
-   * @param timeSec The time in seconds.
-   * @return The corresponding time in microseconds.
-   */
-  public static long secToUs(double timeSec) {
-    return BigDecimal.valueOf(timeSec)
-        .multiply(BigDecimal.valueOf(C.MICROS_PER_SECOND))
-        .longValue();
   }
 
   /**
@@ -1235,7 +1243,7 @@ public final class Util {
 
     long time = dateTime.getTimeInMillis();
     if (timezoneShift != 0) {
-      time -= timezoneShift * 60000;
+      time -= timezoneShift * 60000L;
     }
 
     return time;
@@ -1636,6 +1644,10 @@ public final class Util {
           // 8 ch output is not supported before Android L.
           return AudioFormat.CHANNEL_INVALID;
         }
+      case 12:
+        return Util.SDK_INT >= 32
+            ? AudioFormat.CHANNEL_OUT_7POINT1POINT4
+            : AudioFormat.CHANNEL_INVALID;
       default:
         return AudioFormat.CHANNEL_INVALID;
     }
@@ -1697,12 +1709,12 @@ public final class Util {
       case C.STREAM_TYPE_NOTIFICATION:
       case C.STREAM_TYPE_RING:
       case C.STREAM_TYPE_SYSTEM:
-        return C.CONTENT_TYPE_SONIFICATION;
+        return C.AUDIO_CONTENT_TYPE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
-        return C.CONTENT_TYPE_SPEECH;
+        return C.AUDIO_CONTENT_TYPE_SPEECH;
       case C.STREAM_TYPE_MUSIC:
       default:
-        return C.CONTENT_TYPE_MUSIC;
+        return C.AUDIO_CONTENT_TYPE_MUSIC;
     }
   }
 
@@ -1811,16 +1823,14 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
-   *
-   * @param uri The {@link Uri}.
-   * @param overrideExtension If not null, used to infer the type.
-   * @return The content type.
+   * @deprecated Use {@link #inferContentTypeForExtension(String)} when {@code overrideExtension} is
+   *     non-empty, and {@link #inferContentType(Uri)} otherwise.
    */
+  @Deprecated
   public static @ContentType int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
-        : inferContentType("." + overrideExtension);
+        : inferContentTypeForExtension(overrideExtension);
   }
 
   /**
@@ -1832,39 +1842,70 @@ public final class Util {
   public static @ContentType int inferContentType(Uri uri) {
     @Nullable String scheme = uri.getScheme();
     if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
-      return C.TYPE_RTSP;
+      return C.CONTENT_TYPE_RTSP;
     }
 
-    @Nullable String path = uri.getPath();
-    return path == null ? C.TYPE_OTHER : inferContentType(path);
-  }
-
-  /**
-   * Makes a best guess to infer the {@link ContentType} from a file name.
-   *
-   * @param fileName Name of the file. It can include the path of the file.
-   * @return The content type.
-   */
-  public static @ContentType int inferContentType(String fileName) {
-    fileName = Ascii.toLowerCase(fileName);
-    if (fileName.endsWith(".mpd")) {
-      return C.TYPE_DASH;
-    } else if (fileName.endsWith(".m3u8")) {
-      return C.TYPE_HLS;
+    @Nullable String lastPathSegment = uri.getLastPathSegment();
+    if (lastPathSegment == null) {
+      return C.CONTENT_TYPE_OTHER;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(fileName);
+    int lastDotIndex = lastPathSegment.lastIndexOf('.');
+    if (lastDotIndex >= 0) {
+      @C.ContentType
+      int contentType = inferContentTypeForExtension(lastPathSegment.substring(lastDotIndex + 1));
+      if (contentType != C.CONTENT_TYPE_OTHER) {
+        // If contentType is TYPE_SS that indicates the extension is .ism or .isml and shows the ISM
+        // URI is missing the "/manifest" suffix, which contains the information used to
+        // disambiguate between Smooth Streaming, HLS and DASH below - so we can just return TYPE_SS
+        // here without further checks.
+        return contentType;
+      }
+    }
+
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(checkNotNull(uri.getPath()));
     if (ismMatcher.matches()) {
       @Nullable String extensions = ismMatcher.group(2);
       if (extensions != null) {
         if (extensions.contains(ISM_DASH_FORMAT_EXTENSION)) {
-          return C.TYPE_DASH;
+          return C.CONTENT_TYPE_DASH;
         } else if (extensions.contains(ISM_HLS_FORMAT_EXTENSION)) {
-          return C.TYPE_HLS;
+          return C.CONTENT_TYPE_HLS;
         }
       }
-      return C.TYPE_SS;
+      return C.CONTENT_TYPE_SS;
     }
-    return C.TYPE_OTHER;
+
+    return C.CONTENT_TYPE_OTHER;
+  }
+
+  /**
+   * @deprecated Use {@link Uri#parse(String)} and {@link #inferContentType(Uri)} for full file
+   *     paths or {@link #inferContentTypeForExtension(String)} for extensions.
+   */
+  @Deprecated
+  public static @ContentType int inferContentType(String fileName) {
+    return inferContentType(Uri.parse("file:///" + fileName));
+  }
+
+  /**
+   * Makes a best guess to infer the {@link ContentType} from a file extension.
+   *
+   * @param fileExtension The extension of the file (excluding the '.').
+   * @return The content type.
+   */
+  public static @ContentType int inferContentTypeForExtension(String fileExtension) {
+    fileExtension = Ascii.toLowerCase(fileExtension);
+    switch (fileExtension) {
+      case "mpd":
+        return C.CONTENT_TYPE_DASH;
+      case "m3u8":
+        return C.CONTENT_TYPE_HLS;
+      case "ism":
+      case "isml":
+        return C.TYPE_SS;
+      default:
+        return C.CONTENT_TYPE_OTHER;
+    }
   }
 
   /**
@@ -1881,32 +1922,33 @@ public final class Util {
     }
     switch (mimeType) {
       case MimeTypes.APPLICATION_MPD:
-        return C.TYPE_DASH;
+        return C.CONTENT_TYPE_DASH;
       case MimeTypes.APPLICATION_M3U8:
-        return C.TYPE_HLS;
+        return C.CONTENT_TYPE_HLS;
       case MimeTypes.APPLICATION_SS:
-        return C.TYPE_SS;
+        return C.CONTENT_TYPE_SS;
       case MimeTypes.APPLICATION_RTSP:
-        return C.TYPE_RTSP;
+        return C.CONTENT_TYPE_RTSP;
       default:
-        return C.TYPE_OTHER;
+        return C.CONTENT_TYPE_OTHER;
     }
   }
 
   /**
    * Returns the MIME type corresponding to the given adaptive {@link ContentType}, or {@code null}
-   * if the content type is {@link C#TYPE_OTHER}.
+   * if the content type is not adaptive.
    */
   @Nullable
-  public static String getAdaptiveMimeTypeForContentType(int contentType) {
+  public static String getAdaptiveMimeTypeForContentType(@ContentType int contentType) {
     switch (contentType) {
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         return MimeTypes.APPLICATION_MPD;
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         return MimeTypes.APPLICATION_M3U8;
-      case C.TYPE_SS:
+      case C.CONTENT_TYPE_SS:
         return MimeTypes.APPLICATION_SS;
-      case C.TYPE_OTHER:
+      case C.CONTENT_TYPE_RTSP:
+      case C.CONTENT_TYPE_OTHER:
       default:
         return null;
     }
@@ -1925,7 +1967,7 @@ public final class Util {
     if (path == null) {
       return uri;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(Ascii.toLowerCase(path));
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(path);
     if (ismMatcher.matches() && ismMatcher.group(1) == null) {
       // Add missing "Manifest" suffix.
       return Uri.withAppendedPath(uri, "Manifest");
@@ -2681,6 +2723,7 @@ public final class Util {
         "ji", "yi",
         // Individual macrolanguage codes mapped back to full macrolanguage code.
         // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+        "arb", "ar-arb",
         "in", "ms-ind",
         "ind", "ms-ind",
         "nb", "no-nob",

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -248,13 +248,20 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetDiscardPaddingEnabled(boolean)">experimentalSetDiscardPaddingEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
+<td class="colLast">
+<div class="block">Sets whether discard padding is enabled.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the name of the decoder.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
@@ -361,6 +368,19 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="experimentalSetDiscardPaddingEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>experimentalSetDiscardPaddingEnabled</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;experimentalSetDiscardPaddingEnabled&#8203;(boolean&nbsp;enabled)</pre>
+<div class="block">Sets whether discard padding is enabled. When enabled, discard padding samples (provided as
+ supplemental data on the input buffer) will be removed from the end of the decoder output.
+
+ <p>This method is experimental, and will be renamed or removed in a future release.</div>
+</li>
+</ul>
 <a id="getName()">
 <!--   -->
 </a>

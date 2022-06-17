@@ -75,7 +75,7 @@ public class DashManifestParser extends DefaultHandler
       Pattern.compile("([1-9]|[1-5][0-9]|6[0-3])=.*");
 
   /**
-   * Maps the value attribute of an AudioElementConfiguration with schemeIdUri
+   * Maps the value attribute of an AudioChannelConfiguration with schemeIdUri
    * "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1, to a channel
    * count.
    */
@@ -1187,41 +1187,41 @@ public class DashManifestParser extends DefaultHandler
     xpp.nextToken();
     while (!XmlPullParserUtil.isEndTag(xpp, "Event")) {
       switch (xpp.getEventType()) {
-        case (XmlPullParser.START_DOCUMENT):
+        case XmlPullParser.START_DOCUMENT:
           xmlSerializer.startDocument(null, false);
           break;
-        case (XmlPullParser.END_DOCUMENT):
+        case XmlPullParser.END_DOCUMENT:
           xmlSerializer.endDocument();
           break;
-        case (XmlPullParser.START_TAG):
+        case XmlPullParser.START_TAG:
           xmlSerializer.startTag(xpp.getNamespace(), xpp.getName());
           for (int i = 0; i < xpp.getAttributeCount(); i++) {
             xmlSerializer.attribute(
                 xpp.getAttributeNamespace(i), xpp.getAttributeName(i), xpp.getAttributeValue(i));
           }
           break;
-        case (XmlPullParser.END_TAG):
+        case XmlPullParser.END_TAG:
           xmlSerializer.endTag(xpp.getNamespace(), xpp.getName());
           break;
-        case (XmlPullParser.TEXT):
+        case XmlPullParser.TEXT:
           xmlSerializer.text(xpp.getText());
           break;
-        case (XmlPullParser.CDSECT):
+        case XmlPullParser.CDSECT:
           xmlSerializer.cdsect(xpp.getText());
           break;
-        case (XmlPullParser.ENTITY_REF):
+        case XmlPullParser.ENTITY_REF:
           xmlSerializer.entityRef(xpp.getText());
           break;
-        case (XmlPullParser.IGNORABLE_WHITESPACE):
+        case XmlPullParser.IGNORABLE_WHITESPACE:
           xmlSerializer.ignorableWhitespace(xpp.getText());
           break;
-        case (XmlPullParser.PROCESSING_INSTRUCTION):
+        case XmlPullParser.PROCESSING_INSTRUCTION:
           xmlSerializer.processingInstruction(xpp.getText());
           break;
-        case (XmlPullParser.COMMENT):
+        case XmlPullParser.COMMENT:
           xmlSerializer.comment(xpp.getText());
           break;
-        case (XmlPullParser.DOCDECL):
+        case XmlPullParser.DOCDECL:
           xmlSerializer.docdecl(xpp.getText());
           break;
         default: // fall out
@@ -1463,6 +1463,13 @@ public class DashManifestParser extends DefaultHandler
       case "urn:mpeg:mpegB:cicp:ChannelConfiguration":
         audioChannels = parseMpegChannelConfiguration(xpp);
         break;
+      case "tag:dts.com,2014:dash:audio_channel_configuration:2012":
+      case "urn:dts:dash:audio_channel_configuration:2012":
+        audioChannels = parseDtsChannelConfiguration(xpp);
+        break;
+      case "tag:dts.com,2018:uhd:audio_channel_configuration":
+        audioChannels = parseDtsxChannelConfiguration(xpp);
+        break;
       case "tag:dolby.com,2014:dash:audio_channel_configuration:2011":
       case "urn:dolby:dash:audio_channel_configuration:2011":
         audioChannels = parseDolbyChannelConfiguration(xpp);
@@ -1666,11 +1673,7 @@ public class DashManifestParser extends DefaultHandler
     } else if (MimeTypes.isVideo(containerMimeType)) {
       return MimeTypes.getVideoMediaMimeType(codecs);
     } else if (MimeTypes.isText(containerMimeType)) {
-      if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-        // RawCC is special because it's a text specific container format.
-        return MimeTypes.getTextMediaMimeType(codecs);
-      }
-      // All other text types are raw formats.
+      // Text types are raw formats.
       return containerMimeType;
     } else if (MimeTypes.isImage(containerMimeType)) {
       // Image types are raw formats.
@@ -1866,7 +1869,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
    * schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.
    *
    * @param xpp The parser from which to read.
@@ -1881,9 +1884,42 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
-   * schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
-   * in ETSI TS 102 366, or the legacy schemeIdUri
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+   * schemeIdUri "tag:dts.com,2014:dash:audio_channel_configuration:2012" as defined by Annex G
+   * (3.2) in ETSI TS 102 114 V1.6.1, or by the legacy schemeIdUri
+   * "urn:dts:dash:audio_channel_configuration:2012".
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   *     not be parsed.
+   */
+  protected static int parseDtsChannelConfiguration(XmlPullParser xpp) {
+    int channelCount = parseInt(xpp, "value", Format.NO_VALUE);
+    return 0 < channelCount && channelCount < 33 ? channelCount : Format.NO_VALUE;
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+   * schemeIdUri "tag:dts.com,2018:uhd:audio_channel_configuration" as defined by table B-5 in ETSI
+   * TS 103 491 v1.2.1.
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   *     not be parsed.
+   */
+  protected static int parseDtsxChannelConfiguration(XmlPullParser xpp) {
+    @Nullable String value = xpp.getAttributeValue(null, "value");
+    if (value == null) {
+      return Format.NO_VALUE;
+    }
+    int channelCount = Integer.bitCount(Integer.parseInt(value, /* radix= */ 16));
+    return channelCount == 0 ? Format.NO_VALUE : channelCount;
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+   * schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011" as defined by table E.5
+   * in ETSI TS 102 366, or by the legacy schemeIdUri
    * "urn:dolby:dash:audio_channel_configuration:2011".
    *
    * @param xpp The parser from which to read.

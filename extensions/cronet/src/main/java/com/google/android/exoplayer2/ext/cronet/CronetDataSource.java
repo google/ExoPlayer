@@ -343,7 +343,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public final int cronetConnectionStatus;
 
-    /** @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
       super(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -359,7 +361,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
-    /** @deprecated Use {@link #OpenException(String, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(String, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
       super(errorMessage, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -461,11 +465,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
-   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
-   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
-   *
-   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
-   *     predicate that was previously set.
+   * @deprecated Use {@link CronetDataSource.Factory#setContentTypePredicate(Predicate)} instead.
    */
   @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {

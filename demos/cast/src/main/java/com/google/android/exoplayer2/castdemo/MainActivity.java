@@ -230,8 +230,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onMove(
         RecyclerView list, RecyclerView.ViewHolder origin, RecyclerView.ViewHolder target) {
-      int fromPosition = origin.getAdapterPosition();
-      int toPosition = target.getAdapterPosition();
+      int fromPosition = origin.getBindingAdapterPosition();
+      int toPosition = target.getBindingAdapterPosition();
       if (draggingFromPosition == C.INDEX_UNSET) {
         // A drag has started, but changes to the media queue will be reflected in clearView().
         draggingFromPosition = fromPosition;
@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-      int position = viewHolder.getAdapterPosition();
+      int position = viewHolder.getBindingAdapterPosition();
       QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
       if (playerManager.removeItem(queueItemHolder.item)) {
         mediaQueueListAdapter.notifyItemRemoved(position);
@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-      playerManager.selectQueueItem(getAdapterPosition());
+      playerManager.selectQueueItem(getBindingAdapterPosition());
     }
   }
 

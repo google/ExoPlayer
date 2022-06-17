@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -59,12 +59,7 @@ public class TrackSelectorTest {
 
   @Test
   public void getBandwidthMeter_beforeInitialization_throwsException() {
-    try {
-      trackSelector.getBandwidthMeter();
-      fail();
-    } catch (Exception e) {
-      // Expected.
-    }
+    assertThrows(IllegalStateException.class, () -> trackSelector.getBandwidthMeter());
   }
 
   @Test
@@ -73,6 +68,30 @@ public class TrackSelectorTest {
     BandwidthMeter bandwidthMeter = Mockito.mock(BandwidthMeter.class);
     trackSelector.init(invalidationListener, bandwidthMeter);
 
-    assertThat(trackSelector.getBandwidthMeter()).isEqualTo(bandwidthMeter);
+    assertThat(trackSelector.getBandwidthMeter()).isSameInstanceAs(bandwidthMeter);
+  }
+
+  @Test
+  public void getBandwidthMeter_afterRelease_throwsException() {
+    InvalidationListener invalidationListener = Mockito.mock(InvalidationListener.class);
+    BandwidthMeter bandwidthMeter = Mockito.mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, bandwidthMeter);
+
+    trackSelector.release();
+
+    assertThrows(IllegalStateException.class, () -> trackSelector.getBandwidthMeter());
+  }
+
+  @Test
+  public void initialize_afterRelease() {
+    InvalidationListener invalidationListener = Mockito.mock(InvalidationListener.class);
+    BandwidthMeter bandwidthMeter = Mockito.mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, bandwidthMeter);
+
+    trackSelector.release();
+    BandwidthMeter anotherBandwidthMeter = Mockito.mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, anotherBandwidthMeter);
+
+    assertThat(trackSelector.getBandwidthMeter()).isSameInstanceAs(anotherBandwidthMeter);
   }
 }

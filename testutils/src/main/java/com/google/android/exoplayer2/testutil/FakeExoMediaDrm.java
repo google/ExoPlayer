@@ -171,13 +171,17 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   private int referenceCount;
   @Nullable private OnEventListener onEventListener;
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public FakeExoMediaDrm() {
     this(/* maxConcurrentSessions= */ Integer.MAX_VALUE);
   }
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public FakeExoMediaDrm(int maxConcurrentSessions) {
     this(

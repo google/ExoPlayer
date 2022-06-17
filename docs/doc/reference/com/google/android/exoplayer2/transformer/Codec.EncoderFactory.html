@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":18,"i1":6,"i2":6,"i3":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -121,12 +121,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>Enclosing class:</dt>
-<dd><a href="Codec.html" title="class in com.google.android.exoplayer2.transformer">Codec</a></dd>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="DefaultEncoderFactory.html" title="class in com.google.android.exoplayer2.transformer">DefaultEncoderFactory</a></code></dd>
+</dl>
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></dd>
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">Codec.EncoderFactory</span></pre>
-<div class="block">A factory for <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>encoder</code></a> instances.</div>
+<div class="block">A factory for <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">encoder</a> instances.</div>
 </li>
 </ul>
 </div>
@@ -166,26 +170,40 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="Codec.html" title="class in com.google.android.exoplayer2.transformer">Codec</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForAudioEncoding(com.google.android.exoplayer2.Format,java.util.List)">createForAudioEncoding</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;allowedMimeTypes)</code></th>
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioNeedsEncoding()">audioNeedsEncoding</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio encoding.</div>
+<div class="block">Returns whether the audio needs to be encoded because of encoder specific configuration.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="Codec.html" title="class in com.google.android.exoplayer2.transformer">Codec</a></code></td>
+<td class="colFirst"><code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForAudioEncoding(com.google.android.exoplayer2.Format,java.util.List)">createForAudioEncoding</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;allowedMimeTypes)</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio encoding.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForVideoEncoding(com.google.android.exoplayer2.Format,java.util.List)">createForVideoEncoding</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;allowedMimeTypes)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video encoding.</div>
+<div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video encoding.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoNeedsEncoding()">videoNeedsEncoding</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the video needs to be encoded because of encoder specific configuration.</div>
 </td>
 </tr>
 </table>
@@ -231,52 +249,73 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>createForAudioEncoding</h4>
-<pre class="methodSignature"><a href="Codec.html" title="class in com.google.android.exoplayer2.transformer">Codec</a>&nbsp;createForAudioEncoding&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<pre class="methodSignature"><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a>&nbsp;createForAudioEncoding&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;allowedMimeTypes)
                       throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
-<div class="block">Returns a <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio encoding.
+<div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio encoding.
 
- <p>This method must validate that the <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is configured to produce one of the
- <code>allowedMimeTypes</code>. The <a href="../Format.html#sampleMimeType"><code>sample MIME type</code></a> given in <code>
- format</code> is not necessarily allowed.</div>
+ <p>This method must validate that the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is configured to produce one of the
+ <code>allowedMimeTypes</code>. The <a href="../Format.html#sampleMimeType">sample MIME type</a> given in
+ <code>format</code> is not necessarily allowed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (of the output data) used to determine the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> and its configuration values.</dd>
-<dd><code>allowedMimeTypes</code> - The non-empty list of allowed output sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util"><code>MIME
-     types</code></a>.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (of the output data) used to determine the underlying
+     encoder and its configuration values.</dd>
+<dd><code>allowedMimeTypes</code> - The non-empty list of allowed output sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME types</a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A configured and started encoder wrapper.</dd>
+<dd>A <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio encoding.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If no suitable codec can be created.</dd>
+<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If no suitable <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> can be created.</dd>
 </dl>
 </li>
 </ul>
 <a id="createForVideoEncoding(com.google.android.exoplayer2.Format,java.util.List)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>createForVideoEncoding</h4>
-<pre class="methodSignature"><a href="Codec.html" title="class in com.google.android.exoplayer2.transformer">Codec</a>&nbsp;createForVideoEncoding&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<pre class="methodSignature"><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a>&nbsp;createForVideoEncoding&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;allowedMimeTypes)
                       throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
-<div class="block">Returns a <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video encoding.
+<div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video encoding.
 
- <p>This method must validate that the <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is configured to produce one of the
- <code>allowedMimeTypes</code>. The <a href="../Format.html#sampleMimeType"><code>sample MIME type</code></a> given in <code>
- format</code> is not necessarily allowed.</div>
+ <p>This method must validate that the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is configured to produce one of the
+ <code>allowedMimeTypes</code>. The <a href="../Format.html#sampleMimeType">sample MIME type</a> given in
+ <code>format</code> is not necessarily allowed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (of the output data) used to determine the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> and its configuration values. <a href="../Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>, <a href="../Format.html#width"><code>Format.width</code></a> and <a href="../Format.html#height" target="_top"><code>Format.height</code></a> must be set to those of the desired output video
-     format. <a href="../Format.html#rotationDegrees"><code>Format.rotationDegrees</code></a> should be 0. The video should always be in
-     landscape orientation.</dd>
-<dd><code>allowedMimeTypes</code> - The non-empty list of allowed output sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util"><code>MIME
-     types</code></a>.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (of the output data) used to determine the underlying
+     encoder and its configuration values. <a href="../Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>, <a href="../Format.html#width"><code>Format.width</code></a>
+     and <a href="../Format.html#height"><code>Format.height</code></a> are set to those of the desired output video format. <a href="../Format.html#rotationDegrees"><code>Format.rotationDegrees</code></a> is 0 and <a href="../Format.html#width"><code>Format.width</code></a> <code>&gt;=</code> <a href="../Format.html#height"><code>Format.height</code></a>,
+     therefore the video is always in landscape orientation. <a href="../Format.html#frameRate"><code>Format.frameRate</code></a> is set
+     to the output video's frame rate, if available.</dd>
+<dd><code>allowedMimeTypes</code> - The non-empty list of allowed output sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME types</a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A configured and started encoder wrapper.</dd>
+<dd>A <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video encoding.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If no suitable codec can be created.</dd>
+<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If no suitable <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> can be created.</dd>
 </dl>
+</li>
+</ul>
+<a id="audioNeedsEncoding()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>audioNeedsEncoding</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;audioNeedsEncoding()</pre>
+<div class="block">Returns whether the audio needs to be encoded because of encoder specific configuration.</div>
+</li>
+</ul>
+<a id="videoNeedsEncoding()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>videoNeedsEncoding</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;videoNeedsEncoding()</pre>
+<div class="block">Returns whether the video needs to be encoded because of encoder specific configuration.</div>
 </li>
 </ul>
 </li>

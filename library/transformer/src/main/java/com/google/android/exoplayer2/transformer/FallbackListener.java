@@ -40,7 +40,8 @@ import com.google.android.exoplayer2.util.Util;
    * Creates a new instance.
    *
    * @param mediaItem The {@link MediaItem} to transform.
-   * @param transformerListeners The {@link Transformer.Listener listeners} to forward events to.
+   * @param transformerListeners The {@linkplain Transformer.Listener listeners} to forward events
+   *     to.
    * @param originalTransformationRequest The original {@link TransformationRequest}.
    */
   public FallbackListener(
@@ -56,7 +57,7 @@ import com.google.android.exoplayer2.util.Util;
   /**
    * Registers an output track.
    *
-   * <p>All tracks must be registered before a transformation request is {@link
+   * <p>All tracks must be registered before a transformation request is {@linkplain
    * #onTransformationRequestFinalized(TransformationRequest) finalized}.
    */
   public void registerTrack() {

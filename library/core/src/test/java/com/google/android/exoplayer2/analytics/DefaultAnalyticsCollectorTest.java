@@ -83,7 +83,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -1729,7 +1729,7 @@ public final class DefaultAnalyticsCollectorTest {
     ArgumentCaptor<AnalyticsListener.EventTime> individualTracksChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
-        .onTracksChanged(individualTracksChangedEventTimes.capture(), any(), any());
+        .onTracksChanged(individualTracksChangedEventTimes.capture(), any());
     ArgumentCaptor<AnalyticsListener.EventTime> individualPlayWhenReadyChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
@@ -2243,7 +2243,7 @@ public final class DefaultAnalyticsCollectorTest {
     }
 
     @Override
-    public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
+    public void onTracksChanged(EventTime eventTime, Tracks tracks) {
       reportedEvents.add(new ReportedEvent(EVENT_TRACKS_CHANGED, eventTime));
     }
 

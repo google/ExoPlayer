@@ -74,7 +74,9 @@ public final class Requirements implements Parcelable {
 
   private final @RequirementFlags int requirements;
 
-  /** @param requirements A combination of requirement flags. */
+  /**
+   * @param requirements A combination of requirement flags.
+   */
   public Requirements(@RequirementFlags int requirements) {
     if ((requirements & NETWORK_UNMETERED) != 0) {
       // Make sure network requirement flags are consistent.

@@ -49,8 +49,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -62,7 +61,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
@@ -339,8 +337,7 @@ public final class MediaMetricsListener
       }
     }
     if (events.contains(EVENT_TRACKS_CHANGED) && metricsBuilder != null) {
-      @Nullable
-      DrmInitData drmInitData = getDrmInitData(player.getCurrentTracksInfo().getTrackGroupInfos());
+      @Nullable DrmInitData drmInitData = getDrmInitData(player.getCurrentTracks().getGroups());
       if (drmInitData != null) {
         castNonNull(metricsBuilder).setDrmType(getDrmType(drmInitData));
       }
@@ -371,10 +368,10 @@ public final class MediaMetricsListener
 
   private void maybeReportTrackChanges(Player player, Events events, long realtimeMs) {
     if (events.contains(EVENT_TRACKS_CHANGED)) {
-      TracksInfo tracksInfo = player.getCurrentTracksInfo();
-      boolean isVideoSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO);
-      boolean isAudioSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO);
-      boolean isTextSelected = tracksInfo.isTypeSelected(C.TRACK_TYPE_TEXT);
+      Tracks tracks = player.getCurrentTracks();
+      boolean isVideoSelected = tracks.isTypeSelected(C.TRACK_TYPE_VIDEO);
+      boolean isAudioSelected = tracks.isTypeSelected(C.TRACK_TYPE_AUDIO);
+      boolean isTextSelected = tracks.isTypeSelected(C.TRACK_TYPE_TEXT);
       if (isVideoSelected || isAudioSelected || isTextSelected) {
         // Ignore updates with insufficient information where no tracks are selected.
         if (!isVideoSelected) {
@@ -680,13 +677,13 @@ public final class MediaMetricsListener
         Util.inferContentTypeForUriAndMimeType(
             mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
     switch (contentType) {
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         return PlaybackMetrics.STREAM_TYPE_HLS;
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         return PlaybackMetrics.STREAM_TYPE_DASH;
-      case C.TYPE_SS:
+      case C.CONTENT_TYPE_SS:
         return PlaybackMetrics.STREAM_TYPE_SS;
-      case C.TYPE_RTSP:
+      case C.CONTENT_TYPE_RTSP:
       default:
         return PlaybackMetrics.STREAM_TYPE_OTHER;
     }
@@ -821,12 +818,11 @@ public final class MediaMetricsListener
   }
 
   @Nullable
-  private static DrmInitData getDrmInitData(ImmutableList<TrackGroupInfo> trackGroupInfos) {
-    for (TrackGroupInfo trackGroupInfo : trackGroupInfos) {
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+  private static DrmInitData getDrmInitData(ImmutableList<Tracks.Group> trackGroups) {
+    for (Tracks.Group trackGroup : trackGroups) {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable DrmInitData drmInitData = trackGroup.getFormat(trackIndex).drmInitData;
+        if (trackGroup.isTrackSelected(trackIndex)) {
+          @Nullable DrmInitData drmInitData = trackGroup.getTrackFormat(trackIndex).drmInitData;
           if (drmInitData != null) {
             return drmInitData;
           }

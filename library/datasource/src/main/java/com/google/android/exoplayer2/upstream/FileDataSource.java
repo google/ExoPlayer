@@ -39,13 +39,17 @@ public final class FileDataSource extends BaseDataSource {
   /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
   public static class FileDataSourceException extends DataSourceException {
 
-    /** @deprecated Use {@link #FileDataSourceException(Throwable, int)} */
+    /**
+     * @deprecated Use {@link #FileDataSourceException(Throwable, int)}
+     */
     @Deprecated
     public FileDataSourceException(Exception cause) {
       super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
-    /** @deprecated Use {@link #FileDataSourceException(String, Throwable, int)} */
+    /**
+     * @deprecated Use {@link #FileDataSourceException(String, Throwable, int)}
+     */
     @Deprecated
     public FileDataSourceException(String message, IOException cause) {
       super(message, cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);

@@ -45,11 +45,11 @@
     <item quantity="many">تقديم سريع للفيديو بمقدار %d ثانية</item>
     <item quantity="other">تقديم سريع للفيديو بمقدار %d ثانية</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">عدم التكرار</string>
-  <string name="exo_controls_repeat_one_description">تكرار مقطع صوتي واحد</string>
-  <string name="exo_controls_repeat_all_description">تكرار الكل</string>
-  <string name="exo_controls_shuffle_on_description">تفعيل الترتيب العشوائي</string>
-  <string name="exo_controls_shuffle_off_description">إيقاف الترتيب العشوائي</string>
+  <string name="exo_controls_repeat_off_description">الوضع الحالي: عدم التكرار. تبديل وضع التكرار</string>
+  <string name="exo_controls_repeat_one_description">الوضع الحالي: التكرار مرة واحدة. تبديل وضع التكرار</string>
+  <string name="exo_controls_repeat_all_description">الوضع الحالي: تكرار الكل. تبديل وضع التكرار</string>
+  <string name="exo_controls_shuffle_on_description">إيقاف وضع الترتيب العشوائي</string>
+  <string name="exo_controls_shuffle_off_description">تفعيل وضع الترتيب العشوائي</string>
   <string name="exo_controls_vr_description">وضع VR</string>
   <string name="exo_controls_cc_enabled_description">إيقاف الترجمة</string>
   <string name="exo_controls_cc_disabled_description">تفعيل الترجمة</string>

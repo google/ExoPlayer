@@ -161,15 +161,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
   /**
-   * Duration under which pausing the main DO_SOME_WORK loop is not expected to yield significant
-   * power saving.
-   *
-   * <p>This value is probably too high, power measurements are needed adjust it, but as renderer
-   * sleep is currently only implemented for audio offload, which uses buffer much bigger than 2s,
-   * this does not matter for now.
-   */
-  private static final long MIN_RENDERER_SLEEP_DURATION_MS = 2000;
-  /**
    * Duration for which the player needs to appear stuck before the playback is failed on the
    * assumption that no further progress will be made. To appear stuck, the player's renderers must
    * not be ready, there must be more media available to load, and the LoadControl must be refusing
@@ -2478,11 +2469,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         Renderer.MSG_SET_WAKEUP_LISTENER,
         new Renderer.WakeupListener() {
           @Override
-          public void onSleep(long wakeupDeadlineMs) {
-            // Do not sleep if the expected sleep time is not long enough to save significant power.
-            if (wakeupDeadlineMs >= MIN_RENDERER_SLEEP_DURATION_MS) {
-              requestForRendererSleep = true;
-            }
+          public void onSleep() {
+            requestForRendererSleep = true;
           }
 
           @Override

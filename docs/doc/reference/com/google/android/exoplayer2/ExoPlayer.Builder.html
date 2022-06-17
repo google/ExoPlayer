@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -376,20 +376,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUsePlatformDiagnostics(boolean)">setUsePlatformDiagnostics</a></span>&#8203;(boolean&nbsp;usePlatformDiagnostics)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the player reports diagnostics data to the Android platform.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)">setVideoChangeFrameRateStrategy</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;videoChangeFrameRateStrategy)</code></th>
 <td class="colLast">
 <div class="block">Sets a <a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> that will be used by the player when provided
  with a video output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">setVideoScalingMode</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;videoScalingMode)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a> that will be used by the player.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWakeMode(@com.google.android.exoplayer2.C.WakeModeint)">setWakeMode</a></span>&#8203;(@com.google.android.exoplayer2.C.WakeMode int&nbsp;wakeMode)</code></th>
 <td class="colLast">
@@ -460,6 +467,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    <li><code>releaseTimeoutMs</code>: <a href="ExoPlayer.html#DEFAULT_RELEASE_TIMEOUT_MS"><code>ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS</code></a>
    <li><code>detachSurfaceTimeoutMs</code>: <a href="ExoPlayer.html#DEFAULT_DETACH_SURFACE_TIMEOUT_MS"><code>ExoPlayer.DEFAULT_DETACH_SURFACE_TIMEOUT_MS</code></a>
    <li><code>pauseAtEndOfMediaItems</code>: <code>false</code>
+   <li><code>usePlatformDiagnostics</code>: <code>true</code>
    <li><a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>: <a href="util/Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>
  </ul></div>
 <dl>
@@ -1028,6 +1036,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>livePlaybackSpeedControl</code> - The <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUsePlatformDiagnostics(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUsePlatformDiagnostics</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setUsePlatformDiagnostics&#8203;(boolean&nbsp;usePlatformDiagnostics)</pre>
+<div class="block">Sets whether the player reports diagnostics data to the Android platform.
+
+ <p>If enabled, the player will use the <a href="https://developer.android.com/reference/android/media/metrics/MediaMetricsManager.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>MediaMetricsManager</code></a> to
+ create a <a href="https://developer.android.com/reference/android/media/metrics/PlaybackSession.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>PlaybackSession</code></a> and forward playback events and
+ performance data to this session. This helps to provide system performance and debugging
+ information for media playback on the device. This data may also be collected by Google <a href="https://support.google.com/accounts/answer/6078260">if sharing usage and diagnostics
+ data is enabled</a> by the user of the device.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>usePlatformDiagnostics</code> - Whether the player reports diagnostics data to the Android
+     platform.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

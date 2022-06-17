@@ -33,7 +33,9 @@ public final class SeiReader {
   private final List<Format> closedCaptionFormats;
   private final TrackOutput[] outputs;
 
-  /** @param closedCaptionFormats A list of formats for the closed caption channels to expose. */
+  /**
+   * @param closedCaptionFormats A list of formats for the closed caption channels to expose.
+   */
   public SeiReader(List<Format> closedCaptionFormats) {
     this.closedCaptionFormats = closedCaptionFormats;
     outputs = new TrackOutput[closedCaptionFormats.size()];

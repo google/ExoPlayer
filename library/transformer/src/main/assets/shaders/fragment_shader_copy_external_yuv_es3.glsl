@@ -12,15 +12,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// ES 3 fragment shader that samples from an external texture with uTexSampler,
+// copying from this texture to the current output while applying the specified
+// color transform uColorTransform, which should be a YUV to RGB conversion
+// matrix. The sampler uses the using the EXT_YUV_target extension:
+// https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt.
+
 #extension GL_OES_EGL_image_external : require
 #extension GL_EXT_YUV_target : require
 precision mediump float;
 uniform __samplerExternal2DY2YEXT uTexSampler;
 uniform mat3 uColorTransform;
-in vec2 vTexCoords;
+in vec2 vTexSamplingCoord;
 out vec4 outColor;
 void main() {
-  vec3 srcYuv = texture(uTexSampler, vTexCoords).xyz;
+  vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
   vec3 yuvOffset;
   yuvOffset.x = srcYuv.r - 0.0625;
   yuvOffset.y = srcYuv.g - 0.5;

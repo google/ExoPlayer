@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":10,"i4":10,"i5":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":10,"i5":10,"i6":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -380,9 +380,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,java.lang.String,com.google.android.exoplayer2.Format,java.lang.String,int)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;componentName,
-              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;configurationFormat,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,boolean,boolean,android.media.MediaFormat,java.lang.String,int)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+              boolean&nbsp;isVideo,
+              boolean&nbsp;isDecoder,
+              <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
               int&nbsp;errorCode)</code></th>
 <td class="colLast">
@@ -391,12 +392,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,boolean,boolean,com.google.android.exoplayer2.Format,java.lang.String,int)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+              boolean&nbsp;isVideo,
+              boolean&nbsp;isDecoder,
+              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
+              int&nbsp;errorCode)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance for a decoder or encoder related exception.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.Exception)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;cause)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance for an unexpected exception.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorInfoEquals(com.google.android.exoplayer2.transformer.TransformationException)">errorInfoEquals</a></span>&#8203;(<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;other)</code></th>
 <td class="colLast">
@@ -404,14 +417,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
  <code>other</code>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName()">getErrorCodeName</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)"><code>TransformationException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)">getErrorCodeName</a></span>&#8203;(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
@@ -698,7 +711,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <pre>public static final&nbsp;int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED</pre>
 <div class="block">Caused by the output format for a track not being supported.
 
- <p>Supported output formats are limited by the muxer's capabilities and the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>encoders</code></a> available.</div>
+ <p>Supported output formats are limited by the muxer's capabilities and the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">encoders</a> available.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED">Constant Field Values</a></dd>
@@ -797,24 +810,58 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)"><code>TransformationException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </li>
 </ul>
-<a id="createForCodec(java.lang.Throwable,java.lang.String,com.google.android.exoplayer2.Format,java.lang.String,int)">
+<a id="createForCodec(java.lang.Throwable,boolean,boolean,android.media.MediaFormat,java.lang.String,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createForCodec</h4>
 <pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;componentName,
-                                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;configurationFormat,
+                                                     boolean&nbsp;isVideo,
+                                                     boolean&nbsp;isDecoder,
+                                                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
                                                      @Nullable
                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
                                                      int&nbsp;errorCode)</pre>
-<div class="block">Creates an instance for a decoder or encoder related exception.</div>
+<div class="block">Creates an instance for a decoder or encoder related exception.
+
+ <p>Use this method after the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> used to configure the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer" target="_top"><code>Codec</code></a> is known.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cause</code> - The cause of the failure.</dd>
-<dd><code>componentName</code> - The name of the component used, e.g. 'VideoEncoder'.</dd>
-<dd><code>configurationFormat</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the decoder/encoder.</dd>
+<dd><code>isVideo</code> - Whether the decoder or encoder is configured for video.</dd>
+<dd><code>isDecoder</code> - Whether the exception is created for a decoder.</dd>
+<dd><code>mediaFormat</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> used for configuring the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
+<dd><code>mediaCodecName</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> used, if known.</dd>
+<dd><code>errorCode</code> - See <a href="#errorCode"><code>errorCode</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
+<a id="createForCodec(java.lang.Throwable,boolean,boolean,com.google.android.exoplayer2.Format,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createForCodec</h4>
+<pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                                     boolean&nbsp;isVideo,
+                                                     boolean&nbsp;isDecoder,
+                                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                                     @Nullable
+                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
+                                                     int&nbsp;errorCode)</pre>
+<div class="block">Creates an instance for a decoder or encoder related exception.
+
+ <p>Use this method before configuring the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a>, or when the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is not
+ configured with a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the failure.</dd>
+<dd><code>isVideo</code> - Whether the decoder or encoder is configured for video.</dd>
+<dd><code>isDecoder</code> - Whether the exception is created for a decoder.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a>.</dd>
 <dd><code>mediaCodecName</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> used, if known.</dd>
 <dd><code>errorCode</code> - See <a href="#errorCode"><code>errorCode</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

@@ -91,7 +91,9 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   /** Number of {@link SchemeData}s. */
   public final int schemeDataCount;
 
-  /** @param schemeDatas Scheme initialization data for possibly multiple DRM schemes. */
+  /**
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
   public DrmInitData(List<SchemeData> schemeDatas) {
     this(null, false, schemeDatas.toArray(new SchemeData[0]));
   }
@@ -104,7 +106,9 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     this(schemeType, false, schemeDatas.toArray(new SchemeData[0]));
   }
 
-  /** @param schemeDatas Scheme initialization data for possibly multiple DRM schemes. */
+  /**
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
   public DrmInitData(SchemeData... schemeDatas) {
     this(null, schemeDatas);
   }

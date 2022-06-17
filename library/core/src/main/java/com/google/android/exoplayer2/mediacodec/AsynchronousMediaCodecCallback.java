@@ -191,14 +191,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Initiates a flush asynchronously, which will be completed on the callback thread. When the
    * flush is complete, it will trigger {@code onFlushCompleted} from the callback thread.
-   *
-   * @param codec A {@link MediaCodec} to {@link MediaCodec#start start} after all pending callbacks
-   *     are handled, or {@code null} if starting the {@link MediaCodec} is performed elsewhere.
    */
-  public void flush(@Nullable MediaCodec codec) {
+  public void flush() {
     synchronized (lock) {
       ++pendingFlushCount;
-      Util.castNonNull(handler).post(() -> this.onFlushCompleted(codec));
+      Util.castNonNull(handler).post(this::onFlushCompleted);
     }
   }
 
@@ -238,7 +235,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void onFlushCompleted(@Nullable MediaCodec codec) {
+  private void onFlushCompleted() {
     synchronized (lock) {
       if (shutDown) {
         return;
@@ -254,15 +251,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return;
       }
       flushInternal();
-      if (codec != null) {
-        try {
-          codec.start();
-        } catch (IllegalStateException e) {
-          setInternalException(e);
-        } catch (Exception e) {
-          setInternalException(new IllegalStateException(e));
-        }
-      }
     }
   }
 

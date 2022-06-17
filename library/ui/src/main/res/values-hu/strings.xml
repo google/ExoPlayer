@@ -37,11 +37,11 @@
     <item quantity="one">Előretekerés %d másodperccel</item>
     <item quantity="other">Előretekerés %d másodperccel</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Nincs ismétlés</string>
-  <string name="exo_controls_repeat_one_description">Egy szám ismétlése</string>
-  <string name="exo_controls_repeat_all_description">Összes szám ismétlése</string>
-  <string name="exo_controls_shuffle_on_description">Keverés bekapcsolva</string>
-  <string name="exo_controls_shuffle_off_description">Keverés kikapcsolva</string>
+  <string name="exo_controls_repeat_off_description">Jelenlegi: Nincs ismétlés. Ismétlés mód be/ki.</string>
+  <string name="exo_controls_repeat_one_description">Jelenlegi: Egy ismétlése. Ismétlés mód be/ki.</string>
+  <string name="exo_controls_repeat_all_description">Jelenlegi: Összes ismétlése. Ismétlés mód be/ki.</string>
+  <string name="exo_controls_shuffle_on_description">Keverés mód kikapcsolása</string>
+  <string name="exo_controls_shuffle_off_description">Keverés mód bekapcsolása</string>
   <string name="exo_controls_vr_description">VR-mód</string>
   <string name="exo_controls_cc_enabled_description">Feliratok kikapcsolása</string>
   <string name="exo_controls_cc_disabled_description">Feliratok bekapcsolása</string>

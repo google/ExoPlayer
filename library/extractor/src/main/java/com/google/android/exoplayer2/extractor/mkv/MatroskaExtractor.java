@@ -191,6 +191,7 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_CODEC_PRIVATE = 0x63A2;
   private static final int ID_CODEC_DELAY = 0x56AA;
   private static final int ID_SEEK_PRE_ROLL = 0x56BB;
+  private static final int ID_DISCARD_PADDING = 0x75A2;
   private static final int ID_VIDEO = 0xE0;
   private static final int ID_PIXEL_WIDTH = 0xB0;
   private static final int ID_PIXEL_HEIGHT = 0xBA;
@@ -389,7 +390,7 @@ public class MatroskaExtractor implements Extractor {
   private final ParsableByteArray subtitleSample;
   private final ParsableByteArray encryptionInitializationVector;
   private final ParsableByteArray encryptionSubsampleData;
-  private final ParsableByteArray blockAdditionalData;
+  private final ParsableByteArray supplementalData;
   private @MonotonicNonNull ByteBuffer encryptionSubsampleDataBuffer;
 
   private long segmentContentSize;
@@ -432,6 +433,7 @@ public class MatroskaExtractor implements Extractor {
   private @C.BufferFlags int blockFlags;
   private int blockAdditionalId;
   private boolean blockHasReferenceBlock;
+  private long blockGroupDiscardPaddingNs;
 
   // Sample writing state.
   private int sampleBytesRead;
@@ -470,7 +472,7 @@ public class MatroskaExtractor implements Extractor {
     subtitleSample = new ParsableByteArray();
     encryptionInitializationVector = new ParsableByteArray(ENCRYPTION_IV_SIZE);
     encryptionSubsampleData = new ParsableByteArray();
-    blockAdditionalData = new ParsableByteArray();
+    supplementalData = new ParsableByteArray();
     blockSampleSizes = new int[1];
   }
 
@@ -577,6 +579,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_BLOCK_ADD_ID_TYPE:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
+      case ID_DISCARD_PADDING:
       case ID_CHANNELS:
       case ID_AUDIO_BIT_DEPTH:
       case ID_CONTENT_ENCODING_ORDER:
@@ -688,6 +691,7 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_BLOCK_GROUP:
         blockHasReferenceBlock = false;
+        blockGroupDiscardPaddingNs = 0L;
         break;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
@@ -748,13 +752,22 @@ public class MatroskaExtractor implements Extractor {
           // We've skipped this block (due to incompatible track number).
           return;
         }
+        Track track = tracks.get(blockTrackNumber);
+        track.assertOutputInitialized();
+        if (blockGroupDiscardPaddingNs > 0L && CODEC_ID_OPUS.equals(track.codecId)) {
+          // For Opus, attach DiscardPadding to the block group samples as supplemental data.
+          supplementalData.reset(
+              ByteBuffer.allocate(8)
+                  .order(ByteOrder.LITTLE_ENDIAN)
+                  .putLong(blockGroupDiscardPaddingNs)
+                  .array());
+        }
+
         // Commit sample metadata.
         int sampleOffset = 0;
         for (int i = 0; i < blockSampleCount; i++) {
           sampleOffset += blockSampleSizes[i];
         }
-        Track track = tracks.get(blockTrackNumber);
-        track.assertOutputInitialized();
         for (int i = 0; i < blockSampleCount; i++) {
           long sampleTimeUs = blockTimeUs + (i * track.defaultSampleDurationNs) / 1000;
           int sampleFlags = blockFlags;
@@ -885,6 +898,9 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_SEEK_PRE_ROLL:
         getCurrentTrack(id).seekPreRollNs = value;
+        break;
+      case ID_DISCARD_PADDING:
+        blockGroupDiscardPaddingNs = value;
         break;
       case ID_CHANNELS:
         getCurrentTrack(id).channelCount = (int) value;
@@ -1279,7 +1295,9 @@ public class MatroskaExtractor implements Extractor {
           // For SimpleBlock, we can write sample data and immediately commit the corresponding
           // sample metadata.
           while (blockSampleIndex < blockSampleCount) {
-            int sampleSize = writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+            int sampleSize =
+                writeSampleData(
+                    input, track, blockSampleSizes[blockSampleIndex], /* isBlockGroup= */ false);
             long sampleTimeUs =
                 blockTimeUs + (blockSampleIndex * track.defaultSampleDurationNs) / 1000;
             commitSampleToOutput(track, sampleTimeUs, blockFlags, sampleSize, /* offset= */ 0);
@@ -1294,7 +1312,8 @@ public class MatroskaExtractor implements Extractor {
           // the sample data, storing the final sample sizes for when we commit the metadata.
           while (blockSampleIndex < blockSampleCount) {
             blockSampleSizes[blockSampleIndex] =
-                writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+                writeSampleData(
+                    input, track, blockSampleSizes[blockSampleIndex], /* isBlockGroup= */ true);
             blockSampleIndex++;
           }
         }
@@ -1330,8 +1349,8 @@ public class MatroskaExtractor implements Extractor {
       throws IOException {
     if (blockAdditionalId == BLOCK_ADDITIONAL_ID_VP9_ITU_T_35
         && CODEC_ID_VP9.equals(track.codecId)) {
-      blockAdditionalData.reset(contentSize);
-      input.readFully(blockAdditionalData.getData(), 0, contentSize);
+      supplementalData.reset(contentSize);
+      input.readFully(supplementalData.getData(), 0, contentSize);
     } else {
       // Unhandled block additional data.
       input.skipFully(contentSize);
@@ -1400,13 +1419,13 @@ public class MatroskaExtractor implements Extractor {
         if (blockSampleCount > 1) {
           // There were multiple samples in the block. Appending the additional data to the last
           // sample doesn't make sense. Skip instead.
-          flags &= ~C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
+          supplementalData.reset(/* limit= */ 0);
         } else {
           // Append supplemental data.
-          int blockAdditionalSize = blockAdditionalData.limit();
+          int supplementalDataSize = supplementalData.limit();
           track.output.sampleData(
-              blockAdditionalData, blockAdditionalSize, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
-          size += blockAdditionalSize;
+              supplementalData, supplementalDataSize, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
+          size += supplementalDataSize;
         }
       }
       track.output.sampleMetadata(timeUs, flags, size, offset, track.cryptoData);
@@ -1435,11 +1454,13 @@ public class MatroskaExtractor implements Extractor {
    * @param input The input from which to read sample data.
    * @param track The track to output the sample to.
    * @param size The size of the sample data on the input side.
+   * @param isBlockGroup Whether the samples are from a BlockGroup.
    * @return The final size of the written sample.
    * @throws IOException If an error occurs reading from the input.
    */
   @RequiresNonNull("#2.output")
-  private int writeSampleData(ExtractorInput input, Track track, int size) throws IOException {
+  private int writeSampleData(ExtractorInput input, Track track, int size, boolean isBlockGroup)
+      throws IOException {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubtitleSampleData(input, SUBRIP_PREFIX, size);
       return finishWriteSampleData();
@@ -1546,16 +1567,17 @@ public class MatroskaExtractor implements Extractor {
         sampleStrippedBytes.reset(track.sampleStrippedBytes, track.sampleStrippedBytes.length);
       }
 
-      if (track.maxBlockAdditionId > 0) {
+      if (track.samplesHaveSupplementalData(isBlockGroup)) {
         blockFlags |= C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
-        blockAdditionalData.reset(/* limit= */ 0);
+        supplementalData.reset(/* limit= */ 0);
         // If there is supplemental data, the structure of the sample data is:
-        // sample size (4 bytes) || sample data || supplemental data
+        // encryption data (if any) || sample size (4 bytes) || sample data || supplemental data
+        int sampleSize = size + sampleStrippedBytes.limit() - sampleBytesRead;
         scratch.reset(/* limit= */ 4);
-        scratch.getData()[0] = (byte) ((size >> 24) & 0xFF);
-        scratch.getData()[1] = (byte) ((size >> 16) & 0xFF);
-        scratch.getData()[2] = (byte) ((size >> 8) & 0xFF);
-        scratch.getData()[3] = (byte) (size & 0xFF);
+        scratch.getData()[0] = (byte) ((sampleSize >> 24) & 0xFF);
+        scratch.getData()[1] = (byte) ((sampleSize >> 16) & 0xFF);
+        scratch.getData()[2] = (byte) ((sampleSize >> 8) & 0xFF);
+        scratch.getData()[3] = (byte) (sampleSize & 0xFF);
         output.sampleData(scratch, 4, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
         sampleBytesWritten += 4;
       }
@@ -1718,9 +1740,9 @@ public class MatroskaExtractor implements Extractor {
     checkArgument(timeUs != C.TIME_UNSET);
     byte[] timeCodeData;
     int hours = (int) (timeUs / (3600 * C.MICROS_PER_SECOND));
-    timeUs -= (hours * 3600 * C.MICROS_PER_SECOND);
+    timeUs -= (hours * 3600L * C.MICROS_PER_SECOND);
     int minutes = (int) (timeUs / (60 * C.MICROS_PER_SECOND));
-    timeUs -= (minutes * 60 * C.MICROS_PER_SECOND);
+    timeUs -= (minutes * 60L * C.MICROS_PER_SECOND);
     int seconds = (int) (timeUs / C.MICROS_PER_SECOND);
     timeUs -= (seconds * C.MICROS_PER_SECOND);
     int lastValue = (int) (timeUs / lastTimecodeValueScalingFactor);
@@ -2332,6 +2354,21 @@ public class MatroskaExtractor implements Extractor {
       if (trueHdSampleRechunker != null) {
         trueHdSampleRechunker.reset();
       }
+    }
+
+    /**
+     * Returns true if supplemental data will be attached to the samples.
+     *
+     * @param isBlockGroup Whether the samples are from a BlockGroup.
+     */
+    private boolean samplesHaveSupplementalData(boolean isBlockGroup) {
+      if (CODEC_ID_OPUS.equals(codecId)) {
+        // At the end of a BlockGroup, a positive DiscardPadding value will be written out as
+        // supplemental data for Opus codec. Otherwise (i.e. DiscardPadding <= 0) supplemental data
+        // size will be 0.
+        return isBlockGroup;
+      }
+      return maxBlockAdditionId > 0;
     }
 
     /** Returns the HDR Static Info as defined in CTA-861.3. */

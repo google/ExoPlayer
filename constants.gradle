@@ -13,21 +13,21 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.17.1'
-    releaseVersionCode = 2_017_001
+    releaseVersion = '2.18.0'
+    releaseVersionCode = 2_018_000
     minSdkVersion = 16
     appTargetSdkVersion = 29
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.
     targetSdkVersion = 30
-    compileSdkVersion = 31
+    compileSdkVersion = 32
     dexmakerVersion = '2.28.1'
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
     // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
     guavaVersion = '31.0.1-android'
     mockitoVersion = '3.12.4'
-    robolectricVersion = '4.6.1'
+    robolectricVersion = '4.8.1'
     // Keep this in sync with Google's internal Checker Framework version.
     checkerframeworkVersion = '3.13.0'
     checkerframeworkCompatVersion = '2.5.5'

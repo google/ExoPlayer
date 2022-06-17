@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Map;
 import java.util.UUID;
@@ -50,20 +50,17 @@ public final class OfflineLicenseHelper {
    *
    * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
    *     their own license URL.
-   * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param dataSourceFactory A factory from which to obtain {@link DataSource} instances.
    * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
    *     DRM-related events.
    * @return A new instance which uses Widevine CDM.
    */
   public static OfflineLicenseHelper newWidevineInstance(
       String defaultLicenseUrl,
-      HttpDataSource.Factory httpDataSourceFactory,
+      DataSource.Factory dataSourceFactory,
       DrmSessionEventListener.EventDispatcher eventDispatcher) {
     return newWidevineInstance(
-        defaultLicenseUrl,
-        /* forceDefaultLicenseUrl= */ false,
-        httpDataSourceFactory,
-        eventDispatcher);
+        defaultLicenseUrl, /* forceDefaultLicenseUrl= */ false, dataSourceFactory, eventDispatcher);
   }
 
   /**
@@ -74,7 +71,7 @@ public final class OfflineLicenseHelper {
    *     their own license URL.
    * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
    *     include their own license URL.
-   * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param dataSourceFactory A factory from which to obtain {@link DataSource} instances.
    * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
    *     DRM-related events.
    * @return A new instance which uses Widevine CDM.
@@ -82,12 +79,12 @@ public final class OfflineLicenseHelper {
   public static OfflineLicenseHelper newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
-      HttpDataSource.Factory httpDataSourceFactory,
+      DataSource.Factory dataSourceFactory,
       DrmSessionEventListener.EventDispatcher eventDispatcher) {
     return newWidevineInstance(
         defaultLicenseUrl,
         forceDefaultLicenseUrl,
-        httpDataSourceFactory,
+        dataSourceFactory,
         /* optionalKeyRequestParameters= */ null,
         eventDispatcher);
   }
@@ -110,7 +107,7 @@ public final class OfflineLicenseHelper {
   public static OfflineLicenseHelper newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
-      HttpDataSource.Factory httpDataSourceFactory,
+      DataSource.Factory dataSourceFactory,
       @Nullable Map<String, String> optionalKeyRequestParameters,
       DrmSessionEventListener.EventDispatcher eventDispatcher) {
     return new OfflineLicenseHelper(
@@ -118,7 +115,7 @@ public final class OfflineLicenseHelper {
             .setKeyRequestParameters(optionalKeyRequestParameters)
             .build(
                 new HttpMediaDrmCallback(
-                    defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory)),
+                    defaultLicenseUrl, forceDefaultLicenseUrl, dataSourceFactory)),
         eventDispatcher);
   }
 

@@ -18,14 +18,12 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
-import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableSet;
 
 /** A media transformation request. */
 public final class TransformationRequest {
@@ -33,14 +31,14 @@ public final class TransformationRequest {
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
 
-    private static final ImmutableSet<Integer> SUPPORTED_OUTPUT_HEIGHTS =
-        ImmutableSet.of(144, 240, 360, 480, 720, 1080, 1440, 2160);
-
-    private Matrix transformationMatrix;
     private boolean flattenForSlowMotion;
+    private float scaleX;
+    private float scaleY;
+    private float rotationDegrees;
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
+    private boolean enableRequestSdrToneMapping;
     private boolean enableHdrEditing;
 
     /**
@@ -50,51 +48,29 @@ public final class TransformationRequest {
      * {@link TransformationRequest}.
      */
     public Builder() {
-      transformationMatrix = new Matrix();
+      scaleX = 1;
+      scaleY = 1;
       outputHeight = C.LENGTH_UNSET;
     }
 
     private Builder(TransformationRequest transformationRequest) {
-      this.transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
       this.flattenForSlowMotion = transformationRequest.flattenForSlowMotion;
+      this.scaleX = transformationRequest.scaleX;
+      this.scaleY = transformationRequest.scaleY;
+      this.rotationDegrees = transformationRequest.rotationDegrees;
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
+      this.enableRequestSdrToneMapping = transformationRequest.enableRequestSdrToneMapping;
       this.enableHdrEditing = transformationRequest.enableHdrEditing;
     }
 
     /**
-     * Sets the transformation matrix. The default value is to apply no change.
+     * Sets whether the input should be flattened for media containing slow motion markers.
      *
-     * <p>This can be used to perform operations supported by {@link Matrix}, like scaling and
-     * rotating the video.
-     *
-     * <p>The video dimensions will be on the x axis, from -aspectRatio to aspectRatio, and on the y
-     * axis, from -1 to 1.
-     *
-     * <p>For now, resolution will not be affected by this method.
-     *
-     * @param transformationMatrix The transformation to apply to video frames.
-     * @return This builder.
-     */
-    public Builder setTransformationMatrix(Matrix transformationMatrix) {
-      // TODO(b/201293185): After {@link #setResolution} supports arbitrary resolutions,
-      // allow transformations to change the resolution, by scaling to the appropriate min/max
-      // values. This will also be required to create the VertexTransformation class, in order to
-      // have aspect ratio helper methods (which require resolution to change).
-
-      // TODO(b/213198690): Consider changing how transformationMatrix is applied, so that
-      // dimensions will be from -1 to 1 on both x and y axes, but transformations will be applied
-      // in a predictable manner.
-      this.transformationMatrix = new Matrix(transformationMatrix);
-      return this;
-    }
-
-    /**
-     * Sets whether the input should be flattened for media containing slow motion markers. The
-     * transformed output is obtained by removing the slow motion metadata and by actually slowing
-     * down the parts of the video and audio streams defined in this metadata. The default value for
-     * {@code flattenForSlowMotion} is {@code false}.
+     * <p>The transformed output is obtained by removing the slow motion metadata and by actually
+     * slowing down the parts of the video and audio streams defined in this metadata. The default
+     * value for {@code flattenForSlowMotion} is {@code false}.
      *
      * <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. The
      * transformation has no effect if the input does not contain this metadata type.
@@ -112,6 +88,9 @@ public final class TransformationRequest {
      * Mp4Extractor#FLAG_READ_SEF_DATA} is set on the {@link Mp4Extractor} used. Otherwise, the slow
      * motion metadata will be ignored and the input won't be flattened.
      *
+     * <p>Using slow motion flattening together with {@link
+     * com.google.android.exoplayer2.MediaItem.ClippingConfiguration} is not supported yet.
+     *
      * @param flattenForSlowMotion Whether to flatten for slow motion.
      * @return This builder.
      */
@@ -121,35 +100,64 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height. The default value {@link C#LENGTH_UNSET}
-     * corresponds to using the same height as the input. Output width will scale to preserve the
-     * input video's aspect ratio.
+     * Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
+     * the video along these axes appropriately.
      *
-     * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
-     * supported, to ensure compatibility on different devices.
+     * <p>The default value for {@code scaleX} and {@code scaleY}, 1, corresponds to not scaling
+     * along the x and y axes, respectively.
+     *
+     * @param scaleX The multiplier by which the frame will scale horizontally, along the x-axis.
+     * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
+     * @return This builder.
+     */
+    public Builder setScale(float scaleX, float scaleY) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      return this;
+    }
+
+    /**
+     * Sets the rotation, in degrees, counterclockwise, to apply to each frame.
+     *
+     * <p>The output frame's width and height are automatically adjusted to preserve all input
+     * pixels. The rotated input frame is fitted inside an enclosing black rectangle if its edges
+     * aren't parallel to the x and y axes.
+     *
+     * <p>The default value, 0, corresponds to not applying any rotation.
+     *
+     * @param rotationDegrees The counterclockwise rotation, in degrees.
+     * @return This builder.
+     */
+    public Builder setRotationDegrees(float rotationDegrees) {
+      this.rotationDegrees = rotationDegrees;
+      return this;
+    }
+
+    /**
+     * Sets the output resolution using the output height.
+     *
+     * <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
+     * other transformations.
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
      *
-     * @param outputHeight The output height in pixels.
+     * <p>The default value, {@link C#LENGTH_UNSET}, leaves the width and height unchanged unless
+     * {@linkplain #setScale(float,float) scaling} or @linkplain #setRotationDegrees(float)
+     * rotation} are requested.
+     *
+     * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
-     * @throws IllegalArgumentException If the {@code outputHeight} is not supported.
      */
     public Builder setResolution(int outputHeight) {
-      // TODO(b/209781577): Define outputHeight in the javadoc as height can be ambiguous for videos
-      // where rotationDegrees is set in the Format.
-      // TODO(b/201293185): Restructure to input a Presentation class.
-      // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
-      // resolutions and reasonable fallbacks.
-      checkArgument(
-          outputHeight == C.LENGTH_UNSET || SUPPORTED_OUTPUT_HEIGHTS.contains(outputHeight),
-          "Unsupported outputHeight: " + outputHeight);
       this.outputHeight = outputHeight;
       return this;
     }
 
     /**
-     * Sets the video MIME type of the output. The default value is {@code null} which corresponds
-     * to using the same MIME type as the input. Supported MIME types are:
+     * Sets the video MIME type of the output.
+     *
+     * <p>The default value is {@code null} which corresponds to using the same MIME type as the
+     * input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_H263}
@@ -161,7 +169,7 @@ public final class TransformationRequest {
      * @param videoMimeType The MIME type of the video samples in the output.
      * @return This builder.
      * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
-     *     {@link MimeTypes MIME type}.
+     *     {@linkplain MimeTypes MIME type}.
      */
     public Builder setVideoMimeType(@Nullable String videoMimeType) {
       checkArgument(
@@ -172,8 +180,10 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the audio MIME type of the output. The default value is {@code null} which corresponds
-     * to using the same MIME type as the input. Supported MIME types are:
+     * Sets the audio MIME type of the output.
+     *
+     * <p>The default value is {@code null} which corresponds to using the same MIME type as the
+     * input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#AUDIO_AAC}
@@ -184,7 +194,7 @@ public final class TransformationRequest {
      * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
      * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
-     *     {@link MimeTypes MIME type}.
+     *     {@linkplain MimeTypes MIME type}.
      */
     public Builder setAudioMimeType(@Nullable String audioMimeType) {
       checkArgument(
@@ -195,12 +205,29 @@ public final class TransformationRequest {
     }
 
     /**
+     * Sets whether to request tone-mapping to standard dynamic range (SDR). If enabled and
+     * supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
+     * transfer function before processing.
+     *
+     * <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
+     * supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.
+     *
+     * @param enableRequestSdrToneMapping Whether to request tone-mapping down to SDR.
+     * @return This builder.
+     */
+    public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
+      this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
+      return this;
+    }
+
+    /**
      * Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
      * signal.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
      * editing feature is under development and is intended for developing/testing HDR processing
-     * and encoding support.
+     * and encoding support. HDR editing can't be enabled at the same time as {@linkplain
+     * #setEnableRequestSdrToneMapping(boolean) SDR tone-mapping}.
      *
      * @param enableHdrEditing Whether to attempt to process any input video stream as a high
      *     dynamic range (HDR) signal.
@@ -214,21 +241,18 @@ public final class TransformationRequest {
     /** Builds a {@link TransformationRequest} instance. */
     public TransformationRequest build() {
       return new TransformationRequest(
-          transformationMatrix,
           flattenForSlowMotion,
+          scaleX,
+          scaleY,
+          rotationDegrees,
           outputHeight,
           audioMimeType,
           videoMimeType,
+          enableRequestSdrToneMapping,
           enableHdrEditing);
     }
   }
 
-  /**
-   * A {@link Matrix transformation matrix} to apply to video frames.
-   *
-   * @see Builder#setTransformationMatrix(Matrix)
-   */
-  public final Matrix transformationMatrix;
   /**
    * Whether the input should be flattened for media containing slow motion markers.
    *
@@ -236,25 +260,48 @@ public final class TransformationRequest {
    */
   public final boolean flattenForSlowMotion;
   /**
+   * The requested scale factor, on the x-axis, of the output video, or 1 if inferred from the
+   * input.
+   *
+   * @see Builder#setScale(float, float)
+   */
+  public final float scaleX;
+  /**
+   * The requested scale factor, on the y-axis, of the output video, or 1 if inferred from the
+   * input.
+   *
+   * @see Builder#setScale(float, float)
+   */
+  public final float scaleY;
+  /**
+   * The requested rotation, in degrees, of the output video, or 0 if inferred from the input.
+   *
+   * @see Builder#setRotationDegrees(float)
+   */
+  public final float rotationDegrees;
+  /**
    * The requested height of the output video, or {@link C#LENGTH_UNSET} if inferred from the input.
    *
    * @see Builder#setResolution(int)
    */
   public final int outputHeight;
   /**
-   * The requested output audio sample {@link MimeTypes MIME type}, or {@code null} if inferred from
-   * the input.
+   * The requested output audio sample {@linkplain MimeTypes MIME type}, or {@code null} if inferred
+   * from the input.
    *
    * @see Builder#setAudioMimeType(String)
    */
   @Nullable public final String audioMimeType;
   /**
-   * The requested output video sample {@link MimeTypes MIME type}, or {@code null} if inferred from
-   * the input.
+   * The requested output video sample {@linkplain MimeTypes MIME type}, or {@code null} if inferred
+   * from the input.
    *
    * @see Builder#setVideoMimeType(String)
    */
   @Nullable public final String videoMimeType;
+  /** Whether to request tone-mapping to standard dynamic range (SDR). */
+  public final boolean enableRequestSdrToneMapping;
+
   /**
    * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
    *
@@ -263,17 +310,24 @@ public final class TransformationRequest {
   public final boolean enableHdrEditing;
 
   private TransformationRequest(
-      Matrix transformationMatrix,
       boolean flattenForSlowMotion,
+      float scaleX,
+      float scaleY,
+      float rotationDegrees,
       int outputHeight,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType,
+      boolean enableRequestSdrToneMapping,
       boolean enableHdrEditing) {
-    this.transformationMatrix = transformationMatrix;
+    checkArgument(!enableHdrEditing || !enableRequestSdrToneMapping);
     this.flattenForSlowMotion = flattenForSlowMotion;
+    this.scaleX = scaleX;
+    this.scaleY = scaleY;
+    this.rotationDegrees = rotationDegrees;
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
+    this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
     this.enableHdrEditing = enableHdrEditing;
   }
 
@@ -286,21 +340,27 @@ public final class TransformationRequest {
       return false;
     }
     TransformationRequest that = (TransformationRequest) o;
-    return transformationMatrix.equals(that.transformationMatrix)
-        && flattenForSlowMotion == that.flattenForSlowMotion
+    return flattenForSlowMotion == that.flattenForSlowMotion
+        && scaleX == that.scaleX
+        && scaleY == that.scaleY
+        && rotationDegrees == that.rotationDegrees
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
         && Util.areEqual(videoMimeType, that.videoMimeType)
+        && enableRequestSdrToneMapping == that.enableRequestSdrToneMapping
         && enableHdrEditing == that.enableHdrEditing;
   }
 
   @Override
   public int hashCode() {
-    int result = transformationMatrix.hashCode();
-    result = 31 * result + (flattenForSlowMotion ? 1 : 0);
+    int result = (flattenForSlowMotion ? 1 : 0);
+    result = 31 * result + Float.floatToIntBits(scaleX);
+    result = 31 * result + Float.floatToIntBits(scaleY);
+    result = 31 * result + Float.floatToIntBits(rotationDegrees);
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);
+    result = 31 * result + (enableRequestSdrToneMapping ? 1 : 0);
     result = 31 * result + (enableHdrEditing ? 1 : 0);
     return result;
   }

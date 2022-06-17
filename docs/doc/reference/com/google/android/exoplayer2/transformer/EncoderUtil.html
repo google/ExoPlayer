@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -87,13 +87,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -138,6 +138,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LEVEL_UNSET">LEVEL_UNSET</a></span></code></th>
+<td class="colLast">
+<div class="block">A value to indicate the encoding level is not set.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -153,41 +178,132 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getClosestSupportedBitrate(android.media.MediaCodecInfo,java.lang.String,int)">getClosestSupportedBitrate</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                          int&nbsp;bitrate)</code></th>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#findCodecForFormat(android.media.MediaFormat,boolean)">findCodecForFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
+                  boolean&nbsp;isDecoder)</code></th>
 <td class="colLast">
-<div class="block">Finds the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>'s closest supported bitrate from the given bitrate.</div>
+<div class="block">Finds a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> that supports the <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>, or <code>null</code> if none is
+ found.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getClosestSupportedResolution(android.media.MediaCodecInfo,java.lang.String,int,int)">getClosestSupportedResolution</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
-                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                             int&nbsp;width,
-                             int&nbsp;height)</code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#findHighestSupportedEncodingLevel(android.media.MediaCodecInfo,java.lang.String,int)">findHighestSupportedEncodingLevel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                 int&nbsp;profile)</code></th>
 <td class="colLast">
-<div class="block">Finds the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>'s closest supported resolution from the given
- resolution.</div>
+<div class="block">Finds the highest supported encoding level given a profile.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedEncoders(java.lang.String)">getSupportedEncoders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableSet</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#findSupportedEncodingProfiles(android.media.MediaCodecInfo,java.lang.String)">findSupportedEncodingProfiles</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
-<div class="block">Returns a list of <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoders</code></a> that support the given <code>mimeType</code>, or
- an empty list if there is none.</div>
+<div class="block">Returns a <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink"><code>set</code></a> of supported <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink">encoding profiles</a> for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink">encoder</a> and <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util" target="_top">MIME type</a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isProfileLevelSupported(android.media.MediaCodecInfo,java.lang.String,int,int)">isProfileLevelSupported</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                       int&nbsp;profile,
-                       int&nbsp;level)</code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxSupportedInstances(android.media.MediaCodecInfo,java.lang.String)">getMaxSupportedInstances</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
-<div class="block">Returns whether the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a> supports the given profile and level.</div>
+<div class="block">Returns the number of max number of the supported concurrent codec instances.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Range.html" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedBitrateRange(android.media.MediaCodecInfo,java.lang.String)">getSupportedBitrateRange</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns the range of supported bitrates for the given <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedColorFormats(android.media.MediaCodecInfo,java.lang.String)">getSupportedColorFormats</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink"><code>list</code></a> of supported <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#colorFormats" title="class or interface in android.media" class="externalLink">color formats</a> for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink">encoder</a> and <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util" target="_top">MIME type</a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedEncoders(java.lang.String)">getSupportedEncoders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns a list of <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoders</a> that support the given <code>mimeType</code>,
+ or an empty list if there is none.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Range.html" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedHeights(android.media.MediaCodecInfo,java.lang.String,int)">getSupportedHeights</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                   int&nbsp;width)</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/util/Range.html" title="class or interface in android.util" class="externalLink"><code>Range</code></a> of supported heights for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>,
+ <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a> and <code>width</code>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top">Size</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedResolution(android.media.MediaCodecInfo,java.lang.String,int,int)">getSupportedResolution</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                      int&nbsp;width,
+                      int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block">Finds an <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a>'s supported resolution from a given resolution.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/android/util/Range.html?is-external=true" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;,&#8203;<a href="https://developer.android.com/reference/android/util/Range.html?is-external=true" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedResolutionRanges(android.media.MediaCodecInfo,java.lang.String)">getSupportedResolutionRanges</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink"><code>Pair</code></a> of supported width and height <a href="https://developer.android.com/reference/android/util/Range.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>ranges</code></a> for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink"><code>encoder</code></a> and <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util" target="_top">MIME type</a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableSet</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedVideoMimeTypes()">getSupportedVideoMimeTypes</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a list of video <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME types</a> that can be encoded.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isBitrateModeSupported(android.media.MediaCodecInfo,java.lang.String,int)">isBitrateModeSupported</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                      int&nbsp;bitrateMode)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the bitrate mode is supported by the encoder.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFeatureSupported(android.media.MediaCodecInfo,java.lang.String,java.lang.String)">isFeatureSupported</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;featureName)</code></th>
+<td class="colLast">
+<div class="block">Returns whether a given feature is supported.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isHardwareAccelerated(android.media.MediaCodecInfo,java.lang.String)">isHardwareAccelerated</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Checks if a <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">codec</a> is hardware-accelerated.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSizeSupported(android.media.MediaCodecInfo,java.lang.String,int,int)">isSizeSupported</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+               int&nbsp;width,
+               int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a> supports the given resolution.</div>
 </td>
 </tr>
 </table>
@@ -207,6 +323,30 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="LEVEL_UNSET">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>LEVEL_UNSET</h4>
+<pre>public static final&nbsp;int LEVEL_UNSET</pre>
+<div class="block">A value to indicate the encoding level is not set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.EncoderUtil.LEVEL_UNSET">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -221,30 +361,82 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getSupportedEncoders</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink">MediaCodecInfo</a>&gt;&nbsp;getSupportedEncoders&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
-<div class="block">Returns a list of <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoders</code></a> that support the given <code>mimeType</code>, or
- an empty list if there is none.</div>
+<div class="block">Returns a list of <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoders</a> that support the given <code>mimeType</code>,
+ or an empty list if there is none.</div>
 </li>
 </ul>
-<a id="getClosestSupportedResolution(android.media.MediaCodecInfo,java.lang.String,int,int)">
+<a id="getSupportedVideoMimeTypes()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getClosestSupportedResolution</h4>
+<h4>getSupportedVideoMimeTypes</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableSet</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;getSupportedVideoMimeTypes()</pre>
+<div class="block">Returns a list of video <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME types</a> that can be encoded.</div>
+</li>
+</ul>
+<a id="isSizeSupported(android.media.MediaCodecInfo,java.lang.String,int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSizeSupported</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isSizeSupported&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                      int&nbsp;width,
+                                      int&nbsp;height)</pre>
+<div class="block">Returns whether the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a> supports the given resolution.</div>
+</li>
+</ul>
+<a id="getSupportedHeights(android.media.MediaCodecInfo,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSupportedHeights</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/util/Range.html" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;getSupportedHeights&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                                 int&nbsp;width)</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/util/Range.html" title="class or interface in android.util" class="externalLink"><code>Range</code></a> of supported heights for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>,
+ <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a> and <code>width</code>.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></code> - When the width is not in the range of <a href="#getSupportedResolutionRanges(android.media.MediaCodecInfo,java.lang.String)" target="_top">supported widths</a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getSupportedResolutionRanges(android.media.MediaCodecInfo,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSupportedResolutionRanges</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/android/util/Range.html?is-external=true" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;,&#8203;<a href="https://developer.android.com/reference/android/util/Range.html?is-external=true" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&gt;&nbsp;getSupportedResolutionRanges&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink"><code>Pair</code></a> of supported width and height <a href="https://developer.android.com/reference/android/util/Range.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>ranges</code></a> for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink"><code>encoder</code></a> and <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util" target="_top">MIME type</a>.</div>
+</li>
+</ul>
+<a id="getSupportedResolution(android.media.MediaCodecInfo,java.lang.String,int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSupportedResolution</h4>
 <pre class="methodSignature">@Nullable
-public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;getClosestSupportedResolution&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
-                                                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                                                                        int&nbsp;width,
-                                                                        int&nbsp;height)</pre>
-<div class="block">Finds the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>'s closest supported resolution from the given
- resolution.
+public static&nbsp;<a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink">Size</a>&nbsp;getSupportedResolution&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                          int&nbsp;width,
+                                          int&nbsp;height)</pre>
+<div class="block">Finds an <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a>'s supported resolution from a given resolution.
 
- <p>The input resolution is returned, if it is supported by the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>.
+ <p>The input resolution is returned, if it (after aligning to the encoder's requirement) is
+ supported by the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a>.
 
- <p>The resolution will be clamped to the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>'s range of supported
- resolutions, and adjusted to the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>'s size alignment. The
- adjustment process takes into account the original aspect ratio. But the fixed resolution may
- not preserve the original aspect ratio, depending on the encoder's required size alignment.</div>
+ <p>The resolution will be adjusted to be within the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a>'s range
+ of supported resolutions, and will be aligned to the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">encoder</a>'s
+ alignment requirement. The adjustment process takes into account the original aspect ratio. But
+ the fixed resolution may not preserve the original aspect ratio, depending on the encoder's
+ required size alignment.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>encoderInfo</code> - The <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo</code></a> of the encoder.</dd>
@@ -252,33 +444,121 @@ public static&nbsp;<a href="https://developer.android.com/reference/android/util
 <dd><code>width</code> - The original width.</dd>
 <dd><code>height</code> - The original height.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Pair</code></a> of width and height, or <code>null</code> if unable to find a fix.</dd>
+<dd>A <a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top">supported resolution</a>, or <code>null</code> if unable to find a fallback.</dd>
 </dl>
 </li>
 </ul>
-<a id="isProfileLevelSupported(android.media.MediaCodecInfo,java.lang.String,int,int)">
+<a id="findSupportedEncodingProfiles(android.media.MediaCodecInfo,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>isProfileLevelSupported</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isProfileLevelSupported&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
-                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                                              int&nbsp;profile,
-                                              int&nbsp;level)</pre>
-<div class="block">Returns whether the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a> supports the given profile and level.</div>
+<h4>findSupportedEncodingProfiles</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableSet</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;findSupportedEncodingProfiles&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns a <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink"><code>set</code></a> of supported <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink">encoding profiles</a> for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink">encoder</a> and <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util" target="_top">MIME type</a>.</div>
 </li>
 </ul>
-<a id="getClosestSupportedBitrate(android.media.MediaCodecInfo,java.lang.String,int)">
+<a id="findHighestSupportedEncodingLevel(android.media.MediaCodecInfo,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findHighestSupportedEncodingLevel</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;findHighestSupportedEncodingLevel&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                                    int&nbsp;profile)</pre>
+<div class="block">Finds the highest supported encoding level given a profile.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>encoderInfo</code> - The <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoderInfo</code></a>.</dd>
+<dd><code>mimeType</code> - The <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>.</dd>
+<dd><code>profile</code> - The encoding profile.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The highest supported encoding level, as documented in <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink"><code>MediaCodecInfo.CodecProfileLevel</code></a>, or <a href="#LEVEL_UNSET" target="_top"><code>LEVEL_UNSET</code></a> if the profile is not supported.</dd>
+</dl>
+</li>
+</ul>
+<a id="findCodecForFormat(android.media.MediaFormat,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findCodecForFormat</h4>
+<pre class="methodSignature">@Nullable
+public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;findCodecForFormat&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
+                                        boolean&nbsp;isDecoder)</pre>
+<div class="block">Finds a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> that supports the <a href="https://developer.android.com/reference/android/media/MediaFormat.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>, or <code>null</code> if none is
+ found.</div>
+</li>
+</ul>
+<a id="getSupportedBitrateRange(android.media.MediaCodecInfo,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSupportedBitrateRange</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/util/Range.html" title="class or interface in android.util" class="externalLink">Range</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;getSupportedBitrateRange&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns the range of supported bitrates for the given <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>.</div>
+</li>
+</ul>
+<a id="isBitrateModeSupported(android.media.MediaCodecInfo,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isBitrateModeSupported</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isBitrateModeSupported&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                             int&nbsp;bitrateMode)</pre>
+<div class="block">Returns whether the bitrate mode is supported by the encoder.</div>
+</li>
+</ul>
+<a id="getSupportedColorFormats(android.media.MediaCodecInfo,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSupportedColorFormats</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;getSupportedColorFormats&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns a <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink"><code>list</code></a> of supported <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#colorFormats" title="class or interface in android.media" class="externalLink">color formats</a> for the given <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html?is-external=true" title="class or interface in android.media" class="externalLink">encoder</a> and <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util" target="_top">MIME type</a>.</div>
+</li>
+</ul>
+<a id="isHardwareAccelerated(android.media.MediaCodecInfo,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isHardwareAccelerated</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isHardwareAccelerated&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Checks if a <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">codec</a> is hardware-accelerated.</div>
+</li>
+</ul>
+<a id="isFeatureSupported(android.media.MediaCodecInfo,java.lang.String,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isFeatureSupported</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isFeatureSupported&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;featureName)</pre>
+<div class="block">Returns whether a given feature is supported.</div>
+</li>
+</ul>
+<a id="getMaxSupportedInstances(android.media.MediaCodecInfo,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getClosestSupportedBitrate</h4>
-<pre class="methodSignature">public static&nbsp;int&nbsp;getClosestSupportedBitrate&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
-                                             int&nbsp;bitrate)</pre>
-<div class="block">Finds the <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>encoder</code></a>'s closest supported bitrate from the given bitrate.</div>
+<h4>getMaxSupportedInstances</h4>
+<pre class="methodSignature">@RequiresApi(23)
+public static&nbsp;int&nbsp;getMaxSupportedInstances&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo</a>&nbsp;encoderInfo,
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns the number of max number of the supported concurrent codec instances.</div>
 </li>
 </ul>
 </li>
@@ -333,13 +613,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/android/util
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

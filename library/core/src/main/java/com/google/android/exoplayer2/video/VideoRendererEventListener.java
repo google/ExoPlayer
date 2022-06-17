@@ -56,7 +56,9 @@ public interface VideoRendererEventListener {
   default void onVideoDecoderInitialized(
       String decoderName, long initializedTimestampMs, long initializationDurationMs) {}
 
-  /** @deprecated Use {@link #onVideoInputFormatChanged(Format, DecoderReuseEvaluation)}. */
+  /**
+   * @deprecated Use {@link #onVideoInputFormatChanged(Format, DecoderReuseEvaluation)}.
+   */
   @Deprecated
   default void onVideoInputFormatChanged(Format format) {}
 

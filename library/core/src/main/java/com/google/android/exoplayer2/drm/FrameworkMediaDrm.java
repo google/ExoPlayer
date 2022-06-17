@@ -189,7 +189,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   @Override
   public void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {
     if (Util.SDK_INT >= 31) {
-      Api31.setLogSessionIdOnMediaDrmSession(mediaDrm, sessionId, playerId);
+      try {
+        Api31.setLogSessionIdOnMediaDrmSession(mediaDrm, sessionId, playerId);
+      } catch (UnsupportedOperationException e) {
+        Log.w(TAG, "setLogSessionId failed.");
+      }
     }
   }
 
@@ -455,7 +459,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     return requestData;
   }
 
-  @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
   private static void forceWidevineL3(MediaDrm mediaDrm) {
     mediaDrm.setPropertyString("securityLevel", "L3");
   }

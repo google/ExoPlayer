@@ -37,11 +37,11 @@
     <item quantity="one">Spol %d sekund fremover</item>
     <item quantity="other">Spol %d sekunder fremover</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ikke gjenta noen</string>
-  <string name="exo_controls_repeat_one_description">Gjenta én</string>
-  <string name="exo_controls_repeat_all_description">Gjenta alle</string>
-  <string name="exo_controls_shuffle_on_description">Tilfeldig rekkefølge er på</string>
-  <string name="exo_controls_shuffle_off_description">Tilfeldig rekkefølge er av</string>
+  <string name="exo_controls_repeat_off_description">Modus: gjenta ingen. Endre gjentakelsesmodus.</string>
+  <string name="exo_controls_repeat_one_description">Modus: gjenta én. Endre gjentakelsesmodus.</string>
+  <string name="exo_controls_repeat_all_description">Modus: gjenta alle. Endre gjentakelsesmodus.</string>
+  <string name="exo_controls_shuffle_on_description">Slå av modus for tilfeldig rekkefølge</string>
+  <string name="exo_controls_shuffle_off_description">Slå på modus for tilfeldig rekkefølge</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_controls_cc_enabled_description">Slå av undertekstene</string>
   <string name="exo_controls_cc_disabled_description">Slå på undertekstene</string>

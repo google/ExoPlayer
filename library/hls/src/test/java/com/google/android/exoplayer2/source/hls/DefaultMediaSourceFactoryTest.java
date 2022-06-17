@@ -75,26 +75,11 @@ public class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withNull_usesNonNullDefaults() {
-    DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.m3u8").build();
-
-    MediaSource mediaSource =
-        defaultMediaSourceFactory
-            .setDrmSessionManagerProvider(null)
-            .setLoadErrorHandlingPolicy(null)
-            .createMediaSource(mediaItem);
-
-    assertThat(mediaSource).isNotNull();
-  }
-
-  @Test
   public void getSupportedTypes_hlsModule_containsTypeHls() {
     int[] supportedTypes =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .getSupportedTypes();
 
-    assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER, C.TYPE_HLS);
+    assertThat(supportedTypes).asList().containsExactly(C.CONTENT_TYPE_OTHER, C.CONTENT_TYPE_HLS);
   }
 }

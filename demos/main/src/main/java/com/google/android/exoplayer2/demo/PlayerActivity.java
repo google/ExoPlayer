@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -34,8 +35,9 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.ima.ImaServerSideAdInsertionMediaSource;
@@ -45,8 +47,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.ui.StyledPlayerControlView;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
@@ -60,7 +61,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, StyledPlayerControlView.VisibilityListener {
+    implements OnClickListener, StyledPlayerView.ControllerVisibilityListener {
 
   // Saved instance state keys.
 
@@ -79,10 +80,9 @@ public class PlayerActivity extends AppCompatActivity
   private Button selectTracksButton;
   private DataSource.Factory dataSourceFactory;
   private List<MediaItem> mediaItems;
-  private DefaultTrackSelector trackSelector;
-  private DefaultTrackSelector.Parameters trackSelectionParameters;
+  private TrackSelectionParameters trackSelectionParameters;
   private DebugTextViewHelper debugViewHelper;
-  private TracksInfo lastSeenTracksInfo;
+  private Tracks lastSeenTracks;
   private boolean startAutoPlay;
   private int startItemIndex;
   private long startPosition;
@@ -90,7 +90,12 @@ public class PlayerActivity extends AppCompatActivity
   // For ad playback only.
 
   @Nullable private AdsLoader clientSideAdsLoader;
+
+  // TODO: Annotate this and serverSideAdsLoaderState below with @OptIn when it can be applied to
+  // fields (needs http://r.android.com/2004032 to be released into a version of
+  // androidx.annotation:annotation-experimental).
   @Nullable private ImaServerSideAdInsertionMediaSource.AdsLoader serverSideAdsLoader;
+
   private ImaServerSideAdInsertionMediaSource.AdsLoader.@MonotonicNonNull State
       serverSideAdsLoaderState;
 
@@ -113,22 +118,15 @@ public class PlayerActivity extends AppCompatActivity
     playerView.requestFocus();
 
     if (savedInstanceState != null) {
-      // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
       trackSelectionParameters =
-          DefaultTrackSelector.Parameters.CREATOR.fromBundle(
+          TrackSelectionParameters.fromBundle(
               savedInstanceState.getBundle(KEY_TRACK_SELECTION_PARAMETERS));
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
-      Bundle adsLoaderStateBundle = savedInstanceState.getBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE);
-      if (adsLoaderStateBundle != null) {
-        serverSideAdsLoaderState =
-            ImaServerSideAdInsertionMediaSource.AdsLoader.State.CREATOR.fromBundle(
-                adsLoaderStateBundle);
-      }
+      restoreServerSideAdsLoaderState(savedInstanceState);
     } else {
-      trackSelectionParameters =
-          new DefaultTrackSelector.ParametersBuilder(/* context= */ this).build();
+      trackSelectionParameters = new TrackSelectionParameters.Builder(/* context= */ this).build();
       clearStartPosition();
     }
   }
@@ -145,7 +143,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStart() {
     super.onStart();
-    if (Util.SDK_INT > 23) {
+    if (Build.VERSION.SDK_INT > 23) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -156,7 +154,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
-    if (Util.SDK_INT <= 23 || player == null) {
+    if (Build.VERSION.SDK_INT <= 23 || player == null) {
       initializePlayer();
       if (playerView != null) {
         playerView.onResume();
@@ -167,7 +165,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onPause() {
     super.onPause();
-    if (Util.SDK_INT <= 23) {
+    if (Build.VERSION.SDK_INT <= 23) {
       if (playerView != null) {
         playerView.onPause();
       }
@@ -178,7 +176,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStop() {
     super.onStop();
-    if (Util.SDK_INT > 23) {
+    if (Build.VERSION.SDK_INT > 23) {
       if (playerView != null) {
         playerView.onPause();
       }
@@ -218,9 +216,7 @@ public class PlayerActivity extends AppCompatActivity
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
     outState.putInt(KEY_ITEM_INDEX, startItemIndex);
     outState.putLong(KEY_POSITION, startPosition);
-    if (serverSideAdsLoaderState != null) {
-      outState.putBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE, serverSideAdsLoaderState.toBundle());
-    }
+    saveServerSideAdsLoaderState(outState);
   }
 
   // Activity input
@@ -237,20 +233,20 @@ public class PlayerActivity extends AppCompatActivity
   public void onClick(View view) {
     if (view == selectTracksButton
         && !isShowingTrackSelectionDialog
-        && TrackSelectionDialog.willHaveContent(trackSelector)) {
+        && TrackSelectionDialog.willHaveContent(player)) {
       isShowingTrackSelectionDialog = true;
       TrackSelectionDialog trackSelectionDialog =
-          TrackSelectionDialog.createForTrackSelector(
-              trackSelector,
+          TrackSelectionDialog.createForPlayer(
+              player,
               /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false);
       trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
   }
 
-  // StyledPlayerControlView.VisibilityListener implementation
+  // StyledPlayerView.ControllerVisibilityListener implementation
 
   @Override
-  public void onVisibilityChange(int visibility) {
+  public void onVisibilityChanged(int visibility) {
     debugRootView.setVisibility(visibility);
   }
 
@@ -260,7 +256,9 @@ public class PlayerActivity extends AppCompatActivity
     setContentView(R.layout.player_activity);
   }
 
-  /** @return Whether initialization was successful. */
+  /**
+   * @return Whether initialization was successful.
+   */
   protected boolean initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
@@ -270,26 +268,20 @@ public class PlayerActivity extends AppCompatActivity
         return false;
       }
 
-      boolean preferExtensionDecoders =
-          intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
-      RenderersFactory renderersFactory =
-          DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
-
-      trackSelector = new DefaultTrackSelector(/* context= */ this);
-      lastSeenTracksInfo = TracksInfo.EMPTY;
-      player =
+      lastSeenTracks = Tracks.EMPTY;
+      ExoPlayer.Builder playerBuilder =
           new ExoPlayer.Builder(/* context= */ this)
-              .setRenderersFactory(renderersFactory)
-              .setMediaSourceFactory(createMediaSourceFactory())
-              .setTrackSelector(trackSelector)
-              .build();
+              .setMediaSourceFactory(createMediaSourceFactory());
+      setRenderersFactory(
+          playerBuilder, intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false));
+      player = playerBuilder.build();
       player.setTrackSelectionParameters(trackSelectionParameters);
       player.addListener(new PlayerEventListener());
-      player.addAnalyticsListener(new EventLogger(trackSelector));
+      player.addAnalyticsListener(new EventLogger());
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
-      serverSideAdsLoader.setPlayer(player);
+      configurePlayerWithServerSideAdsLoader();
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
@@ -304,6 +296,10 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource.Factory createMediaSourceFactory() {
+    DefaultDrmSessionManagerProvider drmSessionManagerProvider =
+        new DefaultDrmSessionManagerProvider();
+    drmSessionManagerProvider.setDrmHttpDataSourceFactory(
+        DemoUtil.getHttpDataSourceFactory(/* context= */ this));
     ImaServerSideAdInsertionMediaSource.AdsLoader.Builder serverSideAdLoaderBuilder =
         new ImaServerSideAdInsertionMediaSource.AdsLoader.Builder(/* context= */ this, playerView);
     if (serverSideAdsLoaderState != null) {
@@ -312,11 +308,26 @@ public class PlayerActivity extends AppCompatActivity
     serverSideAdsLoader = serverSideAdLoaderBuilder.build();
     ImaServerSideAdInsertionMediaSource.Factory imaServerSideAdInsertionMediaSourceFactory =
         new ImaServerSideAdInsertionMediaSource.Factory(
-            serverSideAdsLoader, new DefaultMediaSourceFactory(dataSourceFactory));
-    return new DefaultMediaSourceFactory(dataSourceFactory)
-        .setAdsLoaderProvider(this::getClientSideAdsLoader)
-        .setAdViewProvider(playerView)
+            serverSideAdsLoader,
+            new DefaultMediaSourceFactory(/* context= */ this)
+                .setDataSourceFactory(dataSourceFactory));
+    return new DefaultMediaSourceFactory(/* context= */ this)
+        .setDataSourceFactory(dataSourceFactory)
+        .setDrmSessionManagerProvider(drmSessionManagerProvider)
+        .setLocalAdInsertionComponents(
+            this::getClientSideAdsLoader, /* adViewProvider= */ playerView)
         .setServerSideAdInsertionMediaSourceFactory(imaServerSideAdInsertionMediaSourceFactory);
+  }
+
+  private void setRenderersFactory(
+      ExoPlayer.Builder playerBuilder, boolean preferExtensionDecoders) {
+    RenderersFactory renderersFactory =
+        DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
+    playerBuilder.setRenderersFactory(renderersFactory);
+  }
+
+  private void configurePlayerWithServerSideAdsLoader() {
+    serverSideAdsLoader.setPlayer(player);
   }
 
   private List<MediaItem> createMediaItems(Intent intent) {
@@ -345,7 +356,7 @@ public class PlayerActivity extends AppCompatActivity
 
       MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
       if (drmConfiguration != null) {
-        if (Util.SDK_INT < 18) {
+        if (Build.VERSION.SDK_INT < 18) {
           showToast(R.string.error_drm_unsupported_before_api_18);
           finish();
           return Collections.emptyList();
@@ -372,8 +383,7 @@ public class PlayerActivity extends AppCompatActivity
     if (player != null) {
       updateTrackSelectorParameters();
       updateStartPosition();
-      serverSideAdsLoaderState = serverSideAdsLoader.release();
-      serverSideAdsLoader = null;
+      releaseServerSideAdsLoader();
       debugViewHelper.stop();
       debugViewHelper = null;
       player.release();
@@ -388,6 +398,11 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
+  private void releaseServerSideAdsLoader() {
+    serverSideAdsLoaderState = serverSideAdsLoader.release();
+    serverSideAdsLoader = null;
+  }
+
   private void releaseClientSideAdsLoader() {
     if (clientSideAdsLoader != null) {
       clientSideAdsLoader.release();
@@ -396,12 +411,24 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
+  private void saveServerSideAdsLoaderState(Bundle outState) {
+    if (serverSideAdsLoaderState != null) {
+      outState.putBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE, serverSideAdsLoaderState.toBundle());
+    }
+  }
+
+  private void restoreServerSideAdsLoaderState(Bundle savedInstanceState) {
+    Bundle adsLoaderStateBundle = savedInstanceState.getBundle(KEY_SERVER_SIDE_ADS_LOADER_STATE);
+    if (adsLoaderStateBundle != null) {
+      serverSideAdsLoaderState =
+          ImaServerSideAdInsertionMediaSource.AdsLoader.State.CREATOR.fromBundle(
+              adsLoaderStateBundle);
+    }
+  }
+
   private void updateTrackSelectorParameters() {
     if (player != null) {
-      // Until the demo app is fully migrated to TrackSelectionParameters, rely on ExoPlayer to use
-      // DefaultTrackSelector by default.
-      trackSelectionParameters =
-          (DefaultTrackSelector.Parameters) player.getTrackSelectionParameters();
+      trackSelectionParameters = player.getTrackSelectionParameters();
     }
   }
 
@@ -422,8 +449,7 @@ public class PlayerActivity extends AppCompatActivity
   // User controls
 
   private void updateButtonVisibility() {
-    selectTracksButton.setEnabled(
-        player != null && TrackSelectionDialog.willHaveContent(trackSelector));
+    selectTracksButton.setEnabled(player != null && TrackSelectionDialog.willHaveContent(player));
   }
 
   private void showControls() {
@@ -461,20 +487,20 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       updateButtonVisibility();
-      if (tracksInfo == lastSeenTracksInfo) {
+      if (tracks == lastSeenTracks) {
         return;
       }
-      if (!tracksInfo.isTypeSupportedOrEmpty(
-          C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
+      if (tracks.containsType(C.TRACK_TYPE_VIDEO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_video);
       }
-      if (!tracksInfo.isTypeSupportedOrEmpty(
-          C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
+      if (tracks.containsType(C.TRACK_TYPE_AUDIO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_audio);
       }
-      lastSeenTracksInfo = tracksInfo;
+      lastSeenTracks = tracks;
     }
   }
 
@@ -513,29 +539,31 @@ public class PlayerActivity extends AppCompatActivity
   private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
     List<MediaItem> mediaItems = new ArrayList<>();
     for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
-      @Nullable
-      DownloadRequest downloadRequest =
-          downloadTracker.getDownloadRequest(item.localConfiguration.uri);
-      if (downloadRequest != null) {
-        MediaItem.Builder builder = item.buildUpon();
-        builder
-            .setMediaId(downloadRequest.id)
-            .setUri(downloadRequest.uri)
-            .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(downloadRequest.mimeType)
-            .setStreamKeys(downloadRequest.streamKeys);
-        @Nullable
-        MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
-        if (drmConfiguration != null) {
-          builder.setDrmConfiguration(
-              drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
-        }
-
-        mediaItems.add(builder.build());
-      } else {
-        mediaItems.add(item);
-      }
+      mediaItems.add(
+          maybeSetDownloadProperties(
+              item, downloadTracker.getDownloadRequest(item.localConfiguration.uri)));
     }
     return mediaItems;
+  }
+
+  private static MediaItem maybeSetDownloadProperties(
+      MediaItem item, @Nullable DownloadRequest downloadRequest) {
+    if (downloadRequest == null) {
+      return item;
+    }
+    MediaItem.Builder builder = item.buildUpon();
+    builder
+        .setMediaId(downloadRequest.id)
+        .setUri(downloadRequest.uri)
+        .setCustomCacheKey(downloadRequest.customCacheKey)
+        .setMimeType(downloadRequest.mimeType)
+        .setStreamKeys(downloadRequest.streamKeys);
+    @Nullable
+    MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
+    if (drmConfiguration != null) {
+      builder.setDrmConfiguration(
+          drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
+    }
+    return builder.build();
   }
 }

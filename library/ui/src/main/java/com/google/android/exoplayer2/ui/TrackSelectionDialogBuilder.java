@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -25,16 +23,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Tracks;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /** Builder for a dialog with a {@link TrackSelectionView}. */
 public final class TrackSelectionDialogBuilder {
@@ -45,25 +48,24 @@ public final class TrackSelectionDialogBuilder {
     /**
      * Called when tracks are selected.
      *
-     * @param isDisabled Whether the renderer is disabled.
-     * @param overrides List of selected track selection overrides for the renderer.
+     * @param isDisabled Whether the disabled option is selected.
+     * @param overrides The selected track overrides.
      */
-    void onTracksSelected(boolean isDisabled, List<SelectionOverride> overrides);
+    void onTracksSelected(boolean isDisabled, Map<TrackGroup, TrackSelectionOverride> overrides);
   }
 
   private final Context context;
-  @StyleRes private int themeResId;
   private final CharSequence title;
-  private final MappedTrackInfo mappedTrackInfo;
-  private final int rendererIndex;
+  private final List<Tracks.Group> trackGroups;
   private final DialogCallback callback;
 
+  @StyleRes private int themeResId;
   private boolean allowAdaptiveSelections;
   private boolean allowMultipleOverrides;
   private boolean showDisableOption;
   @Nullable private TrackNameProvider trackNameProvider;
   private boolean isDisabled;
-  private List<SelectionOverride> overrides;
+  private Map<TrackGroup, TrackSelectionOverride> overrides;
   @Nullable private Comparator<Format> trackFormatComparator;
 
   /**
@@ -71,59 +73,53 @@ public final class TrackSelectionDialogBuilder {
    *
    * @param context The context of the dialog.
    * @param title The title of the dialog.
-   * @param mappedTrackInfo The {@link MappedTrackInfo} containing the track information.
-   * @param rendererIndex The renderer index in the {@code mappedTrackInfo} for which the track
-   *     selection is shown.
+   * @param trackGroups The {@link Tracks.Group track groups}.
    * @param callback The {@link DialogCallback} invoked when a track selection has been made.
    */
   public TrackSelectionDialogBuilder(
       Context context,
       CharSequence title,
-      MappedTrackInfo mappedTrackInfo,
-      int rendererIndex,
+      List<Tracks.Group> trackGroups,
       DialogCallback callback) {
     this.context = context;
     this.title = title;
-    this.mappedTrackInfo = mappedTrackInfo;
-    this.rendererIndex = rendererIndex;
+    this.trackGroups = ImmutableList.copyOf(trackGroups);
     this.callback = callback;
-    overrides = Collections.emptyList();
+    overrides = Collections.emptyMap();
   }
 
   /**
-   * Creates a builder for a track selection dialog which automatically updates a {@link
-   * DefaultTrackSelector}.
+   * Creates a builder for a track selection dialog.
    *
    * @param context The context of the dialog.
    * @param title The title of the dialog.
-   * @param trackSelector A {@link DefaultTrackSelector} whose current selection is used to set up
-   *     the dialog and which is updated when new tracks are selected in the dialog.
-   * @param rendererIndex The renderer index in the {@code trackSelector} for which the track
-   *     selection is shown.
+   * @param player The {@link Player} whose tracks should be selected.
+   * @param trackType The type of tracks to show for selection.
    */
   public TrackSelectionDialogBuilder(
-      Context context, CharSequence title, DefaultTrackSelector trackSelector, int rendererIndex) {
+      Context context, CharSequence title, Player player, @C.TrackType int trackType) {
     this.context = context;
     this.title = title;
-    this.mappedTrackInfo = checkNotNull(trackSelector.getCurrentMappedTrackInfo());
-    this.rendererIndex = rendererIndex;
-
-    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-    DefaultTrackSelector.Parameters selectionParameters = trackSelector.getParameters();
-    isDisabled = selectionParameters.getRendererDisabled(rendererIndex);
-    SelectionOverride override =
-        selectionParameters.getSelectionOverride(rendererIndex, rendererTrackGroups);
-    overrides = override == null ? Collections.emptyList() : Collections.singletonList(override);
-
-    this.callback =
-        (newIsDisabled, newOverrides) ->
-            trackSelector.setParameters(
-                TrackSelectionUtil.updateParametersWithOverride(
-                    selectionParameters,
-                    rendererIndex,
-                    rendererTrackGroups,
-                    newIsDisabled,
-                    newOverrides.isEmpty() ? null : newOverrides.get(0)));
+    List<Tracks.Group> allTrackGroups = player.getCurrentTracks().getGroups();
+    trackGroups = new ArrayList<>();
+    for (int i = 0; i < allTrackGroups.size(); i++) {
+      Tracks.Group trackGroup = allTrackGroups.get(i);
+      if (trackGroup.getType() == trackType) {
+        trackGroups.add(trackGroup);
+      }
+    }
+    overrides = Collections.emptyMap();
+    callback =
+        (isDisabled, overrides) -> {
+          TrackSelectionParameters.Builder parametersBuilder =
+              player.getTrackSelectionParameters().buildUpon();
+          parametersBuilder.setTrackTypeDisabled(trackType, isDisabled);
+          parametersBuilder.clearOverridesOfType(trackType);
+          for (TrackSelectionOverride override : overrides.values()) {
+            parametersBuilder.addOverride(override);
+          }
+          player.setTrackSelectionParameters(parametersBuilder.build());
+        };
   }
 
   /**
@@ -149,27 +145,30 @@ public final class TrackSelectionDialogBuilder {
   }
 
   /**
-   * Sets the initial selection override to show.
+   * Sets the single initial override.
    *
-   * @param override The initial override to show, or null for no override.
+   * @param override The initial override, or {@code null} for no override.
    * @return This builder, for convenience.
    */
-  public TrackSelectionDialogBuilder setOverride(@Nullable SelectionOverride override) {
+  public TrackSelectionDialogBuilder setOverride(@Nullable TrackSelectionOverride override) {
     return setOverrides(
-        override == null ? Collections.emptyList() : Collections.singletonList(override));
+        override == null
+            ? Collections.emptyMap()
+            : ImmutableMap.of(override.mediaTrackGroup, override));
   }
 
   /**
-   * Sets the list of initial selection overrides to show.
+   * Sets the initial track overrides. Any overrides that do not correspond to track groups that
+   * were passed to the constructor will be ignored. If {@link #setAllowMultipleOverrides(boolean)}
+   * hasn't been set to {@code true} then all but one override will be ignored. The retained
+   * override will be the one whose track group was first in the list of track groups passed to the
+   * constructor.
    *
-   * <p>Note that only the first override will be used unless {@link
-   * #setAllowMultipleOverrides(boolean)} is set to {@code true}.
-   *
-   * @param overrides The list of initial overrides to show. There must be at most one override for
-   *     each track group.
+   * @param overrides The initially selected track overrides.
    * @return This builder, for convenience.
    */
-  public TrackSelectionDialogBuilder setOverrides(List<SelectionOverride> overrides) {
+  public TrackSelectionDialogBuilder setOverrides(
+      Map<TrackGroup, TrackSelectionOverride> overrides) {
     this.overrides = overrides;
     return this;
   }
@@ -299,12 +298,7 @@ public final class TrackSelectionDialogBuilder {
       selectionView.setTrackNameProvider(trackNameProvider);
     }
     selectionView.init(
-        mappedTrackInfo,
-        rendererIndex,
-        isDisabled,
-        overrides,
-        trackFormatComparator,
-        /* listener= */ null);
+        trackGroups, isDisabled, overrides, trackFormatComparator, /* listener= */ null);
     return (dialog, which) ->
         callback.onTracksSelected(selectionView.getIsDisabled(), selectionView.getOverrides());
   }

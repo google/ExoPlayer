@@ -136,7 +136,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">HttpMediaDrmCallback</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a></pre>
-<div class="block">A <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm"><code>MediaDrmCallback</code></a> that makes requests using <a href="../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances.</div>
+<div class="block">A <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm"><code>MediaDrmCallback</code></a> that makes requests using <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</div>
 </li>
 </ul>
 </div>
@@ -157,15 +157,19 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">HttpMediaDrmCallback</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,boolean,com.google.android.exoplayer2.upstream.DataSource.Factory)">HttpMediaDrmCallback</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                     boolean&nbsp;forceDefaultLicenseUrl,
-                    <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
-<td class="colLast">&nbsp;</td>
+                    <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Constructs an instance.</div>
+</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">HttpMediaDrmCallback</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
-                    <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.DataSource.Factory)">HttpMediaDrmCallback</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
+                    <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Constructs an instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -247,7 +251,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.upstream.DataSource.Factory)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -255,17 +259,19 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <h4>HttpMediaDrmCallback</h4>
 <pre>public&nbsp;HttpMediaDrmCallback&#8203;(@Nullable
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
-                            <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+                            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>defaultLicenseUrl</code> - The default license URL. Used for key requests that do not specify
      their own license URL. May be <code>null</code> if it's known that all key requests will specify
      their own URLs.</dd>
-<dd><code>dataSourceFactory</code> - A factory from which to obtain <a href="../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances.</dd>
+<dd><code>dataSourceFactory</code> - A factory from which to obtain <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances. This will
+     usually be an HTTP-based <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">
+<a id="&lt;init&gt;(java.lang.String,boolean,com.google.android.exoplayer2.upstream.DataSource.Factory)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -274,7 +280,8 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <pre>public&nbsp;HttpMediaDrmCallback&#8203;(@Nullable
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                             boolean&nbsp;forceDefaultLicenseUrl,
-                            <a href="../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+                            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>defaultLicenseUrl</code> - The default license URL. Used for key requests that do not specify
@@ -283,7 +290,8 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
      known that all key requests will specify their own URLs.</dd>
 <dd><code>forceDefaultLicenseUrl</code> - Whether to force use of <code>defaultLicenseUrl</code> for key
      requests that include their own license URL.</dd>
-<dd><code>dataSourceFactory</code> - A factory from which to obtain <a href="../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances.</dd>
+<dd><code>dataSourceFactory</code> - A factory from which to obtain <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances. This will
+     * usually be an HTTP-based <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</dd>
 </dl>
 </li>
 </ul>

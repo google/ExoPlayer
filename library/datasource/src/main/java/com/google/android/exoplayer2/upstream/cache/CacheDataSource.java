@@ -33,8 +33,8 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.upstream.PlaceholderDataSource;
 import com.google.android.exoplayer2.upstream.PriorityDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -539,7 +539,7 @@ public final class CacheDataSource implements DataSource {
               ? new TeeDataSource(upstreamDataSource, cacheWriteDataSink)
               : null;
     } else {
-      this.upstreamDataSource = DummyDataSource.INSTANCE;
+      this.upstreamDataSource = PlaceholderDataSource.INSTANCE;
       this.cacheWriteDataSource = null;
     }
     this.eventListener = eventListener;
