@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +34,7 @@ public final class PresentationTest {
   public void configure_noEdits_leavesFramesUnchanged() {
     int inputWidth = 200;
     int inputHeight = 150;
-    Presentation presentation = new Presentation.Builder().build();
+    Presentation presentation = Presentation.createForHeight(C.LENGTH_UNSET);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
 
@@ -42,11 +43,11 @@ public final class PresentationTest {
   }
 
   @Test
-  public void configure_setResolution_changesDimensions() {
+  public void configure_createForHeight_changesDimensions() {
     int inputWidth = 200;
     int inputHeight = 150;
     int requestedHeight = 300;
-    Presentation presentation = new Presentation.Builder().setResolution(requestedHeight).build();
+    Presentation presentation = Presentation.createForHeight(requestedHeight);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
 
@@ -55,14 +56,12 @@ public final class PresentationTest {
   }
 
   @Test
-  public void configure_setAspectRatio_changesDimensions() {
+  public void configure_createForAspectRatio_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
     float aspectRatio = 2f;
     Presentation presentation =
-        new Presentation.Builder()
-            .setAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT)
-            .build();
+        Presentation.createForAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
 
@@ -71,20 +70,18 @@ public final class PresentationTest {
   }
 
   @Test
-  public void configure_setAspectRatioAndResolution_changesDimensions() {
+  public void configure_createForWidthAndHeight_changesDimensions() {
     int inputWidth = 300;
     int inputHeight = 200;
-    float aspectRatio = 2f;
-    int requestedHeight = 100;
+    int requestedWidth = 100;
+    int requestedHeight = 300;
     Presentation presentation =
-        new Presentation.Builder()
-            .setAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT)
-            .setResolution(requestedHeight)
-            .build();
+        Presentation.createForWidthAndHeight(
+            requestedWidth, requestedHeight, Presentation.LAYOUT_SCALE_TO_FIT);
 
     Size outputSize = presentation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * requestedHeight));
+    assertThat(outputSize.getWidth()).isEqualTo(requestedWidth);
     assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
 }
