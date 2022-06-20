@@ -88,8 +88,7 @@ import org.checkerframework.dataflow.qual.Pure;
               .build());
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET) {
-      effectsListBuilder.add(
-          new Presentation.Builder().setResolution(transformationRequest.outputHeight).build());
+      effectsListBuilder.add(Presentation.createForHeight(transformationRequest.outputHeight));
     }
 
     AtomicReference<TransformationException> encoderInitializationException =

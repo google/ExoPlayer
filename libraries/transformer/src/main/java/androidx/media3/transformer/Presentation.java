@@ -36,8 +36,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * the input pixels onto the output frame geometry (for example, by stretching the input frame to
  * match the specified output frame, or fitting the input frame using letterboxing).
  *
- * <p>Aspect ratio is applied before setting resolution.
- *
  * <p>The background color of the output frame will be black, with alpha = 0 if applicable.
  */
 @UnstableApi
@@ -49,8 +47,7 @@ public final class Presentation implements MatrixTransformation {
    * <p>One of {@link #LAYOUT_SCALE_TO_FIT}, {@link #LAYOUT_SCALE_TO_FIT_WITH_CROP}, or {@link
    * #LAYOUT_STRETCH_TO_FIT}.
    *
-   * <p>May scale either width or height, leaving the other output dimension equal to its input,
-   * unless {@link Builder#setResolution(int)} rescales width and height.
+   * <p>May scale either width or height, leaving the other output dimension equal to its input.
    */
   @Documented
   @Retention(SOURCE)
@@ -100,81 +97,82 @@ public final class Presentation implements MatrixTransformation {
    */
   public static final int LAYOUT_STRETCH_TO_FIT = 2;
 
-  /** A builder for {@link Presentation} instances. */
-  public static final class Builder {
+  private static final float ASPECT_RATIO_UNSET = -1f;
 
-    // Optional fields.
-    private int outputHeight;
-    private float aspectRatio;
-    private @Layout int layout;
-
-    /** Creates a builder with default values. */
-    public Builder() {
-      outputHeight = C.LENGTH_UNSET;
-      aspectRatio = C.LENGTH_UNSET;
-    }
-
-    /**
-     * Sets the output resolution using the output height.
-     *
-     * <p>The default value, {@link C#LENGTH_UNSET}, corresponds to using the same height as the
-     * input. Output width of the displayed frame will scale to preserve the frame's aspect ratio
-     * after other transformations.
-     *
-     * <p>For example, a 1920x1440 frame can be scaled to 640x480 by calling {@code
-     * setResolution(480)}.
-     *
-     * @param height The output height of the displayed frame, in pixels.
-     * @return This builder.
-     */
-    public Builder setResolution(int height) {
-      this.outputHeight = height;
-      return this;
-    }
-
-    /**
-     * Sets the aspect ratio (width/height ratio) for the output frame.
-     *
-     * <p>Resizes a frame's width or height to conform to an {@code aspectRatio}, given a {@link
-     * Layout}. {@code aspectRatio} defaults to {@link C#LENGTH_UNSET}, which corresponds to the
-     * same aspect ratio as the input frame. {@code layout} defaults to {@link #LAYOUT_SCALE_TO_FIT}
-     *
-     * <p>Width and height values set may be rescaled by {@link #setResolution(int)}, which is
-     * applied after aspect ratio changes.
-     *
-     * @param aspectRatio The aspect ratio (width/height ratio) of the output frame. Must be
-     *     positive.
-     * @return This builder.
-     */
-    public Builder setAspectRatio(float aspectRatio, @Layout int layout) {
-      checkArgument(aspectRatio > 0, "aspect ratio " + aspectRatio + " must be positive");
-      checkArgument(
-          layout == LAYOUT_SCALE_TO_FIT
-              || layout == LAYOUT_SCALE_TO_FIT_WITH_CROP
-              || layout == LAYOUT_STRETCH_TO_FIT,
-          "invalid layout " + layout);
-      this.aspectRatio = aspectRatio;
-      this.layout = layout;
-      return this;
-    }
-
-    public Presentation build() {
-      return new Presentation(outputHeight, aspectRatio, layout);
-    }
+  private static void checkLayout(@Layout int layout) {
+    checkArgument(
+        layout == LAYOUT_SCALE_TO_FIT
+            || layout == LAYOUT_SCALE_TO_FIT_WITH_CROP
+            || layout == LAYOUT_STRETCH_TO_FIT,
+        "invalid layout " + layout);
   }
 
+  /**
+   * Creates a new {@link Presentation} instance.
+   *
+   * <p>The output frame will have the given aspect ratio (width/height ratio). Width or height will
+   * be resized to conform to this {@code aspectRatio}, given a {@link Layout}.
+   *
+   * @param aspectRatio The aspect ratio (width/height ratio) of the output frame. Must be positive.
+   * @param layout The layout of the output frame.
+   */
+  public static Presentation createForAspectRatio(float aspectRatio, @Layout int layout) {
+    checkArgument(
+        aspectRatio == C.LENGTH_UNSET || aspectRatio > 0,
+        "aspect ratio " + aspectRatio + " must be positive or unset");
+    checkLayout(layout);
+    return new Presentation(
+        /* width= */ C.LENGTH_UNSET, /* height= */ C.LENGTH_UNSET, aspectRatio, layout);
+  }
+
+  /**
+   * Creates a new {@link Presentation} instance.
+   *
+   * <p>The output frame will have the given height. Width will scale to preserve the input aspect
+   * ratio.
+   *
+   * @param height The height of the output frame, in pixels.
+   */
+  public static Presentation createForHeight(int height) {
+    return new Presentation(
+        /* width= */ C.LENGTH_UNSET, height, ASPECT_RATIO_UNSET, LAYOUT_SCALE_TO_FIT);
+  }
+
+  /**
+   * Creates a new {@link Presentation} instance.
+   *
+   * <p>The output frame will have the given width and height, given a {@link Layout}.
+   *
+   * <p>Width and height must be positive integers representing the output frame's width and height.
+   *
+   * @param width The width of the output frame, in pixels.
+   * @param height The height of the output frame, in pixels.
+   * @param layout The layout of the output frame.
+   */
+  public static Presentation createForWidthAndHeight(int width, int height, @Layout int layout) {
+    checkArgument(width > 0, "width " + width + " must be positive");
+    checkArgument(height > 0, "height " + height + " must be positive");
+    checkLayout(layout);
+    return new Presentation(width, height, ASPECT_RATIO_UNSET, layout);
+  }
+
+  private final int requestedWidthPixels;
   private final int requestedHeightPixels;
-  private final float requestedAspectRatio;
+  private float requestedAspectRatio;
   private final @Layout int layout;
 
   private float outputWidth;
   private float outputHeight;
   private @MonotonicNonNull Matrix transformationMatrix;
 
-  /** Creates a new instance. */
-  private Presentation(int requestedHeightPixels, float requestedAspectRatio, @Layout int layout) {
-    this.requestedHeightPixels = requestedHeightPixels;
-    this.requestedAspectRatio = requestedAspectRatio;
+  private Presentation(int width, int height, float aspectRatio, @Layout int layout) {
+    checkArgument(
+        (aspectRatio == C.LENGTH_UNSET) || (width == C.LENGTH_UNSET),
+        "width and aspect ratio should not both be set");
+
+    this.requestedWidthPixels = width;
+    this.requestedHeightPixels = height;
+    this.requestedAspectRatio = aspectRatio;
     this.layout = layout;
 
     outputWidth = C.LENGTH_UNSET;
@@ -191,13 +189,21 @@ public final class Presentation implements MatrixTransformation {
     outputWidth = inputWidth;
     outputHeight = inputHeight;
 
+    if ((requestedWidthPixels != C.LENGTH_UNSET) && (requestedHeightPixels != C.LENGTH_UNSET)) {
+      requestedAspectRatio = (float) requestedWidthPixels / requestedHeightPixels;
+    }
+
     if (requestedAspectRatio != C.LENGTH_UNSET) {
       applyAspectRatio();
     }
 
-    // Scale width and height to desired requestedHeightPixels, preserving aspect ratio.
-    if (requestedHeightPixels != C.LENGTH_UNSET && requestedHeightPixels != outputHeight) {
-      outputWidth = requestedHeightPixels * outputWidth / outputHeight;
+    // Scale output width and height to requested values.
+    if (requestedHeightPixels != C.LENGTH_UNSET) {
+      if (requestedWidthPixels != C.LENGTH_UNSET) {
+        outputWidth = requestedWidthPixels;
+      } else {
+        outputWidth = requestedHeightPixels * outputWidth / outputHeight;
+      }
       outputHeight = requestedHeightPixels;
     }
     return new Size(Math.round(outputWidth), Math.round(outputHeight));
