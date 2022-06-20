@@ -5,6 +5,8 @@
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
+    *   Fix parsing of H265 short term reference picture sets
+        ([#10316](https://github.com/google/ExoPlayer/issues/10316)).
 *   RTSP:
     *   Add RTP reader for H263
         ([#63](https://github.com/androidx/media/pull/63)).
