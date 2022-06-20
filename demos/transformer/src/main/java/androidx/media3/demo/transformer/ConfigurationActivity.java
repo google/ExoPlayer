@@ -59,6 +59,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String TRIM_START_MS = "trim_start_ms";
   public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
+  public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
@@ -120,6 +121,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner rotateSpinner;
   private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
+  private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private @MonotonicNonNull Button selectDemoEffectsButton;
@@ -200,6 +202,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     trimEndMs = C.TIME_UNSET;
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
+    enableDebugPreviewCheckBox = findViewById(R.id.enable_debug_preview_checkbox);
     enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
     enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
     findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
@@ -237,6 +240,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "trimCheckBox",
     "enableFallbackCheckBox",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
     "demoEffectsSelections"
@@ -275,6 +279,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
       bundle.putLong(TRIM_END_MS, trimEndMs);
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
+    bundle.putBoolean(ENABLE_DEBUG_PREVIEW, enableDebugPreviewCheckBox.isChecked());
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
@@ -377,6 +382,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
@@ -397,6 +403,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
@@ -416,6 +423,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
@@ -426,6 +434,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     resolutionHeightSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
+    enableDebugPreviewCheckBox.setEnabled(isVideoEnabled);
     enableRequestSdrToneMappingCheckBox.setEnabled(
         isRequestSdrToneMappingSupported() && isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);

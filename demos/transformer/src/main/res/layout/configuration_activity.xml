@@ -183,6 +183,16 @@
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView
+          android:text="@string/enable_debug_preview" />
+        <CheckBox
+          android:id="@+id/enable_debug_preview_checkbox"
+          android:layout_gravity="right"
+          android:checked="true"/>
+      </TableRow>
+      <TableRow
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
+        <TextView
           android:id="@+id/request_sdr_tone_mapping"
           android:text="@string/request_sdr_tone_mapping" />
         <CheckBox
