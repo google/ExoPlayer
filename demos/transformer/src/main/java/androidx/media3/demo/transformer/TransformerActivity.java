@@ -319,6 +319,10 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         transformerBuilder.setVideoFrameEffects(effects.build());
       }
+
+      if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
+        transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
+      }
     }
     return transformerBuilder
         .addListener(
@@ -335,7 +339,6 @@ public final class TransformerActivity extends AppCompatActivity {
                 TransformerActivity.this.onTransformationError(exception);
               }
             })
-        .setDebugViewProvider(new DemoDebugViewProvider())
         .build();
   }
 
