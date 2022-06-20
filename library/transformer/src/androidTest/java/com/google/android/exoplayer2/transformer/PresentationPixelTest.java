@@ -27,6 +27,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.util.Size;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -95,7 +96,8 @@ public final class PresentationPixelTest {
   @Test
   public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_noEdits";
-    presentationTextureProcessor = new Presentation.Builder().build().toGlTextureProcessor(context);
+    presentationTextureProcessor =
+        Presentation.createForHeight(C.LENGTH_UNSET).toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
@@ -119,9 +121,7 @@ public final class PresentationPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationTextureProcessor =
-        new Presentation.Builder()
-            .setAspectRatio(1f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .build()
+        Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT)
             .toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
@@ -147,9 +147,7 @@ public final class PresentationPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationTextureProcessor =
-        new Presentation.Builder()
-            .setAspectRatio(2f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .build()
+        Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT)
             .toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
@@ -175,9 +173,8 @@ public final class PresentationPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationTextureProcessor =
-        new Presentation.Builder()
-            .setAspectRatio(1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .build()
+        Presentation.createForAspectRatio(
+                /* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             .toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
@@ -203,9 +200,8 @@ public final class PresentationPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationTextureProcessor =
-        new Presentation.Builder()
-            .setAspectRatio(2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .build()
+        Presentation.createForAspectRatio(
+                /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             .toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
@@ -231,9 +227,7 @@ public final class PresentationPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationTextureProcessor =
-        new Presentation.Builder()
-            .setAspectRatio(1f, Presentation.LAYOUT_STRETCH_TO_FIT)
-            .build()
+        Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_STRETCH_TO_FIT)
             .toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
@@ -259,9 +253,7 @@ public final class PresentationPixelTest {
       throws Exception {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationTextureProcessor =
-        new Presentation.Builder()
-            .setAspectRatio(2f, Presentation.LAYOUT_STRETCH_TO_FIT)
-            .build()
+        Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_STRETCH_TO_FIT)
             .toGlTextureProcessor(context);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
