@@ -204,10 +204,10 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withPresentation_setResolution_producesExpectedOutput() throws Exception {
-    String testId = "processData_withPresentation_setResolution";
-    setUpAndPrepareFirstFrame(
-        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, new Presentation.Builder().setResolution(480).build());
+  public void processData_withPresentation_createForHeight_producesExpectedOutput()
+      throws Exception {
+    String testId = "processData_withPresentation_createForHeight";
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, Presentation.createForHeight(480));
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();
@@ -222,14 +222,13 @@ public final class FrameProcessorChainPixelTest {
   }
 
   @Test
-  public void processData_withCropAndPresentation_producesExpectedOutput() throws Exception {
-    String testId = "processData_withCropAndPresentation";
+  public void processData_withCropThenPresentation_producesExpectedOutput() throws Exception {
+    String testId = "processData_withCropThenPresentation";
     setUpAndPrepareFirstFrame(
         DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
         new Crop(/* left= */ -.5f, /* right= */ .5f, /* bottom= */ -.5f, /* top= */ .5f),
-        new Presentation.Builder()
-            .setAspectRatio(/* aspectRatio= */ .5f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .build());
+        Presentation.createForAspectRatio(
+            /* aspectRatio= */ .5f, Presentation.LAYOUT_SCALE_TO_FIT));
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH);
 
     Bitmap actualBitmap = processFirstFrameAndEnd();

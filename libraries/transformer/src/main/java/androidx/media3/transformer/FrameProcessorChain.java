@@ -259,12 +259,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (outputSurfaceInfo.width != outputSize.getWidth()
         || outputSurfaceInfo.height != outputSize.getHeight()) {
       matrixTransformationListBuilder.add(
-          new Presentation.Builder()
-              .setAspectRatio(
-                  outputSurfaceInfo.width / (float) outputSurfaceInfo.height,
-                  Presentation.LAYOUT_SCALE_TO_FIT)
-              .setResolution(outputSurfaceInfo.height)
-              .build());
+          Presentation.createForWidthAndHeight(
+              outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
     }
 
     // Convert final list of matrix transformations (including additional transformations for the
