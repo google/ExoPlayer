@@ -960,12 +960,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void doSomeWork() throws ExoPlaybackException, IOException {
     long operationStartTimeMs = clock.uptimeMillis();
+    // Remove other pending DO_SOME_WORK requests that are handled by this invocation.
+    handler.removeMessages(MSG_DO_SOME_WORK);
+
     updatePeriods();
 
     if (playbackInfo.playbackState == Player.STATE_IDLE
         || playbackInfo.playbackState == Player.STATE_ENDED) {
-      // Remove all messages. Prepare (in case of IDLE) or seek (in case of ENDED) will resume.
-      handler.removeMessages(MSG_DO_SOME_WORK);
+      // Nothing to do. Prepare (in case of IDLE) or seek (in case of ENDED) will resume.
       return;
     }
 
@@ -1088,8 +1090,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       sleepingForOffload = !maybeScheduleWakeup(operationStartTimeMs, ACTIVE_INTERVAL_MS);
     } else if (enabledRendererCount != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
-    } else {
-      handler.removeMessages(MSG_DO_SOME_WORK);
     }
     if (playbackInfo.sleepingForOffload != sleepingForOffload) {
       playbackInfo = playbackInfo.copyWithSleepingForOffload(sleepingForOffload);
@@ -1125,7 +1125,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
-    handler.removeMessages(MSG_DO_SOME_WORK);
     handler.sendEmptyMessageAtTime(MSG_DO_SOME_WORK, thisOperationStartTimeMs + intervalMs);
   }
 
