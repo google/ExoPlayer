@@ -23,6 +23,7 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
+import android.opengl.GLES20;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -314,6 +315,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
       renderingTask.run();
       EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+      // Prevents white flashing on the debug SurfaceView when frames are rendered too fast.
+      GLES20.glFinish();
     }
 
     @Override

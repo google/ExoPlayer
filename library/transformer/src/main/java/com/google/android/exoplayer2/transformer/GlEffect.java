@@ -18,16 +18,14 @@ package com.google.android.exoplayer2.transformer;
 import android.content.Context;
 
 /**
- * Interface for a video frame effect with a {@link SingleFrameGlTextureProcessor} implementation.
+ * Interface for a video frame effect with a {@link GlTextureProcessor} implementation.
  *
  * <p>Implementations contain information specifying the effect and can be {@linkplain
- * #toGlTextureProcessor(Context) converted} to a {@link SingleFrameGlTextureProcessor} which
- * applies the effect.
+ * #toGlTextureProcessor(Context) converted} to a {@link GlTextureProcessor} which applies the
+ * effect.
  */
 public interface GlEffect {
 
   /** Returns a {@link SingleFrameGlTextureProcessor} that applies the effect. */
-  // TODO(b/227625423): use GlTextureProcessor here once this interface exists.
-  SingleFrameGlTextureProcessor toGlTextureProcessor(Context context)
-      throws FrameProcessingException;
+  GlTextureProcessor toGlTextureProcessor(Context context) throws FrameProcessingException;
 }
