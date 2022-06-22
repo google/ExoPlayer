@@ -37,7 +37,7 @@ public class CueGroupTest {
     Cue bitmapCue =
         new Cue.Builder().setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)).build();
     ImmutableList<Cue> cues = ImmutableList.of(textCue, bitmapCue);
-    CueGroup cueGroup = new CueGroup(cues);
+    CueGroup cueGroup = new CueGroup(cues, /* presentationTimeUs= */ 1_230_000);
 
     Parcel parcel = Parcel.obtain();
     try {

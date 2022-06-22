@@ -56,6 +56,7 @@ import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
@@ -163,6 +164,9 @@ public class MediaController implements Player {
   private static final String WRONG_THREAD_ERROR_MESSAGE =
       "MediaController method is called from a wrong thread."
           + " See javadoc of MediaController for details.";
+
+  private static final CueGroup EMPTY_CUE_GROUP =
+      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   /** A builder for {@link MediaController}. */
   public static final class Builder {
@@ -1576,7 +1580,7 @@ public class MediaController implements Player {
   @Override
   public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return isConnected() ? impl.getCurrentCues() : CueGroup.EMPTY;
+    return isConnected() ? impl.getCurrentCues() : EMPTY_CUE_GROUP;
   }
 
   @Override

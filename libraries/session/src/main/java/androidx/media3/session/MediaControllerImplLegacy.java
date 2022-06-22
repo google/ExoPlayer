@@ -105,6 +105,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private static final long AGGREGATES_CALLBACKS_WITHIN_TIMEOUT_MS = 500L;
   private static final int VOLUME_FLAGS = AudioManager.FLAG_SHOW_UI;
+  private static final CueGroup EMPTY_CUE_GROUP =
+      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   /* package */ final Context context;
   /* package */ final MediaController instance;
@@ -1016,7 +1018,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Override
   public CueGroup getCurrentCues() {
     Log.w(TAG, "Session doesn't support getting Cue");
-    return CueGroup.EMPTY;
+    return EMPTY_CUE_GROUP;
   }
 
   @Override
@@ -2086,7 +2088,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             /* playlistMetadata= */ playlistMetadata,
             /* volume= */ 1.0f,
             /* audioAttributes= */ audioAttributes,
-            /* cueGroup= */ CueGroup.EMPTY,
+            /* cueGroup= */ EMPTY_CUE_GROUP,
             /* deviceInfo= */ deviceInfo,
             /* deviceVolume= */ deviceVolume,
             /* deviceMuted= */ deviceMuted,
