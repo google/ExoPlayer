@@ -491,7 +491,7 @@ public final class FrameProcessorChainPixelTest {
     }
 
     @Override
-    public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context)
+    public GlTextureProcessor toGlTextureProcessor(Context context)
         throws FrameProcessingException {
       return effect.toGlTextureProcessor(context);
     }

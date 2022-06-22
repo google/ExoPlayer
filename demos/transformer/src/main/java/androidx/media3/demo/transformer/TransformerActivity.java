@@ -44,8 +44,8 @@ import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.GlEffect;
+import androidx.media3.transformer.GlTextureProcessor;
 import androidx.media3.transformer.ProgressHolder;
-import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationResult;
@@ -281,7 +281,7 @@ public final class TransformerActivity extends AppCompatActivity {
             effects.add(
                 (Context context) -> {
                   try {
-                    return (SingleFrameGlTextureProcessor)
+                    return (GlTextureProcessor)
                         constructor.newInstance(
                             context,
                             /* graphName= */ "edge_detector_mediapipe_graph.binarypb",

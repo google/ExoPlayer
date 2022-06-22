@@ -20,27 +20,24 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.EGL14;
-import android.opengl.GLES20;
-import android.util.Size;
-import androidx.media3.common.util.ConditionVariable;
-import androidx.media3.common.util.GlProgram;
-import androidx.media3.common.util.GlUtil;
+import android.os.Build;
+import androidx.annotation.ChecksSdkIntAtLeast;
+import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.util.LibraryLoader;
+import androidx.media3.common.util.Util;
 import androidx.media3.transformer.FrameProcessingException;
-import androidx.media3.transformer.SingleFrameGlTextureProcessor;
+import androidx.media3.transformer.GlTextureProcessor;
+import androidx.media3.transformer.TextureInfo;
 import com.google.mediapipe.components.FrameProcessor;
-import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.framework.AppTextureFrame;
 import com.google.mediapipe.framework.TextureFrame;
 import com.google.mediapipe.glutil.EglManager;
-import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Runs a MediaPipe graph on input frames. The implementation is currently limited to graphs that
- * can immediately produce one output frame per input frame.
- */
-/* package */ final class MediaPipeProcessor extends SingleFrameGlTextureProcessor {
+/** Runs a MediaPipe graph on input frames. */
+/* package */ final class MediaPipeProcessor implements GlTextureProcessor {
 
   private static final LibraryLoader LOADER =
       new LibraryLoader("mediapipe_jni") {
@@ -60,17 +57,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private static final String COPY_VERTEX_SHADER_NAME = "vertex_shader_copy_es2.glsl";
-  private static final String COPY_FRAGMENT_SHADER_NAME = "shaders/fragment_shader_copy_es2.glsl";
-
-  private final ConditionVariable frameProcessorConditionVariable;
   private final FrameProcessor frameProcessor;
-  private final GlProgram glProgram;
-
-  private int inputWidth;
-  private int inputHeight;
-  private @MonotonicNonNull TextureFrame outputFrame;
-  private @MonotonicNonNull RuntimeException frameProcessorPendingError;
+  private volatile GlTextureProcessor.@MonotonicNonNull Listener listener;
+  private volatile boolean acceptedFrame;
+  // Only available from API 23 and above.
+  @Nullable private final ConcurrentHashMap<TextureInfo, TextureFrame> outputFrames;
+  // Used instead for API 21 and 22.
+  @Nullable private volatile TextureInfo outputTexture;
+  @Nullable private volatile TextureFrame outputFrame;
 
   /**
    * Creates a new texture processor that wraps a MediaPipe graph.
@@ -79,92 +73,103 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
-   * @throws FrameProcessingException If a problem occurs while reading shader files or initializing
-   *     MediaPipe resources.
    */
+  @SuppressWarnings("AndroidConcurrentHashMap") // Only used on API >= 23.
   public MediaPipeProcessor(
-      Context context, String graphName, String inputStreamName, String outputStreamName)
-      throws FrameProcessingException {
+      Context context, String graphName, String inputStreamName, String outputStreamName) {
     checkState(LOADER.isAvailable());
-
-    frameProcessorConditionVariable = new ConditionVariable();
-    AndroidAssetUtil.initializeNativeAssetManager(context);
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
         new FrameProcessor(
             context, eglManager.getNativeContext(), graphName, inputStreamName, outputStreamName);
-    // Unblock drawFrame when there is an output frame or an error.
+    outputFrames = areMultipleOutputFramesSupported() ? new ConcurrentHashMap<>() : null;
     frameProcessor.setConsumer(
         frame -> {
-          outputFrame = frame;
-          frameProcessorConditionVariable.open();
+          TextureInfo texture =
+              new TextureInfo(
+                  frame.getTextureName(),
+                  /* fboId= */ C.INDEX_UNSET,
+                  frame.getWidth(),
+                  frame.getHeight());
+          if (areMultipleOutputFramesSupported()) {
+            checkStateNotNull(outputFrames).put(texture, frame);
+          } else {
+            outputFrame = frame;
+            outputTexture = texture;
+          }
+          if (listener != null) {
+            listener.onOutputFrameAvailable(texture, frame.getTimestamp());
+          }
         });
     frameProcessor.setAsynchronousErrorListener(
         error -> {
-          frameProcessorPendingError = error;
-          frameProcessorConditionVariable.open();
+          if (listener != null) {
+            listener.onFrameProcessingError(new FrameProcessingException(error));
+          }
         });
-    try {
-      glProgram = new GlProgram(context, COPY_VERTEX_SHADER_NAME, COPY_FRAGMENT_SHADER_NAME);
-    } catch (IOException | GlUtil.GlException e) {
-      throw new FrameProcessingException(e);
+    frameProcessor.setOnWillAddFrameListener((long timestamp) -> acceptedFrame = true);
+  }
+
+  @Override
+  public void setListener(GlTextureProcessor.Listener listener) {
+    this.listener = listener;
+  }
+
+  @Override
+  public boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+    if (!areMultipleOutputFramesSupported() && outputTexture != null) {
+      return false;
     }
-  }
 
-  @Override
-  public Size configure(int inputWidth, int inputHeight) {
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
-    return new Size(inputWidth, inputHeight);
-  }
-
-  @Override
-  public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
-    frameProcessorConditionVariable.close();
-
-    // Pass the input frame to MediaPipe.
-    AppTextureFrame appTextureFrame = new AppTextureFrame(inputTexId, inputWidth, inputHeight);
+    acceptedFrame = false;
+    AppTextureFrame appTextureFrame =
+        new AppTextureFrame(inputTexture.texId, inputTexture.width, inputTexture.height);
     appTextureFrame.setTimestamp(presentationTimeUs);
     checkStateNotNull(frameProcessor).onNewFrame(appTextureFrame);
-
-    // Wait for output to be passed to the consumer.
     try {
-      frameProcessorConditionVariable.block();
+      appTextureFrame.waitUntilReleasedWithGpuSync();
     } catch (InterruptedException e) {
-      // Propagate the interrupted flag so the next blocking operation will throw.
-      // TODO(b/230469581): The next processor that runs will not have valid input due to returning
-      //  early here. This could be fixed by checking for interruption in the outer loop that runs
-      //  through the texture processors.
       Thread.currentThread().interrupt();
-      return;
+      if (listener != null) {
+        listener.onFrameProcessingError(new FrameProcessingException(e));
+      }
     }
-
-    if (frameProcessorPendingError != null) {
-      throw new FrameProcessingException(frameProcessorPendingError);
+    if (listener != null) {
+      listener.onInputFrameProcessed(inputTexture);
     }
+    return acceptedFrame;
+  }
 
-    // Copy from MediaPipe's output texture to the current output.
-    try {
-      checkStateNotNull(glProgram).use();
-      glProgram.setSamplerTexIdUniform(
-          "uTexSampler", checkStateNotNull(outputFrame).getTextureName(), /* texUnitIndex= */ 0);
-      glProgram.setBufferAttribute(
-          "aFramePosition",
-          GlUtil.getNormalizedCoordinateBounds(),
-          GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-      glProgram.bindAttributesAndUniforms();
-      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-      GlUtil.checkGlError();
-    } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException(e, presentationTimeUs);
-    } finally {
+  @Override
+  public void releaseOutputFrame(TextureInfo outputTexture) {
+    if (areMultipleOutputFramesSupported()) {
+      checkStateNotNull(checkStateNotNull(outputFrames).get(outputTexture)).release();
+    } else {
+      checkState(Util.areEqual(outputTexture, this.outputTexture));
+      this.outputTexture = null;
       checkStateNotNull(outputFrame).release();
+      outputFrame = null;
     }
   }
 
   @Override
-  public void release() throws FrameProcessingException {
-    super.release();
+  public void release() {
     checkStateNotNull(frameProcessor).close();
+  }
+
+  @Override
+  public final void signalEndOfInputStream() {
+    frameProcessor.waitUntilIdle();
+    if (listener != null) {
+      listener.onOutputStreamEnded();
+    }
+  }
+
+  @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.M)
+  private static boolean areMultipleOutputFramesSupported() {
+    // Android devices running Lollipop (API 21/22) have a bug in ConcurrentHashMap that can result
+    // in lost updates, so we only allow one output frame to be pending at a time to avoid using
+    // ConcurrentHashMap.
+    return Util.SDK_INT >= 23;
   }
 }

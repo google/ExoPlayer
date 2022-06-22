@@ -19,7 +19,7 @@ import androidx.media3.common.util.UnstableApi;
 
 /** Contains information describing an OpenGL texture. */
 @UnstableApi
-/* package */ final class TextureInfo {
+public final class TextureInfo {
   /** The OpenGL texture identifier. */
   public final int texId;
   /** Identifier of a framebuffer object associated with the texture. */
