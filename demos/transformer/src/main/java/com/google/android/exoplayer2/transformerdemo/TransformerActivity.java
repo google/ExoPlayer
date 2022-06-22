@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformerdemo;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.app.Activity;
 import android.content.Context;
@@ -421,9 +422,28 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private final class DemoDebugViewProvider implements Transformer.DebugViewProvider {
 
+    private @MonotonicNonNull SurfaceView surfaceView;
+    private int width;
+    private int height;
+
+    public DemoDebugViewProvider() {
+      width = C.LENGTH_UNSET;
+      height = C.LENGTH_UNSET;
+    }
+
     @Nullable
     @Override
     public SurfaceView getDebugPreviewSurfaceView(int width, int height) {
+      checkState(
+          surfaceView == null || (this.width == width && this.height == height),
+          "Transformer should not change the output size mid-transformation.");
+      if (surfaceView != null) {
+        return surfaceView;
+      }
+
+      this.width = width;
+      this.height = height;
+
       // Update the UI on the main thread and wait for the output surface to be available.
       CountDownLatch surfaceCreatedCountDownLatch = new CountDownLatch(1);
       SurfaceView surfaceView = new SurfaceView(/* context= */ TransformerActivity.this);
@@ -460,6 +480,7 @@ public final class TransformerActivity extends AppCompatActivity {
         Thread.currentThread().interrupt();
         return null;
       }
+      this.surfaceView = surfaceView;
       return surfaceView;
     }
   }

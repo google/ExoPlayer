@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +51,7 @@ public final class VideoEncoderWrapperTest {
           /* allowedOutputMimeTypes= */ ImmutableList.of(),
           emptyTransformationRequest,
           fallbackListener,
-          new AtomicReference<>());
+          mock(Transformer.AsyncErrorListener.class));
 
   @Before
   public void registerTrack() {
