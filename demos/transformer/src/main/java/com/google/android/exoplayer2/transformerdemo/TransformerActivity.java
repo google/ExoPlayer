@@ -41,8 +41,8 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.GlEffect;
+import com.google.android.exoplayer2.transformer.GlTextureProcessor;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
-import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.TransformationResult;
@@ -282,7 +282,7 @@ public final class TransformerActivity extends AppCompatActivity {
             effects.add(
                 (Context context) -> {
                   try {
-                    return (SingleFrameGlTextureProcessor)
+                    return (GlTextureProcessor)
                         constructor.newInstance(
                             context,
                             /* graphName= */ "edge_detector_mediapipe_graph.binarypb",

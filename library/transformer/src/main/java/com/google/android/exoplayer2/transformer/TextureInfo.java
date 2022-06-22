@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 /** Contains information describing an OpenGL texture. */
-/* package */ final class TextureInfo {
+public final class TextureInfo {
   /** The OpenGL texture identifier. */
   public final int texId;
   /** Identifier of a framebuffer object associated with the texture. */
