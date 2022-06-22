@@ -196,6 +196,8 @@ public class MockPlayer implements Player {
   private final ArraySet<Listener> listeners = new ArraySet<>();
   private final ImmutableMap<@Method Integer, ConditionVariable> conditionVariables =
       createMethodConditionVariables();
+  private static final CueGroup EMPTY_CUE_GROUP =
+      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   @Nullable PlaybackException playerError;
   public AudioAttributes audioAttributes;
@@ -276,7 +278,7 @@ public class MockPlayer implements Player {
     repeatMode = Player.REPEAT_MODE_OFF;
     videoSize = VideoSize.UNKNOWN;
     volume = 1.0f;
-    cueGroup = CueGroup.EMPTY;
+    cueGroup = EMPTY_CUE_GROUP;
     deviceInfo = DeviceInfo.UNKNOWN;
     seekPositionMs = C.TIME_UNSET;
     seekMediaItemIndex = C.INDEX_UNSET;

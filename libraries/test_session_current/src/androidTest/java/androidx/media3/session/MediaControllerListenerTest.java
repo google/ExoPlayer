@@ -1920,7 +1920,7 @@ public class MediaControllerListenerTest {
 
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setCurrentCues(new CueGroup(testCues))
+            .setCurrentCues(new CueGroup(testCues, /* presentationTimeUs= */ 1_230_000))
             .build();
     remoteSession.setPlayer(playerConfig);
 
@@ -1938,7 +1938,7 @@ public class MediaControllerListenerTest {
 
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setCurrentCues(new CueGroup(testCues))
+            .setCurrentCues(new CueGroup(testCues, /* presentationTimeUs= */ 1_230_000))
             .build();
     remoteSession.setPlayer(playerConfig);
 
@@ -1991,7 +1991,7 @@ public class MediaControllerListenerTest {
 
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setCurrentCues(new CueGroup(testCues))
+            .setCurrentCues(new CueGroup(testCues, /* presentationTimeUs= */ 1_230_000))
             .build();
     remoteSession.setPlayer(playerConfig);
 
@@ -2021,7 +2021,9 @@ public class MediaControllerListenerTest {
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().notifyCuesChanged(new CueGroup(testCues));
+    remoteSession
+        .getMockPlayer()
+        .notifyCuesChanged(new CueGroup(testCues, /* presentationTimeUs= */ 1_230_000));
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(cuesFromParam).isEqualTo(testCues);

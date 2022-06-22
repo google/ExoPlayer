@@ -45,6 +45,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -55,6 +56,9 @@ import java.lang.annotation.Target;
  * MediaController}.
  */
 /* package */ class PlayerInfo implements Bundleable {
+
+  private static final CueGroup EMPTY_CUE_GROUP =
+      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   public static class Builder {
 
@@ -332,7 +336,7 @@ import java.lang.annotation.Target;
           MediaMetadata.EMPTY,
           /* volume= */ 1f,
           AudioAttributes.DEFAULT,
-          /* cueGroup = */ CueGroup.EMPTY,
+          /* cueGroup = */ EMPTY_CUE_GROUP,
           DeviceInfo.UNKNOWN,
           /* deviceVolume= */ 0,
           /* deviceMuted= */ false,
@@ -846,7 +850,7 @@ import java.lang.annotation.Target;
             : AudioAttributes.CREATOR.fromBundle(audioAttributesBundle);
     @Nullable Bundle cueGroupBundle = bundle.getBundle(keyForField(FIELD_CUE_GROUP));
     CueGroup cueGroup =
-        cueGroupBundle == null ? CueGroup.EMPTY : CueGroup.CREATOR.fromBundle(cueGroupBundle);
+        cueGroupBundle == null ? EMPTY_CUE_GROUP : CueGroup.CREATOR.fromBundle(cueGroupBundle);
     @Nullable Bundle deviceInfoBundle = bundle.getBundle(keyForField(FIELD_DEVICE_INFO));
     DeviceInfo deviceInfo =
         deviceInfoBundle == null

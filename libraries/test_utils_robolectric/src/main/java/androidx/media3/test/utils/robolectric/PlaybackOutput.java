@@ -15,6 +15,8 @@
  */
 package androidx.media3.test.utils.robolectric;
 
+import static java.lang.Math.max;
+
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Metadata;
@@ -56,7 +58,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
   private final CapturingRenderersFactory capturingRenderersFactory;
 
   private final List<Metadata> metadatas;
-  private final List<List<Cue>> subtitles;
+  private final List<CueGroup> subtitles;
   private final List<List<Cue>> subtitlesFromDeprecatedTextOutput;
 
   private PlaybackOutput(ExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
@@ -65,8 +67,8 @@ public final class PlaybackOutput implements Dumper.Dumpable {
     metadatas = Collections.synchronizedList(new ArrayList<>());
     subtitles = Collections.synchronizedList(new ArrayList<>());
     subtitlesFromDeprecatedTextOutput = Collections.synchronizedList(new ArrayList<>());
-    // TODO: Consider passing playback position into MetadataOutput and TextOutput. Calling
-    // player.getCurrentPosition() inside onMetadata/Cues will likely be non-deterministic
+    // TODO: Consider passing playback position into MetadataOutput. Calling
+    // player.getCurrentPosition() inside onMetadata will likely be non-deterministic
     // because renderer-thread != playback-thread.
     player.addListener(
         new Player.Listener() {
@@ -82,7 +84,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
 
           @Override
           public void onCues(CueGroup cueGroup) {
-            subtitles.add(cueGroup.cues);
+            subtitles.add(cueGroup);
           }
         });
   }
@@ -154,9 +156,9 @@ public final class PlaybackOutput implements Dumper.Dumpable {
   }
 
   private void dumpSubtitles(Dumper dumper) {
-    if (!subtitles.equals(subtitlesFromDeprecatedTextOutput)) {
+    if (subtitles.size() != subtitlesFromDeprecatedTextOutput.size()) {
       throw new IllegalStateException(
-          "Expected subtitles to be equal from both implementations of onCues method.");
+          "Expected subtitles to be of equal length from both implementations of onCues method.");
     }
 
     if (subtitles.isEmpty()) {
@@ -165,7 +167,15 @@ public final class PlaybackOutput implements Dumper.Dumpable {
     dumper.startBlock("TextOutput");
     for (int i = 0; i < subtitles.size(); i++) {
       dumper.startBlock("Subtitle[" + i + "]");
-      List<Cue> subtitle = subtitles.get(i);
+      // TODO: Solving https://github.com/google/ExoPlayer/issues/9672 will allow us to remove this
+      // hack of forcing presentationTimeUs to be >= 0.
+      dumper.add("presentationTimeUs", max(0, subtitles.get(i).presentationTimeUs));
+      ImmutableList<Cue> subtitle = subtitles.get(i).cues;
+      if (!subtitle.equals(subtitlesFromDeprecatedTextOutput.get(i))) {
+        throw new IllegalStateException(
+            "Expected subtitle to be equal from both implementations of onCues method for index "
+                + i);
+      }
       if (subtitle.isEmpty()) {
         dumper.add("Cues", ImmutableList.of());
       }
