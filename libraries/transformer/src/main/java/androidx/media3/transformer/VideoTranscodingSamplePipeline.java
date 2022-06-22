@@ -17,7 +17,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.media.MediaCodec;
@@ -32,7 +31,6 @@ import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -91,8 +89,6 @@ import org.checkerframework.dataflow.qual.Pure;
       effectsListBuilder.add(Presentation.createForHeight(transformationRequest.outputHeight));
     }
 
-    AtomicReference<TransformationException> encoderInitializationException =
-        new AtomicReference<>();
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
@@ -100,9 +96,8 @@ import org.checkerframework.dataflow.qual.Pure;
             allowedOutputMimeTypes,
             transformationRequest,
             fallbackListener,
-            encoderInitializationException);
+            asyncErrorListener);
 
-    @Nullable FrameProcessorChain frameProcessorChain;
     try {
       frameProcessorChain =
           FrameProcessorChain.create(
@@ -136,12 +131,6 @@ import org.checkerframework.dataflow.qual.Pure;
       throw TransformationException.createForFrameProcessorChain(
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
-
-    if (frameProcessorChain == null) {
-      // Failed to create FrameProcessorChain because the encoder could not provide a surface.
-      throw checkStateNotNull(encoderInitializationException.get());
-    }
-    this.frameProcessorChain = frameProcessorChain;
 
     decoder =
         decoderFactory.createForVideoDecoding(
@@ -266,7 +255,7 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     if (maxPendingFrameCount != Codec.UNLIMITED_PENDING_FRAME_COUNT
-        && frameProcessorChain.getPendingFrameCount() == maxPendingFrameCount) {
+        && frameProcessorChain.getPendingInputFrameCount() == maxPendingFrameCount) {
       return false;
     }
 
@@ -303,7 +292,7 @@ import org.checkerframework.dataflow.qual.Pure;
     private final List<String> allowedOutputMimeTypes;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
-    private final AtomicReference<TransformationException> encoderInitializationException;
+    private final Transformer.AsyncErrorListener asyncErrorListener;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
@@ -317,14 +306,14 @@ import org.checkerframework.dataflow.qual.Pure;
         List<String> allowedOutputMimeTypes,
         TransformationRequest transformationRequest,
         FallbackListener fallbackListener,
-        AtomicReference<TransformationException> encoderInitializationException) {
+        Transformer.AsyncErrorListener asyncErrorListener) {
 
       this.encoderFactory = encoderFactory;
       this.inputFormat = inputFormat;
       this.allowedOutputMimeTypes = allowedOutputMimeTypes;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
-      this.encoderInitializationException = encoderInitializationException;
+      this.asyncErrorListener = asyncErrorListener;
     }
 
     @Override
@@ -365,7 +354,7 @@ import org.checkerframework.dataflow.qual.Pure;
         encoder =
             encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
       } catch (TransformationException e) {
-        encoderInitializationException.set(e);
+        asyncErrorListener.onTransformationException(e);
         return null;
       }
       Format encoderSupportedFormat = encoder.getConfigurationFormat();
