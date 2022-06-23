@@ -47,7 +47,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * dimensions specified by the provided {@link SurfaceInfo}.
  *
  * <p>This wrapper is used for the final {@link GlTextureProcessor} instance in the chain of {@link
- * GlTextureProcessor} instances used by {@link GlEffectsFrameProcessor}.
+ * GlTextureProcessor} instances used by {@link FrameProcessor}.
  */
 /* package */ final class FinalMatrixTransformationProcessorWrapper implements GlTextureProcessor {
 
@@ -60,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SurfaceInfo.Provider outputSurfaceProvider;
   private final long streamOffsetUs;
   private final Transformer.DebugViewProvider debugViewProvider;
-  private final GlEffectsFrameProcessor.Listener frameProcessorListener;
+  private final FrameProcessor.Listener frameProcessorListener;
   private final boolean enableExperimentalHdrEditing;
 
   private int inputWidth;
@@ -78,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       SurfaceInfo.Provider outputSurfaceProvider,
       long streamOffsetUs,
-      GlEffectsFrameProcessor.Listener frameProcessorListener,
+      FrameProcessor.Listener frameProcessorListener,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing) {
     this.context = context;
@@ -97,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>The {@code FinalMatrixTransformationProcessorWrapper} will only call {@link
    * Listener#onInputFrameProcessed(TextureInfo)}. Other events are handled via the {@link
-   * GlEffectsFrameProcessor.Listener} passed to the constructor.
+   * FrameProcessor.Listener} passed to the constructor.
    */
   @Override
   public void setListener(Listener listener) {

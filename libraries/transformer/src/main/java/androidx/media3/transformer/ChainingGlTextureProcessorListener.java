@@ -31,7 +31,7 @@ import java.util.Queue;
   @Nullable private final GlTextureProcessor previousGlTextureProcessor;
   @Nullable private final GlTextureProcessor nextGlTextureProcessor;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-  private final GlEffectsFrameProcessor.Listener frameProcessorListener;
+  private final FrameProcessor.Listener frameProcessorListener;
   private final Queue<Pair<TextureInfo, Long>> pendingFrames;
 
   /**
@@ -45,14 +45,13 @@ import java.util.Queue;
    *     OpenGL calls. All calls to the previous/next {@link GlTextureProcessor} will be executed by
    *     the {@link FrameProcessingTaskExecutor}. The caller is responsible for releasing the {@link
    *     FrameProcessingTaskExecutor}.
-   * @param frameProcessorListener The {@link GlEffectsFrameProcessor.Listener} to forward
-   *     exceptions to.
+   * @param frameProcessorListener The {@link FrameProcessor.Listener} to forward exceptions to.
    */
   public ChainingGlTextureProcessorListener(
       @Nullable GlTextureProcessor previousGlTextureProcessor,
       @Nullable GlTextureProcessor nextGlTextureProcessor,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      GlEffectsFrameProcessor.Listener frameProcessorListener) {
+      FrameProcessor.Listener frameProcessorListener) {
     this.previousGlTextureProcessor = previousGlTextureProcessor;
     this.nextGlTextureProcessor = nextGlTextureProcessor;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
