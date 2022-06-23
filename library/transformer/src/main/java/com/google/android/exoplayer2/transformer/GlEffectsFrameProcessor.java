@@ -37,37 +37,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * {@code GlEffectsFrameProcessor} applies changes to individual video frames.
- *
- * <p>Input becomes available on its {@linkplain #getInputSurface() input surface} asynchronously
- * and is processed on a background thread as it becomes available. All input frames should be
- * {@linkplain #registerInputFrame() registered} before they are rendered to the input surface.
- * {@link #getPendingInputFrameCount()} can be used to check whether there are frames that have not
- * been fully processed yet. Output is written to the provided {@linkplain #create(Context,
- * Listener, float, int, int, long, List, SurfaceInfo.Provider, Transformer.DebugViewProvider,
- * boolean) output surface}.
+ * A {@link FrameProcessor} implementation that applies {@link GlEffect} instances using OpenGL on a
+ * background thread.
  */
-// TODO(b/227625423): Factor out FrameProcessor interface
-/* package */ final class GlEffectsFrameProcessor {
-
-  /**
-   * Listener for asynchronous frame processing events.
-   *
-   * <p>This listener is only called from the {@link GlEffectsFrameProcessor} instance's background
-   * thread.
-   */
-  public interface Listener {
-    /**
-     * Called when an exception occurs during asynchronous frame processing.
-     *
-     * <p>If an error occurred, consuming and producing further frames will not work as expected and
-     * the {@link GlEffectsFrameProcessor} should be released.
-     */
-    void onFrameProcessingError(FrameProcessingException exception);
-
-    /** Called after the frame processor has produced its final output frame. */
-    void onFrameProcessingEnded();
-  }
+/* package */ final class GlEffectsFrameProcessor implements FrameProcessor {
+  // TODO(b/227625423): Replace factory method with setters once output surface and effects can be
+  //  replaced.
 
   /**
    * Creates a new instance.
@@ -89,7 +64,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public static GlEffectsFrameProcessor create(
       Context context,
-      GlEffectsFrameProcessor.Listener listener,
+      FrameProcessor.Listener listener,
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
@@ -141,7 +116,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   @WorkerThread
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
-      GlEffectsFrameProcessor.Listener listener,
+      FrameProcessor.Listener listener,
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
@@ -245,7 +220,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder,
       SurfaceInfo.Provider outputSurfaceProvider,
       long streamOffsetUs,
-      GlEffectsFrameProcessor.Listener listener,
+      FrameProcessor.Listener listener,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
@@ -290,7 +265,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       ExternalTextureProcessor externalTextureProcessor,
       ImmutableList<GlTextureProcessor> textureProcessors,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      GlEffectsFrameProcessor.Listener listener) {
+      FrameProcessor.Listener listener) {
     externalTextureProcessor.setListener(
         new ChainingGlTextureProcessorListener(
             /* previousGlTextureProcessor= */ null,
@@ -366,7 +341,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     inputSurfaceTextureTransformMatrix = new float[16];
   }
 
-  /** Returns the input {@link Surface}. */
+  @Override
   public Surface getInputSurface() {
     // TODO(b/227625423): Allow input surface to be recreated for input size change.
     inputSurfaceTexture.setOnFrameAvailableListener(
@@ -374,47 +349,25 @@ import java.util.concurrent.atomic.AtomicInteger;
     return inputSurface;
   }
 
-  /**
-   * Informs the {@code GlEffectsFrameProcessor} that a frame will be queued to its input surface.
-   *
-   * <p>Must be called before rendering a frame to the frame processor's input surface.
-   *
-   * @throws IllegalStateException If called after {@link #signalEndOfInputStream()}.
-   */
+  @Override
   public void registerInputFrame() {
     checkState(!inputStreamEnded);
     pendingInputFrameCount.incrementAndGet();
   }
 
-  /**
-   * Returns the number of input frames that have been {@linkplain #registerInputFrame() registered}
-   * but not processed off the {@linkplain #getInputSurface() input surface} yet.
-   */
+  @Override
   public int getPendingInputFrameCount() {
     return pendingInputFrameCount.get();
   }
 
-  /**
-   * Informs the {@code GlEffectsFrameProcessor} that no further input frames should be accepted.
-   *
-   * @throws IllegalStateException If called more than once.
-   */
+  @Override
   public void signalEndOfInputStream() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     frameProcessingTaskExecutor.submit(this::processEndOfInputStream);
   }
 
-  /**
-   * Releases all resources.
-   *
-   * <p>If the frame processor is released before it has {@linkplain
-   * Listener#onFrameProcessingEnded() ended}, it will attempt to cancel processing any input frames
-   * that have already become available. Input frames that become available after release are
-   * ignored.
-   *
-   * <p>This method blocks until all resources are released or releasing times out.
-   */
+  @Override
   public void release() {
     try {
       frameProcessingTaskExecutor.release(

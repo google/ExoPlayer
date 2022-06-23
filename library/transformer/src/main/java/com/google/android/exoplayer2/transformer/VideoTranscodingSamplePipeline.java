@@ -44,7 +44,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final Codec decoder;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
 
-  private final GlEffectsFrameProcessor frameProcessor;
+  private final FrameProcessor frameProcessor;
 
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
@@ -102,7 +102,7 @@ import org.checkerframework.dataflow.qual.Pure;
       frameProcessor =
           GlEffectsFrameProcessor.create(
               context,
-              new GlEffectsFrameProcessor.Listener() {
+              new FrameProcessor.Listener() {
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
                   asyncErrorListener.onTransformationException(
