@@ -46,7 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link FrameProcessorChain}.
+ * Pixel test for frame processing via {@link GlEffectsFrameProcessor}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
  * bitmaps.
  */
 @RunWith(AndroidJUnit4.class)
-public final class FrameProcessorChainPixelTest {
+public final class GlEffectsFrameProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
   public static final String SCALE_WIDE_PNG_ASSET_PATH =
@@ -79,8 +79,9 @@ public final class FrameProcessorChainPixelTest {
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
   /**
-   * Time to wait for the decoded frame to populate the {@link FrameProcessorChain}'s input surface
-   * and the {@link FrameProcessorChain} to finish processing the frame, in milliseconds.
+   * Time to wait for the decoded frame to populate the {@link GlEffectsFrameProcessor} instance's
+   * input surface and the {@link GlEffectsFrameProcessor} to finish processing the frame, in
+   * milliseconds.
    */
   private static final int FRAME_PROCESSING_WAIT_MS = 5000;
   /** The ratio of width over height, for each pixel in a frame. */
@@ -90,14 +91,14 @@ public final class FrameProcessorChainPixelTest {
       new AtomicReference<>();
 
   private @MonotonicNonNull MediaFormat mediaFormat;
-  private @MonotonicNonNull FrameProcessorChain frameProcessorChain;
+  private @MonotonicNonNull GlEffectsFrameProcessor glEffectsFrameProcessor;
   private volatile @MonotonicNonNull ImageReader outputImageReader;
   private volatile boolean frameProcessingEnded;
 
   @After
   public void release() {
-    if (frameProcessorChain != null) {
-      frameProcessorChain.release();
+    if (glEffectsFrameProcessor != null) {
+      glEffectsFrameProcessor.release();
     }
   }
 
@@ -321,8 +322,8 @@ public final class FrameProcessorChainPixelTest {
 
   /**
    * Set up and prepare the first frame from an input video, as well as relevant test
-   * infrastructure. The frame will be sent towards the {@link FrameProcessorChain}, and may be
-   * accessed on the {@link FrameProcessorChain}'s output {@code outputImageReader}.
+   * infrastructure. The frame will be sent towards the {@link GlEffectsFrameProcessor}, and output
+   * may be accessed on the {@code outputImageReader}.
    *
    * @param pixelWidthHeightRatio The ratio of width over height for each pixel.
    * @param effects The {@link GlEffect GlEffects} to apply to the input frame.
@@ -350,11 +351,11 @@ public final class FrameProcessorChainPixelTest {
 
       int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-      frameProcessorChain =
+      glEffectsFrameProcessor =
           checkNotNull(
-              FrameProcessorChain.create(
+              GlEffectsFrameProcessor.create(
                   context,
-                  new FrameProcessorChain.Listener() {
+                  new GlEffectsFrameProcessor.Listener() {
                     @Override
                     public void onFrameProcessingError(FrameProcessingException exception) {
                       frameProcessingException.set(exception);
@@ -382,13 +383,16 @@ public final class FrameProcessorChainPixelTest {
                   },
                   Transformer.DebugViewProvider.NONE,
                   /* enableExperimentalHdrEditing= */ false));
-      frameProcessorChain.registerInputFrame();
+      glEffectsFrameProcessor.registerInputFrame();
 
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
       mediaCodec = MediaCodec.createDecoderByType(mimeType);
       mediaCodec.configure(
-          mediaFormat, frameProcessorChain.getInputSurface(), /* crypto= */ null, /* flags= */ 0);
+          mediaFormat,
+          glEffectsFrameProcessor.getInputSurface(),
+          /* crypto= */ null,
+          /* flags= */ 0);
       mediaCodec.start();
       int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
       assertThat(inputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
@@ -429,15 +433,15 @@ public final class FrameProcessorChainPixelTest {
   }
 
   private Bitmap processFirstFrameAndEnd() throws InterruptedException {
-    checkNotNull(frameProcessorChain).signalEndOfInputStream();
+    checkNotNull(glEffectsFrameProcessor).signalEndOfInputStream();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
     assertThat(frameProcessingEnded).isTrue();
     assertThat(frameProcessingException.get()).isNull();
 
-    Image frameProcessorChainOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
+    Image frameProcessorOutputImage = checkNotNull(outputImageReader).acquireLatestImage();
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(frameProcessorChainOutputImage);
-    frameProcessorChainOutputImage.close();
+        BitmapTestUtil.createArgb8888BitmapFromRgba8888Image(frameProcessorOutputImage);
+    frameProcessorOutputImage.close();
     return actualBitmap;
   }
 
@@ -475,11 +479,11 @@ public final class FrameProcessorChainPixelTest {
   }
 
   /**
-   * Wraps a {@link GlEffect} to prevent the {@link FrameProcessorChain} from detecting its class
-   * and optimizing it.
+   * Wraps a {@link GlEffect} to prevent the {@link GlEffectsFrameProcessor} from detecting its
+   * class and optimizing it.
    *
-   * <p>This ensures that {@link FrameProcessorChain} uses a separate {@link GlTextureProcessor} for
-   * the wrapped {@link GlEffect} rather than merging it with preceding or subsequent {@link
+   * <p>This ensures that {@link GlEffectsFrameProcessor} uses a separate {@link GlTextureProcessor}
+   * for the wrapped {@link GlEffect} rather than merging it with preceding or subsequent {@link
    * GlEffect} instances and applying them in one combined {@link GlTextureProcessor}.
    */
   private static final class GlEffectWrapper implements GlEffect {
