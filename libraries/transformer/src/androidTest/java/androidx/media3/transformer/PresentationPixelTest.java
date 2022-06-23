@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
  * BitmapTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output bitmaps
- * as recommended in {@link FrameProcessorChainPixelTest}.
+ * as recommended in {@link GlEffectsFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class PresentationPixelTest {

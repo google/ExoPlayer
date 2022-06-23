@@ -31,7 +31,7 @@ import java.util.Queue;
   @Nullable private final GlTextureProcessor previousGlTextureProcessor;
   @Nullable private final GlTextureProcessor nextGlTextureProcessor;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-  private final FrameProcessorChain.Listener frameProcessorChainListener;
+  private final GlEffectsFrameProcessor.Listener frameProcessorListener;
   private final Queue<Pair<TextureInfo, Long>> pendingFrames;
 
   /**
@@ -45,18 +45,18 @@ import java.util.Queue;
    *     OpenGL calls. All calls to the previous/next {@link GlTextureProcessor} will be executed by
    *     the {@link FrameProcessingTaskExecutor}. The caller is responsible for releasing the {@link
    *     FrameProcessingTaskExecutor}.
-   * @param frameProcessorChainListener The {@link FrameProcessorChain.Listener} to forward
+   * @param frameProcessorListener The {@link GlEffectsFrameProcessor.Listener} to forward
    *     exceptions to.
    */
   public ChainingGlTextureProcessorListener(
       @Nullable GlTextureProcessor previousGlTextureProcessor,
       @Nullable GlTextureProcessor nextGlTextureProcessor,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      FrameProcessorChain.Listener frameProcessorChainListener) {
+      GlEffectsFrameProcessor.Listener frameProcessorListener) {
     this.previousGlTextureProcessor = previousGlTextureProcessor;
     this.nextGlTextureProcessor = nextGlTextureProcessor;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
-    this.frameProcessorChainListener = frameProcessorChainListener;
+    this.frameProcessorListener = frameProcessorListener;
     pendingFrames = new ArrayDeque<>();
   }
 
@@ -101,6 +101,6 @@ import java.util.Queue;
 
   @Override
   public void onFrameProcessingError(FrameProcessingException e) {
-    frameProcessorChainListener.onFrameProcessingError(e);
+    frameProcessorListener.onFrameProcessingError(e);
   }
 }

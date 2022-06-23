@@ -44,7 +44,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final Codec decoder;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
 
-  private final FrameProcessorChain frameProcessorChain;
+  private final GlEffectsFrameProcessor frameProcessor;
 
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
@@ -99,14 +99,14 @@ import org.checkerframework.dataflow.qual.Pure;
             asyncErrorListener);
 
     try {
-      frameProcessorChain =
-          FrameProcessorChain.create(
+      frameProcessor =
+          GlEffectsFrameProcessor.create(
               context,
-              new FrameProcessorChain.Listener() {
+              new GlEffectsFrameProcessor.Listener() {
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
                   asyncErrorListener.onTransformationException(
-                      TransformationException.createForFrameProcessorChain(
+                      TransformationException.createForFrameProcessingException(
                           exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED));
                 }
 
@@ -128,14 +128,14 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               transformationRequest.enableHdrEditing);
     } catch (FrameProcessingException e) {
-      throw TransformationException.createForFrameProcessorChain(
+      throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
 
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
-            frameProcessorChain.getInputSurface(),
+            frameProcessor.getInputSurface(),
             transformationRequest.enableRequestSdrToneMapping);
     maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
@@ -165,7 +165,7 @@ import org.checkerframework.dataflow.qual.Pure;
       processedData = true;
     }
     if (decoder.isEnded()) {
-      frameProcessorChain.signalEndOfInputStream();
+      frameProcessor.signalEndOfInputStream();
     }
     // If the decoder produced output, signal that it may be possible to process data again.
     return processedData;
@@ -202,7 +202,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void release() {
-    frameProcessorChain.release();
+    frameProcessor.release();
     decoder.release();
     encoderWrapper.release();
   }
@@ -255,11 +255,11 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     if (maxPendingFrameCount != Codec.UNLIMITED_PENDING_FRAME_COUNT
-        && frameProcessorChain.getPendingInputFrameCount() == maxPendingFrameCount) {
+        && frameProcessor.getPendingInputFrameCount() == maxPendingFrameCount) {
       return false;
     }
 
-    frameProcessorChain.registerInputFrame();
+    frameProcessor.registerInputFrame();
     decoder.releaseOutputBuffer(/* render= */ true);
     return true;
   }
