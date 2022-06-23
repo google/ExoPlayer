@@ -47,7 +47,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * dimensions specified by the provided {@link SurfaceInfo}.
  *
  * <p>This wrapper is used for the final {@link GlTextureProcessor} instance in the chain of {@link
- * GlTextureProcessor} instances used by {@link FrameProcessorChain}.
+ * GlTextureProcessor} instances used by {@link GlEffectsFrameProcessor}.
  */
 /* package */ final class FinalMatrixTransformationProcessorWrapper implements GlTextureProcessor {
 
@@ -60,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SurfaceInfo.Provider outputSurfaceProvider;
   private final long streamOffsetUs;
   private final Transformer.DebugViewProvider debugViewProvider;
-  private final FrameProcessorChain.Listener frameProcessorChainListener;
+  private final GlEffectsFrameProcessor.Listener frameProcessorListener;
   private final boolean enableExperimentalHdrEditing;
 
   private int inputWidth;
@@ -78,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       SurfaceInfo.Provider outputSurfaceProvider,
       long streamOffsetUs,
-      FrameProcessorChain.Listener listener,
+      GlEffectsFrameProcessor.Listener frameProcessorListener,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing) {
     this.context = context;
@@ -88,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.outputSurfaceProvider = outputSurfaceProvider;
     this.streamOffsetUs = streamOffsetUs;
     this.debugViewProvider = debugViewProvider;
-    this.frameProcessorChainListener = listener;
+    this.frameProcessorListener = frameProcessorListener;
     this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
   }
 
@@ -97,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>The {@code FinalMatrixTransformationProcessorWrapper} will only call {@link
    * Listener#onInputFrameProcessed(TextureInfo)}. Other events are handled via the {@link
-   * FrameProcessorChain.Listener} passed to the constructor.
+   * GlEffectsFrameProcessor.Listener} passed to the constructor.
    */
   @Override
   public void setListener(Listener listener) {
@@ -130,7 +130,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           /* presentationTimeNs= */ (presentationTimeUs + streamOffsetUs) * 1000);
       EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
     } catch (FrameProcessingException | GlUtil.GlException e) {
-      frameProcessorChainListener.onFrameProcessingError(
+      frameProcessorListener.onFrameProcessingError(
           FrameProcessingException.from(e, presentationTimeUs));
     }
 
@@ -247,7 +247,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void signalEndOfInputStream() {
-    frameProcessorChainListener.onFrameProcessingEnded();
+    frameProcessorListener.onFrameProcessingEnded();
   }
 
   @Override

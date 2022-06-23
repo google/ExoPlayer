@@ -31,11 +31,11 @@ import org.junit.runner.RunWith;
 public final class ChainingGlTextureProcessorListenerTest {
   private static final long EXECUTOR_WAIT_TIME_MS = 100;
 
-  private final FrameProcessorChain.Listener mockFrameProcessorChainListener =
-      mock(FrameProcessorChain.Listener.class);
+  private final GlEffectsFrameProcessor.Listener mockframeProcessorListener =
+      mock(GlEffectsFrameProcessor.Listener.class);
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor =
       new FrameProcessingTaskExecutor(
-          Util.newSingleThreadExecutor("Test"), mockFrameProcessorChainListener);
+          Util.newSingleThreadExecutor("Test"), mockframeProcessorListener);
   private final GlTextureProcessor mockPreviousGlTextureProcessor = mock(GlTextureProcessor.class);
   private final FakeGlTextureProcessor fakeNextGlTextureProcessor =
       spy(new FakeGlTextureProcessor());
@@ -44,7 +44,7 @@ public final class ChainingGlTextureProcessorListenerTest {
           mockPreviousGlTextureProcessor,
           fakeNextGlTextureProcessor,
           frameProcessingTaskExecutor,
-          mockFrameProcessorChainListener);
+          mockframeProcessorListener);
 
   @After
   public void release() throws InterruptedException {
@@ -57,7 +57,7 @@ public final class ChainingGlTextureProcessorListenerTest {
 
     chainingGlTextureProcessorListener.onFrameProcessingError(exception);
 
-    verify(mockFrameProcessorChainListener, times(1)).onFrameProcessingError(exception);
+    verify(mockframeProcessorListener, times(1)).onFrameProcessingError(exception);
   }
 
   @Test

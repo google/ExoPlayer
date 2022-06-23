@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
- * Utilities for instrumentation tests for the {@link FrameProcessorChain} and {@link
+ * Utilities for instrumentation tests for the {@link GlEffectsFrameProcessor} and {@link
  * SingleFrameGlTextureProcessor SingleFrameGlTextureProcessors}.
  */
 public class BitmapTestUtil {

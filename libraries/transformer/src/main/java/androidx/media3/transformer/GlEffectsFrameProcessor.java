@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * {@code FrameProcessorChain} applies changes to individual video frames.
+ * {@code GlEffectsFrameProcessor} applies changes to individual video frames.
  *
  * <p>Input becomes available on its {@linkplain #getInputSurface() input surface} asynchronously
  * and is processed on a background thread as it becomes available. All input frames should be
@@ -47,20 +47,21 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Listener, float, int, int, long, List, SurfaceInfo.Provider, Transformer.DebugViewProvider,
  * boolean) output surface}.
  */
-// TODO(b/227625423): Factor out FrameProcessor interface and rename this class to GlFrameProcessor.
-/* package */ final class FrameProcessorChain {
+// TODO(b/227625423): Factor out FrameProcessor interface
+/* package */ final class GlEffectsFrameProcessor {
 
   /**
    * Listener for asynchronous frame processing events.
    *
-   * <p>This listener is only called from the {@link FrameProcessorChain}'s background thread.
+   * <p>This listener is only called from the {@link GlEffectsFrameProcessor} instance's background
+   * thread.
    */
   public interface Listener {
     /**
      * Called when an exception occurs during asynchronous frame processing.
      *
      * <p>If an error occurred, consuming and producing further frames will not work as expected and
-     * the {@link FrameProcessorChain} should be released.
+     * the {@link GlEffectsFrameProcessor} should be released.
      */
     void onFrameProcessingError(FrameProcessingException exception);
 
@@ -86,9 +87,9 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
    *     creating and configuring the OpenGL components.
    */
-  public static FrameProcessorChain create(
+  public static GlEffectsFrameProcessor create(
       Context context,
-      FrameProcessorChain.Listener listener,
+      GlEffectsFrameProcessor.Listener listener,
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
@@ -103,10 +104,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
-    Future<FrameProcessorChain> frameProcessorChainFuture =
+    Future<GlEffectsFrameProcessor> glFrameProcessorFuture =
         singleThreadExecutorService.submit(
             () ->
-                createOpenGlObjectsAndFrameProcessorChain(
+                createOpenGlObjectsAndFrameProcessor(
                     context,
                     listener,
                     pixelWidthHeightRatio,
@@ -120,7 +121,7 @@ import java.util.concurrent.atomic.AtomicInteger;
                     singleThreadExecutorService));
 
     try {
-      return frameProcessorChainFuture.get();
+      return glFrameProcessorFuture.get();
     } catch (ExecutionException e) {
       throw new FrameProcessingException(e);
     } catch (InterruptedException e) {
@@ -132,15 +133,15 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * Creates the OpenGL context, surfaces, textures, and framebuffers, initializes {@link
    * GlTextureProcessor} instances corresponding to the {@link GlEffect} instances, and returns a
-   * new {@code FrameProcessorChain}.
+   * new {@code GlEffectsFrameProcessor}.
    *
    * <p>This method must be executed using the {@code singleThreadExecutorService}, as later OpenGL
    * commands will be called on that thread.
    */
   @WorkerThread
-  private static FrameProcessorChain createOpenGlObjectsAndFrameProcessorChain(
+  private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
-      FrameProcessorChain.Listener listener,
+      GlEffectsFrameProcessor.Listener listener,
       float pixelWidthHeightRatio,
       int inputWidth,
       int inputHeight,
@@ -196,7 +197,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     chainTextureProcessorsWithListeners(
         externalTextureProcessor, textureProcessors, frameProcessingTaskExecutor, listener);
 
-    return new FrameProcessorChain(
+    return new GlEffectsFrameProcessor(
         eglDisplay,
         eglContext,
         frameProcessingTaskExecutor,
@@ -244,7 +245,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder,
       SurfaceInfo.Provider outputSurfaceProvider,
       long streamOffsetUs,
-      FrameProcessorChain.Listener listener,
+      GlEffectsFrameProcessor.Listener listener,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
@@ -289,7 +290,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       ExternalTextureProcessor externalTextureProcessor,
       ImmutableList<GlTextureProcessor> textureProcessors,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      FrameProcessorChain.Listener listener) {
+      GlEffectsFrameProcessor.Listener listener) {
     externalTextureProcessor.setListener(
         new ChainingGlTextureProcessorListener(
             /* previousGlTextureProcessor= */ null,
@@ -312,8 +313,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private static final String TAG = "FrameProcessorChain";
-  private static final String THREAD_NAME = "Transformer:FrameProcessorChain";
+  private static final String TAG = "GlEffectsFrameProcessor";
+  private static final String THREAD_NAME = "Transformer:GlEffectsFrameProcessor";
   private static final long RELEASE_WAIT_TIME_MS = 100;
 
   private final EGLDisplay eglDisplay;
@@ -341,7 +342,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private boolean inputStreamEnded;
 
-  private FrameProcessorChain(
+  private GlEffectsFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
@@ -374,9 +375,9 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Informs the {@code FrameProcessorChain} that a frame will be queued to its input surface.
+   * Informs the {@code GlEffectsFrameProcessor} that a frame will be queued to its input surface.
    *
-   * <p>Must be called before rendering a frame to the frame processor chain's input surface.
+   * <p>Must be called before rendering a frame to the frame processor's input surface.
    *
    * @throws IllegalStateException If called after {@link #signalEndOfInputStream()}.
    */
@@ -394,7 +395,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Informs the {@code FrameProcessorChain} that no further input frames should be accepted.
+   * Informs the {@code GlEffectsFrameProcessor} that no further input frames should be accepted.
    *
    * @throws IllegalStateException If called more than once.
    */
@@ -407,12 +408,12 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * Releases all resources.
    *
-   * <p>If the frame processor chain is released before it has {@linkplain
+   * <p>If the frame processor is released before it has {@linkplain
    * Listener#onFrameProcessingEnded() ended}, it will attempt to cancel processing any input frames
    * that have already become available. Input frames that become available after release are
    * ignored.
    *
-   * <p>This method blocks until all OpenGL resources are released or releasing times out.
+   * <p>This method blocks until all resources are released or releasing times out.
    */
   public void release() {
     try {
