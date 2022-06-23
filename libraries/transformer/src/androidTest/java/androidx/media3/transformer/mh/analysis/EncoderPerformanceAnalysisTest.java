@@ -26,7 +26,6 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.DefaultEncoderFactory;
-import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
@@ -127,13 +126,13 @@ public class EncoderPerformanceAnalysisTest {
             .setRemoveAudio(true)
             .setEncoderFactory(
                 new AndroidTestUtil.ForceEncodeEncoderFactory(
-                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
-                        context,
-                        EncoderSelector.DEFAULT,
-                        new VideoEncoderSettings.Builder()
-                            .setEncoderPerformanceParameters(operatingRate, priority)
-                            .build(),
-                        /* enableFallback= */ false)))
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
+                        .setRequestedVideoEncoderSettings(
+                            new VideoEncoderSettings.Builder()
+                                .setEncoderPerformanceParameters(operatingRate, priority)
+                                .build())
+                        .setEnableFallback(false)
+                        .build()))
             .build();
 
     new TransformerAndroidTestRunner.Builder(context, transformer)

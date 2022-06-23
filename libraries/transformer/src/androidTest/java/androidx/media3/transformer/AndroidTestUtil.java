@@ -225,7 +225,7 @@ public final class AndroidTestUtil {
 
     /** Creates an instance that wraps {@link DefaultEncoderFactory}. */
     public ForceEncodeEncoderFactory(Context context) {
-      encoderFactory = new DefaultEncoderFactory(context);
+      encoderFactory = new DefaultEncoderFactory.Builder(context).build();
     }
 
     /**

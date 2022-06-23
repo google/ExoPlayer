@@ -31,7 +31,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
-import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -81,11 +80,10 @@ public class TransformationTest {
             .setRemoveAudio(true)
             .setEncoderFactory(
                 new ForceEncodeEncoderFactory(
-                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
-                        context,
-                        EncoderSelector.DEFAULT,
-                        new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
-                        /* enableFallback= */ true)))
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
+                        .setRequestedVideoEncoderSettings(
+                            new VideoEncoderSettings.Builder().setBitrate(5_000_000).build())
+                        .build()))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)

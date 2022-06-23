@@ -46,8 +46,7 @@ public class TransformerEndToEndTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setResolution(480).build())
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    context, EncoderSelector.DEFAULT, /* enableFallback= */ false))
+                new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
     // Result of the following command:
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
@@ -71,8 +70,7 @@ public class TransformerEndToEndTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setResolution(480).build())
             .setEncoderFactory(
-                new DefaultEncoderFactory(
-                    context, EncoderSelector.DEFAULT, /* enableFallback= */ false))
+                new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
     long expectedDurationMs = 967;
 
@@ -138,7 +136,7 @@ public class TransformerEndToEndTest {
     private final Codec.EncoderFactory encoderFactory;
 
     public VideoUnsupportedEncoderFactory(Context context) {
-      encoderFactory = new DefaultEncoderFactory(context);
+      encoderFactory = new DefaultEncoderFactory.Builder(context).build();
     }
 
     @Override
