@@ -24,6 +24,7 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.Util;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.List;
@@ -109,6 +110,11 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEncoderFormatUnsupported_completesWithError() {
+    // TODO(b/236943611): Re-enable this test after investigating flakiness.
+    if (Util.SDK_INT == 31) {
+      return;
+    }
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new VideoUnsupportedEncoderFactory(context))
