@@ -68,7 +68,8 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 1920, 1080, 30);
     Format actualVideoFormat =
-        new DefaultEncoderFactory(context)
+        new DefaultEncoderFactory.Builder(context)
+            .build()
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -86,7 +87,8 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H265, 1920, 1080, 30);
     Format actualVideoFormat =
-        new DefaultEncoderFactory(context)
+        new DefaultEncoderFactory.Builder(context)
+            .build()
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -104,7 +106,8 @@ public class DefaultEncoderFactoryTest {
       throws Exception {
     Format requestedVideoFormat = createVideoFormat(MimeTypes.VIDEO_H264, 3840, 2160, 60);
     Format actualVideoFormat =
-        new DefaultEncoderFactory(context)
+        new DefaultEncoderFactory.Builder(context)
+            .build()
             .createForVideoEncoding(
                 requestedVideoFormat,
                 /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264))
@@ -122,7 +125,8 @@ public class DefaultEncoderFactoryTest {
         assertThrows(
             TransformationException.class,
             () ->
-                new DefaultEncoderFactory(context)
+                new DefaultEncoderFactory.Builder(context)
+                    .build()
                     .createForVideoEncoding(
                         requestedVideoFormat,
                         /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H265)));
@@ -138,10 +142,9 @@ public class DefaultEncoderFactoryTest {
     assertThrows(
         TransformationException.class,
         () ->
-            new DefaultEncoderFactory(
-                    context,
-                    /* videoEncoderSelector= */ mimeType -> ImmutableList.of(),
-                    /* enableFallback= */ true)
+            new DefaultEncoderFactory.Builder(context)
+                .setVideoEncoderSelector(mimeType -> ImmutableList.of())
+                .build()
                 .createForVideoEncoding(
                     requestedVideoFormat,
                     /* allowedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264)));

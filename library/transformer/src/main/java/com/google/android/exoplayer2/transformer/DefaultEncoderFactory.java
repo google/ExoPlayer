@@ -45,48 +45,109 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static final int DEFAULT_FRAME_RATE = 30;
   private static final String TAG = "DefaultEncoderFactory";
 
+  /** A builder for {@link DefaultEncoderFactory} instances. */
+  public static final class Builder {
+    private final Context context;
+
+    @Nullable private EncoderSelector encoderSelector;
+    @Nullable private VideoEncoderSettings requestedVideoEncoderSettings;
+    private boolean enableFallback;
+
+    /** Creates a new {@link Builder}. */
+    public Builder(Context context) {
+      this.context = context;
+      this.enableFallback = true;
+    }
+
+    /**
+     * Sets the video {@link EncoderSelector}.
+     *
+     * <p>The default value is {@link EncoderSelector#DEFAULT}.
+     */
+    public Builder setVideoEncoderSelector(EncoderSelector encoderSelector) {
+      this.encoderSelector = encoderSelector;
+      return this;
+    }
+
+    /**
+     * Sets the requested {@link VideoEncoderSettings}.
+     *
+     * <p>Values in {@code requestedVideoEncoderSettings} could be adjusted to improve encoding
+     * quality and/or reduce failures. Specifically, {@link VideoEncoderSettings#profile} and {@link
+     * VideoEncoderSettings#level} are ignored for {@link MimeTypes#VIDEO_H264}. Consider
+     * implementing {@link Codec.EncoderFactory} if such adjustments are unwanted.
+     *
+     * <p>{@code requestedVideoEncoderSettings} should be handled with care because there is no
+     * fallback support for it. For example, using incompatible {@link VideoEncoderSettings#profile}
+     * and {@link VideoEncoderSettings#level} can cause codec configuration failure. Setting an
+     * unsupported {@link VideoEncoderSettings#bitrateMode} may cause encoder instantiation failure.
+     *
+     * <p>The default value is {@link VideoEncoderSettings#DEFAULT}.
+     */
+    public Builder setRequestedVideoEncoderSettings(
+        VideoEncoderSettings requestedVideoEncoderSettings) {
+      this.requestedVideoEncoderSettings = requestedVideoEncoderSettings;
+      return this;
+    }
+
+    /**
+     * Sets whether the encoder can fallback.
+     *
+     * <p>With format fallback enabled, when the requested {@link Format} is not supported, {@code
+     * DefaultEncoderFactory} finds a format that is supported by the device and configures the
+     * {@link Codec} with it. The fallback process may change the requested {@link
+     * Format#sampleMimeType MIME type}, resolution, {@link Format#bitrate bitrate}, {@link
+     * Format#codecs profile/level} etc.
+     *
+     * <p>The default value is {@code true}.
+     */
+    public Builder setEnableFallback(boolean enableFallback) {
+      this.enableFallback = enableFallback;
+      return this;
+    }
+
+    /** Creates an instance of {@link DefaultEncoderFactory}, using defaults if values are unset. */
+    @SuppressWarnings("deprecation")
+    public DefaultEncoderFactory build() {
+      if (encoderSelector == null) {
+        encoderSelector = EncoderSelector.DEFAULT;
+      }
+      if (requestedVideoEncoderSettings == null) {
+        requestedVideoEncoderSettings = VideoEncoderSettings.DEFAULT;
+      }
+      return new DefaultEncoderFactory(
+          context, encoderSelector, requestedVideoEncoderSettings, enableFallback);
+    }
+  }
+
   private final Context context;
   private final EncoderSelector videoEncoderSelector;
   private final VideoEncoderSettings requestedVideoEncoderSettings;
   private final boolean enableFallback;
 
   /**
-   * Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}, a
-   * default {@link VideoEncoderSettings}, and with format fallback enabled.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultEncoderFactory(Context context) {
     this(context, EncoderSelector.DEFAULT, /* enableFallback= */ true);
   }
 
-  /** Creates a new instance using a default {@link VideoEncoderSettings}. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultEncoderFactory(
       Context context, EncoderSelector videoEncoderSelector, boolean enableFallback) {
     this(context, videoEncoderSelector, VideoEncoderSettings.DEFAULT, enableFallback);
   }
 
   /**
-   * Creates a new instance.
-   *
-   * <p>With format fallback enabled, when the requested {@link Format} is not supported, {@code
-   * DefaultEncoderFactory} finds a format that is supported by the device and configures the {@link
-   * Codec} with it. The fallback process may change the requested {@link Format#sampleMimeType MIME
-   * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level} etc.
-   *
-   * <p>Values in {@code requestedVideoEncoderSettings} could be adjusted to improve encoding
-   * quality and/or reduce failures. Specifically, {@link VideoEncoderSettings#profile} and {@link
-   * VideoEncoderSettings#level} are ignored for {@link MimeTypes#VIDEO_H264}. Consider implementing
-   * {@link Codec.EncoderFactory} if such adjustments are unwanted.
-   *
-   * <p>{@code requestedVideoEncoderSettings} should be handled with care because there is no
-   * fallback support for it. For example, using incompatible {@link VideoEncoderSettings#profile}
-   * and {@link VideoEncoderSettings#level} can cause codec configuration failure. Setting an
-   * unsupported {@link VideoEncoderSettings#bitrateMode} may cause encoder instantiation failure.
-   *
-   * @param context The {@link Context}.
-   * @param videoEncoderSelector The {@link EncoderSelector}.
-   * @param requestedVideoEncoderSettings The {@link VideoEncoderSettings}.
-   * @param enableFallback Whether to enable fallback.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public DefaultEncoderFactory(
       Context context,
       EncoderSelector videoEncoderSelector,
