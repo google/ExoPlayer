@@ -751,7 +751,7 @@ public final class TransformerEndToEndTest {
         .setClock(clock)
         .setMuxerFactory(new TestMuxerFactory())
         .setEncoderFactory(
-            new DefaultEncoderFactory(context, EncoderSelector.DEFAULT, enableFallback));
+            new DefaultEncoderFactory.Builder(context).setEnableFallback(enableFallback).build());
   }
 
   private static void createEncodersAndDecoders() {

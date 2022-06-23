@@ -122,7 +122,7 @@ public final class Transformer {
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
-      encoderFactory = new DefaultEncoderFactory(this.context);
+      encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       decoderFactory = new DefaultDecoderFactory(this.context);
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;

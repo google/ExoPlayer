@@ -42,7 +42,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
-import androidx.media3.transformer.EncoderSelector;
 import androidx.media3.transformer.GlEffect;
 import androidx.media3.transformer.GlTextureProcessor;
 import androidx.media3.transformer.ProgressHolder;
@@ -260,10 +259,9 @@ public final class TransformerActivity extends AppCompatActivity {
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
           .setRemoveVideo(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_VIDEO))
           .setEncoderFactory(
-              new DefaultEncoderFactory(
-                  /* context= */ this,
-                  EncoderSelector.DEFAULT,
-                  /* enableFallback= */ bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK)));
+              new DefaultEncoderFactory.Builder(this.getApplicationContext())
+                  .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
+                  .build());
 
       ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
       @Nullable
