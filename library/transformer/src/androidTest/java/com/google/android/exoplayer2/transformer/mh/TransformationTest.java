@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
-import com.google.android.exoplayer2.transformer.EncoderSelector;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
@@ -81,11 +80,10 @@ public class TransformationTest {
             .setRemoveAudio(true)
             .setEncoderFactory(
                 new ForceEncodeEncoderFactory(
-                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory(
-                        context,
-                        EncoderSelector.DEFAULT,
-                        new VideoEncoderSettings.Builder().setBitrate(5_000_000).build(),
-                        /* enableFallback= */ true)))
+                    /* wrappedEncoderFactory= */ new DefaultEncoderFactory.Builder(context)
+                        .setRequestedVideoEncoderSettings(
+                            new VideoEncoderSettings.Builder().setBitrate(5_000_000).build())
+                        .build()))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .setMaybeCalculateSsim(true)
