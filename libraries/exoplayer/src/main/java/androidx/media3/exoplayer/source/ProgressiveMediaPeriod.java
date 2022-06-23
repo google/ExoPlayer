@@ -135,7 +135,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;
   private int enabledTrackCount;
-  private long length;
+  private boolean isLengthKnown;
 
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
@@ -201,7 +201,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sampleQueueTrackIds = new TrackId[0];
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;
-    length = C.LENGTH_UNSET;
     durationUs = C.TIME_UNSET;
     dataType = C.DATA_TYPE_MEDIA;
   }
@@ -578,7 +577,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs);
-    copyLengthFromLoader(loadable);
     loadingFinished = true;
     Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
   }
@@ -607,7 +605,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs);
     if (!released) {
-      copyLengthFromLoader(loadable);
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.reset();
       }
@@ -624,7 +621,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long loadDurationMs,
       IOException error,
       int errorCount) {
-    copyLengthFromLoader(loadable);
     StatsDataSource dataSource = loadable.dataSource;
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
@@ -710,6 +706,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Internal methods.
 
+  private void onLengthKnown() {
+    handler.post(() -> isLengthKnown = true);
+  }
+
   private TrackOutput prepareTrackOutput(TrackId id) {
     int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
@@ -733,7 +733,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void setSeekMap(SeekMap seekMap) {
     this.seekMap = icyHeaders == null ? seekMap : new Unseekable(/* durationUs= */ C.TIME_UNSET);
     durationUs = seekMap.getDurationUs();
-    isLive = length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET;
+    isLive = !isLengthKnown && seekMap.getDurationUs() == C.TIME_UNSET;
     dataType = isLive ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE : C.DATA_TYPE_MEDIA;
     listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable(), isLive);
     if (!prepared) {
@@ -789,12 +789,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Assertions.checkNotNull(callback).onPrepared(this);
   }
 
-  private void copyLengthFromLoader(ExtractingLoadable loadable) {
-    if (length == C.LENGTH_UNSET) {
-      length = loadable.length;
-    }
-  }
-
   private void startLoading() {
     ExtractingLoadable loadable =
         new ExtractingLoadable(
@@ -840,7 +834,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     retry.
    */
   private boolean configureRetry(ExtractingLoadable loadable, int currentExtractedSampleCount) {
-    if (length != C.LENGTH_UNSET || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)) {
+    if (isLengthKnown || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)) {
       // We're playing an on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
       extractedSamplesCountAtStartOfLoad = currentExtractedSampleCount;
@@ -970,7 +964,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private boolean pendingExtractorSeek;
     private long seekTimeUs;
     private DataSpec dataSpec;
-    private long length;
     @Nullable private TrackOutput icyTrackOutput;
     private boolean seenIcyMetadata;
 
@@ -988,7 +981,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.loadCondition = loadCondition;
       this.positionHolder = new PositionHolder();
       this.pendingExtractorSeek = true;
-      this.length = C.LENGTH_UNSET;
       loadTaskId = LoadEventInfo.getNewId();
       dataSpec = buildDataSpec(/* position= */ 0);
     }
@@ -1007,9 +999,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         try {
           long position = positionHolder.position;
           dataSpec = buildDataSpec(position);
-          length = dataSource.open(dataSpec);
+          long length = dataSource.open(dataSpec);
           if (length != C.LENGTH_UNSET) {
             length += position;
+            onLengthKnown();
           }
           icyHeaders = IcyHeaders.parse(dataSource.getResponseHeaders());
           DataSource extractorDataSource = dataSource;
