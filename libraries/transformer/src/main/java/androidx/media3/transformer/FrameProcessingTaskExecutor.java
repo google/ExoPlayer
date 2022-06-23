@@ -30,19 +30,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * instances.
  *
  * <p>The wrapper handles calling {@link
- * GlEffectsFrameProcessor.Listener#onFrameProcessingError(FrameProcessingException)} for errors
- * that occur during these tasks.
+ * FrameProcessor.Listener#onFrameProcessingError(FrameProcessingException)} for errors that occur
+ * during these tasks.
  */
 /* package */ final class FrameProcessingTaskExecutor {
 
   private final ExecutorService singleThreadExecutorService;
-  private final GlEffectsFrameProcessor.Listener listener;
+  private final FrameProcessor.Listener listener;
   private final ConcurrentLinkedQueue<Future<?>> futures;
   private final AtomicBoolean shouldCancelTasks;
 
   /** Creates a new instance. */
   public FrameProcessingTaskExecutor(
-      ExecutorService singleThreadExecutorService, GlEffectsFrameProcessor.Listener listener) {
+      ExecutorService singleThreadExecutorService, FrameProcessor.Listener listener) {
     this.singleThreadExecutorService = singleThreadExecutorService;
     this.listener = listener;
 
