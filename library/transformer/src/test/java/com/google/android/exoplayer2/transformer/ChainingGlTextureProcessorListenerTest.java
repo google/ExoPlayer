@@ -31,8 +31,8 @@ import org.junit.runner.RunWith;
 public final class ChainingGlTextureProcessorListenerTest {
   private static final long EXECUTOR_WAIT_TIME_MS = 100;
 
-  private final GlEffectsFrameProcessor.Listener mockframeProcessorListener =
-      mock(GlEffectsFrameProcessor.Listener.class);
+  private final FrameProcessor.Listener mockframeProcessorListener =
+      mock(FrameProcessor.Listener.class);
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor =
       new FrameProcessingTaskExecutor(
           Util.newSingleThreadExecutor("Test"), mockframeProcessorListener);

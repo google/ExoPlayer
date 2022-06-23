@@ -355,7 +355,7 @@ public final class GlEffectsFrameProcessorPixelTest {
           checkNotNull(
               GlEffectsFrameProcessor.create(
                   context,
-                  new GlEffectsFrameProcessor.Listener() {
+                  new FrameProcessor.Listener() {
                     @Override
                     public void onFrameProcessingError(FrameProcessingException exception) {
                       frameProcessingException.set(exception);
