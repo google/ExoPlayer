@@ -42,11 +42,20 @@ import android.view.Surface;
   Surface getInputSurface();
 
   /**
+   * Sets information about the input frames.
+   *
+   * <p>The new input information is applied from the next frame {@linkplain #registerInputFrame()
+   * registered} onwards.
+   */
+  void setInputFrameInfo(FrameInfo inputFrameInfo);
+
+  /**
    * Informs the {@code FrameProcessor} that a frame will be queued to its input surface.
    *
    * <p>Must be called before rendering a frame to the frame processor's input surface.
    *
-   * @throws IllegalStateException If called after {@link #signalEndOfInputStream()}.
+   * @throws IllegalStateException If called after {@link #signalEndOfInputStream()} or before
+   *     {@link #setInputFrameInfo(FrameInfo)}.
    */
   void registerInputFrame();
 

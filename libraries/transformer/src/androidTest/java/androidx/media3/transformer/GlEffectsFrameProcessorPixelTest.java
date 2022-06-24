@@ -367,8 +367,6 @@ public final class GlEffectsFrameProcessorPixelTest {
                     }
                   },
                   pixelWidthHeightRatio,
-                  inputWidth,
-                  inputHeight,
                   /* streamOffsetUs= */ 0L,
                   effects,
                   /* outputSurfaceProvider= */ (requestedWidth, requestedHeight) -> {
@@ -383,6 +381,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                   },
                   Transformer.DebugViewProvider.NONE,
                   /* enableExperimentalHdrEditing= */ false));
+      glEffectsFrameProcessor.setInputFrameInfo(new FrameInfo(inputWidth, inputHeight));
       glEffectsFrameProcessor.registerInputFrame();
 
       // Queue the first video frame from the extractor.
