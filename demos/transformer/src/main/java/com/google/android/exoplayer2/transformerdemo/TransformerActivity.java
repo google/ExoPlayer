@@ -317,7 +317,7 @@ public final class TransformerActivity extends AppCompatActivity {
         if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
-        transformerBuilder.setVideoFrameEffects(effects.build());
+        transformerBuilder.setVideoEffects(effects.build());
       }
 
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
