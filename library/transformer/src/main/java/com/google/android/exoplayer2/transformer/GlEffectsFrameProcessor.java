@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -31,10 +31,11 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link FrameProcessor} implementation that applies {@link GlEffect} instances using OpenGL on a
@@ -51,8 +52,6 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param listener A {@link Listener}.
    * @param pixelWidthHeightRatio The ratio of width over height for each pixel. Pixels are expanded
    *     by this ratio so that the output frame's pixels have a ratio of 1.
-   * @param inputWidth The input frame width, in pixels.
-   * @param inputHeight The input frame height, in pixels.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
    * @param outputSurfaceProvider A {@link SurfaceInfo.Provider} managing the output {@link
    *     Surface}.
@@ -66,16 +65,12 @@ import java.util.concurrent.atomic.AtomicInteger;
       Context context,
       FrameProcessor.Listener listener,
       float pixelWidthHeightRatio,
-      int inputWidth,
-      int inputHeight,
       long streamOffsetUs,
       List<GlEffect> effects,
       SurfaceInfo.Provider outputSurfaceProvider,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
-    checkArgument(inputWidth > 0, "inputWidth must be positive");
-    checkArgument(inputHeight > 0, "inputHeight must be positive");
 
     ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
@@ -86,8 +81,6 @@ import java.util.concurrent.atomic.AtomicInteger;
                     context,
                     listener,
                     pixelWidthHeightRatio,
-                    inputWidth,
-                    inputHeight,
                     streamOffsetUs,
                     effects,
                     outputSurfaceProvider,
@@ -118,8 +111,6 @@ import java.util.concurrent.atomic.AtomicInteger;
       Context context,
       FrameProcessor.Listener listener,
       float pixelWidthHeightRatio,
-      int inputWidth,
-      int inputHeight,
       long streamOffsetUs,
       List<GlEffect> effects,
       SurfaceInfo.Provider outputSurfaceProvider,
@@ -177,8 +168,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         eglContext,
         frameProcessingTaskExecutor,
         streamOffsetUs,
-        /* inputExternalTexture= */ new TextureInfo(
-            GlUtil.createExternalTexture(), /* fboId= */ C.INDEX_UNSET, inputWidth, inputHeight),
+        /* inputExternalTextureId= */ GlUtil.createExternalTexture(),
         externalTextureProcessor,
         textureProcessors);
   }
@@ -300,21 +290,19 @@ import java.util.concurrent.atomic.AtomicInteger;
    * timestamps, in microseconds.
    */
   private final long streamOffsetUs;
-  /**
-   * Number of frames {@linkplain #registerInputFrame() registered} but not processed off the {@link
-   * #inputSurfaceTexture} yet.
-   */
-  private final AtomicInteger pendingInputFrameCount;
+
   /** Associated with an OpenGL external texture. */
   private final SurfaceTexture inputSurfaceTexture;
   /** Wraps the {@link #inputSurfaceTexture}. */
   private final Surface inputSurface;
 
   private final float[] inputSurfaceTextureTransformMatrix;
-  private final TextureInfo inputExternalTexture;
+  private final int inputExternalTextureId;
   private final ExternalTextureProcessor inputExternalTextureProcessor;
   private final ImmutableList<GlTextureProcessor> textureProcessors;
+  private final ConcurrentLinkedQueue<FrameInfo> pendingInputFrames;
 
+  private @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private boolean inputStreamEnded;
 
   private GlEffectsFrameProcessor(
@@ -322,7 +310,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       EGLContext eglContext,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
       long streamOffsetUs,
-      TextureInfo inputExternalTexture,
+      int inputExternalTextureId,
       ExternalTextureProcessor inputExternalTextureProcessor,
       ImmutableList<GlTextureProcessor> textureProcessors) {
     checkState(!textureProcessors.isEmpty());
@@ -331,33 +319,40 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.eglContext = eglContext;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
     this.streamOffsetUs = streamOffsetUs;
-    this.inputExternalTexture = inputExternalTexture;
+    this.inputExternalTextureId = inputExternalTextureId;
     this.inputExternalTextureProcessor = inputExternalTextureProcessor;
     this.textureProcessors = textureProcessors;
 
-    pendingInputFrameCount = new AtomicInteger();
-    inputSurfaceTexture = new SurfaceTexture(inputExternalTexture.texId);
+    inputSurfaceTexture = new SurfaceTexture(inputExternalTextureId);
     inputSurface = new Surface(inputSurfaceTexture);
     inputSurfaceTextureTransformMatrix = new float[16];
+    pendingInputFrames = new ConcurrentLinkedQueue<>();
   }
 
   @Override
   public Surface getInputSurface() {
-    // TODO(b/227625423): Allow input surface to be recreated for input size change.
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> frameProcessingTaskExecutor.submit(this::processInputFrame));
     return inputSurface;
   }
 
   @Override
+  public void setInputFrameInfo(FrameInfo inputFrameInfo) {
+    nextInputFrameInfo = inputFrameInfo;
+  }
+
+  @Override
   public void registerInputFrame() {
     checkState(!inputStreamEnded);
-    pendingInputFrameCount.incrementAndGet();
+    checkStateNotNull(
+        nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
+
+    pendingInputFrames.add(nextInputFrameInfo);
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return pendingInputFrameCount.get();
+    return pendingInputFrames.size();
   }
 
   @Override
@@ -401,10 +396,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     long presentationTimeUs = inputFrameTimeNs / 1000 - streamOffsetUs;
     inputSurfaceTexture.getTransformMatrix(inputSurfaceTextureTransformMatrix);
     inputExternalTextureProcessor.setTextureTransformMatrix(inputSurfaceTextureTransformMatrix);
+    FrameInfo inputFrameInfo = pendingInputFrames.remove();
     checkState(
         inputExternalTextureProcessor.maybeQueueInputFrame(
-            inputExternalTexture, presentationTimeUs));
-    checkState(pendingInputFrameCount.getAndDecrement() > 0);
+            new TextureInfo(
+                inputExternalTextureId,
+                /* fboId= */ C.INDEX_UNSET,
+                inputFrameInfo.width,
+                inputFrameInfo.height),
+            presentationTimeUs));
     // After the inputExternalTextureProcessor has produced an output frame, it is processed
     // asynchronously by the texture processors chained after it.
   }
