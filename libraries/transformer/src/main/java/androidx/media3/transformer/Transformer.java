@@ -103,7 +103,7 @@ public final class Transformer {
     private boolean removeVideo;
     private String containerMimeType;
     private TransformationRequest transformationRequest;
-    private ImmutableList<GlEffect> videoFrameEffects;
+    private ImmutableList<GlEffect> videoEffects;
     private ListenerSet<Transformer.Listener> listeners;
     private DebugViewProvider debugViewProvider;
     private Looper looper;
@@ -127,7 +127,7 @@ public final class Transformer {
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
-      videoFrameEffects = ImmutableList.of();
+      videoEffects = ImmutableList.of();
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
@@ -139,7 +139,7 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.containerMimeType = transformer.containerMimeType;
       this.transformationRequest = transformer.transformationRequest;
-      this.videoFrameEffects = transformer.videoFrameEffects;
+      this.videoEffects = transformer.videoEffects;
       this.listeners = transformer.listeners;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
@@ -176,8 +176,8 @@ public final class Transformer {
      * @param effects The {@linkplain GlEffect effects} to apply to each video frame.
      * @return This builder.
      */
-    public Builder setVideoFrameEffects(List<GlEffect> effects) {
-      this.videoFrameEffects = ImmutableList.copyOf(effects);
+    public Builder setVideoEffects(List<GlEffect> effects) {
+      this.videoEffects = ImmutableList.copyOf(effects);
       return this;
     }
 
@@ -422,7 +422,7 @@ public final class Transformer {
           removeVideo,
           containerMimeType,
           transformationRequest,
-          videoFrameEffects,
+          videoEffects,
           listeners,
           looper,
           clock,
@@ -546,7 +546,7 @@ public final class Transformer {
   private final boolean removeVideo;
   private final String containerMimeType;
   private final TransformationRequest transformationRequest;
-  private final ImmutableList<GlEffect> videoFrameEffects;
+  private final ImmutableList<GlEffect> videoEffects;
   private final Looper looper;
   private final Clock clock;
   private final Transformer.DebugViewProvider debugViewProvider;
@@ -567,7 +567,7 @@ public final class Transformer {
       boolean removeVideo,
       String containerMimeType,
       TransformationRequest transformationRequest,
-      ImmutableList<GlEffect> videoFrameEffects,
+      ImmutableList<GlEffect> videoEffects,
       ListenerSet<Transformer.Listener> listeners,
       Looper looper,
       Clock clock,
@@ -582,7 +582,7 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.containerMimeType = containerMimeType;
     this.transformationRequest = transformationRequest;
-    this.videoFrameEffects = videoFrameEffects;
+    this.videoEffects = videoEffects;
     this.listeners = listeners;
     this.looper = looper;
     this.clock = clock;
@@ -731,7 +731,7 @@ public final class Transformer {
                     removeVideo,
                     transformationRequest,
                     mediaItem.clippingConfiguration.startsAtKeyFrame,
-                    videoFrameEffects,
+                    videoEffects,
                     encoderFactory,
                     decoderFactory,
                     new FallbackListener(mediaItem, listeners, transformationRequest),
@@ -845,7 +845,7 @@ public final class Transformer {
     private final boolean removeVideo;
     private final TransformationRequest transformationRequest;
     private final boolean clippingStartsAtKeyFrame;
-    private final ImmutableList<GlEffect> videoFrameEffects;
+    private final ImmutableList<GlEffect> videoEffects;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final FallbackListener fallbackListener;
@@ -859,7 +859,7 @@ public final class Transformer {
         boolean removeVideo,
         TransformationRequest transformationRequest,
         boolean clippingStartsAtKeyFrame,
-        ImmutableList<GlEffect> videoFrameEffects,
+        ImmutableList<GlEffect> videoEffects,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         FallbackListener fallbackListener,
@@ -871,7 +871,7 @@ public final class Transformer {
       this.removeVideo = removeVideo;
       this.transformationRequest = transformationRequest;
       this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
-      this.videoFrameEffects = videoFrameEffects;
+      this.videoEffects = videoEffects;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.fallbackListener = fallbackListener;
@@ -910,7 +910,7 @@ public final class Transformer {
                 mediaClock,
                 transformationRequest,
                 clippingStartsAtKeyFrame,
-                videoFrameEffects,
+                videoEffects,
                 encoderFactory,
                 decoderFactory,
                 asyncErrorListener,
