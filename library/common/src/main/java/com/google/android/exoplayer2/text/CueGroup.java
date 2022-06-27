@@ -46,7 +46,7 @@ public final class CueGroup implements Bundleable {
   /**
    * The presentation time of the {@link #cues}, in microseconds.
    *
-   * <p>This time is an offset from the start of the current {@link Timeline.Period}
+   * <p>This time is an offset from the start of the current {@link Timeline.Period}.
    */
   public final long presentationTimeUs;
 

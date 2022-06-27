@@ -12,8 +12,11 @@ MediaCodecAdapter (exotest.video.mpeg2):
   buffers[2] = length 0, hash 1
 MetadataOutput:
   Metadata[0]:
+    presentationTimeUs = 33366
     entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
   Metadata[1]:
+    presentationTimeUs = 33366
     entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
   Metadata[2]:
+    presentationTimeUs = 33366
     entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
