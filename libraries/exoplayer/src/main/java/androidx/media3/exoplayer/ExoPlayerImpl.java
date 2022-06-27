@@ -433,6 +433,9 @@ import java.util.concurrent.TimeoutException;
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     verifyApplicationThread();
     internalPlayer.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
+    for (AudioOffloadListener listener : audioOffloadListeners) {
+      listener.onExperimentalOffloadSchedulingEnabledChanged(offloadSchedulingEnabled);
+    }
   }
 
   @Override
@@ -1962,12 +1965,6 @@ import java.util.concurrent.TimeoutException;
     updateAvailableCommands();
     listeners.flushEvents();
 
-    if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
-      for (AudioOffloadListener listener : audioOffloadListeners) {
-        listener.onExperimentalOffloadSchedulingEnabledChanged(
-            newPlaybackInfo.offloadSchedulingEnabled);
-      }
-    }
     if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
       for (AudioOffloadListener listener : audioOffloadListeners) {
         listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload);
