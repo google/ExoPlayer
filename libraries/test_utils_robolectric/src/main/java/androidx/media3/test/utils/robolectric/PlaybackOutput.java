@@ -122,6 +122,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
     for (int i = 0; i < metadatas.size(); i++) {
       dumper.startBlock("Metadata[" + i + "]");
       Metadata metadata = metadatas.get(i);
+      dumper.add("presentationTimeUs", metadata.presentationTimeUs);
       for (int j = 0; j < metadata.length(); j++) {
         dumper.add("entry[" + j + "]", getEntryAsString(metadata.get(j)));
       }

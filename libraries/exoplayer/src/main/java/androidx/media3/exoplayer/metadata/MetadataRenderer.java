@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.metadata;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.os.Handler;
@@ -36,6 +37,7 @@ import androidx.media3.extractor.metadata.MetadataDecoder;
 import androidx.media3.extractor.metadata.MetadataInputBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 
 /** A renderer for metadata. */
 @UnstableApi
@@ -53,8 +55,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private long subsampleOffsetUs;
-  private long pendingMetadataTimestampUs;
   @Nullable private Metadata pendingMetadata;
+  private long outputStreamOffsetUs;
 
   /**
    * @param output The output.
@@ -85,7 +87,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
         outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = Assertions.checkNotNull(decoderFactory);
     buffer = new MetadataInputBuffer();
-    pendingMetadataTimestampUs = C.TIME_UNSET;
+    outputStreamOffsetUs = C.TIME_UNSET;
   }
 
   @Override
@@ -106,12 +108,12 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     decoder = decoderFactory.createDecoder(formats[0]);
+    outputStreamOffsetUs = offsetUs;
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
     pendingMetadata = null;
-    pendingMetadataTimestampUs = C.TIME_UNSET;
     inputStreamEnded = false;
     outputStreamEnded = false;
   }
@@ -158,8 +160,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   @Override
   protected void onDisabled() {
     pendingMetadata = null;
-    pendingMetadataTimestampUs = C.TIME_UNSET;
     decoder = null;
+    outputStreamOffsetUs = C.TIME_UNSET;
   }
 
   @Override
@@ -200,9 +202,9 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
             List<Metadata.Entry> entries = new ArrayList<>(metadata.length());
             decodeWrappedMetadata(metadata, entries);
             if (!entries.isEmpty()) {
-              Metadata expandedMetadata = new Metadata(entries);
+              Metadata expandedMetadata =
+                  new Metadata(getPresentationTimeUs(buffer.timeUs), entries);
               pendingMetadata = expandedMetadata;
-              pendingMetadataTimestampUs = buffer.timeUs;
             }
           }
         }
@@ -214,10 +216,10 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private boolean outputMetadata(long positionUs) {
     boolean didOutput = false;
-    if (pendingMetadata != null && pendingMetadataTimestampUs <= positionUs) {
+    if (pendingMetadata != null
+        && pendingMetadata.presentationTimeUs <= getPresentationTimeUs(positionUs)) {
       invokeRenderer(pendingMetadata);
       pendingMetadata = null;
-      pendingMetadataTimestampUs = C.TIME_UNSET;
       didOutput = true;
     }
     if (inputStreamEnded && pendingMetadata == null) {
@@ -236,5 +238,13 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private void invokeRendererInternal(Metadata metadata) {
     output.onMetadata(metadata);
+  }
+
+  @SideEffectFree
+  private long getPresentationTimeUs(long positionUs) {
+    checkState(positionUs != C.TIME_UNSET);
+    checkState(outputStreamOffsetUs != C.TIME_UNSET);
+
+    return positionUs - outputStreamOffsetUs;
   }
 }
