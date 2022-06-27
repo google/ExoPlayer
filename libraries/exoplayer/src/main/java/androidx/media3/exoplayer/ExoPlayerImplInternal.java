@@ -817,10 +817,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     this.offloadSchedulingEnabled = offloadSchedulingEnabled;
-    @Player.State int state = playbackInfo.playbackState;
-    if (offloadSchedulingEnabled || state == Player.STATE_ENDED || state == Player.STATE_IDLE) {
-      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
-    } else {
+    if (!offloadSchedulingEnabled && playbackInfo.sleepingForOffload) {
+      // We need to wake the player up if offload scheduling is disabled and we are sleeping.
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     }
   }
@@ -1080,21 +1078,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
       throw new IllegalStateException("Playback stuck buffering and not loading");
     }
 
-    if (offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled) {
-      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
-    }
-
-    boolean sleepingForOffload = false;
-    if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
-        || playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      sleepingForOffload = !maybeScheduleWakeup(operationStartTimeMs, ACTIVE_INTERVAL_MS);
-    } else if (enabledRendererCount != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
-      scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
-    }
+    boolean isPlaying = shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY;
+    boolean sleepingForOffload = offloadSchedulingEnabled && requestForRendererSleep && isPlaying;
     if (playbackInfo.sleepingForOffload != sleepingForOffload) {
       playbackInfo = playbackInfo.copyWithSleepingForOffload(sleepingForOffload);
     }
     requestForRendererSleep = false; // A sleep request is only valid for the current doSomeWork.
+
+    if (sleepingForOffload || playbackInfo.playbackState == Player.STATE_ENDED) {
+      // No need to schedule next work.
+      return;
+    } else if (isPlaying || playbackInfo.playbackState == Player.STATE_BUFFERING) {
+      // We are actively playing or waiting for data to be ready. Schedule next work quickly.
+      scheduleNextWork(operationStartTimeMs, ACTIVE_INTERVAL_MS);
+    } else if (playbackInfo.playbackState == Player.STATE_READY && enabledRendererCount != 0) {
+      // We are ready, but not playing. Schedule next work less often to handle non-urgent updates.
+      scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
+    }
 
     TraceUtil.endSection();
   }
@@ -1126,15 +1126,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
     handler.sendEmptyMessageAtTime(MSG_DO_SOME_WORK, thisOperationStartTimeMs + intervalMs);
-  }
-
-  private boolean maybeScheduleWakeup(long operationStartTimeMs, long intervalMs) {
-    if (offloadSchedulingEnabled && requestForRendererSleep) {
-      return false;
-    }
-
-    scheduleNextWork(operationStartTimeMs, intervalMs);
-    return true;
   }
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
@@ -1467,7 +1458,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* bufferedPositionUs= */ startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ startPositionUs,
-            offloadSchedulingEnabled,
             /* sleepingForOffload= */ false);
     if (releaseMediaSourceList) {
       mediaSourceList.release();

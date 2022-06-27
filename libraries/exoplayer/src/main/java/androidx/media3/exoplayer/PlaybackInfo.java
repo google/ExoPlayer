@@ -74,8 +74,6 @@ import java.util.List;
   public final @PlaybackSuppressionReason int playbackSuppressionReason;
   /** The playback parameters. */
   public final PlaybackParameters playbackParameters;
-  /** Whether offload scheduling is enabled for the main player loop. */
-  public final boolean offloadSchedulingEnabled;
   /** Whether the main player loop is sleeping, while using offload scheduling. */
   public final boolean sleepingForOffload;
 
@@ -122,7 +120,6 @@ import java.util.List;
         /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
         /* positionUs= */ 0,
-        /* offloadSchedulingEnabled= */ false,
         /* sleepingForOffload= */ false);
   }
 
@@ -145,7 +142,6 @@ import java.util.List;
    * @param bufferedPositionUs See {@link #bufferedPositionUs}.
    * @param totalBufferedDurationUs See {@link #totalBufferedDurationUs}.
    * @param positionUs See {@link #positionUs}.
-   * @param offloadSchedulingEnabled See {@link #offloadSchedulingEnabled}.
    * @param sleepingForOffload See {@link #sleepingForOffload}.
    */
   public PlaybackInfo(
@@ -166,7 +162,6 @@ import java.util.List;
       long bufferedPositionUs,
       long totalBufferedDurationUs,
       long positionUs,
-      boolean offloadSchedulingEnabled,
       boolean sleepingForOffload) {
     this.timeline = timeline;
     this.periodId = periodId;
@@ -185,7 +180,6 @@ import java.util.List;
     this.bufferedPositionUs = bufferedPositionUs;
     this.totalBufferedDurationUs = totalBufferedDurationUs;
     this.positionUs = positionUs;
-    this.offloadSchedulingEnabled = offloadSchedulingEnabled;
     this.sleepingForOffload = sleepingForOffload;
   }
 
@@ -237,7 +231,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -267,7 +260,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -297,7 +289,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -327,7 +318,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -357,7 +347,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -387,7 +376,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -421,7 +409,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -451,38 +438,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
-        sleepingForOffload);
-  }
-
-  /**
-   * Copies playback info with new offloadSchedulingEnabled.
-   *
-   * @param offloadSchedulingEnabled New offloadSchedulingEnabled state. See {@link
-   *     #offloadSchedulingEnabled}.
-   * @return Copied playback info with new offload scheduling state.
-   */
-  @CheckResult
-  public PlaybackInfo copyWithOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
-    return new PlaybackInfo(
-        timeline,
-        periodId,
-        requestedContentPositionUs,
-        discontinuityStartPositionUs,
-        playbackState,
-        playbackError,
-        isLoading,
-        trackGroups,
-        trackSelectorResult,
-        staticMetadata,
-        loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
-        playbackParameters,
-        bufferedPositionUs,
-        totalBufferedDurationUs,
-        positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 
@@ -512,7 +467,6 @@ import java.util.List;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled,
         sleepingForOffload);
   }
 }
