@@ -629,7 +629,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         surface = placeholderSurface;
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
-        if (codecInfo != null && shouldUseDummySurface(codecInfo)) {
+        if (codecInfo != null && shouldUsePlaceholderSurface(codecInfo)) {
           placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
           surface = placeholderSurface;
         }
@@ -675,7 +675,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
-    return surface != null || shouldUseDummySurface(codecInfo);
+    return surface != null || shouldUsePlaceholderSurface(codecInfo);
   }
 
   @Override
@@ -706,7 +706,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             deviceNeedsNoPostProcessWorkaround,
             tunneling ? tunnelingAudioSessionId : C.AUDIO_SESSION_ID_UNSET);
     if (surface == null) {
-      if (!shouldUseDummySurface(codecInfo)) {
+      if (!shouldUsePlaceholderSurface(codecInfo)) {
         throw new IllegalStateException();
       }
       if (placeholderSurface == null) {
@@ -1333,7 +1333,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     maybeNotifyRenderedFirstFrame();
   }
 
-  private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
+  private boolean shouldUsePlaceholderSurface(MediaCodecInfo codecInfo) {
     return Util.SDK_INT >= 23
         && !tunneling
         && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
