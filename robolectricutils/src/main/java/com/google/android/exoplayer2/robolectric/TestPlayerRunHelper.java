@@ -184,41 +184,6 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until {@link
-   * ExoPlayer.AudioOffloadListener#onExperimentalOffloadSchedulingEnabledChanged} is called or a
-   * playback error occurs.
-   *
-   * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
-   *
-   * @param player The {@link Player}.
-   * @return The new offloadSchedulingEnabled state.
-   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
-   *     exceeded.
-   */
-  public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(ExoPlayer player)
-      throws TimeoutException {
-    verifyMainTestThread(player);
-    AtomicReference<@NullableType Boolean> offloadSchedulingEnabledReceiver =
-        new AtomicReference<>();
-    ExoPlayer.AudioOffloadListener listener =
-        new ExoPlayer.AudioOffloadListener() {
-          @Override
-          public void onExperimentalOffloadSchedulingEnabledChanged(
-              boolean offloadSchedulingEnabled) {
-            offloadSchedulingEnabledReceiver.set(offloadSchedulingEnabled);
-          }
-        };
-    player.addAudioOffloadListener(listener);
-    runMainLooperUntil(
-        () -> offloadSchedulingEnabledReceiver.get() != null || player.getPlayerError() != null);
-    player.removeAudioOffloadListener(listener);
-    if (player.getPlayerError() != null) {
-      throw new IllegalStateException(player.getPlayerError());
-    }
-    return checkNotNull(offloadSchedulingEnabledReceiver.get());
-  }
-
-  /**
-   * Runs tasks of the main {@link Looper} until {@link
    * ExoPlayer.AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)} is called or a
    * playback error occurs.
    *
