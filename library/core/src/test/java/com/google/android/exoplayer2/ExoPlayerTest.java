@@ -53,7 +53,6 @@ import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.play
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPositionDiscontinuity;
-import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilReceiveOffloadSchedulingEnabledNewState;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilSleepingForOffload;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilTimelineChanged;
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
@@ -9625,47 +9624,16 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void enableOffloadSchedulingWhileIdle_isToggled_isReported() throws Exception {
+  public void enableOffloadScheduling_isReported() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer.AudioOffloadListener mockListener = mock(ExoPlayer.AudioOffloadListener.class);
+    player.addAudioOffloadListener(mockListener);
 
     player.experimentalSetOffloadSchedulingEnabled(true);
-    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isTrue();
+    verify(mockListener).onExperimentalOffloadSchedulingEnabledChanged(true);
 
     player.experimentalSetOffloadSchedulingEnabled(false);
-    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
-  }
-
-  @Test
-  public void enableOffloadSchedulingWhilePlaying_isToggled_isReported() throws Exception {
-    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
-    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
-    Timeline timeline = new FakeTimeline();
-    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.prepare();
-    player.play();
-
-    player.experimentalSetOffloadSchedulingEnabled(true);
-    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isTrue();
-
-    player.experimentalSetOffloadSchedulingEnabled(false);
-    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
-  }
-
-  @Test
-  public void enableOffloadSchedulingWhileSleepingForOffload_isDisabled_isReported()
-      throws Exception {
-    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
-    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
-    Timeline timeline = new FakeTimeline();
-    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
-    player.prepare();
-    player.play();
-    runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
-
-    player.experimentalSetOffloadSchedulingEnabled(false);
-
-    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
+    verify(mockListener).onExperimentalOffloadSchedulingEnabledChanged(false);
   }
 
   @Test
