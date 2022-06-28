@@ -23,15 +23,17 @@ import static androidx.media3.common.util.Assertions.checkArgument;
   public final int width;
   /** The height of the frame, in pixels. */
   public final int height;
+  /** The ratio of width over height for each pixel. */
+  public final float pixelWidthHeightRatio;
 
-  // TODO(b/227625423): Add pixelWidthHeightRatio.
   // TODO(b/227624622): Add color space information for HDR.
 
-  public FrameInfo(int width, int height) {
+  public FrameInfo(int width, int height, float pixelWidthHeightRatio) {
     checkArgument(width > 0, "width must be positive, but is: " + width);
     checkArgument(height > 0, "height must be positive, but is: " + height);
 
     this.width = width;
     this.height = height;
+    this.pixelWidthHeightRatio = pixelWidthHeightRatio;
   }
 }
