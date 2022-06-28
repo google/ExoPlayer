@@ -46,6 +46,9 @@ import android.view.Surface;
    *
    * <p>The new input information is applied from the next frame {@linkplain #registerInputFrame()
    * registered} onwards.
+   *
+   * <p>Pixels are expanded using the {@link FrameInfo#pixelWidthHeightRatio} so that the output
+   * frames' pixels have a ratio of 1.
    */
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
