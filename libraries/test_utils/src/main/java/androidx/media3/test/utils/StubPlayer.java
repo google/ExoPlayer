@@ -70,7 +70,7 @@ public class StubPlayer extends BasePlayer {
   }
 
   @Override
-  public PlaybackException getPlayerError() {
+  public @Nullable PlaybackException getPlayerError() {
     throw new UnsupportedOperationException();
   }
 
