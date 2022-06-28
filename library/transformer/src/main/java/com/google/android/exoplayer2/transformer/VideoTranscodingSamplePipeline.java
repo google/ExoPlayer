@@ -119,7 +119,6 @@ import org.checkerframework.dataflow.qual.Pure;
                   }
                 }
               },
-              inputFormat.pixelWidthHeightRatio,
               streamOffsetUs,
               effectsListBuilder.build(),
               /* outputSurfaceProvider= */ encoderWrapper,
@@ -129,7 +128,8 @@ import org.checkerframework.dataflow.qual.Pure;
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
-    frameProcessor.setInputFrameInfo(new FrameInfo(decodedWidth, decodedHeight));
+    frameProcessor.setInputFrameInfo(
+        new FrameInfo(decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio));
 
     decoder =
         decoderFactory.createForVideoDecoding(
