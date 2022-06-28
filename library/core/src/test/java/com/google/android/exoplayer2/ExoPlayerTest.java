@@ -113,6 +113,7 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -6499,6 +6500,53 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
 
     assertThat(positionAfterSetShuffleOrder.get()).isAtLeast(5000);
+  }
+
+  @Test
+  public void setShuffleOrder_notifiesTimelineChanged() throws Exception {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    // No callback expected for this call, because the (empty) timeline doesn't change. We start
+    // with a deterministic shuffle order, to ensure when we call setShuffleOrder again below the
+    // order is definitely different (otherwise the test is flaky when the existing shuffle order
+    // matches the shuffle order passed in below).
+    player.setShuffleOrder(new FakeShuffleOrder(0));
+    player.setMediaSources(
+        ImmutableList.of(new FakeMediaSource(), new FakeMediaSource(), new FakeMediaSource()));
+    Player.Listener mockListener = mock(Player.Listener.class);
+    player.addListener(mockListener);
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 5000);
+    player.play();
+    ShuffleOrder.DefaultShuffleOrder newShuffleOrder =
+        new ShuffleOrder.DefaultShuffleOrder(player.getMediaItemCount(), /* randomSeed= */ 5);
+    player.setShuffleOrder(newShuffleOrder);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    ArgumentCaptor<Timeline> timelineCaptor = ArgumentCaptor.forClass(Timeline.class);
+    verify(mockListener)
+        .onTimelineChanged(
+            timelineCaptor.capture(), eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+
+    Timeline capturedTimeline = Iterables.getOnlyElement(timelineCaptor.getAllValues());
+    List<Integer> newShuffleOrderIndexes = new ArrayList<>(newShuffleOrder.getLength());
+    for (int i = newShuffleOrder.getFirstIndex();
+        i != C.INDEX_UNSET;
+        i = newShuffleOrder.getNextIndex(i)) {
+      newShuffleOrderIndexes.add(i);
+    }
+    List<Integer> capturedTimelineShuffleIndexes = new ArrayList<>(newShuffleOrder.getLength());
+    for (int i = capturedTimeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+        i != C.INDEX_UNSET;
+        i =
+            capturedTimeline.getNextWindowIndex(
+                i, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true)) {
+      capturedTimelineShuffleIndexes.add(i);
+    }
+    assertThat(capturedTimelineShuffleIndexes).isEqualTo(newShuffleOrderIndexes);
   }
 
   @Test

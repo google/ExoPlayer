@@ -1340,6 +1340,27 @@ public abstract class Timeline implements Bundleable {
         return false;
       }
     }
+
+    // Check shuffled order
+    int windowIndex = getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+    if (windowIndex != other.getFirstWindowIndex(/* shuffleModeEnabled= */ true)) {
+      return false;
+    }
+    int lastWindowIndex = getLastWindowIndex(/* shuffleModeEnabled= */ true);
+    if (lastWindowIndex != other.getLastWindowIndex(/* shuffleModeEnabled= */ true)) {
+      return false;
+    }
+    while (windowIndex != lastWindowIndex) {
+      int nextWindowIndex =
+          getNextWindowIndex(windowIndex, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true);
+      if (nextWindowIndex
+          != other.getNextWindowIndex(
+              windowIndex, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true)) {
+        return false;
+      }
+      windowIndex = nextWindowIndex;
+    }
+
     return true;
   }
 
@@ -1356,6 +1377,13 @@ public abstract class Timeline implements Bundleable {
     for (int i = 0; i < getPeriodCount(); i++) {
       result = 31 * result + getPeriod(i, period, /* setIds= */ true).hashCode();
     }
+
+    for (int windowIndex = getFirstWindowIndex(true);
+        windowIndex != C.INDEX_UNSET;
+        windowIndex = getNextWindowIndex(windowIndex, Player.REPEAT_MODE_OFF, true)) {
+      result = 31 * result + windowIndex;
+    }
+
     return result;
   }
 
