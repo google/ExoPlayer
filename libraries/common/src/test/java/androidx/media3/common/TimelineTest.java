@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem.LiveConfiguration;
+import androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder;
 import androidx.media3.test.utils.FakeTimeline;
 import androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition;
 import androidx.media3.test.utils.TimelineAsserts;
@@ -62,6 +63,50 @@ public class TimelineTest {
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
+  }
+
+  @Test
+  public void timelineEquals() {
+    ImmutableList<TimelineWindowDefinition> timelineWindowDefinitions =
+        ImmutableList.of(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 111),
+            new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ 222),
+            new TimelineWindowDefinition(/* periodCount= */ 3, /* id= */ 333));
+    Timeline timeline1 =
+        new FakeTimeline(timelineWindowDefinitions.toArray(new TimelineWindowDefinition[0]));
+    Timeline timeline2 =
+        new FakeTimeline(timelineWindowDefinitions.toArray(new TimelineWindowDefinition[0]));
+
+    assertThat(timeline1).isEqualTo(timeline2);
+    assertThat(timeline1.hashCode()).isEqualTo(timeline2.hashCode());
+  }
+
+  @Test
+  public void timelineEquals_includesShuffleOrder() {
+    ImmutableList<TimelineWindowDefinition> timelineWindowDefinitions =
+        ImmutableList.of(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 111),
+            new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ 222),
+            new TimelineWindowDefinition(/* periodCount= */ 3, /* id= */ 333));
+    Timeline timeline =
+        new FakeTimeline(
+            new Object[0],
+            new DefaultShuffleOrder(timelineWindowDefinitions.size(), /* randomSeed= */ 5),
+            timelineWindowDefinitions.toArray(new TimelineWindowDefinition[0]));
+    Timeline timelineWithEquivalentShuffleOrder =
+        new FakeTimeline(
+            new Object[0],
+            new DefaultShuffleOrder(timelineWindowDefinitions.size(), /* randomSeed= */ 5),
+            timelineWindowDefinitions.toArray(new TimelineWindowDefinition[0]));
+    Timeline timelineWithDifferentShuffleOrder =
+        new FakeTimeline(
+            new Object[0],
+            new DefaultShuffleOrder(timelineWindowDefinitions.size(), /* randomSeed= */ 3),
+            timelineWindowDefinitions.toArray(new TimelineWindowDefinition[0]));
+
+    assertThat(timeline).isEqualTo(timelineWithEquivalentShuffleOrder);
+    assertThat(timeline.hashCode()).isEqualTo(timelineWithEquivalentShuffleOrder.hashCode());
+    assertThat(timeline).isNotEqualTo(timelineWithDifferentShuffleOrder);
   }
 
   @Test

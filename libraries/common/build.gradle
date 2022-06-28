@@ -75,6 +75,7 @@ dependencies {
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'lib-exoplayer')
     testImplementation project(modulePrefix + 'test-utils')
 }
 
