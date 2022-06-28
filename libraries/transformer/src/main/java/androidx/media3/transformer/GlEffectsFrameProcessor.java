@@ -50,8 +50,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param context A {@link Context}.
    * @param listener A {@link Listener}.
-   * @param pixelWidthHeightRatio The ratio of width over height for each pixel. Pixels are expanded
-   *     by this ratio so that the output frame's pixels have a ratio of 1.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
    * @param outputSurfaceProvider A {@link SurfaceInfo.Provider} managing the output {@link
    *     Surface}.
@@ -64,7 +62,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static GlEffectsFrameProcessor create(
       Context context,
       FrameProcessor.Listener listener,
-      float pixelWidthHeightRatio,
       long streamOffsetUs,
       List<GlEffect> effects,
       SurfaceInfo.Provider outputSurfaceProvider,
@@ -80,7 +77,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 createOpenGlObjectsAndFrameProcessor(
                     context,
                     listener,
-                    pixelWidthHeightRatio,
                     streamOffsetUs,
                     effects,
                     outputSurfaceProvider,
@@ -110,7 +106,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
       FrameProcessor.Listener listener,
-      float pixelWidthHeightRatio,
       long streamOffsetUs,
       List<GlEffect> effects,
       SurfaceInfo.Provider outputSurfaceProvider,
@@ -136,20 +131,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
-    ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
-        new ImmutableList.Builder<>();
-    if (pixelWidthHeightRatio != 1f) {
-      matrixTransformationListBuilder.add(
-          createPixelWidthHeightRatioTransformation(pixelWidthHeightRatio));
-    }
-
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(
             context,
             effects,
             eglDisplay,
             eglContext,
-            matrixTransformationListBuilder,
             outputSurfaceProvider,
             streamOffsetUs,
             listener,
@@ -174,26 +161,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Returns a new {@link GlMatrixTransformation} to expand or shrink the frame based on the {@code
-   * pixelWidthHeightRatio}.
-   *
-   * <p>If {@code pixelWidthHeightRatio} is 1, this method returns an identity transformation that
-   * can be ignored.
-   */
-  private static GlMatrixTransformation createPixelWidthHeightRatioTransformation(
-      float pixelWidthHeightRatio) {
-    if (pixelWidthHeightRatio > 1f) {
-      return new ScaleToFitTransformation.Builder()
-          .setScale(/* scaleX= */ pixelWidthHeightRatio, /* scaleY= */ 1f)
-          .build();
-    } else {
-      return new ScaleToFitTransformation.Builder()
-          .setScale(/* scaleX= */ 1f, /* scaleY= */ 1f / pixelWidthHeightRatio)
-          .build();
-    }
-  }
-
-  /**
    * Combines consecutive {@link GlMatrixTransformation} instances into a single {@link
    * MatrixTransformationProcessor} and converts all other {@link GlEffect} instances to separate
    * {@link GlTextureProcessor} instances.
@@ -207,7 +174,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       List<GlEffect> effects,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder,
       SurfaceInfo.Provider outputSurfaceProvider,
       long streamOffsetUs,
       FrameProcessor.Listener listener,
@@ -215,6 +181,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
+        new ImmutableList.Builder<>();
+    ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
     for (int i = 0; i < effects.size(); i++) {
       GlEffect effect = effects.get(i);
@@ -396,7 +364,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long presentationTimeUs = inputFrameTimeNs / 1000 - streamOffsetUs;
     inputSurfaceTexture.getTransformMatrix(inputSurfaceTextureTransformMatrix);
     inputExternalTextureProcessor.setTextureTransformMatrix(inputSurfaceTextureTransformMatrix);
-    FrameInfo inputFrameInfo = pendingInputFrames.remove();
+    FrameInfo inputFrameInfo = adjustForPixelWidthHeightRatio(pendingInputFrames.remove());
     checkState(
         inputExternalTextureProcessor.maybeQueueInputFrame(
             new TextureInfo(
@@ -407,6 +375,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             presentationTimeUs));
     // After the inputExternalTextureProcessor has produced an output frame, it is processed
     // asynchronously by the texture processors chained after it.
+  }
+
+  /**
+   * Expands or shrinks the frame based on the {@link FrameInfo#pixelWidthHeightRatio} and returns a
+   * new {@link FrameInfo} instance with scaled dimensions and {@link
+   * FrameInfo#pixelWidthHeightRatio} 1.
+   */
+  private FrameInfo adjustForPixelWidthHeightRatio(FrameInfo frameInfo) {
+    if (frameInfo.pixelWidthHeightRatio > 1f) {
+      return new FrameInfo(
+          (int) (frameInfo.width * frameInfo.pixelWidthHeightRatio),
+          frameInfo.height,
+          /* pixelWidthHeightRatio= */ 1);
+    } else if (frameInfo.pixelWidthHeightRatio < 1f) {
+      return new FrameInfo(
+          frameInfo.width,
+          (int) (frameInfo.height / frameInfo.pixelWidthHeightRatio),
+          /* pixelWidthHeightRatio= */ 1);
+    } else {
+      return frameInfo;
+    }
   }
 
   /**
