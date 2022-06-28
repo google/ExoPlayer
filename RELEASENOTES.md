@@ -2,6 +2,11 @@
 
 ### Unreleased changes
 
+*   Core library:
+    *   Ensure that changing the `ShuffleOrder` with `ExoPlayer.setShuffleOrder`
+        results in a call to `Player.Listener#onTimelineChanged` with
+        `reason=Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED`
+        ([#9889](https://github.com/google/ExoPlayer/issues/9889)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).

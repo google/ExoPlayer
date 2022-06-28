@@ -710,6 +710,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     verifyApplicationThread();
+    this.shuffleOrder = shuffleOrder;
     Timeline timeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
         maskTimelineAndPosition(
@@ -718,7 +719,6 @@ import java.util.concurrent.TimeoutException;
             maskWindowPositionMsOrGetPeriodPositionUs(
                 timeline, getCurrentMediaItemIndex(), getCurrentPosition()));
     pendingOperationAcks++;
-    this.shuffleOrder = shuffleOrder;
     internalPlayer.setShuffleOrder(shuffleOrder);
     updatePlaybackInfo(
         newPlaybackInfo,
