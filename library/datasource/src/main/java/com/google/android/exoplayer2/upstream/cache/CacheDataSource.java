@@ -630,8 +630,7 @@ public final class CacheDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
       } else if (isReadingFromUpstream()
-          && (currentDataSpec.length == C.LENGTH_UNSET
-              || currentDataSourceBytesRead < currentDataSpec.length)) {
+          && (currentDataSpec.length == C.LENGTH_UNSET)) {
         // We've encountered RESULT_END_OF_INPUT from the upstream DataSource at a position not
         // imposed by the current DataSpec. This must mean that we've reached the end of the
         // resource.
