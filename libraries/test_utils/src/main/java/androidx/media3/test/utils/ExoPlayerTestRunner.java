@@ -43,6 +43,7 @@ import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -536,11 +537,8 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
    * @param timelines A list of expected {@link Timeline}s.
    */
   public void assertTimelinesSame(Timeline... timelines) {
-    assertThat(this.timelines).hasSize(timelines.length);
-    for (int i = 0; i < timelines.length; i++) {
-      assertThat(new NoUidTimeline(timelines[i]))
-          .isEqualTo(new NoUidTimeline(this.timelines.get(i)));
-    }
+    TestUtil.assertTimelinesSame(
+        ImmutableList.copyOf(this.timelines), ImmutableList.copyOf(timelines));
   }
 
   /**

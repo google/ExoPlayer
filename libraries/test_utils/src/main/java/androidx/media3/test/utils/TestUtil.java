@@ -44,6 +44,7 @@ import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.metadata.MetadataInputBuffer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
+import com.google.common.truth.Correspondence;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -207,11 +208,20 @@ public class TestUtil {
    */
   public static void assertTimelinesSame(
       List<Timeline> actualTimelines, List<Timeline> expectedTimelines) {
-    assertThat(actualTimelines).hasSize(expectedTimelines.size());
-    for (int i = 0; i < actualTimelines.size(); i++) {
-      assertThat(new NoUidTimeline(actualTimelines.get(i)))
-          .isEqualTo(new NoUidTimeline(expectedTimelines.get(i)));
-    }
+    assertThat(actualTimelines)
+        .comparingElementsUsing(
+            Correspondence.from(
+                TestUtil::timelinesAreSame, "is equal to (ignoring Window.uid and Period.uid)"))
+        .containsExactlyElementsIn(expectedTimelines)
+        .inOrder();
+  }
+
+  /**
+   * Returns true if {@code thisTimeline} is equal to {@code thatTimeline}, ignoring {@link
+   * Timeline.Window#uid} and {@link Timeline.Period#uid} values.
+   */
+  public static boolean timelinesAreSame(Timeline thisTimeline, Timeline thatTimeline) {
+    return new NoUidTimeline(thisTimeline).equals(new NoUidTimeline(thatTimeline));
   }
 
   /**
@@ -493,5 +503,48 @@ public class TestUtil {
     }
 
     return list;
+  }
+
+  private static final class NoUidTimeline extends Timeline {
+
+    private final Timeline delegate;
+
+    public NoUidTimeline(Timeline timeline) {
+      this.delegate = timeline;
+    }
+
+    @Override
+    public int getWindowCount() {
+      return delegate.getWindowCount();
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+      delegate.getWindow(windowIndex, window, defaultPositionProjectionUs);
+      window.uid = 0;
+      return window;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return delegate.getPeriodCount();
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      delegate.getPeriod(periodIndex, period, setIds);
+      period.uid = 0;
+      return period;
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      return delegate.getIndexOfPeriod(uid);
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      return 0;
+    }
   }
 }
