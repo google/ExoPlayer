@@ -37,7 +37,9 @@ This release corresponds to the
     *   Rename `TracksInfo` to `Tracks` and `TracksInfo.TrackGroupInfo` to
         `Tracks.Group`. `Player.getCurrentTracksInfo` and
         `Player.Listener.onTracksInfoChanged` have also been renamed to
-        `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`.
+        `Player.getCurrentTracks` and `Player.Listener.onTracksChanged`. This
+        includes 'un-deprecating' the `Player.Listener.onTracksChanged` method
+        name, but with different parameter types.
     *   Change `DefaultTrackSelector.buildUponParameters` and
         `DefaultTrackSelector.Parameters.buildUpon` to return
         `DefaultTrackSelector.Parameters.Builder` instead of the deprecated
@@ -172,10 +174,11 @@ This release corresponds to the
         AndroidStudio's gradle sync to fail
         ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 *   Remove deprecated symbols:
-    *   Remove `Player.Listener.onTracksChanged`. Use
-        `Player.Listener.onTracksInfoChanged` instead.
+    *   Remove `Player.Listener.onTracksChanged(TrackGroupArray,
+        TrackSelectionArray)`. Use `Player.Listener.onTracksChanged(Tracks)`
+        instead.
     *   Remove `Player.getCurrentTrackGroups` and
-        `Player.getCurrentTrackSelections`. Use `Player.getCurrentTracksInfo`
+        `Player.getCurrentTrackSelections`. Use `Player.getCurrentTracks`
         instead. You can also continue to use `ExoPlayer.getCurrentTrackGroups`
         and `ExoPlayer.getCurrentTrackSelections`, although these methods remain
         deprecated.
