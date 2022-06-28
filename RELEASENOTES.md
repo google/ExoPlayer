@@ -374,7 +374,7 @@ This release corresponds to the
         when creating `PendingIntent`s
         ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
 *   Remove deprecated symbols:
-    *   Remove `Player.EventLister`. Use `Player.Listener` instead.
+    *   Remove `Player.EventListener`. Use `Player.Listener` instead.
     *   Remove `MediaSourceFactory.setDrmSessionManager`,
         `MediaSourceFactory.setDrmHttpDataSourceFactory`, and
         `MediaSourceFactory.setDrmUserAgent`. Use
