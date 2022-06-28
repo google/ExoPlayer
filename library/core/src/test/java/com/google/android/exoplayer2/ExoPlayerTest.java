@@ -61,6 +61,7 @@ import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSample
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
 import static com.google.android.exoplayer2.testutil.TestUtil.assertTimelinesSame;
+import static com.google.android.exoplayer2.testutil.TestUtil.timelinesAreSame;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
@@ -140,7 +141,6 @@ import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinit
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
-import com.google.android.exoplayer2.testutil.NoUidTimeline;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.Allocation;
@@ -12254,6 +12254,6 @@ public final class ExoPlayerTest {
    * Returns an argument matcher for {@link Timeline} instances that ignores period and window uids.
    */
   private static ArgumentMatcher<Timeline> noUid(Timeline timeline) {
-    return argument -> new NoUidTimeline(timeline).equals(new NoUidTimeline(argument));
+    return argument -> timelinesAreSame(argument, timeline);
   }
 }

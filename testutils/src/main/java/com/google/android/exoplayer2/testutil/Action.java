@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.timelinesAreSame;
+
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -763,7 +765,7 @@ public abstract class Action {
         @Nullable Timeline expectedTimeline,
         @Player.TimelineChangeReason int expectedReason) {
       super(tag, "WaitForTimelineChanged");
-      this.expectedTimeline = expectedTimeline != null ? new NoUidTimeline(expectedTimeline) : null;
+      this.expectedTimeline = expectedTimeline;
       this.ignoreExpectedReason = false;
       this.expectedReason = expectedReason;
     }
@@ -795,7 +797,7 @@ public abstract class Action {
             @Override
             public void onTimelineChanged(
                 Timeline timeline, @Player.TimelineChangeReason int reason) {
-              if ((expectedTimeline == null || new NoUidTimeline(timeline).equals(expectedTimeline))
+              if ((expectedTimeline == null || timelinesAreSame(timeline, expectedTimeline))
                   && (ignoreExpectedReason || expectedReason == reason)) {
                 player.removeListener(this);
                 nextAction.schedule(player, trackSelector, surface, handler);
@@ -803,8 +805,8 @@ public abstract class Action {
             }
           };
       player.addListener(listener);
-      Timeline currentTimeline = new NoUidTimeline(player.getCurrentTimeline());
-      if (currentTimeline.equals(expectedTimeline)) {
+      if (expectedTimeline != null
+          && timelinesAreSame(player.getCurrentTimeline(), expectedTimeline)) {
         player.removeListener(listener);
         nextAction.schedule(player, trackSelector, surface, handler);
       }
