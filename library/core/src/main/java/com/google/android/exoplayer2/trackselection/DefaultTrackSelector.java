@@ -214,6 +214,27 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
+     * Sets whether to apply constraints based on frame rate of track.
+     *
+     * <p> If set, the {@link #setMinVideoSize}, {@link #setMaxVideoSize},
+     * {@link #setMinVideoFrameRate}, {@link #setMaxVideoFrameRate}, {@link #setMinVideoBitrate}
+     * and {@link #setMaxVideoBitrate} constraints will only be applied if the format frame
+     * rate is greater the given {@code applyConstraintsFrameRate}.
+     *
+     * <p> Useful when the constraints are only required on high-frame-rate content. For example,
+     * when high-frame-rate-high-resolution content leads to overheating, thermal throttling, and an
+     * inability to play this kind of content without frame dropping.
+     *
+     * @param applyConstraintsFrameRate Apply constraints only when the frame rate of the track
+     *                                  exceeds this value.
+     * @return This builder
+     */
+    public ParametersBuilder setApplyConstraintsFrameRate(int applyConstraintsFrameRate) {
+      delegate.setApplyConstraintsFrameRate(applyConstraintsFrameRate);
+      return this;
+    }
+
+    /**
      * Sets whether to allow adaptive video selections containing mixed MIME types.
      *
      * <p>Adaptations between different MIME types may not be completely seamless, in which case
@@ -683,6 +704,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public static final class Builder extends TrackSelectionParameters.Builder {
 
       // Video
+      private int applyConstraintsFrameRate;
       private boolean exceedVideoConstraintsIfNecessary;
       private boolean allowVideoMixedMimeTypeAdaptiveness;
       private boolean allowVideoNonSeamlessAdaptiveness;
@@ -735,6 +757,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       private Builder(Parameters initialValues) {
         super(initialValues);
         // Video
+        applyConstraintsFrameRate = initialValues.applyConstraintsFrameRate;
         exceedVideoConstraintsIfNecessary = initialValues.exceedVideoConstraintsIfNecessary;
         allowVideoMixedMimeTypeAdaptiveness = initialValues.allowVideoMixedMimeTypeAdaptiveness;
         allowVideoNonSeamlessAdaptiveness = initialValues.allowVideoNonSeamlessAdaptiveness;
@@ -765,6 +788,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         init();
         Parameters defaultValue = Parameters.DEFAULT_WITHOUT_CONTEXT;
         // Video
+        setApplyConstraintsFrameRate(
+                bundle.getInt(
+                        Parameters.keyForField(Parameters.FIELD_APPLY_CONSTRAINTS_FRAME_RATE),
+                        defaultValue.applyConstraintsFrameRate));
         setExceedVideoConstraintsIfNecessary(
             bundle.getBoolean(
                 Parameters.keyForField(Parameters.FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY),
@@ -885,6 +912,27 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       @Override
       public Builder setMinVideoBitrate(int minVideoBitrate) {
         super.setMinVideoBitrate(minVideoBitrate);
+        return this;
+      }
+
+      /**
+       * Sets whether to apply constraints based on frame rate of track.
+       *
+       * <p> If set, the {@link #setMinVideoSize}, {@link #setMaxVideoSize},
+       * {@link #setMinVideoFrameRate}, {@link #setMaxVideoFrameRate}, {@link #setMinVideoBitrate}
+       * and {@link #setMaxVideoBitrate} constraints will only be applied if the format frame
+       * rate is greater the given {@code applyConstraintsFrameRate}.
+       *
+       * <p> Useful when the constraints are only required on high-frame-rate content. For example,
+       * when high-frame-rate-high-resolution content leads to overheating, thermal throttling, and an
+       * inability to play this kind of content without frame dropping.
+       *
+       * @param applyConstraintsFrameRate Apply constraints only when the frame rate of the track
+       *                                  exceeds this value.
+       * @return This builder
+       */
+      public Builder setApplyConstraintsFrameRate(int applyConstraintsFrameRate) {
+        this.applyConstraintsFrameRate = applyConstraintsFrameRate;
         return this;
       }
 
@@ -1423,6 +1471,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
       private void init(Builder this) {
         // Video
+        applyConstraintsFrameRate = Format.NO_VALUE;
         exceedVideoConstraintsIfNecessary = true;
         allowVideoMixedMimeTypeAdaptiveness = false;
         allowVideoNonSeamlessAdaptiveness = true;
@@ -1530,6 +1579,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Video
 
     /**
+     * If set, the {@link #minVideoWidth}, {@link #minVideoHeight}, {@link #maxVideoWidth},
+     * {@link #maxVideoHeight}, {@link #minVideoFrameRate}, {@link #maxVideoFrameRate},
+     * {@link #minVideoBitrate} and {@link #maxVideoBitrate} constraints will only be applied if the
+     * format frame rate is greater the given {@code applyConstraintsFrameRate}
+     *
+     * @see Parameters.Builder#setApplyConstraintsFrameRate
+     */
+    public final int applyConstraintsFrameRate;
+    /**
      * Whether to exceed the {@link #maxVideoWidth}, {@link #maxVideoHeight} and {@link
      * #maxVideoBitrate} constraints when no selection can be made otherwise. The default value is
      * {@code true}.
@@ -1621,6 +1679,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private Parameters(Builder builder) {
       super(builder);
       // Video
+      applyConstraintsFrameRate = builder.applyConstraintsFrameRate;
       exceedVideoConstraintsIfNecessary = builder.exceedVideoConstraintsIfNecessary;
       allowVideoMixedMimeTypeAdaptiveness = builder.allowVideoMixedMimeTypeAdaptiveness;
       allowVideoNonSeamlessAdaptiveness = builder.allowVideoNonSeamlessAdaptiveness;
@@ -1708,6 +1767,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Parameters other = (Parameters) obj;
       return super.equals(other)
           // Video
+          && applyConstraintsFrameRate == other.applyConstraintsFrameRate
           && exceedVideoConstraintsIfNecessary == other.exceedVideoConstraintsIfNecessary
           && allowVideoMixedMimeTypeAdaptiveness == other.allowVideoMixedMimeTypeAdaptiveness
           && allowVideoNonSeamlessAdaptiveness == other.allowVideoNonSeamlessAdaptiveness
@@ -1737,6 +1797,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int result = 1;
       result = 31 * result + super.hashCode();
       // Video
+      result = 31 * result + applyConstraintsFrameRate;
       result = 31 * result + (exceedVideoConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (allowVideoMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowVideoNonSeamlessAdaptiveness ? 1 : 0);
@@ -1784,12 +1845,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         FIELD_CUSTOM_ID_BASE + 15;
     private static final int FIELD_CONSTRAIN_AUDIO_CHANNEL_COUNT_TO_DEVICE_CAPABILITIES =
         FIELD_CUSTOM_ID_BASE + 16;
+    private static final int FIELD_APPLY_CONSTRAINTS_FRAME_RATE =
+            FIELD_CUSTOM_ID_BASE + 17;
 
     @Override
     public Bundle toBundle() {
       Bundle bundle = super.toBundle();
 
       // Video
+      bundle.putInt(
+          keyForField(FIELD_APPLY_CONSTRAINTS_FRAME_RATE),
+          applyConstraintsFrameRate);
       bundle.putBoolean(
           keyForField(FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY),
           exceedVideoConstraintsIfNecessary);
@@ -3112,22 +3178,28 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       allowMixedMimeTypes =
           parameters.allowVideoMixedMimeTypeAdaptiveness
               && (mixedMimeTypeAdaptationSupport & requiredAdaptiveSupport) != 0;
-      isWithinMaxConstraints =
-          isSuitableForViewport
-              && (format.width == Format.NO_VALUE || format.width <= parameters.maxVideoWidth)
-              && (format.height == Format.NO_VALUE || format.height <= parameters.maxVideoHeight)
-              && (format.frameRate == Format.NO_VALUE
-                  || format.frameRate <= parameters.maxVideoFrameRate)
-              && (format.bitrate == Format.NO_VALUE
-                  || format.bitrate <= parameters.maxVideoBitrate);
-      isWithinMinConstraints =
-          isSuitableForViewport
-              && (format.width == Format.NO_VALUE || format.width >= parameters.minVideoWidth)
-              && (format.height == Format.NO_VALUE || format.height >= parameters.minVideoHeight)
-              && (format.frameRate == Format.NO_VALUE
-                  || format.frameRate >= parameters.minVideoFrameRate)
-              && (format.bitrate == Format.NO_VALUE
-                  || format.bitrate >= parameters.minVideoBitrate);
+      if (parameters.applyConstraintsFrameRate != Format.NO_VALUE
+              && format.frameRate <= parameters.applyConstraintsFrameRate) {
+        isWithinMaxConstraints = isSuitableForViewport;
+        isWithinMinConstraints = isSuitableForViewport;
+      } else {
+        isWithinMaxConstraints =
+                isSuitableForViewport
+                    && (format.width == Format.NO_VALUE || format.width <= parameters.maxVideoWidth)
+                    && (format.height == Format.NO_VALUE || format.height <= parameters.maxVideoHeight)
+                    && (format.frameRate == Format.NO_VALUE
+                        || format.frameRate <= parameters.maxVideoFrameRate)
+                    && (format.bitrate == Format.NO_VALUE
+                        || format.bitrate <= parameters.maxVideoBitrate);
+        isWithinMinConstraints =
+                isSuitableForViewport
+                    && (format.width == Format.NO_VALUE || format.width >= parameters.minVideoWidth)
+                    && (format.height == Format.NO_VALUE || format.height >= parameters.minVideoHeight)
+                    && (format.frameRate == Format.NO_VALUE
+                        || format.frameRate >= parameters.minVideoFrameRate)
+                    && (format.bitrate == Format.NO_VALUE
+                        || format.bitrate >= parameters.minVideoBitrate);
+      }
       isWithinRendererCapabilities =
           isSupported(formatSupport, /* allowExceedsCapabilities= */ false);
       bitrate = format.bitrate;

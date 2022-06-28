@@ -2389,6 +2389,70 @@ public final class DefaultTrackSelectorTest {
     }
   }
 
+  @Test
+  public void selectTracksWithApplyConstraintsFrameRate()
+          throws Exception {
+    Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
+    TrackGroupArray trackGroups =
+            singleTrackGroup(
+                    formatBuilder.setId("0").setWidth(1920).setHeight(1080).build(),
+                    formatBuilder.setId("1").setWidth(1920).setHeight(1080).setFrameRate(60).build(),
+                    formatBuilder.setId("2").setWidth(3840).setHeight(2160).setFrameRate(24).build(),
+                    formatBuilder.setId("3").setWidth(3840).setHeight(2160).setFrameRate(30).build(),
+                    formatBuilder.setId("4").setWidth(3840).setHeight(2160).setFrameRate(60).build());
+
+    trackSelector.setParameters(
+            trackSelector
+                    .buildUponParameters()
+                    .setViewportSize(3840, 2160, false)
+                    .setMaxVideoSize(3840, 2160)
+                    .setApplyConstraintsFrameRate(Format.NO_VALUE));
+    TrackSelectorResult result =
+            trackSelector.selectTracks(
+                    new RendererCapabilities[]{VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections[0]).isNotNull();
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1, 2, 3, 4);
+
+
+    trackSelector.setParameters(
+            trackSelector
+                    .buildUponParameters()
+                    .setViewportSize(3840, 2160, false)
+                    .setMaxVideoSize(1920, 1080)
+                    .setApplyConstraintsFrameRate(30));
+    result = trackSelector.selectTracks(
+                    new RendererCapabilities[]{VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections[0]).isNotNull();
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1, 2, 3);
+
+    trackSelector.setParameters(
+            trackSelector
+                    .buildUponParameters()
+                    .setViewportSize(3840, 2160, false)
+                    .setMaxVideoSize(1920, 1080)
+                    .setApplyConstraintsFrameRate(Format.NO_VALUE));
+    result = trackSelector.selectTracks(
+            new RendererCapabilities[]{VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections[0]).isNotNull();
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1);
+
+    trackSelector.setParameters(
+            trackSelector
+                    .buildUponParameters()
+                    .setViewportSize(1920, 1080, false)
+                    .setMaxVideoSize(1920, 1080)
+                    .setApplyConstraintsFrameRate(30));
+    result = trackSelector.selectTracks(
+                    new RendererCapabilities[]{VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections[0]).isNotNull();
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1);
+  }
+
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
