@@ -357,6 +357,16 @@ public final class GlEffectsFrameProcessorPixelTest {
                   context,
                   new FrameProcessor.Listener() {
                     @Override
+                    public void onOutputSizeChanged(int width, int height) {
+                      outputImageReader =
+                          ImageReader.newInstance(
+                              width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+                      checkNotNull(glEffectsFrameProcessor)
+                          .setOutputSurfaceInfo(
+                              new SurfaceInfo(outputImageReader.getSurface(), width, height));
+                    }
+
+                    @Override
                     public void onFrameProcessingError(FrameProcessingException exception) {
                       frameProcessingException.set(exception);
                     }
@@ -368,16 +378,6 @@ public final class GlEffectsFrameProcessorPixelTest {
                   },
                   /* streamOffsetUs= */ 0L,
                   effects,
-                  /* outputSurfaceProvider= */ (requestedWidth, requestedHeight) -> {
-                    outputImageReader =
-                        ImageReader.newInstance(
-                            requestedWidth,
-                            requestedHeight,
-                            PixelFormat.RGBA_8888,
-                            /* maxImages= */ 1);
-                    return new SurfaceInfo(
-                        outputImageReader.getSurface(), requestedWidth, requestedHeight);
-                  },
                   Transformer.DebugViewProvider.NONE,
                   /* enableExperimentalHdrEditing= */ false));
       glEffectsFrameProcessor.setInputFrameInfo(

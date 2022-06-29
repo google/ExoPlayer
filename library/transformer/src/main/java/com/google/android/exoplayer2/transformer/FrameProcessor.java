@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import android.view.Surface;
+import androidx.annotation.Nullable;
 
 /** Interface for a frame processor that applies changes to individual video frames. */
 /* package */ interface FrameProcessor {
@@ -25,6 +26,14 @@ import android.view.Surface;
    * <p>All listener methods must be called from the same thread.
    */
   interface Listener {
+
+    /**
+     * Called when the output size after applying the final effect changes.
+     *
+     * <p>The output size after applying the final effect can differ from the size specified using
+     * {@link #setOutputSurfaceInfo(SurfaceInfo)}.
+     */
+    void onOutputSizeChanged(int width, int height);
 
     /**
      * Called when an exception occurs during asynchronous frame processing.
@@ -67,6 +76,23 @@ import android.view.Surface;
    * but not processed off the {@linkplain #getInputSurface() input surface} yet.
    */
   int getPendingInputFrameCount();
+
+  /**
+   * Sets the output surface and supporting information.
+   *
+   * <p>The new output {@link SurfaceInfo} is applied from the next output frame rendered onwards.
+   * If the output {@link SurfaceInfo} is {@code null}, the {@code FrameProcessor} will stop
+   * rendering and resume rendering pending frames once a non-null {@link SurfaceInfo} is set.
+   *
+   * <p>If the dimensions given in {@link SurfaceInfo} do not match the {@linkplain
+   * Listener#onOutputSizeChanged(int,int) output size after applying the final effect} the frames
+   * are resized before rendering to the surface and letter/pillar-boxing is applied.
+   *
+   * <p>The caller is responsible for tracking the lifecycle of the {@link SurfaceInfo#surface}
+   * including calling this method with a new surface if it is destroyed. When this method returns,
+   * the previous output surface is no longer being used and can safely be released by the caller.
+   */
+  void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo);
 
   /**
    * Informs the {@code FrameProcessor} that no further input frames should be accepted.

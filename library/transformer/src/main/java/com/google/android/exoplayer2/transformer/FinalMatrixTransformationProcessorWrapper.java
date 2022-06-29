@@ -34,6 +34,7 @@ import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -57,7 +58,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
-  private final SurfaceInfo.Provider outputSurfaceProvider;
   private final long streamOffsetUs;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
@@ -66,17 +66,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int inputWidth;
   private int inputHeight;
   @Nullable private MatrixTransformationProcessor matrixTransformationProcessor;
-  @Nullable private SurfaceInfo outputSurfaceInfo;
-  @Nullable private EGLSurface outputEglSurface;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private @MonotonicNonNull Listener listener;
+  private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
+
+  @GuardedBy("this")
+  @Nullable
+  private SurfaceInfo outputSurfaceInfo;
+
+  @GuardedBy("this")
+  @Nullable
+  private EGLSurface outputEglSurface;
 
   public FinalMatrixTransformationProcessorWrapper(
       Context context,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
-      SurfaceInfo.Provider outputSurfaceProvider,
       long streamOffsetUs,
       FrameProcessor.Listener frameProcessorListener,
       Transformer.DebugViewProvider debugViewProvider,
@@ -85,7 +91,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.matrixTransformations = matrixTransformations;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
-    this.outputSurfaceProvider = outputSurfaceProvider;
     this.streamOffsetUs = streamOffsetUs;
     this.debugViewProvider = debugViewProvider;
     this.frameProcessorListener = frameProcessorListener;
@@ -107,28 +112,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     try {
-      if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
-        return false;
+      synchronized (this) {
+        if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
+          return false;
+        }
+
+        EGLSurface outputEglSurface = this.outputEglSurface;
+        SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
+        MatrixTransformationProcessor matrixTransformationProcessor =
+            this.matrixTransformationProcessor;
+
+        GlUtil.focusEglSurface(
+            eglDisplay,
+            eglContext,
+            outputEglSurface,
+            outputSurfaceInfo.width,
+            outputSurfaceInfo.height);
+        GlUtil.clearOutputFrame();
+        matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+        EGLExt.eglPresentationTimeANDROID(
+            eglDisplay,
+            outputEglSurface,
+            /* presentationTimeNs= */ (presentationTimeUs + streamOffsetUs) * 1000);
+        EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
       }
-
-      EGLSurface outputEglSurface = this.outputEglSurface;
-      SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-      MatrixTransformationProcessor matrixTransformationProcessor =
-          this.matrixTransformationProcessor;
-
-      GlUtil.focusEglSurface(
-          eglDisplay,
-          eglContext,
-          outputEglSurface,
-          outputSurfaceInfo.width,
-          outputSurfaceInfo.height);
-      GlUtil.clearOutputFrame();
-      matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
-      EGLExt.eglPresentationTimeANDROID(
-          eglDisplay,
-          outputEglSurface,
-          /* presentationTimeNs= */ (presentationTimeUs + streamOffsetUs) * 1000);
-      EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
     } catch (FrameProcessingException | GlUtil.GlException e) {
       frameProcessorListener.onFrameProcessingError(
           FrameProcessingException.from(e, presentationTimeUs));
@@ -156,24 +163,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @EnsuresNonNullIf(
       expression = {"outputSurfaceInfo", "outputEglSurface", "matrixTransformationProcessor"},
       result = true)
-  private boolean ensureConfigured(int inputWidth, int inputHeight)
+  private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws FrameProcessingException, GlUtil.GlException {
-    if (inputWidth == this.inputWidth
-        && inputHeight == this.inputHeight
-        && outputSurfaceInfo != null
-        && outputEglSurface != null
-        && matrixTransformationProcessor != null) {
-      return true;
+
+    if (this.inputWidth != inputWidth
+        || this.inputHeight != inputHeight
+        || this.outputSizeBeforeSurfaceTransformation == null) {
+      this.inputWidth = inputWidth;
+      this.inputHeight = inputHeight;
+      Size outputSizeBeforeSurfaceTransformation =
+          MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
+      if (!Util.areEqual(
+          this.outputSizeBeforeSurfaceTransformation, outputSizeBeforeSurfaceTransformation)) {
+        this.outputSizeBeforeSurfaceTransformation = outputSizeBeforeSurfaceTransformation;
+        frameProcessorListener.onOutputSizeChanged(
+            outputSizeBeforeSurfaceTransformation.getWidth(),
+            outputSizeBeforeSurfaceTransformation.getHeight());
+      }
     }
 
-    this.inputWidth = inputWidth;
-    this.inputHeight = inputHeight;
-    Size requestedOutputSize =
-        MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
-    @Nullable
-    SurfaceInfo outputSurfaceInfo =
-        outputSurfaceProvider.getSurfaceInfo(
-            requestedOutputSize.getWidth(), requestedOutputSize.getHeight());
     if (outputSurfaceInfo == null) {
       if (matrixTransformationProcessor != null) {
         matrixTransformationProcessor.release();
@@ -182,32 +190,36 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       outputEglSurface = null;
       return false;
     }
-    if (outputSurfaceInfo == this.outputSurfaceInfo
-        && outputEglSurface != null
-        && matrixTransformationProcessor != null) {
-      return true;
+
+    SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
+    @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
+    if (outputEglSurface == null) { // This means that outputSurfaceInfo changed.
+      if (enableExperimentalHdrEditing) {
+        // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
+        outputEglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurfaceInfo.surface);
+      } else {
+        outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
+      }
+
+      @Nullable
+      SurfaceView debugSurfaceView =
+          debugViewProvider.getDebugPreviewSurfaceView(
+              outputSurfaceInfo.width, outputSurfaceInfo.height);
+      if (debugSurfaceView != null) {
+        debugSurfaceViewWrapper =
+            new SurfaceViewWrapper(
+                eglDisplay, eglContext, enableExperimentalHdrEditing, debugSurfaceView);
+      }
+      if (matrixTransformationProcessor != null) {
+        matrixTransformationProcessor.release();
+        matrixTransformationProcessor = null;
+      }
     }
 
-    EGLSurface outputEglSurface;
-    if (enableExperimentalHdrEditing) {
-      // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
-      outputEglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurfaceInfo.surface);
-    } else {
-      outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
+    if (matrixTransformationProcessor == null) {
+      matrixTransformationProcessor =
+          createMatrixTransformationProcessorForOutputSurface(outputSurfaceInfo);
     }
-
-    @Nullable
-    SurfaceView debugSurfaceView =
-        debugViewProvider.getDebugPreviewSurfaceView(
-            outputSurfaceInfo.width, outputSurfaceInfo.height);
-    if (debugSurfaceView != null) {
-      debugSurfaceViewWrapper =
-          new SurfaceViewWrapper(
-              eglDisplay, eglContext, enableExperimentalHdrEditing, debugSurfaceView);
-    }
-
-    matrixTransformationProcessor =
-        createMatrixTransformationProcessorForOutputSurface(requestedOutputSize, outputSurfaceInfo);
 
     this.outputSurfaceInfo = outputSurfaceInfo;
     this.outputEglSurface = outputEglSurface;
@@ -215,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private MatrixTransformationProcessor createMatrixTransformationProcessorForOutputSurface(
-      Size requestedOutputSize, SurfaceInfo outputSurfaceInfo) throws FrameProcessingException {
+      SurfaceInfo outputSurfaceInfo) throws FrameProcessingException {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<GlMatrixTransformation>().addAll(matrixTransformations);
     if (outputSurfaceInfo.orientationDegrees != 0) {
@@ -224,12 +236,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               .setRotationDegrees(outputSurfaceInfo.orientationDegrees)
               .build());
     }
-    if (outputSurfaceInfo.width != requestedOutputSize.getWidth()
-        || outputSurfaceInfo.height != requestedOutputSize.getHeight()) {
-      matrixTransformationListBuilder.add(
-          Presentation.createForWidthAndHeight(
-              outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
-    }
+    matrixTransformationListBuilder.add(
+        Presentation.createForWidthAndHeight(
+            outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
 
     MatrixTransformationProcessor matrixTransformationProcessor =
         new MatrixTransformationProcessor(context, matrixTransformationListBuilder.build());
@@ -255,6 +264,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void release() throws FrameProcessingException {
     if (matrixTransformationProcessor != null) {
       matrixTransformationProcessor.release();
+    }
+  }
+
+  public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    if (!Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
+      this.outputSurfaceInfo = outputSurfaceInfo;
+      this.outputEglSurface = null;
     }
   }
 
