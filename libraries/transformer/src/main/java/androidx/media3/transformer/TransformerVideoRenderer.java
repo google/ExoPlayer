@@ -148,8 +148,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (transformationRequest.scaleY != 1f) {
       return false;
     }
+    // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
+    int decodedHeight =
+        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
-        && transformationRequest.outputHeight != inputFormat.height) {
+        && transformationRequest.outputHeight != decodedHeight) {
       return false;
     }
     if (!effects.isEmpty()) {
