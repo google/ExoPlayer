@@ -50,8 +50,7 @@ public final class VideoEncoderWrapperTest {
           /* inputFormat= */ new Format.Builder().build(),
           /* allowedOutputMimeTypes= */ ImmutableList.of(),
           emptyTransformationRequest,
-          fallbackListener,
-          mock(Transformer.AsyncErrorListener.class));
+          fallbackListener);
 
   @Before
   public void registerTrack() {
@@ -59,7 +58,7 @@ public final class VideoEncoderWrapperTest {
   }
 
   @Test
-  public void getSurfaceInfo_landscape_leavesOrientationUnchanged() {
+  public void getSurfaceInfo_landscape_leavesOrientationUnchanged() throws Exception {
     int inputWidth = 200;
     int inputHeight = 150;
 
@@ -71,7 +70,7 @@ public final class VideoEncoderWrapperTest {
   }
 
   @Test
-  public void getSurfaceInfo_square_leavesOrientationUnchanged() {
+  public void getSurfaceInfo_square_leavesOrientationUnchanged() throws Exception {
     int inputWidth = 150;
     int inputHeight = 150;
 
@@ -83,7 +82,7 @@ public final class VideoEncoderWrapperTest {
   }
 
   @Test
-  public void getSurfaceInfo_portrait_flipsOrientation() {
+  public void getSurfaceInfo_portrait_flipsOrientation() throws Exception {
     int inputWidth = 150;
     int inputHeight = 200;
 
@@ -95,7 +94,8 @@ public final class VideoEncoderWrapperTest {
   }
 
   @Test
-  public void getSurfaceInfo_withEncoderFallback_usesFallbackResolution() {
+  public void getSurfaceInfo_withEncoderFallback_usesFallbackResolution()
+      throws TransformationException {
     int inputWidth = 200;
     int inputHeight = 150;
     int fallbackWidth = 100;
