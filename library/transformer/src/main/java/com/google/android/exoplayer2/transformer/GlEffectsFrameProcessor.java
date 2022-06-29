@@ -23,6 +23,7 @@ import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -51,8 +52,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param context A {@link Context}.
    * @param listener A {@link Listener}.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
-   * @param outputSurfaceProvider A {@link SurfaceInfo.Provider} managing the output {@link
-   *     Surface}.
    * @param debugViewProvider A {@link Transformer.DebugViewProvider}.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @return A new instance.
@@ -64,7 +63,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FrameProcessor.Listener listener,
       long streamOffsetUs,
       List<GlEffect> effects,
-      SurfaceInfo.Provider outputSurfaceProvider,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
@@ -79,7 +77,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     listener,
                     streamOffsetUs,
                     effects,
-                    outputSurfaceProvider,
                     debugViewProvider,
                     enableExperimentalHdrEditing,
                     singleThreadExecutorService));
@@ -108,7 +105,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FrameProcessor.Listener listener,
       long streamOffsetUs,
       List<GlEffect> effects,
-      SurfaceInfo.Provider outputSurfaceProvider,
       Transformer.DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing,
       ExecutorService singleThreadExecutorService)
@@ -131,24 +127,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
 
-    ImmutableList<GlTextureProcessor> textureProcessors =
-        getGlTextureProcessorsForGlEffects(
-            context,
-            effects,
-            eglDisplay,
-            eglContext,
-            outputSurfaceProvider,
-            streamOffsetUs,
-            listener,
-            debugViewProvider,
-            enableExperimentalHdrEditing);
+    Pair<ImmutableList<GlTextureProcessor>, FinalMatrixTransformationProcessorWrapper>
+        textureProcessors =
+            getGlTextureProcessorsForGlEffects(
+                context,
+                effects,
+                eglDisplay,
+                eglContext,
+                streamOffsetUs,
+                listener,
+                debugViewProvider,
+                enableExperimentalHdrEditing);
+    ImmutableList<GlTextureProcessor> intermediateTextureProcessors = textureProcessors.first;
+    FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper =
+        textureProcessors.second;
 
     ExternalTextureProcessor externalTextureProcessor =
         new ExternalTextureProcessor(context, enableExperimentalHdrEditing);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainTextureProcessorsWithListeners(
-        externalTextureProcessor, textureProcessors, frameProcessingTaskExecutor, listener);
+        externalTextureProcessor,
+        intermediateTextureProcessors,
+        finalTextureProcessorWrapper,
+        frameProcessingTaskExecutor,
+        listener);
 
     return new GlEffectsFrameProcessor(
         eglDisplay,
@@ -157,7 +160,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         streamOffsetUs,
         /* inputExternalTextureId= */ GlUtil.createExternalTexture(),
         externalTextureProcessor,
-        textureProcessors);
+        intermediateTextureProcessors,
+        finalTextureProcessorWrapper);
   }
 
   /**
@@ -165,21 +169,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * MatrixTransformationProcessor} and converts all other {@link GlEffect} instances to separate
    * {@link GlTextureProcessor} instances.
    *
-   * <p>The final {@link GlTextureProcessor} is wrapped in a {@link
-   * FinalMatrixTransformationProcessorWrapper} so that it can write directly to the {@linkplain
-   * SurfaceInfo.Provider provided output surface}.
+   * @return A {@link Pair} containing a list of {@link GlTextureProcessor} instances to apply in
+   *     the given order and a {@link FinalMatrixTransformationProcessorWrapper} to apply after
+   *     them.
    */
-  private static ImmutableList<GlTextureProcessor> getGlTextureProcessorsForGlEffects(
-      Context context,
-      List<GlEffect> effects,
-      EGLDisplay eglDisplay,
-      EGLContext eglContext,
-      SurfaceInfo.Provider outputSurfaceProvider,
-      long streamOffsetUs,
-      FrameProcessor.Listener listener,
-      Transformer.DebugViewProvider debugViewProvider,
-      boolean enableExperimentalHdrEditing)
-      throws FrameProcessingException {
+  private static Pair<ImmutableList<GlTextureProcessor>, FinalMatrixTransformationProcessorWrapper>
+      getGlTextureProcessorsForGlEffects(
+          Context context,
+          List<GlEffect> effects,
+          EGLDisplay eglDisplay,
+          EGLContext eglContext,
+          long streamOffsetUs,
+          FrameProcessor.Listener listener,
+          Transformer.DebugViewProvider debugViewProvider,
+          boolean enableExperimentalHdrEditing)
+          throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
         new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
@@ -199,18 +203,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       textureProcessorListBuilder.add(effect.toGlTextureProcessor(context));
     }
-    textureProcessorListBuilder.add(
+    return Pair.create(
+        textureProcessorListBuilder.build(),
         new FinalMatrixTransformationProcessorWrapper(
             context,
             eglDisplay,
             eglContext,
             matrixTransformationListBuilder.build(),
-            outputSurfaceProvider,
             streamOffsetUs,
             listener,
             debugViewProvider,
             enableExperimentalHdrEditing));
-    return textureProcessorListBuilder.build();
   }
 
   /**
@@ -221,21 +224,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   private static void chainTextureProcessorsWithListeners(
       ExternalTextureProcessor externalTextureProcessor,
-      ImmutableList<GlTextureProcessor> textureProcessors,
+      ImmutableList<GlTextureProcessor> intermediateTextureProcessors,
+      FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
       FrameProcessor.Listener listener) {
     externalTextureProcessor.setListener(
         new ChainingGlTextureProcessorListener(
             /* previousGlTextureProcessor= */ null,
-            textureProcessors.get(0),
+            /* nextGlTextureProcessor= */ intermediateTextureProcessors.size() > 0
+                ? intermediateTextureProcessors.get(0)
+                : finalTextureProcessorWrapper,
             frameProcessingTaskExecutor,
             listener));
     GlTextureProcessor previousGlTextureProcessor = externalTextureProcessor;
-    for (int i = 0; i < textureProcessors.size(); i++) {
-      GlTextureProcessor glTextureProcessor = textureProcessors.get(i);
+    for (int i = 0; i < intermediateTextureProcessors.size(); i++) {
+      GlTextureProcessor glTextureProcessor = intermediateTextureProcessors.get(i);
       @Nullable
       GlTextureProcessor nextGlTextureProcessor =
-          i + 1 < textureProcessors.size() ? textureProcessors.get(i + 1) : null;
+          i + 1 < intermediateTextureProcessors.size()
+              ? intermediateTextureProcessors.get(i + 1)
+              : finalTextureProcessorWrapper;
       glTextureProcessor.setListener(
           new ChainingGlTextureProcessorListener(
               previousGlTextureProcessor,
@@ -244,6 +252,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               listener));
       previousGlTextureProcessor = glTextureProcessor;
     }
+    finalTextureProcessorWrapper.setListener(
+        new ChainingGlTextureProcessorListener(
+            previousGlTextureProcessor,
+            /* nextGlTextureProcessor= */ null,
+            frameProcessingTaskExecutor,
+            listener));
   }
 
   private static final String TAG = "GlEffectsFrameProcessor";
@@ -267,7 +281,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final float[] inputSurfaceTextureTransformMatrix;
   private final int inputExternalTextureId;
   private final ExternalTextureProcessor inputExternalTextureProcessor;
-  private final ImmutableList<GlTextureProcessor> textureProcessors;
+  private final ImmutableList<GlTextureProcessor> intermediateTextureProcessors;
+  private final FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper;
   private final ConcurrentLinkedQueue<FrameInfo> pendingInputFrames;
 
   private @MonotonicNonNull FrameInfo nextInputFrameInfo;
@@ -280,8 +295,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long streamOffsetUs,
       int inputExternalTextureId,
       ExternalTextureProcessor inputExternalTextureProcessor,
-      ImmutableList<GlTextureProcessor> textureProcessors) {
-    checkState(!textureProcessors.isEmpty());
+      ImmutableList<GlTextureProcessor> intermediateTextureProcessors,
+      FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper) {
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
@@ -289,7 +304,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.streamOffsetUs = streamOffsetUs;
     this.inputExternalTextureId = inputExternalTextureId;
     this.inputExternalTextureProcessor = inputExternalTextureProcessor;
-    this.textureProcessors = textureProcessors;
+    this.intermediateTextureProcessors = intermediateTextureProcessors;
+    this.finalTextureProcessorWrapper = finalTextureProcessorWrapper;
 
     inputSurfaceTexture = new SurfaceTexture(inputExternalTextureId);
     inputSurface = new Surface(inputSurfaceTexture);
@@ -321,6 +337,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public int getPendingInputFrameCount() {
     return pendingInputFrames.size();
+  }
+
+  @Override
+  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    finalTextureProcessorWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override
@@ -423,9 +444,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void releaseTextureProcessorsAndDestroyGlContext()
       throws GlUtil.GlException, FrameProcessingException {
     inputExternalTextureProcessor.release();
-    for (int i = 0; i < textureProcessors.size(); i++) {
-      textureProcessors.get(i).release();
+    for (int i = 0; i < intermediateTextureProcessors.size(); i++) {
+      intermediateTextureProcessors.get(i).release();
     }
+    finalTextureProcessorWrapper.release();
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
 }
