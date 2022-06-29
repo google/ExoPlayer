@@ -52,7 +52,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param context A {@link Context}.
    * @param listener A {@link Listener}.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
-   * @param debugViewProvider A {@link Transformer.DebugViewProvider}.
+   * @param debugViewProvider A {@link DebugViewProvider}.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @return A new instance.
    * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
@@ -63,7 +63,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FrameProcessor.Listener listener,
       long streamOffsetUs,
       List<GlEffect> effects,
-      Transformer.DebugViewProvider debugViewProvider,
+      DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
 
@@ -105,7 +105,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FrameProcessor.Listener listener,
       long streamOffsetUs,
       List<GlEffect> effects,
-      Transformer.DebugViewProvider debugViewProvider,
+      DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing,
       ExecutorService singleThreadExecutorService)
       throws GlUtil.GlException, FrameProcessingException {
@@ -181,7 +181,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           EGLContext eglContext,
           long streamOffsetUs,
           FrameProcessor.Listener listener,
-          Transformer.DebugViewProvider debugViewProvider,
+          DebugViewProvider debugViewProvider,
           boolean enableExperimentalHdrEditing)
           throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =

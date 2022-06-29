@@ -39,7 +39,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ImmutableList<GlEffect> effects;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
-  private final Transformer.DebugViewProvider debugViewProvider;
+  private final DebugViewProvider debugViewProvider;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private @MonotonicNonNull SefSlowMotionFlattener sefSlowMotionFlattener;
@@ -55,7 +55,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Codec.DecoderFactory decoderFactory,
       Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener,
-      Transformer.DebugViewProvider debugViewProvider) {
+      DebugViewProvider debugViewProvider) {
     super(
         C.TRACK_TYPE_VIDEO,
         muxerWrapper,
