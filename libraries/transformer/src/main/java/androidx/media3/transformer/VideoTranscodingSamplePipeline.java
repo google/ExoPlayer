@@ -95,14 +95,23 @@ import org.checkerframework.dataflow.qual.Pure;
             inputFormat,
             allowedOutputMimeTypes,
             transformationRequest,
-            fallbackListener,
-            asyncErrorListener);
+            fallbackListener);
 
     try {
       frameProcessor =
           GlEffectsFrameProcessor.create(
               context,
               new FrameProcessor.Listener() {
+                @Override
+                public void onOutputSizeChanged(int width, int height) {
+                  try {
+                    checkNotNull(frameProcessor)
+                        .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
+                  } catch (TransformationException exception) {
+                    asyncErrorListener.onTransformationException(exception);
+                  }
+                }
+
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
                   asyncErrorListener.onTransformationException(
@@ -121,7 +130,6 @@ import org.checkerframework.dataflow.qual.Pure;
               },
               streamOffsetUs,
               effectsListBuilder.build(),
-              /* outputSurfaceProvider= */ encoderWrapper,
               debugViewProvider,
               transformationRequest.enableHdrEditing);
     } catch (FrameProcessingException e) {
@@ -284,14 +292,13 @@ import org.checkerframework.dataflow.qual.Pure;
    * dimensions, the same encoder is used and the provided dimensions stay fixed.
    */
   @VisibleForTesting
-  /* package */ static final class EncoderWrapper implements SurfaceInfo.Provider {
+  /* package */ static final class EncoderWrapper {
 
     private final Codec.EncoderFactory encoderFactory;
     private final Format inputFormat;
     private final List<String> allowedOutputMimeTypes;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
-    private final Transformer.AsyncErrorListener asyncErrorListener;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
@@ -304,20 +311,18 @@ import org.checkerframework.dataflow.qual.Pure;
         Format inputFormat,
         List<String> allowedOutputMimeTypes,
         TransformationRequest transformationRequest,
-        FallbackListener fallbackListener,
-        Transformer.AsyncErrorListener asyncErrorListener) {
+        FallbackListener fallbackListener) {
 
       this.encoderFactory = encoderFactory;
       this.inputFormat = inputFormat;
       this.allowedOutputMimeTypes = allowedOutputMimeTypes;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
-      this.asyncErrorListener = asyncErrorListener;
     }
 
-    @Override
     @Nullable
-    public SurfaceInfo getSurfaceInfo(int requestedWidth, int requestedHeight) {
+    public SurfaceInfo getSurfaceInfo(int requestedWidth, int requestedHeight)
+        throws TransformationException {
       if (releaseEncoder) {
         return null;
       }
@@ -349,13 +354,8 @@ import org.checkerframework.dataflow.qual.Pure;
                       : inputFormat.sampleMimeType)
               .build();
 
-      try {
-        encoder =
-            encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
-      } catch (TransformationException e) {
-        asyncErrorListener.onTransformationException(e);
-        return null;
-      }
+      encoder =
+          encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
       Format encoderSupportedFormat = encoder.getConfigurationFormat();
       fallbackListener.onTransformationRequestFinalized(
           createFallbackTransformationRequest(

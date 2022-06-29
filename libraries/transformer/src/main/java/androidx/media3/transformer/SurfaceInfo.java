@@ -55,16 +55,27 @@ import androidx.annotation.Nullable;
     this.orientationDegrees = orientationDegrees;
   }
 
-  /** A provider for a {@link SurfaceInfo} instance. */
-  public interface Provider {
-    /**
-     * Provides a {@linkplain SurfaceInfo surface} for the requested dimensions.
-     *
-     * <p>The dimensions given in the provided {@link SurfaceInfo} may differ from the requested
-     * dimensions. It is up to the caller to transform frames from the requested dimensions to the
-     * provided dimensions before rendering them to the {@link SurfaceInfo#surface}.
-     */
-    @Nullable
-    SurfaceInfo getSurfaceInfo(int requestedWidth, int requestedHeight);
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof SurfaceInfo)) {
+      return false;
+    }
+    SurfaceInfo that = (SurfaceInfo) o;
+    return width == that.width
+        && height == that.height
+        && orientationDegrees == that.orientationDegrees
+        && surface.equals(that.surface);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = surface.hashCode();
+    result = 31 * result + width;
+    result = 31 * result + height;
+    result = 31 * result + orientationDegrees;
+    return result;
   }
 }
