@@ -378,7 +378,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                   },
                   /* streamOffsetUs= */ 0L,
                   effects,
-                  Transformer.DebugViewProvider.NONE,
+                  DebugViewProvider.NONE,
                   /* enableExperimentalHdrEditing= */ false));
       glEffectsFrameProcessor.setInputFrameInfo(
           new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio));
