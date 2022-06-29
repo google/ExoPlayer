@@ -1,0 +1,7 @@
+MetadataOutput:
+  Metadata[0]:
+    presentationTimeUs = 100000
+    entry[0] = EMSG: scheme=urn:mpeg:dash:event:callback:2015, id=0, durationMs=1000, value=1
+  Metadata[1]:
+    presentationTimeUs = 100000
+    entry[0] = EMSG: scheme=urn:mpeg:dash:event:callback:2015, id=1, durationMs=1000, value=1
