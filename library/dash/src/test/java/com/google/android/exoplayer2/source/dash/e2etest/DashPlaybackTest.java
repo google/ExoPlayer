@@ -25,6 +25,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.metadata.MetadataDecoderFactory;
+import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
@@ -95,5 +99,71 @@ public final class DashPlaybackTest {
 
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/dash/emsg.dump");
+  }
+
+  @Test
+  public void renderMetadata_withTimelyOutput() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    RenderersFactory renderersFactory =
+        (eventHandler,
+            videoRendererEventListener,
+            audioRendererEventListener,
+            textRendererOutput,
+            metadataRendererOutput) ->
+            new Renderer[] {new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper())};
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, renderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/emsg/sample.mpd"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 500);
+    player.release();
+
+    // Ensure output contains metadata up to the playback position.
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/dash/metadata_from_timely_output.dump");
+  }
+
+  @Test
+  public void renderMetadata_withEarlyOutput() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    RenderersFactory renderersFactory =
+        (eventHandler,
+            videoRendererEventListener,
+            audioRendererEventListener,
+            textRendererOutput,
+            metadataRendererOutput) ->
+            new Renderer[] {
+              new MetadataRenderer(
+                  metadataRendererOutput,
+                  eventHandler.getLooper(),
+                  MetadataDecoderFactory.DEFAULT,
+                  /* outputMetadataEarly= */ true)
+            };
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, renderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/emsg/sample.mpd"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 500);
+    player.release();
+
+    // Ensure output contains all metadata irrespective of the playback position.
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/dash/metadata_from_early_output.dump");
   }
 }

@@ -35,7 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 
-/** A renderer for metadata. */
+/**
+ * A renderer for metadata.
+ *
+ * <p>The renderer can be configured to render metadata as soon as they are available using {@link
+ * #MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory, boolean)}.
+ */
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private static final String TAG = "MetadataRenderer";
@@ -45,6 +50,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private final MetadataOutput output;
   @Nullable private final Handler outputHandler;
   private final MetadataInputBuffer buffer;
+  private final boolean outputMetadataEarly;
 
   @Nullable private MetadataDecoder decoder;
   private boolean inputStreamEnded;
@@ -54,6 +60,9 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private long outputStreamOffsetUs;
 
   /**
+   * Creates an instance that uses {@link MetadataDecoderFactory#DEFAULT} to create {@link
+   * MetadataDecoder} instances.
+   *
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be called.
    *     If the output makes use of standard Android UI components, then this should normally be the
@@ -66,6 +75,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be called.
    *     If the output makes use of standard Android UI components, then this should normally be the
@@ -76,11 +87,34 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    */
   public MetadataRenderer(
       MetadataOutput output, @Nullable Looper outputLooper, MetadataDecoderFactory decoderFactory) {
+    this(output, outputLooper, decoderFactory, /* outputMetadataEarly= */ false);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param output The output.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using {@link
+   *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
+   *     directly on the player's internal rendering thread.
+   * @param decoderFactory A factory from which to obtain {@link MetadataDecoder} instances.
+   * @param outputMetadataEarly Whether the renderer outputs metadata early. When {@code true},
+   *     {@link #render} will output metadata as soon as they are available to the renderer,
+   *     otherwise {@link #render} will output metadata in sync with the rendering position.
+   */
+  public MetadataRenderer(
+      MetadataOutput output,
+      @Nullable Looper outputLooper,
+      MetadataDecoderFactory decoderFactory,
+      boolean outputMetadataEarly) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
     this.outputHandler =
         outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = Assertions.checkNotNull(decoderFactory);
+    this.outputMetadataEarly = outputMetadataEarly;
     buffer = new MetadataInputBuffer();
     outputStreamOffsetUs = C.TIME_UNSET;
   }
@@ -212,7 +246,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private boolean outputMetadata(long positionUs) {
     boolean didOutput = false;
     if (pendingMetadata != null
-        && pendingMetadata.presentationTimeUs <= getPresentationTimeUs(positionUs)) {
+        && (outputMetadataEarly
+            || pendingMetadata.presentationTimeUs <= getPresentationTimeUs(positionUs))) {
       invokeRenderer(pendingMetadata);
       pendingMetadata = null;
       didOutput = true;
