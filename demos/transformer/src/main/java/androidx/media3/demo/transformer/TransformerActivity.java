@@ -41,6 +41,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
+import androidx.media3.transformer.DebugViewProvider;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.GlEffect;
 import androidx.media3.transformer.GlTextureProcessor;
@@ -417,7 +418,7 @@ public final class TransformerActivity extends AppCompatActivity {
     Toast.makeText(getApplicationContext(), getString(messageResource), Toast.LENGTH_LONG).show();
   }
 
-  private final class DemoDebugViewProvider implements Transformer.DebugViewProvider {
+  private final class DemoDebugViewProvider implements DebugViewProvider {
 
     private @MonotonicNonNull SurfaceView surfaceView;
     private int width;

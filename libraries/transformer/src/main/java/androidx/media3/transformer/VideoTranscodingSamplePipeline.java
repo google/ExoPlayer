@@ -60,7 +60,7 @@ import org.checkerframework.dataflow.qual.Pure;
       List<String> allowedOutputMimeTypes,
       FallbackListener fallbackListener,
       Transformer.AsyncErrorListener asyncErrorListener,
-      Transformer.DebugViewProvider debugViewProvider)
+      DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);

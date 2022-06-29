@@ -59,7 +59,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final long streamOffsetUs;
-  private final Transformer.DebugViewProvider debugViewProvider;
+  private final DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
   private final boolean enableExperimentalHdrEditing;
 
@@ -85,7 +85,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       long streamOffsetUs,
       FrameProcessor.Listener frameProcessorListener,
-      Transformer.DebugViewProvider debugViewProvider,
+      DebugViewProvider debugViewProvider,
       boolean enableExperimentalHdrEditing) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
