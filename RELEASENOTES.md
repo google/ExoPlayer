@@ -15,9 +15,9 @@
 *   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
-        `MetadataRenderer(MetadataOutput, Looper,
-        MetadataDecoderFactory, boolean)` to specify whether the renderer will
-        output metadata early or in sync with the player position.
+        `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
+        boolean)` to specify whether the renderer will output metadata early or
+        in sync with the player position.
 *   UI:
     *   Ensure TalkBack announces the currently active speed option in the
         playback controls menu
