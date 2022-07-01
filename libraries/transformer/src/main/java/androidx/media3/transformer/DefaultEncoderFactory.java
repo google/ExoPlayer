@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -254,6 +255,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       adjustMediaFormatForH264EncoderSettings(mediaFormat, encoderInfo);
     }
 
+    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
     mediaFormat.setInteger(
         MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
 

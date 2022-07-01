@@ -53,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param listener A {@link Listener}.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
    * @param debugViewProvider A {@link DebugViewProvider}.
-   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
+   * @param useHdr Whether to process the input as an HDR signal.
    * @return A new instance.
    * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
    *     creating and configuring the OpenGL components.
@@ -64,7 +64,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long streamOffsetUs,
       List<GlEffect> effects,
       DebugViewProvider debugViewProvider,
-      boolean enableExperimentalHdrEditing)
+      boolean useHdr)
       throws FrameProcessingException {
 
     ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
@@ -78,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     streamOffsetUs,
                     effects,
                     debugViewProvider,
-                    enableExperimentalHdrEditing,
+                    useHdr,
                     singleThreadExecutorService));
 
     try {
@@ -106,23 +106,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long streamOffsetUs,
       List<GlEffect> effects,
       DebugViewProvider debugViewProvider,
-      boolean enableExperimentalHdrEditing,
+      boolean useHdr,
       ExecutorService singleThreadExecutorService)
       throws GlUtil.GlException, FrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext =
-        enableExperimentalHdrEditing
+        useHdr
             ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
             : GlUtil.createEglContext(eglDisplay);
 
     if (GlUtil.isSurfacelessContextExtensionSupported()) {
       GlUtil.focusEglSurface(
           eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
-    } else if (enableExperimentalHdrEditing) {
-      // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
-      GlUtil.focusPlaceholderEglSurfaceBt2020Pq(eglContext, eglDisplay);
+    } else if (useHdr) {
+      GlUtil.focusPlaceholderEglSurfaceBt2020(eglContext, eglDisplay);
     } else {
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }
@@ -137,13 +136,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 streamOffsetUs,
                 listener,
                 debugViewProvider,
-                enableExperimentalHdrEditing);
+                useHdr);
     ImmutableList<GlTextureProcessor> intermediateTextureProcessors = textureProcessors.first;
     FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper =
         textureProcessors.second;
 
     ExternalTextureProcessor externalTextureProcessor =
-        new ExternalTextureProcessor(context, enableExperimentalHdrEditing);
+        new ExternalTextureProcessor(context, useHdr);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainTextureProcessorsWithListeners(
@@ -182,7 +181,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           long streamOffsetUs,
           FrameProcessor.Listener listener,
           DebugViewProvider debugViewProvider,
-          boolean enableExperimentalHdrEditing)
+          boolean useHdr)
           throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
         new ImmutableList.Builder<>();
@@ -213,7 +212,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             listener,
             debugViewProvider,
-            enableExperimentalHdrEditing));
+            useHdr));
   }
 
   /**

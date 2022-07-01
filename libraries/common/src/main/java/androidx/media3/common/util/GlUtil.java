@@ -66,12 +66,8 @@ public final class GlUtil {
 
   // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
   private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
-  // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
-  private static final int EGL_GL_COLORSPACE_BT2020_PQ_EXT = 0x3340;
 
   private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
-  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ =
-      new int[] {EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_PQ_EXT, EGL14.EGL_NONE};
   private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_8888 =
       new int[] {
         EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
@@ -213,19 +209,19 @@ public final class GlUtil {
 
   /**
    * Returns a new {@link EGLSurface} wrapping the specified {@code surface}, for HDR rendering with
-   * Rec. 2020 color primaries and using the PQ transfer function.
+   * Rec. 2020 color primaries.
    *
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurfaceBt2020Pq(EGLDisplay eglDisplay, Object surface)
+  public static EGLSurface getEglSurfaceBt2020(EGLDisplay eglDisplay, Object surface)
       throws GlException {
     return Api17.getEglSurface(
         eglDisplay,
         surface,
         EGL_CONFIG_ATTRIBUTES_RGBA_1010102,
-        EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ);
+        EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
   }
 
   /**
@@ -277,22 +273,22 @@ public final class GlUtil {
 
   /**
    * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer, for HDR rendering
-   * with Rec. 2020 color primaries and using the PQ transfer function.
+   * with Rec. 2020 color primaries.
    *
    * @param eglContext The {@link EGLContext} to make current.
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    */
   @RequiresApi(17)
-  public static void focusPlaceholderEglSurfaceBt2020Pq(
-      EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
+  public static void focusPlaceholderEglSurfaceBt2020(EGLContext eglContext, EGLDisplay eglDisplay)
+      throws GlException {
     int[] pbufferAttributes =
         new int[] {
           EGL14.EGL_WIDTH,
           /* width= */ 1,
           EGL14.EGL_HEIGHT,
           /* height= */ 1,
+          // TODO(b/227624622): Figure out if we can remove the EGL_GL_COLORSPACE_KHR item.
           EGL_GL_COLORSPACE_KHR,
-          EGL_GL_COLORSPACE_BT2020_PQ_EXT,
           EGL14.EGL_NONE
         };
     EGLSurface eglSurface =
