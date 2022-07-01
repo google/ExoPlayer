@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -192,8 +193,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     onContinueLoadingRequestedRunnable =
         () -> {
           if (!released) {
-            Assertions.checkNotNull(callback)
-                .onContinueLoadingRequested(ProgressiveMediaPeriod.this);
+            checkNotNull(callback).onContinueLoadingRequested(ProgressiveMediaPeriod.this);
           }
         };
     handler = Util.createHandlerForCurrentLooper();
@@ -365,7 +365,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long getNextLoadPositionUs() {
-    return enabledTrackCount == 0 ? C.TIME_END_OF_SOURCE : getBufferedPositionUs();
+    return getBufferedPositionUs();
   }
 
   @Override
@@ -381,8 +381,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public long getBufferedPositionUs() {
     assertPrepared();
-    boolean[] trackIsAudioVideoFlags = trackState.trackIsAudioVideoFlags;
-    if (loadingFinished) {
+    if (loadingFinished || enabledTrackCount == 0) {
       return C.TIME_END_OF_SOURCE;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
@@ -392,14 +391,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // Ignore non-AV tracks, which may be sparse or poorly interleaved.
       int trackCount = sampleQueues.length;
       for (int i = 0; i < trackCount; i++) {
-        if (trackIsAudioVideoFlags[i] && !sampleQueues[i].isLastSampleQueued()) {
+        if (trackState.trackIsAudioVideoFlags[i]
+            && trackState.trackEnabledStates[i]
+            && !sampleQueues[i].isLastSampleQueued()) {
           largestQueuedTimestampUs =
               min(largestQueuedTimestampUs, sampleQueues[i].getLargestQueuedTimestampUs());
         }
       }
     }
     if (largestQueuedTimestampUs == Long.MAX_VALUE) {
-      largestQueuedTimestampUs = getLargestQueuedTimestampUs();
+      largestQueuedTimestampUs = getLargestQueuedTimestampUs(/* includeDisabledTracks= */ false);
     }
     return largestQueuedTimestampUs == Long.MIN_VALUE
         ? lastSeekPositionUs
@@ -535,7 +536,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.reset();
     }
-    Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
+    checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
   private boolean suppressRead() {
@@ -549,7 +550,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
     if (durationUs == C.TIME_UNSET && seekMap != null) {
       boolean isSeekable = seekMap.isSeekable();
-      long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
+      long largestQueuedTimestampUs =
+          getLargestQueuedTimestampUs(/* includeDisabledTracks= */ true);
       durationUs =
           largestQueuedTimestampUs == Long.MIN_VALUE
               ? 0
@@ -577,7 +579,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs);
     loadingFinished = true;
-    Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
+    checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
   @Override
@@ -608,7 +610,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         sampleQueue.reset();
       }
       if (enabledTrackCount > 0) {
-        Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
+        checkNotNull(callback).onContinueLoadingRequested(this);
       }
     }
   }
@@ -754,7 +756,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
     boolean[] trackIsAudioVideoFlags = new boolean[trackCount];
     for (int i = 0; i < trackCount; i++) {
-      Format trackFormat = Assertions.checkNotNull(sampleQueues[i].getUpstreamFormat());
+      Format trackFormat = checkNotNull(sampleQueues[i].getUpstreamFormat());
       @Nullable String mimeType = trackFormat.sampleMimeType;
       boolean isAudio = MimeTypes.isAudio(mimeType);
       boolean isAudioVideo = isAudio || MimeTypes.isVideo(mimeType);
@@ -785,7 +787,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     trackState = new TrackState(new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
     prepared = true;
-    Assertions.checkNotNull(callback).onPrepared(this);
+    checkNotNull(callback).onPrepared(this);
   }
 
   private void startLoading() {
@@ -800,7 +802,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return;
       }
       loadable.setLoadPosition(
-          Assertions.checkNotNull(seekMap).getSeekPoints(pendingResetPositionUs).first.position,
+          checkNotNull(seekMap).getSeekPoints(pendingResetPositionUs).first.position,
           pendingResetPositionUs);
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.setStartTimeUs(pendingResetPositionUs);
@@ -897,11 +899,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return extractedSamplesCount;
   }
 
-  private long getLargestQueuedTimestampUs() {
+  private long getLargestQueuedTimestampUs(boolean includeDisabledTracks) {
     long largestQueuedTimestampUs = Long.MIN_VALUE;
-    for (SampleQueue sampleQueue : sampleQueues) {
-      largestQueuedTimestampUs =
-          max(largestQueuedTimestampUs, sampleQueue.getLargestQueuedTimestampUs());
+    for (int i = 0; i < sampleQueues.length; i++) {
+      if (includeDisabledTracks || checkNotNull(trackState).trackEnabledStates[i]) {
+        largestQueuedTimestampUs =
+            max(largestQueuedTimestampUs, sampleQueues[i].getLargestQueuedTimestampUs());
+      }
     }
     return largestQueuedTimestampUs;
   }
@@ -913,8 +917,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @EnsuresNonNull({"trackState", "seekMap"})
   private void assertPrepared() {
     Assertions.checkState(prepared);
-    Assertions.checkNotNull(trackState);
-    Assertions.checkNotNull(seekMap);
+    checkNotNull(trackState);
+    checkNotNull(seekMap);
   }
 
   private final class SampleStreamImpl implements SampleStream {
@@ -1057,9 +1061,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onIcyMetadata(ParsableByteArray metadata) {
       // Always output the first ICY metadata at the start time. This helps minimize any delay
       // between the start of playback and the first ICY metadata event.
-      long timeUs = !seenIcyMetadata ? seekTimeUs : max(getLargestQueuedTimestampUs(), seekTimeUs);
+      long timeUs =
+          !seenIcyMetadata
+              ? seekTimeUs
+              : max(getLargestQueuedTimestampUs(/* includeDisabledTracks= */ true), seekTimeUs);
       int length = metadata.bytesLeft();
-      TrackOutput icyTrackOutput = Assertions.checkNotNull(this.icyTrackOutput);
+      TrackOutput icyTrackOutput = checkNotNull(this.icyTrackOutput);
       icyTrackOutput.sampleData(metadata, length);
       icyTrackOutput.sampleMetadata(
           timeUs, C.BUFFER_FLAG_KEY_FRAME, length, /* offset= */ 0, /* cryptoData= */ null);
