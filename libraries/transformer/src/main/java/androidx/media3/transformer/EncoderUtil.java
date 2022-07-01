@@ -239,9 +239,14 @@ public final class EncoderUtil {
     MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     // Format must not include KEY_FRAME_RATE on API21.
     // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
-    @Nullable String frameRate = null;
+    float frameRate = Format.NO_VALUE;
     if (Util.SDK_INT == 21 && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
-      frameRate = format.getString(MediaFormat.KEY_FRAME_RATE);
+      try {
+        frameRate = format.getFloat(MediaFormat.KEY_FRAME_RATE);
+      } catch (ClassCastException e) {
+        frameRate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
+      }
+      // Clears the frame rate field.
       format.setString(MediaFormat.KEY_FRAME_RATE, null);
     }
 
@@ -251,7 +256,7 @@ public final class EncoderUtil {
             : mediaCodecList.findEncoderForFormat(format);
 
     if (Util.SDK_INT == 21) {
-      MediaFormatUtil.maybeSetString(format, MediaFormat.KEY_FRAME_RATE, frameRate);
+      MediaFormatUtil.maybeSetInteger(format, MediaFormat.KEY_FRAME_RATE, round(frameRate));
     }
     return mediaCodecName;
   }
