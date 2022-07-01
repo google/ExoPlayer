@@ -29,6 +29,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.session.MediaBrowser
@@ -150,7 +151,7 @@ class PlayableFolderActivity : AppCompatActivity() {
         val result = mediaItemFuture.get()!!
         title.text = result.value!!.mediaMetadata.title
       },
-      MoreExecutors.directExecutor()
+      ContextCompat.getMainExecutor(this)
     )
     childrenFuture.addListener(
       {
@@ -161,7 +162,7 @@ class PlayableFolderActivity : AppCompatActivity() {
         subItemMediaList.addAll(children)
         mediaListAdapter.notifyDataSetChanged()
       },
-      MoreExecutors.directExecutor()
+      ContextCompat.getMainExecutor(this)
     )
   }
 
