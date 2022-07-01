@@ -91,6 +91,15 @@ import androidx.media3.common.util.Util;
     if (transformationRequest.outputHeight != originalTransformationRequest.outputHeight) {
       fallbackRequestBuilder.setResolution(transformationRequest.outputHeight);
     }
+    if (transformationRequest.enableHdrEditing != originalTransformationRequest.enableHdrEditing) {
+      fallbackRequestBuilder.experimental_setEnableHdrEditing(
+          transformationRequest.enableHdrEditing);
+    }
+    if (transformationRequest.enableRequestSdrToneMapping
+        != originalTransformationRequest.enableRequestSdrToneMapping) {
+      fallbackRequestBuilder.setEnableRequestSdrToneMapping(
+          transformationRequest.enableRequestSdrToneMapping);
+    }
     fallbackTransformationRequest = fallbackRequestBuilder.build();
 
     if (trackCount == 0 && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
