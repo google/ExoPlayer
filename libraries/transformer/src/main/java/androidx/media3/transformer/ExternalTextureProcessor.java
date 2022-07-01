@@ -49,19 +49,14 @@ import java.io.IOException;
   /**
    * Creates a new instance.
    *
-   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
+   * @param useHdr Whether to process the input as an HDR signal.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public ExternalTextureProcessor(Context context, boolean enableExperimentalHdrEditing)
-      throws FrameProcessingException {
+  public ExternalTextureProcessor(Context context, boolean useHdr) throws FrameProcessingException {
     String vertexShaderFilePath =
-        enableExperimentalHdrEditing
-            ? VERTEX_SHADER_TEX_TRANSFORM_ES3_PATH
-            : VERTEX_SHADER_TEX_TRANSFORM_PATH;
+        useHdr ? VERTEX_SHADER_TEX_TRANSFORM_ES3_PATH : VERTEX_SHADER_TEX_TRANSFORM_PATH;
     String fragmentShaderFilePath =
-        enableExperimentalHdrEditing
-            ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
-            : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+        useHdr ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
     try {
       glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
     } catch (IOException | GlUtil.GlException e) {
@@ -72,7 +67,7 @@ import java.io.IOException;
         "aFramePosition",
         GlUtil.getNormalizedCoordinateBounds(),
         GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-    if (enableExperimentalHdrEditing) {
+    if (useHdr) {
       // In HDR editing mode the decoder output is sampled in YUV.
       glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
     }
