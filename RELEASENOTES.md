@@ -12,6 +12,8 @@
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
     *   Fix parsing of H265 short term reference picture sets
         ([#10316](https://github.com/google/ExoPlayer/issues/10316)).
+    *   Fix parsing of bitrates from `esds` boxes
+        ([#10381](https://github.com/google/ExoPlayer/issues/10381)).
 *   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
