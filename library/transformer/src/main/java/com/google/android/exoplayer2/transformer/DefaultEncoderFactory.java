@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
+import static java.lang.Math.round;
 
 import android.content.Context;
 import android.media.MediaCodecInfo;
@@ -229,7 +230,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     String mimeType = checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = MediaFormat.createVideoFormat(mimeType, format.width, format.height);
-    mediaFormat.setFloat(MediaFormat.KEY_FRAME_RATE, format.frameRate);
+    mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(format.frameRate));
     mediaFormat.setInteger(
         MediaFormat.KEY_BIT_RATE,
         supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE
