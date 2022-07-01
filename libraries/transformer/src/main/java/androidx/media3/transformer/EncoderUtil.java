@@ -236,7 +236,7 @@ public final class EncoderUtil {
    */
   @Nullable
   public static String findCodecForFormat(MediaFormat format, boolean isDecoder) {
-    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     // Format must not include KEY_FRAME_RATE on API21.
     // https://developer.android.com/reference/android/media/MediaCodecList#findDecoderForFormat(android.media.MediaFormat)
     @Nullable String frameRate = null;
@@ -352,7 +352,7 @@ public final class EncoderUtil {
     ImmutableListMultimap.Builder<String, MediaCodecInfo> encoderInfosBuilder =
         new ImmutableListMultimap.Builder<>();
 
-    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+    MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     MediaCodecInfo[] allCodecInfos = mediaCodecList.getCodecInfos();
 
     for (MediaCodecInfo mediaCodecInfo : allCodecInfos) {
