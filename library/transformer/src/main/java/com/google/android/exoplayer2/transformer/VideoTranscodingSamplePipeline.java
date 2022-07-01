@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -97,6 +98,10 @@ import org.checkerframework.dataflow.qual.Pure;
             transformationRequest,
             fallbackListener);
 
+    // TODO(b/237674316): While HLG10 is correctly reported, HDR10 currently will be incorrectly
+    // processed as SDR, because the inputFormat.colorInfo reports the wrong value.
+    boolean useHdr = transformationRequest.enableHdrEditing && isHdr(inputFormat.colorInfo);
+
     try {
       frameProcessor =
           GlEffectsFrameProcessor.create(
@@ -131,7 +136,7 @@ import org.checkerframework.dataflow.qual.Pure;
               streamOffsetUs,
               effectsListBuilder.build(),
               debugViewProvider,
-              transformationRequest.enableHdrEditing);
+              useHdr);
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
@@ -145,6 +150,11 @@ import org.checkerframework.dataflow.qual.Pure;
             frameProcessor.getInputSurface(),
             transformationRequest.enableRequestSdrToneMapping);
     maxPendingFrameCount = decoder.getMaxPendingFrameCount();
+  }
+
+  /** Whether this is a supported HDR format. */
+  private static boolean isHdr(@Nullable ColorInfo colorInfo) {
+    return colorInfo != null && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
   }
 
   @Override
@@ -352,6 +362,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   transformationRequest.videoMimeType != null
                       ? transformationRequest.videoMimeType
                       : inputFormat.sampleMimeType)
+              .setColorInfo(inputFormat.colorInfo)
               .build();
 
       encoder =

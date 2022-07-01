@@ -61,7 +61,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final long streamOffsetUs;
   private final DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
-  private final boolean enableExperimentalHdrEditing;
+  private final boolean useHdr;
 
   private int inputWidth;
   private int inputHeight;
@@ -86,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long streamOffsetUs,
       FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
-      boolean enableExperimentalHdrEditing) {
+      boolean useHdr) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.eglDisplay = eglDisplay;
@@ -94,7 +94,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.streamOffsetUs = streamOffsetUs;
     this.debugViewProvider = debugViewProvider;
     this.frameProcessorListener = frameProcessorListener;
-    this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
+    this.useHdr = useHdr;
   }
 
   /**
@@ -194,9 +194,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) { // This means that outputSurfaceInfo changed.
-      if (enableExperimentalHdrEditing) {
-        // TODO(b/227624622): Don't assume BT.2020 PQ input/output.
-        outputEglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, outputSurfaceInfo.surface);
+      if (useHdr) {
+        outputEglSurface = GlUtil.getEglSurfaceBt2020(eglDisplay, outputSurfaceInfo.surface);
       } else {
         outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
       }
@@ -207,8 +206,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputSurfaceInfo.width, outputSurfaceInfo.height);
       if (debugSurfaceView != null) {
         debugSurfaceViewWrapper =
-            new SurfaceViewWrapper(
-                eglDisplay, eglContext, enableExperimentalHdrEditing, debugSurfaceView);
+            new SurfaceViewWrapper(eglDisplay, eglContext, useHdr, debugSurfaceView);
       }
       if (matrixTransformationProcessor != null) {
         matrixTransformationProcessor.release();
@@ -281,7 +279,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final class SurfaceViewWrapper implements SurfaceHolder.Callback {
     private final EGLDisplay eglDisplay;
     private final EGLContext eglContext;
-    private final boolean enableExperimentalHdrEditing;
+    private final boolean useHdr;
 
     @GuardedBy("this")
     @Nullable
@@ -295,13 +293,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private int height;
 
     public SurfaceViewWrapper(
-        EGLDisplay eglDisplay,
-        EGLContext eglContext,
-        boolean enableExperimentalHdrEditing,
-        SurfaceView surfaceView) {
+        EGLDisplay eglDisplay, EGLContext eglContext, boolean useHdr, SurfaceView surfaceView) {
       this.eglDisplay = eglDisplay;
       this.eglContext = eglContext;
-      this.enableExperimentalHdrEditing = enableExperimentalHdrEditing;
+      this.useHdr = useHdr;
       surfaceView.getHolder().addCallback(this);
       surface = surfaceView.getHolder().getSurface();
       width = surfaceView.getWidth();
@@ -321,8 +316,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       if (eglSurface == null) {
-        if (enableExperimentalHdrEditing) {
-          eglSurface = GlUtil.getEglSurfaceBt2020Pq(eglDisplay, surface);
+        if (useHdr) {
+          eglSurface = GlUtil.getEglSurfaceBt2020(eglDisplay, surface);
         } else {
           eglSurface = GlUtil.getEglSurface(eglDisplay, surface);
         }
