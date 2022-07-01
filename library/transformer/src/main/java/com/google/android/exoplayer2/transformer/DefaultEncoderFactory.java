@@ -33,6 +33,7 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -252,6 +253,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       adjustMediaFormatForH264EncoderSettings(mediaFormat, encoderInfo);
     }
 
+    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
     mediaFormat.setInteger(
         MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
 
