@@ -17,20 +17,25 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
@@ -39,6 +44,8 @@ import org.checkerframework.dataflow.qual.Pure;
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
+  private static final String TAG = "VideoTranscodingSP";
+
   private final int maxPendingFrameCount;
 
   private final DecoderInputBuffer decoderInputBuffer;
@@ -98,9 +105,17 @@ import org.checkerframework.dataflow.qual.Pure;
             transformationRequest,
             fallbackListener);
 
+    boolean enableRequestSdrToneMapping = transformationRequest.enableRequestSdrToneMapping;
     // TODO(b/237674316): While HLG10 is correctly reported, HDR10 currently will be incorrectly
-    // processed as SDR, because the inputFormat.colorInfo reports the wrong value.
+    //  processed as SDR, because the inputFormat.colorInfo reports the wrong value.
     boolean useHdr = transformationRequest.enableHdrEditing && isHdr(inputFormat.colorInfo);
+    if (useHdr && !encoderWrapper.supportsHdr()) {
+      // TODO(b/236316454): Also check whether GlEffectsFrameProcessor supports HDR, i.e., whether
+      //  EXT_YUV_target is supported.
+      useHdr = false;
+      enableRequestSdrToneMapping = true;
+      encoderWrapper.signalFallbackToSdr();
+    }
 
     try {
       frameProcessor =
@@ -146,9 +161,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
     decoder =
         decoderFactory.createForVideoDecoding(
-            inputFormat,
-            frameProcessor.getInputSurface(),
-            transformationRequest.enableRequestSdrToneMapping);
+            inputFormat, frameProcessor.getInputSurface(), enableRequestSdrToneMapping);
+    // TODO(b/236316454): Check in the decoder output format whether tone-mapping was actually
+    //  applied and throw an exception if not.
     maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
 
@@ -232,23 +247,33 @@ import org.checkerframework.dataflow.qual.Pure;
    *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
    * @param requestedFormat The requested format.
    * @param supportedFormat A format supported by the device.
+   * @param fallbackToSdr Whether HDR editing was requested via the TransformationRequest or
+   *     inferred from the input and tone-mapping to SDR was used instead due to lack of encoder
+   *     capabilities.
    */
   @Pure
   private static TransformationRequest createFallbackTransformationRequest(
       TransformationRequest transformationRequest,
       boolean hasOutputFormatRotation,
       Format requestedFormat,
-      Format supportedFormat) {
+      Format supportedFormat,
+      boolean fallbackToSdr) {
     // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
-    // implemented.
-    if (Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
+    //  implemented.
+    if (!fallbackToSdr
+        && Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
         && (hasOutputFormatRotation
             ? requestedFormat.width == supportedFormat.width
             : requestedFormat.height == supportedFormat.height)) {
       return transformationRequest;
     }
-    return transformationRequest
-        .buildUpon()
+    TransformationRequest.Builder transformationRequestBuilder = transformationRequest.buildUpon();
+    if (fallbackToSdr) {
+      transformationRequestBuilder
+          .setEnableRequestSdrToneMapping(true)
+          .experimental_setEnableHdrEditing(false);
+    }
+    return transformationRequestBuilder
         .setVideoMimeType(supportedFormat.sampleMimeType)
         .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
         .build();
@@ -309,12 +334,14 @@ import org.checkerframework.dataflow.qual.Pure;
     private final List<String> allowedOutputMimeTypes;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
+    private final HashSet<String> hdrMediaCodecNames;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
     private volatile @MonotonicNonNull Codec encoder;
     private volatile int outputRotationDegrees;
     private volatile boolean releaseEncoder;
+    private boolean fallbackToSdr;
 
     public EncoderWrapper(
         Codec.EncoderFactory encoderFactory,
@@ -328,6 +355,8 @@ import org.checkerframework.dataflow.qual.Pure;
       this.allowedOutputMimeTypes = allowedOutputMimeTypes;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
+
+      hdrMediaCodecNames = new HashSet<>();
     }
 
     @Nullable
@@ -362,18 +391,27 @@ import org.checkerframework.dataflow.qual.Pure;
                   transformationRequest.videoMimeType != null
                       ? transformationRequest.videoMimeType
                       : inputFormat.sampleMimeType)
-              .setColorInfo(inputFormat.colorInfo)
+              .setColorInfo(fallbackToSdr ? ColorInfo.SDR : inputFormat.colorInfo)
               .build();
 
       encoder =
           encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
+      if (!hdrMediaCodecNames.isEmpty() && !hdrMediaCodecNames.contains(encoder.getName())) {
+        Log.d(
+            TAG,
+            "Selected encoder "
+                + encoder.getName()
+                + " does not report sufficient HDR capabilities");
+      }
+
       Format encoderSupportedFormat = encoder.getConfigurationFormat();
       fallbackListener.onTransformationRequestFinalized(
           createFallbackTransformationRequest(
               transformationRequest,
               /* hasOutputFormatRotation= */ flipOrientation,
               requestedEncoderFormat,
-              encoderSupportedFormat));
+              encoderSupportedFormat,
+              fallbackToSdr));
 
       encoderSurfaceInfo =
           new SurfaceInfo(
@@ -431,6 +469,43 @@ import org.checkerframework.dataflow.qual.Pure;
         encoder.release();
       }
       releaseEncoder = true;
+    }
+
+    /**
+     * Checks whether at least one MediaCodec encoder on the device has sufficient capabilities to
+     * encode HDR (only checks support for HLG at this time).
+     */
+    public boolean supportsHdr() {
+      if (Util.SDK_INT < 31) {
+        return false;
+      }
+
+      // The only output MIME type that Transformer currently supports that can be used with HDR
+      // is H265/HEVC. So we assume that the EncoderFactory will pick this if HDR is requested.
+      String mimeType = MimeTypes.VIDEO_H265;
+
+      List<MediaCodecInfo> mediaCodecInfos = EncoderSelector.DEFAULT.selectEncoderInfos(mimeType);
+      for (int i = 0; i < mediaCodecInfos.size(); i++) {
+        MediaCodecInfo mediaCodecInfo = mediaCodecInfos.get(i);
+        if (EncoderUtil.isFeatureSupported(
+            mediaCodecInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing)) {
+          for (MediaCodecInfo.CodecProfileLevel capabilities :
+              mediaCodecInfo.getCapabilitiesForType(MimeTypes.VIDEO_H265).profileLevels) {
+            // TODO(b/227624622): What profile to check depends on the HDR format. Once other
+            //  formats besides HLG are supported, check the corresponding profiles here.
+            if (capabilities.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10) {
+              return hdrMediaCodecNames.add(mediaCodecInfo.getCanonicalName());
+            }
+          }
+        }
+      }
+      return !hdrMediaCodecNames.isEmpty();
+    }
+
+    public void signalFallbackToSdr() {
+      checkState(encoder == null, "Fallback to SDR is only allowed before encoder initialization");
+      fallbackToSdr = true;
+      hdrMediaCodecNames.clear();
     }
   }
 }
