@@ -1659,7 +1659,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parent.skipBytes(2);
     }
     if ((flags & 0x40 /* URL_Flag */) != 0) {
-      parent.skipBytes(parent.readUnsignedShort());
+      parent.skipBytes(parent.readUnsignedByte());
     }
     if ((flags & 0x20 /* OCRstreamFlag */) != 0) {
       parent.skipBytes(2);
