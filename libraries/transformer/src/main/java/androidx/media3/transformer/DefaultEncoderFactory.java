@@ -56,6 +56,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     @Nullable private EncoderSelector encoderSelector;
     @Nullable private VideoEncoderSettings requestedVideoEncoderSettings;
     private boolean enableFallback;
+    private boolean automaticQualityAdjustment;
 
     /** Creates a new {@link Builder}. */
     public Builder(Context context) {
@@ -76,10 +77,18 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     /**
      * Sets the requested {@link VideoEncoderSettings}.
      *
-     * <p>Values in {@code requestedVideoEncoderSettings} could be adjusted to improve encoding
-     * quality and/or reduce failures. Specifically, {@link VideoEncoderSettings#profile} and {@link
-     * VideoEncoderSettings#level} are ignored for {@link MimeTypes#VIDEO_H264}. Consider
-     * implementing {@link Codec.EncoderFactory} if such adjustments are unwanted.
+     * <p>Values in {@code requestedVideoEncoderSettings} may be ignored to improve encoding quality
+     * and/or reduce failures.
+     *
+     * <ul>
+     *   <li>{@link VideoEncoderSettings#bitrate} is ignored if {@link
+     *       Builder#setAutomaticQualityAdjustment(boolean)} is enabled and {@link
+     *       VideoEncoderSettings#bitrateMode} is VBR.
+     *   <li>{@link VideoEncoderSettings#profile} and {@link VideoEncoderSettings#level} are ignored
+     *       for {@link MimeTypes#VIDEO_H264}
+     * </ul>
+     *
+     * <p>Consider implementing {@link Codec.EncoderFactory} if such adjustments are unwanted.
      *
      * <p>{@code requestedVideoEncoderSettings} should be handled with care because there is no
      * fallback support for it. For example, using incompatible {@link VideoEncoderSettings#profile}
@@ -110,8 +119,19 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       return this;
     }
 
+    /**
+     * Sets whether to use automatic quality adjustment.
+     *
+     * <p>With this enabled, encoders are configured to output high quality video.
+     *
+     * <p>Default value is {@code false}.
+     */
+    public Builder setAutomaticQualityAdjustment(boolean automaticQualityAdjustment) {
+      this.automaticQualityAdjustment = automaticQualityAdjustment;
+      return this;
+    }
+
     /** Creates an instance of {@link DefaultEncoderFactory}, using defaults if values are unset. */
-    @SuppressWarnings("deprecation")
     public DefaultEncoderFactory build() {
       if (encoderSelector == null) {
         encoderSelector = EncoderSelector.DEFAULT;
@@ -120,7 +140,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         requestedVideoEncoderSettings = VideoEncoderSettings.DEFAULT;
       }
       return new DefaultEncoderFactory(
-          context, encoderSelector, requestedVideoEncoderSettings, enableFallback);
+          context,
+          encoderSelector,
+          requestedVideoEncoderSettings,
+          enableFallback,
+          automaticQualityAdjustment);
     }
   }
 
@@ -128,6 +152,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private final EncoderSelector videoEncoderSelector;
   private final VideoEncoderSettings requestedVideoEncoderSettings;
   private final boolean enableFallback;
+  private final boolean automaticQualityAdjustment;
 
   /**
    * @deprecated Use {@link Builder} instead.
@@ -157,10 +182,25 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       EncoderSelector videoEncoderSelector,
       VideoEncoderSettings requestedVideoEncoderSettings,
       boolean enableFallback) {
+    this(
+        context,
+        videoEncoderSelector,
+        requestedVideoEncoderSettings,
+        enableFallback,
+        /* automaticQualityAdjustment= */ false);
+  }
+
+  private DefaultEncoderFactory(
+      Context context,
+      EncoderSelector videoEncoderSelector,
+      VideoEncoderSettings requestedVideoEncoderSettings,
+      boolean enableFallback,
+      boolean automaticQualityAdjustment) {
     this.context = context;
     this.videoEncoderSelector = videoEncoderSelector;
     this.requestedVideoEncoderSettings = requestedVideoEncoderSettings;
     this.enableFallback = enableFallback;
+    this.automaticQualityAdjustment = automaticQualityAdjustment;
   }
 
   @Override
@@ -234,12 +274,20 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     String mimeType = checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = MediaFormat.createVideoFormat(mimeType, format.width, format.height);
     mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(format.frameRate));
-    mediaFormat.setInteger(
-        MediaFormat.KEY_BIT_RATE,
-        supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE
-            ? supportedVideoEncoderSettings.bitrate
-            : getSuggestedBitrate(format.width, format.height, format.frameRate));
 
+    int bitrate;
+    if (automaticQualityAdjustment) {
+      bitrate =
+          new DeviceMappedEncoderBitrateProvider()
+              .getBitrate(
+                  encoderInfo.getName(), format.width, format.height, round(format.frameRate));
+    } else if (supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE) {
+      bitrate = supportedVideoEncoderSettings.bitrate;
+    } else {
+      bitrate = getSuggestedBitrate(format.width, format.height, format.frameRate);
+    }
+
+    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
     mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, supportedVideoEncoderSettings.bitrateMode);
 
     if (supportedVideoEncoderSettings.profile != VideoEncoderSettings.NO_VALUE
