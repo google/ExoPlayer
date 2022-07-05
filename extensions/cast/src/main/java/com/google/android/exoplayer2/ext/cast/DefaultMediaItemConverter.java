@@ -126,11 +126,14 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     if (mediaItem.mediaMetadata.trackNumber != null) {
       metadata.putInt(MediaMetadata.KEY_TRACK_NUMBER, mediaItem.mediaMetadata.trackNumber);
     }
-
+    String contentUrl = mediaItem.localConfiguration.uri.toString();
+    String contentId =
+        mediaItem.mediaId.equals(MediaItem.DEFAULT_MEDIA_ID) ? contentUrl : mediaItem.mediaId;
     MediaInfo mediaInfo =
-        new MediaInfo.Builder(mediaItem.localConfiguration.uri.toString())
+        new MediaInfo.Builder(contentId)
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
             .setContentType(mediaItem.localConfiguration.mimeType)
+            .setContentUrl(contentUrl)
             .setMetadata(metadata)
             .setCustomData(getCustomData(mediaItem))
             .build();
