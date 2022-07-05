@@ -195,7 +195,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) { // This means that outputSurfaceInfo changed.
       if (useHdr) {
-        outputEglSurface = GlUtil.getEglSurfaceBt2020(eglDisplay, outputSurfaceInfo.surface);
+        outputEglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, outputSurfaceInfo.surface);
       } else {
         outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
       }
@@ -317,7 +317,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       if (eglSurface == null) {
         if (useHdr) {
-          eglSurface = GlUtil.getEglSurfaceBt2020(eglDisplay, surface);
+          eglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, surface);
         } else {
           eglSurface = GlUtil.getEglSurface(eglDisplay, surface);
         }
