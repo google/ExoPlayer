@@ -121,7 +121,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlUtil.focusEglSurface(
           eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
     } else if (useHdr) {
-      GlUtil.focusPlaceholderEglSurfaceBt2020(eglContext, eglDisplay);
+      GlUtil.focusPlaceholderEglSurfaceRgba1010102(eglContext, eglDisplay);
     } else {
       GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
     }

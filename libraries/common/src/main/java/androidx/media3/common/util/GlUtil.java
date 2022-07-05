@@ -64,9 +64,6 @@ public final class GlUtil {
   // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
   private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
 
-  // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
-  private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
-
   private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
   private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_8888 =
       new int[] {
@@ -208,14 +205,13 @@ public final class GlUtil {
   }
 
   /**
-   * Returns a new {@link EGLSurface} wrapping the specified {@code surface}, for HDR rendering with
-   * Rec. 2020 color primaries.
+   * Returns a new RGBA 1010102 {@link EGLSurface} wrapping the specified {@code surface}.
    *
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurfaceBt2020(EGLDisplay eglDisplay, Object surface)
+  public static EGLSurface getEglSurfaceRgba1010102(EGLDisplay eglDisplay, Object surface)
       throws GlException {
     return Api17.getEglSurface(
         eglDisplay,
@@ -230,18 +226,19 @@ public final class GlUtil {
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param width The width of the pixel buffer.
    * @param height The height of the pixel buffer.
+   * @param configAttributes EGL configuration attributes. Valid arguments include {@link
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_8888} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}.
    */
   @RequiresApi(17)
-  private static EGLSurface createPbufferSurface(EGLDisplay eglDisplay, int width, int height)
-      throws GlException {
+  private static EGLSurface createPbufferSurface(
+      EGLDisplay eglDisplay, int width, int height, int[] configAttributes) throws GlException {
     int[] pbufferAttributes =
         new int[] {
           EGL14.EGL_WIDTH, width,
           EGL14.EGL_HEIGHT, height,
           EGL14.EGL_NONE
         };
-    return Api17.createEglPbufferSurface(
-        eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888, pbufferAttributes);
+    return Api17.createEglPbufferSurface(eglDisplay, configAttributes, pbufferAttributes);
   }
 
   /**
@@ -255,7 +252,8 @@ public final class GlUtil {
   public static EGLSurface createPlaceholderEglSurface(EGLDisplay eglDisplay) throws GlException {
     return isSurfacelessContextExtensionSupported()
         ? EGL14.EGL_NO_SURFACE
-        : createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
+        : createPbufferSurface(
+            eglDisplay, /* width= */ 1, /* height= */ 1, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
@@ -267,33 +265,24 @@ public final class GlUtil {
   @RequiresApi(17)
   public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
       throws GlException {
-    EGLSurface eglSurface = createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
+    EGLSurface eglSurface =
+        createPbufferSurface(
+            eglDisplay, /* width= */ 1, /* height= */ 1, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
     focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
   }
 
   /**
-   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer, for HDR rendering
-   * with Rec. 2020 color primaries.
+   * Creates and focuses a new RGBA 1010102 {@link EGLSurface} wrapping a 1x1 pixel buffer.
    *
    * @param eglContext The {@link EGLContext} to make current.
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    */
   @RequiresApi(17)
-  public static void focusPlaceholderEglSurfaceBt2020(EGLContext eglContext, EGLDisplay eglDisplay)
-      throws GlException {
-    int[] pbufferAttributes =
-        new int[] {
-          EGL14.EGL_WIDTH,
-          /* width= */ 1,
-          EGL14.EGL_HEIGHT,
-          /* height= */ 1,
-          // TODO(b/227624622): Figure out if we can remove the EGL_GL_COLORSPACE_KHR item.
-          EGL_GL_COLORSPACE_KHR,
-          EGL14.EGL_NONE
-        };
+  public static void focusPlaceholderEglSurfaceRgba1010102(
+      EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
     EGLSurface eglSurface =
-        Api17.createEglPbufferSurface(
-            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_1010102, pbufferAttributes);
+        createPbufferSurface(
+            eglDisplay, /* width= */ 1, /* height= */ 1, EGL_CONFIG_ATTRIBUTES_RGBA_1010102);
     focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
   }
 
