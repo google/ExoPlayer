@@ -72,10 +72,11 @@ import java.util.concurrent.ExecutionException;
  * <h2>Custom commands</h2>
  *
  * Custom actions are sent to the session under the hood. You can receive them by overriding the
- * session callback method {@link MediaSession.Callback#onCustomCommand(MediaSession, ControllerInfo
- * controller, SessionCommand, Bundle)}. This is useful because starting with Android 13, the System
- * UI notification sends commands directly to the session. So handling the custom commands on the
- * session level allows you to handle them at the same callback for all API levels.
+ * session callback method {@link MediaSession.Callback#onCustomCommand(MediaSession,
+ * MediaSession.ControllerInfo, SessionCommand, Bundle)}. This is useful because starting with
+ * Android 13, the System UI notification sends commands directly to the session. So handling the
+ * custom commands on the session level allows you to handle them at the same callback for all API
+ * levels.
  *
  * <h2>Drawables</h2>
  *
@@ -230,10 +231,10 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * <p>To make the custom layout and commands work, you need to {@linkplain
    * MediaSession#setCustomLayout(List) set the custom layout of commands} and add the custom
    * commands to the available commands when a controller {@linkplain
-   * MediaSession.Callback#onConnect(MediaSession, ControllerInfo) connects to the session}.
-   * Controllers that connect after you called {@link MediaSession#setCustomLayout(List)} need the
-   * custom command set in {@link MediaSession.Callback#onPostConnect(MediaSession, ControllerInfo)}
-   * also.
+   * MediaSession.Callback#onConnect(MediaSession, MediaSession.ControllerInfo) connects to the
+   * session}. Controllers that connect after you called {@link MediaSession#setCustomLayout(List)}
+   * need the custom command set in {@link MediaSession.Callback#onPostConnect(MediaSession,
+   * MediaSession.ControllerInfo)} also.
    *
    * @param playerCommands The available player commands.
    * @param customLayout The {@linkplain MediaSession#setCustomLayout(List) custom layout of
