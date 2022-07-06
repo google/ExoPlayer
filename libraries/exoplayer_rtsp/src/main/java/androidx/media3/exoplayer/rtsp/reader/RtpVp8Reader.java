@@ -113,7 +113,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       int fragmentSize = data.bytesLeft();
       trackOutput.sampleData(data, fragmentSize);
-      fragmentedSampleSizeBytes += fragmentSize;
+      if (fragmentedSampleSizeBytes == C.LENGTH_UNSET) {
+        fragmentedSampleSizeBytes = fragmentSize;
+      } else {
+        fragmentedSampleSizeBytes += fragmentSize;
+      }
 
       if (rtpMarker) {
         if (firstReceivedTimestamp == C.TIME_UNSET) {
@@ -150,7 +154,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (!gotFirstPacketOfVp8Frame) {
       // TODO(b/198620566) Consider using ParsableBitArray.
       // For start of VP8 partition S=1 and PID=0 as per RFC7741 Section 4.2.
-      if ((header & 0x10) != 0x1 || (header & 0x07) != 0) {
+      if ((header & 0x10) != 0x10 || (header & 0x07) != 0) {
         Log.w(TAG, "RTP packet is not the start of a new VP8 partition, skipping.");
         return false;
       }
