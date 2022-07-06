@@ -89,6 +89,9 @@ public final class SimpleBitmapLoader implements BitmapLoader {
   }
 
   private static Bitmap load(Uri uri) throws IOException {
+    if (uri.getScheme().equals("file")) {
+      return BitmapFactory.decodeFile(uri.getPath());
+    }
     URLConnection connection = new URL(uri.toString()).openConnection();
     if (!(connection instanceof HttpURLConnection)) {
       throw new UnsupportedOperationException("Unsupported scheme: " + uri.getScheme());
