@@ -387,7 +387,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   transformationRequest.videoMimeType != null
                       ? transformationRequest.videoMimeType
                       : inputFormat.sampleMimeType)
-              .setColorInfo(fallbackToSdr ? ColorInfo.SDR : inputFormat.colorInfo)
+              .setColorInfo(fallbackToSdr ? null : inputFormat.colorInfo)
               .build();
 
       encoder =
