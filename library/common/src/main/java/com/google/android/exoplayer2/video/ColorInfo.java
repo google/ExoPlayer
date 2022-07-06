@@ -32,14 +32,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
 /** Stores color info. */
 public final class ColorInfo implements Bundleable {
-  /** Standard Dynamic Range (SDR). */
-  public static final ColorInfo SDR =
-      new ColorInfo(
-          C.COLOR_SPACE_BT709,
-          C.COLOR_RANGE_LIMITED,
-          C.COLOR_TRANSFER_SDR,
-          /* hdrStaticInfo= */ null);
-
   /**
    * Returns the {@link C.ColorSpace} corresponding to the given ISO color primary code, as per
    * table A.7.21.1 in Rec. ITU-T T.832 (03/2009), or {@link Format#NO_VALUE} if no mapping can be
