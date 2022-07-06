@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
 import com.google.android.exoplayer2.C;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -91,6 +93,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
+    if (SDK_INT < 31 && ColorInfo.isHdr(inputFormat.colorInfo)) {
+      throw TransformationException.createForCodec(
+          new IllegalArgumentException("HDR editing not supported under API 31."),
+          /* isVideo= */ true,
+          /* isDecoder= */ false,
+          inputFormat,
+          /* mediaCodecName= */ null,
+          TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
+    }
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
           new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
