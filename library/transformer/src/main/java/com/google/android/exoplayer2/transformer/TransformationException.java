@@ -67,6 +67,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
         ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
+        ERROR_CODE_HDR_EDITING_UNSUPPORTED,
         ERROR_CODE_GL_INIT_FAILED,
         ERROR_CODE_GL_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
@@ -149,6 +150,8 @@ public final class TransformationException extends Exception {
    * Codec.DecoderFactory encoders} available.
    */
   public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
+  /** Caused by the encoder not supporting HDR formats. */
+  public static final int ERROR_CODE_HDR_EDITING_UNSUPPORTED = 4004;
 
   // Video editing errors (5xxx).
 
@@ -179,6 +182,7 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
           .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
+          .put("ERROR_CODE_HDR_EDITING_UNSUPPORTED", ERROR_CODE_HDR_EDITING_UNSUPPORTED)
           .put("ERROR_CODE_GL_INIT_FAILED", ERROR_CODE_GL_INIT_FAILED)
           .put("ERROR_CODE_GL_PROCESSING_FAILED", ERROR_CODE_GL_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)

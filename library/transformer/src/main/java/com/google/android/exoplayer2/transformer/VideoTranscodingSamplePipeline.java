@@ -108,7 +108,8 @@ import org.checkerframework.dataflow.qual.Pure;
     boolean enableRequestSdrToneMapping = transformationRequest.enableRequestSdrToneMapping;
     // TODO(b/237674316): While HLG10 is correctly reported, HDR10 currently will be incorrectly
     //  processed as SDR, because the inputFormat.colorInfo reports the wrong value.
-    boolean useHdr = transformationRequest.enableHdrEditing && isHdr(inputFormat.colorInfo);
+    boolean useHdr =
+        transformationRequest.enableHdrEditing && ColorInfo.isHdr(inputFormat.colorInfo);
     if (useHdr && !encoderWrapper.supportsHdr()) {
       // TODO(b/236316454): Also check whether GlEffectsFrameProcessor supports HDR, i.e., whether
       //  EXT_YUV_target is supported.
@@ -165,11 +166,6 @@ import org.checkerframework.dataflow.qual.Pure;
     // TODO(b/236316454): Check in the decoder output format whether tone-mapping was actually
     //  applied and throw an exception if not.
     maxPendingFrameCount = decoder.getMaxPendingFrameCount();
-  }
-
-  /** Whether this is a supported HDR format. */
-  private static boolean isHdr(@Nullable ColorInfo colorInfo) {
-    return colorInfo != null && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
   }
 
   @Override

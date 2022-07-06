@@ -84,6 +84,11 @@ public final class ColorInfo implements Bundleable {
     }
   }
 
+  /** Returns whether the {@code ColorInfo} uses an HDR {@link C.ColorTransfer}. */
+  public static boolean isHdr(@Nullable ColorInfo colorInfo) {
+    return colorInfo != null && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
+  }
+
   /**
    * The color space of the video. Valid values are {@link C#COLOR_SPACE_BT601}, {@link
    * C#COLOR_SPACE_BT709}, {@link C#COLOR_SPACE_BT2020} or {@link Format#NO_VALUE} if unknown.
