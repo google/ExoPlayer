@@ -57,6 +57,7 @@ public class Mp4PlaybackTest {
         "sample_eac3joc.mp4",
         "sample_fragmented.mp4",
         "sample_fragmented_seekable.mp4",
+        "sample_fragmented_large_bitrates.mp4",
         "sample_fragmented_sei.mp4",
         "sample_mdat_too_long.mp4",
         "sample.mp4",
