@@ -56,7 +56,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     @Nullable private EncoderSelector encoderSelector;
     @Nullable private VideoEncoderSettings requestedVideoEncoderSettings;
     private boolean enableFallback;
-    private boolean automaticQualityAdjustment;
 
     /** Creates a new {@link Builder}. */
     public Builder(Context context) {
@@ -80,15 +79,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
      * <p>Values in {@code requestedVideoEncoderSettings} may be ignored to improve encoding quality
      * and/or reduce failures.
      *
-     * <ul>
-     *   <li>{@link VideoEncoderSettings#bitrate} is ignored if {@link
-     *       Builder#setAutomaticQualityAdjustment(boolean)} is enabled and {@link
-     *       VideoEncoderSettings#bitrateMode} is VBR.
-     *   <li>{@link VideoEncoderSettings#profile} and {@link VideoEncoderSettings#level} are ignored
-     *       for {@link MimeTypes#VIDEO_H264}
-     * </ul>
-     *
-     * <p>Consider implementing {@link Codec.EncoderFactory} if such adjustments are unwanted.
+     * <p>{@link VideoEncoderSettings#profile} and {@link VideoEncoderSettings#level} are ignored
+     * for {@link MimeTypes#VIDEO_H264}. Consider implementing {@link Codec.EncoderFactory} if such
+     * adjustments are unwanted.
      *
      * <p>{@code requestedVideoEncoderSettings} should be handled with care because there is no
      * fallback support for it. For example, using incompatible {@link VideoEncoderSettings#profile}
@@ -119,19 +112,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       return this;
     }
 
-    /**
-     * Sets whether to use automatic quality adjustment.
-     *
-     * <p>With this enabled, encoders are configured to output high quality video.
-     *
-     * <p>Default value is {@code false}.
-     */
-    public Builder setAutomaticQualityAdjustment(boolean automaticQualityAdjustment) {
-      this.automaticQualityAdjustment = automaticQualityAdjustment;
-      return this;
-    }
-
     /** Creates an instance of {@link DefaultEncoderFactory}, using defaults if values are unset. */
+    @SuppressWarnings("deprecation")
     public DefaultEncoderFactory build() {
       if (encoderSelector == null) {
         encoderSelector = EncoderSelector.DEFAULT;
@@ -140,11 +122,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         requestedVideoEncoderSettings = VideoEncoderSettings.DEFAULT;
       }
       return new DefaultEncoderFactory(
-          context,
-          encoderSelector,
-          requestedVideoEncoderSettings,
-          enableFallback,
-          automaticQualityAdjustment);
+          context, encoderSelector, requestedVideoEncoderSettings, enableFallback);
     }
   }
 
@@ -152,7 +130,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private final EncoderSelector videoEncoderSelector;
   private final VideoEncoderSettings requestedVideoEncoderSettings;
   private final boolean enableFallback;
-  private final boolean automaticQualityAdjustment;
 
   /**
    * @deprecated Use {@link Builder} instead.
@@ -182,25 +159,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       EncoderSelector videoEncoderSelector,
       VideoEncoderSettings requestedVideoEncoderSettings,
       boolean enableFallback) {
-    this(
-        context,
-        videoEncoderSelector,
-        requestedVideoEncoderSettings,
-        enableFallback,
-        /* automaticQualityAdjustment= */ false);
-  }
-
-  private DefaultEncoderFactory(
-      Context context,
-      EncoderSelector videoEncoderSelector,
-      VideoEncoderSettings requestedVideoEncoderSettings,
-      boolean enableFallback,
-      boolean automaticQualityAdjustment) {
     this.context = context;
     this.videoEncoderSelector = videoEncoderSelector;
     this.requestedVideoEncoderSettings = requestedVideoEncoderSettings;
     this.enableFallback = enableFallback;
-    this.automaticQualityAdjustment = automaticQualityAdjustment;
   }
 
   @Override
@@ -276,11 +238,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(format.frameRate));
 
     int bitrate;
-    if (automaticQualityAdjustment) {
+
+    if (supportedVideoEncoderSettings.enableHighQualityTargeting) {
       bitrate =
           new DeviceMappedEncoderBitrateProvider()
-              .getBitrate(
-                  encoderInfo.getName(), format.width, format.height, round(format.frameRate));
+              .getBitrate(encoderInfo.getName(), format.width, format.height, format.frameRate);
     } else if (supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE) {
       bitrate = supportedVideoEncoderSettings.bitrate;
     } else {
@@ -367,46 +329,54 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       return null;
     }
 
-    List<MediaCodecInfo> encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
-    if (encodersForMimeType.isEmpty()) {
+    ImmutableList<MediaCodecInfo> filteredEncoderInfos =
+        encoderSelector.selectEncoderInfos(mimeType);
+    if (filteredEncoderInfos.isEmpty()) {
       return null;
     }
+
     if (!enableFallback) {
       return new VideoEncoderQueryResult(
-          encodersForMimeType.get(0), requestedFormat, videoEncoderSettings);
+          filteredEncoderInfos.get(0), requestedFormat, videoEncoderSettings);
     }
 
-    ImmutableList<MediaCodecInfo> filteredEncoders =
+    filteredEncoderInfos =
         filterEncodersByResolution(
-            encodersForMimeType, mimeType, requestedFormat.width, requestedFormat.height);
-    if (filteredEncoders.isEmpty()) {
+            filteredEncoderInfos, mimeType, requestedFormat.width, requestedFormat.height);
+    if (filteredEncoderInfos.isEmpty()) {
       return null;
     }
     // The supported resolution is the same for all remaining encoders.
     Size finalResolution =
         checkNotNull(
             EncoderUtil.getSupportedResolution(
-                filteredEncoders.get(0), mimeType, requestedFormat.width, requestedFormat.height));
+                filteredEncoderInfos.get(0),
+                mimeType,
+                requestedFormat.width,
+                requestedFormat.height));
 
     int requestedBitrate =
         videoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE
             ? videoEncoderSettings.bitrate
             : getSuggestedBitrate(
                 finalResolution.getWidth(), finalResolution.getHeight(), requestedFormat.frameRate);
-    filteredEncoders = filterEncodersByBitrate(filteredEncoders, mimeType, requestedBitrate);
-    if (filteredEncoders.isEmpty()) {
+
+    filteredEncoderInfos =
+        filterEncodersByBitrate(filteredEncoderInfos, mimeType, requestedBitrate);
+    if (filteredEncoderInfos.isEmpty()) {
       return null;
     }
 
-    filteredEncoders =
-        filterEncodersByBitrateMode(filteredEncoders, mimeType, videoEncoderSettings.bitrateMode);
-    if (filteredEncoders.isEmpty()) {
+    filteredEncoderInfos =
+        filterEncodersByBitrateMode(
+            filteredEncoderInfos, mimeType, videoEncoderSettings.bitrateMode);
+    if (filteredEncoderInfos.isEmpty()) {
       return null;
     }
 
-    MediaCodecInfo pickedEncoder = filteredEncoders.get(0);
+    MediaCodecInfo pickedEncoderInfo = filteredEncoderInfos.get(0);
     int closestSupportedBitrate =
-        EncoderUtil.getSupportedBitrateRange(pickedEncoder, mimeType).clamp(requestedBitrate);
+        EncoderUtil.getSupportedBitrateRange(pickedEncoderInfo, mimeType).clamp(requestedBitrate);
     VideoEncoderSettings.Builder supportedEncodingSettingBuilder =
         videoEncoderSettings.buildUpon().setBitrate(closestSupportedBitrate);
 
@@ -414,7 +384,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         || videoEncoderSettings.level == VideoEncoderSettings.NO_VALUE
         || videoEncoderSettings.level
             > EncoderUtil.findHighestSupportedEncodingLevel(
-                pickedEncoder, mimeType, videoEncoderSettings.profile)) {
+                pickedEncoderInfo, mimeType, videoEncoderSettings.profile)) {
       supportedEncodingSettingBuilder.setEncodingProfileLevel(
           VideoEncoderSettings.NO_VALUE, VideoEncoderSettings.NO_VALUE);
     }
@@ -428,7 +398,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             .setAverageBitrate(closestSupportedBitrate)
             .build();
     return new VideoEncoderQueryResult(
-        pickedEncoder, supportedEncoderFormat, supportedEncodingSettingBuilder.build());
+        pickedEncoderInfo, supportedEncoderFormat, supportedEncodingSettingBuilder.build());
   }
 
   /** Returns a list of encoders that support the requested resolution most closely. */
@@ -642,7 +612,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * </ul>
    */
   private static int getSuggestedBitrate(int width, int height, float frameRate) {
-    // TODO(b/210591626) Implement bitrate estimation.
+    // TODO(b/210591626) Refactor into a BitrateProvider.
     // Assume medium motion factor.
     // 1080p60 -> 16.6Mbps, 720p30 -> 3.7Mbps.
     return (int) (width * height * frameRate * 0.07 * 2);
