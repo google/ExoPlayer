@@ -597,6 +597,9 @@ public class DashManifestParser extends DefaultHandler
         case "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed":
           uuid = C.WIDEVINE_UUID;
           break;
+        case "urn:uuid:e2719d58-a985-b3c9-781a-b030af78d30e":
+          uuid = C.CLEARKEY_UUID;
+          break;
         default:
           break;
       }
@@ -604,7 +607,9 @@ public class DashManifestParser extends DefaultHandler
 
     do {
       xpp.next();
-      if (XmlPullParserUtil.isStartTag(xpp, "ms:laurl")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "clearkey:Laurl") && xpp.next() == XmlPullParser.TEXT) {
+        licenseServerUrl = xpp.getText();
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ms:laurl")) {
         licenseServerUrl = xpp.getAttributeValue(null, "licenseUrl");
       } else if (data == null
           && XmlPullParserUtil.isStartTagIgnorePrefix(xpp, "pssh")
@@ -851,6 +856,7 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<SchemeData> drmSchemeDatas = representationInfo.drmSchemeDatas;
     drmSchemeDatas.addAll(extraDrmSchemeDatas);
     if (!drmSchemeDatas.isEmpty()) {
+      fillInClearKeyInformation(drmSchemeDatas);
       filterRedundantIncompleteSchemeDatas(drmSchemeDatas);
       formatBuilder.setDrmInitData(new DrmInitData(drmSchemeType, drmSchemeDatas));
     }
@@ -1654,6 +1660,32 @@ public class DashManifestParser extends DefaultHandler
             break;
           }
         }
+      }
+    }
+  }
+
+  private static void fillInClearKeyInformation(ArrayList<SchemeData> schemeDatas) {
+    // Find and remove ClearKey information.
+    @Nullable String clearKeyLicenseServerUrl = null;
+    for (int i = 0; i < schemeDatas.size(); i++) {
+      SchemeData schemeData = schemeDatas.get(i);
+      if (C.CLEARKEY_UUID.equals(schemeData.uuid) && schemeData.licenseServerUrl != null) {
+        clearKeyLicenseServerUrl = schemeData.licenseServerUrl;
+        schemeDatas.remove(i);
+        break;
+      }
+    }
+    if (clearKeyLicenseServerUrl == null) {
+      return;
+    }
+    // Fill in the ClearKey information into the existing PSSH schema data if applicable.
+    for (int i = 0; i < schemeDatas.size(); i++) {
+      SchemeData schemeData = schemeDatas.get(i);
+      if (C.COMMON_PSSH_UUID.equals(schemeData.uuid) && schemeData.licenseServerUrl == null) {
+        schemeDatas.set(
+            i,
+            new SchemeData(
+                C.CLEARKEY_UUID, clearKeyLicenseServerUrl, schemeData.mimeType, schemeData.data));
       }
     }
   }
