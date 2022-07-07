@@ -23,10 +23,14 @@ import com.google.android.exoplayer2.util.Util;
 public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvider {
 
   @Override
-  public int getBitrate(String encoderName, int width, int height, int frameRate) {
+  public int getBitrate(String encoderName, int width, int height, float frameRate) {
     double bitrateMultiplier =
         getBitrateMultiplierFromMapping(
-            encoderName, Util.SDK_INT, Build.MODEL, "" + width + "x" + height, frameRate);
+            encoderName,
+            Util.SDK_INT,
+            Build.MODEL,
+            "" + width + "x" + height,
+            Math.round(frameRate));
     return (int) (width * height * frameRate * bitrateMultiplier);
   }
 

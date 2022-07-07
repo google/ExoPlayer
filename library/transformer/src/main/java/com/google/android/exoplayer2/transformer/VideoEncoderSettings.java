@@ -16,7 +16,10 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR;
+import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
@@ -46,14 +49,11 @@ public final class VideoEncoderSettings {
   public static final VideoEncoderSettings DEFAULT = new Builder().build();
 
   /**
-   * The allowed values for {@code bitrateMode}, one of
+   * The allowed values for {@code bitrateMode}.
    *
    * <ul>
-   *   <li>Constant quality: {@link MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CQ}.
    *   <li>Variable bitrate: {@link MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_VBR}.
    *   <li>Constant bitrate: {@link MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR}.
-   *   <li>Constant bitrate with frame drops: {@link
-   *       MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR_FD}, available from API31.
    * </ul>
    */
   @SuppressLint("InlinedApi")
@@ -61,10 +61,8 @@ public final class VideoEncoderSettings {
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
-    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ,
-    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR,
-    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR,
-    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR_FD
+    BITRATE_MODE_VBR,
+    BITRATE_MODE_CBR,
   })
   public @interface BitrateMode {}
 
@@ -78,11 +76,12 @@ public final class VideoEncoderSettings {
     private float iFrameIntervalSeconds;
     private int operatingRate;
     private int priority;
+    private boolean enableHighQualityTargeting;
 
     /** Creates a new instance. */
     public Builder() {
       this.bitrate = NO_VALUE;
-      this.bitrateMode = MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
+      this.bitrateMode = BITRATE_MODE_VBR;
       this.profile = NO_VALUE;
       this.level = NO_VALUE;
       this.colorProfile = DEFAULT_COLOR_PROFILE;
@@ -100,10 +99,13 @@ public final class VideoEncoderSettings {
       this.iFrameIntervalSeconds = videoEncoderSettings.iFrameIntervalSeconds;
       this.operatingRate = videoEncoderSettings.operatingRate;
       this.priority = videoEncoderSettings.priority;
+      this.enableHighQualityTargeting = videoEncoderSettings.enableHighQualityTargeting;
     }
 
     /**
      * Sets {@link VideoEncoderSettings#bitrate}. The default value is {@link #NO_VALUE}.
+     *
+     * <p>Can not be set if enabling {@link #setEnableHighQualityTargeting(boolean)}.
      *
      * @param bitrate The {@link VideoEncoderSettings#bitrate}.
      * @return This builder.
@@ -117,16 +119,13 @@ public final class VideoEncoderSettings {
      * Sets {@link VideoEncoderSettings#bitrateMode}. The default value is {@code
      * MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR}.
      *
-     * <p>Only {@link MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_VBR} and {@link
-     * MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CBR} are allowed.
+     * <p>Value must be in {@link BitrateMode}.
      *
      * @param bitrateMode The {@link VideoEncoderSettings#bitrateMode}.
      * @return This builder.
      */
     public Builder setBitrateMode(@BitrateMode int bitrateMode) {
-      checkArgument(
-          bitrateMode == MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR
-              || bitrateMode == MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR);
+      checkArgument(bitrateMode == BITRATE_MODE_VBR || bitrateMode == BITRATE_MODE_CBR);
       this.bitrateMode = bitrateMode;
       return this;
     }
@@ -192,8 +191,28 @@ public final class VideoEncoderSettings {
       return this;
     }
 
+    /**
+     * Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.
+     *
+     * <p>Default value is {@code false}.
+     *
+     * <p>Requires {@link android.media.MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_VBR}.
+     *
+     * <p>Can not be enabled alongside setting a custom bitrate with {@link #setBitrate(int)}.
+     */
+    public Builder setEnableHighQualityTargeting(boolean enableHighQualityTargeting) {
+      this.enableHighQualityTargeting = enableHighQualityTargeting;
+      return this;
+    }
+
     /** Builds the instance. */
     public VideoEncoderSettings build() {
+      checkState(
+          !enableHighQualityTargeting || bitrate == NO_VALUE,
+          "Bitrate can not be set if enabling high quality targeting.");
+      checkState(
+          !enableHighQualityTargeting || bitrateMode == BITRATE_MODE_VBR,
+          "Bitrate mode must be VBR if enabling high quality targeting.");
       return new VideoEncoderSettings(
           bitrate,
           bitrateMode,
@@ -202,13 +221,14 @@ public final class VideoEncoderSettings {
           colorProfile,
           iFrameIntervalSeconds,
           operatingRate,
-          priority);
+          priority,
+          enableHighQualityTargeting);
     }
   }
 
   /** The encoding bitrate. */
   public final int bitrate;
-  /** One of {@linkplain BitrateMode the allowed modes}. */
+  /** One of {@linkplain BitrateMode}. */
   public final @BitrateMode int bitrateMode;
   /** The encoding profile. */
   public final int profile;
@@ -222,6 +242,8 @@ public final class VideoEncoderSettings {
   public final int operatingRate;
   /** The encoder {@link MediaFormat#KEY_PRIORITY priority}. */
   public final int priority;
+  /** Whether the encoder should automatically set the bitrate to target a high quality encoding. */
+  public final boolean enableHighQualityTargeting;
 
   private VideoEncoderSettings(
       int bitrate,
@@ -231,7 +253,8 @@ public final class VideoEncoderSettings {
       int colorProfile,
       float iFrameIntervalSeconds,
       int operatingRate,
-      int priority) {
+      int priority,
+      boolean enableHighQualityTargeting) {
     this.bitrate = bitrate;
     this.bitrateMode = bitrateMode;
     this.profile = profile;
@@ -240,6 +263,7 @@ public final class VideoEncoderSettings {
     this.iFrameIntervalSeconds = iFrameIntervalSeconds;
     this.operatingRate = operatingRate;
     this.priority = priority;
+    this.enableHighQualityTargeting = enableHighQualityTargeting;
   }
 
   /**
@@ -265,7 +289,8 @@ public final class VideoEncoderSettings {
         && colorProfile == that.colorProfile
         && iFrameIntervalSeconds == that.iFrameIntervalSeconds
         && operatingRate == that.operatingRate
-        && priority == that.priority;
+        && priority == that.priority
+        && enableHighQualityTargeting == that.enableHighQualityTargeting;
   }
 
   @Override
@@ -279,6 +304,7 @@ public final class VideoEncoderSettings {
     result = 31 * result + Float.floatToIntBits(iFrameIntervalSeconds);
     result = 31 * result + operatingRate;
     result = 31 * result + priority;
+    result = 31 * result + (enableHighQualityTargeting ? 1 : 0);
     return result;
   }
 }
