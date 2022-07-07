@@ -18,6 +18,7 @@ package androidx.media3.common;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.media3.common.util.Assertions;
@@ -157,6 +158,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
    * @param schemeType A protection scheme type. May be null.
    * @return A copy with the specified protection scheme type.
    */
+  @CheckResult
   public DrmInitData copyWithSchemeType(@Nullable String schemeType) {
     if (Util.areEqual(this.schemeType, schemeType)) {
       return this;
@@ -333,6 +335,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * @param data The data to include in the copy.
      * @return The new instance.
      */
+    @CheckResult
     public SchemeData copyWithData(@Nullable byte[] data) {
       return new SchemeData(uuid, licenseServerUrl, mimeType, data);
     }

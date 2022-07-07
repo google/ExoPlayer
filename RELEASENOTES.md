@@ -16,6 +16,9 @@
         ([#10316](https://github.com/google/ExoPlayer/issues/10316)).
     *   Fix parsing of bitrates from `esds` boxes
         ([#10381](https://github.com/google/ExoPlayer/issues/10381)).
+*   DASH:
+    *   Parse ClearKey license URL from manifests
+        ([#10246](https://github.com/google/ExoPlayer/issues/10246)).
 *   UI:
     *   Ensure TalkBack announces the currently active speed option in the
         playback controls menu
