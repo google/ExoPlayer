@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Includes ContentProtection elements with additional ClearKey license URLs.
+Covers all possible locations (in AdaptationSet and Representation) and possible orders of these
+ContentProtection elements (CENC first or ClearKey first).
+-->
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mpeg:DASH:schema:MPD:2011" xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd" minBufferTime="PT1.500S" profiles="urn:mpeg:dash:profile:isoff-main:2011" type="static" availabilityStartTime="2016-10-14T17:00:17" xmlns:cenc="urn:mpeg:cenc:2013" xmlns:clearkey="http://dashif.org/guidelines/clearKey">
+ <Period start="PT0.000S" duration="PT0H5M50S">
+  <SegmentTemplate startNumber="0" timescale="1000" media="sq/$Number$">
+   <SegmentTimeline>
+    <S d="2002" t="6009" r="2"/>
+   </SegmentTimeline>
+  </SegmentTemplate>
+  <AdaptationSet id="0" mimeType="audio/mp4" subsegmentAlignment="true">
+   <Representation id="140" codecs="mp4a.40.2" audioSamplingRate="48000" startWithSAP="1" bandwidth="144000">
+     <ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" value="cenc" cenc:default_KID="9eb4050d-e44b-4802-932e-27d75083e266" />
+     <ContentProtection value="ClearKey1.0" schemeIdUri="urn:uuid:e2719d58-a985-b3c9-781a-b030af78d30e">
+      <clearkey:Laurl Lic_type="EME-1.0">https://testserver1.test/AcquireLicense</clearkey:Laurl>
+     </ContentProtection>
+   </Representation>
+  </AdaptationSet>
+  <AdaptationSet id="1" mimeType="video/mp4" subsegmentAlignment="true">
+   <ContentProtection value="ClearKey1.0" schemeIdUri="urn:uuid:e2719d58-a985-b3c9-781a-b030af78d30e">
+    <clearkey:Laurl Lic_type="EME-1.0">https://testserver2.test/AcquireLicense</clearkey:Laurl>
+   </ContentProtection>
+   <ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" value="cenc" cenc:default_KID="9eb4050d-e44b-4802-932e-27d75083e266" />
+   <Representation id="133" codecs="avc1.4d4015" width="426" height="240" startWithSAP="1" bandwidth="258000" frameRate="30" />
+  </AdaptationSet>
+ </Period>
+</MPD>
