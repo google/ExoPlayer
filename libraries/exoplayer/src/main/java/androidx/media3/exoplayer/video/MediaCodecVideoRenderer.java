@@ -1572,7 +1572,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     if (haveUnknownDimensions) {
       Log.w(TAG, "Resolutions unknown. Codec max resolution: " + maxWidth + "x" + maxHeight);
-      Point codecMaxSize = getCodecMaxSize(codecInfo, format);
+      @Nullable Point codecMaxSize = getCodecMaxSize(codecInfo, format);
       if (codecMaxSize != null) {
         maxWidth = max(maxWidth, codecMaxSize.x);
         maxHeight = max(maxHeight, codecMaxSize.y);
@@ -1600,8 +1600,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The {@link Format} for which the codec is being configured.
-   * @return The maximum video size to use, or null if the size of {@code format} should be used.
+   * @return The maximum video size to use, or {@code null} if the size of {@code format} should be
+   *     used.
    */
+  @Nullable
   private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format) {
     boolean isVerticalVideo = format.height > format.width;
     int formatLongEdgePx = isVerticalVideo ? format.height : format.width;
