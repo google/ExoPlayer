@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.rtsp.reader;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import androidx.media3.common.C;
@@ -54,6 +55,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int previousSequenceNumber;
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
+  private long sampleTimeUsOfFragmentedSample;
 
   private int width;
   private int height;
@@ -64,11 +66,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean gotFirstPacketOfVP9Frame;
 
   private boolean reportedOutputFormat;
+  private boolean isKeyFrame;
 
   /** Creates an instance. */
   public RtpVp9Reader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
+    fragmentedSampleSizeBytes = 0;
+    sampleTimeUsOfFragmentedSample = C.TIME_UNSET;
     // The start time offset must be 0 until the first seek.
     startTimeOffsetUs = 0;
     previousSequenceNumber = C.INDEX_UNSET;
@@ -76,6 +81,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     height = C.LENGTH_UNSET;
     gotFirstPacketOfVP9Frame = false;
     reportedOutputFormat = false;
+    isKeyFrame = false;
   }
 
   @Override
@@ -85,7 +91,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {}
+  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {
+    checkState(firstReceivedTimestamp == C.TIME_UNSET);
+    firstReceivedTimestamp = timestamp;
+  }
 
   @Override
   public void consume(
@@ -93,11 +102,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkStateNotNull(trackOutput);
 
     if (validateVp9Descriptor(data, sequenceNumber)) {
-      @C.BufferFlags int bufferFlags = 0;
-      if (fragmentedSampleSizeBytes == 0
-          && gotFirstPacketOfVP9Frame
-          && (data.peekUnsignedByte() & 0x04) == 0) {
-        bufferFlags = C.BUFFER_FLAG_KEY_FRAME;
+      if (fragmentedSampleSizeBytes == 0 && gotFirstPacketOfVP9Frame) {
+        isKeyFrame = (data.peekUnsignedByte() & 0x04) == 0;
       }
 
       if (!reportedOutputFormat && width != C.LENGTH_UNSET && height != C.LENGTH_UNSET) {
@@ -112,20 +118,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // Write the video sample.
       trackOutput.sampleData(data, currentFragmentSizeBytes);
       fragmentedSampleSizeBytes += currentFragmentSizeBytes;
+      sampleTimeUsOfFragmentedSample =
+          toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
 
       if (rtpMarker) {
-        if (firstReceivedTimestamp == C.TIME_UNSET) {
-          firstReceivedTimestamp = timestamp;
-        }
-        long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
-        trackOutput.sampleMetadata(
-            timeUs,
-            bufferFlags,
-            fragmentedSampleSizeBytes,
-            /* offset= */ 0,
-            /* cryptoData= */ null);
-        fragmentedSampleSizeBytes = 0;
-        gotFirstPacketOfVP9Frame = false;
+        outputSampleMetadataForFragmentedPackets();
       }
       previousSequenceNumber = sequenceNumber;
     }
@@ -162,19 +159,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     //        +-+-+-+-+-+-+-+-+
 
     int header = payload.readUnsignedByte();
-    if (!gotFirstPacketOfVP9Frame) {
-      if ((header & 0x08) == 0) {
-        Log.w(
-            TAG,
-            "First payload octet of the RTP packet is not the beginning of a new VP9 partition,"
-                + " Dropping current packet.");
-        return false;
+    if ((header & 0x08) == 0x08) {
+      if (gotFirstPacketOfVP9Frame && fragmentedSampleSizeBytes > 0) {
+        // Received new VP9 fragment, output data of previous fragment to decoder.
+        outputSampleMetadataForFragmentedPackets();
       }
       gotFirstPacketOfVP9Frame = true;
-    } else {
+    } else if (gotFirstPacketOfVP9Frame) {
       // Check that this packet is in the sequence of the previous packet.
       int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
-      if (packetSequenceNumber != expectedSequenceNumber) {
+      if (packetSequenceNumber < expectedSequenceNumber) {
         Log.w(
             TAG,
             Util.formatInvariant(
@@ -183,6 +177,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 expectedSequenceNumber, packetSequenceNumber));
         return false;
       }
+    } else {
+      Log.w(
+          TAG,
+          "First payload octet of the RTP packet is not the beginning of a new VP9 partition,"
+              + " Dropping current packet.");
+      return false;
     }
 
     // Check if optional I header is present.
@@ -248,6 +248,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     return true;
+  }
+
+  /**
+   * Outputs sample metadata.
+   *
+   * <p>Call this method only when receiving a end of VP8 partition
+   */
+  private void outputSampleMetadataForFragmentedPackets() {
+    trackOutput.sampleMetadata(
+        sampleTimeUsOfFragmentedSample,
+        isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
+        fragmentedSampleSizeBytes,
+        /* offset= */ 0,
+        /* cryptoData= */ null);
+    fragmentedSampleSizeBytes = 0;
+    sampleTimeUsOfFragmentedSample = C.TIME_UNSET;
+    gotFirstPacketOfVP9Frame = false;
   }
 
   private static long toSampleUs(
