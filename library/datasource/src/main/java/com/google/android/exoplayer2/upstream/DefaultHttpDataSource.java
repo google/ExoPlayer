@@ -62,17 +62,17 @@ import java.util.zip.GZIPInputStream;
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   /** {@link DataSource.Factory} for {@link DefaultHttpDataSource} instances. */
-  public static final class Factory implements HttpDataSource.Factory {
+  public static class Factory implements HttpDataSource.Factory {
 
-    private final RequestProperties defaultRequestProperties;
+    protected final RequestProperties defaultRequestProperties;
 
-    @Nullable private TransferListener transferListener;
-    @Nullable private Predicate<String> contentTypePredicate;
-    @Nullable private String userAgent;
-    private int connectTimeoutMs;
-    private int readTimeoutMs;
-    private boolean allowCrossProtocolRedirects;
-    private boolean keepPostFor302Redirects;
+    @Nullable protected TransferListener transferListener;
+    @Nullable protected Predicate<String> contentTypePredicate;
+    @Nullable protected String userAgent;
+    protected int connectTimeoutMs;
+    protected int readTimeoutMs;
+    protected boolean allowCrossProtocolRedirects;
+    protected boolean keepPostFor302Redirects;
 
     /** Creates an instance. */
     public Factory() {
@@ -82,7 +82,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     @Override
-    public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
+    public Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
       return this;
     }
@@ -204,28 +204,28 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   /** The default read timeout, in milliseconds. */
   public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
-  private static final String TAG = "DefaultHttpDataSource";
-  private static final int MAX_REDIRECTS = 20; // Same limit as okhttp.
-  private static final int HTTP_STATUS_TEMPORARY_REDIRECT = 307;
-  private static final int HTTP_STATUS_PERMANENT_REDIRECT = 308;
-  private static final long MAX_BYTES_TO_DRAIN = 2048;
+  protected static final String TAG = "DefaultHttpDataSource";
+  protected static final int MAX_REDIRECTS = 20; // Same limit as okhttp.
+  protected static final int HTTP_STATUS_TEMPORARY_REDIRECT = 307;
+  protected static final int HTTP_STATUS_PERMANENT_REDIRECT = 308;
+  protected static final long MAX_BYTES_TO_DRAIN = 2048;
 
-  private final boolean allowCrossProtocolRedirects;
-  private final int connectTimeoutMillis;
-  private final int readTimeoutMillis;
-  @Nullable private final String userAgent;
-  @Nullable private final RequestProperties defaultRequestProperties;
-  private final RequestProperties requestProperties;
-  private final boolean keepPostFor302Redirects;
+  protected final boolean allowCrossProtocolRedirects;
+  protected final int connectTimeoutMillis;
+  protected final int readTimeoutMillis;
+  @Nullable protected final String userAgent;
+  @Nullable protected final RequestProperties defaultRequestProperties;
+  protected final RequestProperties requestProperties;
+  protected final boolean keepPostFor302Redirects;
 
-  @Nullable private Predicate<String> contentTypePredicate;
-  @Nullable private DataSpec dataSpec;
-  @Nullable private HttpURLConnection connection;
-  @Nullable private InputStream inputStream;
-  private boolean opened;
-  private int responseCode;
-  private long bytesToRead;
-  private long bytesRead;
+  @Nullable protected Predicate<String> contentTypePredicate;
+  @Nullable protected DataSpec dataSpec;
+  @Nullable protected HttpURLConnection connection;
+  @Nullable protected InputStream inputStream;
+  protected boolean opened;
+  protected int responseCode;
+  protected long bytesToRead;
+  protected long bytesRead;
 
   /**
    * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
@@ -280,7 +280,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         /* keepPostFor302Redirects= */ false);
   }
 
-  private DefaultHttpDataSource(
+  protected DefaultHttpDataSource(
       @Nullable String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
@@ -511,7 +511,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /** Establishes a connection, following redirects to do so where permitted. */
-  private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
+  protected HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
     @HttpMethod int httpMethod = dataSpec.httpMethod;
     @Nullable byte[] httpBody = dataSpec.httpBody;
@@ -597,7 +597,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param followRedirects Whether to follow redirects.
    * @param requestParameters parameters (HTTP headers) to include in request.
    */
-  private HttpURLConnection makeConnection(
+  protected HttpURLConnection makeConnection(
       URL url,
       @HttpMethod int httpMethod,
       @Nullable byte[] httpBody,
@@ -661,7 +661,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @return The next URL.
    * @throws HttpDataSourceException If redirection isn't possible.
    */
-  private URL handleRedirect(URL originalUrl, @Nullable String location, DataSpec dataSpec)
+  protected URL handleRedirect(URL originalUrl, @Nullable String location, DataSpec dataSpec)
       throws HttpDataSourceException {
     if (location == null) {
       throw new HttpDataSourceException(
@@ -713,7 +713,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @throws IOException If the thread is interrupted during the operation, or if the data ended
    *     before skipping the specified number of bytes.
    */
-  private void skipFully(long bytesToSkip, DataSpec dataSpec) throws IOException {
+  protected void skipFully(long bytesToSkip, DataSpec dataSpec) throws IOException {
     if (bytesToSkip == 0) {
       return;
     }
@@ -753,7 +753,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     range is reached.
    * @throws IOException If an error occurs reading from the source.
    */
-  private int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
+  protected int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
     if (readLength == 0) {
       return 0;
     }
@@ -786,7 +786,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param bytesRemaining The number of bytes remaining to be read from the input stream if its
    *     length is known. {@link C#LENGTH_UNSET} otherwise.
    */
-  private static void maybeTerminateInputStream(
+  protected static void maybeTerminateInputStream(
       @Nullable HttpURLConnection connection, long bytesRemaining) {
     if (connection == null || Util.SDK_INT < 19 || Util.SDK_INT > 20) {
       return;
@@ -822,7 +822,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /** Closes the current connection quietly, if there is one. */
-  private void closeConnectionQuietly() {
+  protected void closeConnectionQuietly() {
     if (connection != null) {
       try {
         connection.disconnect();
@@ -833,14 +833,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
-  private static boolean isCompressed(HttpURLConnection connection) {
+  protected static boolean isCompressed(HttpURLConnection connection) {
     String contentEncoding = connection.getHeaderField("Content-Encoding");
     return "gzip".equalsIgnoreCase(contentEncoding);
   }
 
-  private static class NullFilteringHeadersMap extends ForwardingMap<String, List<String>> {
+  protected static class NullFilteringHeadersMap extends ForwardingMap<String, List<String>> {
 
-    private final Map<String, List<String>> headers;
+    protected final Map<String, List<String>> headers;
 
     public NullFilteringHeadersMap(Map<String, List<String>> headers) {
       this.headers = headers;
