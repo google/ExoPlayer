@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
@@ -45,6 +44,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 // TODO(b/224949986) Split audio and video encoder factory.
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static final int DEFAULT_FRAME_RATE = 30;
+  /** Best effort, or as-fast-as-possible priority setting for {@link MediaFormat#KEY_PRIORITY}. */
+  private static final int PRIORITY_BEST_EFFORT = 1;
+
   private static final String TAG = "DefaultEncoderFactory";
 
   /** A builder for {@link DefaultEncoderFactory} instances. */
@@ -252,7 +254,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     if (supportedVideoEncoderSettings.profile != VideoEncoderSettings.NO_VALUE
         && supportedVideoEncoderSettings.level != VideoEncoderSettings.NO_VALUE
-        && SDK_INT >= 23) {
+        && Util.SDK_INT >= 23) {
       // Set profile and level at the same time to maximize compatibility, or the encoder will pick
       // the values.
       mediaFormat.setInteger(MediaFormat.KEY_PROFILE, supportedVideoEncoderSettings.profile);
@@ -283,12 +285,17 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     if (Util.SDK_INT >= 23) {
       // Setting operating rate and priority is supported from API 23.
-      if (supportedVideoEncoderSettings.operatingRate != VideoEncoderSettings.NO_VALUE) {
-        mediaFormat.setInteger(
-            MediaFormat.KEY_OPERATING_RATE, supportedVideoEncoderSettings.operatingRate);
-      }
-      if (supportedVideoEncoderSettings.priority != VideoEncoderSettings.NO_VALUE) {
-        mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, supportedVideoEncoderSettings.priority);
+      if (supportedVideoEncoderSettings.operatingRate == VideoEncoderSettings.NO_VALUE
+          && supportedVideoEncoderSettings.priority == VideoEncoderSettings.NO_VALUE) {
+        adjustMediaFormatForEncoderPerformanceSettings(mediaFormat);
+      } else {
+        if (supportedVideoEncoderSettings.operatingRate != VideoEncoderSettings.NO_VALUE) {
+          mediaFormat.setInteger(
+              MediaFormat.KEY_OPERATING_RATE, supportedVideoEncoderSettings.operatingRate);
+        }
+        if (supportedVideoEncoderSettings.priority != VideoEncoderSettings.NO_VALUE) {
+          mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, supportedVideoEncoderSettings.priority);
+        }
       }
     }
 
@@ -457,6 +464,28 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       this.encoder = encoder;
       this.supportedFormat = supportedFormat;
       this.supportedEncoderSettings = supportedEncoderSettings;
+    }
+  }
+
+  /**
+   * Applies empirical {@link MediaFormat#KEY_PRIORITY} and {@link MediaFormat#KEY_OPERATING_RATE}
+   * settings for better encoder performance.
+   *
+   * <p>The adjustment is applied in-place to {@code mediaFormat}.
+   */
+  private static void adjustMediaFormatForEncoderPerformanceSettings(MediaFormat mediaFormat) {
+    // TODO(b/213477153) Verify priority/operating rate settings work for non-AVC codecs.
+    if (Util.SDK_INT < 25) {
+      // Not setting priority and operating rate achieves better encoding performance.
+      return;
+    }
+
+    mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, PRIORITY_BEST_EFFORT);
+
+    if (Util.SDK_INT == 26) {
+      mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, DEFAULT_FRAME_RATE);
+    } else {
+      mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, Integer.MAX_VALUE);
     }
   }
 
