@@ -27,6 +27,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -273,6 +274,11 @@ public final class DefaultCodec implements Codec {
     }
 
     return mediaCodec.getName();
+  }
+
+  @VisibleForTesting
+  /* package */ MediaFormat getConfigurationMediaFormat() {
+    return configurationMediaFormat;
   }
 
   /**
