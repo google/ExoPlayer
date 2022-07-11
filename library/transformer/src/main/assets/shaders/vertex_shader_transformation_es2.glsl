@@ -13,13 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ES 2 vertex shader that applies the 4 * 4 transformation matrix
-// uTransformationMatrix.
+// ES 2 vertex shader that applies the 4 * 4 transformation matrices
+// uTransformationMatrix and the uTexTransformationMatrix.
 
 attribute vec4 aFramePosition;
 uniform mat4 uTransformationMatrix;
+uniform mat4 uTexTransformationMatrix;
 varying vec2 vTexSamplingCoord;
 void main() {
   gl_Position = uTransformationMatrix * aFramePosition;
-  vTexSamplingCoord = vec2(aFramePosition.x * 0.5 + 0.5, aFramePosition.y * 0.5 + 0.5);
+  vec4 texturePosition = vec4(aFramePosition.x * 0.5 + 0.5, aFramePosition.y * 0.5 + 0.5, 0.0, 1.0);
+  vTexSamplingCoord = (uTexTransformationMatrix * texturePosition).xy;
 }
