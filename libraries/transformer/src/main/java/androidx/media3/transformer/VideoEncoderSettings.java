@@ -180,7 +180,8 @@ public final class VideoEncoderSettings {
     }
 
     /**
-     * Sets encoding operating rate and priority. The default values are {@link #NO_VALUE}.
+     * Sets encoding operating rate and priority. The default values are {@link #NO_VALUE}, which is
+     * treated as configuring the encoder for maximum throughput.
      *
      * @param operatingRate The {@link MediaFormat#KEY_OPERATING_RATE operating rate}.
      * @param priority The {@link MediaFormat#KEY_PRIORITY priority}.

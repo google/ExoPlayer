@@ -27,6 +27,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -275,6 +276,11 @@ public final class DefaultCodec implements Codec {
     }
 
     return mediaCodec.getName();
+  }
+
+  @VisibleForTesting
+  /* package */ MediaFormat getConfigurationMediaFormat() {
+    return configurationMediaFormat;
   }
 
   /**
