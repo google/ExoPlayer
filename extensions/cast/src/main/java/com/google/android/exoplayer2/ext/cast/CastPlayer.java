@@ -198,7 +198,7 @@ public final class CastPlayer extends BasePlayer {
     this.mediaItemConverter = mediaItemConverter;
     this.seekBackIncrementMs = seekBackIncrementMs;
     this.seekForwardIncrementMs = seekForwardIncrementMs;
-    timelineTracker = new CastTimelineTracker();
+    timelineTracker = new CastTimelineTracker(mediaItemConverter);
     period = new Timeline.Period();
     statusListener = new StatusListener();
     seekResultCallback = new SeekResultCallback();
@@ -283,8 +283,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    setMediaItemsInternal(
-        toMediaQueueItems(mediaItems), startIndex, startPositionMs, repeatMode.value);
+    setMediaItemsInternal(mediaItems, startIndex, startPositionMs, repeatMode.value);
   }
 
   @Override
@@ -294,7 +293,7 @@ public final class CastPlayer extends BasePlayer {
     if (index < currentTimeline.getWindowCount()) {
       uid = (int) currentTimeline.getWindow(/* windowIndex= */ index, window).uid;
     }
-    addMediaItemsInternal(toMediaQueueItems(mediaItems), uid);
+    addMediaItemsInternal(mediaItems, uid);
   }
 
   @Override
@@ -1020,14 +1019,13 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
-  @Nullable
-  private PendingResult<MediaChannelResult> setMediaItemsInternal(
-      MediaQueueItem[] mediaQueueItems,
+  private void setMediaItemsInternal(
+      List<MediaItem> mediaItems,
       int startIndex,
       long startPositionMs,
       @RepeatMode int repeatMode) {
-    if (remoteMediaClient == null || mediaQueueItems.length == 0) {
-      return null;
+    if (remoteMediaClient == null || mediaItems.isEmpty()) {
+      return;
     }
     startPositionMs = startPositionMs == C.TIME_UNSET ? 0 : startPositionMs;
     if (startIndex == C.INDEX_UNSET) {
@@ -1038,34 +1036,35 @@ public final class CastPlayer extends BasePlayer {
     if (!currentTimeline.isEmpty()) {
       pendingMediaItemRemovalPosition = getCurrentPositionInfo();
     }
-    return remoteMediaClient.queueLoad(
+    MediaQueueItem[] mediaQueueItems = toMediaQueueItems(mediaItems);
+    timelineTracker.onMediaItemsSet(mediaItems, mediaQueueItems);
+    remoteMediaClient.queueLoad(
         mediaQueueItems,
-        min(startIndex, mediaQueueItems.length - 1),
+        min(startIndex, mediaItems.size() - 1),
         getCastRepeatMode(repeatMode),
         startPositionMs,
         /* customData= */ null);
   }
 
-  @Nullable
-  private PendingResult<MediaChannelResult> addMediaItemsInternal(MediaQueueItem[] items, int uid) {
+  private void addMediaItemsInternal(List<MediaItem> mediaItems, int uid) {
     if (remoteMediaClient == null || getMediaStatus() == null) {
-      return null;
+      return;
     }
-    return remoteMediaClient.queueInsertItems(items, uid, /* customData= */ null);
+    MediaQueueItem[] itemsToInsert = toMediaQueueItems(mediaItems);
+    timelineTracker.onMediaItemsAdded(mediaItems, itemsToInsert);
+    remoteMediaClient.queueInsertItems(itemsToInsert, uid, /* customData= */ null);
   }
 
-  @Nullable
-  private PendingResult<MediaChannelResult> moveMediaItemsInternal(
-      int[] uids, int fromIndex, int newIndex) {
+  private void moveMediaItemsInternal(int[] uids, int fromIndex, int newIndex) {
     if (remoteMediaClient == null || getMediaStatus() == null) {
-      return null;
+      return;
     }
     int insertBeforeIndex = fromIndex < newIndex ? newIndex + uids.length : newIndex;
     int insertBeforeItemId = MediaQueueItem.INVALID_ITEM_ID;
     if (insertBeforeIndex < currentTimeline.getWindowCount()) {
       insertBeforeItemId = (int) currentTimeline.getWindow(insertBeforeIndex, window).uid;
     }
-    return remoteMediaClient.queueReorderItems(uids, insertBeforeItemId, /* customData= */ null);
+    remoteMediaClient.queueReorderItems(uids, insertBeforeItemId, /* customData= */ null);
   }
 
   @Nullable
