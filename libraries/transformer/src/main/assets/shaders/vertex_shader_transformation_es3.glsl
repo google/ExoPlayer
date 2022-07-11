@@ -1,5 +1,5 @@
-#version 100
-// Copyright 2022 The Android Open Source Project
+#version 300 es
+// Copyright 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ES 2 vertex shader that applies an external surface texture's 4 * 4 texture
-// transformation matrix to convert the texture coordinates to the sampling
-// locations.
+// ES 3 vertex shader that applies the 4 * 4 transformation matrices
+// uTransformationMatrix and the uTexTransformationMatrix.
 
-attribute vec4 aFramePosition;
-uniform mat4 uTexTransform;
-varying vec2 vTexSamplingCoord;
+in vec4 aFramePosition;
+uniform mat4 uTransformationMatrix;
+uniform mat4 uTexTransformationMatrix;
+out vec2 vTexSamplingCoord;
 void main() {
-  gl_Position = aFramePosition;
+  gl_Position = uTransformationMatrix * aFramePosition;
   vec4 texturePosition = vec4(aFramePosition.x * 0.5 + 0.5, aFramePosition.y * 0.5 + 0.5, 0.0, 1.0);
-  vTexSamplingCoord = (uTexTransform * texturePosition).xy;
+  vTexSamplingCoord = (uTexTransformationMatrix * texturePosition).xy;
 }

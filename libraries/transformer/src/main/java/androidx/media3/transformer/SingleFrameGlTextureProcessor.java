@@ -75,16 +75,6 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
     this.listener = listener;
   }
 
-  /**
-   * Returns whether the {@code SingleFrameGlTextureProcessor} can accept an input frame.
-   *
-   * <p>If this method returns {@code true}, the next call to {@link #maybeQueueInputFrame(
-   * TextureInfo, long)} will also return {@code true}.
-   */
-  public boolean acceptsInputFrame() {
-    return !outputTextureInUse;
-  }
-
   @Override
   public final boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     if (outputTextureInUse) {
