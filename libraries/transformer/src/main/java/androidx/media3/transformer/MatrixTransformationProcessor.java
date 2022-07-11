@@ -37,20 +37,36 @@ import java.util.Arrays;
  * matrices are clipped to the NDC range.
  *
  * <p>The background color of the output frame will be (r=0, g=0, b=0, a=0).
+ *
+ * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
  */
 @UnstableApi
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
-/* package */ final class MatrixTransformationProcessor extends SingleFrameGlTextureProcessor {
+/* package */ final class MatrixTransformationProcessor extends SingleFrameGlTextureProcessor
+    implements ExternalTextureProcessor {
 
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
       "shaders/vertex_shader_transformation_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
+  private static final String VERTEX_SHADER_TRANSFORMATION_ES3_PATH =
+      "shaders/vertex_shader_transformation_es3.glsl";
+  private static final String FRAGMENT_SHADER_COPY_PATH = "shaders/fragment_shader_copy_es2.glsl";
+  private static final String FRAGMENT_SHADER_COPY_EXTERNAL_PATH =
+      "shaders/fragment_shader_copy_external_es2.glsl";
+  private static final String FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH =
+      "shaders/fragment_shader_copy_external_yuv_es3.glsl";
   private static final ImmutableList<float[]> NDC_SQUARE =
       ImmutableList.of(
           new float[] {-1, -1, 0, 1},
           new float[] {-1, 1, 0, 1},
           new float[] {1, 1, 0, 1},
           new float[] {1, -1, 0, 1});
+  // Color transform coefficients from
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp;l=668-670;drc=487adf977a50cac3929eba15fad0d0f461c7ff0f.
+  private static final float[] MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM = {
+    1.168f, 1.168f, 1.168f,
+    0.0f, -0.188f, 2.148f,
+    1.683f, -0.652f, 0.0f,
+  };
 
   /** The {@link MatrixTransformation MatrixTransformations} to apply. */
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
@@ -89,7 +105,11 @@ import java.util.Arrays;
    */
   public MatrixTransformationProcessor(Context context, MatrixTransformation matrixTransformation)
       throws FrameProcessingException {
-    this(context, ImmutableList.of(matrixTransformation));
+    this(
+        context,
+        ImmutableList.of(matrixTransformation),
+        /* sampleFromExternalTexture= */ false,
+        /* enableExperimentalHdrEditing= */ false);
   }
 
   /**
@@ -102,7 +122,11 @@ import java.util.Arrays;
    */
   public MatrixTransformationProcessor(Context context, GlMatrixTransformation matrixTransformation)
       throws FrameProcessingException {
-    this(context, ImmutableList.of(matrixTransformation));
+    this(
+        context,
+        ImmutableList.of(matrixTransformation),
+        /* sampleFromExternalTexture= */ false,
+        /* enableExperimentalHdrEditing= */ false);
   }
 
   /**
@@ -111,10 +135,17 @@ import java.util.Arrays;
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
    *     apply to each frame in order.
+   * @param sampleFromExternalTexture Whether the input will be provided using an external texture.
+   *     If {@code true}, the caller should use {@link #setTextureTransformMatrix(float[])} to
+   *     provide the transformation matrix associated with the external texture.
+   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public MatrixTransformationProcessor(
-      Context context, ImmutableList<GlMatrixTransformation> matrixTransformations)
+      Context context,
+      ImmutableList<GlMatrixTransformation> matrixTransformations,
+      boolean sampleFromExternalTexture,
+      boolean enableExperimentalHdrEditing)
       throws FrameProcessingException {
     this.matrixTransformations = matrixTransformations;
 
@@ -123,11 +154,41 @@ import java.util.Arrays;
     tempResultMatrix = new float[16];
     Matrix.setIdentityM(compositeTransformationMatrix, /* smOffset= */ 0);
     visiblePolygon = NDC_SQUARE;
+
+    String vertexShaderFilePath;
+    String fragmentShaderFilePath;
+    if (sampleFromExternalTexture) {
+      vertexShaderFilePath =
+          enableExperimentalHdrEditing
+              ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH
+              : VERTEX_SHADER_TRANSFORMATION_PATH;
+      fragmentShaderFilePath =
+          enableExperimentalHdrEditing
+              ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
+              : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+    } else {
+      vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
+      fragmentShaderFilePath = FRAGMENT_SHADER_COPY_PATH;
+    }
+
     try {
-      glProgram = new GlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_PATH);
+      glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
     } catch (IOException | GlUtil.GlException e) {
       throw new FrameProcessingException(e);
     }
+
+    if (enableExperimentalHdrEditing && sampleFromExternalTexture) {
+      // In HDR editing mode the decoder output is sampled in YUV.
+      glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
+    }
+    float[] identityMatrix = new float[16];
+    Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
+    glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
+  }
+
+  @Override
+  public void setTextureTransformMatrix(float[] textureTransformMatrix) {
+    glProgram.setFloatsUniform("uTexTransformationMatrix", textureTransformMatrix);
   }
 
   @Override

@@ -24,6 +24,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -50,7 +51,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>This wrapper is used for the final {@link GlTextureProcessor} instance in the chain of {@link
  * GlTextureProcessor} instances used by {@link FrameProcessor}.
  */
-/* package */ final class FinalMatrixTransformationProcessorWrapper implements GlTextureProcessor {
+/* package */ final class FinalMatrixTransformationProcessorWrapper
+    implements GlTextureProcessor, ExternalTextureProcessor {
 
   private static final String TAG = "FinalProcessorWrapper";
 
@@ -61,7 +63,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final long streamOffsetUs;
   private final DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
+  private final boolean sampleFromExternalTexture;
   private final boolean useHdr;
+  private final float[] textureTransformMatrix;
 
   private int inputWidth;
   private int inputHeight;
@@ -86,6 +90,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       long streamOffsetUs,
       FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
+      boolean sampleFromExternalTexture,
       boolean useHdr) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
@@ -94,7 +99,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.streamOffsetUs = streamOffsetUs;
     this.debugViewProvider = debugViewProvider;
     this.frameProcessorListener = frameProcessorListener;
+    this.sampleFromExternalTexture = sampleFromExternalTexture;
     this.useHdr = useHdr;
+
+    textureTransformMatrix = new float[16];
+    Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
   }
 
   /**
@@ -239,7 +248,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
 
     MatrixTransformationProcessor matrixTransformationProcessor =
-        new MatrixTransformationProcessor(context, matrixTransformationListBuilder.build());
+        new MatrixTransformationProcessor(
+            context, matrixTransformationListBuilder.build(), sampleFromExternalTexture, useHdr);
+    matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     Size outputSize = matrixTransformationProcessor.configure(inputWidth, inputHeight);
     checkState(outputSize.getWidth() == outputSurfaceInfo.width);
     checkState(outputSize.getHeight() == outputSurfaceInfo.height);
@@ -262,6 +273,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void release() throws FrameProcessingException {
     if (matrixTransformationProcessor != null) {
       matrixTransformationProcessor.release();
+    }
+  }
+
+  @Override
+  public void setTextureTransformMatrix(float[] textureTransformMatrix) {
+    System.arraycopy(
+        /* src= */ textureTransformMatrix,
+        /* srcPos= */ 0,
+        /* dest= */ this.textureTransformMatrix,
+        /* destPost= */ 0,
+        /* length= */ textureTransformMatrix.length);
+
+    if (matrixTransformationProcessor != null) {
+      matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     }
   }
 
