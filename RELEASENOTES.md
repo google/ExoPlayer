@@ -35,6 +35,11 @@
 *   Leanback extension:
     *   Listen to `playWhenReady` changes in `LeanbackAdapter`
         ([10420](https://github.com/google/ExoPlayer/issues/10420)).
+*   Cast:
+    *   Use the `MediaItem` that has been passed to the playlist methods as
+        `Window.mediaItem` in `CastTimeline`
+        ([#25](https://github.com/androidx/media/issues/25),
+        [#8212](https://github.com/google/ExoPlayer/issues/8212)).
 
 ### 1.0.0-beta01 (2022-06-16)
 
