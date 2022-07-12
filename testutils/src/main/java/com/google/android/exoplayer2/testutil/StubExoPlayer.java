@@ -410,4 +410,9 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   public boolean experimentalIsSleepingForOffload() {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public boolean isTunnelingEnabled() {
+    throw new UnsupportedOperationException();
+  }
 }

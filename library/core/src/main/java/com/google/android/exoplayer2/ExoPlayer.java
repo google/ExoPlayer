@@ -1602,4 +1602,13 @@ public interface ExoPlayer extends Player {
    * @see AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)
    */
   boolean experimentalIsSleepingForOffload();
+
+  /**
+   * Returns whether <a
+   * href="https://source.android.com/devices/tv/multimedia-tunneling">tunneling</a> is enabled for
+   * the currently selected tracks.
+   *
+   * @see Player.Listener#onTracksChanged(Tracks)
+   */
+  boolean isTunnelingEnabled();
 }
