@@ -62,6 +62,8 @@ public final class GlUtil {
   private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
   // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
   private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
+  // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
+  private static final String EXTENSION_YUV_TARGET = "GL_EXT_YUV_target";
 
   private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
   private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_8888 =
@@ -167,6 +169,41 @@ public final class GlUtil {
     EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
     @Nullable String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
     return eglExtensions != null && eglExtensions.contains(EXTENSION_SURFACELESS_CONTEXT);
+  }
+
+  /**
+   * Returns whether the {@value #EXTENSION_YUV_TARGET} extension is supported.
+   *
+   * <p>This extension allows sampling raw YUV values from an external texture, which is required
+   * for HDR.
+   */
+  public static boolean isYuvTargetExtensionSupported() {
+    if (Util.SDK_INT < 17) {
+      return false;
+    }
+
+    @Nullable String glExtensions;
+    if (Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT)) {
+      // Create a placeholder context and make it current to allow calling GLES20.glGetString().
+      try {
+        EGLDisplay eglDisplay = createEglDisplay();
+        EGLContext eglContext = createEglContext(eglDisplay);
+        if (GlUtil.isSurfacelessContextExtensionSupported()) {
+          focusEglSurface(
+              eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
+        } else {
+          focusPlaceholderEglSurface(eglContext, eglDisplay);
+        }
+        glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+        destroyEglContext(eglDisplay, eglContext);
+      } catch (GlException e) {
+        return false;
+      }
+    } else {
+      glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+    }
+
+    return glExtensions != null && glExtensions.contains(EXTENSION_YUV_TARGET);
   }
 
   /** Returns an initialized default {@link EGLDisplay}. */
