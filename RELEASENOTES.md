@@ -7,17 +7,27 @@
         results in a call to `Player.Listener#onTimelineChanged` with
         `reason=Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED`
         ([#9889](https://github.com/google/ExoPlayer/issues/9889)).
+    *   For progressive media, only include selected tracks in buffered position
+        ([#10361](https://github.com/google/ExoPlayer/issues/10361)).
+    *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
+        the currently selected tracks
+        ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
     *   Fix parsing of H265 short term reference picture sets
         ([#10316](https://github.com/google/ExoPlayer/issues/10316)).
+    *   Fix parsing of bitrates from `esds` boxes
+        ([#10381](https://github.com/google/ExoPlayer/issues/10381)).
 *   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
         `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
         boolean)` to specify whether the renderer will output metadata early or
         in sync with the player position.
+*   DASH:
+    *   Parse ClearKey license URL from manifests
+        ([#10246](https://github.com/google/ExoPlayer/issues/10246)).
 *   UI:
     *   Ensure TalkBack announces the currently active speed option in the
         playback controls menu
@@ -25,6 +35,16 @@
 *   RTSP:
     *   Add RTP reader for H263
         ([#63](https://github.com/androidx/media/pull/63)).
+*   Leanback extension:
+    *   Listen to `playWhenReady` changes in `LeanbackAdapter`
+        ([10420](https://github.com/google/ExoPlayer/issues/10420)).
+*   Cast:
+    *   Use the `MediaItem` that has been passed to the playlist methods as
+        `Window.mediaItem` in `CastTimeline`
+        ([#25](https://github.com/androidx/media/issues/25),
+        [#8212](https://github.com/google/ExoPlayer/issues/8212)).
+    *   Support `Player.getMetadata()` and `Listener.onMediaMetadataChanged()`
+        with `CastPlayer` ([#25](https://github.com/androidx/media/issues/25)).
 
 ### 1.0.0-beta01 (2022-06-16)
 
