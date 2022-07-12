@@ -67,6 +67,7 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
+import androidx.media3.common.Player.Listener;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -107,7 +108,7 @@ public class CastPlayerTest {
   @Mock private CastContext mockCastContext;
   @Mock private SessionManager mockSessionManager;
   @Mock private CastSession mockCastSession;
-  @Mock private Player.Listener mockListener;
+  @Mock private Listener mockListener;
   @Mock private PendingResult<RemoteMediaClient.MediaChannelResult> mockPendingResult;
 
   @Captor
@@ -1042,7 +1043,9 @@ public class CastPlayerTest {
 
     castPlayer.addMediaItems(mediaItems);
     updateTimeLine(mediaItems, mediaQueueItemIds, /* currentItemId= */ 1);
+    MediaMetadata firstMediaMetadata = castPlayer.getMediaMetadata();
     castPlayer.seekTo(/* mediaItemIndex= */ 1, /* positionMs= */ 1234);
+    MediaMetadata secondMediaMetadata = castPlayer.getMediaMetadata();
 
     InOrder inOrder = Mockito.inOrder(mockListener);
     inOrder
@@ -1053,6 +1056,8 @@ public class CastPlayerTest {
         .verify(mockListener)
         .onMediaItemTransition(eq(mediaItem2), eq(Player.MEDIA_ITEM_TRANSITION_REASON_SEEK));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+    assertThat(firstMediaMetadata).isEqualTo(mediaItem1.mediaMetadata);
+    assertThat(secondMediaMetadata).isEqualTo(mediaItem2.mediaMetadata);
   }
 
   @Test
@@ -1773,6 +1778,108 @@ public class CastPlayerTest {
     verify(mockListener).onAvailableCommandsChanged(any());
   }
 
+  @Test
+  public void setMediaItems_doesNotifyOnMetadataChanged() {
+    when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
+        .thenReturn(mockPendingResult);
+    ArgumentCaptor<MediaMetadata> metadataCaptor = ArgumentCaptor.forClass(MediaMetadata.class);
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
+    ImmutableList<MediaItem> firstPlaylist =
+        ImmutableList.of(
+            new MediaItem.Builder()
+                .setUri(uri1)
+                .setMimeType(MimeTypes.APPLICATION_MPD)
+                .setMediaMetadata(new MediaMetadata.Builder().setArtist("foo").build())
+                .setTag(1)
+                .build());
+    ImmutableList<MediaItem> secondPlaylist =
+        ImmutableList.of(
+            new MediaItem.Builder()
+                .setUri(Uri.EMPTY)
+                .setTag(2)
+                .setMediaMetadata(new MediaMetadata.Builder().setArtist("bar").build())
+                .setMimeType(MimeTypes.APPLICATION_MPD)
+                .build(),
+            new MediaItem.Builder()
+                .setUri(uri2)
+                .setMimeType(MimeTypes.APPLICATION_MP4)
+                .setMediaMetadata(new MediaMetadata.Builder().setArtist("foobar").build())
+                .setTag(3)
+                .build());
+    castPlayer.addListener(mockListener);
+
+    MediaMetadata intitalMetadata = castPlayer.getMediaMetadata();
+    castPlayer.setMediaItems(firstPlaylist, /* startIndex= */ 0, /* startPositionMs= */ 2000L);
+    updateTimeLine(firstPlaylist, /* mediaQueueItemIds= */ new int[] {1}, /* currentItemId= */ 1);
+    MediaMetadata firstMetadata = castPlayer.getMediaMetadata();
+    // Replacing existing playlist.
+    castPlayer.setMediaItems(secondPlaylist, /* startIndex= */ 1, /* startPositionMs= */ 0L);
+    updateTimeLine(
+        secondPlaylist, /* mediaQueueItemIds= */ new int[] {2, 3}, /* currentItemId= */ 3);
+    MediaMetadata secondMetadata = castPlayer.getMediaMetadata();
+    castPlayer.seekTo(/* mediaItemIndex= */ 0, /* positionMs= */ 0);
+    MediaMetadata thirdMetadata = castPlayer.getMediaMetadata();
+
+    verify(mockListener, times(3)).onMediaItemTransition(mediaItemCaptor.capture(), anyInt());
+    assertThat(mediaItemCaptor.getAllValues())
+        .containsExactly(firstPlaylist.get(0), secondPlaylist.get(1), secondPlaylist.get(0))
+        .inOrder();
+    verify(mockListener, times(3)).onMediaMetadataChanged(metadataCaptor.capture());
+    assertThat(metadataCaptor.getAllValues())
+        .containsExactly(
+            firstPlaylist.get(0).mediaMetadata,
+            secondPlaylist.get(1).mediaMetadata,
+            secondPlaylist.get(0).mediaMetadata)
+        .inOrder();
+    assertThat(intitalMetadata).isEqualTo(MediaMetadata.EMPTY);
+    assertThat(ImmutableList.of(firstMetadata, secondMetadata, thirdMetadata))
+        .containsExactly(
+            firstPlaylist.get(0).mediaMetadata,
+            secondPlaylist.get(1).mediaMetadata,
+            secondPlaylist.get(0).mediaMetadata)
+        .inOrder();
+  }
+
+  @Test
+  public void setMediaItems_equalMetadata_doesNotNotifyOnMediaMetadataChanged() {
+    when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
+        .thenReturn(mockPendingResult);
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
+    ImmutableList<MediaItem> firstPlaylist =
+        ImmutableList.of(
+            new MediaItem.Builder()
+                .setUri(uri1)
+                .setMimeType(MimeTypes.APPLICATION_MPD)
+                .setTag(1)
+                .build());
+    ImmutableList<MediaItem> secondPlaylist =
+        ImmutableList.of(
+            new MediaItem.Builder()
+                .setMediaMetadata(MediaMetadata.EMPTY)
+                .setUri(Uri.EMPTY)
+                .setTag(2)
+                .setMimeType(MimeTypes.APPLICATION_MPD)
+                .build(),
+            new MediaItem.Builder()
+                .setUri(uri2)
+                .setMimeType(MimeTypes.APPLICATION_MP4)
+                .setTag(3)
+                .build());
+    castPlayer.addListener(mockListener);
+
+    castPlayer.setMediaItems(firstPlaylist, /* startIndex= */ 0, /* startPositionMs= */ 2000L);
+    updateTimeLine(firstPlaylist, /* mediaQueueItemIds= */ new int[] {1}, /* currentItemId= */ 1);
+    castPlayer.setMediaItems(secondPlaylist, /* startIndex= */ 1, /* startPositionMs= */ 0L);
+    updateTimeLine(
+        secondPlaylist, /* mediaQueueItemIds= */ new int[] {2, 3}, /* currentItemId= */ 3);
+    castPlayer.seekTo(/* mediaItemIndex= */ 0, /* positionMs= */ 0);
+
+    verify(mockListener, times(3)).onMediaItemTransition(any(), anyInt());
+    verify(mockListener, never()).onMediaMetadataChanged(any());
+  }
+
   private int[] createMediaQueueItemIds(int numberOfIds) {
     int[] mediaQueueItemIds = new int[numberOfIds];
     for (int i = 0; i < numberOfIds; i++) {
@@ -1792,7 +1899,8 @@ public class CastPlayerTest {
   private MediaItem createMediaItem(int mediaQueueItemId) {
     return new MediaItem.Builder()
         .setUri("http://www.google.com/video" + mediaQueueItemId)
-        .setMediaMetadata(new MediaMetadata.Builder().setArtist("Foo Bar").build())
+        .setMediaMetadata(
+            new MediaMetadata.Builder().setArtist("Foo Bar - " + mediaQueueItemId).build())
         .setMimeType(MimeTypes.APPLICATION_MPD)
         .setTag(mediaQueueItemId)
         .build();
