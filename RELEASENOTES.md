@@ -40,6 +40,8 @@
         `Window.mediaItem` in `CastTimeline`
         ([#25](https://github.com/androidx/media/issues/25),
         [#8212](https://github.com/google/ExoPlayer/issues/8212)).
+    *   Support `Player.getMetadata()` and `Listener.onMediaMetadataChanged()`
+        with `CastPlayer` ([#25](https://github.com/androidx/media/issues/25)).
 
 ### 1.0.0-beta01 (2022-06-16)
 

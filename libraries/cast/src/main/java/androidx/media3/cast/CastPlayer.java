@@ -147,6 +147,7 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
+  private MediaMetadata mediaMetadata;
 
   /**
    * Creates a new cast player.
@@ -214,6 +215,7 @@ public final class CastPlayer extends BasePlayer {
     playbackParameters = new StateHolder<>(PlaybackParameters.DEFAULT);
     playbackState = STATE_IDLE;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
+    mediaMetadata = MediaMetadata.EMPTY;
     currentTracks = Tracks.EMPTY;
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
@@ -427,6 +429,13 @@ public final class CastPlayer extends BasePlayer {
             Player.EVENT_MEDIA_ITEM_TRANSITION,
             listener ->
                 listener.onMediaItemTransition(mediaItem, MEDIA_ITEM_TRANSITION_REASON_SEEK));
+        MediaMetadata oldMediaMetadata = mediaMetadata;
+        mediaMetadata = getMediaMetadataInternal();
+        if (!oldMediaMetadata.equals(mediaMetadata)) {
+          listeners.queueEvent(
+              Player.EVENT_MEDIA_METADATA_CHANGED,
+              listener -> listener.onMediaMetadataChanged(mediaMetadata));
+        }
       }
       updateAvailableCommandsAndNotifyIfChanged();
     } else if (pendingSeekCount == 0) {
@@ -564,8 +573,12 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public MediaMetadata getMediaMetadata() {
-    // CastPlayer does not currently support metadata.
-    return MediaMetadata.EMPTY;
+    return mediaMetadata;
+  }
+
+  public MediaMetadata getMediaMetadataInternal() {
+    MediaItem currentMediaItem = getCurrentMediaItem();
+    return currentMediaItem != null ? currentMediaItem.mediaMetadata : MediaMetadata.EMPTY;
   }
 
   @Override
@@ -762,6 +775,7 @@ public final class CastPlayer extends BasePlayer {
       return;
     }
     int oldWindowIndex = this.currentWindowIndex;
+    MediaMetadata oldMediaMetadata = mediaMetadata;
     @Nullable
     Object oldPeriodUid =
         !getCurrentTimeline().isEmpty()
@@ -773,6 +787,7 @@ public final class CastPlayer extends BasePlayer {
     boolean playingPeriodChangedByTimelineChange = updateTimelineAndNotifyIfChanged();
     Timeline currentTimeline = getCurrentTimeline();
     currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
+    mediaMetadata = getMediaMetadataInternal();
     @Nullable
     Object currentPeriodUid =
         !currentTimeline.isEmpty()
@@ -825,6 +840,11 @@ public final class CastPlayer extends BasePlayer {
     if (updateTracksAndSelectionsAndNotifyIfChanged()) {
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED, listener -> listener.onTracksChanged(currentTracks));
+    }
+    if (!oldMediaMetadata.equals(mediaMetadata)) {
+      listeners.queueEvent(
+          Player.EVENT_MEDIA_METADATA_CHANGED,
+          listener -> listener.onMediaMetadataChanged(mediaMetadata));
     }
     updateAvailableCommandsAndNotifyIfChanged();
     listeners.flushEvents();
