@@ -1258,6 +1258,12 @@ public class SimpleExoPlayer extends BasePlayer
     player.setDeviceMuted(muted);
   }
 
+  @Override
+  public boolean isTunnelingEnabled() {
+    blockUntilConstructorFinished();
+    return player.isTunnelingEnabled();
+  }
+
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     blockUntilConstructorFinished();
     player.setThrowsWhenUsingWrongThread(throwsWhenUsingWrongThread);

@@ -9,6 +9,9 @@
         ([#9889](https://github.com/google/ExoPlayer/issues/9889)).
     *   For progressive media, only include selected tracks in buffered position
         ([#10361](https://github.com/google/ExoPlayer/issues/10361)).
+    *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
+        the currently selected tracks
+        ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
