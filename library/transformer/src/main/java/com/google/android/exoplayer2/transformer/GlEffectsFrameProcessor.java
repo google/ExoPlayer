@@ -53,7 +53,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param listener A {@link Listener}.
    * @param effects The {@link GlEffect GlEffects} to apply to each frame.
    * @param debugViewProvider A {@link DebugViewProvider}.
-   * @param useHdr Whether to process the input as an HDR signal.
+   * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
+   *     EXT_YUV_target} OpenGL extension.
    * @return A new instance.
    * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
    *     creating and configuring the OpenGL components.

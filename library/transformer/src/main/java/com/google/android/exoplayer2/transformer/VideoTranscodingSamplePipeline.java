@@ -111,8 +111,6 @@ import org.checkerframework.dataflow.qual.Pure;
     boolean useHdr =
         transformationRequest.enableHdrEditing && ColorInfo.isHdr(inputFormat.colorInfo);
     if (useHdr && !encoderWrapper.supportsHdr()) {
-      // TODO(b/236316454): Also check whether GlEffectsFrameProcessor supports HDR, i.e., whether
-      //  EXT_YUV_target is supported.
       useHdr = false;
       enableRequestSdrToneMapping = true;
       encoderWrapper.signalFallbackToSdr();
@@ -152,6 +150,9 @@ import org.checkerframework.dataflow.qual.Pure;
               streamOffsetUs,
               effectsListBuilder.build(),
               debugViewProvider,
+              // HDR is only used if the MediaCodec encoder supports FEATURE_HdrEditing. This
+              // implies that the OpenGL EXT_YUV_target extension is supported and hence the
+              // GlEffectsFrameProcessor also supports HDR.
               useHdr);
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessingException(
