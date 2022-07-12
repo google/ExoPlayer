@@ -44,10 +44,12 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class EncoderPerformanceAnalysisTest {
 
-  /** A non-realtime {@link MediaFormat#KEY_PRIORITY encoder priority}. */
-  private static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 0;
-  /** A realtime {@link MediaFormat#KEY_PRIORITY encoder priority}. */
-  private static final int MEDIA_CODEC_PRIORITY_REALTIME = 1;
+  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
+  private static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+  /**
+   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
+   */
+  private static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
