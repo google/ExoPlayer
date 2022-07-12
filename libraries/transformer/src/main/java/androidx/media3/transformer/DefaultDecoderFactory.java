@@ -79,6 +79,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     MediaFormatUtil.maybeSetInteger(
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
     if (decoderSupportsKeyAllowFrameDrop) {
       // This key ensures no frame dropping when the decoder's output surface is full. This allows
       // transformer to decode as many frames as possible in one render cycle.
