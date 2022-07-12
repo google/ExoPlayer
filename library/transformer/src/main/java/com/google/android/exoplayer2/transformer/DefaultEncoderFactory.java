@@ -474,7 +474,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * <p>The adjustment is applied in-place to {@code mediaFormat}.
    */
   private static void adjustMediaFormatForEncoderPerformanceSettings(MediaFormat mediaFormat) {
-    // TODO(b/213477153) Verify priority/operating rate settings work for non-AVC codecs.
     if (Util.SDK_INT < 25) {
       // Not setting priority and operating rate achieves better encoding performance.
       return;
