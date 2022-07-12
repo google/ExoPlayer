@@ -132,7 +132,7 @@ import java.util.Arrays;
       int id = ids[i];
       idsToIndex.put(id, i);
       ItemData data = itemIdToData.get(id, ItemData.EMPTY);
-      mediaItems[i] = data.mediaItem.buildUpon().setTag(id).build();
+      mediaItems[i] = data.mediaItem;
       durationsUs[i] = data.durationUs;
       defaultPositionsUs[i] = data.defaultPositionUs == C.TIME_UNSET ? 0 : data.defaultPositionUs;
       isLive[i] = data.isLive;
