@@ -100,6 +100,7 @@ import org.mockito.Mockito;
 public class CastPlayerTest {
 
   private CastPlayer castPlayer;
+  private DefaultMediaItemConverter mediaItemConverter;
   private RemoteMediaClient.Callback remoteMediaClientCallback;
 
   @Mock private RemoteMediaClient mockRemoteMediaClient;
@@ -134,7 +135,8 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.isPaused()).thenReturn(true);
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_OFF);
     when(mockMediaStatus.getPlaybackRate()).thenReturn(1.0d);
-    castPlayer = new CastPlayer(mockCastContext);
+    mediaItemConverter = new DefaultMediaItemConverter();
+    castPlayer = new CastPlayer(mockCastContext, mediaItemConverter);
     castPlayer.addListener(mockListener);
     verify(mockRemoteMediaClient).registerCallback(callbackArgumentCaptor.capture());
     remoteMediaClientCallback = callbackArgumentCaptor.getValue();
@@ -427,22 +429,13 @@ public class CastPlayerTest {
     String uri1 = "http://www.google.com/video1";
     String uri2 = "http://www.google.com/video2";
     firstPlaylist.add(
-        new MediaItem.Builder()
-            .setUri(uri1)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .setTag(1)
-            .build());
+        new MediaItem.Builder().setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
     firstPlaylist.add(
-        new MediaItem.Builder()
-            .setUri(uri2)
-            .setMimeType(MimeTypes.APPLICATION_MP4)
-            .setTag(2)
-            .build());
+        new MediaItem.Builder().setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
     ImmutableList<MediaItem> secondPlaylist =
         ImmutableList.of(
             new MediaItem.Builder()
                 .setUri(Uri.EMPTY)
-                .setTag(3)
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .build());
 
@@ -472,23 +465,14 @@ public class CastPlayerTest {
     String uri1 = "http://www.google.com/video1";
     String uri2 = "http://www.google.com/video2";
     firstPlaylist.add(
-        new MediaItem.Builder()
-            .setUri(uri1)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .setTag(1)
-            .build());
+        new MediaItem.Builder().setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
     firstPlaylist.add(
-        new MediaItem.Builder()
-            .setUri(uri2)
-            .setMimeType(MimeTypes.APPLICATION_MP4)
-            .setTag(2)
-            .build());
+        new MediaItem.Builder().setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
     ImmutableList<MediaItem> secondPlaylist =
         ImmutableList.of(
             new MediaItem.Builder()
                 .setUri(Uri.EMPTY)
                 .setMimeType(MimeTypes.APPLICATION_MPD)
-                .setTag(3)
                 .build());
 
     castPlayer.setMediaItems(firstPlaylist, /* startIndex= */ 1, /* startPositionMs= */ 2000L);
@@ -556,34 +540,37 @@ public class CastPlayerTest {
     verify(mockRemoteMediaClient)
         .queueInsertItems(
             queueItemsArgumentCaptor.capture(), eq(MediaQueueItem.INVALID_ITEM_ID), any());
-
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
     assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
     assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
-  @SuppressWarnings("ConstantConditions")
   @Test
   public void addMediaItems_insertAtIndex_callsRemoteMediaClient() {
     int[] mediaQueueItemIds = createMediaQueueItemIds(/* numberOfIds= */ 2);
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    // Add two items.
     addMediaItemsAndUpdateTimeline(mediaItems, mediaQueueItemIds);
     String uri = "http://www.google.com/video3";
     MediaItem anotherMediaItem =
         new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_MPD).build();
+    int index = 1;
+    List<MediaItem> newPlaylist = Collections.singletonList(anotherMediaItem);
 
     // Add another on position 1
-    int index = 1;
-    castPlayer.addMediaItems(index, Collections.singletonList(anotherMediaItem));
+    castPlayer.addMediaItems(index, newPlaylist);
+    updateTimeLine(newPlaylist, /* mediaQueueItemIds= */ new int[] {123}, /* currentItemId= */ 1);
 
-    verify(mockRemoteMediaClient)
-        .queueInsertItems(
-            queueItemsArgumentCaptor.capture(),
-            eq((int) mediaItems.get(index).localConfiguration.tag),
-            any());
-
-    MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri);
+    verify(mockRemoteMediaClient, times(2))
+        .queueInsertItems(queueItemsArgumentCaptor.capture(), anyInt(), any());
+    assertThat(queueItemsArgumentCaptor.getAllValues().get(1)[0])
+        .isEqualTo(mediaItemConverter.toMediaQueueItem(anotherMediaItem));
+    Timeline.Window currentWindow =
+        castPlayer
+            .getCurrentTimeline()
+            .getWindow(castPlayer.getCurrentMediaItemIndex(), new Timeline.Window());
+    assertThat(currentWindow.uid).isEqualTo(123);
+    assertThat(currentWindow.mediaItem).isEqualTo(anotherMediaItem);
   }
 
   @Test
@@ -722,8 +709,8 @@ public class CastPlayerTest {
 
     Timeline currentTimeline = castPlayer.getCurrentTimeline();
     for (int i = 0; i < mediaItems.size(); i++) {
-      assertThat(currentTimeline.getWindow(/* windowIndex= */ i, window).uid)
-          .isEqualTo(mediaItems.get(i).localConfiguration.tag);
+      assertThat(currentTimeline.getWindow(/* windowIndex= */ i, window).mediaItem)
+          .isEqualTo(mediaItems.get(i));
     }
   }
 
@@ -1791,13 +1778,11 @@ public class CastPlayerTest {
                 .setUri(uri1)
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .setMediaMetadata(new MediaMetadata.Builder().setArtist("foo").build())
-                .setTag(1)
                 .build());
     ImmutableList<MediaItem> secondPlaylist =
         ImmutableList.of(
             new MediaItem.Builder()
                 .setUri(Uri.EMPTY)
-                .setTag(2)
                 .setMediaMetadata(new MediaMetadata.Builder().setArtist("bar").build())
                 .setMimeType(MimeTypes.APPLICATION_MPD)
                 .build(),
@@ -1805,7 +1790,6 @@ public class CastPlayerTest {
                 .setUri(uri2)
                 .setMimeType(MimeTypes.APPLICATION_MP4)
                 .setMediaMetadata(new MediaMetadata.Builder().setArtist("foobar").build())
-                .setTag(3)
                 .build());
     castPlayer.addListener(mockListener);
 
@@ -1902,7 +1886,6 @@ public class CastPlayerTest {
         .setMediaMetadata(
             new MediaMetadata.Builder().setArtist("Foo Bar - " + mediaQueueItemId).build())
         .setMimeType(MimeTypes.APPLICATION_MPD)
-        .setTag(mediaQueueItemId)
         .build();
   }
 
