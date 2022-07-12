@@ -109,7 +109,7 @@ import java.util.Arrays;
         context,
         ImmutableList.of(matrixTransformation),
         /* sampleFromExternalTexture= */ false,
-        /* enableExperimentalHdrEditing= */ false);
+        /* useHdr= */ false);
   }
 
   /**
@@ -126,7 +126,7 @@ import java.util.Arrays;
         context,
         ImmutableList.of(matrixTransformation),
         /* sampleFromExternalTexture= */ false,
-        /* enableExperimentalHdrEditing= */ false);
+        /* useHdr= */ false);
   }
 
   /**
@@ -138,15 +138,22 @@ import java.util.Arrays;
    * @param sampleFromExternalTexture Whether the input will be provided using an external texture.
    *     If {@code true}, the caller should use {@link #setTextureTransformMatrix(float[])} to
    *     provide the transformation matrix associated with the external texture.
-   * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
-   * @throws FrameProcessingException If a problem occurs while reading shader files.
+   * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
+   *     EXT_YUV_target} OpenGL extension.
+   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
+   *     operation fails or is unsupported.
    */
   public MatrixTransformationProcessor(
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       boolean sampleFromExternalTexture,
-      boolean enableExperimentalHdrEditing)
+      boolean useHdr)
       throws FrameProcessingException {
+    if (sampleFromExternalTexture && useHdr && !GlUtil.isYuvTargetExtensionSupported()) {
+      throw new FrameProcessingException(
+          "The EXT_YUV_target extension is required for HDR editing.");
+    }
+
     this.matrixTransformations = matrixTransformations;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
@@ -159,13 +166,9 @@ import java.util.Arrays;
     String fragmentShaderFilePath;
     if (sampleFromExternalTexture) {
       vertexShaderFilePath =
-          enableExperimentalHdrEditing
-              ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH
-              : VERTEX_SHADER_TRANSFORMATION_PATH;
+          useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
       fragmentShaderFilePath =
-          enableExperimentalHdrEditing
-              ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
-              : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+          useHdr ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
     } else {
       vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
       fragmentShaderFilePath = FRAGMENT_SHADER_COPY_PATH;
@@ -177,7 +180,7 @@ import java.util.Arrays;
       throw new FrameProcessingException(e);
     }
 
-    if (enableExperimentalHdrEditing && sampleFromExternalTexture) {
+    if (useHdr && sampleFromExternalTexture) {
       // In HDR editing mode the decoder output is sampled in YUV.
       glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
     }
