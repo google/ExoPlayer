@@ -1671,6 +1671,17 @@ import java.util.concurrent.TimeoutException;
     streamVolumeManager.setMuted(muted);
   }
 
+  @Override
+  public boolean isTunnelingEnabled() {
+    verifyApplicationThread();
+    for (RendererConfiguration config : playbackInfo.trackSelectorResult.rendererConfigurations) {
+      if (config.tunneling) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
