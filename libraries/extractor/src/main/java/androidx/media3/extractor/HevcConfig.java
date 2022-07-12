@@ -46,7 +46,7 @@ public final class HevcConfig {
       int csdLength = 0;
       int csdStartPosition = data.getPosition();
       for (int i = 0; i < numberOfArrays; i++) {
-        data.skipBytes(1); // completeness (1), nal_unit_type (7)
+        data.skipBytes(1); // completeness (1), reserved (1), nal_unit_type (6)
         int numberOfNalUnits = data.readUnsignedShort();
         for (int j = 0; j < numberOfNalUnits; j++) {
           int nalUnitLength = data.readUnsignedShort();
@@ -64,7 +64,8 @@ public final class HevcConfig {
       float pixelWidthHeightRatio = 1;
       @Nullable String codecs = null;
       for (int i = 0; i < numberOfArrays; i++) {
-        int nalUnitType = data.readUnsignedByte() & 0x7F; // completeness (1), nal_unit_type (7)
+        int nalUnitType =
+            data.readUnsignedByte() & 0x3F; // completeness (1), reserved (1), nal_unit_type (6)
         int numberOfNalUnits = data.readUnsignedShort();
         for (int j = 0; j < numberOfNalUnits; j++) {
           int nalUnitLength = data.readUnsignedShort();
