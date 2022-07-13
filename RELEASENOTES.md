@@ -9,6 +9,8 @@
         ([#9889](https://github.com/google/ExoPlayer/issues/9889)).
     *   For progressive media, only include selected tracks in buffered position
         ([#10361](https://github.com/google/ExoPlayer/issues/10361)).
+    *   Allow custom logger for all ExoPlayer log output
+        ([#9752](https://github.com/google/ExoPlayer/issues/9752)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
