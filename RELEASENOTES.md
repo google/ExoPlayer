@@ -12,6 +12,8 @@
     *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
         the currently selected tracks
         ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
+    *   Allow custom logger for all ExoPlayer log output
+        ([#9752](https://github.com/google/ExoPlayer/issues/9752)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
