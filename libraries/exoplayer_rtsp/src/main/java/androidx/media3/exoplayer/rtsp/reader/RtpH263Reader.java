@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.rtsp.reader;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import androidx.media3.common.C;
@@ -61,12 +62,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean isKeyFrame;
   private boolean isOutputFormatSet;
   private long startTimeOffsetUs;
+  private long sampleTimeUsOfFragmentedSample;
+  /**
+   * Whether the first packet of a H263 frame is received, it mark the start of a H263 partition. A
+   * H263 frame can be split into multiple RTP packets.
+   */
+  private boolean gotFirstPacketOfH263Frame;
 
   /** Creates an instance. */
   public RtpH263Reader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
+    isKeyFrame = false;
+    fragmentedSampleSizeBytes = 0;
+    sampleTimeUsOfFragmentedSample = C.TIME_UNSET;
+    gotFirstPacketOfH263Frame = false;
   }
 
   @Override
@@ -76,7 +87,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {}
+  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {
+    checkState(firstReceivedTimestamp == C.TIME_UNSET);
+    firstReceivedTimestamp = timestamp;
+  }
 
   @Override
   public void consume(
@@ -103,6 +117,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (pBitIsSet) {
+      if (gotFirstPacketOfH263Frame && fragmentedSampleSizeBytes > 0) {
+        // Received new H263 fragment, output data of previous fragment to decoder.
+        outputSampleMetadataForFragmentedPackets();
+      }
+      gotFirstPacketOfH263Frame = true;
+
       int payloadStartCode = data.peekUnsignedByte() & 0xFC;
       // Packets that begin with a Picture Start Code(100000). Refer RFC4629 Section 6.1.
       if (payloadStartCode < PICTURE_START_CODE) {
@@ -113,10 +133,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       data.getData()[currentPosition] = 0;
       data.getData()[currentPosition + 1] = 0;
       data.setPosition(currentPosition);
-    } else {
+    } else if (gotFirstPacketOfH263Frame) {
       // Check that this packet is in the sequence of the previous packet.
       int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
-      if (sequenceNumber != expectedSequenceNumber) {
+      if (sequenceNumber < expectedSequenceNumber) {
         Log.w(
             TAG,
             Util.formatInvariant(
@@ -125,6 +145,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 expectedSequenceNumber, sequenceNumber));
         return;
       }
+    } else {
+      Log.w(
+          TAG,
+          "First payload octet of the H263 packet is not the beginning of a new H263 partition,"
+              + " Dropping current packet.");
+      return;
     }
 
     if (fragmentedSampleSizeBytes == 0) {
@@ -141,20 +167,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Write the video sample.
     trackOutput.sampleData(data, fragmentSize);
     fragmentedSampleSizeBytes += fragmentSize;
+    sampleTimeUsOfFragmentedSample =
+        toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
 
     if (rtpMarker) {
-      if (firstReceivedTimestamp == C.TIME_UNSET) {
-        firstReceivedTimestamp = timestamp;
-      }
-      long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
-      trackOutput.sampleMetadata(
-          timeUs,
-          isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
-          fragmentedSampleSizeBytes,
-          /* offset= */ 0,
-          /* cryptoData= */ null);
-      fragmentedSampleSizeBytes = 0;
-      isKeyFrame = false;
+      outputSampleMetadataForFragmentedPackets();
     }
     previousSequenceNumber = sequenceNumber;
   }
@@ -209,6 +226,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     data.setPosition(currentPosition);
     isKeyFrame = false;
+  }
+
+  /**
+   * Outputs sample metadata.
+   *
+   * <p>Call this method only when receiving a end of VP8 partition
+   */
+  private void outputSampleMetadataForFragmentedPackets() {
+    trackOutput.sampleMetadata(
+        sampleTimeUsOfFragmentedSample,
+        isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
+        fragmentedSampleSizeBytes,
+        /* offset= */ 0,
+        /* cryptoData= */ null);
+    fragmentedSampleSizeBytes = 0;
+    sampleTimeUsOfFragmentedSample = C.TIME_UNSET;
+    isKeyFrame = false;
+    gotFirstPacketOfH263Frame = false;
   }
 
   private static long toSampleUs(
