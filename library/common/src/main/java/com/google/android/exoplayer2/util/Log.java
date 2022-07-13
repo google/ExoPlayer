@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.text.TextUtils;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
@@ -28,7 +29,10 @@ import java.lang.annotation.Target;
 import java.net.UnknownHostException;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Wrapper around {@link android.util.Log} which allows to set the log level. */
+/**
+ * Wrapper around {@link android.util.Log} which allows to set the log level and to specify a custom
+ * log output.
+ */
 public final class Log {
 
   /**
@@ -51,15 +55,89 @@ public final class Log {
   /** Log level to disable all logging. */
   public static final int LOG_LEVEL_OFF = Integer.MAX_VALUE;
 
+  /**
+   * Interface for a logger that can output messages with a tag.
+   *
+   * <p>Use {@link #DEFAULT} to output to {@link android.util.Log}.
+   */
+  public interface Logger {
+
+    /** The default instance logging to {@link android.util.Log}. */
+    Logger DEFAULT =
+        new Logger() {
+          @Override
+          public void d(String tag, String message) {
+            android.util.Log.d(tag, message);
+          }
+
+          @Override
+          public void i(String tag, String message) {
+            android.util.Log.i(tag, message);
+          }
+
+          @Override
+          public void w(String tag, String message) {
+            android.util.Log.w(tag, message);
+          }
+
+          @Override
+          public void e(String tag, String message) {
+            android.util.Log.e(tag, message);
+          }
+        };
+
+    /**
+     * Logs a debug-level message.
+     *
+     * @param tag The tag of the message.
+     * @param message The message.
+     */
+    void d(String tag, String message);
+
+    /**
+     * Logs an information-level message.
+     *
+     * @param tag The tag of the message.
+     * @param message The message.
+     */
+    void i(String tag, String message);
+
+    /**
+     * Logs a warning-level message.
+     *
+     * @param tag The tag of the message.
+     * @param message The message.
+     */
+    void w(String tag, String message);
+
+    /**
+     * Logs an error-level message.
+     *
+     * @param tag The tag of the message.
+     * @param message The message.
+     */
+    void e(String tag, String message);
+  }
+
+  private static final Object lock = new Object();
+
+  @GuardedBy("lock")
   private static int logLevel = LOG_LEVEL_ALL;
+
+  @GuardedBy("lock")
   private static boolean logStackTraces = true;
+
+  @GuardedBy("lock")
+  private static Logger logger = Logger.DEFAULT;
 
   private Log() {}
 
   /** Returns current {@link LogLevel} for ExoPlayer logcat logging. */
   @Pure
   public static @LogLevel int getLogLevel() {
-    return logLevel;
+    synchronized (lock) {
+      return logLevel;
+    }
   }
 
   /**
@@ -68,7 +146,9 @@ public final class Log {
    * @param logLevel The new {@link LogLevel}.
    */
   public static void setLogLevel(@LogLevel int logLevel) {
-    Log.logLevel = logLevel;
+    synchronized (lock) {
+      Log.logLevel = logLevel;
+    }
   }
 
   /**
@@ -78,7 +158,20 @@ public final class Log {
    * @param logStackTraces Whether stack traces will be logged.
    */
   public static void setLogStackTraces(boolean logStackTraces) {
-    Log.logStackTraces = logStackTraces;
+    synchronized (lock) {
+      Log.logStackTraces = logStackTraces;
+    }
+  }
+
+  /**
+   * Sets a custom {@link Logger} as the output.
+   *
+   * @param logger The {@link Logger}.
+   */
+  public static void setLogger(Logger logger) {
+    synchronized (lock) {
+      Log.logger = logger;
+    }
   }
 
   /**
@@ -86,8 +179,10 @@ public final class Log {
    */
   @Pure
   public static void d(@Size(max = 23) String tag, String message) {
-    if (logLevel == LOG_LEVEL_ALL) {
-      android.util.Log.d(tag, message);
+    synchronized (lock) {
+      if (logLevel == LOG_LEVEL_ALL) {
+        logger.d(tag, message);
+      }
     }
   }
 
@@ -104,8 +199,10 @@ public final class Log {
    */
   @Pure
   public static void i(@Size(max = 23) String tag, String message) {
-    if (logLevel <= LOG_LEVEL_INFO) {
-      android.util.Log.i(tag, message);
+    synchronized (lock) {
+      if (logLevel <= LOG_LEVEL_INFO) {
+        logger.i(tag, message);
+      }
     }
   }
 
@@ -122,8 +219,10 @@ public final class Log {
    */
   @Pure
   public static void w(@Size(max = 23) String tag, String message) {
-    if (logLevel <= LOG_LEVEL_WARNING) {
-      android.util.Log.w(tag, message);
+    synchronized (lock) {
+      if (logLevel <= LOG_LEVEL_WARNING) {
+        logger.w(tag, message);
+      }
     }
   }
 
@@ -140,8 +239,10 @@ public final class Log {
    */
   @Pure
   public static void e(@Size(max = 23) String tag, String message) {
-    if (logLevel <= LOG_LEVEL_ERROR) {
-      android.util.Log.e(tag, message);
+    synchronized (lock) {
+      if (logLevel <= LOG_LEVEL_ERROR) {
+        logger.e(tag, message);
+      }
     }
   }
 
@@ -167,20 +268,23 @@ public final class Log {
   @Nullable
   @Pure
   public static String getThrowableString(@Nullable Throwable throwable) {
-    if (throwable == null) {
-      return null;
-    } else if (isCausedByUnknownHostException(throwable)) {
-      // UnknownHostException implies the device doesn't have network connectivity.
-      // UnknownHostException.getMessage() may return a string that's more verbose than desired for
-      // logging an expected failure mode. Conversely, android.util.Log.getStackTraceString has
-      // special handling to return the empty string, which can result in logging that doesn't
-      // indicate the failure mode at all. Hence we special case this exception to always return a
-      // concise but useful message.
-      return "UnknownHostException (no network)";
-    } else if (!logStackTraces) {
-      return throwable.getMessage();
-    } else {
-      return android.util.Log.getStackTraceString(throwable).trim().replace("\t", "    ");
+    synchronized (lock) {
+      if (throwable == null) {
+        return null;
+      } else if (isCausedByUnknownHostException(throwable)) {
+        // UnknownHostException implies the device doesn't have network connectivity.
+        // UnknownHostException.getMessage() may return a string that's more verbose than desired
+        // for
+        // logging an expected failure mode. Conversely, android.util.Log.getStackTraceString has
+        // special handling to return the empty string, which can result in logging that doesn't
+        // indicate the failure mode at all. Hence we special case this exception to always return a
+        // concise but useful message.
+        return "UnknownHostException (no network)";
+      } else if (!logStackTraces) {
+        return throwable.getMessage();
+      } else {
+        return android.util.Log.getStackTraceString(throwable).trim().replace("\t", "    ");
+      }
     }
   }
 
