@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class RtpVp8ReaderTest {
 
-  /** VP9 uses a 90 KHz media clock (RFC7741 Section 4.1). */
+  /** VP8 uses a 90 KHz media clock (RFC7741 Section 4.1). */
   private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
 
   private static final byte[] PARTITION_1 = getBytesFromHexString("000102030405060708090A0B0C0D0E");
@@ -61,7 +61,7 @@ public final class RtpVp8ReaderTest {
       new RtpPacket.Builder()
           .setTimestamp(PARTITION_1_RTP_TIMESTAMP)
           .setSequenceNumber(40290)
-          .setMarker(false)
+          .setMarker(true)
           .setPayloadData(Bytes.concat(getBytesFromHexString("00"), PARTITION_1_FRAGMENT_2))
           .build();
 

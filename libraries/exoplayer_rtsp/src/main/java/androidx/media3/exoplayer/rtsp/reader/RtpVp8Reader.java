@@ -36,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class RtpVp8Reader implements RtpPayloadReader {
   private static final String TAG = "RtpVP8Reader";
 
-  /** VP9 uses a 90 KHz media clock (RFC7741 Section 4.1). */
+  /** VP8 uses a 90 KHz media clock (RFC7741 Section 4.1). */
   private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
 
   private final RtpPayloadFormat payloadFormat;
