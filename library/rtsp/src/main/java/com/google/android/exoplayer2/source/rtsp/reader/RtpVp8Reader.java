@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import com.google.android.exoplayer2.C;
@@ -51,6 +53,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
 
+  private long fragmentedSampleTimeUs;
+
   private long startTimeOffsetUs;
   /**
    * Whether the first packet of one VP8 frame is received. A VP8 frame can be split into two RTP
@@ -67,6 +71,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
     fragmentedSampleSizeBytes = C.LENGTH_UNSET;
+    fragmentedSampleTimeUs = C.TIME_UNSET;
     // The start time offset must be 0 until the first seek.
     startTimeOffsetUs = 0;
     gotFirstPacketOfVp8Frame = false;
@@ -81,7 +86,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {}
+  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {
+    checkState(firstReceivedTimestamp == C.TIME_UNSET);
+    firstReceivedTimestamp = timestamp;
+  }
 
   @Override
   public void consume(
@@ -113,21 +121,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       int fragmentSize = data.bytesLeft();
       trackOutput.sampleData(data, fragmentSize);
-      fragmentedSampleSizeBytes += fragmentSize;
+      if (fragmentedSampleSizeBytes == C.LENGTH_UNSET) {
+        fragmentedSampleSizeBytes = fragmentSize;
+      } else {
+        fragmentedSampleSizeBytes += fragmentSize;
+      }
+
+      fragmentedSampleTimeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
 
       if (rtpMarker) {
-        if (firstReceivedTimestamp == C.TIME_UNSET) {
-          firstReceivedTimestamp = timestamp;
-        }
-        long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
-        trackOutput.sampleMetadata(
-            timeUs,
-            isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
-            fragmentedSampleSizeBytes,
-            /* offset= */ 0,
-            /* cryptoData= */ null);
-        fragmentedSampleSizeBytes = C.LENGTH_UNSET;
-        gotFirstPacketOfVp8Frame = false;
+        outputSampleMetadataForFragmentedPackets();
       }
       previousSequenceNumber = sequenceNumber;
     }
@@ -147,18 +150,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean validateVp8Descriptor(ParsableByteArray payload, int packetSequenceNumber) {
     // VP8 Payload Descriptor is defined in RFC7741 Section 4.2.
     int header = payload.readUnsignedByte();
-    if (!gotFirstPacketOfVp8Frame) {
-      // TODO(b/198620566) Consider using ParsableBitArray.
-      // For start of VP8 partition S=1 and PID=0 as per RFC7741 Section 4.2.
-      if ((header & 0x10) != 0x1 || (header & 0x07) != 0) {
-        Log.w(TAG, "RTP packet is not the start of a new VP8 partition, skipping.");
-        return false;
+    // TODO(b/198620566) Consider using ParsableBitArray.
+    // For start of VP8 partition S=1 and PID=0 as per RFC7741 Section 4.2.
+    if ((header & 0x10) == 0x10 && (header & 0x07) == 0) {
+      if (gotFirstPacketOfVp8Frame && fragmentedSampleSizeBytes > 0) {
+        // Received new VP8 fragment, output data of previous fragment to decoder.
+        outputSampleMetadataForFragmentedPackets();
       }
       gotFirstPacketOfVp8Frame = true;
-    } else {
+    } else if (gotFirstPacketOfVp8Frame) {
       // Check that this packet is in the sequence of the previous packet.
       int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
-      if (packetSequenceNumber != expectedSequenceNumber) {
+      if (packetSequenceNumber < expectedSequenceNumber) {
         Log.w(
             TAG,
             Util.formatInvariant(
@@ -167,6 +170,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 expectedSequenceNumber, packetSequenceNumber));
         return false;
       }
+    } else {
+      Log.w(TAG, "RTP packet is not the start of a new VP8 partition, skipping.");
+      return false;
     }
 
     // Check if optional X header is present.
@@ -193,6 +199,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     return true;
+  }
+
+  /**
+   * Outputs sample metadata of the received fragmented packets.
+   *
+   * <p>Call this method only after receiving an end of a VP8 partition.
+   */
+  private void outputSampleMetadataForFragmentedPackets() {
+    checkNotNull(trackOutput)
+        .sampleMetadata(
+            fragmentedSampleTimeUs,
+            isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0,
+            fragmentedSampleSizeBytes,
+            /* offset= */ 0,
+            /* cryptoData= */ null);
+    fragmentedSampleSizeBytes = 0;
+    fragmentedSampleTimeUs = C.TIME_UNSET;
+    gotFirstPacketOfVp8Frame = false;
   }
 
   private static long toSampleUs(
