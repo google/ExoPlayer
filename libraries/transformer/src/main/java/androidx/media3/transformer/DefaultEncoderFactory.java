@@ -30,6 +30,7 @@ import android.media.MediaFormat;
 import android.util.Pair;
 import android.util.Size;
 import androidx.annotation.Nullable;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
@@ -278,8 +279,19 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
-    mediaFormat.setInteger(
-        MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
+    if (Util.SDK_INT >= 31 && ColorInfo.isHdr(format.colorInfo)) {
+      if (EncoderUtil.getSupportedColorFormats(encoderInfo, mimeType)
+          .contains(MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010)) {
+        mediaFormat.setInteger(
+            MediaFormat.KEY_COLOR_FORMAT,
+            MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010);
+      } else {
+        throw createTransformationException(format);
+      }
+    } else {
+      mediaFormat.setInteger(
+          MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+    }
 
     if (Util.SDK_INT >= 25) {
       mediaFormat.setFloat(
