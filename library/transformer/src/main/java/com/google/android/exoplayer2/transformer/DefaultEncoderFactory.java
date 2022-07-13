@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -276,8 +277,19 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
-    mediaFormat.setInteger(
-        MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
+    if (Util.SDK_INT >= 31 && ColorInfo.isHdr(format.colorInfo)) {
+      if (EncoderUtil.getSupportedColorFormats(encoderInfo, mimeType)
+          .contains(MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010)) {
+        mediaFormat.setInteger(
+            MediaFormat.KEY_COLOR_FORMAT,
+            MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010);
+      } else {
+        throw createTransformationException(format);
+      }
+    } else {
+      mediaFormat.setInteger(
+          MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+    }
 
     if (Util.SDK_INT >= 25) {
       mediaFormat.setFloat(

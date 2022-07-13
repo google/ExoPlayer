@@ -39,9 +39,6 @@ public final class VideoEncoderSettings {
 
   /** A value for various fields to indicate that the field's value is unknown or not applicable. */
   public static final int NO_VALUE = Format.NO_VALUE;
-  /** The default encoding color profile. */
-  public static final int DEFAULT_COLOR_PROFILE =
-      MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
   /** The default I-frame interval in seconds. */
   public static final float DEFAULT_I_FRAME_INTERVAL_SECONDS = 1.0f;
 
@@ -72,7 +69,6 @@ public final class VideoEncoderSettings {
     private @BitrateMode int bitrateMode;
     private int profile;
     private int level;
-    private int colorProfile;
     private float iFrameIntervalSeconds;
     private int operatingRate;
     private int priority;
@@ -84,7 +80,6 @@ public final class VideoEncoderSettings {
       this.bitrateMode = BITRATE_MODE_VBR;
       this.profile = NO_VALUE;
       this.level = NO_VALUE;
-      this.colorProfile = DEFAULT_COLOR_PROFILE;
       this.iFrameIntervalSeconds = DEFAULT_I_FRAME_INTERVAL_SECONDS;
       this.operatingRate = NO_VALUE;
       this.priority = NO_VALUE;
@@ -95,7 +90,6 @@ public final class VideoEncoderSettings {
       this.bitrateMode = videoEncoderSettings.bitrateMode;
       this.profile = videoEncoderSettings.profile;
       this.level = videoEncoderSettings.level;
-      this.colorProfile = videoEncoderSettings.colorProfile;
       this.iFrameIntervalSeconds = videoEncoderSettings.iFrameIntervalSeconds;
       this.operatingRate = videoEncoderSettings.operatingRate;
       this.priority = videoEncoderSettings.priority;
@@ -147,21 +141,6 @@ public final class VideoEncoderSettings {
     public Builder setEncodingProfileLevel(int encodingProfile, int encodingLevel) {
       this.profile = encodingProfile;
       this.level = encodingLevel;
-      return this;
-    }
-
-    /**
-     * Sets {@link VideoEncoderSettings#colorProfile}. The default value is {@link
-     * #DEFAULT_COLOR_PROFILE}.
-     *
-     * <p>The value must be one of the {@code COLOR_*} constants defined in {@link
-     * MediaCodecInfo.CodecCapabilities}.
-     *
-     * @param colorProfile The {@link VideoEncoderSettings#colorProfile}.
-     * @return This builder.
-     */
-    public Builder setColorProfile(int colorProfile) {
-      this.colorProfile = colorProfile;
       return this;
     }
 
@@ -219,7 +198,6 @@ public final class VideoEncoderSettings {
           bitrateMode,
           profile,
           level,
-          colorProfile,
           iFrameIntervalSeconds,
           operatingRate,
           priority,
@@ -235,8 +213,6 @@ public final class VideoEncoderSettings {
   public final int profile;
   /** The encoding level. */
   public final int level;
-  /** The encoding color profile. */
-  public final int colorProfile;
   /** The encoding I-Frame interval in seconds. */
   public final float iFrameIntervalSeconds;
   /** The encoder {@link MediaFormat#KEY_OPERATING_RATE operating rate}. */
@@ -251,7 +227,6 @@ public final class VideoEncoderSettings {
       int bitrateMode,
       int profile,
       int level,
-      int colorProfile,
       float iFrameIntervalSeconds,
       int operatingRate,
       int priority,
@@ -260,7 +235,6 @@ public final class VideoEncoderSettings {
     this.bitrateMode = bitrateMode;
     this.profile = profile;
     this.level = level;
-    this.colorProfile = colorProfile;
     this.iFrameIntervalSeconds = iFrameIntervalSeconds;
     this.operatingRate = operatingRate;
     this.priority = priority;
@@ -287,7 +261,6 @@ public final class VideoEncoderSettings {
         && bitrateMode == that.bitrateMode
         && profile == that.profile
         && level == that.level
-        && colorProfile == that.colorProfile
         && iFrameIntervalSeconds == that.iFrameIntervalSeconds
         && operatingRate == that.operatingRate
         && priority == that.priority
@@ -301,7 +274,6 @@ public final class VideoEncoderSettings {
     result = 31 * result + bitrateMode;
     result = 31 * result + profile;
     result = 31 * result + level;
-    result = 31 * result + colorProfile;
     result = 31 * result + Float.floatToIntBits(iFrameIntervalSeconds);
     result = 31 * result + operatingRate;
     result = 31 * result + priority;
