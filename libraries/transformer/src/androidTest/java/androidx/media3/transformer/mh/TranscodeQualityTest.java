@@ -23,10 +23,12 @@ import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.transformer.AndroidTestUtil;
+import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.TransformationTestResult;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
+import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
@@ -36,9 +38,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
   @Test
-  public void transformWithDecodeEncode_ssimIsGreaterThan90Percent() throws Exception {
+  public void transformHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
+      throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transformWithDecodeEncode_ssim";
+    String testId = "transformHighQualityTargetingAvcToAvc1920x1080_ssim";
 
     if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
         context,
@@ -52,7 +55,13 @@ public final class TranscodeQualityTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
-            .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
+            .setEncoderFactory(
+                new DefaultEncoderFactory.Builder(context)
+                    .setRequestedVideoEncoderSettings(
+                        new VideoEncoderSettings.Builder()
+                            .setEnableHighQualityTargeting(true)
+                            .build())
+                    .build())
             .setRemoveAudio(true)
             .build();
 

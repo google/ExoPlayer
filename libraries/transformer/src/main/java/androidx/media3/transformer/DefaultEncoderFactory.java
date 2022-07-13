@@ -241,27 +241,27 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             mimeType, encoderSupportedFormat.width, encoderSupportedFormat.height);
     mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(encoderSupportedFormat.frameRate));
 
-    int bitrate;
-
     if (supportedVideoEncoderSettings.enableHighQualityTargeting) {
-      bitrate =
+      int bitrate =
           new DeviceMappedEncoderBitrateProvider()
               .getBitrate(
                   encoderInfo.getName(),
                   encoderSupportedFormat.width,
                   encoderSupportedFormat.height,
                   encoderSupportedFormat.frameRate);
-    } else if (supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE) {
-      bitrate = supportedVideoEncoderSettings.bitrate;
-    } else {
-      bitrate =
+      encoderSupportedFormat =
+          encoderSupportedFormat.buildUpon().setAverageBitrate(bitrate).build();
+    } else if (encoderSupportedFormat.bitrate == Format.NO_VALUE) {
+      int bitrate =
           getSuggestedBitrate(
               encoderSupportedFormat.width,
               encoderSupportedFormat.height,
               encoderSupportedFormat.frameRate);
+      encoderSupportedFormat =
+          encoderSupportedFormat.buildUpon().setAverageBitrate(bitrate).build();
     }
 
-    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
+    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, encoderSupportedFormat.averageBitrate);
     mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, supportedVideoEncoderSettings.bitrateMode);
 
     if (supportedVideoEncoderSettings.profile != VideoEncoderSettings.NO_VALUE
@@ -391,11 +391,23 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       return null;
     }
 
+    // TODO(b/238094555): Check encoder supports bitrate targeted by high quality.
     MediaCodecInfo pickedEncoderInfo = filteredEncoderInfos.get(0);
     int closestSupportedBitrate =
         EncoderUtil.getSupportedBitrateRange(pickedEncoderInfo, mimeType).clamp(requestedBitrate);
-    VideoEncoderSettings.Builder supportedEncodingSettingBuilder =
-        videoEncoderSettings.buildUpon().setBitrate(closestSupportedBitrate);
+
+    VideoEncoderSettings.Builder supportedEncodingSettingBuilder = videoEncoderSettings.buildUpon();
+    Format.Builder encoderSupportedFormatBuilder =
+        requestedFormat
+            .buildUpon()
+            .setSampleMimeType(mimeType)
+            .setWidth(finalResolution.getWidth())
+            .setHeight(finalResolution.getHeight());
+
+    if (!videoEncoderSettings.enableHighQualityTargeting) {
+      supportedEncodingSettingBuilder.setBitrate(closestSupportedBitrate);
+      encoderSupportedFormatBuilder.setAverageBitrate(closestSupportedBitrate);
+    }
 
     if (videoEncoderSettings.profile == VideoEncoderSettings.NO_VALUE
         || videoEncoderSettings.level == VideoEncoderSettings.NO_VALUE
@@ -406,16 +418,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           VideoEncoderSettings.NO_VALUE, VideoEncoderSettings.NO_VALUE);
     }
 
-    Format encoderSupportedFormat =
-        requestedFormat
-            .buildUpon()
-            .setSampleMimeType(mimeType)
-            .setWidth(finalResolution.getWidth())
-            .setHeight(finalResolution.getHeight())
-            .setAverageBitrate(closestSupportedBitrate)
-            .build();
     return new VideoEncoderQueryResult(
-        pickedEncoderInfo, encoderSupportedFormat, supportedEncodingSettingBuilder.build());
+        pickedEncoderInfo,
+        encoderSupportedFormatBuilder.build(),
+        supportedEncodingSettingBuilder.build());
   }
 
   /** Returns a list of encoders that support the requested resolution most closely. */
@@ -650,7 +656,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * </ul>
    */
   private static int getSuggestedBitrate(int width, int height, float frameRate) {
-    // TODO(b/210591626) Refactor into a BitrateProvider.
+    // TODO(b/238094555) Refactor into a BitrateProvider.
     // Assume medium motion factor.
     // 1080p60 -> 16.6Mbps, 720p30 -> 3.7Mbps.
     return (int) (width * height * frameRate * 0.07 * 2);
