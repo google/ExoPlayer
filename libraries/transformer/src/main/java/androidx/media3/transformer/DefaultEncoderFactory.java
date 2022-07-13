@@ -231,24 +231,34 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.encoder;
-    format = encoderAndClosestFormatSupport.supportedFormat;
+    Format encoderSupportedFormat = encoderAndClosestFormatSupport.supportedFormat;
     VideoEncoderSettings supportedVideoEncoderSettings =
         encoderAndClosestFormatSupport.supportedEncoderSettings;
 
-    String mimeType = checkNotNull(format.sampleMimeType);
-    MediaFormat mediaFormat = MediaFormat.createVideoFormat(mimeType, format.width, format.height);
-    mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(format.frameRate));
+    String mimeType = checkNotNull(encoderSupportedFormat.sampleMimeType);
+    MediaFormat mediaFormat =
+        MediaFormat.createVideoFormat(
+            mimeType, encoderSupportedFormat.width, encoderSupportedFormat.height);
+    mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, round(encoderSupportedFormat.frameRate));
 
     int bitrate;
 
     if (supportedVideoEncoderSettings.enableHighQualityTargeting) {
       bitrate =
           new DeviceMappedEncoderBitrateProvider()
-              .getBitrate(encoderInfo.getName(), format.width, format.height, format.frameRate);
+              .getBitrate(
+                  encoderInfo.getName(),
+                  encoderSupportedFormat.width,
+                  encoderSupportedFormat.height,
+                  encoderSupportedFormat.frameRate);
     } else if (supportedVideoEncoderSettings.bitrate != VideoEncoderSettings.NO_VALUE) {
       bitrate = supportedVideoEncoderSettings.bitrate;
     } else {
-      bitrate = getSuggestedBitrate(format.width, format.height, format.frameRate);
+      bitrate =
+          getSuggestedBitrate(
+              encoderSupportedFormat.width,
+              encoderSupportedFormat.height,
+              encoderSupportedFormat.frameRate);
     }
 
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
@@ -267,7 +277,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       adjustMediaFormatForH264EncoderSettings(mediaFormat, encoderInfo);
     }
 
-    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
+    MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
     mediaFormat.setInteger(
         MediaFormat.KEY_COLOR_FORMAT, supportedVideoEncoderSettings.colorProfile);
 
@@ -303,7 +313,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     return new DefaultCodec(
         context,
-        format,
+        encoderSupportedFormat,
         mediaFormat,
         encoderInfo.getName(),
         /* isDecoder= */ false,
@@ -396,7 +406,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           VideoEncoderSettings.NO_VALUE, VideoEncoderSettings.NO_VALUE);
     }
 
-    Format supportedEncoderFormat =
+    Format encoderSupportedFormat =
         requestedFormat
             .buildUpon()
             .setSampleMimeType(mimeType)
@@ -405,7 +415,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             .setAverageBitrate(closestSupportedBitrate)
             .build();
     return new VideoEncoderQueryResult(
-        pickedEncoderInfo, supportedEncoderFormat, supportedEncodingSettingBuilder.build());
+        pickedEncoderInfo, encoderSupportedFormat, supportedEncodingSettingBuilder.build());
   }
 
   /** Returns a list of encoders that support the requested resolution most closely. */
