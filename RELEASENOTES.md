@@ -14,6 +14,9 @@
         ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
     *   Allow custom logger for all ExoPlayer log output
         ([#9752](https://github.com/google/ExoPlayer/issues/9752)).
+    *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
+        OutOfMemory errors when releasing multiple players at the same time
+        ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
