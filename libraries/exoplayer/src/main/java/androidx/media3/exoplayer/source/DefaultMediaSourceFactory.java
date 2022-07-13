@@ -282,6 +282,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory setDataSourceFactory(DataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
+    delegateFactoryLoader.setDataSourceFactory(dataSourceFactory);
     return this;
   }
 
@@ -594,6 +595,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         this.dataSourceFactory = dataSourceFactory;
         // TODO(b/233577470): Call MediaSource.Factory.setDataSourceFactory on each value when it
         // exists on the interface.
+        mediaSourceFactorySuppliers.clear();
         mediaSourceFactories.clear();
       }
     }
@@ -627,6 +629,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       }
 
       @Nullable Supplier<MediaSource.Factory> mediaSourceFactorySupplier = null;
+      DataSource.Factory dataSourceFactory = checkNotNull(this.dataSourceFactory);
       try {
         Class<? extends MediaSource.Factory> clazz;
         switch (contentType) {
@@ -634,19 +637,19 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             clazz =
                 Class.forName("androidx.media3.exoplayer.dash.DashMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
+            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
             break;
           case C.CONTENT_TYPE_SS:
             clazz =
                 Class.forName("androidx.media3.exoplayer.smoothstreaming.SsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
+            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
             break;
           case C.CONTENT_TYPE_HLS:
             clazz =
                 Class.forName("androidx.media3.exoplayer.hls.HlsMediaSource$Factory")
                     .asSubclass(MediaSource.Factory.class);
-            mediaSourceFactorySupplier = () -> newInstance(clazz, checkNotNull(dataSourceFactory));
+            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
             break;
           case C.CONTENT_TYPE_RTSP:
             clazz =
@@ -656,9 +659,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             break;
           case C.CONTENT_TYPE_OTHER:
             mediaSourceFactorySupplier =
-                () ->
-                    new ProgressiveMediaSource.Factory(
-                        checkNotNull(dataSourceFactory), extractorsFactory);
+                () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
             break;
           default:
             // Do nothing.

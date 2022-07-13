@@ -11,6 +11,9 @@
         ([#10361](https://github.com/google/ExoPlayer/issues/10361)).
     *   Allow custom logger for all ExoPlayer log output
         ([#9752](https://github.com/google/ExoPlayer/issues/9752)).
+    *   Fix implementation of `setDataSourceFactory` in
+        `DefaultMediaSourceFactory`, which was non-functional in some cases
+        ([#116](https://github.com/androidx/media/issues/116)).
 *   Extractors:
     *   Add support for AVI
         ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
