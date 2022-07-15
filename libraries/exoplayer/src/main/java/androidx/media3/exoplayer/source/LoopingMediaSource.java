@@ -43,7 +43,7 @@ import java.util.Map;
  */
 @Deprecated
 @UnstableApi
-public final class LoopingMediaSource extends CompositeMediaSource<Void> {
+public final class LoopingMediaSource extends WrappingMediaSource {
 
   private final MaskingMediaSource maskingMediaSource;
   private final int loopCount;
@@ -95,7 +95,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(mediaTransferListener);
-    prepareChildSource(/* id= */ null, maskingMediaSource);
+    prepareChildSource(maskingMediaSource);
   }
 
   @Override
@@ -123,7 +123,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(Void id, MediaSource mediaSource, Timeline timeline) {
+  protected void onChildSourceInfoRefreshed(Timeline timeline) {
     Timeline loopingTimeline =
         loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount)
@@ -134,7 +134,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   @Override
   @Nullable
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
-      Void id, MediaPeriodId mediaPeriodId) {
+      Void id, MediaPeriodId mediaPeriodId
+  ) {
     return loopCount != Integer.MAX_VALUE
         ? childMediaPeriodIdToMediaPeriodId.get(mediaPeriodId)
         : mediaPeriodId;

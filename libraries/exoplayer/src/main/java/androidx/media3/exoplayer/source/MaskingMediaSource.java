@@ -37,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * structure is known.
  */
 @UnstableApi
-public final class MaskingMediaSource extends CompositeMediaSource<Void> {
+public final class MaskingMediaSource extends WrappingMediaSource {
 
   private final MediaSource mediaSource;
   private final boolean useLazyPreparation;
@@ -84,7 +84,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     super.prepareSourceInternal(mediaTransferListener);
     if (!useLazyPreparation) {
       hasStartedPreparing = true;
-      prepareChildSource(/* id= */ null, mediaSource);
+      prepareChildSource(mediaSource);
     }
   }
 
@@ -115,7 +115,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       unpreparedMaskingMediaPeriod = mediaPeriod;
       if (!hasStartedPreparing) {
         hasStartedPreparing = true;
-        prepareChildSource(/* id= */ null, mediaSource);
+        prepareChildSource(mediaSource);
       }
     }
     return mediaPeriod;
@@ -137,8 +137,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline newTimeline) {
+  protected void onChildSourceInfoRefreshed(MediaSource mediaSource, Timeline newTimeline) {
     @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
@@ -208,8 +207,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
   @Override
   @Nullable
-  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
-      Void id, MediaPeriodId mediaPeriodId) {
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(MediaPeriodId mediaPeriodId) {
     return mediaPeriodId.copyWithPeriodUid(getExternalPeriodUid(mediaPeriodId.periodUid));
   }
 

@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * positions. The wrapped source must consist of a single period.
  */
 @UnstableApi
-public final class ClippingMediaSource extends CompositeMediaSource<Void> {
+public final class ClippingMediaSource extends WrappingMediaSource {
 
   /** Thrown when a {@link ClippingMediaSource} cannot clip its wrapped source. */
   public static final class IllegalClippingException extends IOException {
@@ -202,7 +202,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(mediaTransferListener);
-    prepareChildSource(/* id= */ null, mediaSource);
+    prepareChildSource(mediaSource);
   }
 
   @Override
@@ -242,7 +242,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(Void id, MediaSource mediaSource, Timeline timeline) {
+  protected void onChildSourceInfoRefreshed(Timeline timeline) {
     if (clippingError != null) {
       return;
     }

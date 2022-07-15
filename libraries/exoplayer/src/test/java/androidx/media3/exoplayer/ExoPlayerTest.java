@@ -3942,8 +3942,8 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     final ConcatenatingMediaSource underlyingSource = new ConcatenatingMediaSource();
-    CompositeMediaSource<Void> delegatingMediaSource =
-        new CompositeMediaSource<Void>() {
+    WrappingMediaSource delegatingMediaSource =
+        new WrappingMediaSource() {
           @Override
           public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
             super.prepareSourceInternal(mediaTransferListener);
@@ -3951,7 +3951,7 @@ public final class ExoPlayerTest {
                 new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT));
             underlyingSource.addMediaSource(
                 new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT));
-            prepareChildSource(null, underlyingSource);
+            prepareChildSource(underlyingSource);
           }
 
           @Override
@@ -3966,8 +3966,7 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          protected void onChildSourceInfoRefreshed(
-              Void id, MediaSource mediaSource, Timeline timeline) {
+          protected void onChildSourceInfoRefreshed(Timeline timeline) {
             refreshSourceInfo(timeline);
           }
 

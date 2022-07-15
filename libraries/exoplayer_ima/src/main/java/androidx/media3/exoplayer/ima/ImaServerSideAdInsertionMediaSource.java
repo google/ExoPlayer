@@ -56,11 +56,11 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
-import androidx.media3.exoplayer.source.CompositeMediaSource;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.ForwardingTimeline;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.WrappingMediaSource;
 import androidx.media3.exoplayer.source.ads.ServerSideAdInsertionMediaSource;
 import androidx.media3.exoplayer.source.ads.ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater;
 import androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil;
@@ -108,7 +108,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** MediaSource for IMA server side inserted ad streams. */
 @UnstableApi
-public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
+public final class ImaServerSideAdInsertionMediaSource extends WrappingMediaSource {
 
   /**
    * Factory for creating {@link ImaServerSideAdInsertionMediaSource
@@ -521,8 +521,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline newTimeline) {
+  protected void onChildSourceInfoRefreshed(Timeline newTimeline) {
     refreshSourceInfo(
         new ForwardingTimeline(newTimeline) {
           @Override
@@ -655,7 +654,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
       mainHandler.post(() -> setAdPlaybackState(liveAdPlaybackState));
     }
-    prepareChildSource(/* id= */ null, serverSideAdInsertionMediaSource);
+    prepareChildSource(serverSideAdInsertionMediaSource);
   }
 
   // Static methods.
