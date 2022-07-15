@@ -41,7 +41,7 @@ import java.util.Map;
  *     times.
  */
 @Deprecated
-public final class LoopingMediaSource extends CompositeMediaSource<Void> {
+public final class LoopingMediaSource extends SimpleMediaSource {
 
   private final MaskingMediaSource maskingMediaSource;
   private final int loopCount;
@@ -121,7 +121,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(Void id, MediaSource mediaSource, Timeline timeline) {
+  protected void onChildSourceInfoRefreshed(MediaSource mediaSource, Timeline timeline) {
     Timeline loopingTimeline =
         loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount)

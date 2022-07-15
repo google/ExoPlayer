@@ -75,6 +75,7 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.ForwardingTimeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SimpleMediaSource;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource;
 import com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater;
@@ -106,7 +107,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** MediaSource for IMA server side inserted ad streams. */
-public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
+public final class ImaServerSideAdInsertionMediaSource extends SimpleMediaSource {
 
   /**
    * Factory for creating {@link ImaServerSideAdInsertionMediaSource
@@ -519,8 +520,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline newTimeline) {
+  protected void onChildSourceInfoRefreshed(MediaSource mediaSource, Timeline newTimeline) {
     refreshSourceInfo(
         new ForwardingTimeline(newTimeline) {
           @Override

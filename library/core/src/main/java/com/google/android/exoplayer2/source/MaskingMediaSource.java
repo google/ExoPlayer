@@ -35,7 +35,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * A {@link MediaSource} that masks the {@link Timeline} with a placeholder until the actual media
  * structure is known.
  */
-public final class MaskingMediaSource extends CompositeMediaSource<Void> {
+public final class MaskingMediaSource extends SimpleMediaSource {
 
   private final MediaSource mediaSource;
   private final boolean useLazyPreparation;
@@ -135,8 +135,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline newTimeline) {
+  protected void onChildSourceInfoRefreshed(MediaSource mediaSource, Timeline newTimeline) {
     @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);

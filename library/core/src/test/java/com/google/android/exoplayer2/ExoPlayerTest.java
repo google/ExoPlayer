@@ -114,6 +114,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.source.SimpleMediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -3931,8 +3932,8 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     final ConcatenatingMediaSource underlyingSource = new ConcatenatingMediaSource();
-    CompositeMediaSource<Void> delegatingMediaSource =
-        new CompositeMediaSource<Void>() {
+    SimpleMediaSource delegatingMediaSource =
+        new SimpleMediaSource() {
           @Override
           public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
             super.prepareSourceInternal(mediaTransferListener);
@@ -3955,8 +3956,7 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          protected void onChildSourceInfoRefreshed(
-              Void id, MediaSource mediaSource, Timeline timeline) {
+          protected void onChildSourceInfoRefreshed(MediaSource mediaSource, Timeline timeline) {
             refreshSourceInfo(timeline);
           }
 
