@@ -867,7 +867,8 @@ public&nbsp;@com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlayerError</h4>
-<pre class="methodSignature">public&nbsp;<a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;getPlayerError()</pre>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;getPlayerError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#getPlayerError()">Player</a></code></span></div>
 <div class="block">Returns the error that caused playback to fail. This is the same error that will have been
  reported via <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(PlaybackException)</code></a> at the time of failure. It can

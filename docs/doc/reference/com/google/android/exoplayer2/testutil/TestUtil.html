@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -360,6 +360,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  end-of-input is reached.</div>
 </td>
 </tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timelinesAreSame(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline)">timelinesAreSame</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;thisTimeline,
+                <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;thatTimeline)</code></th>
+<td class="colLast">
+<div class="block">Returns true if <code>thisTimeline</code> is equal to <code>thatTimeline</code>, ignoring <a href="../Timeline.Window.html#uid"><code>Timeline.Window.uid</code></a> and <a href="../Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a> values, and shuffle order.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -618,13 +626,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertTimelinesSame&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&gt;&nbsp;actualTimelines,
                                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&gt;&nbsp;expectedTimelines)</pre>
 <div class="block">Asserts that the actual timelines are the same to the expected timelines. This assert differs
- from testing equality by not comparing period ids which may be different due to id mapping of
- child source period ids.</div>
+ from testing equality by not comparing:
+
+ <ul>
+   <li>Period IDs, which may be different due to ID mapping of child source period IDs.
+   <li>Shuffle order, which by default is random and non-deterministic.
+ </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>actualTimelines</code> - A list of actual <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>timelines</code></a>.</dd>
 <dd><code>expectedTimelines</code> - A list of expected <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>timelines</code></a>.</dd>
 </dl>
+</li>
+</ul>
+<a id="timelinesAreSame(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>timelinesAreSame</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;timelinesAreSame&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;thisTimeline,
+                                       <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;thatTimeline)</pre>
+<div class="block">Returns true if <code>thisTimeline</code> is equal to <code>thatTimeline</code>, ignoring <a href="../Timeline.Window.html#uid"><code>Timeline.Window.uid</code></a> and <a href="../Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a> values, and shuffle order.</div>
 </li>
 </ul>
 <a id="assertDataSourceContent(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,byte[],boolean)">
