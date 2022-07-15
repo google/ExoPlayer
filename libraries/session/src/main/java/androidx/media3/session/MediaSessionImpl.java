@@ -210,6 +210,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       broadcastReceiver = new MediaButtonReceiver();
       IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
       filter.addDataScheme(castNonNull(sessionUri.getScheme()));
+      // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
       context.registerReceiver(broadcastReceiver, filter);
     } else {
       // Has MediaSessionService to revive playback after it's dead.
