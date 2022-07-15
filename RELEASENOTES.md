@@ -3,6 +3,25 @@
 ### Unreleased changes
 
 *   Core library:
+    *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
+        the currently selected tracks
+        ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
+    *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
+        OutOfMemory errors when releasing multiple players at the same time
+        ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
+*   Metadata:
+    *   `MetadataRenderer` can now be configured to render metadata as soon as
+        they are available. Create an instance with
+        `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
+        boolean)` to specify whether the renderer will output metadata early or
+        in sync with the player position.
+
+### 1.0.0-beta02 (2022-07-15)
+
+This release corresponds to the
+[ExoPlayer 2.18.1 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.1).
+
+*   Core library:
     *   Ensure that changing the `ShuffleOrder` with `ExoPlayer.setShuffleOrder`
         results in a call to `Player.Listener#onTimelineChanged` with
         `reason=Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED`
