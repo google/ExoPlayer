@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.upstream.DataSpec.FLAG_MIGHT_NOT_USE
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.PlayerId;
@@ -400,6 +401,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       loadCompleted = !loadCanceled;
     }
+  }
+
+  @VisibleForTesting
+  void setLoadCompleted() {
+    loadCompleted = true;
   }
 
   /**
