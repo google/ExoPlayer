@@ -253,6 +253,14 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object%5B%5D,com.google.android.exoplayer2.source.ShuffleOrder,com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition...)">FakeTimeline</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>[]&nbsp;manifests,
+            <a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder,
+            <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline.TimelineWindowDefinition</a>...&nbsp;windowDefinitions)</code></th>
+<td class="colLast">
+<div class="block">Creates a fake timeline with the given window definitions and <a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object%5B%5D,com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition...)">FakeTimeline</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>[]&nbsp;manifests,
             <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline.TimelineWindowDefinition</a>...&nbsp;windowDefinitions)</code></th>
 <td class="colLast">
@@ -481,12 +489,28 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <a id="&lt;init&gt;(java.lang.Object[],com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition...)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>FakeTimeline</h4>
 <pre>public&nbsp;FakeTimeline&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>[]&nbsp;manifests,
                     <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline.TimelineWindowDefinition</a>...&nbsp;windowDefinitions)</pre>
 <div class="block">Creates a fake timeline with the given window definitions.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowDefinitions</code> - A list of <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTimeline.TimelineWindowDefinition</code></a>s.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.Object[],com.google.android.exoplayer2.source.ShuffleOrder,com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition...)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FakeTimeline</h4>
+<pre>public&nbsp;FakeTimeline&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>[]&nbsp;manifests,
+                    <a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder,
+                    <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline.TimelineWindowDefinition</a>...&nbsp;windowDefinitions)</pre>
+<div class="block">Creates a fake timeline with the given window definitions and <a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowDefinitions</code> - A list of <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTimeline.TimelineWindowDefinition</code></a>s.</dd>
