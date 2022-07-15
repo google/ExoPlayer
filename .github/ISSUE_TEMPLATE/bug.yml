@@ -17,6 +17,7 @@ body:
       label: Media3 Version
       description: What version of Media3 are you using?
       options:
+        - 1.0.0-beta02
         - 1.0.0-beta01
         - 1.0.0-alpha03
         - 1.0.0-alpha02

@@ -3,20 +3,33 @@
 ### Unreleased changes
 
 *   Core library:
+    *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
+        the currently selected tracks
+        ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
+    *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
+        OutOfMemory errors when releasing multiple players at the same time
+        ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
+*   Metadata:
+    *   `MetadataRenderer` can now be configured to render metadata as soon as
+        they are available. Create an instance with
+        `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
+        boolean)` to specify whether the renderer will output metadata early or
+        in sync with the player position.
+
+### 1.0.0-beta02 (2022-07-15)
+
+This release corresponds to the
+[ExoPlayer 2.18.1 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.1).
+
+*   Core library:
     *   Ensure that changing the `ShuffleOrder` with `ExoPlayer.setShuffleOrder`
         results in a call to `Player.Listener#onTimelineChanged` with
         `reason=Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED`
         ([#9889](https://github.com/google/ExoPlayer/issues/9889)).
     *   For progressive media, only include selected tracks in buffered position
         ([#10361](https://github.com/google/ExoPlayer/issues/10361)).
-    *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
-        the currently selected tracks
-        ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
     *   Allow custom logger for all ExoPlayer log output
         ([#9752](https://github.com/google/ExoPlayer/issues/9752)).
-    *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
-        OutOfMemory errors when releasing multiple players at the same time
-        ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
     *   Fix implementation of `setDataSourceFactory` in
         `DefaultMediaSourceFactory`, which was non-functional in some cases
         ([#116](https://github.com/androidx/media/issues/116)).
@@ -27,12 +40,6 @@
         ([#10316](https://github.com/google/ExoPlayer/issues/10316)).
     *   Fix parsing of bitrates from `esds` boxes
         ([#10381](https://github.com/google/ExoPlayer/issues/10381)).
-*   Metadata:
-    *   `MetadataRenderer` can now be configured to render metadata as soon as
-        they are available. Create an instance with
-        `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
-        boolean)` to specify whether the renderer will output metadata early or
-        in sync with the player position.
 *   DASH:
     *   Parse ClearKey license URL from manifests
         ([#10246](https://github.com/google/ExoPlayer/issues/10246)).
