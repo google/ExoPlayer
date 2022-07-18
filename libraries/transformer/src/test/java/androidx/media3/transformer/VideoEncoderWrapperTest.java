@@ -24,6 +24,7 @@ import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -47,7 +48,7 @@ public final class VideoEncoderWrapperTest {
   private final VideoTranscodingSamplePipeline.EncoderWrapper encoderWrapper =
       new VideoTranscodingSamplePipeline.EncoderWrapper(
           fakeEncoderFactory,
-          /* inputFormat= */ new Format.Builder().build(),
+          /* inputFormat= */ new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H265).build(),
           /* allowedOutputMimeTypes= */ ImmutableList.of(),
           emptyTransformationRequest,
           fallbackListener);
