@@ -150,8 +150,6 @@ import org.checkerframework.dataflow.qual.Pure;
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat, frameProcessor.getInputSurface(), isToneMappingRequired);
-    // TODO(b/236316454): Check in the decoder output format whether tone-mapping was actually
-    //  applied and throw an exception if not.
     maxPendingFrameCount = decoder.getMaxPendingFrameCount();
   }
 
