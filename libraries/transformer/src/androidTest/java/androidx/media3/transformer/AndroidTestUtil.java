@@ -84,6 +84,9 @@ public final class AndroidTestUtil {
           .setFrameRate(30.472f)
           .build();
 
+  public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
+      "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
+
   public static final String MP4_REMOTE_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
   public static final Format MP4_REMOTE_10_SECONDS_FORMAT =

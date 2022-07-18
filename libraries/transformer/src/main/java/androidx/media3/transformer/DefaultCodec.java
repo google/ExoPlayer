@@ -29,6 +29,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.TraceUtil;
@@ -53,6 +54,9 @@ public final class DefaultCodec implements Codec {
   private final MediaFormat configurationMediaFormat;
 
   private final Format configurationFormat;
+  /** The expected {@link ColorInfo} output from the codec. */
+  @Nullable private final ColorInfo configuredOutputColor;
+
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
 
@@ -115,6 +119,12 @@ public final class DefaultCodec implements Codec {
           e, configurationMediaFormat, isVideo, isDecoder, mediaCodecName);
     }
     this.mediaCodec = mediaCodec;
+    boolean toneMapRequested =
+        SDK_INT >= 31
+            && isDecoder
+            && (configurationMediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER_REQUEST, 0)
+                == MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
+    configuredOutputColor = toneMapRequested ? null : configurationFormat.colorInfo;
     this.inputSurface = inputSurface;
     decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
   }
@@ -308,6 +318,18 @@ public final class DefaultCodec implements Codec {
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
         outputFormat = getFormat(mediaCodec.getOutputFormat());
+        if (!isColorTransferEqual(configuredOutputColor, outputFormat.colorInfo)) {
+          // TODO(b/237674316): These exceptions throw when the container ColorInfo doesn't match
+          //  the video ColorInfo. Instead of throwing when seeing unexpected ColorInfos, consider
+          //  reconfiguring downstream components (ex. FrameProcessor and encoder) when different
+          //  ColorInfo values are output.
+          throw createTransformationException(
+              new IllegalStateException(
+                  "Codec output color format does not match configured color format. Configured: "
+                      + configurationFormat.colorInfo
+                      + ". Actual: "
+                      + outputFormat.colorInfo));
+        }
       }
       return false;
     }
@@ -344,10 +366,19 @@ public final class DefaultCodec implements Codec {
         isVideo,
         isDecoder,
         configurationMediaFormat,
-        mediaCodec.getName(),
+        getName(),
         isDecoder
             ? TransformationException.ERROR_CODE_DECODING_FAILED
             : TransformationException.ERROR_CODE_ENCODING_FAILED);
+  }
+
+  private static boolean isColorTransferEqual(
+      @Nullable ColorInfo colorInfo1, @Nullable ColorInfo colorInfo2) {
+    @C.ColorTransfer
+    int transfer1 = (colorInfo1 != null) ? colorInfo1.colorTransfer : C.COLOR_TRANSFER_SDR;
+    @C.ColorTransfer
+    int transfer2 = (colorInfo2 != null) ? colorInfo2.colorTransfer : C.COLOR_TRANSFER_SDR;
+    return transfer1 == transfer2;
   }
 
   private static TransformationException createInitializationTransformationException(
@@ -396,13 +427,20 @@ public final class DefaultCodec implements Codec {
     }
     String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
     Format.Builder formatBuilder =
-        new Format.Builder()
-            .setSampleMimeType(mediaFormat.getString(MediaFormat.KEY_MIME))
-            .setInitializationData(csdBuffers.build());
+        new Format.Builder().setSampleMimeType(mimeType).setInitializationData(csdBuffers.build());
     if (MimeTypes.isVideo(mimeType)) {
       formatBuilder
           .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
           .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
+      if (SDK_INT >= 24) {
+        // TODO(b/227624622): Set hdrStaticInfo accordingly using KEY_HDR_STATIC_INFO.
+        formatBuilder.setColorInfo(
+            new ColorInfo(
+                mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD),
+                mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE),
+                mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER),
+                /* hdrStaticInfo= */ null));
+      }
     } else if (MimeTypes.isAudio(mimeType)) {
       // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
       // simulate more realistic codec input/output formats in tests.
