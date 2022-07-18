@@ -97,7 +97,8 @@ public final class PresentationPixelTest {
   public void drawFrame_noEdits_producesExpectedOutput() throws Exception {
     String testId = "drawFrame_noEdits";
     presentationTextureProcessor =
-        Presentation.createForHeight(C.LENGTH_UNSET).toGlTextureProcessor(context);
+        Presentation.createForHeight(C.LENGTH_UNSET)
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
@@ -122,7 +123,7 @@ public final class PresentationPixelTest {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -148,7 +149,7 @@ public final class PresentationPixelTest {
     String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -175,7 +176,7 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -202,7 +203,7 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -228,7 +229,7 @@ public final class PresentationPixelTest {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_STRETCH_TO_FIT)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -254,7 +255,7 @@ public final class PresentationPixelTest {
     String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_STRETCH_TO_FIT)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap =
@@ -275,7 +276,9 @@ public final class PresentationPixelTest {
   }
 
   private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
-    outputTexId = GlUtil.createTexture(outputWidth, outputHeight);
+    outputTexId =
+        GlUtil.createTexture(
+            outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
         checkNotNull(eglDisplay),

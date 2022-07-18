@@ -277,13 +277,15 @@ public final class TransformerActivity extends AppCompatActivity {
             Class<?> clazz =
                 Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
             Constructor<?> constructor =
-                clazz.getConstructor(Context.class, String.class, String.class, String.class);
+                clazz.getConstructor(
+                    Context.class, Boolean.class, String.class, String.class, String.class);
             effects.add(
-                (Context context) -> {
+                (Context context, boolean useHdr) -> {
                   try {
                     return (GlTextureProcessor)
                         constructor.newInstance(
                             context,
+                            useHdr,
                             /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
                             /* inputStreamName= */ "input_video",
                             /* outputStreamName= */ "output_video");
@@ -298,9 +300,10 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         if (selectedEffects[2]) {
           effects.add(
-              (Context context) ->
+              (Context context, boolean useHdr) ->
                   new PeriodicVignetteProcessor(
                       context,
+                      useHdr,
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
                       bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
                       /* minInnerRadius= */ bundle.getFloat(

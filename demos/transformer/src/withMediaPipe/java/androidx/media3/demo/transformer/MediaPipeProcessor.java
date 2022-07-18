@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformerdemo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
@@ -70,14 +71,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Creates a new texture processor that wraps a MediaPipe graph.
    *
    * @param context The {@link Context}.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
    */
   @SuppressWarnings("AndroidConcurrentHashMap") // Only used on API >= 23.
   public MediaPipeProcessor(
-      Context context, String graphName, String inputStreamName, String outputStreamName) {
+      Context context,
+      boolean useHdr,
+      String graphName,
+      String inputStreamName,
+      String outputStreamName) {
     checkState(LOADER.isAvailable());
+    // TODO(b/227624622): Confirm whether MediaPipeProcessor could support HDR colors.
+    checkArgument(!useHdr, "MediaPipeProcessor does not support HDR colors.");
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
         new FrameProcessor(
