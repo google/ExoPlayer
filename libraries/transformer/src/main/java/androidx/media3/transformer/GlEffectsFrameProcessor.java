@@ -189,7 +189,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
-      textureProcessorListBuilder.add(effect.toGlTextureProcessor(context));
+      textureProcessorListBuilder.add(effect.toGlTextureProcessor(context, useHdr));
     }
     textureProcessorListBuilder.add(
         new FinalMatrixTransformationProcessorWrapper(
