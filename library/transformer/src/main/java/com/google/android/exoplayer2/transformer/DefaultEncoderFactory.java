@@ -273,7 +273,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     if (mimeType.equals(MimeTypes.VIDEO_H264)) {
-      adjustMediaFormatForH264EncoderSettings(mediaFormat, encoderInfo);
+      adjustMediaFormatForH264EncoderSettings(format.colorInfo, encoderInfo, mediaFormat);
     }
 
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
@@ -523,12 +523,21 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * <p>The adjustment is applied in-place to {@code mediaFormat}.
    */
   private static void adjustMediaFormatForH264EncoderSettings(
-      MediaFormat mediaFormat, MediaCodecInfo encoderInfo) {
+      @Nullable ColorInfo colorInfo, MediaCodecInfo encoderInfo, MediaFormat mediaFormat) {
     // TODO(b/210593256): Remove overriding profile/level (before API 29) after switching to in-app
     // muxing.
     String mimeType = MimeTypes.VIDEO_H264;
     if (Util.SDK_INT >= 29) {
       int expectedEncodingProfile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh;
+      if (colorInfo != null) {
+        int colorTransfer = colorInfo.colorTransfer;
+        ImmutableList<Integer> codecProfiles =
+            EncoderUtil.getCodecProfilesForHdrFormat(mimeType, colorTransfer);
+        if (!codecProfiles.isEmpty()) {
+          // Default to the most compatible profile, which is first in the list.
+          expectedEncodingProfile = codecProfiles.get(0);
+        }
+      }
       int supportedEncodingLevel =
           EncoderUtil.findHighestSupportedEncodingLevel(
               encoderInfo, mimeType, expectedEncodingProfile);

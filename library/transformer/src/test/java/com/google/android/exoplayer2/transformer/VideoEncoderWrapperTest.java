@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.Before;
@@ -47,7 +48,7 @@ public final class VideoEncoderWrapperTest {
   private final VideoTranscodingSamplePipeline.EncoderWrapper encoderWrapper =
       new VideoTranscodingSamplePipeline.EncoderWrapper(
           fakeEncoderFactory,
-          /* inputFormat= */ new Format.Builder().build(),
+          /* inputFormat= */ new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H265).build(),
           /* allowedOutputMimeTypes= */ ImmutableList.of(),
           emptyTransformationRequest,
           fallbackListener);
