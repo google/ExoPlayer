@@ -51,6 +51,7 @@ import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -1122,6 +1123,8 @@ public class MediaSession {
     default void onIsPlayingChanged(int seq, boolean isPlaying) throws RemoteException {}
 
     default void onIsLoadingChanged(int seq, boolean isLoading) throws RemoteException {}
+
+    default void onTracksChanged(int seq, Tracks tracks) throws RemoteException {}
 
     default void onTrackSelectionParametersChanged(int seq, TrackSelectionParameters parameters)
         throws RemoteException {}

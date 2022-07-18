@@ -103,6 +103,7 @@ public class CommonConstants {
   public static final String KEY_MEDIA_METADATA = "mediaMetadata";
   public static final String KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS = "maxSeekToPreviousPositionMs";
   public static final String KEY_TRACK_SELECTION_PARAMETERS = "trackSelectionParameters";
+  public static final String KEY_CURRENT_TRACKS = "currentTracks";
 
   // SessionCompat arguments
   public static final String KEY_SESSION_COMPAT_TOKEN = "sessionCompatToken";

@@ -42,6 +42,7 @@ import androidx.media3.common.Player.State;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
@@ -90,6 +91,7 @@ import java.lang.annotation.Target;
     private long seekBackIncrementMs;
     private long seekForwardIncrementMs;
     private long maxSeekToPreviousPositionMs;
+    private Tracks currentTracks;
     private TrackSelectionParameters trackSelectionParameters;
 
     public Builder(PlayerInfo playerInfo) {
@@ -121,6 +123,7 @@ import java.lang.annotation.Target;
       seekBackIncrementMs = playerInfo.seekBackIncrementMs;
       seekForwardIncrementMs = playerInfo.seekForwardIncrementMs;
       maxSeekToPreviousPositionMs = playerInfo.maxSeekToPreviousPositionMs;
+      currentTracks = playerInfo.currentTracks;
       trackSelectionParameters = playerInfo.trackSelectionParameters;
     }
 
@@ -267,6 +270,11 @@ import java.lang.annotation.Target;
       return this;
     }
 
+    public Builder setCurrentTracks(Tracks tracks) {
+      currentTracks = tracks;
+      return this;
+    }
+
     public Builder setTrackSelectionParameters(TrackSelectionParameters parameters) {
       trackSelectionParameters = parameters;
       return this;
@@ -305,6 +313,7 @@ import java.lang.annotation.Target;
           seekBackIncrementMs,
           seekForwardIncrementMs,
           maxSeekToPreviousPositionMs,
+          currentTracks,
           trackSelectionParameters);
     }
   }
@@ -350,6 +359,7 @@ import java.lang.annotation.Target;
           /* seekBackIncrementMs= */ 0,
           /* seekForwardIncrementMs= */ 0,
           /* maxSeekToPreviousPositionMs= */ 0,
+          /* currentTracks= */ Tracks.EMPTY,
           TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT);
 
   @Nullable public final PlaybackException playerError;
@@ -407,6 +417,8 @@ import java.lang.annotation.Target;
   public final long seekForwardIncrementMs;
 
   public final long maxSeekToPreviousPositionMs;
+
+  public final Tracks currentTracks;
 
   public final TrackSelectionParameters trackSelectionParameters;
 
@@ -578,6 +590,10 @@ import java.lang.annotation.Target;
     return new Builder(this).setMaxSeekToPreviousPositionMs(maxSeekToPreviousPositionMs).build();
   }
 
+  public PlayerInfo copyWithCurrentTracks(Tracks tracks) {
+    return new Builder(this).setCurrentTracks(tracks).build();
+  }
+
   @CheckResult
   public PlayerInfo copyWithTrackSelectionParameters(TrackSelectionParameters parameters) {
     return new Builder(this).setTrackSelectionParameters(parameters).build();
@@ -612,6 +628,7 @@ import java.lang.annotation.Target;
       long seekBackIncrementMs,
       long seekForwardIncrementMs,
       long maxSeekToPreviousPositionMs,
+      Tracks currentTracks,
       TrackSelectionParameters parameters) {
     this.playerError = playerError;
     this.mediaItemTransitionReason = mediaItemTransitionReason;
@@ -641,6 +658,7 @@ import java.lang.annotation.Target;
     this.seekBackIncrementMs = seekBackIncrementMs;
     this.seekForwardIncrementMs = seekForwardIncrementMs;
     this.maxSeekToPreviousPositionMs = maxSeekToPreviousPositionMs;
+    this.currentTracks = currentTracks;
     this.trackSelectionParameters = parameters;
   }
 
@@ -696,6 +714,7 @@ import java.lang.annotation.Target;
     FIELD_SEEK_FORWARD_INCREMENT_MS,
     FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS,
     FIELD_TRACK_SELECTION_PARAMETERS,
+    FIELD_CURRENT_TRACKS,
   })
   private @interface FieldNumber {}
 
@@ -728,7 +747,8 @@ import java.lang.annotation.Target;
   private static final int FIELD_SEEK_FORWARD_INCREMENT_MS = 27;
   private static final int FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 28;
   private static final int FIELD_TRACK_SELECTION_PARAMETERS = 29;
-  // Next field key = 30
+  private static final int FIELD_CURRENT_TRACKS = 30;
+  // Next field key = 31
 
   public Bundle toBundle(
       boolean excludeMediaItems,
@@ -774,6 +794,7 @@ import java.lang.annotation.Target;
     bundle.putLong(keyForField(FIELD_SEEK_FORWARD_INCREMENT_MS), seekForwardIncrementMs);
     bundle.putLong(
         keyForField(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS), maxSeekToPreviousPositionMs);
+    bundle.putBundle(keyForField(FIELD_CURRENT_TRACKS), currentTracks.toBundle());
     bundle.putBundle(
         keyForField(FIELD_TRACK_SELECTION_PARAMETERS), trackSelectionParameters.toBundle());
 
@@ -886,6 +907,9 @@ import java.lang.annotation.Target;
         bundle.getLong(keyForField(FIELD_SEEK_FORWARD_INCREMENT_MS), /* defaultValue= */ 0);
     long maxSeekToPreviousPosition =
         bundle.getLong(keyForField(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS), /* defaultValue= */ 0);
+    Bundle currentTracksBundle = bundle.getBundle(keyForField(FIELD_CURRENT_TRACKS));
+    Tracks currentTracks =
+        currentTracksBundle == null ? Tracks.EMPTY : Tracks.CREATOR.fromBundle(currentTracksBundle);
     @Nullable
     Bundle trackSelectionParametersBundle =
         bundle.getBundle(keyForField(FIELD_TRACK_SELECTION_PARAMETERS));
@@ -922,6 +946,7 @@ import java.lang.annotation.Target;
         seekBackIncrementMs,
         seekForwardIncrementMs,
         maxSeekToPreviousPosition,
+        currentTracks,
         trackSelectionParameters);
   }
 

@@ -57,6 +57,7 @@ import static androidx.media3.common.Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
 import static androidx.media3.common.Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
 import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
+import static androidx.media3.common.Player.EVENT_TRACKS_CHANGED;
 import static androidx.media3.common.Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED;
 import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
 import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT;
@@ -132,6 +133,7 @@ import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.RemotableTimeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BundleableUtil;
@@ -1767,6 +1769,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public Tracks getCurrentTracks() {
+    return playerInfo.currentTracks;
+  }
+
+  @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     return playerInfo.trackSelectionParameters;
   }
@@ -2387,6 +2394,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           listener ->
               listener.onMediaItemTransition(
                   currentMediaItem, playerInfo.mediaItemTransitionReason));
+    }
+    if (!Util.areEqual(oldPlayerInfo.currentTracks, newPlayerInfo.currentTracks)) {
+      listeners.queueEvent(
+          EVENT_TRACKS_CHANGED, listener -> listener.onTracksChanged(newPlayerInfo.currentTracks));
     }
     if (!Util.areEqual(oldPlayerInfo.playbackParameters, playerInfo.playbackParameters)) {
       listeners.queueEvent(

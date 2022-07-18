@@ -61,6 +61,7 @@ import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
@@ -401,13 +402,13 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             .onPlayerInfoChanged(
                 seq,
                 playerInfo,
-                !sessionStub
+                /* excludeMediaItems= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TIMELINE),
-                !sessionStub
+                /* excludeMediaItemsMetadata= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_MEDIA_ITEMS_METADATA),
-                !sessionStub
+                /* excludeCues= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TEXT),
                 excludeTimeline);
@@ -1085,6 +1086,23 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       // COMMAND_ADJUST_DEVICE_VOLUME or COMMAND_SET_DEVICE_VOLUME value has changed.
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onDeviceInfoChanged(seq, session.playerInfo.deviceInfo));
+    }
+
+    @Override
+    public void onTracksChanged(Tracks tracks) {
+      @Nullable MediaSessionImpl session = getSession();
+      if (session == null) {
+        return;
+      }
+      session.verifyApplicationThread();
+      @Nullable PlayerWrapper player = this.player.get();
+      if (player == null) {
+        return;
+      }
+      session.playerInfo = session.playerInfo.copyWithCurrentTracks(tracks);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.dispatchRemoteControllerTaskWithoutReturn(
+          (callback, seq) -> callback.onTracksChanged(seq, tracks));
     }
 
     @Override

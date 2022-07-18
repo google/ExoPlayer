@@ -29,6 +29,7 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LI
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_POSITION;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_TRACKS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_INFO;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUTED;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
@@ -77,6 +78,7 @@ import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
@@ -421,6 +423,10 @@ public class RemoteMediaSession {
         throws RemoteException {
       binder.notifyTrackSelectionParametersChanged(sessionId, parameters.toBundle());
     }
+
+    public void notifyTracksChanged(Tracks tracks) throws RemoteException {
+      binder.notifyTracksChanged(sessionId, tracks.toBundle());
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -684,6 +690,11 @@ public class RemoteMediaSession {
     public MockPlayerConfigBuilder setTrackSelectionParameters(
         TrackSelectionParameters parameters) {
       bundle.putBundle(KEY_TRACK_SELECTION_PARAMETERS, parameters.toBundle());
+      return this;
+    }
+
+    public MockPlayerConfigBuilder setCurrentTracks(Tracks tracks) {
+      bundle.putBundle(KEY_CURRENT_TRACKS, tracks.toBundle());
       return this;
     }
 
