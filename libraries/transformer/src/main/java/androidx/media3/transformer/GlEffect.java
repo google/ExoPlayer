@@ -22,12 +22,19 @@ import androidx.media3.common.util.UnstableApi;
  * Interface for a video frame effect with a {@link GlTextureProcessor} implementation.
  *
  * <p>Implementations contain information specifying the effect and can be {@linkplain
- * #toGlTextureProcessor(Context) converted} to a {@link GlTextureProcessor} which applies the
- * effect.
+ * #toGlTextureProcessor(Context, boolean) converted} to a {@link GlTextureProcessor} which applies
+ * the effect.
  */
 @UnstableApi
 public interface GlEffect {
 
-  /** Returns a {@link SingleFrameGlTextureProcessor} that applies the effect. */
-  GlTextureProcessor toGlTextureProcessor(Context context) throws FrameProcessingException;
+  /**
+   * Returns a {@link SingleFrameGlTextureProcessor} that applies the effect.
+   *
+   * @param context A {@link Context}.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   */
+  GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+      throws FrameProcessingException;
 }

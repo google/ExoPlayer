@@ -189,6 +189,7 @@ public class BitmapTestUtil {
   public static Bitmap createArgb8888BitmapFromCurrentGlFramebuffer(int width, int height)
       throws GlUtil.GlException {
     ByteBuffer rgba8888Buffer = ByteBuffer.allocateDirect(width * height * 4);
+    // TODO(b/227624622): Add support for reading HDR bitmaps.
     GLES20.glReadPixels(
         0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, rgba8888Buffer);
     GlUtil.checkGlError();
@@ -208,7 +209,10 @@ public class BitmapTestUtil {
    * @return The identifier of the newly created texture.
    */
   public static int createGlTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
-    int texId = GlUtil.createTexture(bitmap.getWidth(), bitmap.getHeight());
+    // TODO(b/227624622): Add support for reading HDR bitmaps.
+    int texId =
+        GlUtil.createTexture(
+            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.
     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, flipBitmapVertically(bitmap), 0);

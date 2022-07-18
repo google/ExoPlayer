@@ -51,8 +51,8 @@ public interface GlMatrixTransformation extends GlEffect {
   float[] getGlMatrixArray(long presentationTimeUs);
 
   @Override
-  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context)
+  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new MatrixTransformationProcessor(context, this);
+    return new MatrixTransformationProcessor(context, useHdr, /* matrixTransformation= */ this);
   }
 }

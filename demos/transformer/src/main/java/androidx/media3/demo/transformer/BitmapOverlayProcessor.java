@@ -15,6 +15,7 @@
  */
 package androidx.media3.demo.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
@@ -64,9 +65,14 @@ import java.util.Locale;
   /**
    * Creates a new instance.
    *
+   * @param context The {@link Context}.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public BitmapOverlayProcessor(Context context) throws FrameProcessingException {
+  public BitmapOverlayProcessor(Context context, boolean useHdr) throws FrameProcessingException {
+    super(useHdr);
+    checkArgument(!useHdr, "BitmapOverlayProcessor does not support HDR colors.");
     paint = new Paint();
     paint.setTextSize(64);
     paint.setAntiAlias(true);
@@ -85,7 +91,11 @@ import java.util.Locale;
       throw new IllegalStateException(e);
     }
     try {
-      bitmapTexId = GlUtil.createTexture(BITMAP_WIDTH_HEIGHT, BITMAP_WIDTH_HEIGHT);
+      bitmapTexId =
+          GlUtil.createTexture(
+              BITMAP_WIDTH_HEIGHT,
+              BITMAP_WIDTH_HEIGHT,
+              /* useHighPrecisionColorComponents= */ false);
       GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, overlayBitmap, /* border= */ 0);
 
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);

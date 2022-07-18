@@ -89,7 +89,7 @@ public final class CropPixelTest {
     String testId = "drawFrame_noEdits";
     cropTextureProcessor =
         new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
@@ -113,7 +113,7 @@ public final class CropPixelTest {
     String testId = "drawFrame_cropSmaller";
     cropTextureProcessor =
         new Crop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_SMALLER_PNG_ASSET_PATH);
@@ -137,7 +137,7 @@ public final class CropPixelTest {
     String testId = "drawFrame_cropLarger";
     cropTextureProcessor =
         new Crop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
-            .toGlTextureProcessor(context);
+            .toGlTextureProcessor(context, /* useHdr= */ false);
     Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_PNG_ASSET_PATH);
@@ -157,7 +157,9 @@ public final class CropPixelTest {
   }
 
   private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
-    outputTexId = GlUtil.createTexture(outputWidth, outputHeight);
+    outputTexId =
+        GlUtil.createTexture(
+            outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
         checkNotNull(eglDisplay),
