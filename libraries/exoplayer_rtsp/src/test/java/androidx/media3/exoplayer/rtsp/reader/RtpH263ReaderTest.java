@@ -42,7 +42,7 @@ import org.mockito.junit.MockitoRule;
 public final class RtpH263ReaderTest {
   private static final byte[] FRAME_1_FRAGMENT_1_DATA =
       getBytesFromHexString("80020c0419b7b7d9591f03023e0c37b");
-  private final RtpPacket FRAME_1_FRAGMENT_1 =
+  private static final RtpPacket FRAME_1_FRAGMENT_1 =
       new RtpPacket.Builder()
           .setTimestamp((int) 2599168056L)
           .setSequenceNumber(40289)
@@ -67,7 +67,7 @@ public final class RtpH263ReaderTest {
 
   private static final byte[] FRAME_2_FRAGMENT_1_DATA =
       getBytesFromHexString("800a0e023ffffffffffffffffff");
-  private final RtpPacket FRAME_2_FRAGMENT_1 =
+  private static final RtpPacket FRAME_2_FRAGMENT_1 =
       new RtpPacket.Builder()
           .setTimestamp((int) 2599168344L)
           .setSequenceNumber(40291)
@@ -174,7 +174,7 @@ public final class RtpH263ReaderTest {
         FRAME_1_FRAGMENT_1.timestamp, FRAME_1_FRAGMENT_1.sequenceNumber);
     consume(h263Reader, FRAME_1_FRAGMENT_1);
     consume(h263Reader, FRAME_2_FRAGMENT_1);
-    consume(h263Reader, FRAME_1_FRAGMENT_1);
+    consume(h263Reader, FRAME_1_FRAGMENT_2);
     consume(h263Reader, FRAME_2_FRAGMENT_2);
 
     trackOutput = extractorOutput.trackOutputs.get(0);
