@@ -320,6 +320,9 @@ public final class GlEffectsFrameProcessorPixelTest {
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
+  // TODO(b/227624622): Add a test for HDR input after BitmapTestUtil can read HDR bitmaps, using
+  //  GlEffectWrapper to ensure usage of intermediate textures.
+
   /**
    * Set up and prepare the first frame from an input video, as well as relevant test
    * infrastructure. The frame will be sent towards the {@link GlEffectsFrameProcessor}, and output
@@ -379,7 +382,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                   /* streamOffsetUs= */ 0L,
                   effects,
                   DebugViewProvider.NONE,
-                  /* enableExperimentalHdrEditing= */ false));
+                  /* useHdr= */ false));
       glEffectsFrameProcessor.setInputFrameInfo(
           new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio));
       glEffectsFrameProcessor.registerInputFrame();
@@ -494,9 +497,9 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     @Override
-    public GlTextureProcessor toGlTextureProcessor(Context context)
+    public GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
         throws FrameProcessingException {
-      return effect.toGlTextureProcessor(context);
+      return effect.toGlTextureProcessor(context, useHdr);
     }
   }
 }

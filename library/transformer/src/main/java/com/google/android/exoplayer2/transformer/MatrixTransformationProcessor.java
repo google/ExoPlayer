@@ -97,34 +97,40 @@ import java.util.Arrays;
    * Creates a new instance.
    *
    * @param context The {@link Context}.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @param matrixTransformation A {@link MatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public MatrixTransformationProcessor(Context context, MatrixTransformation matrixTransformation)
+  public MatrixTransformationProcessor(
+      Context context, boolean useHdr, MatrixTransformation matrixTransformation)
       throws FrameProcessingException {
     this(
         context,
         ImmutableList.of(matrixTransformation),
         /* sampleFromExternalTexture= */ false,
-        /* useHdr= */ false);
+        useHdr);
   }
 
   /**
    * Creates a new instance.
    *
    * @param context The {@link Context}.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @param matrixTransformation A {@link GlMatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
-  public MatrixTransformationProcessor(Context context, GlMatrixTransformation matrixTransformation)
+  public MatrixTransformationProcessor(
+      Context context, boolean useHdr, GlMatrixTransformation matrixTransformation)
       throws FrameProcessingException {
     this(
         context,
         ImmutableList.of(matrixTransformation),
         /* sampleFromExternalTexture= */ false,
-        /* useHdr= */ false);
+        useHdr);
   }
 
   /**
@@ -147,6 +153,7 @@ import java.util.Arrays;
       boolean sampleFromExternalTexture,
       boolean useHdr)
       throws FrameProcessingException {
+    super(useHdr);
     if (sampleFromExternalTexture && useHdr && !GlUtil.isYuvTargetExtensionSupported()) {
       throw new FrameProcessingException(
           "The EXT_YUV_target extension is required for HDR editing.");

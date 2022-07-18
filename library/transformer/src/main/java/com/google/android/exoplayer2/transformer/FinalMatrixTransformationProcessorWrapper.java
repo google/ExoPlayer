@@ -82,6 +82,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private EGLSurface outputEglSurface;
 
+  // TODO(b/227624622): Instead of inputting useHdr, input ColorInfo to handle HLG and PQ
+  //  differently.
   public FinalMatrixTransformationProcessorWrapper(
       Context context,
       EGLDisplay eglDisplay,

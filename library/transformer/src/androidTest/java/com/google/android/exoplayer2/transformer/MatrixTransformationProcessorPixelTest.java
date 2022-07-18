@@ -72,7 +72,7 @@ public final class MatrixTransformationProcessorPixelTest {
     EGLSurface placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
     GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, width, height);
     inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
-    outputTexId = GlUtil.createTexture(width, height);
+    outputTexId = GlUtil.createTexture(width, height, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
         eglDisplay, eglContext, placeholderEglSurface, frameBuffer, width, height);
@@ -93,7 +93,10 @@ public final class MatrixTransformationProcessorPixelTest {
     String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
     matrixTransformationFrameProcessor =
-        new MatrixTransformationProcessor(context, (long presentationTimeUs) -> identityMatrix);
+        new MatrixTransformationProcessor(
+            context,
+            /* useHdr= */ false,
+            /* matrixTransformation= */ (long presentationTimeUs) -> identityMatrix);
     matrixTransformationFrameProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
@@ -117,7 +120,9 @@ public final class MatrixTransformationProcessorPixelTest {
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     matrixTransformationFrameProcessor =
         new MatrixTransformationProcessor(
-            context, /* matrixTransformation= */ (long presentationTimeUs) -> translateRightMatrix);
+            context,
+            /* useHdr= */ false,
+            /* matrixTransformation= */ (long presentationTimeUs) -> translateRightMatrix);
     matrixTransformationFrameProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
@@ -141,7 +146,9 @@ public final class MatrixTransformationProcessorPixelTest {
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     matrixTransformationFrameProcessor =
         new MatrixTransformationProcessor(
-            context, /* matrixTransformation= */ (long presentationTimeUs) -> scaleNarrowMatrix);
+            context,
+            /* useHdr= */ false,
+            /* matrixTransformation= */ (long presentationTimeUs) -> scaleNarrowMatrix);
     matrixTransformationFrameProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
@@ -165,7 +172,9 @@ public final class MatrixTransformationProcessorPixelTest {
     rotate90Matrix.postRotate(/* degrees= */ 90);
     matrixTransformationFrameProcessor =
         new MatrixTransformationProcessor(
-            context, /* matrixTransformation= */ (long presentationTimeUs) -> rotate90Matrix);
+            context,
+            /* useHdr= */ false,
+            /* matrixTransformation= */ (long presentationTimeUs) -> rotate90Matrix);
     matrixTransformationFrameProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
@@ -181,4 +190,6 @@ public final class MatrixTransformationProcessorPixelTest {
             expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
+
+  // TODO(b/227624622): Add a test for HDR input after BitmapTestUtil can read HDR bitmaps.
 }

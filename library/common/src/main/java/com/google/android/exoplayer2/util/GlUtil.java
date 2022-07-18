@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -26,6 +27,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -488,12 +490,37 @@ public final class GlUtil {
   }
 
   /**
-   * Returns the texture identifier for a newly-allocated texture with the specified dimensions.
+   * Allocates a new RGBA texture with the specified dimensions and color component precision.
    *
-   * @param width of the new texture in pixels
-   * @param height of the new texture in pixels
+   * @param width The width of the new texture in pixels.
+   * @param height The height of the new texture in pixels.
+   * @param useHighPrecisionColorComponents If {@code false}, uses 8-bit unsigned bytes. If {@code
+   *     true}, use 16-bit (half-precision) floating-point.
+   * @throws GlException If the texture allocation fails.
+   * @return The texture identifier for the newly-allocated texture.
    */
-  public static int createTexture(int width, int height) throws GlException {
+  public static int createTexture(int width, int height, boolean useHighPrecisionColorComponents)
+      throws GlException {
+    // TODO(227624622): Implement a pixel test that confirms 16f has less posterization.
+    if (useHighPrecisionColorComponents) {
+      checkState(Util.SDK_INT >= 18, "GLES30 extensions are not supported below API 18.");
+      return createTexture(width, height, GLES30.GL_RGBA16F, GLES30.GL_HALF_FLOAT);
+    }
+    return createTexture(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
+  }
+
+  /**
+   * Allocates a new RGBA texture with the specified dimensions and color component precision.
+   *
+   * @param width The width of the new texture in pixels.
+   * @param height The height of the new texture in pixels.
+   * @param internalFormat The number of color components in the texture, as well as their format.
+   * @param type The data type of the pixel data.
+   * @throws GlException If the texture allocation fails.
+   * @return The texture identifier for the newly-allocated texture.
+   */
+  private static int createTexture(int width, int height, int internalFormat, int type)
+      throws GlException {
     assertValidTextureSize(width, height);
     int texId = generateTexture();
     bindTexture(GLES20.GL_TEXTURE_2D, texId);
@@ -501,12 +528,12 @@ public final class GlUtil {
     GLES20.glTexImage2D(
         GLES20.GL_TEXTURE_2D,
         /* level= */ 0,
-        GLES20.GL_RGBA,
+        internalFormat,
         width,
         height,
         /* border= */ 0,
         GLES20.GL_RGBA,
-        GLES20.GL_UNSIGNED_BYTE,
+        type,
         byteBuffer);
     checkGlError();
     return texId;
