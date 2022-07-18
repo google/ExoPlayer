@@ -80,7 +80,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_rotated_avc_aac.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd",
-    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-hdr-hdr10.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4",
   };
   private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
     "720p H264 video and AAC audio",
