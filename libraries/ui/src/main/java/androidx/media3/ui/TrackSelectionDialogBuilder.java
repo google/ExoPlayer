@@ -67,7 +67,7 @@ public final class TrackSelectionDialogBuilder {
   private boolean showDisableOption;
   @Nullable private TrackNameProvider trackNameProvider;
   private boolean isDisabled;
-  private Map<TrackGroup, TrackSelectionOverride> overrides;
+  private ImmutableMap<TrackGroup, TrackSelectionOverride> overrides;
   @Nullable private Comparator<Format> trackFormatComparator;
 
   /**
@@ -87,7 +87,7 @@ public final class TrackSelectionDialogBuilder {
     this.title = title;
     this.trackGroups = ImmutableList.copyOf(trackGroups);
     this.callback = callback;
-    overrides = Collections.emptyMap();
+    overrides = ImmutableMap.of();
   }
 
   /**
@@ -110,7 +110,7 @@ public final class TrackSelectionDialogBuilder {
         trackGroups.add(trackGroup);
       }
     }
-    overrides = Collections.emptyMap();
+    overrides = player.getTrackSelectionParameters().overrides;
     callback =
         (isDisabled, overrides) -> {
           TrackSelectionParameters.Builder parametersBuilder =
@@ -171,7 +171,7 @@ public final class TrackSelectionDialogBuilder {
    */
   public TrackSelectionDialogBuilder setOverrides(
       Map<TrackGroup, TrackSelectionOverride> overrides) {
-    this.overrides = overrides;
+    this.overrides = ImmutableMap.copyOf(overrides);
     return this;
   }
 
