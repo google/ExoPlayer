@@ -1677,7 +1677,8 @@ public class MediaController implements Player {
 
   @Override
   public Tracks getCurrentTracks() {
-    return Tracks.EMPTY; // TODO(b/178486745)
+    verifyApplicationThread();
+    return isConnected() ? impl.getCurrentTracks() : Tracks.EMPTY;
   }
 
   @Override
@@ -2009,6 +2010,8 @@ public class MediaController implements Player {
     MediaMetadata getMediaMetadata();
 
     Commands getAvailableCommands();
+
+    Tracks getCurrentTracks();
 
     TrackSelectionParameters getTrackSelectionParameters();
 

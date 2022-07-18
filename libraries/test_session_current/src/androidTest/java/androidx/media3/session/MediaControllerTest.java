@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.HeartRating;
 import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
@@ -47,7 +48,9 @@ import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
@@ -283,6 +286,22 @@ public class MediaControllerTest {
     long seekBackIncrementMs = 1_000;
     long seekForwardIncrementMs = 2_000;
     long maxSeekToPreviousPositionMs = 300;
+    ImmutableList<Tracks.Group> trackGroups =
+        new ImmutableList.Builder<Tracks.Group>()
+            .add(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setChannelCount(2).build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1]))
+            .add(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setHeight(1024).build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1]))
+            .build();
+    Tracks currentTracks = new Tracks(trackGroups);
     TrackSelectionParameters trackSelectionParameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.buildUpon().setMaxVideoSizeSd().build();
     Timeline timeline = MediaTestUtils.createTimeline(5);
@@ -316,6 +335,7 @@ public class MediaControllerTest {
             .setSeekForwardIncrement(seekForwardIncrementMs)
             .setMaxSeekToPreviousPositionMs(maxSeekToPreviousPositionMs)
             .setTrackSelectionParameters(trackSelectionParameters)
+            .setCurrentTracks(currentTracks)
             .setTimeline(timeline)
             .setCurrentMediaItemIndex(currentMediaItemIndex)
             .build();
@@ -347,6 +367,7 @@ public class MediaControllerTest {
     AtomicLong seekBackIncrementRef = new AtomicLong();
     AtomicLong seekForwardIncrementRef = new AtomicLong();
     AtomicLong maxSeekToPreviousPositionMsRef = new AtomicLong();
+    AtomicReference<Tracks> currentTracksRef = new AtomicReference<>();
     AtomicReference<TrackSelectionParameters> trackSelectionParametersRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineRef = new AtomicReference<>();
     AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
@@ -379,6 +400,7 @@ public class MediaControllerTest {
               seekBackIncrementRef.set(controller.getSeekBackIncrement());
               seekForwardIncrementRef.set(controller.getSeekForwardIncrement());
               maxSeekToPreviousPositionMsRef.set(controller.getMaxSeekToPreviousPosition());
+              currentTracksRef.set(controller.getCurrentTracks());
               trackSelectionParametersRef.set(controller.getTrackSelectionParameters());
               timelineRef.set(controller.getCurrentTimeline());
               currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
@@ -409,6 +431,7 @@ public class MediaControllerTest {
     assertThat(seekForwardIncrementRef.get()).isEqualTo(seekForwardIncrementMs);
     assertThat(maxSeekToPreviousPositionMsRef.get()).isEqualTo(maxSeekToPreviousPositionMs);
     assertThat(trackSelectionParametersRef.get()).isEqualTo(trackSelectionParameters);
+    assertThat(currentTracksRef.get()).isEqualTo(currentTracks);
     assertTimelineMediaItemsEquals(timelineRef.get(), timeline);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(currentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(currentMediaItem);

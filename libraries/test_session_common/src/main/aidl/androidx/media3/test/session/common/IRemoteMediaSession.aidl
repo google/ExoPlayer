@@ -85,4 +85,5 @@ interface IRemoteMediaSession {
   void notifyRenderedFirstFrame(String sessionId);
   void notifyMaxSeekToPreviousPositionChanged(String sessionid, long maxSeekToPreviousPositionMs);
   void notifyTrackSelectionParametersChanged(String sessionId, in Bundle parameters);
+  void notifyTracksChanged(String sessionId, in Bundle tracks);
 }

@@ -50,6 +50,7 @@ import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.FlagSet;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -62,7 +63,9 @@ import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Player.State;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.CueGroup;
@@ -827,6 +830,52 @@ public class MediaControllerListenerTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(parametersFromParamRef.get()).isEqualTo(parameters);
     assertThat(parametersFromGetterRef.get()).isEqualTo(parameters);
+  }
+
+  @Test
+  public void onTracksChanged() throws Exception {
+    RemoteMediaSession.RemoteMockPlayer player = remoteSession.getMockPlayer();
+    ImmutableList<Tracks.Group> trackGroups =
+        ImmutableList.of(
+            new Tracks.Group(
+                new TrackGroup(new Format.Builder().setChannelCount(2).build()),
+                /* adaptiveSupported= */ false,
+                /* trackSupport= */ new int[1],
+                /* trackSelected= */ new boolean[1]),
+            new Tracks.Group(
+                new TrackGroup(new Format.Builder().setHeight(1024).build()),
+                /* adaptiveSupported= */ false,
+                /* trackSupport= */ new int[1],
+                /* trackSelected= */ new boolean[1]));
+    Tracks currentTracks = new Tracks(trackGroups);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    AtomicReference<Tracks> changedCurrentTracksFromParamRef = new AtomicReference<>();
+    AtomicReference<Tracks> changedCurrentTracksFromGetterRef = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTracksChanged(Tracks currentTracks) {
+            changedCurrentTracksFromParamRef.set(currentTracks);
+            changedCurrentTracksFromGetterRef.set(controller.getCurrentTracks());
+            latch.countDown();
+          }
+        };
+    AtomicReference<Tracks> initialCurrentTracksRef = new AtomicReference<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              initialCurrentTracksRef.set(controller.getCurrentTracks());
+              controller.addListener(listener);
+            });
+
+    player.notifyTracksChanged(currentTracks);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(initialCurrentTracksRef.get()).isEqualTo(Tracks.EMPTY);
+    assertThat(changedCurrentTracksFromParamRef.get()).isEqualTo(currentTracks);
+    assertThat(changedCurrentTracksFromGetterRef.get()).isEqualTo(currentTracks);
   }
 
   /** This also tests {@link MediaController#getShuffleModeEnabled()}. */

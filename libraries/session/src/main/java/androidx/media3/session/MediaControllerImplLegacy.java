@@ -83,6 +83,7 @@ import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
@@ -1185,6 +1186,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
+  public Tracks getCurrentTracks() {
+    return Tracks.EMPTY;
+  }
+
+  @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     return TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT;
   }
@@ -2102,6 +2108,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             seekBackIncrementMs,
             seekForwardIncrementMs,
             /* maxSeekToPreviousPositionMs= */ 0L,
+            /* currentTracks= */ Tracks.EMPTY,
             /* parameters= */ TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT);
 
     return new ControllerInfo(

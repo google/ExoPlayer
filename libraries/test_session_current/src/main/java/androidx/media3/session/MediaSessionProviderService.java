@@ -29,6 +29,7 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LI
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_POSITION;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_TRACKS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_INFO;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUTED;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
@@ -79,6 +80,7 @@ import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
@@ -355,6 +357,10 @@ public class MediaSessionProviderService extends Service {
       }
       player.maxSeekToPreviousPositionMs =
           config.getLong(KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS, player.maxSeekToPreviousPositionMs);
+      @Nullable Bundle currentTracksBundle = config.getBundle(KEY_CURRENT_TRACKS);
+      if (currentTracksBundle != null) {
+        player.currentTracks = Tracks.CREATOR.fromBundle(currentTracksBundle);
+      }
       @Nullable
       Bundle trackSelectionParametersBundle = config.getBundle(KEY_TRACK_SELECTION_PARAMETERS);
       if (trackSelectionParametersBundle != null) {
@@ -1002,6 +1008,18 @@ public class MediaSessionProviderService extends Service {
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.trackSelectionParameters = parameters;
             player.notifyTrackSelectionParametersChanged();
+          });
+    }
+
+    @Override
+    public void notifyTracksChanged(String sessionId, Bundle tracksBundle) throws RemoteException {
+      Tracks tracks = Tracks.CREATOR.fromBundle(tracksBundle);
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.currentTracks = tracks;
+            player.notifyTracksChanged();
           });
     }
   }

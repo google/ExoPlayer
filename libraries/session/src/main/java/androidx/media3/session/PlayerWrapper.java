@@ -951,6 +951,7 @@ import java.util.List;
         getSeekBackIncrement(),
         getSeekForwardIncrement(),
         getMaxSeekToPreviousPosition(),
+        getCurrentTracks(),
         getTrackSelectionParameters());
   }
 

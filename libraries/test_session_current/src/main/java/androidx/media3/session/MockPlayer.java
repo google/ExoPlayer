@@ -251,6 +251,7 @@ public class MockPlayer implements Player {
   public long seekForwardIncrementMs;
   public long maxSeekToPreviousPositionMs;
   public TrackSelectionParameters trackSelectionParameters;
+  public Tracks currentTracks;
 
   private MockPlayer(Builder builder) {
     changePlayerStateWithTransportControl = builder.changePlayerStateWithTransportControl;
@@ -299,6 +300,7 @@ public class MockPlayer implements Player {
 
     commands = new Player.Commands.Builder().addAllCommands().build();
 
+    currentTracks = Tracks.EMPTY;
     trackSelectionParameters = TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT;
   }
 
@@ -1177,6 +1179,22 @@ public class MockPlayer implements Player {
     }
   }
 
+  @Override
+  public Tracks getCurrentTracks() {
+    return currentTracks;
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return trackSelectionParameters;
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    trackSelectionParameters = parameters;
+    checkNotNull(conditionVariables.get(METHOD_SET_TRACK_SELECTION_PARAMETERS)).open();
+  }
+
   public boolean surfaceExists() {
     return surface != null;
   }
@@ -1225,20 +1243,10 @@ public class MockPlayer implements Player {
     }
   }
 
-  @Override
-  public Tracks getCurrentTracks() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TrackSelectionParameters getTrackSelectionParameters() {
-    return trackSelectionParameters;
-  }
-
-  @Override
-  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
-    trackSelectionParameters = parameters;
-    checkNotNull(conditionVariables.get(METHOD_SET_TRACK_SELECTION_PARAMETERS)).open();
+  public void notifyTracksChanged() {
+    for (Listener listener : listeners) {
+      listener.onTracksChanged(currentTracks);
+    }
   }
 
   @Override
