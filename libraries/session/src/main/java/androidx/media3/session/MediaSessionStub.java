@@ -81,7 +81,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -225,17 +224,34 @@ import java.util.concurrent.ExecutionException;
       if (controller == null) {
         return;
       }
-      if (command == COMMAND_SET_VIDEO_SURFACE) {
-        postOrRun(
-            sessionImpl.getApplicationHandler(),
-            getSessionTaskWithPlayerCommandRunnable(
-                controller, seq, command, sessionImpl, task, postTask));
-      } else {
-        connectedControllersManager.addToCommandQueue(
-            controller,
-            getSessionTaskWithPlayerCommandRunnable(
-                controller, seq, command, sessionImpl, task, postTask));
-      }
+      postOrRun(
+          sessionImpl.getApplicationHandler(),
+          () -> {
+            if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
+              sendSessionResult(
+                  sessionImpl,
+                  controller,
+                  seq,
+                  new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
+              return;
+            }
+            @SessionResult.Code
+            int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
+            if (resultCode != SessionResult.RESULT_SUCCESS) {
+              // Don't run rejected command.
+              sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
+              return;
+            }
+            if (command == COMMAND_SET_VIDEO_SURFACE) {
+              getSessionTaskWithPlayerCommandRunnable(controller, seq, sessionImpl, task, postTask)
+                  .run();
+            } else {
+              connectedControllersManager.addToCommandQueue(
+                  controller,
+                  getSessionTaskWithPlayerCommandRunnable(
+                      controller, seq, sessionImpl, task, postTask));
+            }
+          });
     } finally {
       Binder.restoreCallingIdentity(token);
     }
@@ -244,26 +260,10 @@ import java.util.concurrent.ExecutionException;
   private <T, K extends MediaSessionImpl> Runnable getSessionTaskWithPlayerCommandRunnable(
       ControllerInfo controller,
       int seq,
-      @Player.Command int command,
       K sessionImpl,
       SessionTask<T, K> task,
       PostSessionTask<T, K> postTask) {
     return () -> {
-      if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
-        sendSessionResult(
-            sessionImpl,
-            controller,
-            seq,
-            new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
-        return;
-      }
-      @SessionResult.Code
-      int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
-      if (resultCode != SessionResult.RESULT_SUCCESS) {
-        // Don't run rejected command.
-        sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
-        return;
-      }
       T result = task.run(sessionImpl, controller);
       postTask.run(sessionImpl, controller, seq, result);
     };
@@ -1450,17 +1450,9 @@ import java.util.concurrent.ExecutionException;
       }
       ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
       if (controllerInfo != null) {
-        Deque<Runnable> queue = connectedControllersManager.getAndClearCommandQueue(controllerInfo);
         postOrRun(
             sessionImpl.getApplicationHandler(),
-            () -> {
-              while (!queue.isEmpty()) {
-                Runnable runnable = queue.poll();
-                if (runnable != null) {
-                  runnable.run();
-                }
-              }
-            });
+            () -> connectedControllersManager.flushCommandQueue(controllerInfo));
       }
     } finally {
       Binder.restoreCallingIdentity(token);
