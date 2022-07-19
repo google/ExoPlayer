@@ -1710,12 +1710,17 @@ import java.util.concurrent.ExecutionException;
         boolean excludeMediaItems,
         boolean excludeMediaItemsMetadata,
         boolean excludeCues,
-        boolean excludeTimeline)
+        boolean excludeTimeline,
+        boolean excludeTracks)
         throws RemoteException {
       iController.onPlayerInfoChanged(
           seq,
           playerInfo.toBundle(
-              excludeMediaItems, excludeMediaItemsMetadata, excludeCues, excludeTimeline),
+              excludeMediaItems,
+              excludeMediaItemsMetadata,
+              excludeCues,
+              excludeTimeline,
+              excludeTracks),
           /* isTimelineExcluded= */ excludeTimeline);
     }
 

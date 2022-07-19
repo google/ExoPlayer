@@ -2395,9 +2395,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               listener.onMediaItemTransition(
                   currentMediaItem, playerInfo.mediaItemTransitionReason));
     }
-    if (!Util.areEqual(oldPlayerInfo.currentTracks, newPlayerInfo.currentTracks)) {
+    if (!Util.areEqual(oldPlayerInfo.currentTracks, playerInfo.currentTracks)) {
       listeners.queueEvent(
-          EVENT_TRACKS_CHANGED, listener -> listener.onTracksChanged(newPlayerInfo.currentTracks));
+          EVENT_TRACKS_CHANGED, listener -> listener.onTracksChanged(playerInfo.currentTracks));
     }
     if (!Util.areEqual(oldPlayerInfo.playbackParameters, playerInfo.playbackParameters)) {
       listeners.queueEvent(

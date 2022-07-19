@@ -1070,7 +1070,8 @@ public class MediaSession {
         boolean excludeMediaItems,
         boolean excludeMediaItemsMetadata,
         boolean excludeCues,
-        boolean excludeTimeline)
+        boolean excludeTimeline,
+        boolean excludeTracks)
         throws RemoteException {}
 
     default void onPeriodicSessionPositionInfoChanged(

@@ -121,7 +121,9 @@ import java.lang.annotation.Target;
                 || !playerCommandsFromSession.contains(Player.COMMAND_GET_MEDIA_ITEMS_METADATA),
             /* excludeCues= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TEXT)
                 || !playerCommandsFromSession.contains(Player.COMMAND_GET_TEXT),
-            /* excludeTimeline= */ false));
+            /* excludeTimeline= */ false,
+            /* excludeTracks= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TRACKS)
+                || !playerCommandsFromSession.contains(Player.COMMAND_GET_TRACKS)));
     return bundle;
   }
 

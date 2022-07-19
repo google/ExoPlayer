@@ -26,10 +26,12 @@ public class MediaSessionConstants {
   public static final String TEST_WITH_CUSTOM_COMMANDS = "testWithCustomCommands";
   public static final String TEST_CONTROLLER_LISTENER_SESSION_REJECTS = "connection_sessionRejects";
   public static final String TEST_IS_SESSION_COMMAND_AVAILABLE = "testIsSessionCommandAvailable";
+  public static final String TEST_COMMAND_GET_TRACKS = "testCommandGetTracksUnavailable";
 
   // Bundle keys
   public static final String KEY_AVAILABLE_SESSION_COMMANDS = "availableSessionCommands";
   public static final String KEY_CONTROLLER = "controllerKey";
+  public static final String KEY_COMMAND_GET_TASKS_UNAVAILABLE = "commandGetTasksUnavailable";
 
   private MediaSessionConstants() {}
 }

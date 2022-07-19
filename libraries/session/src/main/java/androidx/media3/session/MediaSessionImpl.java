@@ -411,7 +411,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                 /* excludeCues= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TEXT),
-                excludeTimeline);
+                excludeTimeline,
+                /* excludeTracks= */ !sessionStub
+                    .getConnectedControllersManager()
+                    .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TRACKS));
       } catch (DeadObjectException e) {
         onDeadObjectException(controller);
       } catch (RemoteException e) {
