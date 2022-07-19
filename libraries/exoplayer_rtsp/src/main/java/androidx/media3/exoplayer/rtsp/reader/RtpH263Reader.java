@@ -104,8 +104,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     //    |   RR    |P|V|   PLEN    |PEBIT|
     //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     int currentPosition = data.getPosition();
-    ParsableByteArray bitstreamData = new ParsableByteArray(data.getData().clone());
-    int header = bitstreamData.readUnsignedShort();
+    int header = data.readUnsignedShort();
     boolean pBitIsSet = (header & 0x400) > 0;
 
     // Check if optional V (Video Redundancy Coding), PLEN or PEBIT is present, RFC4629 Section 5.1.
@@ -124,16 +123,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       gotFirstPacketOfH263Frame = true;
 
-      int payloadStartCode = bitstreamData.peekUnsignedByte() & 0xFC;
+      int payloadStartCode = data.peekUnsignedByte() & 0xFC;
       // Packets that begin with a Picture Start Code(100000). Refer RFC4629 Section 6.1.
       if (payloadStartCode < PICTURE_START_CODE) {
         Log.w(TAG, "Picture start Code (PSC) missing, dropping packet.");
         return;
       }
       // Setting first two bytes of the start code. Refer RFC4629 Section 6.1.1.
-      bitstreamData.getData()[currentPosition] = 0;
-      bitstreamData.getData()[currentPosition + 1] = 0;
-      bitstreamData.setPosition(currentPosition);
+      data.getData()[currentPosition] = 0;
+      data.getData()[currentPosition + 1] = 0;
+      data.setPosition(currentPosition);
     } else if (gotFirstPacketOfH263Frame) {
       // Check that this packet is in the sequence of the previous packet.
       int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
@@ -155,7 +154,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (fragmentedSampleSizeBytes == 0) {
-      parseVopHeader(bitstreamData, isOutputFormatSet);
+      parseVopHeader(data, isOutputFormatSet);
       if (!isOutputFormatSet && isKeyFrame) {
         if (width != payloadFormat.format.width || height != payloadFormat.format.height) {
           trackOutput.format(
@@ -164,9 +163,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         isOutputFormatSet = true;
       }
     }
-    int fragmentSize = bitstreamData.bytesLeft();
+    int fragmentSize = data.bytesLeft();
     // Write the video sample.
-    trackOutput.sampleData(bitstreamData, fragmentSize);
+    trackOutput.sampleData(data, fragmentSize);
     fragmentedSampleSizeBytes += fragmentSize;
     sampleTimeUsOfFragmentedSample =
         toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
