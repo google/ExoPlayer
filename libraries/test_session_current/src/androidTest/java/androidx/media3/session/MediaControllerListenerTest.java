@@ -29,7 +29,9 @@ import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_SESSION_SERVICE;
+import static androidx.media3.test.session.common.MediaSessionConstants.KEY_COMMAND_GET_TASKS_UNAVAILABLE;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
@@ -876,6 +878,101 @@ public class MediaControllerListenerTest {
     assertThat(initialCurrentTracksRef.get()).isEqualTo(Tracks.EMPTY);
     assertThat(changedCurrentTracksFromParamRef.get()).isEqualTo(currentTracks);
     assertThat(changedCurrentTracksFromGetterRef.get()).isEqualTo(currentTracks);
+  }
+
+  @Test
+  public void getCurrentTracks_commandGetTracksUnavailable_currentTracksEmpty() throws Exception {
+    RemoteMediaSession remoteSession = createRemoteMediaSession(TEST_COMMAND_GET_TRACKS);
+    RemoteMediaSession.RemoteMockPlayer player = remoteSession.getMockPlayer();
+    CountDownLatch latch = new CountDownLatch(2);
+    // A controller with the COMMAND_GET_TRACKS unavailable.
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(KEY_COMMAND_GET_TASKS_UNAVAILABLE, true);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(), connectionHints, /* listener= */ null);
+    List<Tracks> capturedCurrentTracks = new ArrayList<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            capturedCurrentTracks.add(controller.getCurrentTracks());
+            latch.countDown();
+          }
+        };
+    // A controller with the COMMAND_GET_TRACKS available.
+    MediaController controllerWithCommandAvailable =
+        controllerTestRule.createController(remoteSession.getToken());
+    AtomicReference<Tracks> capturedCurrentTracksWithCommandAvailable = new AtomicReference<>();
+    Player.Listener listenerWithCommandAvailable =
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            capturedCurrentTracksWithCommandAvailable.set(player.getCurrentTracks());
+            latch.countDown();
+          }
+        };
+    AtomicReference<Tracks> initialCurrentTracks = new AtomicReference<>();
+    AtomicReference<Tracks> initialCurrentTracksWithCommandAvailable = new AtomicReference<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              initialCurrentTracks.set(controller.getCurrentTracks());
+              initialCurrentTracksWithCommandAvailable.set(
+                  controllerWithCommandAvailable.getCurrentTracks());
+              controller.addListener(listener);
+              controllerWithCommandAvailable.addListener(listenerWithCommandAvailable);
+            });
+
+    player.notifyIsLoadingChanged(true);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(initialCurrentTracks.get()).isEqualTo(Tracks.EMPTY);
+    assertThat(capturedCurrentTracks).containsExactly(Tracks.EMPTY);
+    assertThat(initialCurrentTracksWithCommandAvailable.get().getGroups()).hasSize(1);
+    assertThat(capturedCurrentTracksWithCommandAvailable.get().getGroups()).hasSize(1);
+  }
+
+  @Test
+  public void getCurrentTracks_commandGetTracksBecomesUnavailable_tracksResetToEmpty()
+      throws Exception {
+    RemoteMediaSession remoteSession = createRemoteMediaSession(TEST_COMMAND_GET_TRACKS);
+    RemoteMediaSession.RemoteMockPlayer player = remoteSession.getMockPlayer();
+    CountDownLatch latch = new CountDownLatch(2);
+    // A controller with the COMMAND_GET_TRACKS available.
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<Tracks> capturedCurrentTracks = new ArrayList<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onAvailableCommandsChanged(Commands availableCommands) {
+            capturedCurrentTracks.add(controller.getCurrentTracks());
+            latch.countDown();
+          }
+
+          @Override
+          public void onTracksChanged(Tracks tracks) {
+            // The track change as a result of the available command change is notified second.
+            capturedCurrentTracks.add(controller.getCurrentTracks());
+            latch.countDown();
+          }
+        };
+    AtomicReference<Commands> availableCommands = new AtomicReference<>();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              availableCommands.set(controller.getAvailableCommands());
+              controller.addListener(listener);
+            });
+
+    player.notifyAvailableCommandsChanged(
+        availableCommands.get().buildUpon().remove(Player.COMMAND_GET_TRACKS).build());
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(capturedCurrentTracks.get(0).getGroups()).hasSize(1);
+    assertThat(capturedCurrentTracks.get(1)).isEqualTo(Tracks.EMPTY);
   }
 
   /** This also tests {@link MediaController#getShuffleModeEnabled()}. */

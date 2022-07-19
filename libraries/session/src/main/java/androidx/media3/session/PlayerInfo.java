@@ -754,7 +754,8 @@ import java.lang.annotation.Target;
       boolean excludeMediaItems,
       boolean excludeMediaItemsMetadata,
       boolean excludeCues,
-      boolean excludeTimeline) {
+      boolean excludeTimeline,
+      boolean excludeTracks) {
     Bundle bundle = new Bundle();
     if (playerError != null) {
       bundle.putBundle(keyForField(FIELD_PLAYBACK_ERROR), playerError.toBundle());
@@ -794,7 +795,9 @@ import java.lang.annotation.Target;
     bundle.putLong(keyForField(FIELD_SEEK_FORWARD_INCREMENT_MS), seekForwardIncrementMs);
     bundle.putLong(
         keyForField(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS), maxSeekToPreviousPositionMs);
-    bundle.putBundle(keyForField(FIELD_CURRENT_TRACKS), currentTracks.toBundle());
+    if (!excludeTracks) {
+      bundle.putBundle(keyForField(FIELD_CURRENT_TRACKS), currentTracks.toBundle());
+    }
     bundle.putBundle(
         keyForField(FIELD_TRACK_SELECTION_PARAMETERS), trackSelectionParameters.toBundle());
 
@@ -807,7 +810,8 @@ import java.lang.annotation.Target;
         /* excludeMediaItems= */ false,
         /* excludeMediaItemsMetadata= */ false,
         /* excludeCues= */ false,
-        /* excludeTimeline= */ false);
+        /* excludeTimeline= */ false,
+        /* excludeTracks= */ false);
   }
 
   /** Object that can restore {@link PlayerInfo} from a {@link Bundle}. */

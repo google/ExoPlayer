@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_SESSION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media3.test.session.common.CommonConstants.KEY_BUFFERED_PERCENTAGE;
@@ -55,7 +56,9 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_TRACK_SELE
 import static androidx.media3.test.session.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media3.test.session.common.CommonConstants.KEY_VOLUME;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_AVAILABLE_SESSION_COMMANDS;
+import static androidx.media3.test.session.common.MediaSessionConstants.KEY_COMMAND_GET_TASKS_UNAVAILABLE;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
@@ -71,6 +74,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -79,6 +83,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
@@ -159,11 +164,10 @@ public class MediaSessionProviderService extends Service {
 
     @Override
     public void create(String sessionId, Bundle tokenExtras) throws RemoteException {
+      MockPlayer mockPlayer =
+          new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
       MediaSession.Builder builder =
-          new MediaSession.Builder(
-                  MediaSessionProviderService.this,
-                  new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build())
-              .setId(sessionId);
+          new MediaSession.Builder(MediaSessionProviderService.this, mockPlayer).setId(sessionId);
 
       if (tokenExtras != null) {
         builder.setExtras(tokenExtras);
@@ -225,6 +229,34 @@ public class MediaSessionProviderService extends Service {
                       MediaSession session, ControllerInfo controller) {
                     return MediaSession.ConnectionResult.accept(
                         availableSessionCommands, Player.Commands.EMPTY);
+                  }
+                });
+            break;
+          }
+        case TEST_COMMAND_GET_TRACKS:
+          {
+            ImmutableList<Tracks.Group> trackGroups =
+                ImmutableList.of(
+                    new Tracks.Group(
+                        new TrackGroup(new Format.Builder().setChannelCount(2).build()),
+                        /* adaptiveSupported= */ false,
+                        /* trackSupport= */ new int[1],
+                        /* trackSelected= */ new boolean[1]));
+            mockPlayer.currentTracks = new Tracks(trackGroups);
+            builder.setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, ControllerInfo controller) {
+                    Player.Commands.Builder commandBuilder =
+                        new Player.Commands.Builder().addAllCommands();
+                    if (controller
+                        .getConnectionHints()
+                        .getBoolean(KEY_COMMAND_GET_TASKS_UNAVAILABLE, /* defaultValue= */ false)) {
+                      commandBuilder.remove(COMMAND_GET_TRACKS);
+                    }
+                    return MediaSession.ConnectionResult.accept(
+                        SessionCommands.EMPTY, commandBuilder.build());
                   }
                 });
             break;
