@@ -429,16 +429,8 @@ public final class DefaultCodec implements Codec {
     if (MimeTypes.isVideo(mimeType)) {
       formatBuilder
           .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
-          .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
-      if (SDK_INT >= 24) {
-        // TODO(b/227624622): Set hdrStaticInfo accordingly using KEY_HDR_STATIC_INFO.
-        formatBuilder.setColorInfo(
-            new ColorInfo(
-                mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD),
-                mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE),
-                mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER),
-                /* hdrStaticInfo= */ null));
-      }
+          .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
+          .setColorInfo(getColorInfo(mediaFormat));
     } else if (MimeTypes.isAudio(mimeType)) {
       // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
       // simulate more realistic codec input/output formats in tests.
@@ -477,5 +469,35 @@ public final class DefaultCodec implements Codec {
     // Frame dropping is never desired, so a workaround is needed for older API levels.
     return SDK_INT < 29
         || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
+  }
+
+  @Nullable
+  private static ColorInfo getColorInfo(MediaFormat mediaFormat) {
+    if (SDK_INT < 29) {
+      return null;
+    }
+    // TODO(b/227624622): Set hdrStaticInfo accordingly using KEY_HDR_STATIC_INFO.
+    int colorSpace = mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD, Format.NO_VALUE);
+    int colorRange = mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE, Format.NO_VALUE);
+    int colorTransfer = mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER, Format.NO_VALUE);
+    if (colorSpace != C.COLOR_SPACE_BT709
+        && colorSpace != C.COLOR_SPACE_BT601
+        && colorSpace != C.COLOR_SPACE_BT2020
+        && colorSpace != Format.NO_VALUE) {
+      return null;
+    }
+    if (colorRange != C.COLOR_RANGE_LIMITED
+        && colorRange != C.COLOR_RANGE_FULL
+        && colorRange != Format.NO_VALUE) {
+      return null;
+    }
+    if (colorTransfer != C.COLOR_TRANSFER_SDR
+        && colorTransfer != C.COLOR_TRANSFER_ST2084
+        && colorTransfer != C.COLOR_TRANSFER_HLG
+        && colorTransfer != Format.NO_VALUE) {
+      return null;
+    }
+
+    return new ColorInfo(colorSpace, colorRange, colorTransfer, /* hdrStaticInfo= */ null);
   }
 }
