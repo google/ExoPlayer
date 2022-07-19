@@ -28,6 +28,7 @@ import androidx.media3.test.utils.FakeTrackOutput;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Bytes;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -118,10 +119,10 @@ public final class RtpH263ReaderTest {
     h263Reader.createTracks(extractorOutput, /* trackId= */ 0);
     h263Reader.onReceivingFirstPacket(
         FRAME_1_FRAGMENT_1.timestamp, FRAME_1_FRAGMENT_1.sequenceNumber);
-    consume(h263Reader, FRAME_1_FRAGMENT_1);
+    consume(h263Reader, copyPacket(FRAME_1_FRAGMENT_1));
     consume(h263Reader, FRAME_1_FRAGMENT_2);
-    consume(h263Reader, FRAME_2_FRAGMENT_1);
-    consume(h263Reader, FRAME_2_FRAGMENT_2);
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_1));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_2));
 
     trackOutput = extractorOutput.trackOutputs.get(0);
     assertThat(trackOutput.getSampleCount()).isEqualTo(2);
@@ -137,9 +138,9 @@ public final class RtpH263ReaderTest {
     h263Reader.createTracks(extractorOutput, /* trackId= */ 0);
     h263Reader.onReceivingFirstPacket(
         FRAME_1_FRAGMENT_1.timestamp, FRAME_1_FRAGMENT_1.sequenceNumber);
-    consume(h263Reader, FRAME_1_FRAGMENT_2);
-    consume(h263Reader, FRAME_2_FRAGMENT_1);
-    consume(h263Reader, FRAME_2_FRAGMENT_2);
+    consume(h263Reader, copyPacket(FRAME_1_FRAGMENT_2));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_1));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_2));
 
     trackOutput = extractorOutput.trackOutputs.get(0);
     assertThat(trackOutput.getSampleCount()).isEqualTo(1);
@@ -153,9 +154,9 @@ public final class RtpH263ReaderTest {
     h263Reader.createTracks(extractorOutput, /* trackId= */ 0);
     h263Reader.onReceivingFirstPacket(
         FRAME_1_FRAGMENT_1.timestamp, FRAME_1_FRAGMENT_1.sequenceNumber);
-    consume(h263Reader, FRAME_1_FRAGMENT_1);
-    consume(h263Reader, FRAME_2_FRAGMENT_1);
-    consume(h263Reader, FRAME_2_FRAGMENT_2);
+    consume(h263Reader, copyPacket(FRAME_1_FRAGMENT_1));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_1));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_2));
 
     trackOutput = extractorOutput.trackOutputs.get(0);
     assertThat(trackOutput.getSampleCount()).isEqualTo(2);
@@ -172,10 +173,10 @@ public final class RtpH263ReaderTest {
     h263Reader.createTracks(extractorOutput, /* trackId= */ 0);
     h263Reader.onReceivingFirstPacket(
         FRAME_1_FRAGMENT_1.timestamp, FRAME_1_FRAGMENT_1.sequenceNumber);
-    consume(h263Reader, FRAME_1_FRAGMENT_1);
-    consume(h263Reader, FRAME_2_FRAGMENT_1);
-    consume(h263Reader, FRAME_1_FRAGMENT_2);
-    consume(h263Reader, FRAME_2_FRAGMENT_2);
+    consume(h263Reader, copyPacket(FRAME_1_FRAGMENT_1));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_1));
+    consume(h263Reader, copyPacket(FRAME_1_FRAGMENT_2));
+    consume(h263Reader, copyPacket(FRAME_2_FRAGMENT_2));
 
     trackOutput = extractorOutput.trackOutputs.get(0);
     assertThat(trackOutput.getSampleCount()).isEqualTo(2);
@@ -194,5 +195,24 @@ public final class RtpH263ReaderTest {
         rtpPacket.timestamp,
         rtpPacket.sequenceNumber,
         /* isFrameBoundary= */ rtpPacket.marker);
+  }
+
+  private static RtpPacket copyPacket(RtpPacket packet) {
+    RtpPacket.Builder builder =
+        new RtpPacket.Builder()
+            .setPadding(packet.padding)
+            .setMarker(packet.marker)
+            .setPayloadType(packet.payloadType)
+            .setSequenceNumber(packet.sequenceNumber)
+            .setTimestamp(packet.timestamp)
+            .setSsrc(packet.ssrc);
+
+    if (packet.csrc.length > 0) {
+      builder.setCsrc(Arrays.copyOf(packet.csrc, packet.csrc.length));
+    }
+    if (packet.payloadData.length > 0) {
+      builder.setPayloadData(Arrays.copyOf(packet.payloadData, packet.payloadData.length));
+    }
+    return builder.build();
   }
 }
