@@ -24,8 +24,12 @@ import androidx.collection.ArrayMap;
 import androidx.media3.common.Player;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
@@ -38,6 +42,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * <p>This class is thread-safe.
  */
 /* package */ final class ConnectedControllersManager<T extends @NonNull Object> {
+
+  /** An asynchronous controller command function. */
+  public interface AsyncCommand {
+
+    /**
+     * Runs the asynchronous command.
+     *
+     * @return A {@link ListenableFuture} to listen for the command completion.
+     */
+    ListenableFuture<Void> run();
+  }
 
   private final Object lock;
 
@@ -213,34 +228,69 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   public void addToCommandQueue(ControllerInfo controllerInfo, Runnable commandRunnable) {
-    @Nullable ConnectedControllerRecord<T> info;
-    synchronized (lock) {
-      info = controllerRecords.get(controllerInfo);
-    }
-    if (info != null) {
-      info.commandQueue.add(commandRunnable);
-    }
-  }
-
-  public Deque<Runnable> getAndClearCommandQueue(ControllerInfo controllerInfo) {
-    Deque<Runnable> commandQueue = new ArrayDeque<>();
     synchronized (lock) {
       @Nullable ConnectedControllerRecord<T> info = controllerRecords.get(controllerInfo);
       if (info != null) {
-        commandQueue.addAll(info.commandQueue);
-        info.commandQueue.clear();
+        info.commandQueue.add(
+            () -> {
+              commandRunnable.run();
+              return Futures.immediateVoidFuture();
+            });
       }
     }
-    return commandQueue;
+  }
+
+  public void flushCommandQueue(ControllerInfo controllerInfo) {
+    synchronized (lock) {
+      @Nullable ConnectedControllerRecord<T> info = controllerRecords.get(controllerInfo);
+      if (info == null || info.commandQueueIsFlushing || info.commandQueue.isEmpty()) {
+        return;
+      }
+      info.commandQueueIsFlushing = true;
+      flushCommandQueue(info);
+    }
+  }
+
+  @GuardedBy("lock")
+  private void flushCommandQueue(ConnectedControllerRecord<T> info) {
+    AtomicBoolean continueRunning = new AtomicBoolean(true);
+    while (continueRunning.get()) {
+      continueRunning.set(false);
+      @Nullable AsyncCommand asyncCommand = info.commandQueue.poll();
+      if (asyncCommand == null) {
+        info.commandQueueIsFlushing = false;
+        return;
+      }
+      AtomicBoolean commandExecuting = new AtomicBoolean(true);
+      postOrRun(
+          sessionImpl.getApplicationHandler(),
+          () ->
+              asyncCommand
+                  .run()
+                  .addListener(
+                      () -> {
+                        synchronized (lock) {
+                          if (!commandExecuting.get()) {
+                            flushCommandQueue(info);
+                          } else {
+                            continueRunning.set(true);
+                          }
+                        }
+                      },
+                      MoreExecutors.directExecutor()));
+      commandExecuting.set(false);
+    }
   }
 
   private static final class ConnectedControllerRecord<T> {
 
     public final T controllerKey;
     public final SequencedFutureManager sequencedFutureManager;
+    public final Deque<AsyncCommand> commandQueue;
+
     public SessionCommands sessionCommands;
     public Player.Commands playerCommands;
-    public Deque<Runnable> commandQueue;
+    public boolean commandQueueIsFlushing;
 
     public ConnectedControllerRecord(
         T controllerKey,
