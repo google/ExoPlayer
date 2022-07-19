@@ -745,7 +745,11 @@ public abstract class DecoderAudioRenderer<
       // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
       // Allow the position to jump if the first presentable input buffer has a timestamp that
       // differs significantly from what was expected.
-      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
+      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000
+          && (getState() == STATE_STARTED || buffer.timeUs > currentPositionUs)) {
+        // if current pos was allowed to move backwards while this renderer hasn't yet started it
+        // would cause MediaCodecVideoRenderer to never start and lead to infinite buffering (see
+        // issue #8220 for more details)
         currentPositionUs = buffer.timeUs;
       }
       allowFirstBufferPositionDiscontinuity = false;

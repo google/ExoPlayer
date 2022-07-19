@@ -653,7 +653,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
       // Allow the position to jump if the first presentable input buffer has a timestamp that
       // differs significantly from what was expected.
-      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
+      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000
+          && (getState() == STATE_STARTED || buffer.timeUs > currentPositionUs)) {
+        // if current pos was allowed to move backwards while this renderer hasn't yet started it
+        // would cause MediaCodecVideoRenderer to never start and lead to infinite buffering (see
+        // issue #8220 for more details)
         currentPositionUs = buffer.timeUs;
       }
       allowFirstBufferPositionDiscontinuity = false;
@@ -689,7 +693,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
-    if (isDecodeOnlyBuffer) {
+    // Issue #8220: sometimes audio/video is in sync but the stream has extra audio content that
+    // extends before the legit start position; in the past this would cause player to stall but
+    // it's been fixed now, so these buffers should be skipped to allow renderer to advance to the
+    // start position where it'll catch up with other renderers
+    boolean bufferPrecedesStartPos = getState() != STATE_STARTED
+        && bufferPresentationTimeUs < positionUs;
+
+    if (isDecodeOnlyBuffer || bufferPrecedesStartPos) {
       if (codec != null) {
         codec.releaseOutputBuffer(bufferIndex, false);
       }
