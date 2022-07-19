@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -529,6 +530,7 @@ public interface ExoPlayer extends Player {
           context,
           () -> renderersFactory,
           () -> new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
+      checkNotNull(renderersFactory);
     }
 
     /**
@@ -546,6 +548,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder(Context context, MediaSource.Factory mediaSourceFactory) {
       this(context, () -> new DefaultRenderersFactory(context), () -> mediaSourceFactory);
+      checkNotNull(mediaSourceFactory);
     }
 
     /**
@@ -568,6 +571,8 @@ public interface ExoPlayer extends Player {
         RenderersFactory renderersFactory,
         MediaSource.Factory mediaSourceFactory) {
       this(context, () -> renderersFactory, () -> mediaSourceFactory);
+      checkNotNull(renderersFactory);
+      checkNotNull(mediaSourceFactory);
     }
 
     /**
@@ -601,6 +606,11 @@ public interface ExoPlayer extends Player {
           () -> loadControl,
           () -> bandwidthMeter,
           (clock) -> analyticsCollector);
+      checkNotNull(renderersFactory);
+      checkNotNull(mediaSourceFactory);
+      checkNotNull(trackSelector);
+      checkNotNull(bandwidthMeter);
+      checkNotNull(analyticsCollector);
     }
 
     private Builder(
@@ -625,7 +635,7 @@ public interface ExoPlayer extends Player {
         Supplier<LoadControl> loadControlSupplier,
         Supplier<BandwidthMeter> bandwidthMeterSupplier,
         Function<Clock, AnalyticsCollector> analyticsCollectorFunction) {
-      this.context = context;
+      this.context = checkNotNull(context);
       this.renderersFactorySupplier = renderersFactorySupplier;
       this.mediaSourceFactorySupplier = mediaSourceFactorySupplier;
       this.trackSelectorSupplier = trackSelectorSupplier;
@@ -672,6 +682,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
       checkState(!buildCalled);
+      checkNotNull(renderersFactory);
       this.renderersFactorySupplier = () -> renderersFactory;
       return this;
     }
@@ -685,6 +696,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       checkState(!buildCalled);
+      checkNotNull(mediaSourceFactory);
       this.mediaSourceFactorySupplier = () -> mediaSourceFactory;
       return this;
     }
@@ -698,6 +710,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setTrackSelector(TrackSelector trackSelector) {
       checkState(!buildCalled);
+      checkNotNull(trackSelector);
       this.trackSelectorSupplier = () -> trackSelector;
       return this;
     }
@@ -711,6 +724,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setLoadControl(LoadControl loadControl) {
       checkState(!buildCalled);
+      checkNotNull(loadControl);
       this.loadControlSupplier = () -> loadControl;
       return this;
     }
@@ -724,6 +738,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       checkState(!buildCalled);
+      checkNotNull(bandwidthMeter);
       this.bandwidthMeterSupplier = () -> bandwidthMeter;
       return this;
     }
@@ -738,6 +753,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setLooper(Looper looper) {
       checkState(!buildCalled);
+      checkNotNull(looper);
       this.looper = looper;
       return this;
     }
@@ -751,6 +767,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
+      checkNotNull(analyticsCollector);
       this.analyticsCollectorFunction = (clock) -> analyticsCollector;
       return this;
     }
@@ -785,7 +802,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
       checkState(!buildCalled);
-      this.audioAttributes = audioAttributes;
+      this.audioAttributes = checkNotNull(audioAttributes);
       this.handleAudioFocus = handleAudioFocus;
       return this;
     }
@@ -906,7 +923,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setSeekParameters(SeekParameters seekParameters) {
       checkState(!buildCalled);
-      this.seekParameters = seekParameters;
+      this.seekParameters = checkNotNull(seekParameters);
       return this;
     }
 
@@ -1002,7 +1019,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
       checkState(!buildCalled);
-      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      this.livePlaybackSpeedControl = checkNotNull(livePlaybackSpeedControl);
       return this;
     }
 
