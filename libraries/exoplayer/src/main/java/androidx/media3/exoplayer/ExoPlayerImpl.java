@@ -1484,14 +1484,13 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
-    analyticsCollector.addListener(listener);
+    analyticsCollector.addListener(checkNotNull(listener));
   }
 
   @Override
   public void removeAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    analyticsCollector.removeListener(listener);
+    analyticsCollector.removeListener(checkNotNull(listener));
   }
 
   @Override
@@ -1602,8 +1601,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addListener(Listener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
-    listeners.add(listener);
+    listeners.add(checkNotNull(listener));
   }
 
   @Override
