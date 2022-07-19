@@ -413,7 +413,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TEXT),
                 excludeTimeline);
       } catch (DeadObjectException e) {
-        onDeadObjectException(controller, e);
+        onDeadObjectException(controller);
       } catch (RemoteException e) {
         // Currently it's TransactionTooLargeException or DeadSystemException.
         // We'd better to leave log for those cases because
@@ -598,7 +598,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         task.run(cb, seq);
       }
     } catch (DeadObjectException e) {
-      onDeadObjectException(controller, e);
+      onDeadObjectException(controller);
     } catch (RemoteException e) {
       // Currently it's TransactionTooLargeException or DeadSystemException.
       // We'd better to leave log for those cases because
@@ -635,7 +635,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       return future;
     } catch (DeadObjectException e) {
-      onDeadObjectException(controller, e);
+      onDeadObjectException(controller);
       return Futures.immediateFuture(new SessionResult(RESULT_ERROR_SESSION_DISCONNECTED));
     } catch (RemoteException e) {
       // Currently it's TransactionTooLargeException or DeadSystemException.
@@ -649,7 +649,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   /** Removes controller. Call this when DeadObjectException is happened with binder call. */
-  private void onDeadObjectException(ControllerInfo controller, DeadObjectException e) {
+  private void onDeadObjectException(ControllerInfo controller) {
     // Note: Only removing from MediaSessionStub and ignoring (legacy) stubs would be fine for
     //       now. Because calls to the legacy stubs doesn't throw DeadObjectException.
     sessionStub.getConnectedControllersManager().removeController(controller);
