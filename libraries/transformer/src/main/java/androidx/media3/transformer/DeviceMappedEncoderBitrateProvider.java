@@ -51,8 +51,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 return 0.245;
               case "SM-G935F":
                 return 0.2625;
-              case "SM-G570M":
-              case "SM-J710MN":
               default:
                 return 0.37188;
             }
@@ -67,7 +65,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1920x1080":
                     return 0.1225;
-                  case "1280x720":
                   default:
                     return 0.315;
                 }
@@ -81,13 +78,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.14;
-                      case 30:
                       default:
                         return 0.175;
                     }
                   case "3840x2160":
                     return 0.0914;
-                  case "1280x720":
                   default:
                     return 0.2975;
                 }
@@ -97,15 +92,12 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.1575;
-                      case 60:
                       default:
                         return 0.175;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
-              case "SM-A750GN":
               default:
                 return 0.35;
             }
@@ -119,13 +111,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "640x480":
                     return 0.41563;
                   case "1920x1080":
-                    switch (framerate) {
-                      case 30:
-                      case 60:
-                      default:
-                        return 0.4375;
-                    }
-                  case "1280x720":
+                    return 0.4375;
                   default:
                     return 0.525;
                 }
@@ -137,11 +123,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.28;
-                      case 30:
                       default:
                         return 0.315;
                     }
-                  case "1280x720":
                   default:
                     return 0.56875;
                 }
@@ -156,7 +140,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.41563;
                   case "1920x1080":
                     return 0.35;
-                  case "1280x720":
                   default:
                     return 0.7;
                 }
@@ -168,11 +151,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.175;
-                      case 30:
                       default:
                         return 0.21;
                     }
-                  case "640x480":
                   default:
                     return 0.245;
                 }
@@ -184,7 +165,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.21;
                   case "1920x1080":
                     return 0.11375;
-                  case "1280x720":
                   default:
                     return 0.39375;
                 }
@@ -196,7 +176,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.175;
                   case "3840x2160":
                     return 0.08269;
-                  case "1280x720":
                   default:
                     return 0.39375;
                 }
@@ -211,11 +190,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.175;
-                      case 30:
                       default:
                         return 0.1925;
                     }
-                  case "1280x720":
                   default:
                     return 0.39375;
                 }
@@ -234,7 +211,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 1.05;
-                      case 60:
                       default:
                         return 1.4;
                     }
@@ -245,7 +221,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1280x720":
                     return 0.4375;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -264,12 +239,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
               case "SM-A515U1":
               case "SM-M315F":
                 return 0.1925;
-              case "SM-A102U1":
-              case "SM-A105F":
-              case "SM-A202F":
-              case "SM-A205F":
-              case "SM-A307GN":
-              case "SM-A405FN":
               default:
                 return 0.37188;
             }
@@ -284,11 +253,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
             switch (deviceModel) {
               case "SM-G965N":
                 return 0.0525;
-              case "SM-G950F":
               default:
                 return 0.07;
             }
-          case 26:
           default:
             return 0.07;
         }
@@ -303,13 +270,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 60:
                     return 0.1925;
-                  case 30:
                   default:
                     return 0.2625;
                 }
               case "3840x2160":
                 return 0.23208;
-              case "640x480":
               default:
                 return 0.28;
             }
@@ -335,12 +300,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "1280x720":
                     return 0.39375;
                   case "1920x1080":
-                    switch (framerate) {
-                      case 30:
-                      case 60:
-                      default:
-                        return 0.525;
-                    }
+                    return 0.525;
                   default:
                     return 0.525;
                 }
@@ -351,7 +311,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
             switch (deviceModel) {
               case "Moto C":
                 return 0.2625;
-              case "LG-M250":
               default:
                 return 0.28;
             }
@@ -363,7 +322,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "640x480":
                     return 0.28;
-                  case "1280x720":
                   default:
                     return 0.4375;
                 }
@@ -371,7 +329,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1280x720":
                     return 0.21;
-                  case "640x480":
                   default:
                     return 0.2975;
                 }
@@ -381,11 +338,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.14875;
-                      case 30:
                       default:
                         return 0.175;
                     }
-                  case "640x480":
                   default:
                     return 0.315;
                 }
@@ -393,14 +348,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 return 0.4375;
             }
           case 28:
-            switch (deviceModel) {
-              case "CPH2015":
-              case "CPH2083":
-              case "RMX1941":
-              case "Redmi 6A":
-              default:
-                return 0.2625;
-            }
+            return 0.2625;
           case 29:
             switch (deviceModel) {
               case "CPH2179":
@@ -418,7 +366,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.35;
                   case "1280x720":
                     return 0.525;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -443,7 +390,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.35;
                   case "1280x720":
                     return 0.525;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -460,13 +406,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
               case "640x480":
                 return 0.525;
               case "1920x1080":
-                switch (framerate) {
-                  case 30:
-                  case 60:
-                  default:
-                    return 0.245;
-                }
-              case "1280x720":
+                return 0.245;
               default:
                 return 0.56875;
             }
@@ -483,11 +423,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.13125;
-                      case 30:
                       default:
                         return 0.14;
                     }
-                  case "640x480":
                   default:
                     return 0.245;
                 }
@@ -498,7 +436,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
             switch (deviceModel) {
               case "HMA-L29":
                 return 0.175;
-              case "COL-L29":
               default:
                 return 0.21;
             }
@@ -515,7 +452,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.39375;
                   case "1920x1080":
                     return 0.35;
-                  case "640x480":
                   default:
                     return 0.48125;
                 }
@@ -525,11 +461,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.3325;
-                      case 30:
                       default:
                         return 0.35;
                     }
-                  case "1280x720":
                   default:
                     return 0.4375;
                 }
@@ -539,11 +473,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.3325;
-                      case 30:
                       default:
                         return 0.35;
                     }
-                  case "1280x720":
                   default:
                     return 0.37188;
                 }
@@ -557,11 +489,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.28;
-                      case 30:
                       default:
                         return 0.35;
                     }
-                  case "1280x720":
                   default:
                     return 0.48125;
                 }
@@ -573,11 +503,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.35;
-                      case 60:
                       default:
                         return 0.39375;
                     }
-                  case "1280x720":
                   default:
                     return 0.6125;
                 }
@@ -589,11 +517,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.315;
-                      case 30:
                       default:
                         return 0.4375;
                     }
-                  case "1280x720":
                   default:
                     return 0.54688;
                 }
@@ -612,7 +538,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.35;
-                      case 60:
                       default:
                         return 0.39375;
                     }
@@ -627,7 +552,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 60:
                     return 0.39375;
-                  case 30:
                   default:
                     return 0.48125;
                 }
@@ -651,7 +575,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.48125;
-                      case 60:
                       default:
                         return 0.525;
                     }
@@ -667,7 +590,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 60:
                     return 0.39375;
-                  case 30:
                   default:
                     return 0.48125;
                 }
@@ -684,7 +606,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
@@ -702,11 +623,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.28;
                     }
-                  case "1280x720":
                   default:
                     return 0.28;
                 }
@@ -720,7 +639,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
@@ -732,8 +650,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "640x480":
                     return 0.2275;
-                  case "1280x720":
-                  case "1920x1080":
                   default:
                     return 0.28;
                 }
@@ -742,7 +658,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1920x1080":
                     return 0.21;
-                  case "640x480":
                   default:
                     return 0.2275;
                 }
@@ -750,7 +665,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 30:
                     return 0.18375;
-                  case 60:
                   default:
                     return 0.21;
                 }
@@ -767,21 +681,14 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.28;
                     }
-                  case "1280x720":
                   default:
                     return 0.28;
                 }
               case "MI 5s Plus":
-                switch (resolution) {
-                  case "640x480":
-                  case "1280x720":
-                  default:
-                    return 0.2275;
-                }
+                return 0.2275;
               case "Mi MIX 2":
               case "ONEPLUS A3003":
               case "SAMSUNG-SM-G930AZ":
@@ -790,7 +697,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 60:
                     return 0.21;
-                  case 30:
                   default:
                     return 0.245;
                 }
@@ -802,21 +708,14 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
-                  case "1280x720":
                   default:
                     return 0.28;
                 }
               case "SAMSUNG-SM-G891A":
-                switch (resolution) {
-                  case "1280x720":
-                  case "1920x1080":
-                  default:
-                    return 0.28;
-                }
+                return 0.28;
               case "SM-A9200":
               case "SM-A920F":
                 switch (resolution) {
@@ -824,11 +723,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
-                  case "640x480":
                   default:
                     return 0.28;
                 }
@@ -840,11 +737,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -856,11 +751,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.28;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -872,7 +765,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
@@ -882,12 +774,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
               case "SM-G950U1":
               case "SM-G955U":
               case "SM-N950U":
-                switch (resolution) {
-                  case "640x480":
-                  case "1920x1080":
-                  default:
-                    return 0.21;
-                }
+                return 0.21;
               case "SM-G955U1":
                 switch (resolution) {
                   case "640x480":
@@ -898,7 +785,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.28;
                     }
@@ -913,13 +799,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.18375;
-                      case 60:
                       default:
                         return 0.21;
                     }
                   case "3840x2160":
                     return 0.09575;
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -929,11 +813,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.18375;
-                      case 60:
                       default:
                         return 0.21;
                     }
-                  case "640x480":
                   default:
                     return 0.21;
                 }
@@ -945,13 +827,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.18375;
-                      case 60:
                       default:
                         return 0.21;
                     }
                   case "3840x2160":
                     return 0.09575;
-                  case "1280x720":
                   default:
                     return 0.2275;
                 }
@@ -961,8 +841,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.2275;
                   case "3840x2160":
                     return 0.08704;
-                  case "1280x720":
-                  case "1920x1080":
                   default:
                     return 0.28;
                 }
@@ -972,7 +850,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.39375;
                   case "1920x1080":
                     return 0.35;
-                  case "1280x720":
                   default:
                     return 0.48125;
                 }
@@ -987,11 +864,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.28;
-                      case 60:
                       default:
                         return 0.4375;
                     }
-                  case "1280x720":
                   default:
                     return 0.45937;
                 }
@@ -1007,7 +882,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.28;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1020,13 +894,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "640x480":
                     return 0.39375;
                   case "1920x1080":
-                    switch (framerate) {
-                      case 30:
-                      case 60:
-                      default:
-                        return 0.35;
-                    }
-                  case "1280x720":
+                    return 0.35;
                   default:
                     return 0.48125;
                 }
@@ -1034,7 +902,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "640x480":
                     return 0.315;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -1044,17 +911,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.39375;
                   case "1920x1080":
                     return 0.35;
-                  case "1280x720":
                   default:
                     return 0.48125;
                 }
               case "Pixel 2":
-                switch (resolution) {
-                  case "640x480":
-                  case "1920x1080":
-                  default:
-                    return 0.21;
-                }
+                return 0.21;
               case "Pixel 2 XL":
                 switch (resolution) {
                   case "640x480":
@@ -1063,7 +924,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.21;
-                      case 30:
                       default:
                         return 0.245;
                     }
@@ -1076,13 +936,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.245;
-                      case 30:
                       default:
                         return 0.28;
                     }
                   case "3840x2160":
                     return 0.17409;
-                  case "640x480":
                   default:
                     return 0.315;
                 }
@@ -1090,7 +948,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 60:
                     return 0.245;
-                  case 30:
                   default:
                     return 0.28;
                 }
@@ -1100,7 +957,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1920x1080":
                     return 0.21;
-                  case "640x480":
                   default:
                     return 0.28;
                 }
@@ -1112,11 +968,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.18375;
-                      case 60:
                       default:
                         return 0.21;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -1130,7 +984,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.28;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1144,7 +997,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "640x480":
                   case "1920x1080":
                     return 0.21;
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -1158,7 +1010,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1920x1080":
                     return 0.21;
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -1170,7 +1021,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1183,11 +1033,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.35;
-                      case 60:
                       default:
                         return 0.525;
                     }
-                  case "1280x720":
                   default:
                     return 0.525;
                 }
@@ -1195,7 +1043,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1920x1080":
                     return 0.35;
-                  case "1280x720":
                   default:
                     return 0.525;
                 }
@@ -1203,7 +1050,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1920x1080":
                     return 0.35;
-                  case "1280x720":
                   default:
                     return 0.39375;
                 }
@@ -1219,7 +1065,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1232,11 +1077,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.175;
-                      case 60:
                       default:
                         return 0.21;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -1247,11 +1090,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.175;
-                      case 60:
                       default:
                         return 0.21;
                     }
-                  case "640x480":
                   default:
                     return 0.21;
                 }
@@ -1263,7 +1104,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1278,7 +1118,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.28;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1294,7 +1133,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1307,7 +1145,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 30:
                     return 0.175;
-                  case 60:
                   default:
                     return 0.21;
                 }
@@ -1315,7 +1152,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "640x480":
                     return 0.21;
-                  case "1280x720":
                   default:
                     return 0.2275;
                 }
@@ -1324,13 +1160,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "640x480":
                     return 0.21;
                   case "1920x1080":
-                    switch (framerate) {
-                      case 30:
-                      case 60:
-                      default:
-                        return 0.175;
-                    }
-                  case "1280x720":
+                    return 0.175;
                   default:
                     return 0.35;
                 }
@@ -1340,13 +1170,11 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.175;
-                      case 60:
                       default:
                         return 0.21;
                     }
                   case "3840x2160":
                     return 0.09575;
-                  case "640x480":
                   default:
                     return 0.21;
                 }
@@ -1354,7 +1182,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 30:
                     return 0.245;
-                  case 60:
                   default:
                     return 0.7;
                 }
@@ -1363,7 +1190,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "640x480":
                   case "1920x1080":
                     return 0.21;
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -1375,7 +1201,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.28;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1390,7 +1215,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 60:
                         return 0.7;
-                      case 30:
                       default:
                         return 1.05;
                     }
@@ -1407,7 +1231,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1428,11 +1251,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.18375;
-                      case 60:
                       default:
                         return 0.21;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
@@ -1444,7 +1265,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1459,7 +1279,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.28;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1482,7 +1301,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.315;
                   case "1280x720":
                     return 0.48125;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -1499,7 +1317,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.2275;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1534,28 +1351,19 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.2275;
-                      case 60:
                       default:
                         return 0.35;
                     }
-                  case "1280x720":
                   default:
                     return 0.35;
                 }
               case "SM-N986U":
                 return 0.1925;
-              case "Nokia 1.4":
-              case "SM-A015M":
               default:
                 return 0.35;
             }
           case 31:
-            switch (deviceModel) {
-              case "SM-G975U1":
-              case "SM-N975U1":
-              default:
-                return 0.21;
-            }
+            return 0.21;
           case 32:
             switch (resolution) {
               case "640x480":
@@ -1564,11 +1372,9 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (framerate) {
                   case 30:
                     return 0.2275;
-                  case 60:
                   default:
                     return 0.35;
                 }
-              case "1280x720":
               default:
                 return 0.35;
             }
@@ -1582,7 +1388,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
               case "F8331":
               case "MI 5s":
                 return 0.105;
-              case "SM-G885S":
               default:
                 return 0.1575;
             }
@@ -1592,7 +1397,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
             switch (deviceModel) {
               case "Nokia 7.2":
                 return 0.1575;
-              case "moto g(7) plus":
               default:
                 return 0.35;
             }
@@ -1606,12 +1410,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
               case "1280x720":
                 return 0.245;
               case "1920x1080":
-                switch (framerate) {
-                  case 30:
-                  case 60:
-                  default:
-                    return 0.7;
-                }
+                return 0.7;
               default:
                 return 0.7;
             }
@@ -1624,12 +1423,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "1280x720":
                     return 0.245;
                   case "1920x1080":
-                    switch (framerate) {
-                      case 30:
-                      case 60:
-                      default:
-                        return 0.7;
-                    }
+                    return 0.7;
                   default:
                     return 0.7;
                 }
@@ -1638,12 +1432,7 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                   case "1280x720":
                     return 0.245;
                   case "1920x1080":
-                    switch (framerate) {
-                      case 30:
-                      case 60:
-                      default:
-                        return 0.7;
-                    }
+                    return 0.7;
                   default:
                     return 0.7;
                 }
@@ -1665,7 +1454,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.21;
                   case "1280x720":
                     return 0.245;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -1678,7 +1466,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.21;
-                      case 60:
                       default:
                         return 1.4;
                     }
@@ -1696,7 +1483,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                 switch (resolution) {
                   case "1280x720":
                     return 0.21;
-                  case "1920x1080":
                   default:
                     return 0.35;
                 }
@@ -1708,7 +1494,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.20125;
                   case "1280x720":
                     return 0.2275;
-                  case "1920x1080":
                   default:
                     return 0.28;
                 }
@@ -1720,7 +1505,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.21;
-                      case 60:
                       default:
                         return 0.28;
                     }
@@ -1737,7 +1521,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.245;
-                      case 60:
                       default:
                         return 0.7;
                     }
@@ -1750,7 +1533,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     return 0.21;
                   case "1280x720":
                     return 0.2275;
-                  case "1920x1080":
                   default:
                     return 0.7;
                 }
@@ -1785,7 +1567,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.21;
-                      case 60:
                       default:
                         return 0.28;
                     }
@@ -1811,7 +1592,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
                     switch (framerate) {
                       case 30:
                         return 0.21;
-                      case 60:
                       default:
                         return 0.28;
                     }
@@ -1828,7 +1608,6 @@ public class DeviceMappedEncoderBitrateProvider implements EncoderBitrateProvide
         switch (deviceModel) {
           case "Pixel 4":
             return 0.0875;
-          case "Pixel 3":
           default:
             return 0.105;
         }
