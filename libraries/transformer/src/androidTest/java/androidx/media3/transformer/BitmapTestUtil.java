@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Utilities for instrumentation tests for the {@link GlEffectsFrameProcessor} and {@link
@@ -99,6 +100,17 @@ public class BitmapTestUtil {
         colors[y * width + x] = Color.argb(a, r, g, b);
       }
     }
+    return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
+  }
+
+  /**
+   * Returns a solid {@link Bitmap} with every pixel having the same color.
+   *
+   * @param color An RGBA color created by {@link Color}.
+   */
+  public static Bitmap createArgb8888BitmapWithSolidColor(int width, int height, int color) {
+    int[] colors = new int[width * height];
+    Arrays.fill(colors, color);
     return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
   }
 

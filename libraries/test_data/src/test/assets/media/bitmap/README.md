@@ -1,6 +1,4 @@
-Expected first frame of
-[sample.mp4](https://github.com/androidx/media/blob/main/libraries/test_data/src/test/assets/media/mp4/sample.mp4)
-after a
+Expected first frame after a
 [Transformer](https://github.com/androidx/media/tree/main/libraries/transformer)
 transformation. Used to validate that frame operations produce expected output
 in

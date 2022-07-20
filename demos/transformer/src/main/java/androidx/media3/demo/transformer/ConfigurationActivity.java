@@ -104,6 +104,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "3D spin",
     "Overlay logo & timer",
     "Zoom in start",
+    "Increase contrast"
   };
   private static final int PERIODIC_VIGNETTE_INDEX = 2;
   private static final String SAME_AS_INPUT_OPTION = "same as input";

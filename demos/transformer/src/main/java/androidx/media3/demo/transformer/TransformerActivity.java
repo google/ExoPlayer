@@ -41,6 +41,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
+import androidx.media3.transformer.Contrast;
 import androidx.media3.transformer.DebugViewProvider;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.GlEffect;
@@ -319,6 +320,10 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
+        }
+        if (selectedEffects[6]) {
+          // TODO(b/238630175): Add slider for contrast adjustments.
+          effects.add(new Contrast(0.75f));
         }
         transformerBuilder.setVideoEffects(effects.build());
       }
