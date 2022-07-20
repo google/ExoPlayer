@@ -659,6 +659,26 @@ public class MediaControllerProviderService extends Service {
           });
     }
 
+    @Override
+    public void setMediaItemsPreparePlayAddItemsSeek(
+        String controllerId,
+        List<Bundle> initialMediaItems,
+        List<Bundle> addedMediaItems,
+        int seekIndex)
+        throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaController controller = mediaControllerMap.get(controllerId);
+            controller.setMediaItems(
+                BundleableUtil.fromBundleList(MediaItem.CREATOR, initialMediaItems));
+            controller.prepare();
+            controller.play();
+            controller.addMediaItems(
+                BundleableUtil.fromBundleList(MediaItem.CREATOR, addedMediaItems));
+            controller.seekTo(seekIndex, /* positionMs= */ 0);
+          });
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     // MediaBrowser methods
     ////////////////////////////////////////////////////////////////////////////////
