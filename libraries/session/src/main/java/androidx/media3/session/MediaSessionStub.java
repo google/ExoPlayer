@@ -41,6 +41,8 @@ import static androidx.media3.common.Player.COMMAND_STOP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
+import static androidx.media3.common.util.Util.postOrRunWithCompletion;
+import static androidx.media3.common.util.Util.transformFutureAsync;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM;
@@ -69,6 +71,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
@@ -115,13 +118,7 @@ import java.util.concurrent.ExecutionException;
     return connectedControllersManager;
   }
 
-  private static <K extends MediaSessionImpl> void sendSessionResult(
-      K sessionImpl, ControllerInfo controller, int seq, @SessionResult.Code int resultCode) {
-    sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
-  }
-
-  private static <K extends MediaSessionImpl> void sendSessionResult(
-      K sessionImpl, ControllerInfo controller, int seq, SessionResult result) {
+  private static void sendSessionResult(ControllerInfo controller, int seq, SessionResult result) {
     try {
       checkStateNotNull(controller.getControllerCb()).onSessionResult(seq, result);
     } catch (RemoteException e) {
@@ -129,51 +126,52 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static <K extends MediaSessionImpl> void sendSessionResultWhenReady(
-      K sessionImpl, ControllerInfo controller, int seq, ListenableFuture<SessionResult> future) {
-    future.addListener(
-        () -> {
-          SessionResult result;
-          try {
-            result = checkNotNull(future.get(), "SessionResult must not be null");
-          } catch (CancellationException unused) {
-            result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
-          } catch (ExecutionException | InterruptedException unused) {
-            result = new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN);
-          }
-          sendSessionResult(sessionImpl, controller, seq, result);
-        },
-        MoreExecutors.directExecutor());
+  private static <K extends MediaSessionImpl> SessionTask<Void, K> sendSessionResultSuccess(
+      Consumer<PlayerWrapper> task) {
+    return (sessionImpl, controller, sequence) -> {
+      task.accept(sessionImpl.getPlayerWrapper());
+      sendSessionResult(controller, sequence, new SessionResult(SessionResult.RESULT_SUCCESS));
+      return null;
+    };
   }
 
-  private static <K extends MediaSessionImpl> void handleMediaItemsWhenReady(
-      K sessionImpl,
-      ControllerInfo controller,
-      int seq,
-      ListenableFuture<List<MediaItem>> future,
-      MediaItemPlayerTask mediaItemPlayerTask) {
-    future.addListener(
-        () -> {
-          SessionResult result;
-          try {
-            List<MediaItem> mediaItems =
-                checkNotNull(future.get(), "MediaItem list must not be null");
-            postOrRun(
-                sessionImpl.getApplicationHandler(),
-                () -> mediaItemPlayerTask.run(sessionImpl.getPlayerWrapper(), mediaItems));
-            result = new SessionResult(SessionResult.RESULT_SUCCESS);
-          } catch (CancellationException unused) {
-            result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
-          } catch (ExecutionException | InterruptedException exception) {
-            result =
-                new SessionResult(
-                    exception.getCause() instanceof UnsupportedOperationException
-                        ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
-                        : SessionResult.RESULT_ERROR_UNKNOWN);
-          }
-          sendSessionResult(sessionImpl, controller, seq, result);
-        },
-        MoreExecutors.directExecutor());
+  private static <K extends MediaSessionImpl> SessionTask<Void, K> sendSessionResultWhenReady(
+      SessionTask<ListenableFuture<SessionResult>, K> task) {
+    return (sessionImpl, controller, sequence) -> {
+      ListenableFuture<SessionResult> future = task.run(sessionImpl, controller, sequence);
+      future.addListener(
+          () -> {
+            SessionResult result;
+            try {
+              result = checkNotNull(future.get(), "SessionResult must not be null");
+            } catch (CancellationException unused) {
+              result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
+            } catch (ExecutionException | InterruptedException exception) {
+              result =
+                  new SessionResult(
+                      exception.getCause() instanceof UnsupportedOperationException
+                          ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
+                          : SessionResult.RESULT_ERROR_UNKNOWN);
+            }
+            sendSessionResult(controller, sequence, result);
+          },
+          MoreExecutors.directExecutor());
+      return null;
+    };
+  }
+
+  private static <K extends MediaSessionImpl>
+      SessionTask<ListenableFuture<SessionResult>, K> handleMediaItemsWhenReady(
+          SessionTask<ListenableFuture<List<MediaItem>>, K> mediaItemsTask,
+          MediaItemPlayerTask mediaItemPlayerTask) {
+    return (sessionImpl, controller, sequence) ->
+        transformFutureAsync(
+            mediaItemsTask.run(sessionImpl, controller, sequence),
+            mediaItems ->
+                postOrRunWithCompletion(
+                    sessionImpl.getApplicationHandler(),
+                    () -> mediaItemPlayerTask.run(sessionImpl.getPlayerWrapper(), mediaItems),
+                    new SessionResult(SessionResult.RESULT_SUCCESS)));
   }
 
   private static void sendLibraryResult(
@@ -185,32 +183,30 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static <V, K extends MediaSessionImpl> void sendLibraryResultWhenReady(
-      K sessionImpl,
-      ControllerInfo controller,
-      int seq,
-      ListenableFuture<LibraryResult<V>> future) {
-    future.addListener(
-        () -> {
-          LibraryResult<V> result;
-          try {
-            result = checkNotNull(future.get(), "LibraryResult must not be null");
-          } catch (CancellationException unused) {
-            result = LibraryResult.ofError(LibraryResult.RESULT_INFO_SKIPPED);
-          } catch (ExecutionException | InterruptedException unused) {
-            result = LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN);
-          }
-          sendLibraryResult(controller, seq, result);
-        },
-        MoreExecutors.directExecutor());
+  private static <V, K extends MediaLibrarySessionImpl>
+      SessionTask<Void, K> sendLibraryResultWhenReady(
+          SessionTask<ListenableFuture<LibraryResult<V>>, K> task) {
+    return (sessionImpl, controller, sequence) -> {
+      ListenableFuture<LibraryResult<V>> future = task.run(sessionImpl, controller, sequence);
+      future.addListener(
+          () -> {
+            LibraryResult<V> result;
+            try {
+              result = checkNotNull(future.get(), "LibraryResult must not be null");
+            } catch (CancellationException unused) {
+              result = LibraryResult.ofError(LibraryResult.RESULT_INFO_SKIPPED);
+            } catch (ExecutionException | InterruptedException unused) {
+              result = LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN);
+            }
+            sendLibraryResult(controller, sequence, result);
+          },
+          MoreExecutors.directExecutor());
+      return null;
+    };
   }
 
-  private <T, K extends MediaSessionImpl> void dispatchSessionTaskWithPlayerCommand(
-      IMediaController caller,
-      int seq,
-      @Player.Command int command,
-      SessionTask<T, K> task,
-      PostSessionTask<T, K> postTask) {
+  private <K extends MediaSessionImpl> void dispatchSessionTaskWithPlayerCommand(
+      IMediaController caller, int seq, @Player.Command int command, SessionTask<Void, K> task) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -229,27 +225,21 @@ import java.util.concurrent.ExecutionException;
           () -> {
             if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
               sendSessionResult(
-                  sessionImpl,
-                  controller,
-                  seq,
-                  new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
+                  controller, seq, new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
               return;
             }
             @SessionResult.Code
             int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
             if (resultCode != SessionResult.RESULT_SUCCESS) {
               // Don't run rejected command.
-              sendSessionResult(sessionImpl, controller, seq, new SessionResult(resultCode));
+              sendSessionResult(controller, seq, new SessionResult(resultCode));
               return;
             }
             if (command == COMMAND_SET_VIDEO_SURFACE) {
-              getSessionTaskWithPlayerCommandRunnable(controller, seq, sessionImpl, task, postTask)
-                  .run();
+              task.run(sessionImpl, controller, seq);
             } else {
               connectedControllersManager.addToCommandQueue(
-                  controller,
-                  getSessionTaskWithPlayerCommandRunnable(
-                      controller, seq, sessionImpl, task, postTask));
+                  controller, () -> task.run(sessionImpl, controller, seq));
             }
           });
     } finally {
@@ -257,55 +247,23 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private <T, K extends MediaSessionImpl> Runnable getSessionTaskWithPlayerCommandRunnable(
-      ControllerInfo controller,
-      int seq,
-      K sessionImpl,
-      SessionTask<T, K> task,
-      PostSessionTask<T, K> postTask) {
-    return () -> {
-      T result = task.run(sessionImpl, controller);
-      postTask.run(sessionImpl, controller, seq, result);
-    };
+  private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
+      IMediaController caller, int seq, @CommandCode int commandCode, SessionTask<Void, K> task) {
+    dispatchSessionTaskWithSessionCommand(
+        caller, seq, /* sessionCommand= */ null, commandCode, task);
   }
 
-  private <T> void dispatchSessionTaskWithLibrarySessionCommand(
-      IMediaController caller,
-      int seq,
-      @CommandCode int commandCode,
-      SessionTask<T, MediaLibrarySessionImpl> task,
-      PostSessionTask<T, MediaLibrarySessionImpl> postTask) {
-    dispatchSessionTaskWithSessionCommandInternal(
-        caller, seq, /* sessionCommand= */ null, commandCode, task, postTask);
+  private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
+      IMediaController caller, int seq, SessionCommand sessionCommand, SessionTask<Void, K> task) {
+    dispatchSessionTaskWithSessionCommand(caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, task);
   }
 
-  private <T, K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
-      IMediaController caller,
-      int seq,
-      @CommandCode int commandCode,
-      SessionTask<T, K> task,
-      PostSessionTask<T, K> postTask) {
-    dispatchSessionTaskWithSessionCommandInternal(
-        caller, seq, /* sessionCommand= */ null, commandCode, task, postTask);
-  }
-
-  private <T, K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
-      IMediaController caller,
-      int seq,
-      SessionCommand sessionCommand,
-      SessionTask<T, K> task,
-      PostSessionTask<T, K> postTask) {
-    dispatchSessionTaskWithSessionCommandInternal(
-        caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, task, postTask);
-  }
-
-  private <T, K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommandInternal(
+  private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
       IMediaController caller,
       int seq,
       @Nullable SessionCommand sessionCommand,
       @CommandCode int commandCode,
-      SessionTask<T, K> task,
-      PostSessionTask<T, K> postTask) {
+      SessionTask<Void, K> task) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -329,7 +287,6 @@ import java.util.concurrent.ExecutionException;
               if (!connectedControllersManager.isSessionCommandAvailable(
                   controller, sessionCommand)) {
                 sendSessionResult(
-                    sessionImpl,
                     controller,
                     seq,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
@@ -338,15 +295,13 @@ import java.util.concurrent.ExecutionException;
             } else {
               if (!connectedControllersManager.isSessionCommandAvailable(controller, commandCode)) {
                 sendSessionResult(
-                    sessionImpl,
                     controller,
                     seq,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
                 return;
               }
             }
-            T result = task.run(sessionImpl, controller);
-            postTask.run(sessionImpl, controller, seq, result);
+            task.run(sessionImpl, controller, seq);
           });
     } finally {
       Binder.restoreCallingIdentity(token);
@@ -526,14 +481,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_STOP,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().stop();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_STOP, sendSessionResultSuccess(Player::stop));
   }
 
   @Override
@@ -582,14 +530,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_PLAY_PAUSE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().play();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::play));
   }
 
   @Override
@@ -598,14 +539,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_PLAY_PAUSE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().pause();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::pause));
   }
 
   @Override
@@ -614,14 +548,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_PREPARE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().prepare();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_PREPARE, sendSessionResultSuccess(Player::prepare));
   }
 
   @Override
@@ -633,11 +560,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SEEK_TO_DEFAULT_POSITION,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekToDefaultPosition();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(Player::seekToDefaultPosition));
   }
 
   @Override
@@ -650,11 +573,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SEEK_TO_MEDIA_ITEM,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekToDefaultPosition(mediaItemIndex);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.seekToDefaultPosition(mediaItemIndex)));
   }
 
   @Override
@@ -667,11 +586,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekTo(positionMs);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.seekTo(positionMs)));
   }
 
   @Override
@@ -685,11 +600,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SEEK_TO_MEDIA_ITEM,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekTo(mediaItemIndex, positionMs);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.seekTo(mediaItemIndex, positionMs)));
   }
 
   @Override
@@ -698,14 +609,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_SEEK_BACK,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekBack();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_SEEK_BACK, sendSessionResultSuccess(Player::seekBack));
   }
 
   @Override
@@ -714,14 +618,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_SEEK_FORWARD,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekForward();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_SEEK_FORWARD, sendSessionResultSuccess(Player::seekForward));
   }
 
   @Override
@@ -744,9 +641,9 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         command,
-        (sessionImpl, controller) ->
-            sessionImpl.onCustomCommandOnHandler(controller, command, args),
-        MediaSessionStub::sendSessionResultWhenReady);
+        sendSessionResultWhenReady(
+            (sessionImpl, controller, sequence) ->
+                sessionImpl.onCustomCommandOnHandler(controller, command, args)));
   }
 
   @Override
@@ -770,8 +667,9 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CODE_SESSION_SET_RATING,
-        (sessionImpl, controller) -> sessionImpl.onSetRatingOnHandler(controller, mediaId, rating),
-        MediaSessionStub::sendSessionResultWhenReady);
+        sendSessionResultWhenReady(
+            (sessionImpl, controller, sequence) ->
+                sessionImpl.onSetRatingOnHandler(controller, mediaId, rating)));
   }
 
   @Override
@@ -790,8 +688,9 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CODE_SESSION_SET_RATING,
-        (sessionImpl, controller) -> sessionImpl.onSetRatingOnHandler(controller, rating),
-        MediaSessionStub::sendSessionResultWhenReady);
+        sendSessionResultWhenReady(
+            (sessionImpl, controller, sequence) ->
+                sessionImpl.onSetRatingOnHandler(controller, rating)));
   }
 
   @Override
@@ -803,11 +702,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_SPEED_AND_PITCH,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setPlaybackSpeed(speed);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setPlaybackSpeed(speed)));
   }
 
   @Override
@@ -822,11 +717,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_SPEED_AND_PITCH,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setPlaybackParameters(playbackParameters);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setPlaybackParameters(playbackParameters)));
   }
 
   @Override
@@ -846,11 +737,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEM,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl, controller, sequence, future, Player::setMediaItems));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+                Player::setMediaItems)));
   }
 
   @Override
@@ -873,16 +764,12 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEM,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl,
-                controller,
-                sequence,
-                future,
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
                 (player, mediaItems) ->
-                    player.setMediaItems(mediaItems, /* startIndex= */ 0, startPositionMs)));
+                    player.setMediaItems(mediaItems, /* startIndex= */ 0, startPositionMs))));
   }
 
   @Override
@@ -905,15 +792,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEM,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl,
-                controller,
-                sequence,
-                future,
-                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition)));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition))));
   }
 
   @Override
@@ -936,11 +819,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl, controller, sequence, future, Player::setMediaItems));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+                Player::setMediaItems)));
   }
 
   @Override
@@ -965,15 +848,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl,
-                controller,
-                sequence,
-                future,
-                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition)));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
+                (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition))));
   }
 
   @Override
@@ -999,16 +878,12 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl,
-                controller,
-                sequence,
-                future,
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
                 (player, mediaItems) ->
-                    player.setMediaItems(mediaItems, startIndex, startPositionMs)));
+                    player.setMediaItems(mediaItems, startIndex, startPositionMs))));
   }
 
   @Override
@@ -1028,11 +903,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setPlaylistMetadata(playlistMetadata);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setPlaylistMetadata(playlistMetadata)));
   }
 
   @Override
@@ -1051,11 +922,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl, controller, sequence, future, Player::addMediaItems));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+                Player::addMediaItems)));
   }
 
   @Override
@@ -1075,15 +946,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) ->
-            sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl,
-                controller,
-                sequence,
-                future,
-                (player, mediaItems) -> player.addMediaItems(index, mediaItems)));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
+                (player, mediaItems) -> player.addMediaItems(index, mediaItems))));
   }
 
   @Override
@@ -1105,10 +972,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl, controller, sequence, future, Player::addMediaItems));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+                Player::addMediaItems)));
   }
 
   @Override
@@ -1133,14 +1001,11 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
-        (sessionImpl, controller, sequence, future) ->
+        sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                sessionImpl,
-                controller,
-                sequence,
-                future,
-                (player, items) -> player.addMediaItems(index, items)));
+                (sessionImpl, controller, sequence) ->
+                    sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
+                (player, items) -> player.addMediaItems(index, items))));
   }
 
   @Override
@@ -1152,11 +1017,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().removeMediaItem(index);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.removeMediaItem(index)));
   }
 
   @Override
@@ -1169,11 +1030,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().removeMediaItems(fromIndex, toIndex);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.removeMediaItems(fromIndex, toIndex)));
   }
 
   @Override
@@ -1182,14 +1039,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().clearMediaItems();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_CHANGE_MEDIA_ITEMS, sendSessionResultSuccess(Player::clearMediaItems));
   }
 
   @Override
@@ -1202,11 +1052,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().moveMediaItem(currentIndex, newIndex);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.moveMediaItem(currentIndex, newIndex)));
   }
 
   @Override
@@ -1219,11 +1065,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().moveMediaItems(fromIndex, toIndex, newIndex);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.moveMediaItems(fromIndex, toIndex, newIndex)));
   }
 
   @Override
@@ -1235,11 +1077,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekToPreviousMediaItem();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(Player::seekToPreviousMediaItem));
   }
 
   @Override
@@ -1251,11 +1089,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekToNextMediaItem();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(Player::seekToNextMediaItem));
   }
 
   @Override
@@ -1264,14 +1098,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_SEEK_TO_PREVIOUS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekToPrevious();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_SEEK_TO_PREVIOUS, sendSessionResultSuccess(Player::seekToPrevious));
   }
 
   @Override
@@ -1280,14 +1107,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
     dispatchSessionTaskWithPlayerCommand(
-        caller,
-        seq,
-        COMMAND_SEEK_TO_NEXT,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().seekToNext();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        caller, seq, COMMAND_SEEK_TO_NEXT, sendSessionResultSuccess(Player::seekToNext));
   }
 
   @Override
@@ -1300,11 +1120,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_REPEAT_MODE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setRepeatMode(repeatMode);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setRepeatMode(repeatMode)));
   }
 
   @Override
@@ -1317,11 +1133,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_SHUFFLE_MODE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setShuffleModeEnabled(shuffleModeEnabled);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setShuffleModeEnabled(shuffleModeEnabled)));
   }
 
   @Override
@@ -1334,11 +1146,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_VIDEO_SURFACE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setVideoSurface(surface);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setVideoSurface(surface)));
   }
 
   @Override
@@ -1350,11 +1158,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_VOLUME,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setVolume(volume);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setVolume(volume)));
   }
 
   @Override
@@ -1366,11 +1170,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_DEVICE_VOLUME,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setDeviceVolume(volume);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setDeviceVolume(volume)));
   }
 
   @Override
@@ -1382,11 +1182,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_ADJUST_DEVICE_VOLUME,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().increaseDeviceVolume();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(Player::increaseDeviceVolume));
   }
 
   @Override
@@ -1398,11 +1194,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_ADJUST_DEVICE_VOLUME,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().decreaseDeviceVolume();
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(Player::decreaseDeviceVolume));
   }
 
   @Override
@@ -1414,11 +1206,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_DEVICE_VOLUME,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setDeviceMuted(muted);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setDeviceMuted(muted)));
   }
 
   @Override
@@ -1430,11 +1218,7 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_PLAY_PAUSE,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setPlayWhenReady(playWhenReady);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(player -> player.setPlayWhenReady(playWhenReady)));
   }
 
   @Override
@@ -1478,11 +1262,8 @@ import java.util.concurrent.ExecutionException;
         caller,
         seq,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
-        (sessionImpl, controller) -> {
-          sessionImpl.getPlayerWrapper().setTrackSelectionParameters(trackSelectionParameters);
-          return SessionResult.RESULT_SUCCESS;
-        },
-        MediaSessionStub::sendSessionResult);
+        sendSessionResultSuccess(
+            player -> player.setTrackSelectionParameters(trackSelectionParameters)));
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1499,13 +1280,13 @@ import java.util.concurrent.ExecutionException;
     @Nullable
     LibraryParams libraryParams =
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onGetLibraryRootOnHandler(controller, libraryParams),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onGetLibraryRootOnHandler(controller, libraryParams)));
   }
 
   @Override
@@ -1518,13 +1299,13 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "getItem(): Ignoring empty mediaId");
       return;
     }
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_GET_ITEM,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onGetItemOnHandler(controller, mediaId),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onGetItemOnHandler(controller, mediaId)));
   }
 
   @Override
@@ -1554,14 +1335,14 @@ import java.util.concurrent.ExecutionException;
     @Nullable
     LibraryParams libraryParams =
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_GET_CHILDREN,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onGetChildrenOnHandler(
-                controller, parentId, page, pageSize, libraryParams),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onGetChildrenOnHandler(
+                    controller, parentId, page, pageSize, libraryParams)));
   }
 
   @Override
@@ -1580,13 +1361,13 @@ import java.util.concurrent.ExecutionException;
     @Nullable
     LibraryParams libraryParams =
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_SEARCH,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onSearchOnHandler(controller, query, libraryParams),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onSearchOnHandler(controller, query, libraryParams)));
   }
 
   @Override
@@ -1615,14 +1396,14 @@ import java.util.concurrent.ExecutionException;
     @Nullable
     LibraryParams libraryParams =
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onGetSearchResultOnHandler(
-                controller, query, page, pageSize, libraryParams),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onGetSearchResultOnHandler(
+                    controller, query, page, pageSize, libraryParams)));
   }
 
   @Override
@@ -1641,13 +1422,13 @@ import java.util.concurrent.ExecutionException;
     @Nullable
     LibraryParams libraryParams =
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_SUBSCRIBE,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onSubscribeOnHandler(controller, parentId, libraryParams),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onSubscribeOnHandler(controller, parentId, libraryParams)));
   }
 
   @Override
@@ -1659,22 +1440,18 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "unsubscribe(): Ignoring empty parentId");
       return;
     }
-    dispatchSessionTaskWithLibrarySessionCommand(
+    dispatchSessionTaskWithSessionCommand(
         caller,
         seq,
         COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
-        (librarySessionImpl, controller) ->
-            librarySessionImpl.onUnsubscribeOnHandler(controller, parentId),
-        MediaSessionStub::sendLibraryResultWhenReady);
+        sendLibraryResultWhenReady(
+            (librarySessionImpl, controller, sequence) ->
+                librarySessionImpl.onUnsubscribeOnHandler(controller, parentId)));
   }
 
   /** Common interface for code snippets to handle all incoming commands from the controller. */
   private interface SessionTask<T, K extends MediaSessionImpl> {
-    T run(K sessionImpl, ControllerInfo controller);
-  }
-
-  private interface PostSessionTask<T, K extends MediaSessionImpl> {
-    void run(K sessionImpl, ControllerInfo controller, int seq, T result);
+    T run(K sessionImpl, ControllerInfo controller, int seq);
   }
 
   private interface MediaItemPlayerTask {
