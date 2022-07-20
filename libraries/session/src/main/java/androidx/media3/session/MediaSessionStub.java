@@ -120,9 +120,10 @@ import java.util.concurrent.ExecutionException;
     return connectedControllersManager;
   }
 
-  private static void sendSessionResult(ControllerInfo controller, int seq, SessionResult result) {
+  private static void sendSessionResult(
+      ControllerInfo controller, int sequenceNumber, SessionResult result) {
     try {
-      checkStateNotNull(controller.getControllerCb()).onSessionResult(seq, result);
+      checkStateNotNull(controller.getControllerCb()).onSessionResult(sequenceNumber, result);
     } catch (RemoteException e) {
       Log.w(TAG, "Failed to send result to controller " + controller, e);
     }
@@ -131,12 +132,13 @@ import java.util.concurrent.ExecutionException;
   private static <K extends MediaSessionImpl>
       SessionTask<ListenableFuture<Void>, K> sendSessionResultSuccess(
           Consumer<PlayerWrapper> task) {
-    return (sessionImpl, controller, sequence) -> {
+    return (sessionImpl, controller, sequenceNumber) -> {
       if (sessionImpl.isReleased()) {
         return Futures.immediateVoidFuture();
       }
       task.accept(sessionImpl.getPlayerWrapper());
-      sendSessionResult(controller, sequence, new SessionResult(SessionResult.RESULT_SUCCESS));
+      sendSessionResult(
+          controller, sequenceNumber, new SessionResult(SessionResult.RESULT_SUCCESS));
       return Futures.immediateVoidFuture();
     };
   }
@@ -144,11 +146,11 @@ import java.util.concurrent.ExecutionException;
   private static <K extends MediaSessionImpl>
       SessionTask<ListenableFuture<Void>, K> sendSessionResultWhenReady(
           SessionTask<ListenableFuture<SessionResult>, K> task) {
-    return (sessionImpl, controller, sequence) ->
+    return (sessionImpl, controller, sequenceNumber) ->
         handleSessionTaskWhenReady(
             sessionImpl,
             controller,
-            sequence,
+            sequenceNumber,
             task,
             future -> {
               SessionResult result;
@@ -163,7 +165,7 @@ import java.util.concurrent.ExecutionException;
                             ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
                             : SessionResult.RESULT_ERROR_UNKNOWN);
               }
-              sendSessionResult(controller, sequence, result);
+              sendSessionResult(controller, sequenceNumber, result);
             });
   }
 
@@ -171,13 +173,13 @@ import java.util.concurrent.ExecutionException;
       SessionTask<ListenableFuture<SessionResult>, K> handleMediaItemsWhenReady(
           SessionTask<ListenableFuture<List<MediaItem>>, K> mediaItemsTask,
           MediaItemPlayerTask mediaItemPlayerTask) {
-    return (sessionImpl, controller, sequence) -> {
+    return (sessionImpl, controller, sequenceNumber) -> {
       if (sessionImpl.isReleased()) {
         return Futures.immediateFuture(
             new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
       }
       return transformFutureAsync(
-          mediaItemsTask.run(sessionImpl, controller, sequence),
+          mediaItemsTask.run(sessionImpl, controller, sequenceNumber),
           mediaItems ->
               postOrRunWithCompletion(
                   sessionImpl.getApplicationHandler(),
@@ -191,9 +193,9 @@ import java.util.concurrent.ExecutionException;
   }
 
   private static void sendLibraryResult(
-      ControllerInfo controller, int seq, LibraryResult<?> result) {
+      ControllerInfo controller, int sequenceNumber, LibraryResult<?> result) {
     try {
-      checkStateNotNull(controller.getControllerCb()).onLibraryResult(seq, result);
+      checkStateNotNull(controller.getControllerCb()).onLibraryResult(sequenceNumber, result);
     } catch (RemoteException e) {
       Log.w(TAG, "Failed to send result to browser " + controller, e);
     }
@@ -202,11 +204,11 @@ import java.util.concurrent.ExecutionException;
   private static <V, K extends MediaLibrarySessionImpl>
       SessionTask<ListenableFuture<Void>, K> sendLibraryResultWhenReady(
           SessionTask<ListenableFuture<LibraryResult<V>>, K> task) {
-    return (sessionImpl, controller, sequence) ->
+    return (sessionImpl, controller, sequenceNumber) ->
         handleSessionTaskWhenReady(
             sessionImpl,
             controller,
-            sequence,
+            sequenceNumber,
             task,
             future -> {
               LibraryResult<V> result;
@@ -217,13 +219,13 @@ import java.util.concurrent.ExecutionException;
               } catch (ExecutionException | InterruptedException unused) {
                 result = LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN);
               }
-              sendLibraryResult(controller, sequence, result);
+              sendLibraryResult(controller, sequenceNumber, result);
             });
   }
 
   private <K extends MediaSessionImpl> void queueSessionTaskWithPlayerCommand(
       IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Player.Command int command,
       SessionTask<ListenableFuture<Void>, K> task) {
     long token = Binder.clearCallingIdentity();
@@ -244,21 +246,23 @@ import java.util.concurrent.ExecutionException;
           () -> {
             if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
               sendSessionResult(
-                  controller, seq, new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
+                  controller,
+                  sequenceNumber,
+                  new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
               return;
             }
             @SessionResult.Code
             int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
             if (resultCode != SessionResult.RESULT_SUCCESS) {
               // Don't run rejected command.
-              sendSessionResult(controller, seq, new SessionResult(resultCode));
+              sendSessionResult(controller, sequenceNumber, new SessionResult(resultCode));
               return;
             }
             if (command == COMMAND_SET_VIDEO_SURFACE) {
-              task.run(sessionImpl, controller, seq);
+              task.run(sessionImpl, controller, sequenceNumber);
             } else {
               connectedControllersManager.addToCommandQueue(
-                  controller, () -> task.run(sessionImpl, controller, seq));
+                  controller, () -> task.run(sessionImpl, controller, sequenceNumber));
             }
           });
     } finally {
@@ -268,24 +272,25 @@ import java.util.concurrent.ExecutionException;
 
   private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
       IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @CommandCode int commandCode,
       SessionTask<ListenableFuture<Void>, K> task) {
     dispatchSessionTaskWithSessionCommand(
-        caller, seq, /* sessionCommand= */ null, commandCode, task);
+        caller, sequenceNumber, /* sessionCommand= */ null, commandCode, task);
   }
 
   private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
       IMediaController caller,
-      int seq,
+      int sequenceNumber,
       SessionCommand sessionCommand,
       SessionTask<ListenableFuture<Void>, K> task) {
-    dispatchSessionTaskWithSessionCommand(caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, task);
+    dispatchSessionTaskWithSessionCommand(
+        caller, sequenceNumber, sessionCommand, COMMAND_CODE_CUSTOM, task);
   }
 
   private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
       IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Nullable SessionCommand sessionCommand,
       @CommandCode int commandCode,
       SessionTask<ListenableFuture<Void>, K> task) {
@@ -313,7 +318,7 @@ import java.util.concurrent.ExecutionException;
                   controller, sessionCommand)) {
                 sendSessionResult(
                     controller,
-                    seq,
+                    sequenceNumber,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
                 return;
               }
@@ -321,12 +326,12 @@ import java.util.concurrent.ExecutionException;
               if (!connectedControllersManager.isSessionCommandAvailable(controller, commandCode)) {
                 sendSessionResult(
                     controller,
-                    seq,
+                    sequenceNumber,
                     new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
                 return;
               }
             }
-            task.run(sessionImpl, controller, seq);
+            task.run(sessionImpl, controller, sequenceNumber);
           });
     } finally {
       Binder.restoreCallingIdentity(token);
@@ -336,13 +341,13 @@ import java.util.concurrent.ExecutionException;
   private static <T, K extends MediaSessionImpl> ListenableFuture<Void> handleSessionTaskWhenReady(
       K sessionImpl,
       ControllerInfo controller,
-      int sequence,
+      int sequenceNumber,
       SessionTask<ListenableFuture<T>, K> task,
       Consumer<ListenableFuture<T>> futureResultHandler) {
     if (sessionImpl.isReleased()) {
       return Futures.immediateVoidFuture();
     }
-    ListenableFuture<T> future = task.run(sessionImpl, controller, sequence);
+    ListenableFuture<T> future = task.run(sessionImpl, controller, sequenceNumber);
     SettableFuture<Void> outputFuture = SettableFuture.create();
     future.addListener(
         () -> {
@@ -503,7 +508,9 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void connect(
-      @Nullable IMediaController caller, int seq, @Nullable Bundle connectionRequestBundle)
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      @Nullable Bundle connectionRequestBundle)
       throws RuntimeException {
     if (caller == null || connectionRequestBundle == null) {
       return;
@@ -529,16 +536,17 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void stop(@Nullable IMediaController caller, int seq) throws RemoteException {
+  public void stop(@Nullable IMediaController caller, int sequenceNumber) throws RemoteException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_STOP, sendSessionResultSuccess(Player::stop));
+        caller, sequenceNumber, COMMAND_STOP, sendSessionResultSuccess(Player::stop));
   }
 
   @Override
-  public void release(@Nullable IMediaController caller, int seq) throws RemoteException {
+  public void release(@Nullable IMediaController caller, int sequenceNumber)
+      throws RemoteException {
     if (caller == null) {
       return;
     }
@@ -552,7 +560,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void onControllerResult(
-      @Nullable IMediaController caller, int seq, @Nullable Bundle sessionResultBundle) {
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle sessionResultBundle) {
     if (caller == null || sessionResultBundle == null) {
       return;
     }
@@ -571,113 +579,117 @@ import java.util.concurrent.ExecutionException;
       if (manager == null) {
         return;
       }
-      manager.setFutureResult(seq, result);
+      manager.setFutureResult(sequenceNumber, result);
     } finally {
       Binder.restoreCallingIdentity(token);
     }
   }
 
   @Override
-  public void play(@Nullable IMediaController caller, int seq) throws RuntimeException {
+  public void play(@Nullable IMediaController caller, int sequenceNumber) throws RuntimeException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::play));
+        caller, sequenceNumber, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::play));
   }
 
   @Override
-  public void pause(@Nullable IMediaController caller, int seq) throws RuntimeException {
+  public void pause(@Nullable IMediaController caller, int sequenceNumber) throws RuntimeException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::pause));
+        caller, sequenceNumber, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::pause));
   }
 
   @Override
-  public void prepare(@Nullable IMediaController caller, int seq) throws RuntimeException {
+  public void prepare(@Nullable IMediaController caller, int sequenceNumber)
+      throws RuntimeException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_PREPARE, sendSessionResultSuccess(Player::prepare));
+        caller, sequenceNumber, COMMAND_PREPARE, sendSessionResultSuccess(Player::prepare));
   }
 
   @Override
-  public void seekToDefaultPosition(IMediaController caller, int seq) {
+  public void seekToDefaultPosition(IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SEEK_TO_DEFAULT_POSITION,
         sendSessionResultSuccess(Player::seekToDefaultPosition));
   }
 
   @Override
   public void seekToDefaultPositionWithMediaItemIndex(
-      IMediaController caller, int seq, int mediaItemIndex) throws RemoteException {
+      IMediaController caller, int sequenceNumber, int mediaItemIndex) throws RemoteException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SEEK_TO_MEDIA_ITEM,
         sendSessionResultSuccess(player -> player.seekToDefaultPosition(mediaItemIndex)));
   }
 
   @Override
-  public void seekTo(@Nullable IMediaController caller, int seq, long positionMs)
+  public void seekTo(@Nullable IMediaController caller, int sequenceNumber, long positionMs)
       throws RuntimeException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
         sendSessionResultSuccess(player -> player.seekTo(positionMs)));
   }
 
   @Override
   public void seekToWithMediaItemIndex(
-      IMediaController caller, int seq, int mediaItemIndex, long positionMs)
+      IMediaController caller, int sequenceNumber, int mediaItemIndex, long positionMs)
       throws RemoteException {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SEEK_TO_MEDIA_ITEM,
         sendSessionResultSuccess(player -> player.seekTo(mediaItemIndex, positionMs)));
   }
 
   @Override
-  public void seekBack(IMediaController caller, int seq) {
+  public void seekBack(IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_SEEK_BACK, sendSessionResultSuccess(Player::seekBack));
+        caller, sequenceNumber, COMMAND_SEEK_BACK, sendSessionResultSuccess(Player::seekBack));
   }
 
   @Override
-  public void seekForward(IMediaController caller, int seq) {
+  public void seekForward(IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_SEEK_FORWARD, sendSessionResultSuccess(Player::seekForward));
+        caller,
+        sequenceNumber,
+        COMMAND_SEEK_FORWARD,
+        sendSessionResultSuccess(Player::seekForward));
   }
 
   @Override
   public void onCustomCommand(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Nullable Bundle commandBundle,
       @Nullable Bundle args) {
     if (caller == null || commandBundle == null || args == null) {
@@ -692,16 +704,19 @@ import java.util.concurrent.ExecutionException;
     }
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         command,
         sendSessionResultWhenReady(
-            (sessionImpl, controller, sequence) ->
+            (sessionImpl, controller, sequenceNum) ->
                 sessionImpl.onCustomCommandOnHandler(controller, command, args)));
   }
 
   @Override
   public void setRatingWithMediaId(
-      @Nullable IMediaController caller, int seq, String mediaId, @Nullable Bundle ratingBundle) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      String mediaId,
+      @Nullable Bundle ratingBundle) {
     if (caller == null || ratingBundle == null) {
       return;
     }
@@ -718,15 +733,16 @@ import java.util.concurrent.ExecutionException;
     }
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_SESSION_SET_RATING,
         sendSessionResultWhenReady(
-            (sessionImpl, controller, sequence) ->
+            (sessionImpl, controller, sequenceNum) ->
                 sessionImpl.onSetRatingOnHandler(controller, mediaId, rating)));
   }
 
   @Override
-  public void setRating(@Nullable IMediaController caller, int seq, @Nullable Bundle ratingBundle) {
+  public void setRating(
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle ratingBundle) {
     if (caller == null || ratingBundle == null) {
       return;
     }
@@ -739,28 +755,28 @@ import java.util.concurrent.ExecutionException;
     }
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_SESSION_SET_RATING,
         sendSessionResultWhenReady(
-            (sessionImpl, controller, sequence) ->
+            (sessionImpl, controller, sequenceNum) ->
                 sessionImpl.onSetRatingOnHandler(controller, rating)));
   }
 
   @Override
-  public void setPlaybackSpeed(@Nullable IMediaController caller, int seq, float speed) {
+  public void setPlaybackSpeed(@Nullable IMediaController caller, int sequenceNumber, float speed) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_SPEED_AND_PITCH,
         sendSessionResultSuccess(player -> player.setPlaybackSpeed(speed)));
   }
 
   @Override
   public void setPlaybackParameters(
-      @Nullable IMediaController caller, int seq, Bundle playbackParametersBundle) {
+      @Nullable IMediaController caller, int sequenceNumber, Bundle playbackParametersBundle) {
     if (caller == null || playbackParametersBundle == null) {
       return;
     }
@@ -768,14 +784,14 @@ import java.util.concurrent.ExecutionException;
         PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_SPEED_AND_PITCH,
         sendSessionResultSuccess(player -> player.setPlaybackParameters(playbackParameters)));
   }
 
   @Override
   public void setMediaItem(
-      @Nullable IMediaController caller, int seq, @Nullable Bundle mediaItemBundle) {
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle mediaItemBundle) {
     if (caller == null || mediaItemBundle == null) {
       return;
     }
@@ -788,11 +804,11 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_MEDIA_ITEM,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
                 Player::setMediaItems)));
   }
@@ -800,7 +816,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void setMediaItemWithStartPosition(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Nullable Bundle mediaItemBundle,
       long startPositionMs) {
     if (caller == null || mediaItemBundle == null) {
@@ -815,11 +831,11 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_MEDIA_ITEM,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
                 (player, mediaItems) ->
                     player.setMediaItems(mediaItems, /* startIndex= */ 0, startPositionMs))));
@@ -828,7 +844,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void setMediaItemWithResetPosition(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Nullable Bundle mediaItemBundle,
       boolean resetPosition) {
     if (caller == null || mediaItemBundle == null) {
@@ -843,18 +859,20 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_MEDIA_ITEM,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
                 (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition))));
   }
 
   @Override
   public void setMediaItems(
-      @Nullable IMediaController caller, int seq, @Nullable IBinder mediaItemsRetriever) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      @Nullable IBinder mediaItemsRetriever) {
     if (caller == null || mediaItemsRetriever == null) {
       return;
     }
@@ -870,11 +888,11 @@ import java.util.concurrent.ExecutionException;
 
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
                 Player::setMediaItems)));
   }
@@ -882,7 +900,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void setMediaItemsWithResetPosition(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Nullable IBinder mediaItemsRetriever,
       boolean resetPosition) {
     if (caller == null || mediaItemsRetriever == null) {
@@ -899,11 +917,11 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
                 (player, mediaItems) -> player.setMediaItems(mediaItems, resetPosition))));
   }
@@ -911,7 +929,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void setMediaItemsWithStartIndex(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       @Nullable IBinder mediaItemsRetriever,
       int startIndex,
       long startPositionMs) {
@@ -929,11 +947,11 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, mediaItemList),
                 (player, mediaItems) ->
                     player.setMediaItems(mediaItems, startIndex, startPositionMs))));
@@ -941,7 +959,9 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void setPlaylistMetadata(
-      @Nullable IMediaController caller, int seq, @Nullable Bundle playlistMetadataBundle) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      @Nullable Bundle playlistMetadataBundle) {
     if (caller == null || playlistMetadataBundle == null) {
       return;
     }
@@ -954,13 +974,14 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
         sendSessionResultSuccess(player -> player.setPlaylistMetadata(playlistMetadata)));
   }
 
   @Override
-  public void addMediaItem(@Nullable IMediaController caller, int seq, Bundle mediaItemBundle) {
+  public void addMediaItem(
+      @Nullable IMediaController caller, int sequenceNumber, Bundle mediaItemBundle) {
     if (caller == null || mediaItemBundle == null) {
       return;
     }
@@ -973,18 +994,18 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
                 Player::addMediaItems)));
   }
 
   @Override
   public void addMediaItemWithIndex(
-      @Nullable IMediaController caller, int seq, int index, Bundle mediaItemBundle) {
+      @Nullable IMediaController caller, int sequenceNumber, int index, Bundle mediaItemBundle) {
     if (caller == null || mediaItemBundle == null) {
       return;
     }
@@ -997,18 +1018,20 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, ImmutableList.of(mediaItem)),
                 (player, mediaItems) -> player.addMediaItems(index, mediaItems))));
   }
 
   @Override
   public void addMediaItems(
-      @Nullable IMediaController caller, int seq, @Nullable IBinder mediaItemsRetriever) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      @Nullable IBinder mediaItemsRetriever) {
     if (caller == null || mediaItemsRetriever == null) {
       return;
     }
@@ -1023,11 +1046,11 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
                 Player::addMediaItems)));
   }
@@ -1035,7 +1058,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void addMediaItemsWithIndex(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       int index,
       @Nullable IBinder mediaItemsRetriever) {
     if (caller == null || mediaItemsRetriever == null) {
@@ -1052,224 +1075,235 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultWhenReady(
             handleMediaItemsWhenReady(
-                (sessionImpl, controller, sequence) ->
+                (sessionImpl, controller, sequenceNum) ->
                     sessionImpl.onAddMediaItemsOnHandler(controller, mediaItems),
                 (player, items) -> player.addMediaItems(index, items))));
   }
 
   @Override
-  public void removeMediaItem(@Nullable IMediaController caller, int seq, int index) {
+  public void removeMediaItem(@Nullable IMediaController caller, int sequenceNumber, int index) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultSuccess(player -> player.removeMediaItem(index)));
   }
 
   @Override
   public void removeMediaItems(
-      @Nullable IMediaController caller, int seq, int fromIndex, int toIndex) {
+      @Nullable IMediaController caller, int sequenceNumber, int fromIndex, int toIndex) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultSuccess(player -> player.removeMediaItems(fromIndex, toIndex)));
   }
 
   @Override
-  public void clearMediaItems(@Nullable IMediaController caller, int seq) {
-    if (caller == null) {
-      return;
-    }
-    queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_CHANGE_MEDIA_ITEMS, sendSessionResultSuccess(Player::clearMediaItems));
-  }
-
-  @Override
-  public void moveMediaItem(
-      @Nullable IMediaController caller, int seq, int currentIndex, int newIndex) {
+  public void clearMediaItems(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        sendSessionResultSuccess(Player::clearMediaItems));
+  }
+
+  @Override
+  public void moveMediaItem(
+      @Nullable IMediaController caller, int sequenceNumber, int currentIndex, int newIndex) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultSuccess(player -> player.moveMediaItem(currentIndex, newIndex)));
   }
 
   @Override
   public void moveMediaItems(
-      @Nullable IMediaController caller, int seq, int fromIndex, int toIndex, int newIndex) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      int fromIndex,
+      int toIndex,
+      int newIndex) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CHANGE_MEDIA_ITEMS,
         sendSessionResultSuccess(player -> player.moveMediaItems(fromIndex, toIndex, newIndex)));
   }
 
   @Override
-  public void seekToPreviousMediaItem(@Nullable IMediaController caller, int seq) {
+  public void seekToPreviousMediaItem(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
         sendSessionResultSuccess(Player::seekToPreviousMediaItem));
   }
 
   @Override
-  public void seekToNextMediaItem(@Nullable IMediaController caller, int seq) {
+  public void seekToNextMediaItem(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         sendSessionResultSuccess(Player::seekToNextMediaItem));
   }
 
   @Override
-  public void seekToPrevious(@Nullable IMediaController caller, int seq) {
-    if (caller == null) {
-      return;
-    }
-    queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_SEEK_TO_PREVIOUS, sendSessionResultSuccess(Player::seekToPrevious));
-  }
-
-  @Override
-  public void seekToNext(@Nullable IMediaController caller, int seq) {
-    if (caller == null) {
-      return;
-    }
-    queueSessionTaskWithPlayerCommand(
-        caller, seq, COMMAND_SEEK_TO_NEXT, sendSessionResultSuccess(Player::seekToNext));
-  }
-
-  @Override
-  public void setRepeatMode(
-      @Nullable IMediaController caller, int seq, @Player.RepeatMode int repeatMode) {
+  public void seekToPrevious(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
+        COMMAND_SEEK_TO_PREVIOUS,
+        sendSessionResultSuccess(Player::seekToPrevious));
+  }
+
+  @Override
+  public void seekToNext(@Nullable IMediaController caller, int sequenceNumber) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller, sequenceNumber, COMMAND_SEEK_TO_NEXT, sendSessionResultSuccess(Player::seekToNext));
+  }
+
+  @Override
+  public void setRepeatMode(
+      @Nullable IMediaController caller, int sequenceNumber, @Player.RepeatMode int repeatMode) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
         COMMAND_SET_REPEAT_MODE,
         sendSessionResultSuccess(player -> player.setRepeatMode(repeatMode)));
   }
 
   @Override
   public void setShuffleModeEnabled(
-      @Nullable IMediaController caller, int seq, boolean shuffleModeEnabled) {
+      @Nullable IMediaController caller, int sequenceNumber, boolean shuffleModeEnabled) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_SHUFFLE_MODE,
         sendSessionResultSuccess(player -> player.setShuffleModeEnabled(shuffleModeEnabled)));
   }
 
   @Override
   public void setVideoSurface(
-      @Nullable IMediaController caller, int seq, @Nullable Surface surface) {
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Surface surface) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_VIDEO_SURFACE,
         sendSessionResultSuccess(player -> player.setVideoSurface(surface)));
   }
 
   @Override
-  public void setVolume(@Nullable IMediaController caller, int seq, float volume) {
+  public void setVolume(@Nullable IMediaController caller, int sequenceNumber, float volume) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_VOLUME,
         sendSessionResultSuccess(player -> player.setVolume(volume)));
   }
 
   @Override
-  public void setDeviceVolume(@Nullable IMediaController caller, int seq, int volume) {
+  public void setDeviceVolume(@Nullable IMediaController caller, int sequenceNumber, int volume) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.setDeviceVolume(volume)));
   }
 
   @Override
-  public void increaseDeviceVolume(@Nullable IMediaController caller, int seq) {
+  public void increaseDeviceVolume(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_ADJUST_DEVICE_VOLUME,
         sendSessionResultSuccess(Player::increaseDeviceVolume));
   }
 
   @Override
-  public void decreaseDeviceVolume(@Nullable IMediaController caller, int seq) {
+  public void decreaseDeviceVolume(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_ADJUST_DEVICE_VOLUME,
         sendSessionResultSuccess(Player::decreaseDeviceVolume));
   }
 
   @Override
-  public void setDeviceMuted(@Nullable IMediaController caller, int seq, boolean muted) {
+  public void setDeviceMuted(@Nullable IMediaController caller, int sequenceNumber, boolean muted) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.setDeviceMuted(muted)));
   }
 
   @Override
-  public void setPlayWhenReady(@Nullable IMediaController caller, int seq, boolean playWhenReady) {
+  public void setPlayWhenReady(
+      @Nullable IMediaController caller, int sequenceNumber, boolean playWhenReady) {
     if (caller == null) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_PLAY_PAUSE,
         sendSessionResultSuccess(player -> player.setPlayWhenReady(playWhenReady)));
   }
@@ -1298,7 +1332,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void setTrackSelectionParameters(
-      @Nullable IMediaController caller, int seq, Bundle trackSelectionParametersBundle)
+      @Nullable IMediaController caller, int sequenceNumber, Bundle trackSelectionParametersBundle)
       throws RemoteException {
     if (caller == null) {
       return;
@@ -1313,7 +1347,7 @@ import java.util.concurrent.ExecutionException;
     }
     queueSessionTaskWithPlayerCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         sendSessionResultSuccess(
             player -> player.setTrackSelectionParameters(trackSelectionParameters)));
@@ -1325,7 +1359,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void getLibraryRoot(
-      @Nullable IMediaController caller, int seq, @Nullable Bundle libraryParamsBundle)
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle libraryParamsBundle)
       throws RuntimeException {
     if (caller == null) {
       return;
@@ -1335,15 +1369,16 @@ import java.util.concurrent.ExecutionException;
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onGetLibraryRootOnHandler(controller, libraryParams)));
   }
 
   @Override
-  public void getItem(@Nullable IMediaController caller, int seq, @Nullable String mediaId)
+  public void getItem(
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable String mediaId)
       throws RuntimeException {
     if (caller == null) {
       return;
@@ -1354,17 +1389,17 @@ import java.util.concurrent.ExecutionException;
     }
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_GET_ITEM,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onGetItemOnHandler(controller, mediaId)));
   }
 
   @Override
   public void getChildren(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       String parentId,
       int page,
       int pageSize,
@@ -1390,10 +1425,10 @@ import java.util.concurrent.ExecutionException;
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_GET_CHILDREN,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onGetChildrenOnHandler(
                     controller, parentId, page, pageSize, libraryParams)));
   }
@@ -1401,7 +1436,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void search(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       String query,
       @Nullable Bundle libraryParamsBundle) {
     if (caller == null) {
@@ -1416,17 +1451,17 @@ import java.util.concurrent.ExecutionException;
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_SEARCH,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onSearchOnHandler(controller, query, libraryParams)));
   }
 
   @Override
   public void getSearchResult(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       String query,
       int page,
       int pageSize,
@@ -1451,10 +1486,10 @@ import java.util.concurrent.ExecutionException;
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onGetSearchResultOnHandler(
                     controller, query, page, pageSize, libraryParams)));
   }
@@ -1462,7 +1497,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void subscribe(
       @Nullable IMediaController caller,
-      int seq,
+      int sequenceNumber,
       String parentId,
       @Nullable Bundle libraryParamsBundle) {
     if (caller == null) {
@@ -1477,15 +1512,15 @@ import java.util.concurrent.ExecutionException;
         libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_SUBSCRIBE,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onSubscribeOnHandler(controller, parentId, libraryParams)));
   }
 
   @Override
-  public void unsubscribe(@Nullable IMediaController caller, int seq, String parentId) {
+  public void unsubscribe(@Nullable IMediaController caller, int sequenceNumber, String parentId) {
     if (caller == null) {
       return;
     }
@@ -1495,16 +1530,16 @@ import java.util.concurrent.ExecutionException;
     }
     dispatchSessionTaskWithSessionCommand(
         caller,
-        seq,
+        sequenceNumber,
         COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
         sendLibraryResultWhenReady(
-            (librarySessionImpl, controller, sequence) ->
+            (librarySessionImpl, controller, sequenceNum) ->
                 librarySessionImpl.onUnsubscribeOnHandler(controller, parentId)));
   }
 
   /** Common interface for code snippets to handle all incoming commands from the controller. */
   private interface SessionTask<T, K extends MediaSessionImpl> {
-    T run(K sessionImpl, ControllerInfo controller, int seq);
+    T run(K sessionImpl, ControllerInfo controller, int sequenceNumber);
   }
 
   private interface MediaItemPlayerTask {
@@ -1524,18 +1559,19 @@ import java.util.concurrent.ExecutionException;
     }
 
     @Override
-    public void onSessionResult(int seq, SessionResult result) throws RemoteException {
-      iController.onSessionResult(seq, result.toBundle());
+    public void onSessionResult(int sequenceNumber, SessionResult result) throws RemoteException {
+      iController.onSessionResult(sequenceNumber, result.toBundle());
     }
 
     @Override
-    public void onLibraryResult(int seq, LibraryResult<?> result) throws RemoteException {
-      iController.onLibraryResult(seq, result.toBundle());
+    public void onLibraryResult(int sequenceNumber, LibraryResult<?> result)
+        throws RemoteException {
+      iController.onLibraryResult(sequenceNumber, result.toBundle());
     }
 
     @Override
     public void onPlayerInfoChanged(
-        int seq,
+        int sequenceNumber,
         PlayerInfo playerInfo,
         boolean excludeMediaItems,
         boolean excludeMediaItemsMetadata,
@@ -1544,7 +1580,7 @@ import java.util.concurrent.ExecutionException;
         boolean excludeTracks)
         throws RemoteException {
       iController.onPlayerInfoChanged(
-          seq,
+          sequenceNumber,
           playerInfo.toBundle(
               excludeMediaItems,
               excludeMediaItemsMetadata,
@@ -1555,67 +1591,71 @@ import java.util.concurrent.ExecutionException;
     }
 
     @Override
-    public void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
-      iController.onSetCustomLayout(seq, BundleableUtil.toBundleList(layout));
+    public void setCustomLayout(int sequenceNumber, List<CommandButton> layout)
+        throws RemoteException {
+      iController.onSetCustomLayout(sequenceNumber, BundleableUtil.toBundleList(layout));
     }
 
     @Override
     public void onAvailableCommandsChangedFromSession(
-        int seq, SessionCommands sessionCommands, Player.Commands playerCommands)
+        int sequenceNumber, SessionCommands sessionCommands, Player.Commands playerCommands)
         throws RemoteException {
       iController.onAvailableCommandsChangedFromSession(
-          seq, sessionCommands.toBundle(), playerCommands.toBundle());
+          sequenceNumber, sessionCommands.toBundle(), playerCommands.toBundle());
     }
 
     @Override
-    public void onAvailableCommandsChangedFromPlayer(int seq, Player.Commands availableCommands)
-        throws RemoteException {
-      iController.onAvailableCommandsChangedFromPlayer(seq, availableCommands.toBundle());
+    public void onAvailableCommandsChangedFromPlayer(
+        int sequenceNumber, Player.Commands availableCommands) throws RemoteException {
+      iController.onAvailableCommandsChangedFromPlayer(
+          sequenceNumber, availableCommands.toBundle());
     }
 
     @Override
-    public void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+    public void sendCustomCommand(int sequenceNumber, SessionCommand command, Bundle args)
         throws RemoteException {
-      iController.onCustomCommand(seq, command.toBundle(), args);
+      iController.onCustomCommand(sequenceNumber, command.toBundle(), args);
     }
 
     @SuppressWarnings("nullness:argument") // params can be null.
     @Override
     public void onChildrenChanged(
-        int seq, String parentId, int itemCount, @Nullable LibraryParams params)
+        int sequenceNumber, String parentId, int itemCount, @Nullable LibraryParams params)
         throws RemoteException {
       iController.onChildrenChanged(
-          seq, parentId, itemCount, params == null ? null : params.toBundle());
+          sequenceNumber, parentId, itemCount, params == null ? null : params.toBundle());
     }
 
     @SuppressWarnings("nullness:argument") // params can be null.
     @Override
     public void onSearchResultChanged(
-        int seq, String query, int itemCount, @Nullable LibraryParams params)
+        int sequenceNumber, String query, int itemCount, @Nullable LibraryParams params)
         throws RemoteException {
       iController.onSearchResultChanged(
-          seq, query, itemCount, params == null ? null : params.toBundle());
+          sequenceNumber, query, itemCount, params == null ? null : params.toBundle());
     }
 
     @Override
-    public void onDisconnected(int seq) throws RemoteException {
-      iController.onDisconnected(seq);
+    public void onDisconnected(int sequenceNumber) throws RemoteException {
+      iController.onDisconnected(sequenceNumber);
     }
 
     @Override
     public void onPeriodicSessionPositionInfoChanged(
-        int seq, SessionPositionInfo sessionPositionInfo) throws RemoteException {
-      iController.onPeriodicSessionPositionInfoChanged(seq, sessionPositionInfo.toBundle());
+        int sequenceNumber, SessionPositionInfo sessionPositionInfo) throws RemoteException {
+      iController.onPeriodicSessionPositionInfoChanged(
+          sequenceNumber, sessionPositionInfo.toBundle());
     }
 
     @Override
-    public void onRenderedFirstFrame(int seq) throws RemoteException {
-      iController.onRenderedFirstFrame(seq);
+    public void onRenderedFirstFrame(int sequenceNumber) throws RemoteException {
+      iController.onRenderedFirstFrame(sequenceNumber);
     }
 
     @Override
-    public void onSessionExtrasChanged(int seq, Bundle sessionExtras) throws RemoteException {
-      iController.onExtrasChanged(seq, sessionExtras);
+    public void onSessionExtrasChanged(int sequenceNumber, Bundle sessionExtras)
+        throws RemoteException {
+      iController.onExtrasChanged(sequenceNumber, sessionExtras);
     }
 
     @Override
