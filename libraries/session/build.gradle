@@ -32,6 +32,7 @@ android {
 }
 dependencies {
     api project(modulePrefix + 'lib-common')
+    compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
