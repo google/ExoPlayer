@@ -80,8 +80,10 @@ import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
@@ -126,52 +128,66 @@ import java.util.concurrent.ExecutionException;
     }
   }
 
-  private static <K extends MediaSessionImpl> SessionTask<Void, K> sendSessionResultSuccess(
-      Consumer<PlayerWrapper> task) {
+  private static <K extends MediaSessionImpl>
+      SessionTask<ListenableFuture<Void>, K> sendSessionResultSuccess(
+          Consumer<PlayerWrapper> task) {
     return (sessionImpl, controller, sequence) -> {
+      if (sessionImpl.isReleased()) {
+        return Futures.immediateVoidFuture();
+      }
       task.accept(sessionImpl.getPlayerWrapper());
       sendSessionResult(controller, sequence, new SessionResult(SessionResult.RESULT_SUCCESS));
-      return null;
+      return Futures.immediateVoidFuture();
     };
   }
 
-  private static <K extends MediaSessionImpl> SessionTask<Void, K> sendSessionResultWhenReady(
-      SessionTask<ListenableFuture<SessionResult>, K> task) {
-    return (sessionImpl, controller, sequence) -> {
-      ListenableFuture<SessionResult> future = task.run(sessionImpl, controller, sequence);
-      future.addListener(
-          () -> {
-            SessionResult result;
-            try {
-              result = checkNotNull(future.get(), "SessionResult must not be null");
-            } catch (CancellationException unused) {
-              result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
-            } catch (ExecutionException | InterruptedException exception) {
-              result =
-                  new SessionResult(
-                      exception.getCause() instanceof UnsupportedOperationException
-                          ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
-                          : SessionResult.RESULT_ERROR_UNKNOWN);
-            }
-            sendSessionResult(controller, sequence, result);
-          },
-          MoreExecutors.directExecutor());
-      return null;
-    };
+  private static <K extends MediaSessionImpl>
+      SessionTask<ListenableFuture<Void>, K> sendSessionResultWhenReady(
+          SessionTask<ListenableFuture<SessionResult>, K> task) {
+    return (sessionImpl, controller, sequence) ->
+        handleSessionTaskWhenReady(
+            sessionImpl,
+            controller,
+            sequence,
+            task,
+            future -> {
+              SessionResult result;
+              try {
+                result = checkNotNull(future.get(), "SessionResult must not be null");
+              } catch (CancellationException unused) {
+                result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
+              } catch (ExecutionException | InterruptedException exception) {
+                result =
+                    new SessionResult(
+                        exception.getCause() instanceof UnsupportedOperationException
+                            ? SessionResult.RESULT_ERROR_NOT_SUPPORTED
+                            : SessionResult.RESULT_ERROR_UNKNOWN);
+              }
+              sendSessionResult(controller, sequence, result);
+            });
   }
 
   private static <K extends MediaSessionImpl>
       SessionTask<ListenableFuture<SessionResult>, K> handleMediaItemsWhenReady(
           SessionTask<ListenableFuture<List<MediaItem>>, K> mediaItemsTask,
           MediaItemPlayerTask mediaItemPlayerTask) {
-    return (sessionImpl, controller, sequence) ->
-        transformFutureAsync(
-            mediaItemsTask.run(sessionImpl, controller, sequence),
-            mediaItems ->
-                postOrRunWithCompletion(
-                    sessionImpl.getApplicationHandler(),
-                    () -> mediaItemPlayerTask.run(sessionImpl.getPlayerWrapper(), mediaItems),
-                    new SessionResult(SessionResult.RESULT_SUCCESS)));
+    return (sessionImpl, controller, sequence) -> {
+      if (sessionImpl.isReleased()) {
+        return Futures.immediateFuture(
+            new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
+      }
+      return transformFutureAsync(
+          mediaItemsTask.run(sessionImpl, controller, sequence),
+          mediaItems ->
+              postOrRunWithCompletion(
+                  sessionImpl.getApplicationHandler(),
+                  () -> {
+                    if (!sessionImpl.isReleased()) {
+                      mediaItemPlayerTask.run(sessionImpl.getPlayerWrapper(), mediaItems);
+                    }
+                  },
+                  new SessionResult(SessionResult.RESULT_SUCCESS)));
+    };
   }
 
   private static void sendLibraryResult(
@@ -184,29 +200,32 @@ import java.util.concurrent.ExecutionException;
   }
 
   private static <V, K extends MediaLibrarySessionImpl>
-      SessionTask<Void, K> sendLibraryResultWhenReady(
+      SessionTask<ListenableFuture<Void>, K> sendLibraryResultWhenReady(
           SessionTask<ListenableFuture<LibraryResult<V>>, K> task) {
-    return (sessionImpl, controller, sequence) -> {
-      ListenableFuture<LibraryResult<V>> future = task.run(sessionImpl, controller, sequence);
-      future.addListener(
-          () -> {
-            LibraryResult<V> result;
-            try {
-              result = checkNotNull(future.get(), "LibraryResult must not be null");
-            } catch (CancellationException unused) {
-              result = LibraryResult.ofError(LibraryResult.RESULT_INFO_SKIPPED);
-            } catch (ExecutionException | InterruptedException unused) {
-              result = LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN);
-            }
-            sendLibraryResult(controller, sequence, result);
-          },
-          MoreExecutors.directExecutor());
-      return null;
-    };
+    return (sessionImpl, controller, sequence) ->
+        handleSessionTaskWhenReady(
+            sessionImpl,
+            controller,
+            sequence,
+            task,
+            future -> {
+              LibraryResult<V> result;
+              try {
+                result = checkNotNull(future.get(), "LibraryResult must not be null");
+              } catch (CancellationException unused) {
+                result = LibraryResult.ofError(LibraryResult.RESULT_INFO_SKIPPED);
+              } catch (ExecutionException | InterruptedException unused) {
+                result = LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN);
+              }
+              sendLibraryResult(controller, sequence, result);
+            });
   }
 
-  private <K extends MediaSessionImpl> void dispatchSessionTaskWithPlayerCommand(
-      IMediaController caller, int seq, @Player.Command int command, SessionTask<Void, K> task) {
+  private <K extends MediaSessionImpl> void queueSessionTaskWithPlayerCommand(
+      IMediaController caller,
+      int seq,
+      @Player.Command int command,
+      SessionTask<ListenableFuture<Void>, K> task) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -248,13 +267,19 @@ import java.util.concurrent.ExecutionException;
   }
 
   private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
-      IMediaController caller, int seq, @CommandCode int commandCode, SessionTask<Void, K> task) {
+      IMediaController caller,
+      int seq,
+      @CommandCode int commandCode,
+      SessionTask<ListenableFuture<Void>, K> task) {
     dispatchSessionTaskWithSessionCommand(
         caller, seq, /* sessionCommand= */ null, commandCode, task);
   }
 
   private <K extends MediaSessionImpl> void dispatchSessionTaskWithSessionCommand(
-      IMediaController caller, int seq, SessionCommand sessionCommand, SessionTask<Void, K> task) {
+      IMediaController caller,
+      int seq,
+      SessionCommand sessionCommand,
+      SessionTask<ListenableFuture<Void>, K> task) {
     dispatchSessionTaskWithSessionCommand(caller, seq, sessionCommand, COMMAND_CODE_CUSTOM, task);
   }
 
@@ -263,7 +288,7 @@ import java.util.concurrent.ExecutionException;
       int seq,
       @Nullable SessionCommand sessionCommand,
       @CommandCode int commandCode,
-      SessionTask<Void, K> task) {
+      SessionTask<ListenableFuture<Void>, K> task) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
@@ -306,6 +331,34 @@ import java.util.concurrent.ExecutionException;
     } finally {
       Binder.restoreCallingIdentity(token);
     }
+  }
+
+  private static <T, K extends MediaSessionImpl> ListenableFuture<Void> handleSessionTaskWhenReady(
+      K sessionImpl,
+      ControllerInfo controller,
+      int sequence,
+      SessionTask<ListenableFuture<T>, K> task,
+      Consumer<ListenableFuture<T>> futureResultHandler) {
+    if (sessionImpl.isReleased()) {
+      return Futures.immediateVoidFuture();
+    }
+    ListenableFuture<T> future = task.run(sessionImpl, controller, sequence);
+    SettableFuture<Void> outputFuture = SettableFuture.create();
+    future.addListener(
+        () -> {
+          if (sessionImpl.isReleased()) {
+            outputFuture.set(null);
+            return;
+          }
+          try {
+            futureResultHandler.accept(future);
+            outputFuture.set(null);
+          } catch (Throwable error) {
+            outputFuture.setException(error);
+          }
+        },
+        MoreExecutors.directExecutor());
+    return outputFuture;
   }
 
   public void connect(
@@ -480,7 +533,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_STOP, sendSessionResultSuccess(Player::stop));
   }
 
@@ -529,7 +582,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::play));
   }
 
@@ -538,7 +591,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::pause));
   }
 
@@ -547,7 +600,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_PREPARE, sendSessionResultSuccess(Player::prepare));
   }
 
@@ -556,7 +609,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SEEK_TO_DEFAULT_POSITION,
@@ -569,7 +622,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SEEK_TO_MEDIA_ITEM,
@@ -582,7 +635,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
@@ -596,7 +649,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SEEK_TO_MEDIA_ITEM,
@@ -608,7 +661,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_SEEK_BACK, sendSessionResultSuccess(Player::seekBack));
   }
 
@@ -617,7 +670,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_SEEK_FORWARD, sendSessionResultSuccess(Player::seekForward));
   }
 
@@ -698,7 +751,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_SPEED_AND_PITCH,
@@ -713,7 +766,7 @@ import java.util.concurrent.ExecutionException;
     }
     PlaybackParameters playbackParameters =
         PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_SPEED_AND_PITCH,
@@ -733,7 +786,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEM,
@@ -760,7 +813,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEM,
@@ -788,7 +841,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEM,
@@ -815,7 +868,7 @@ import java.util.concurrent.ExecutionException;
       return;
     }
 
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -844,7 +897,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -874,7 +927,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -899,7 +952,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaMetadata", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
@@ -918,7 +971,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -942,7 +995,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -968,7 +1021,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -997,7 +1050,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1013,7 +1066,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1026,7 +1079,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1038,7 +1091,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_CHANGE_MEDIA_ITEMS, sendSessionResultSuccess(Player::clearMediaItems));
   }
 
@@ -1048,7 +1101,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1061,7 +1114,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1073,7 +1126,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
@@ -1085,7 +1138,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
@@ -1097,7 +1150,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_SEEK_TO_PREVIOUS, sendSessionResultSuccess(Player::seekToPrevious));
   }
 
@@ -1106,7 +1159,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller, seq, COMMAND_SEEK_TO_NEXT, sendSessionResultSuccess(Player::seekToNext));
   }
 
@@ -1116,7 +1169,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_REPEAT_MODE,
@@ -1129,7 +1182,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_SHUFFLE_MODE,
@@ -1142,7 +1195,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_VIDEO_SURFACE,
@@ -1154,7 +1207,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_VOLUME,
@@ -1166,7 +1219,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_DEVICE_VOLUME,
@@ -1178,7 +1231,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_ADJUST_DEVICE_VOLUME,
@@ -1190,7 +1243,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_ADJUST_DEVICE_VOLUME,
@@ -1202,7 +1255,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_DEVICE_VOLUME,
@@ -1214,7 +1267,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_PLAY_PAUSE,
@@ -1258,7 +1311,7 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "Ignoring malformed Bundle for TrackSelectionParameters", e);
       return;
     }
-    dispatchSessionTaskWithPlayerCommand(
+    queueSessionTaskWithPlayerCommand(
         caller,
         seq,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,

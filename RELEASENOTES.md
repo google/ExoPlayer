@@ -15,6 +15,10 @@
         `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
         boolean)` to specify whether the renderer will output metadata early or
         in sync with the player position.
+*   Session:
+    *   Ensure commands are always executed in the correct order even if some
+        require asynchronous resolution
+        ([#85](https://github.com/androidx/media/issues/85)).
 
 ### 1.0.0-beta02 (2022-07-15)
 

@@ -292,6 +292,16 @@ public class RemoteMediaController {
     binder.setTrackSelectionParameters(controllerId, parameters.toBundle());
   }
 
+  public void setMediaItemsPreparePlayAddItemsSeek(
+      List<MediaItem> initialMediaItems, List<MediaItem> addedMediaItems, int seekIndex)
+      throws RemoteException {
+    binder.setMediaItemsPreparePlayAddItemsSeek(
+        controllerId,
+        BundleableUtil.toBundleList(initialMediaItems),
+        BundleableUtil.toBundleList(addedMediaItems),
+        seekIndex);
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // Non-public methods
   ////////////////////////////////////////////////////////////////////////////////

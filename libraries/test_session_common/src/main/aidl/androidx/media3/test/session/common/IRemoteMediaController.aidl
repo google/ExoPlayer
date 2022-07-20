@@ -81,6 +81,7 @@ interface IRemoteMediaController {
   void release(String controllerId);
   void stop(String controllerId);
   void setTrackSelectionParameters(String controllerId, in Bundle parameters);
+  void setMediaItemsPreparePlayAddItemsSeek(String controllerId, in List<Bundle> initialMediaItems, in List<Bundle> addedMediaItems, int seekIndex);
 
   // MediaBrowser methods
   Bundle getLibraryRoot(String controllerId, in Bundle libraryParams);
