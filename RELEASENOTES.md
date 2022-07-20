@@ -19,6 +19,12 @@
     *   Ensure commands are always executed in the correct order even if some
         require asynchronous resolution
         ([#85](https://github.com/androidx/media/issues/85)).
+    *   Add `DefaultNotificationProvider.Builder` to build
+        `DefaultNotificationProvider` instances. The builder can configure the
+        notification ID, the notification channel ID and the notification
+        channel name used by the provider. Also, add method
+        `DefaultNotificationProvider.setSmallIcon(int)` to set the notifications
+        small icon ([#104](https://github.com/androidx/media/issues/104)).
 
 ### 1.0.0-beta02 (2022-07-15)
 

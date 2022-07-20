@@ -433,7 +433,8 @@ public abstract class MediaSessionService extends Service {
     synchronized (lock) {
       if (mediaNotificationManager == null) {
         if (mediaNotificationProvider == null) {
-          mediaNotificationProvider = new DefaultMediaNotificationProvider(getApplicationContext());
+          mediaNotificationProvider =
+              new DefaultMediaNotificationProvider.Builder(getApplicationContext()).build();
         }
         mediaNotificationManager =
             new MediaNotificationManager(
