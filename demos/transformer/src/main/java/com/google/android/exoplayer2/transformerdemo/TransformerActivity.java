@@ -38,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.transformer.Contrast;
 import com.google.android.exoplayer2.transformer.DebugViewProvider;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.GlEffect;
@@ -320,6 +321,10 @@ public final class TransformerActivity extends AppCompatActivity {
         }
         if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
+        }
+        if (selectedEffects[6]) {
+          // TODO(b/238630175): Add slider for contrast adjustments.
+          effects.add(new Contrast(0.75f));
         }
         transformerBuilder.setVideoEffects(effects.build());
       }
