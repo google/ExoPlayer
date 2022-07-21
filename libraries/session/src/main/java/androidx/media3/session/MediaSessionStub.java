@@ -552,7 +552,13 @@ import java.util.concurrent.ExecutionException;
     }
     long token = Binder.clearCallingIdentity();
     try {
-      connectedControllersManager.removeController(caller.asBinder());
+      @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
+      if (sessionImpl == null || sessionImpl.isReleased()) {
+        return;
+      }
+      postOrRun(
+          sessionImpl.getApplicationHandler(),
+          () -> connectedControllersManager.removeController(caller.asBinder()));
     } finally {
       Binder.restoreCallingIdentity(token);
     }
