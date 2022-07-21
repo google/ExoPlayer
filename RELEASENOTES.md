@@ -25,6 +25,8 @@
         channel name used by the provider. Also, add method
         `DefaultNotificationProvider.setSmallIcon(int)` to set the notifications
         small icon ([#104](https://github.com/androidx/media/issues/104)).
+    *   Ensure commands sent before `MediaController.release()` are not dropped
+        ([#99](https://github.com/androidx/media/issues/99)).
 
 ### 1.0.0-beta02 (2022-07-15)
 

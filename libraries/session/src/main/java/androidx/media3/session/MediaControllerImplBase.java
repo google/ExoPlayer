@@ -320,7 +320,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       serviceConnection = null;
     }
     connectedToken = null;
-    flushCommandQueueHandler.removeCallbacksAndMessages(/* token= */ null);
+    flushCommandQueueHandler.release();
     this.iSession = null;
     controllerStub.destroy();
     if (iSession != null) {
@@ -3070,30 +3070,43 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
   }
 
-  private class FlushCommandQueueHandler extends Handler {
+  private class FlushCommandQueueHandler {
 
     private static final int MSG_FLUSH_COMMAND_QUEUE = 1;
 
-    public FlushCommandQueueHandler(Looper looper) {
-      super(looper);
-    }
+    private final Handler handler;
 
-    @Override
-    public void handleMessage(Message msg) {
-      if (msg.what == MSG_FLUSH_COMMAND_QUEUE) {
-        try {
-          iSession.flushCommandQueue(controllerStub);
-        } catch (RemoteException e) {
-          Log.w(TAG, "Error in sending flushCommandQueue");
-        }
-      }
+    public FlushCommandQueueHandler(Looper looper) {
+      handler = new Handler(looper, /* callback= */ this::handleMessage);
     }
 
     public void sendFlushCommandQueueMessage() {
-      if (iSession != null && !hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+      if (iSession != null && !handler.hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
         // Send message to notify the end of the transaction. It will be handled when the current
         // looper iteration is over.
-        sendEmptyMessage(MSG_FLUSH_COMMAND_QUEUE);
+        handler.sendEmptyMessage(MSG_FLUSH_COMMAND_QUEUE);
+      }
+    }
+
+    public void release() {
+      if (handler.hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+        flushCommandQueue();
+      }
+      handler.removeCallbacksAndMessages(/* token= */ null);
+    }
+
+    private boolean handleMessage(Message msg) {
+      if (msg.what == MSG_FLUSH_COMMAND_QUEUE) {
+        flushCommandQueue();
+      }
+      return true;
+    }
+
+    private void flushCommandQueue() {
+      try {
+        iSession.flushCommandQueue(controllerStub);
+      } catch (RemoteException e) {
+        Log.w(TAG, "Error in sending flushCommandQueue");
       }
     }
   }
