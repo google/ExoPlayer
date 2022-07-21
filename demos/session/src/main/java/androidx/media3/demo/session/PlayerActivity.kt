@@ -29,9 +29,11 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.media3.common.C.TRACK_TYPE_TEXT
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.media3.ui.PlayerView
@@ -146,6 +148,10 @@ class PlayerActivity : AppCompatActivity() {
 
         override fun onRepeatModeChanged(repeatMode: Int) {
           updateRepeatSwitchUI(repeatMode)
+        }
+
+        override fun onTracksChanged(tracks: Tracks) {
+          playerView.setShowSubtitleButton(tracks.isTypeSupported(TRACK_TYPE_TEXT))
         }
       }
     )

@@ -18,6 +18,7 @@ package androidx.media3.demo.session
 import android.content.res.AssetManager
 import android.net.Uri
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MediaMetadata.FOLDER_TYPE_MIXED
 import androidx.media3.common.MediaMetadata.FOLDER_TYPE_NONE
@@ -65,13 +66,13 @@ object MediaItemTree {
     mediaId: String,
     isPlayable: Boolean,
     @MediaMetadata.FolderType folderType: Int,
+    subtitleConfigurations: List<SubtitleConfiguration> = mutableListOf(),
     album: String? = null,
     artist: String? = null,
     genre: String? = null,
     sourceUri: Uri? = null,
-    imageUri: Uri? = null,
+    imageUri: Uri? = null
   ): MediaItem {
-    // TODO(b/194280027): add artwork
     val metadata =
       MediaMetadata.Builder()
         .setAlbumTitle(album)
@@ -82,8 +83,10 @@ object MediaItemTree {
         .setIsPlayable(isPlayable)
         .setArtworkUri(imageUri)
         .build()
+
     return MediaItem.Builder()
       .setMediaId(mediaId)
+      .setSubtitleConfigurations(subtitleConfigurations)
       .setMediaMetadata(metadata)
       .setUri(sourceUri)
       .build()
@@ -156,6 +159,19 @@ object MediaItemTree {
     val title = mediaObject.getString("title")
     val artist = mediaObject.getString("artist")
     val genre = mediaObject.getString("genre")
+    val subtitleConfigurations: MutableList<SubtitleConfiguration> = mutableListOf()
+    if (mediaObject.has("subtitles")) {
+      val subtitlesJson = mediaObject.getJSONArray("subtitles")
+      for (i in 0 until subtitlesJson.length()) {
+        val subtitleObject = subtitlesJson.getJSONObject(i)
+        subtitleConfigurations.add(
+          SubtitleConfiguration.Builder(Uri.parse(subtitleObject.getString("subtitle_uri")))
+            .setMimeType(subtitleObject.getString("subtitle_mime_type"))
+            .setLanguage(subtitleObject.getString("subtitle_lang"))
+            .build()
+        )
+      }
+    }
     val sourceUri = Uri.parse(mediaObject.getString("source"))
     val imageUri = Uri.parse(mediaObject.getString("image"))
     // key of such items in tree
@@ -170,12 +186,13 @@ object MediaItemTree {
           title = title,
           mediaId = idInTree,
           isPlayable = true,
+          folderType = FOLDER_TYPE_NONE,
+          subtitleConfigurations,
           album = album,
           artist = artist,
           genre = genre,
           sourceUri = sourceUri,
-          imageUri = imageUri,
-          folderType = FOLDER_TYPE_NONE
+          imageUri = imageUri
         )
       )
 
@@ -188,7 +205,8 @@ object MediaItemTree {
             title = album,
             mediaId = albumFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_PLAYLISTS
+            folderType = FOLDER_TYPE_PLAYLISTS,
+            subtitleConfigurations
           )
         )
       treeNodes[ALBUM_ID]!!.addChild(albumFolderIdInTree)
@@ -203,7 +221,8 @@ object MediaItemTree {
             title = artist,
             mediaId = artistFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_PLAYLISTS
+            folderType = FOLDER_TYPE_PLAYLISTS,
+            subtitleConfigurations
           )
         )
       treeNodes[ARTIST_ID]!!.addChild(artistFolderIdInTree)
@@ -218,7 +237,8 @@ object MediaItemTree {
             title = genre,
             mediaId = genreFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_PLAYLISTS
+            folderType = FOLDER_TYPE_PLAYLISTS,
+            subtitleConfigurations
           )
         )
       treeNodes[GENRE_ID]!!.addChild(genreFolderIdInTree)
