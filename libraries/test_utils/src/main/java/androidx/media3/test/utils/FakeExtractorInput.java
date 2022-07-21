@@ -23,6 +23,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.ExtractorInput;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -293,21 +294,25 @@ public final class FakeExtractorInput implements ExtractorInput {
       data = Util.EMPTY_BYTE_ARRAY;
     }
 
+    @CanIgnoreReturnValue
     public Builder setData(byte[] data) {
       this.data = data;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setSimulateUnknownLength(boolean simulateUnknownLength) {
       this.simulateUnknownLength = simulateUnknownLength;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setSimulatePartialReads(boolean simulatePartialReads) {
       this.simulatePartialReads = simulatePartialReads;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setSimulateIOErrors(boolean simulateIOErrors) {
       this.simulateIOErrors = simulateIOErrors;
       return this;

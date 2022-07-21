@@ -59,6 +59,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Documented;
@@ -157,6 +158,7 @@ public final class Transformer {
      * @param transformationRequest The {@link TransformationRequest}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setTransformationRequest(TransformationRequest transformationRequest) {
       this.transformationRequest = transformationRequest;
       return this;
@@ -175,6 +177,7 @@ public final class Transformer {
      * @param effects The {@linkplain GlEffect effects} to apply to each video frame.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoEffects(List<GlEffect> effects) {
       this.videoEffects = ImmutableList.copyOf(effects);
       return this;
@@ -189,6 +192,7 @@ public final class Transformer {
      * @param mediaSourceFactory A {@link MediaSource.Factory}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       this.mediaSourceFactory = mediaSourceFactory;
       return this;
@@ -205,6 +209,7 @@ public final class Transformer {
      * @param removeAudio Whether to remove the audio.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRemoveAudio(boolean removeAudio) {
       this.removeAudio = removeAudio;
       return this;
@@ -221,6 +226,7 @@ public final class Transformer {
      * @param removeVideo Whether to remove the video.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRemoveVideo(boolean removeVideo) {
       this.removeVideo = removeVideo;
       return this;
@@ -230,6 +236,7 @@ public final class Transformer {
      * @deprecated Use {@link TransformationRequest.Builder#setFlattenForSlowMotion(boolean)}
      *     instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       transformationRequest =
@@ -241,6 +248,7 @@ public final class Transformer {
      * @deprecated This feature will be removed in a following release and the MIME type of the
      *     output will always be MP4.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setOutputMimeType(String outputMimeType) {
       this.containerMimeType = outputMimeType;
@@ -251,6 +259,7 @@ public final class Transformer {
      * @deprecated Use {@link #addListener(Listener)}, {@link #removeListener(Listener)} or {@link
      *     #removeAllListeners()} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setListener(Transformer.Listener listener) {
       this.listeners.clear();
@@ -266,6 +275,7 @@ public final class Transformer {
      * @param listener A {@link Transformer.Listener}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder addListener(Transformer.Listener listener) {
       this.listeners.add(listener);
       return this;
@@ -279,6 +289,7 @@ public final class Transformer {
      * @param listener A {@link Transformer.Listener}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder removeListener(Transformer.Listener listener) {
       this.listeners.remove(listener);
       return this;
@@ -291,6 +302,7 @@ public final class Transformer {
      *
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder removeAllListeners() {
       this.listeners.clear();
       return this;
@@ -306,6 +318,7 @@ public final class Transformer {
      * @param looper A {@link Looper}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLooper(Looper looper) {
       this.looper = looper;
       this.listeners = listeners.copy(looper, (listener, flags) -> {});
@@ -320,6 +333,7 @@ public final class Transformer {
      * @param encoderFactory The {@link Codec.EncoderFactory} instance.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
       this.encoderFactory = encoderFactory;
       return this;
@@ -333,6 +347,7 @@ public final class Transformer {
      * @param decoderFactory The {@link Codec.DecoderFactory} instance.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setDecoderFactory(Codec.DecoderFactory decoderFactory) {
       this.decoderFactory = decoderFactory;
       return this;
@@ -350,6 +365,7 @@ public final class Transformer {
      * @param debugViewProvider Provider for debug views.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setDebugViewProvider(DebugViewProvider debugViewProvider) {
       this.debugViewProvider = debugViewProvider;
       return this;
@@ -363,6 +379,7 @@ public final class Transformer {
      * @param clock The {@link Clock} instance.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     /* package */ Builder setClock(Clock clock) {
       this.clock = clock;
@@ -378,6 +395,7 @@ public final class Transformer {
      * @param muxerFactory A {@link Muxer.Factory}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     /* package */ Builder setMuxerFactory(Muxer.Factory muxerFactory) {
       this.muxerFactory = muxerFactory;

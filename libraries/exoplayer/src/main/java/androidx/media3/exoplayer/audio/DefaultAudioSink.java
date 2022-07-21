@@ -56,6 +56,7 @@ import androidx.media3.extractor.Ac3Util;
 import androidx.media3.extractor.Ac4Util;
 import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.MpegAudioUtil;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.errorprone.annotations.InlineMeValidationDisabled;
 import java.lang.annotation.Documented;
@@ -286,6 +287,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>Default is {@link AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES}.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioCapabilities(AudioCapabilities audioCapabilities) {
       checkNotNull(audioCapabilities);
       this.audioCapabilities = audioCapabilities;
@@ -299,6 +301,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>The default value is an empty array.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioProcessors(AudioProcessor[] audioProcessors) {
       checkNotNull(audioProcessors);
       return setAudioProcessorChain(new DefaultAudioProcessorChain(audioProcessors));
@@ -311,6 +314,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>By default, no processing will be applied.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioProcessorChain(AudioProcessorChain audioProcessorChain) {
       checkNotNull(audioProcessorChain);
       this.audioProcessorChain = audioProcessorChain;
@@ -325,6 +329,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>The default value is {@code false}.
      */
+    @CanIgnoreReturnValue
     public Builder setEnableFloatOutput(boolean enableFloatOutput) {
       this.enableFloatOutput = enableFloatOutput;
       return this;
@@ -338,6 +343,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>The default value is {@code false}.
      */
+    @CanIgnoreReturnValue
     public Builder setEnableAudioTrackPlaybackParams(boolean enableAudioTrackPlaybackParams) {
       this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
       return this;
@@ -353,6 +359,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>The default value is {@link #OFFLOAD_MODE_DISABLED}.
      */
+    @CanIgnoreReturnValue
     public Builder setOffloadMode(@OffloadMode int offloadMode) {
       this.offloadMode = offloadMode;
       return this;
@@ -364,6 +371,7 @@ public final class DefaultAudioSink implements AudioSink {
      *
      * <p>The default value is {@link AudioTrackBufferSizeProvider#DEFAULT}.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioTrackBufferSizeProvider(
         AudioTrackBufferSizeProvider audioTrackBufferSizeProvider) {
       this.audioTrackBufferSizeProvider = audioTrackBufferSizeProvider;

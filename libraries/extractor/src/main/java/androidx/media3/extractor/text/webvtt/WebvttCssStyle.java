@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.text.TextAnnotation;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.base.Ascii;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -197,6 +198,7 @@ public final class WebvttCssStyle {
     return linethrough == ON;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setLinethrough(boolean linethrough) {
     this.linethrough = linethrough ? ON : OFF;
     return this;
@@ -206,16 +208,19 @@ public final class WebvttCssStyle {
     return underline == ON;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setUnderline(boolean underline) {
     this.underline = underline ? ON : OFF;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setBold(boolean bold) {
     this.bold = bold ? ON : OFF;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setItalic(boolean italic) {
     this.italic = italic ? ON : OFF;
     return this;
@@ -226,6 +231,7 @@ public final class WebvttCssStyle {
     return fontFamily;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setFontFamily(@Nullable String fontFamily) {
     this.fontFamily = fontFamily == null ? null : Ascii.toLowerCase(fontFamily);
     return this;
@@ -238,6 +244,7 @@ public final class WebvttCssStyle {
     return fontColor;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setFontColor(int color) {
     this.fontColor = color;
     hasFontColor = true;
@@ -255,6 +262,7 @@ public final class WebvttCssStyle {
     return backgroundColor;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setBackgroundColor(int backgroundColor) {
     this.backgroundColor = backgroundColor;
     hasBackgroundColor = true;
@@ -265,11 +273,13 @@ public final class WebvttCssStyle {
     return hasBackgroundColor;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setFontSize(float fontSize) {
     this.fontSize = fontSize;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setFontSizeUnit(@FontSizeUnit int unit) {
     this.fontSizeUnit = unit;
     return this;
@@ -283,6 +293,7 @@ public final class WebvttCssStyle {
     return fontSize;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setRubyPosition(@TextAnnotation.Position int rubyPosition) {
     this.rubyPosition = rubyPosition;
     return this;
@@ -292,6 +303,7 @@ public final class WebvttCssStyle {
     return rubyPosition;
   }
 
+  @CanIgnoreReturnValue
   public WebvttCssStyle setCombineUpright(boolean enabled) {
     this.combineUpright = enabled;
     return this;

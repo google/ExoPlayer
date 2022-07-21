@@ -85,6 +85,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaSession;
 import androidx.media3.test.session.common.TestUtils;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -503,6 +504,7 @@ public class RemoteMediaSession {
       bundle = new Bundle();
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlayerError(@Nullable PlaybackException playerError) {
       if (playerError != null) {
         bundle.putBundle(KEY_PLAYER_ERROR, playerError.toBundle());
@@ -510,189 +512,226 @@ public class RemoteMediaSession {
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setDuration(long duration) {
       bundle.putLong(KEY_DURATION, duration);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentPosition(long pos) {
       bundle.putLong(KEY_CURRENT_POSITION, pos);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setBufferedPosition(long buffPos) {
       bundle.putLong(KEY_BUFFERED_POSITION, buffPos);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setBufferedPercentage(int bufferedPercentage) {
       bundle.putInt(KEY_BUFFERED_PERCENTAGE, bufferedPercentage);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setTotalBufferedDuration(long totalBufferedDuration) {
       bundle.putLong(KEY_TOTAL_BUFFERED_DURATION, totalBufferedDuration);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentLiveOffset(long currentLiveOffset) {
       bundle.putLong(KEY_CURRENT_LIVE_OFFSET, currentLiveOffset);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setContentDuration(long contentDuration) {
       bundle.putLong(KEY_CONTENT_DURATION, contentDuration);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setContentPosition(long contentPosition) {
       bundle.putLong(KEY_CONTENT_POSITION, contentPosition);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setContentBufferedPosition(long contentBufferedPosition) {
       bundle.putLong(KEY_CONTENT_BUFFERED_POSITION, contentBufferedPosition);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setIsPlayingAd(boolean isPlayingAd) {
       bundle.putBoolean(KEY_IS_PLAYING_AD, isPlayingAd);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentAdGroupIndex(int currentAdGroupIndex) {
       bundle.putInt(KEY_CURRENT_AD_GROUP_INDEX, currentAdGroupIndex);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentAdIndexInAdGroup(int currentAdIndexInAdGroup) {
       bundle.putInt(KEY_CURRENT_AD_INDEX_IN_AD_GROUP, currentAdIndexInAdGroup);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlaybackParameters(PlaybackParameters playbackParameters) {
       bundle.putBundle(KEY_PLAYBACK_PARAMETERS, playbackParameters.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setAudioAttributes(AudioAttributes audioAttributes) {
       bundle.putBundle(KEY_AUDIO_ATTRIBUTES, audioAttributes.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setTimeline(Timeline timeline) {
       bundle.putBundle(KEY_TIMELINE, timeline.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentMediaItemIndex(int index) {
       bundle.putInt(KEY_CURRENT_MEDIA_ITEM_INDEX, index);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentPeriodIndex(int index) {
       bundle.putInt(KEY_CURRENT_PERIOD_INDEX, index);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlaylistMetadata(MediaMetadata playlistMetadata) {
       bundle.putBundle(KEY_PLAYLIST_METADATA, playlistMetadata.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setVideoSize(VideoSize videoSize) {
       bundle.putBundle(KEY_VIDEO_SIZE, videoSize.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setVolume(float volume) {
       bundle.putFloat(KEY_VOLUME, volume);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentCues(CueGroup cueGroup) {
       bundle.putBundle(KEY_CURRENT_CUE_GROUP, cueGroup.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setDeviceInfo(DeviceInfo deviceInfo) {
       bundle.putBundle(KEY_DEVICE_INFO, deviceInfo.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setDeviceVolume(int volume) {
       bundle.putInt(KEY_DEVICE_VOLUME, volume);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setDeviceMuted(boolean muted) {
       bundle.putBoolean(KEY_DEVICE_MUTED, muted);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlayWhenReady(boolean playWhenReady) {
       bundle.putBoolean(KEY_PLAY_WHEN_READY, playWhenReady);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlaybackSuppressionReason(
         @Player.PlaybackSuppressionReason int playbackSuppressionReason) {
       bundle.putInt(KEY_PLAYBACK_SUPPRESSION_REASON, playbackSuppressionReason);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlaybackState(@Player.State int state) {
       bundle.putInt(KEY_PLAYBACK_STATE, state);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setIsPlaying(boolean isPlaying) {
       bundle.putBoolean(KEY_IS_PLAYING, isPlaying);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setIsLoading(boolean isLoading) {
       bundle.putBoolean(KEY_IS_LOADING, isLoading);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setRepeatMode(@Player.RepeatMode int repeatMode) {
       bundle.putInt(KEY_REPEAT_MODE, repeatMode);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setShuffleModeEnabled(boolean shuffleModeEnabled) {
       bundle.putBoolean(KEY_SHUFFLE_MODE_ENABLED, shuffleModeEnabled);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setSeekBackIncrement(long seekBackIncrementMs) {
       bundle.putLong(KEY_SEEK_BACK_INCREMENT_MS, seekBackIncrementMs);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setSeekForwardIncrement(long seekForwardIncrementMs) {
       bundle.putLong(KEY_SEEK_FORWARD_INCREMENT_MS, seekForwardIncrementMs);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setMediaMetadata(MediaMetadata mediaMetadata) {
       bundle.putBundle(KEY_MEDIA_METADATA, mediaMetadata.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setMaxSeekToPreviousPositionMs(
         long maxSeekToPreviousPositionMs) {
       bundle.putLong(KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS, maxSeekToPreviousPositionMs);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setTrackSelectionParameters(
         TrackSelectionParameters parameters) {
       bundle.putBundle(KEY_TRACK_SELECTION_PARAMETERS, parameters.toBundle());
       return this;
     }
 
+    @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setCurrentTracks(Tracks tracks) {
       bundle.putBundle(KEY_CURRENT_TRACKS, tracks.toBundle());
       return this;

@@ -47,6 +47,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -127,154 +128,184 @@ import java.lang.annotation.Target;
       trackSelectionParameters = playerInfo.trackSelectionParameters;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlayerError(@Nullable PlaybackException playerError) {
       this.playerError = playerError;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setMediaItemTransitionReason(
         @Player.MediaItemTransitionReason int mediaItemTransitionReason) {
       this.mediaItemTransitionReason = mediaItemTransitionReason;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setSessionPositionInfo(SessionPositionInfo sessionPositionInfo) {
       this.sessionPositionInfo = sessionPositionInfo;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setOldPositionInfo(PositionInfo oldPositionInfo) {
       this.oldPositionInfo = oldPositionInfo;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setNewPositionInfo(PositionInfo newPositionInfo) {
       this.newPositionInfo = newPositionInfo;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setDiscontinuityReason(@Player.DiscontinuityReason int discontinuityReason) {
       this.discontinuityReason = discontinuityReason;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlaybackParameters(PlaybackParameters playbackParameters) {
       this.playbackParameters = playbackParameters;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setRepeatMode(@Player.RepeatMode int repeatMode) {
       this.repeatMode = repeatMode;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setShuffleModeEnabled(boolean shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setTimeline(Timeline timeline) {
       this.timeline = timeline;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setVideoSize(VideoSize videoSize) {
       this.videoSize = videoSize;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlaylistMetadata(MediaMetadata playlistMetadata) {
       this.playlistMetadata = playlistMetadata;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setVolume(@FloatRange(from = 0, to = 1) float volume) {
       this.volume = volume;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setAudioAttributes(AudioAttributes audioAttributes) {
       this.audioAttributes = audioAttributes;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setCues(CueGroup cueGroup) {
       this.cueGroup = cueGroup;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setDeviceInfo(DeviceInfo deviceInfo) {
       this.deviceInfo = deviceInfo;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setDeviceVolume(int deviceVolume) {
       this.deviceVolume = deviceVolume;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setDeviceMuted(boolean deviceMuted) {
       this.deviceMuted = deviceMuted;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlayWhenReady(boolean playWhenReady) {
       this.playWhenReady = playWhenReady;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlayWhenReadyChangedReason(
         @Player.PlayWhenReadyChangeReason int playWhenReadyChangedReason) {
       this.playWhenReadyChangedReason = playWhenReadyChangedReason;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setIsPlaying(boolean isPlaying) {
       this.isPlaying = isPlaying;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setIsLoading(boolean isLoading) {
       this.isLoading = isLoading;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlaybackSuppressionReason(
         @PlaybackSuppressionReason int playbackSuppressionReason) {
       this.playbackSuppressionReason = playbackSuppressionReason;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setPlaybackState(@State int playbackState) {
       this.playbackState = playbackState;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setMediaMetadata(MediaMetadata mediaMetadata) {
       this.mediaMetadata = mediaMetadata;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setSeekBackIncrement(long seekBackIncrementMs) {
       this.seekBackIncrementMs = seekBackIncrementMs;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setSeekForwardIncrement(long seekForwardIncrementMs) {
       this.seekForwardIncrementMs = seekForwardIncrementMs;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setMaxSeekToPreviousPositionMs(long maxSeekToPreviousPositionMs) {
       this.maxSeekToPreviousPositionMs = maxSeekToPreviousPositionMs;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setCurrentTracks(Tracks tracks) {
       currentTracks = tracks;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setTrackSelectionParameters(TrackSelectionParameters parameters) {
       trackSelectionParameters = parameters;
       return this;

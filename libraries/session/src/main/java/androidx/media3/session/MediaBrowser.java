@@ -37,6 +37,7 @@ import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
@@ -87,6 +88,7 @@ public final class MediaBrowser extends MediaController {
      * @param connectionHints A bundle containing the connection hints.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setConnectionHints(Bundle connectionHints) {
       this.connectionHints = new Bundle(checkNotNull(connectionHints));
       return this;
@@ -98,6 +100,7 @@ public final class MediaBrowser extends MediaController {
      * @param listener The listener.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setListener(Listener listener) {
       this.listener = checkNotNull(listener);
       return this;
@@ -112,6 +115,7 @@ public final class MediaBrowser extends MediaController {
      * @param looper The looper.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setApplicationLooper(Looper looper) {
       applicationLooper = checkNotNull(looper);
       return this;

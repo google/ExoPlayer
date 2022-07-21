@@ -43,6 +43,7 @@ import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.TransferListener;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -664,17 +665,20 @@ public abstract class DataSourceContractTest {
       /**
        * Sets a human-readable name for this resource which will be shown in test failure messages.
        */
+      @CanIgnoreReturnValue
       public Builder setName(String name) {
         this.name = name;
         return this;
       }
 
       /** Sets the URI where this resource is located. */
+      @CanIgnoreReturnValue
       public Builder setUri(String uri) {
         return setUri(Uri.parse(uri));
       }
 
       /** Sets the URI where this resource is located. */
+      @CanIgnoreReturnValue
       public Builder setUri(Uri uri) {
         this.uri = uri;
         return this;
@@ -685,6 +689,7 @@ public abstract class DataSourceContractTest {
        *
        * <p>Must be at least 5 bytes.
        */
+      @CanIgnoreReturnValue
       public Builder setExpectedBytes(byte[] expectedBytes) {
         checkArgument(expectedBytes.length >= 5);
         this.expectedBytes = expectedBytes;

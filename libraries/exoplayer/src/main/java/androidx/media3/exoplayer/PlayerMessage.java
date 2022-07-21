@@ -27,6 +27,7 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.Renderer.MessageType;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -125,6 +126,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage setType(int messageType) {
     Assertions.checkState(!isSent);
     this.type = messageType;
@@ -143,6 +145,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage setPayload(@Nullable Object payload) {
     Assertions.checkState(!isSent);
     this.payload = payload;
@@ -158,6 +161,7 @@ public final class PlayerMessage {
   /**
    * @deprecated Use {@link #setLooper(Looper)} instead.
    */
+  @CanIgnoreReturnValue
   @Deprecated
   public PlayerMessage setHandler(Handler handler) {
     return setLooper(handler.getLooper());
@@ -170,6 +174,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage setLooper(Looper looper) {
     Assertions.checkState(!isSent);
     this.looper = looper;
@@ -200,6 +205,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage setPosition(long positionMs) {
     Assertions.checkState(!isSent);
     this.positionMs = positionMs;
@@ -218,6 +224,7 @@ public final class PlayerMessage {
    *     empty and the provided media item index is not within the bounds of the timeline.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage setPosition(int mediaItemIndex, long positionMs) {
     Assertions.checkState(!isSent);
     Assertions.checkArgument(positionMs != C.TIME_UNSET);
@@ -244,6 +251,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage setDeleteAfterDelivery(boolean deleteAfterDelivery) {
     Assertions.checkState(!isSent);
     this.deleteAfterDelivery = deleteAfterDelivery;
@@ -262,6 +270,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If this message has already been sent.
    */
+  @CanIgnoreReturnValue
   public PlayerMessage send() {
     Assertions.checkState(!isSent);
     if (positionMs == C.TIME_UNSET) {
@@ -278,6 +287,7 @@ public final class PlayerMessage {
    * @return This message.
    * @throws IllegalStateException If this method is called before {@link #send()}.
    */
+  @CanIgnoreReturnValue
   public synchronized PlayerMessage cancel() {
     Assertions.checkState(isSent);
     isCanceled = true;

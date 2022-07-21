@@ -35,6 +35,7 @@ import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -54,6 +55,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
      * @param durationUs The duration of silent audio to output, in microseconds.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setDurationUs(@IntRange(from = 1) long durationUs) {
       this.durationUs = durationUs;
       return this;
@@ -66,6 +68,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setTag(@Nullable Object tag) {
       this.tag = tag;
       return this;

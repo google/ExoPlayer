@@ -32,6 +32,7 @@ import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
@@ -68,6 +69,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setTag(@Nullable Object tag) {
       this.tag = tag;
       return this;
@@ -79,6 +81,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *     #createMediaSource(MediaItem.SubtitleConfiguration, long)}). {@code trackId} will only be
      *     used if {@link MediaItem.SubtitleConfiguration#id} is {@code null}.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Factory setTrackId(@Nullable String trackId) {
       this.trackId = trackId;
@@ -92,6 +95,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setLoadErrorHandlingPolicy(
         @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
@@ -110,6 +114,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *     normally by {@link SampleStream#maybeThrowError()}.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setTreatLoadErrorsAsEndOfStream(boolean treatLoadErrorsAsEndOfStream) {
       this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
       return this;

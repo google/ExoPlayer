@@ -31,6 +31,7 @@ import androidx.media3.exoplayer.upstream.BandwidthMeter.EventListener.EventDisp
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,6 +142,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @param slidingWindowMaxWeight The maximum weight for the sliding window.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSlidingWindowMaxWeight(int slidingWindowMaxWeight) {
       this.slidingWindowMaxWeight = slidingWindowMaxWeight;
       return this;
@@ -153,6 +155,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @param initialBitrateEstimate The initial bitrate estimate in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setInitialBitrateEstimate(long initialBitrateEstimate) {
       for (Integer networkType : initialBitrateEstimates.keySet()) {
         setInitialBitrateEstimate(networkType, initialBitrateEstimate);
@@ -168,6 +171,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @param initialBitrateEstimate The initial bitrate estimate in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setInitialBitrateEstimate(
         @C.NetworkType int networkType, long initialBitrateEstimate) {
       initialBitrateEstimates.put(networkType, initialBitrateEstimate);
@@ -182,6 +186,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      *     estimates should be used.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setInitialBitrateEstimate(String countryCode) {
       initialBitrateEstimates =
           getInitialBitrateEstimatesForCountry(Ascii.toUpperCase(countryCode));
@@ -195,6 +200,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @param clock The clock used to estimate bandwidth from data transfers.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setClock(Clock clock) {
       this.clock = clock;
       return this;
@@ -206,6 +212,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @param resetOnNetworkTypeChange Whether to reset if the network type changes.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setResetOnNetworkTypeChange(boolean resetOnNetworkTypeChange) {
       this.resetOnNetworkTypeChange = resetOnNetworkTypeChange;
       return this;

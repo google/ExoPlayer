@@ -34,6 +34,7 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A builder of {@link ExoPlayer} instances for testing. */
@@ -73,6 +74,7 @@ public class TestExoPlayerBuilder {
    * @param useLazyPreparation Whether to use lazy preparation.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setUseLazyPreparation(boolean useLazyPreparation) {
     this.useLazyPreparation = useLazyPreparation;
     return this;
@@ -90,6 +92,7 @@ public class TestExoPlayerBuilder {
    * @param trackSelector The {@link DefaultTrackSelector} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setTrackSelector(DefaultTrackSelector trackSelector) {
     Assertions.checkNotNull(trackSelector);
     this.trackSelector = trackSelector;
@@ -108,6 +111,7 @@ public class TestExoPlayerBuilder {
    * @param loadControl The {@link LoadControl} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setLoadControl(LoadControl loadControl) {
     this.loadControl = loadControl;
     return this;
@@ -125,6 +129,7 @@ public class TestExoPlayerBuilder {
    * @param bandwidthMeter The {@link BandwidthMeter} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
     Assertions.checkNotNull(bandwidthMeter);
     this.bandwidthMeter = bandwidthMeter;
@@ -144,6 +149,7 @@ public class TestExoPlayerBuilder {
    * @param renderers A list of {@link Renderer}s to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setRenderers(Renderer... renderers) {
     assertThat(renderersFactory).isNull();
     this.renderers = renderers;
@@ -169,6 +175,7 @@ public class TestExoPlayerBuilder {
    * @param renderersFactory A {@link RenderersFactory} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setRenderersFactory(RenderersFactory renderersFactory) {
     assertThat(renderers).isNull();
     this.renderersFactory = renderersFactory;
@@ -191,6 +198,7 @@ public class TestExoPlayerBuilder {
    * @param clock A {@link Clock} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setClock(Clock clock) {
     assertThat(clock).isNotNull();
     this.clock = clock;
@@ -208,6 +216,7 @@ public class TestExoPlayerBuilder {
    * @param looper The {@link Looper} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setLooper(Looper looper) {
     this.looper = looper;
     return this;
@@ -237,6 +246,7 @@ public class TestExoPlayerBuilder {
    * @param mediaSourceFactory The {@link MediaSource.Factory} to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
     this.mediaSourceFactory = mediaSourceFactory;
     return this;
@@ -248,6 +258,7 @@ public class TestExoPlayerBuilder {
    * @param seekBackIncrementMs The seek back increment to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setSeekBackIncrementMs(long seekBackIncrementMs) {
     this.seekBackIncrementMs = seekBackIncrementMs;
     return this;
@@ -264,6 +275,7 @@ public class TestExoPlayerBuilder {
    * @param seekForwardIncrementMs The seek forward increment to be used by the player.
    * @return This builder.
    */
+  @CanIgnoreReturnValue
   public TestExoPlayerBuilder setSeekForwardIncrementMs(long seekForwardIncrementMs) {
     this.seekForwardIncrementMs = seekForwardIncrementMs;
     return this;

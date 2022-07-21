@@ -23,6 +23,7 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,6 +100,7 @@ public final class DefaultDataSource implements DataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;

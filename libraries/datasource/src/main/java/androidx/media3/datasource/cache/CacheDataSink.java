@@ -28,6 +28,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSink;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.cache.Cache.CacheException;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -65,6 +66,7 @@ public final class CacheDataSink implements DataSink {
      * @param cache The cache to which data will be written.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setCache(Cache cache) {
       this.cache = cache;
       return this;
@@ -83,6 +85,7 @@ public final class CacheDataSink implements DataSink {
      *     fragmentation.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setFragmentSize(long fragmentSize) {
       this.fragmentSize = fragmentSize;
       return this;
@@ -97,6 +100,7 @@ public final class CacheDataSink implements DataSink {
      * @param bufferSize The buffer size in bytes.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setBufferSize(int bufferSize) {
       this.bufferSize = bufferSize;
       return this;

@@ -39,6 +39,7 @@ import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.source.SinglePeriodTimeline;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import javax.net.SocketFactory;
 
@@ -89,6 +90,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @param forceUseRtpTcp Whether force to use TCP for streaming.
      * @return This Factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setForceUseRtpTcp(boolean forceUseRtpTcp) {
       this.forceUseRtpTcp = forceUseRtpTcp;
       return this;
@@ -100,6 +102,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @param userAgent The user agent.
      * @return This Factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setUserAgent(String userAgent) {
       this.userAgent = userAgent;
       return this;
@@ -112,6 +115,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @param socketFactory A socket factory.
      * @return This Factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setSocketFactory(SocketFactory socketFactory) {
       this.socketFactory = socketFactory;
       return this;
@@ -126,6 +130,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @param debugLoggingEnabled Whether to log RTSP messages.
      * @return This Factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setDebugLoggingEnabled(boolean debugLoggingEnabled) {
       this.debugLoggingEnabled = debugLoggingEnabled;
       return this;
@@ -140,6 +145,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @param timeoutMs The timeout measured in milliseconds.
      * @return This Factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setTimeoutMs(@IntRange(from = 1) long timeoutMs) {
       checkArgument(timeoutMs > 0);
       this.timeoutMs = timeoutMs;

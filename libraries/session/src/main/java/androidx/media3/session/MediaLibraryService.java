@@ -39,6 +39,7 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -592,24 +593,28 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /** Sets whether the media items are recently played. */
+      @CanIgnoreReturnValue
       public Builder setRecent(boolean recent) {
         this.recent = recent;
         return this;
       }
 
       /** Sets whether the media items can be played without an internet connection. */
+      @CanIgnoreReturnValue
       public Builder setOffline(boolean offline) {
         this.offline = offline;
         return this;
       }
 
       /** Sets whether the media items are suggested. */
+      @CanIgnoreReturnValue
       public Builder setSuggested(boolean suggested) {
         this.suggested = suggested;
         return this;
       }
 
       /** Set an extra {@link Bundle}. */
+      @CanIgnoreReturnValue
       @UnstableApi
       public Builder setExtras(Bundle extras) {
         this.extras = checkNotNull(extras);

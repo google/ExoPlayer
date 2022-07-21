@@ -29,6 +29,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -65,6 +66,7 @@ public final class SessionCommands implements Bundleable {
      * @param command A command to add.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder add(SessionCommand command) {
       commands.add(checkNotNull(command));
       return this;
@@ -77,6 +79,7 @@ public final class SessionCommands implements Bundleable {
      * @param commandCode A command code to build command and add.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder add(@CommandCode int commandCode) {
       checkArgument(commandCode != COMMAND_CODE_CUSTOM);
       commands.add(new SessionCommand(commandCode));
@@ -89,6 +92,7 @@ public final class SessionCommands implements Bundleable {
      * @param command A command to find.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder remove(SessionCommand command) {
       commands.remove(checkNotNull(command));
       return this;
@@ -101,6 +105,7 @@ public final class SessionCommands implements Bundleable {
      * @param commandCode A command code to find.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder remove(@CommandCode int commandCode) {
       checkArgument(commandCode != COMMAND_CODE_CUSTOM);
       for (SessionCommand command : commands) {
@@ -117,7 +122,8 @@ public final class SessionCommands implements Bundleable {
      *
      * @return This builder for chaining.
      */
-    /* package */ Builder addAllSessionCommands() {
+    /* package */ @CanIgnoreReturnValue
+    Builder addAllSessionCommands() {
       addCommandCodes(SessionCommand.SESSION_COMMANDS);
       return this;
     }
@@ -127,7 +133,8 @@ public final class SessionCommands implements Bundleable {
      *
      * @return This builder for chaining.
      */
-    /* package */ Builder addAllLibraryCommands() {
+    /* package */ @CanIgnoreReturnValue
+    Builder addAllLibraryCommands() {
       addCommandCodes(SessionCommand.LIBRARY_COMMANDS);
       return this;
     }
@@ -137,7 +144,8 @@ public final class SessionCommands implements Bundleable {
      *
      * @return This builder for chaining.
      */
-    /* package */ Builder addAllPredefinedCommands() {
+    /* package */ @CanIgnoreReturnValue
+    Builder addAllPredefinedCommands() {
       addAllSessionCommands();
       addAllLibraryCommands();
       return this;

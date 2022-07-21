@@ -26,6 +26,7 @@ import androidx.media3.datasource.BaseDataSource;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.TransferListener;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.antmedia.rtmp_client.RtmpClient;
 import io.antmedia.rtmp_client.RtmpClient.RtmpIOException;
 import java.io.IOException;
@@ -53,6 +54,7 @@ public final class RtmpDataSource extends BaseDataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
