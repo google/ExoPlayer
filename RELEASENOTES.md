@@ -9,12 +9,15 @@
     *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
         OutOfMemory errors when releasing multiple players at the same time
         ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
-*   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
         `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
         boolean)` to specify whether the renderer will output metadata early or
         in sync with the player position.
+*   UI:
+    *   Use current overrides of the player as preset in
+        `TrackSelectionDialogBuilder`
+        ([#10429](https://github.com/google/ExoPlayer/issues/10429)).
 *   Session:
     *   Ensure commands are always executed in the correct order even if some
         require asynchronous resolution
@@ -27,10 +30,6 @@
         small icon ([#104](https://github.com/androidx/media/issues/104)).
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
-*   UI:
-    *   Use current overrides of the player as preset in
-        `TrackSelectionDialogBuilder`
-        ([#10429](https://github.com/google/ExoPlayer/issues/10429)).
 
 ### 1.0.0-beta02 (2022-07-15)
 
