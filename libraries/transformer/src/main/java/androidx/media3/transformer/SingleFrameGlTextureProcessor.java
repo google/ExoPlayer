@@ -46,7 +46,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
    * Creates a {@code SingleFrameGlTextureProcessor} instance.
    *
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    */
   public SingleFrameGlTextureProcessor(boolean useHdr) {
     this.useHdr = useHdr;

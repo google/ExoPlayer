@@ -72,7 +72,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.

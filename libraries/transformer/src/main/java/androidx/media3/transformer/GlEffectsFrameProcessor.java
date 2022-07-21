@@ -185,7 +185,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!matrixTransformations.isEmpty() || sampleFromExternalTexture) {
         textureProcessorListBuilder.add(
             new MatrixTransformationProcessor(
-                context, matrixTransformations, sampleFromExternalTexture, useHdr));
+                context,
+                matrixTransformations,
+                sampleFromExternalTexture,
+                useHdr,
+                /* outputOpticalColors= */ false));
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
