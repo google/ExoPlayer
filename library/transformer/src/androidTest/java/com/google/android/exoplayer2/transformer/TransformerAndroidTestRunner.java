@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -77,6 +78,7 @@ public class TransformerAndroidTestRunner {
      * @param timeoutSeconds The timeout.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setTimeoutSeconds(int timeoutSeconds) {
       this.timeoutSeconds = timeoutSeconds;
       return this;
@@ -96,6 +98,7 @@ public class TransformerAndroidTestRunner {
      * @param maybeCalculateSsim Whether to try to calculate SSIM.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setMaybeCalculateSsim(boolean maybeCalculateSsim) {
       this.maybeCalculateSsim = maybeCalculateSsim;
       return this;
@@ -115,6 +118,7 @@ public class TransformerAndroidTestRunner {
      * @param suppressAnalysisExceptions Whether to suppress analysis exceptions.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setSuppressAnalysisExceptions(boolean suppressAnalysisExceptions) {
       this.suppressAnalysisExceptions = suppressAnalysisExceptions;
       return this;
@@ -130,6 +134,7 @@ public class TransformerAndroidTestRunner {
      * @param inputValues A {@link Map} of values to be written to the transformation summary.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setInputValues(@Nullable Map<String, Object> inputValues) {
       this.inputValues = inputValues;
       return this;

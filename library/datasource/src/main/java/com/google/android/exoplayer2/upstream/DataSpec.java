@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -87,6 +88,7 @@ public final class DataSpec {
      * @param uriString The {@link DataSpec#uri}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setUri(String uriString) {
       this.uri = Uri.parse(uriString);
       return this;
@@ -98,6 +100,7 @@ public final class DataSpec {
      * @param uri The {@link DataSpec#uri}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setUri(Uri uri) {
       this.uri = uri;
       return this;
@@ -109,6 +112,7 @@ public final class DataSpec {
      * @param uriPositionOffset The {@link DataSpec#uriPositionOffset}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setUriPositionOffset(long uriPositionOffset) {
       this.uriPositionOffset = uriPositionOffset;
       return this;
@@ -120,6 +124,7 @@ public final class DataSpec {
      * @param httpMethod The {@link DataSpec#httpMethod}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setHttpMethod(@HttpMethod int httpMethod) {
       this.httpMethod = httpMethod;
       return this;
@@ -131,6 +136,7 @@ public final class DataSpec {
      * @param httpBody The {@link DataSpec#httpBody}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setHttpBody(@Nullable byte[] httpBody) {
       this.httpBody = httpBody;
       return this;
@@ -146,6 +152,7 @@ public final class DataSpec {
      * @param httpRequestHeaders The {@link DataSpec#httpRequestHeaders}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setHttpRequestHeaders(Map<String, String> httpRequestHeaders) {
       this.httpRequestHeaders = httpRequestHeaders;
       return this;
@@ -157,6 +164,7 @@ public final class DataSpec {
      * @param position The {@link DataSpec#position}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPosition(long position) {
       this.position = position;
       return this;
@@ -168,6 +176,7 @@ public final class DataSpec {
      * @param length The {@link DataSpec#length}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLength(long length) {
       this.length = length;
       return this;
@@ -179,6 +188,7 @@ public final class DataSpec {
      * @param key The {@link DataSpec#key}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setKey(@Nullable String key) {
       this.key = key;
       return this;
@@ -190,6 +200,7 @@ public final class DataSpec {
      * @param flags The {@link DataSpec#flags}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setFlags(@Flags int flags) {
       this.flags = flags;
       return this;
@@ -201,6 +212,7 @@ public final class DataSpec {
      * @param customData The {@link DataSpec#customData}.
      * @return The builder.
      */
+    @CanIgnoreReturnValue
     public Builder setCustomData(@Nullable Object customData) {
       this.customData = customData;
       return this;

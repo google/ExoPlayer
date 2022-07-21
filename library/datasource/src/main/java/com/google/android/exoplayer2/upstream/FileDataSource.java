@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -80,6 +81,7 @@ public final class FileDataSource extends BaseDataSource {
      * @param listener The {@link TransferListener}.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setListener(@Nullable TransferListener listener) {
       this.listener = listener;
       return this;

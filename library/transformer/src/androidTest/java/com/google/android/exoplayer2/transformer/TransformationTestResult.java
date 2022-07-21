@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,6 +50,7 @@ public class TransformationTestResult {
      * @param filePath The path.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setFilePath(@Nullable String filePath) {
       this.filePath = filePath;
       return this;
@@ -63,6 +65,7 @@ public class TransformationTestResult {
      * @param elapsedTimeMs The time, in ms.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setElapsedTimeMs(long elapsedTimeMs) {
       this.elapsedTimeMs = elapsedTimeMs;
       return this;
@@ -76,6 +79,7 @@ public class TransformationTestResult {
      * @param ssim The structural similarity index.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setSsim(double ssim) {
       this.ssim = ssim;
       return this;
@@ -89,6 +93,7 @@ public class TransformationTestResult {
      * @param analysisException The {@link Exception} thrown during analysis.
      * @return This {@link Builder}.
      */
+    @CanIgnoreReturnValue
     public Builder setAnalysisException(@Nullable Exception analysisException) {
       this.analysisException = analysisException;
       return this;

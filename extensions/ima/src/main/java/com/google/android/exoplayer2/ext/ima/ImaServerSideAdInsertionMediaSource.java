@@ -92,6 +92,7 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -132,6 +133,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       this.contentMediaSourceFactory = contentMediaSourceFactory;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public MediaSource.Factory setLoadErrorHandlingPolicy(
         LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
@@ -139,6 +141,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       return this;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public MediaSource.Factory setDrmSessionManagerProvider(
         DrmSessionManagerProvider drmSessionManagerProvider) {
@@ -213,6 +216,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
        * @param imaSdkSettings The {@link ImaSdkSettings}.
        * @return This builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public AdsLoader.Builder setImaSdkSettings(ImaSdkSettings imaSdkSettings) {
         this.imaSdkSettings = imaSdkSettings;
         return this;
@@ -225,6 +229,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
        * @param adEventListener The ad event listener.
        * @return This builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public AdsLoader.Builder setAdEventListener(AdEventListener adEventListener) {
         this.adEventListener = adEventListener;
         return this;
@@ -237,6 +242,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
        * @param adErrorListener The {@link AdErrorEvent.AdErrorListener}.
        * @return This builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public AdsLoader.Builder setAdErrorListener(AdErrorEvent.AdErrorListener adErrorListener) {
         this.adErrorListener = adErrorListener;
         return this;
@@ -249,6 +255,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
        * @return This builder, for convenience.
        * @see AdDisplayContainer#setCompanionSlots(Collection)
        */
+      @CanIgnoreReturnValue
       public AdsLoader.Builder setCompanionAdSlots(Collection<CompanionAdSlot> companionAdSlots) {
         this.companionAdSlots = ImmutableList.copyOf(companionAdSlots);
         return this;
@@ -262,6 +269,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
        * @param state The state to resume with.
        * @return This builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public AdsLoader.Builder setAdsLoaderState(State state) {
         this.state = state;
         return this;

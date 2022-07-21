@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** A media transformation request. */
 public final class TransformationRequest {
@@ -94,6 +95,7 @@ public final class TransformationRequest {
      * @param flattenForSlowMotion Whether to flatten for slow motion.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       this.flattenForSlowMotion = flattenForSlowMotion;
       return this;
@@ -110,6 +112,7 @@ public final class TransformationRequest {
      * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setScale(float scaleX, float scaleY) {
       this.scaleX = scaleX;
       this.scaleY = scaleY;
@@ -128,6 +131,7 @@ public final class TransformationRequest {
      * @param rotationDegrees The counterclockwise rotation, in degrees.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRotationDegrees(float rotationDegrees) {
       this.rotationDegrees = rotationDegrees;
       return this;
@@ -148,6 +152,7 @@ public final class TransformationRequest {
      * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setResolution(int outputHeight) {
       this.outputHeight = outputHeight;
       return this;
@@ -171,6 +176,7 @@ public final class TransformationRequest {
      * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
      *     {@linkplain MimeTypes MIME type}.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoMimeType(@Nullable String videoMimeType) {
       checkArgument(
           videoMimeType == null || MimeTypes.isVideo(videoMimeType),
@@ -196,6 +202,7 @@ public final class TransformationRequest {
      * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
      *     {@linkplain MimeTypes MIME type}.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioMimeType(@Nullable String audioMimeType) {
       checkArgument(
           audioMimeType == null || MimeTypes.isAudio(audioMimeType),
@@ -215,6 +222,7 @@ public final class TransformationRequest {
      * @param enableRequestSdrToneMapping Whether to request tone-mapping down to SDR.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
       this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
       return this;
@@ -233,6 +241,7 @@ public final class TransformationRequest {
      *     dynamic range (HDR) signal.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
       this.enableHdrEditing = enableHdrEditing;
       return this;

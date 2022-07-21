@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
@@ -152,6 +153,7 @@ public interface HttpDataSource extends DataSource {
       return createDataSourceInternal(defaultRequestProperties);
     }
 
+    @CanIgnoreReturnValue
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);

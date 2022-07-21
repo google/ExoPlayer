@@ -26,6 +26,7 @@ import android.media.AudioTrack;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.DefaultAudioSink.OutputMode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Provide the buffer size to use when creating an {@link AudioTrack}. */
 public class DefaultAudioTrackBufferSizeProvider
@@ -71,6 +72,7 @@ public class DefaultAudioTrackBufferSizeProvider
      * Sets the minimum length for PCM {@link AudioTrack} buffers, in microseconds. Default is
      * {@value #MIN_PCM_BUFFER_DURATION_US}.
      */
+    @CanIgnoreReturnValue
     public Builder setMinPcmBufferDurationUs(int minPcmBufferDurationUs) {
       this.minPcmBufferDurationUs = minPcmBufferDurationUs;
       return this;
@@ -80,6 +82,7 @@ public class DefaultAudioTrackBufferSizeProvider
      * Sets the maximum length for PCM {@link AudioTrack} buffers, in microseconds. Default is
      * {@value #MAX_PCM_BUFFER_DURATION_US}.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxPcmBufferDurationUs(int maxPcmBufferDurationUs) {
       this.maxPcmBufferDurationUs = maxPcmBufferDurationUs;
       return this;
@@ -89,6 +92,7 @@ public class DefaultAudioTrackBufferSizeProvider
      * Sets the multiplication factor to apply to the minimum buffer size requested. Default is
      * {@value #PCM_BUFFER_MULTIPLICATION_FACTOR}.
      */
+    @CanIgnoreReturnValue
     public Builder setPcmBufferMultiplicationFactor(int pcmBufferMultiplicationFactor) {
       this.pcmBufferMultiplicationFactor = pcmBufferMultiplicationFactor;
       return this;
@@ -98,6 +102,7 @@ public class DefaultAudioTrackBufferSizeProvider
      * Sets the length for passthrough {@link AudioTrack} buffers, in microseconds. Default is
      * {@value #PASSTHROUGH_BUFFER_DURATION_US}.
      */
+    @CanIgnoreReturnValue
     public Builder setPassthroughBufferDurationUs(int passthroughBufferDurationUs) {
       this.passthroughBufferDurationUs = passthroughBufferDurationUs;
       return this;
@@ -107,6 +112,7 @@ public class DefaultAudioTrackBufferSizeProvider
      * The length for offload {@link AudioTrack} buffers, in microseconds. Default is {@value
      * #OFFLOAD_BUFFER_DURATION_US}.
      */
+    @CanIgnoreReturnValue
     public Builder setOffloadBufferDurationUs(int offloadBufferDurationUs) {
       this.offloadBufferDurationUs = offloadBufferDurationUs;
       return this;
@@ -116,6 +122,7 @@ public class DefaultAudioTrackBufferSizeProvider
      * Sets the multiplication factor to apply to the passthrough buffer for AC3 to avoid underruns
      * on some devices (e.g., Broadcom 7271). Default is {@value #AC3_BUFFER_MULTIPLICATION_FACTOR}.
      */
+    @CanIgnoreReturnValue
     public Builder setAc3BufferMultiplicationFactor(int ac3BufferMultiplicationFactor) {
       this.ac3BufferMultiplicationFactor = ac3BufferMultiplicationFactor;
       return this;

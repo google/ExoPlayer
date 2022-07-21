@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.antmedia.rtmp_client.RtmpClient;
 import io.antmedia.rtmp_client.RtmpClient.RtmpIOException;
 import java.io.IOException;
@@ -51,6 +52,7 @@ public final class RtmpDataSource extends BaseDataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;

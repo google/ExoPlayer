@@ -29,6 +29,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -104,6 +105,7 @@ public final class VideoEncoderSettings {
      * @param bitrate The {@link VideoEncoderSettings#bitrate}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setBitrate(int bitrate) {
       this.bitrate = bitrate;
       return this;
@@ -118,6 +120,7 @@ public final class VideoEncoderSettings {
      * @param bitrateMode The {@link VideoEncoderSettings#bitrateMode}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setBitrateMode(@BitrateMode int bitrateMode) {
       checkArgument(bitrateMode == BITRATE_MODE_VBR || bitrateMode == BITRATE_MODE_CBR);
       this.bitrateMode = bitrateMode;
@@ -138,6 +141,7 @@ public final class VideoEncoderSettings {
      * @param encodingLevel The {@link VideoEncoderSettings#level}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setEncodingProfileLevel(int encodingProfile, int encodingLevel) {
       this.profile = encodingProfile;
       this.level = encodingLevel;
@@ -151,6 +155,7 @@ public final class VideoEncoderSettings {
      * @param iFrameIntervalSeconds The {@link VideoEncoderSettings#iFrameIntervalSeconds}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setiFrameIntervalSeconds(float iFrameIntervalSeconds) {
       this.iFrameIntervalSeconds = iFrameIntervalSeconds;
       return this;
@@ -164,6 +169,7 @@ public final class VideoEncoderSettings {
      * @param priority The {@link MediaFormat#KEY_PRIORITY priority}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     public Builder setEncoderPerformanceParameters(int operatingRate, int priority) {
       this.operatingRate = operatingRate;
@@ -180,6 +186,7 @@ public final class VideoEncoderSettings {
      *
      * <p>Can not be enabled alongside setting a custom bitrate with {@link #setBitrate(int)}.
      */
+    @CanIgnoreReturnValue
     public Builder setEnableHighQualityTargeting(boolean enableHighQualityTargeting) {
       this.enableHighQualityTargeting = enableHighQualityTargeting;
       return this;

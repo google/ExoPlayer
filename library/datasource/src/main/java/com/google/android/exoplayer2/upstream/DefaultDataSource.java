@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,6 +99,7 @@ public final class DefaultDataSource implements DataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;

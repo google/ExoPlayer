@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
  * A {@link LivePlaybackSpeedControl} that adjusts the playback speed using a proportional
@@ -122,6 +123,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      * @param fallbackMinPlaybackSpeed The fallback minimum factor by which playback can be sped up.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setFallbackMinPlaybackSpeed(float fallbackMinPlaybackSpeed) {
       Assertions.checkArgument(0 < fallbackMinPlaybackSpeed && fallbackMinPlaybackSpeed <= 1f);
       this.fallbackMinPlaybackSpeed = fallbackMinPlaybackSpeed;
@@ -137,6 +139,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      * @param fallbackMaxPlaybackSpeed The fallback maximum factor by which playback can be sped up.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setFallbackMaxPlaybackSpeed(float fallbackMaxPlaybackSpeed) {
       Assertions.checkArgument(fallbackMaxPlaybackSpeed >= 1f);
       this.fallbackMaxPlaybackSpeed = fallbackMaxPlaybackSpeed;
@@ -152,6 +155,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      *     milliseconds.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setMinUpdateIntervalMs(long minUpdateIntervalMs) {
       Assertions.checkArgument(minUpdateIntervalMs > 0);
       this.minUpdateIntervalMs = minUpdateIntervalMs;
@@ -170,6 +174,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      *     speed.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setProportionalControlFactor(float proportionalControlFactor) {
       Assertions.checkArgument(proportionalControlFactor > 0);
       this.proportionalControlFactorUs = proportionalControlFactor / C.MICROS_PER_SECOND;
@@ -186,6 +191,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      *     used, in milliseconds.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxLiveOffsetErrorMsForUnitSpeed(long maxLiveOffsetErrorMsForUnitSpeed) {
       Assertions.checkArgument(maxLiveOffsetErrorMsForUnitSpeed > 0);
       this.maxLiveOffsetErrorUsForUnitSpeed = Util.msToUs(maxLiveOffsetErrorMsForUnitSpeed);
@@ -200,6 +206,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      *     when the player is rebuffering, in milliseconds
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setTargetLiveOffsetIncrementOnRebufferMs(
         long targetLiveOffsetIncrementOnRebufferMs) {
       Assertions.checkArgument(targetLiveOffsetIncrementOnRebufferMs >= 0);
@@ -222,6 +229,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      * @param minPossibleLiveOffsetSmoothingFactor The smoothing factor. Must be &ge; 0 and &lt; 1.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setMinPossibleLiveOffsetSmoothingFactor(
         float minPossibleLiveOffsetSmoothingFactor) {
       Assertions.checkArgument(

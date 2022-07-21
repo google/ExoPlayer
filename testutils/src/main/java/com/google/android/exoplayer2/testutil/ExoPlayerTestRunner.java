@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,6 +110,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      *     runner.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setTimeline(Timeline timeline) {
       assertThat(mediaSources).isEmpty();
       assertFalse(skipSettingMediaSources);
@@ -124,6 +126,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param manifest A manifest to be used by a {@link FakeMediaSource} in the test runner.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setManifest(Object manifest) {
       assertThat(mediaSources).isEmpty();
       assertFalse(skipSettingMediaSources);
@@ -138,6 +141,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param positionMs The position in milliseconds to seek to.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder initialSeek(int mediaItemIndex, long positionMs) {
       this.initialMediaItemIndex = mediaItemIndex;
       this.initialPositionMs = positionMs;
@@ -154,6 +158,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param mediaSources The {@link MediaSource}s to be used by the test runner.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSources(MediaSource... mediaSources) {
       assertThat(timeline).isNull();
       assertThat(manifest).isNull();
@@ -171,6 +176,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param supportedFormats A list of supported {@link Format}s.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSupportedFormats(Format... supportedFormats) {
       this.supportedFormats = supportedFormats;
       return this;
@@ -183,6 +189,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      *
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder skipSettingMediaSources() {
       assertThat(timeline).isNull();
       assertThat(manifest).isNull();
@@ -195,6 +202,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setUseLazyPreparation(boolean)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       testPlayerBuilder.setUseLazyPreparation(useLazyPreparation);
       return this;
@@ -206,6 +214,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param pauseAtEndOfMediaItems Whether to pause at the end of media items.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
       this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
       return this;
@@ -215,6 +224,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setTrackSelector(DefaultTrackSelector)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setTrackSelector(DefaultTrackSelector trackSelector) {
       testPlayerBuilder.setTrackSelector(trackSelector);
       return this;
@@ -224,6 +234,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setLoadControl(LoadControl)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLoadControl(LoadControl loadControl) {
       testPlayerBuilder.setLoadControl(loadControl);
       return this;
@@ -233,6 +244,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setBandwidthMeter(BandwidthMeter)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       this.testPlayerBuilder.setBandwidthMeter(bandwidthMeter);
       return this;
@@ -242,6 +254,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setRenderers(Renderer...)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRenderers(Renderer... renderers) {
       testPlayerBuilder.setRenderers(renderers);
       return this;
@@ -251,6 +264,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setRenderersFactory(RenderersFactory)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
       testPlayerBuilder.setRenderersFactory(renderersFactory);
       return this;
@@ -260,6 +274,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @see TestExoPlayerBuilder#setClock(Clock)
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setClock(Clock clock) {
       testPlayerBuilder.setClock(clock);
       return this;
@@ -272,6 +287,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param actionSchedule An {@link ActionSchedule} to be used by the test runner.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setActionSchedule(ActionSchedule actionSchedule) {
       this.actionSchedule = actionSchedule;
       return this;
@@ -283,6 +299,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param surface The {@link Surface} to be used by the player.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoSurface(Surface surface) {
       this.surface = surface;
       return this;
@@ -295,6 +312,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      *     to player events.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPlayerListener(Player.Listener playerListener) {
       this.playerListener = playerListener;
       return this;
@@ -306,6 +324,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      * @param analyticsListener An {@link AnalyticsListener} to be registered.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setAnalyticsListener(AnalyticsListener analyticsListener) {
       this.analyticsListener = analyticsListener;
       return this;
@@ -320,6 +339,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
      *     or idle state.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setExpectedPlayerEndedCount(int expectedPlayerEndedCount) {
       this.expectedPlayerEndedCount = expectedPlayerEndedCount;
       return this;
@@ -429,6 +449,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
    *
    * @return This test runner.
    */
+  @CanIgnoreReturnValue
   public ExoPlayerTestRunner start() {
     return start(/* doPrepare= */ true);
   }
@@ -440,6 +461,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
    * @param doPrepare Whether the player should be prepared.
    * @return This test runner.
    */
+  @CanIgnoreReturnValue
   public ExoPlayerTestRunner start(boolean doPrepare) {
     handler.post(
         () -> {
@@ -494,6 +516,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
    * @return This test runner.
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
+  @CanIgnoreReturnValue
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
     clock.onThreadBlocked();
     if (!endedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
@@ -516,6 +539,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
    * @throws TimeoutException If the action schedule did not finish within the specified timeout.
    * @throws InterruptedException If the test thread gets interrupted while waiting.
    */
+  @CanIgnoreReturnValue
   public ExoPlayerTestRunner blockUntilActionScheduleFinished(long timeoutMs)
       throws TimeoutException, InterruptedException {
     clock.onThreadBlocked();

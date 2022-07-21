@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -93,6 +94,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       defaultRequestProperties = new RequestProperties();
     }
 
+    @CanIgnoreReturnValue
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
@@ -109,6 +111,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      *     agent of the underlying {@link OkHttpClient}.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
@@ -122,6 +125,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      * @param cacheControl The cache control that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setCacheControl(@Nullable CacheControl cacheControl) {
       this.cacheControl = cacheControl;
       return this;
@@ -138,6 +142,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      *     predicate that was previously set.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
       return this;
@@ -153,6 +158,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
      * @param transferListener The listener that will be used.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
       return this;
