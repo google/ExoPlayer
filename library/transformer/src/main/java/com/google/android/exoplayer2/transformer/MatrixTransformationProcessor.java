@@ -48,6 +48,8 @@ import java.util.Arrays;
   private static final String VERTEX_SHADER_TRANSFORMATION_ES3_PATH =
       "shaders/vertex_shader_transformation_es3.glsl";
   private static final String FRAGMENT_SHADER_COPY_PATH = "shaders/fragment_shader_copy_es2.glsl";
+  private static final String FRAGMENT_SHADER_HLG_EOTF_ES3_PATH =
+      "shaders/fragment_shader_hlg_eotf_es3.glsl";
   private static final String FRAGMENT_SHADER_COPY_EXTERNAL_PATH =
       "shaders/fragment_shader_copy_external_es2.glsl";
   private static final String FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH =
@@ -98,7 +100,7 @@ import java.util.Arrays;
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @param matrixTransformation A {@link MatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
@@ -110,7 +112,8 @@ import java.util.Arrays;
         context,
         ImmutableList.of(matrixTransformation),
         /* sampleFromExternalTexture= */ false,
-        useHdr);
+        useHdr,
+        /* outputOpticalColors= */ false);
   }
 
   /**
@@ -118,7 +121,7 @@ import java.util.Arrays;
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @param matrixTransformation A {@link GlMatrixTransformation} that specifies the transformation
    *     matrix to use for each frame.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
@@ -130,7 +133,8 @@ import java.util.Arrays;
         context,
         ImmutableList.of(matrixTransformation),
         /* sampleFromExternalTexture= */ false,
-        useHdr);
+        useHdr,
+        /* outputOpticalColors= */ false);
   }
 
   /**
@@ -144,6 +148,9 @@ import java.util.Arrays;
    *     provide the transformation matrix associated with the external texture.
    * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
    *     EXT_YUV_target} OpenGL extension.
+   * @param outputOpticalColors If {@code true} and {@code useHdr} is also {@code true}, outputs a
+   *     non-linear optical, or display light colors, possibly by applying the EOTF (Electro-optical
+   *     transfer function). Otherwise, outputs linear electrical colors.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
@@ -151,12 +158,13 @@ import java.util.Arrays;
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       boolean sampleFromExternalTexture,
-      boolean useHdr)
+      boolean useHdr,
+      boolean outputOpticalColors)
       throws FrameProcessingException {
     super(useHdr);
     if (sampleFromExternalTexture && useHdr && !GlUtil.isYuvTargetExtensionSupported()) {
       throw new FrameProcessingException(
-          "The EXT_YUV_target extension is required for HDR editing.");
+          "The EXT_YUV_target extension is required for HDR editing input.");
     }
 
     this.matrixTransformations = matrixTransformations;
@@ -174,6 +182,11 @@ import java.util.Arrays;
           useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
       fragmentShaderFilePath =
           useHdr ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+    } else if (outputOpticalColors) {
+      vertexShaderFilePath =
+          useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
+      fragmentShaderFilePath =
+          useHdr ? FRAGMENT_SHADER_HLG_EOTF_ES3_PATH : FRAGMENT_SHADER_COPY_PATH;
     } else {
       vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
       fragmentShaderFilePath = FRAGMENT_SHADER_COPY_PATH;
@@ -188,6 +201,11 @@ import java.util.Arrays;
     if (useHdr && sampleFromExternalTexture) {
       // In HDR editing mode the decoder output is sampled in YUV.
       glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
+      // TODO(b/227624622): Implement PQ, and use an @IntDef to select between HLG, PQ, and no
+      //  transfer function.
+      // Applying the OETF will output a linear signal. Not applying the OETF will output an optical
+      // signal.
+      glProgram.setFloatUniform("uApplyHlgOetf", outputOpticalColors ? 0.0f : 1.0f);
     }
     float[] identityMatrix = new float[16];
     Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
