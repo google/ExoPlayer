@@ -28,7 +28,7 @@
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
 
-### 1.0.0-beta02 (2022-07-15)
+### 1.0.0-beta02 (2022-07-21)
 
 This release corresponds to the
 [ExoPlayer 2.18.1 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.1).
@@ -46,8 +46,6 @@ This release corresponds to the
         `DefaultMediaSourceFactory`, which was non-functional in some cases
         ([#116](https://github.com/androidx/media/issues/116)).
 *   Extractors:
-    *   Add support for AVI
-        ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
     *   Fix parsing of H265 short term reference picture sets
         ([#10316](https://github.com/google/ExoPlayer/issues/10316)).
     *   Fix parsing of bitrates from `esds` boxes
@@ -63,8 +61,6 @@ This release corresponds to the
         `TrackSelectionDialogBuilder`
         ([#10429](https://github.com/google/ExoPlayer/issues/10429)).
 *   RTSP:
-    *   Add RTP reader for H263
-        ([#63](https://github.com/androidx/media/pull/63)).
     *   Add VP8 fragmented packet handling
         ([#110](https://github.com/androidx/media/pull/110)).
 *   Leanback extension:
@@ -171,6 +167,8 @@ This release corresponds to the
     *   Remove `RawCcExtractor`, which was only used to handle a Google-internal
         subtitle format.
 *   Extractors:
+    *   Add support for AVI
+        ([#2092](https://github.com/google/ExoPlayer/issues/2092)).
     *   Matroska: Parse `DiscardPadding` for Opus tracks.
     *   MP4: Parse bitrates from `esds` boxes.
     *   Ogg: Allow duplicate Opus ID and comment headers
@@ -220,6 +218,8 @@ This release corresponds to the
         of `DefaultCompositeSequenceableLoaderFactory` can be passed explicitly
         if required.
 *   RTSP:
+    *   Add RTP reader for H263
+        ([#63](https://github.com/androidx/media/pull/63)).
     *   Add RTP reader for MPEG4
         ([#35](https://github.com/androidx/media/pull/35)).
     *   Add RTP reader for HEVC
