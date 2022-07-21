@@ -31,8 +31,12 @@ public interface GlEffect {
    *
    * @param context A {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    */
+  // TODO(b/227624622): PQ input files will actually have the incorrect HLG OETF applied, so that
+  // the intermediate color space will be PQ with the HLG OETF applied. This means intermediate
+  // GlEffects affecting color will look incorrect on PQ input. Fix this by implementing proper PQ
+  // OETF / EOTF support.
   GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException;
 }

@@ -67,7 +67,7 @@ import java.util.Locale;
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in HLG/PQ RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public BitmapOverlayProcessor(Context context, boolean useHdr) throws FrameProcessingException {

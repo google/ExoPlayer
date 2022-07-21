@@ -251,7 +251,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     MatrixTransformationProcessor matrixTransformationProcessor =
         new MatrixTransformationProcessor(
-            context, matrixTransformationListBuilder.build(), sampleFromExternalTexture, useHdr);
+            context,
+            matrixTransformationListBuilder.build(),
+            sampleFromExternalTexture,
+            useHdr,
+            /* outputOpticalColors= */ true);
     matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     Size outputSize = matrixTransformationProcessor.configure(inputWidth, inputHeight);
     checkState(outputSize.getWidth() == outputSurfaceInfo.width);
