@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionRenderer;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -122,6 +123,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param extensionRendererMode The extension renderer mode.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setExtensionRendererMode(
       @ExtensionRendererMode int extensionRendererMode) {
     this.extensionRendererMode = extensionRendererMode;
@@ -137,6 +139,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory forceEnableMediaCodecAsynchronousQueueing() {
     codecAdapterFactory.forceEnableAsynchronous();
     return this;
@@ -149,6 +152,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory forceDisableMediaCodecAsynchronousQueueing() {
     codecAdapterFactory.forceDisableAsynchronous();
     return this;
@@ -163,6 +167,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     queueing.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
       boolean enabled) {
     codecAdapterFactory.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(enabled);
@@ -177,6 +182,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     initialization fails.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setEnableDecoderFallback(boolean enableDecoderFallback) {
     this.enableDecoderFallback = enableDecoderFallback;
     return this;
@@ -190,6 +196,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mediaCodecSelector The {@link MediaCodecSelector}.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setMediaCodecSelector(MediaCodecSelector mediaCodecSelector) {
     this.mediaCodecSelector = mediaCodecSelector;
     return this;
@@ -206,6 +213,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param enableFloatOutput Whether to enable use of floating point audio output, if available.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setEnableAudioFloatOutput(boolean enableFloatOutput) {
     this.enableFloatOutput = enableFloatOutput;
     return this;
@@ -228,6 +236,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     available.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setEnableAudioOffload(boolean enableOffload) {
     this.enableOffload = enableOffload;
     return this;
@@ -251,6 +260,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setEnableAudioTrackPlaybackParams(
       boolean enableAudioTrackPlaybackParams) {
     this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
@@ -267,6 +277,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     seamlessly join an ongoing playback, in milliseconds.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultRenderersFactory setAllowedVideoJoiningTimeMs(long allowedVideoJoiningTimeMs) {
     this.allowedVideoJoiningTimeMs = allowedVideoJoiningTimeMs;
     return this;

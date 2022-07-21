@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -95,30 +96,35 @@ public final class AudioAttributes implements Bundleable {
     }
 
     /** See {@link android.media.AudioAttributes.Builder#setContentType(int)} */
+    @CanIgnoreReturnValue
     public Builder setContentType(@C.AudioContentType int contentType) {
       this.contentType = contentType;
       return this;
     }
 
     /** See {@link android.media.AudioAttributes.Builder#setFlags(int)} */
+    @CanIgnoreReturnValue
     public Builder setFlags(@C.AudioFlags int flags) {
       this.flags = flags;
       return this;
     }
 
     /** See {@link android.media.AudioAttributes.Builder#setUsage(int)} */
+    @CanIgnoreReturnValue
     public Builder setUsage(@C.AudioUsage int usage) {
       this.usage = usage;
       return this;
     }
 
     /** See {@link android.media.AudioAttributes.Builder#setAllowedCapturePolicy(int)}. */
+    @CanIgnoreReturnValue
     public Builder setAllowedCapturePolicy(@C.AudioAllowedCapturePolicy int allowedCapturePolicy) {
       this.allowedCapturePolicy = allowedCapturePolicy;
       return this;
     }
 
     /** See {@link android.media.AudioAttributes.Builder#setSpatializationBehavior(int)}. */
+    @CanIgnoreReturnValue
     public Builder setSpatializationBehavior(@C.SpatializationBehavior int spatializationBehavior) {
       this.spatializationBehavior = spatializationBehavior;
       return this;

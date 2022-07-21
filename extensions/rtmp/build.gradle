@@ -18,6 +18,7 @@ dependencies {
     implementation project(modulePrefix + 'library-datasource')
     implementation 'io.antmedia:rtmp-client:3.2.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'library-core')
     testImplementation project(modulePrefix + 'testutils')

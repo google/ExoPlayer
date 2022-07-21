@@ -63,6 +63,7 @@ import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 
 /**
@@ -667,6 +668,7 @@ public interface ExoPlayer extends Player {
      *
      * @param timeoutMs The time limit in milliseconds.
      */
+    @CanIgnoreReturnValue
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
       checkState(!buildCalled);
       foregroundModeTimeoutMs = timeoutMs;
@@ -680,6 +682,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
       checkState(!buildCalled);
       checkNotNull(renderersFactory);
@@ -694,6 +697,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       checkState(!buildCalled);
       checkNotNull(mediaSourceFactory);
@@ -708,6 +712,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setTrackSelector(TrackSelector trackSelector) {
       checkState(!buildCalled);
       checkNotNull(trackSelector);
@@ -722,6 +727,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setLoadControl(LoadControl loadControl) {
       checkState(!buildCalled);
       checkNotNull(loadControl);
@@ -736,6 +742,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       checkState(!buildCalled);
       checkNotNull(bandwidthMeter);
@@ -751,6 +758,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setLooper(Looper looper) {
       checkState(!buildCalled);
       checkNotNull(looper);
@@ -765,6 +773,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
       checkNotNull(analyticsCollector);
@@ -781,6 +790,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
       checkState(!buildCalled);
       this.priorityTaskManager = priorityTaskManager;
@@ -800,6 +810,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
       checkState(!buildCalled);
       this.audioAttributes = checkNotNull(audioAttributes);
@@ -824,6 +835,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
       checkState(!buildCalled);
       this.wakeMode = wakeMode;
@@ -841,6 +853,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
       checkState(!buildCalled);
       this.handleAudioBecomingNoisy = handleAudioBecomingNoisy;
@@ -854,6 +867,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
       checkState(!buildCalled);
       this.skipSilenceEnabled = skipSilenceEnabled;
@@ -870,6 +884,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       checkState(!buildCalled);
       this.videoScalingMode = videoScalingMode;
@@ -890,6 +905,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
       checkState(!buildCalled);
@@ -908,6 +924,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       checkState(!buildCalled);
       this.useLazyPreparation = useLazyPreparation;
@@ -921,6 +938,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSeekParameters(SeekParameters seekParameters) {
       checkState(!buildCalled);
       this.seekParameters = checkNotNull(seekParameters);
@@ -935,6 +953,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
       checkArgument(seekBackIncrementMs > 0);
       checkState(!buildCalled);
@@ -950,6 +969,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
       checkArgument(seekForwardIncrementMs > 0);
       checkState(!buildCalled);
@@ -968,6 +988,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
       checkState(!buildCalled);
       this.releaseTimeoutMs = releaseTimeoutMs;
@@ -985,6 +1006,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
       checkState(!buildCalled);
       this.detachSurfaceTimeoutMs = detachSurfaceTimeoutMs;
@@ -1003,6 +1025,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
       checkState(!buildCalled);
       this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
@@ -1017,6 +1040,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
       checkState(!buildCalled);
       this.livePlaybackSpeedControl = checkNotNull(livePlaybackSpeedControl);
@@ -1038,6 +1062,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setUsePlatformDiagnostics(boolean usePlatformDiagnostics) {
       checkState(!buildCalled);
       this.usePlatformDiagnostics = usePlatformDiagnostics;
@@ -1052,6 +1077,7 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     public Builder setClock(Clock clock) {
       checkState(!buildCalled);

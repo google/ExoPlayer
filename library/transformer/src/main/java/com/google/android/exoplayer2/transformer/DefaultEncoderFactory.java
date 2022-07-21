@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -69,6 +70,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
      *
      * <p>The default value is {@link EncoderSelector#DEFAULT}.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoEncoderSelector(EncoderSelector encoderSelector) {
       this.encoderSelector = encoderSelector;
       return this;
@@ -91,6 +93,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
      *
      * <p>The default value is {@link VideoEncoderSettings#DEFAULT}.
      */
+    @CanIgnoreReturnValue
     public Builder setRequestedVideoEncoderSettings(
         VideoEncoderSettings requestedVideoEncoderSettings) {
       this.requestedVideoEncoderSettings = requestedVideoEncoderSettings;
@@ -108,6 +111,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
      *
      * <p>The default value is {@code true}.
      */
+    @CanIgnoreReturnValue
     public Builder setEnableFallback(boolean enableFallback) {
       this.enableFallback = enableFallback;
       return this;

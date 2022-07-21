@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Objects;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -114,30 +115,35 @@ public final class MediaMetadata implements Bundleable {
     }
 
     /** Sets the title. */
+    @CanIgnoreReturnValue
     public Builder setTitle(@Nullable CharSequence title) {
       this.title = title;
       return this;
     }
 
     /** Sets the artist. */
+    @CanIgnoreReturnValue
     public Builder setArtist(@Nullable CharSequence artist) {
       this.artist = artist;
       return this;
     }
 
     /** Sets the album title. */
+    @CanIgnoreReturnValue
     public Builder setAlbumTitle(@Nullable CharSequence albumTitle) {
       this.albumTitle = albumTitle;
       return this;
     }
 
     /** Sets the album artist. */
+    @CanIgnoreReturnValue
     public Builder setAlbumArtist(@Nullable CharSequence albumArtist) {
       this.albumArtist = albumArtist;
       return this;
     }
 
     /** Sets the display title. */
+    @CanIgnoreReturnValue
     public Builder setDisplayTitle(@Nullable CharSequence displayTitle) {
       this.displayTitle = displayTitle;
       return this;
@@ -148,24 +154,28 @@ public final class MediaMetadata implements Bundleable {
      *
      * <p>This is the secondary title of the media, unrelated to closed captions.
      */
+    @CanIgnoreReturnValue
     public Builder setSubtitle(@Nullable CharSequence subtitle) {
       this.subtitle = subtitle;
       return this;
     }
 
     /** Sets the description. */
+    @CanIgnoreReturnValue
     public Builder setDescription(@Nullable CharSequence description) {
       this.description = description;
       return this;
     }
 
     /** Sets the user {@link Rating}. */
+    @CanIgnoreReturnValue
     public Builder setUserRating(@Nullable Rating userRating) {
       this.userRating = userRating;
       return this;
     }
 
     /** Sets the overall {@link Rating}. */
+    @CanIgnoreReturnValue
     public Builder setOverallRating(@Nullable Rating overallRating) {
       this.overallRating = overallRating;
       return this;
@@ -175,6 +185,7 @@ public final class MediaMetadata implements Bundleable {
      * @deprecated Use {@link #setArtworkData(byte[] data, Integer pictureType)} or {@link
      *     #maybeSetArtworkData(byte[] data, int pictureType)}, providing a {@link PictureType}.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setArtworkData(@Nullable byte[] artworkData) {
       return setArtworkData(artworkData, /* artworkDataType= */ null);
@@ -184,6 +195,7 @@ public final class MediaMetadata implements Bundleable {
      * Sets the artwork data as a compressed byte array with an associated {@link PictureType
      * artworkDataType}.
      */
+    @CanIgnoreReturnValue
     public Builder setArtworkData(
         @Nullable byte[] artworkData, @Nullable @PictureType Integer artworkDataType) {
       this.artworkData = artworkData == null ? null : artworkData.clone();
@@ -199,6 +211,7 @@ public final class MediaMetadata implements Bundleable {
      * <p>Use {@link #setArtworkData(byte[], Integer)} to set the artwork data without checking the
      * {@link PictureType}.
      */
+    @CanIgnoreReturnValue
     public Builder maybeSetArtworkData(byte[] artworkData, @PictureType int artworkDataType) {
       if (this.artworkData == null
           || Util.areEqual(artworkDataType, PICTURE_TYPE_FRONT_COVER)
@@ -210,30 +223,35 @@ public final class MediaMetadata implements Bundleable {
     }
 
     /** Sets the artwork {@link Uri}. */
+    @CanIgnoreReturnValue
     public Builder setArtworkUri(@Nullable Uri artworkUri) {
       this.artworkUri = artworkUri;
       return this;
     }
 
     /** Sets the track number. */
+    @CanIgnoreReturnValue
     public Builder setTrackNumber(@Nullable Integer trackNumber) {
       this.trackNumber = trackNumber;
       return this;
     }
 
     /** Sets the total number of tracks. */
+    @CanIgnoreReturnValue
     public Builder setTotalTrackCount(@Nullable Integer totalTrackCount) {
       this.totalTrackCount = totalTrackCount;
       return this;
     }
 
     /** Sets the {@link FolderType}. */
+    @CanIgnoreReturnValue
     public Builder setFolderType(@Nullable @FolderType Integer folderType) {
       this.folderType = folderType;
       return this;
     }
 
     /** Sets whether the media is playable. */
+    @CanIgnoreReturnValue
     public Builder setIsPlayable(@Nullable Boolean isPlayable) {
       this.isPlayable = isPlayable;
       return this;
@@ -242,12 +260,14 @@ public final class MediaMetadata implements Bundleable {
     /**
      * @deprecated Use {@link #setRecordingYear(Integer)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setYear(@Nullable Integer year) {
       return setRecordingYear(year);
     }
 
     /** Sets the year of the recording date. */
+    @CanIgnoreReturnValue
     public Builder setRecordingYear(@Nullable Integer recordingYear) {
       this.recordingYear = recordingYear;
       return this;
@@ -258,6 +278,7 @@ public final class MediaMetadata implements Bundleable {
      *
      * <p>Value should be between 1 and 12.
      */
+    @CanIgnoreReturnValue
     public Builder setRecordingMonth(
         @Nullable @IntRange(from = 1, to = 12) Integer recordingMonth) {
       this.recordingMonth = recordingMonth;
@@ -269,12 +290,14 @@ public final class MediaMetadata implements Bundleable {
      *
      * <p>Value should be between 1 and 31.
      */
+    @CanIgnoreReturnValue
     public Builder setRecordingDay(@Nullable @IntRange(from = 1, to = 31) Integer recordingDay) {
       this.recordingDay = recordingDay;
       return this;
     }
 
     /** Sets the year of the release date. */
+    @CanIgnoreReturnValue
     public Builder setReleaseYear(@Nullable Integer releaseYear) {
       this.releaseYear = releaseYear;
       return this;
@@ -285,6 +308,7 @@ public final class MediaMetadata implements Bundleable {
      *
      * <p>Value should be between 1 and 12.
      */
+    @CanIgnoreReturnValue
     public Builder setReleaseMonth(@Nullable @IntRange(from = 1, to = 12) Integer releaseMonth) {
       this.releaseMonth = releaseMonth;
       return this;
@@ -295,60 +319,70 @@ public final class MediaMetadata implements Bundleable {
      *
      * <p>Value should be between 1 and 31.
      */
+    @CanIgnoreReturnValue
     public Builder setReleaseDay(@Nullable @IntRange(from = 1, to = 31) Integer releaseDay) {
       this.releaseDay = releaseDay;
       return this;
     }
 
     /** Sets the writer. */
+    @CanIgnoreReturnValue
     public Builder setWriter(@Nullable CharSequence writer) {
       this.writer = writer;
       return this;
     }
 
     /** Sets the composer. */
+    @CanIgnoreReturnValue
     public Builder setComposer(@Nullable CharSequence composer) {
       this.composer = composer;
       return this;
     }
 
     /** Sets the conductor. */
+    @CanIgnoreReturnValue
     public Builder setConductor(@Nullable CharSequence conductor) {
       this.conductor = conductor;
       return this;
     }
 
     /** Sets the disc number. */
+    @CanIgnoreReturnValue
     public Builder setDiscNumber(@Nullable Integer discNumber) {
       this.discNumber = discNumber;
       return this;
     }
 
     /** Sets the total number of discs. */
+    @CanIgnoreReturnValue
     public Builder setTotalDiscCount(@Nullable Integer totalDiscCount) {
       this.totalDiscCount = totalDiscCount;
       return this;
     }
 
     /** Sets the genre. */
+    @CanIgnoreReturnValue
     public Builder setGenre(@Nullable CharSequence genre) {
       this.genre = genre;
       return this;
     }
 
     /** Sets the compilation. */
+    @CanIgnoreReturnValue
     public Builder setCompilation(@Nullable CharSequence compilation) {
       this.compilation = compilation;
       return this;
     }
 
     /** Sets the name of the station streaming the media. */
+    @CanIgnoreReturnValue
     public Builder setStation(@Nullable CharSequence station) {
       this.station = station;
       return this;
     }
 
     /** Sets the extras {@link Bundle}. */
+    @CanIgnoreReturnValue
     public Builder setExtras(@Nullable Bundle extras) {
       this.extras = extras;
       return this;
@@ -363,6 +397,7 @@ public final class MediaMetadata implements Bundleable {
      * <p>In the event that multiple {@link Metadata.Entry} objects within the {@link Metadata}
      * relate to the same {@link MediaMetadata} field, then the last one will be used.
      */
+    @CanIgnoreReturnValue
     public Builder populateFromMetadata(Metadata metadata) {
       for (int i = 0; i < metadata.length(); i++) {
         Metadata.Entry entry = metadata.get(i);
@@ -381,6 +416,7 @@ public final class MediaMetadata implements Bundleable {
      * <p>In the event that multiple {@link Metadata.Entry} objects within any of the {@link
      * Metadata} relate to the same {@link MediaMetadata} field, then the last one will be used.
      */
+    @CanIgnoreReturnValue
     public Builder populateFromMetadata(List<Metadata> metadataList) {
       for (int i = 0; i < metadataList.size(); i++) {
         Metadata metadata = metadataList.get(i);
@@ -393,6 +429,7 @@ public final class MediaMetadata implements Bundleable {
     }
 
     /** Populates all the fields from {@code mediaMetadata}, provided they are non-null. */
+    @CanIgnoreReturnValue
     public Builder populate(@Nullable MediaMetadata mediaMetadata) {
       if (mediaMetadata == null) {
         return this;

@@ -59,6 +59,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -128,16 +129,19 @@ import java.util.List;
     this.activity = activity;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setStreamName(String streamName) {
     this.streamName = streamName;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setFullPlaybackNoSeeking(boolean fullPlaybackNoSeeking) {
     this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setCanIncludeAdditionalVideoFormats(
       boolean canIncludeAdditionalVideoFormats) {
     this.canIncludeAdditionalVideoFormats =
@@ -145,27 +149,32 @@ import java.util.List;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setActionSchedule(ActionSchedule actionSchedule) {
     this.actionSchedule = actionSchedule;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setOfflineLicenseKeySetId(byte[] offlineLicenseKeySetId) {
     this.offlineLicenseKeySetId = offlineLicenseKeySetId;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setAudioVideoFormats(String audioFormat, String... videoFormats) {
     this.audioFormat = audioFormat;
     this.videoFormats = videoFormats;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setManifestUrl(String manifestUrl) {
     this.manifestUrl = manifestUrl;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setWidevineInfo(String mimeType, boolean videoIdRequiredInLicenseUrl) {
     this.useL1Widevine = isL1WidevineAvailable(mimeType);
     this.widevineLicenseUrl =
@@ -173,6 +182,7 @@ import java.util.List;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public DashTestRunner setDataSourceFactory(DataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
     return this;

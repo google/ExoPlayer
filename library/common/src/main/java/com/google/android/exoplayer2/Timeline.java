@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -261,6 +262,7 @@ public abstract class Timeline implements Bundleable {
     }
 
     /** Sets the data held by this window. */
+    @CanIgnoreReturnValue
     @SuppressWarnings("deprecation")
     public Window set(
         Object uid,
@@ -624,6 +626,7 @@ public abstract class Timeline implements Bundleable {
      *     period is not within the window.
      * @return This period, for convenience.
      */
+    @CanIgnoreReturnValue
     public Period set(
         @Nullable Object id,
         @Nullable Object uid,
@@ -659,6 +662,7 @@ public abstract class Timeline implements Bundleable {
      *     information has yet to be loaded.
      * @return This period, for convenience.
      */
+    @CanIgnoreReturnValue
     public Period set(
         @Nullable Object id,
         @Nullable Object uid,

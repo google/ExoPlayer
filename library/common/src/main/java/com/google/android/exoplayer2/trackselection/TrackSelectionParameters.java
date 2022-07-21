@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -306,6 +307,7 @@ public class TrackSelectionParameters implements Bundleable {
     }
 
     /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
+    @CanIgnoreReturnValue
     protected Builder set(TrackSelectionParameters parameters) {
       init(parameters);
       return this;
@@ -318,6 +320,7 @@ public class TrackSelectionParameters implements Bundleable {
      *
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxVideoSizeSd() {
       return setMaxVideoSize(1279, 719);
     }
@@ -327,6 +330,7 @@ public class TrackSelectionParameters implements Bundleable {
      *
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder clearVideoSizeConstraints() {
       return setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
@@ -338,6 +342,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param maxVideoHeight Maximum allowed video height in pixels.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
       this.maxVideoWidth = maxVideoWidth;
       this.maxVideoHeight = maxVideoHeight;
@@ -350,6 +355,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param maxVideoFrameRate Maximum allowed video frame rate in hertz.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxVideoFrameRate(int maxVideoFrameRate) {
       this.maxVideoFrameRate = maxVideoFrameRate;
       return this;
@@ -361,6 +367,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param maxVideoBitrate Maximum allowed video bitrate in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxVideoBitrate(int maxVideoBitrate) {
       this.maxVideoBitrate = maxVideoBitrate;
       return this;
@@ -373,6 +380,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param minVideoHeight Minimum allowed video height in pixels.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMinVideoSize(int minVideoWidth, int minVideoHeight) {
       this.minVideoWidth = minVideoWidth;
       this.minVideoHeight = minVideoHeight;
@@ -385,6 +393,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param minVideoFrameRate Minimum allowed video frame rate in hertz.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMinVideoFrameRate(int minVideoFrameRate) {
       this.minVideoFrameRate = minVideoFrameRate;
       return this;
@@ -396,6 +405,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param minVideoBitrate Minimum allowed video bitrate in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMinVideoBitrate(int minVideoBitrate) {
       this.minVideoBitrate = minVideoBitrate;
       return this;
@@ -410,6 +420,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     playback.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setViewportSizeToPhysicalDisplaySize(
         Context context, boolean viewportOrientationMayChange) {
       // Assume the viewport is fullscreen.
@@ -423,6 +434,7 @@ public class TrackSelectionParameters implements Bundleable {
      *
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder clearViewportSizeConstraints() {
       return setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE, true);
     }
@@ -437,6 +449,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     playback.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setViewportSize(
         int viewportWidth, int viewportHeight, boolean viewportOrientationMayChange) {
       this.viewportWidth = viewportWidth;
@@ -463,6 +476,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     empty list for no preference.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredVideoMimeTypes(String... mimeTypes) {
       preferredVideoMimeTypes = ImmutableList.copyOf(mimeTypes);
       return this;
@@ -474,6 +488,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param preferredVideoRoleFlags Preferred video role flags.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredVideoRoleFlags(@C.RoleFlags int preferredVideoRoleFlags) {
       this.preferredVideoRoleFlags = preferredVideoRoleFlags;
       return this;
@@ -502,6 +517,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     there's no default.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredAudioLanguages(String... preferredAudioLanguages) {
       this.preferredAudioLanguages = normalizeLanguageCodes(preferredAudioLanguages);
       return this;
@@ -513,6 +529,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param preferredAudioRoleFlags Preferred audio role flags.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredAudioRoleFlags(@C.RoleFlags int preferredAudioRoleFlags) {
       this.preferredAudioRoleFlags = preferredAudioRoleFlags;
       return this;
@@ -524,6 +541,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param maxAudioChannelCount Maximum allowed audio channel count.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxAudioChannelCount(int maxAudioChannelCount) {
       this.maxAudioChannelCount = maxAudioChannelCount;
       return this;
@@ -535,6 +553,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param maxAudioBitrate Maximum allowed audio bitrate in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMaxAudioBitrate(int maxAudioBitrate) {
       this.maxAudioBitrate = maxAudioBitrate;
       return this;
@@ -558,6 +577,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     empty list for no preference.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredAudioMimeTypes(String... mimeTypes) {
       preferredAudioMimeTypes = ImmutableList.copyOf(mimeTypes);
       return this;
@@ -574,6 +594,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param context A {@link Context}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
         Context context) {
       if (Util.SDK_INT >= 19) {
@@ -603,6 +624,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     track otherwise.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredTextLanguages(String... preferredTextLanguages) {
       this.preferredTextLanguages = normalizeLanguageCodes(preferredTextLanguages);
       return this;
@@ -614,6 +636,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param preferredTextRoleFlags Preferred text role flags.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPreferredTextRoleFlags(@C.RoleFlags int preferredTextRoleFlags) {
       this.preferredTextRoleFlags = preferredTextRoleFlags;
       return this;
@@ -626,6 +649,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     text track selections.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setIgnoredTextSelectionFlags(@C.SelectionFlags int ignoredTextSelectionFlags) {
       this.ignoredTextSelectionFlags = ignoredTextSelectionFlags;
       return this;
@@ -640,6 +664,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     be selected if no preferred language track is available.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSelectUndeterminedTextLanguage(boolean selectUndeterminedTextLanguage) {
       this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
       return this;
@@ -655,6 +680,7 @@ public class TrackSelectionParameters implements Bundleable {
      *     video tracks.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setForceLowestBitrate(boolean forceLowestBitrate) {
       this.forceLowestBitrate = forceLowestBitrate;
       return this;
@@ -668,18 +694,21 @@ public class TrackSelectionParameters implements Bundleable {
      *     and video tracks.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       return this;
     }
 
     /** Adds an override, replacing any override for the same {@link TrackGroup}. */
+    @CanIgnoreReturnValue
     public Builder addOverride(TrackSelectionOverride override) {
       overrides.put(override.mediaTrackGroup, override);
       return this;
     }
 
     /** Sets an override, replacing all existing overrides with the same track type. */
+    @CanIgnoreReturnValue
     public Builder setOverrideForType(TrackSelectionOverride override) {
       clearOverridesOfType(override.getType());
       overrides.put(override.mediaTrackGroup, override);
@@ -687,12 +716,14 @@ public class TrackSelectionParameters implements Bundleable {
     }
 
     /** Removes the override for the provided media {@link TrackGroup}, if there is one. */
+    @CanIgnoreReturnValue
     public Builder clearOverride(TrackGroup mediaTrackGroup) {
       overrides.remove(mediaTrackGroup);
       return this;
     }
 
     /** Removes all overrides of the provided track type. */
+    @CanIgnoreReturnValue
     public Builder clearOverridesOfType(@C.TrackType int trackType) {
       Iterator<TrackSelectionOverride> it = overrides.values().iterator();
       while (it.hasNext()) {
@@ -705,6 +736,7 @@ public class TrackSelectionParameters implements Bundleable {
     }
 
     /** Removes all overrides. */
+    @CanIgnoreReturnValue
     public Builder clearOverrides() {
       overrides.clear();
       return this;
@@ -718,6 +750,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @return This builder.
      * @deprecated Use {@link #setTrackTypeDisabled(int, boolean)}.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
       this.disabledTrackTypes.clear();
@@ -733,6 +766,7 @@ public class TrackSelectionParameters implements Bundleable {
      * @param disabled Whether the track type should be disabled.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setTrackTypeDisabled(@C.TrackType int trackType, boolean disabled) {
       if (disabled) {
         disabledTrackTypes.add(trackType);

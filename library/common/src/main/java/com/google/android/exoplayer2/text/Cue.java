@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.base.Objects;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -621,6 +622,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#text
      */
+    @CanIgnoreReturnValue
     public Builder setText(CharSequence text) {
       this.text = text;
       return this;
@@ -642,6 +644,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#bitmap
      */
+    @CanIgnoreReturnValue
     public Builder setBitmap(Bitmap bitmap) {
       this.bitmap = bitmap;
       return this;
@@ -665,6 +668,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#textAlignment
      */
+    @CanIgnoreReturnValue
     public Builder setTextAlignment(@Nullable Layout.Alignment textAlignment) {
       this.textAlignment = textAlignment;
       return this;
@@ -688,6 +692,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#multiRowAlignment
      */
+    @CanIgnoreReturnValue
     public Builder setMultiRowAlignment(@Nullable Layout.Alignment multiRowAlignment) {
       this.multiRowAlignment = multiRowAlignment;
       return this;
@@ -700,6 +705,7 @@ public final class Cue implements Bundleable {
      * @see Cue#line
      * @see Cue#lineType
      */
+    @CanIgnoreReturnValue
     public Builder setLine(float line, @LineType int lineType) {
       this.line = line;
       this.lineType = lineType;
@@ -732,6 +738,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#lineAnchor
      */
+    @CanIgnoreReturnValue
     public Builder setLineAnchor(@AnchorType int lineAnchor) {
       this.lineAnchor = lineAnchor;
       return this;
@@ -753,6 +760,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#position
      */
+    @CanIgnoreReturnValue
     public Builder setPosition(float position) {
       this.position = position;
       return this;
@@ -774,6 +782,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#positionAnchor
      */
+    @CanIgnoreReturnValue
     public Builder setPositionAnchor(@AnchorType int positionAnchor) {
       this.positionAnchor = positionAnchor;
       return this;
@@ -795,6 +804,7 @@ public final class Cue implements Bundleable {
      * @see Cue#textSize
      * @see Cue#textSizeType
      */
+    @CanIgnoreReturnValue
     public Builder setTextSize(float textSize, @TextSizeType int textSizeType) {
       this.textSize = textSize;
       this.textSizeType = textSizeType;
@@ -827,6 +837,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#size
      */
+    @CanIgnoreReturnValue
     public Builder setSize(float size) {
       this.size = size;
       return this;
@@ -848,6 +859,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#bitmapHeight
      */
+    @CanIgnoreReturnValue
     public Builder setBitmapHeight(float bitmapHeight) {
       this.bitmapHeight = bitmapHeight;
       return this;
@@ -871,6 +883,7 @@ public final class Cue implements Bundleable {
      * @see Cue#windowColor
      * @see Cue#windowColorSet
      */
+    @CanIgnoreReturnValue
     public Builder setWindowColor(@ColorInt int windowColor) {
       this.windowColor = windowColor;
       this.windowColorSet = true;
@@ -878,6 +891,7 @@ public final class Cue implements Bundleable {
     }
 
     /** Sets {@link Cue#windowColorSet} to false. */
+    @CanIgnoreReturnValue
     public Builder clearWindowColor() {
       this.windowColorSet = false;
       return this;
@@ -908,12 +922,14 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#verticalType
      */
+    @CanIgnoreReturnValue
     public Builder setVerticalType(@VerticalType int verticalType) {
       this.verticalType = verticalType;
       return this;
     }
 
     /** Sets the shear angle for this Cue. */
+    @CanIgnoreReturnValue
     public Builder setShearDegrees(float shearDegrees) {
       this.shearDegrees = shearDegrees;
       return this;

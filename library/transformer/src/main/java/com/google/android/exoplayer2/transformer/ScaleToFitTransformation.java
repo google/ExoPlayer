@@ -23,6 +23,7 @@ import static java.lang.Math.min;
 import android.graphics.Matrix;
 import android.util.Size;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -59,6 +60,7 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
      * @param scaleY The multiplier by which the frame will scale vertically, along the y-axis.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setScale(float scaleX, float scaleY) {
       this.scaleX = scaleX;
       this.scaleY = scaleY;
@@ -73,6 +75,7 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
      * @param rotationDegrees The counterclockwise rotation, in degrees.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setRotationDegrees(float rotationDegrees) {
       this.rotationDegrees = rotationDegrees;
       return this;
