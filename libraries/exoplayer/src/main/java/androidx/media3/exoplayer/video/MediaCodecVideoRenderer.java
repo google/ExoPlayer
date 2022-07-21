@@ -1763,6 +1763,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // https://github.com/google/ExoPlayer/issues/4468#issuecomment-459291645.
       return true;
     }
+    switch (Util.MODEL) {
+        // Workaround for some Fire OS devices.
+      case "AFTA":
+      case "AFTN":
+      case "AFTR":
+      case "AFTEU011":
+      case "AFTEU014":
+      case "AFTEUFF014":
+      case "AFTJMST12":
+      case "AFTKMST12":
+      case "AFTSO001":
+        return true;
+      default:
+        break; // Do nothing.
+    }
     if (Util.SDK_INT <= 26) {
       // In general, devices running API level 27 or later should be unaffected unless observed
       // otherwise. Enable the workaround on a per-device basis. Works around:
@@ -1929,8 +1944,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           break; // Do nothing.
       }
       switch (Util.MODEL) {
-        case "AFTA":
-        case "AFTN":
         case "JSN-L21":
           return true;
         default:
