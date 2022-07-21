@@ -46,6 +46,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
@@ -98,6 +99,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /* package */ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
@@ -110,7 +112,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   /* package */ final Context context;
-  /* package */ final MediaController instance;
+  private final MediaController instance;
 
   private final SessionToken token;
   private final ListenerSet<Listener> listeners;
@@ -124,26 +126,34 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private LegacyPlayerInfo pendingLegacyPlayerInfo;
   private ControllerInfo controllerInfo;
 
-  public MediaControllerImplLegacy(Context context, MediaController instance, SessionToken token) {
+  public MediaControllerImplLegacy(
+      Context context,
+      @UnderInitialization MediaController instance,
+      SessionToken token,
+      Looper applicationLooper) {
     // Initialize default values.
     legacyPlayerInfo = new LegacyPlayerInfo();
     pendingLegacyPlayerInfo = new LegacyPlayerInfo();
     controllerInfo = new ControllerInfo();
     listeners =
         new ListenerSet<>(
-            instance.getApplicationLooper(),
+            applicationLooper,
             Clock.DEFAULT,
-            (listener, flags) -> listener.onEvents(instance, new Events(flags)));
+            (listener, flags) -> listener.onEvents(getInstance(), new Events(flags)));
 
     // Initialize members.
     this.context = context;
     this.instance = instance;
-    controllerCompatCallback = new ControllerCompatCallback();
+    controllerCompatCallback = new ControllerCompatCallback(applicationLooper);
     this.token = token;
   }
 
+  /* package */ MediaController getInstance() {
+    return instance;
+  }
+
   @Override
-  public void connect() {
+  public void connect(@UnderInitialization MediaControllerImplLegacy this) {
     if (this.token.getType() == SessionToken.TYPE_SESSION) {
       connectToSession((MediaSessionCompat.Token) checkStateNotNull(this.token.getBinder()));
     } else {
@@ -590,7 +600,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     SettableFuture<SessionResult> result = SettableFuture.create();
     ResultReceiver cb =
-        new ResultReceiver(instance.applicationHandler) {
+        new ResultReceiver(getInstance().applicationHandler) {
           @Override
           protected void onReceiveResult(int resultCode, Bundle resultData) {
             result.set(
@@ -1233,36 +1243,43 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
-    instance.runOnApplicationLooper(
-        () -> {
-          controllerCompat = new MediaControllerCompat(context, sessionCompatToken);
-          // Note: registerCallback() will invoke MediaControllerCompat.Callback#onSessionReady()
-          // if the controller is already ready.
-          controllerCompat.registerCallback(controllerCompatCallback, instance.applicationHandler);
-        });
+    getInstance()
+        .runOnApplicationLooper(
+            () -> {
+              controllerCompat = new MediaControllerCompat(context, sessionCompatToken);
+              // Note: registerCallback() will invoke
+              // MediaControllerCompat.Callback#onSessionReady()
+              // if the controller is already ready.
+              controllerCompat.registerCallback(
+                  controllerCompatCallback, getInstance().applicationHandler);
+            });
     // Post a runnable to prevent callbacks from being called by onConnectedNotLocked()
     // before the constructor returns (b/196941334).
-    instance.applicationHandler.post(
-        () -> {
-          if (!controllerCompat.isSessionReady()) {
-            // If the session not ready here, then call onConnectedNotLocked() immediately. The
-            // session may be a framework MediaSession and we cannot know whether it can be ready
-            // later.
-            onConnectedNotLocked();
-          }
-        });
+    getInstance()
+        .applicationHandler
+        .post(
+            () -> {
+              if (!controllerCompat.isSessionReady()) {
+                // If the session not ready here, then call onConnectedNotLocked() immediately. The
+                // session may be a framework MediaSession and we cannot know whether it can be
+                // ready
+                // later.
+                onConnectedNotLocked();
+              }
+            });
   }
 
   private void connectToService() {
-    instance.runOnApplicationLooper(
-        () -> {
-          // BrowserCompat can only be used on the thread that it's created.
-          // Create it on the application looper to respect that.
-          browserCompat =
-              new MediaBrowserCompat(
-                  context, token.getComponentName(), new ConnectionCallback(), null);
-          browserCompat.connect();
-        });
+    getInstance()
+        .runOnApplicationLooper(
+            () -> {
+              // BrowserCompat can only be used on the thread that it's created.
+              // Create it on the application looper to respect that.
+              browserCompat =
+                  new MediaBrowserCompat(
+                      context, token.getComponentName(), new ConnectionCallback(), null);
+              browserCompat.connect();
+            });
   }
 
   private boolean isPrepared() {
@@ -1365,14 +1382,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerCompat.getFlags(),
             controllerCompat.isSessionReady(),
             controllerCompat.getRatingType(),
-            instance.getTimeDiffMs());
+            getInstance().getTimeDiffMs());
     Pair<@NullableType Integer, @NullableType Integer> reasons =
         calculateDiscontinuityAndTransitionReason(
             legacyPlayerInfo,
             controllerInfo,
             newLegacyPlayerInfo,
             newControllerInfo,
-            instance.getTimeDiffMs());
+            getInstance().getTimeDiffMs());
     updateControllerInfo(
         notifyConnected,
         newLegacyPlayerInfo,
@@ -1412,11 +1429,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     controllerInfo = newControllerInfo;
 
     if (notifyConnected) {
-      instance.notifyAccepted();
+      getInstance().notifyAccepted();
       if (!oldControllerInfo.customLayout.equals(newControllerInfo.customLayout)) {
-        instance.notifyControllerListener(
-            listener ->
-                ignoreFuture(listener.onSetCustomLayout(instance, newControllerInfo.customLayout)));
+        getInstance()
+            .notifyControllerListener(
+                listener ->
+                    ignoreFuture(
+                        listener.onSetCustomLayout(getInstance(), newControllerInfo.customLayout)));
       }
       return;
     }
@@ -1537,15 +1556,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     if (!oldControllerInfo.availableSessionCommands.equals(
         newControllerInfo.availableSessionCommands)) {
-      instance.notifyControllerListener(
-          listener ->
-              listener.onAvailableSessionCommandsChanged(
-                  instance, newControllerInfo.availableSessionCommands));
+      getInstance()
+          .notifyControllerListener(
+              listener ->
+                  listener.onAvailableSessionCommandsChanged(
+                      getInstance(), newControllerInfo.availableSessionCommands));
     }
     if (!oldControllerInfo.customLayout.equals(newControllerInfo.customLayout)) {
-      instance.notifyControllerListener(
-          listener ->
-              ignoreFuture(listener.onSetCustomLayout(instance, newControllerInfo.customLayout)));
+      getInstance()
+          .notifyControllerListener(
+              listener ->
+                  ignoreFuture(
+                      listener.onSetCustomLayout(getInstance(), newControllerInfo.customLayout)));
     }
     listeners.flushEvents();
   }
@@ -1566,12 +1588,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onConnectionSuspended() {
-      instance.release();
+      getInstance().release();
     }
 
     @Override
     public void onConnectionFailed() {
-      instance.release();
+      getInstance().release();
     }
   }
 
@@ -1581,10 +1603,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private final Handler pendingChangesHandler;
 
-    public ControllerCompatCallback() {
+    public ControllerCompatCallback(Looper applicationLooper) {
       pendingChangesHandler =
           new Handler(
-              instance.applicationHandler.getLooper(),
+              applicationLooper,
               (msg) -> {
                 if (msg.what == MSG_HANDLE_PENDING_UPDATES) {
                   handleNewLegacyParameters(/* notifyConnected= */ false, pendingLegacyPlayerInfo);
@@ -1620,16 +1642,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onSessionDestroyed() {
-      instance.release();
+      getInstance().release();
     }
 
     @Override
     public void onSessionEvent(String event, Bundle extras) {
-      instance.notifyControllerListener(
-          listener ->
-              ignoreFuture(
-                  listener.onCustomCommand(
-                      instance, new SessionCommand(event, /* extras= */ Bundle.EMPTY), extras)));
+      getInstance()
+          .notifyControllerListener(
+              listener ->
+                  ignoreFuture(
+                      listener.onCustomCommand(
+                          getInstance(),
+                          new SessionCommand(event, /* extras= */ Bundle.EMPTY),
+                          extras)));
     }
 
     @Override
@@ -1661,7 +1686,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onExtrasChanged(Bundle extras) {
-      instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
+      getInstance()
+          .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
     }
 
     @Override
@@ -1672,17 +1698,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void onCaptioningEnabledChanged(boolean enabled) {
-      instance.notifyControllerListener(
-          listener -> {
-            Bundle args = new Bundle();
-            args.putBoolean(ARGUMENT_CAPTIONING_ENABLED, enabled);
-            ignoreFuture(
-                listener.onCustomCommand(
-                    instance,
-                    new SessionCommand(
-                        SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED, /* extras= */ Bundle.EMPTY),
-                    args));
-          });
+      getInstance()
+          .notifyControllerListener(
+              listener -> {
+                Bundle args = new Bundle();
+                args.putBoolean(ARGUMENT_CAPTIONING_ENABLED, enabled);
+                ignoreFuture(
+                    listener.onCustomCommand(
+                        getInstance(),
+                        new SessionCommand(
+                            SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED,
+                            /* extras= */ Bundle.EMPTY),
+                        args));
+              });
     }
 
     @Override

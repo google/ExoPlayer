@@ -28,6 +28,7 @@ import static androidx.media3.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBS
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
@@ -37,18 +38,27 @@ import androidx.media3.session.SequencedFutureManager.SequencedFuture;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 /** Base implementation of MediaBrowser. */
 /* package */ class MediaBrowserImplBase extends MediaControllerImplBase
     implements MediaBrowser.MediaBrowserImpl {
 
+  private final MediaBrowser instance;
+
   MediaBrowserImplBase(
-      Context context, MediaController instance, SessionToken token, Bundle connectionHints) {
-    super(context, instance, token, connectionHints);
+      Context context,
+      @UnderInitialization MediaBrowser instance,
+      SessionToken token,
+      Bundle connectionHints,
+      Looper applicationLooper) {
+    super(context, instance, token, connectionHints, applicationLooper);
+    this.instance = instance;
   }
 
-  MediaBrowser getMediaBrowser() {
-    return (MediaBrowser) instance;
+  @Override
+  /* package */ MediaBrowser getInstance() {
+    return instance;
   }
 
   @Override
@@ -157,10 +167,10 @@ import com.google.common.util.concurrent.ListenableFuture;
     if (!isConnected()) {
       return;
     }
-    getMediaBrowser()
+    getInstance()
         .notifyBrowserListener(
             listener ->
-                listener.onSearchResultChanged(getMediaBrowser(), query, itemCount, libraryParams));
+                listener.onSearchResultChanged(getInstance(), query, itemCount, libraryParams));
   }
 
   void notifyChildrenChanged(
@@ -168,10 +178,10 @@ import com.google.common.util.concurrent.ListenableFuture;
     if (!isConnected()) {
       return;
     }
-    getMediaBrowser()
+    getInstance()
         .notifyBrowserListener(
             listener ->
-                listener.onChildrenChanged(getMediaBrowser(), parentId, itemCount, libraryParams));
+                listener.onChildrenChanged(getInstance(), parentId, itemCount, libraryParams));
   }
 
   private <V> ListenableFuture<LibraryResult<V>> dispatchRemoteLibrarySessionTask(
