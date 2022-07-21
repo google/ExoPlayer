@@ -64,7 +64,8 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 /**
  * A controller that interacts with a {@link MediaSession}, a {@link MediaSessionService} hosting a
@@ -375,7 +376,7 @@ public class MediaController implements Player {
 
   private boolean released;
 
-  /* package */ final MediaControllerImpl impl;
+  @NotOnlyInitialized private final MediaControllerImpl impl;
 
   /* package */ final Listener listener;
 
@@ -407,19 +408,21 @@ public class MediaController implements Player {
     applicationHandler = new Handler(applicationLooper);
     this.connectionCallback = connectionCallback;
 
-    @SuppressWarnings("nullness:assignment")
-    @Initialized
-    MediaController thisRef = this;
-    impl = thisRef.createImpl(context, thisRef, token, connectionHints);
+    impl = createImpl(context, token, connectionHints, applicationLooper);
     impl.connect();
   }
 
-  /* package */ MediaControllerImpl createImpl(
-      Context context, MediaController thisRef, SessionToken token, Bundle connectionHints) {
+  /* package */ @UnderInitialization
+  MediaControllerImpl createImpl(
+      @UnderInitialization MediaController this,
+      Context context,
+      SessionToken token,
+      Bundle connectionHints,
+      Looper applicationLooper) {
     if (token.isLegacySession()) {
-      return new MediaControllerImplLegacy(context, thisRef, token);
+      return new MediaControllerImplLegacy(context, this, token, applicationLooper);
     } else {
-      return new MediaControllerImplBase(context, thisRef, token, connectionHints);
+      return new MediaControllerImplBase(context, this, token, connectionHints, applicationLooper);
     }
   }
 
@@ -1805,7 +1808,7 @@ public class MediaController implements Player {
 
   interface MediaControllerImpl {
 
-    void connect();
+    void connect(@UnderInitialization MediaControllerImpl this);
 
     void addListener(Player.Listener listener);
 

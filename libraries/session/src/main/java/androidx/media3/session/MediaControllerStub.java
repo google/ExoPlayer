@@ -87,7 +87,8 @@ import java.util.List;
   @Override
   public void onDisconnected(int seq) {
     dispatchControllerTaskOnHandler(
-        controller -> controller.instance.runOnApplicationLooper(controller.instance::release));
+        controller ->
+            controller.getInstance().runOnApplicationLooper(controller.getInstance()::release));
   }
 
   @Override
@@ -268,7 +269,7 @@ import java.util.List;
       if (controller == null) {
         return;
       }
-      Handler handler = controller.instance.applicationHandler;
+      Handler handler = controller.getInstance().applicationHandler;
       postOrRun(
           handler,
           () -> {

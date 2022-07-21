@@ -154,6 +154,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 @SuppressWarnings("FutureReturnValueIgnored") // TODO(b/138091975): Not to ignore if feasible
@@ -161,7 +162,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   public static final String TAG = "MCImplBase";
 
-  protected final MediaController instance;
+  private final MediaController instance;
   protected final SequencedFutureManager sequencedFutureManager;
   protected final MediaControllerStub controllerStub;
 
@@ -192,7 +193,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private long lastSetPlayWhenReadyCalledTimeMs;
 
   public MediaControllerImplBase(
-      Context context, MediaController instance, SessionToken token, Bundle connectionHints) {
+      Context context,
+      @UnderInitialization MediaController instance,
+      SessionToken token,
+      Bundle connectionHints,
+      Looper applicationLooper) {
     // Initialize default values.
     playerInfo = PlayerInfo.DEFAULT;
     sessionCommands = SessionCommands.EMPTY;
@@ -201,9 +206,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     intersectedPlayerCommands = Commands.EMPTY;
     listeners =
         new ListenerSet<>(
-            instance.getApplicationLooper(),
+            applicationLooper,
             Clock.DEFAULT,
-            (listener, flags) -> listener.onEvents(instance, new Events(flags)));
+            (listener, flags) -> listener.onEvents(getInstance(), new Events(flags)));
 
     // Initialize members
     this.instance = instance;
@@ -216,21 +221,26 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     this.connectionHints = connectionHints;
     deathRecipient =
         () ->
-            MediaControllerImplBase.this.instance.runOnApplicationLooper(
-                MediaControllerImplBase.this.instance::release);
+            MediaControllerImplBase.this
+                .getInstance()
+                .runOnApplicationLooper(MediaControllerImplBase.this.getInstance()::release);
     surfaceCallback = new SurfaceCallback();
 
     serviceConnection =
         (this.token.getType() == TYPE_SESSION)
             ? null
             : new SessionServiceConnection(connectionHints);
-    flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
+    flushCommandQueueHandler = new FlushCommandQueueHandler(applicationLooper);
     lastReturnedContentPositionMs = C.TIME_UNSET;
     lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
+  /* package*/ MediaController getInstance() {
+    return instance;
+  }
+
   @Override
-  public void connect() {
+  public void connect(@UnderInitialization MediaControllerImplBase this) {
     boolean connectionRequested;
     if (this.token.getType() == TYPE_SESSION) {
       // Session
@@ -241,7 +251,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       connectionRequested = requestConnectToService();
     }
     if (!connectionRequested) {
-      this.instance.runOnApplicationLooper(MediaControllerImplBase.this.instance::release);
+      getInstance().runOnApplicationLooper(getInstance()::release);
     }
   }
 
@@ -640,8 +650,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return playerInfo.sessionPositionInfo.positionInfo.positionMs;
     }
     long elapsedTimeMs =
-        (instance.getTimeDiffMs() != C.TIME_UNSET)
-            ? instance.getTimeDiffMs()
+        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
+            ? getInstance().getTimeDiffMs()
             : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.positionMs
@@ -694,8 +704,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     long elapsedTimeMs =
-        (instance.getTimeDiffMs() != C.TIME_UNSET)
-            ? instance.getTimeDiffMs()
+        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
+            ? getInstance().getTimeDiffMs()
             : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.contentPositionMs
@@ -2289,7 +2299,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           TAG,
           "Cannot be notified about the connection result many times."
               + " Probably a bug or malicious app.");
-      instance.release();
+      getInstance().release();
       return;
     }
     iSession = result.sessionBinder;
@@ -2304,7 +2314,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // so can be used without worrying about deadlock.
       result.sessionBinder.asBinder().linkToDeath(deathRecipient, 0);
     } catch (RemoteException e) {
-      instance.release();
+      getInstance().release();
       return;
     }
     connectedToken =
@@ -2315,7 +2325,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             token.getPackageName(),
             result.sessionBinder,
             result.tokenExtras);
-    instance.notifyAccepted();
+    getInstance().notifyAccepted();
   }
 
   private void sendControllerResult(int seq, SessionResult result) {
@@ -2350,14 +2360,15 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isConnected()) {
       return;
     }
-    instance.notifyControllerListener(
-        listener -> {
-          ListenableFuture<SessionResult> future =
-              checkNotNull(
-                  listener.onCustomCommand(instance, command, args),
-                  "ControllerCallback#onCustomCommand() must not return null");
-          sendControllerResultWhenReady(seq, future);
-        });
+    getInstance()
+        .notifyControllerListener(
+            listener -> {
+              ListenableFuture<SessionResult> future =
+                  checkNotNull(
+                      listener.onCustomCommand(getInstance(), command, args),
+                      "ControllerCallback#onCustomCommand() must not return null");
+              sendControllerResultWhenReady(seq, future);
+            });
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
@@ -2558,8 +2569,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           listener -> listener.onAvailableCommandsChanged(intersectedPlayerCommands));
     }
     if (sessionCommandsChanged) {
-      instance.notifyControllerListener(
-          listener -> listener.onAvailableSessionCommandsChanged(instance, sessionCommands));
+      getInstance()
+          .notifyControllerListener(
+              listener ->
+                  listener.onAvailableSessionCommandsChanged(getInstance(), sessionCommands));
     }
   }
 
@@ -2596,21 +2609,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         validatedCustomLayout.add(button);
       }
     }
-    instance.notifyControllerListener(
-        listener -> {
-          ListenableFuture<SessionResult> future =
-              checkNotNull(
-                  listener.onSetCustomLayout(instance, validatedCustomLayout),
-                  "MediaController.Listener#onSetCustomLayout() must not return null");
-          sendControllerResultWhenReady(seq, future);
-        });
+    getInstance()
+        .notifyControllerListener(
+            listener -> {
+              ListenableFuture<SessionResult> future =
+                  checkNotNull(
+                      listener.onSetCustomLayout(getInstance(), validatedCustomLayout),
+                      "MediaController.Listener#onSetCustomLayout() must not return null");
+              sendControllerResultWhenReady(seq, future);
+            });
   }
 
   public void onExtrasChanged(Bundle extras) {
     if (!isConnected()) {
       return;
     }
-    instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
+    getInstance()
+        .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
   }
 
   public void onRenderedFirstFrame() {
@@ -2961,7 +2976,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         Log.w(TAG, "Service " + name + " has died prematurely");
       } finally {
         if (!connectionRequested) {
-          instance.runOnApplicationLooper(instance::release);
+          getInstance().runOnApplicationLooper(getInstance()::release);
         }
       }
     }
@@ -2972,7 +2987,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // rebind, but we'd better to release() here. Otherwise ControllerCallback#onConnected()
       // would be called multiple times, and the controller would be connected to the
       // different session everytime.
-      instance.runOnApplicationLooper(instance::release);
+      getInstance().runOnApplicationLooper(getInstance()::release);
     }
 
     @Override
@@ -2980,7 +2995,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // Permanent lose of the binding because of the service package update or removed.
       // This SessionServiceRecord will be removed accordingly, but forget session binder here
       // for sure.
-      instance.runOnApplicationLooper(instance::release);
+      getInstance().runOnApplicationLooper(getInstance()::release);
     }
   }
 
