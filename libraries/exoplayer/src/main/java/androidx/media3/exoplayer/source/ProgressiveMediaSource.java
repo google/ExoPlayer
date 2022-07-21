@@ -35,6 +35,7 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorsFactory;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
  * Provides one period that loads data from a {@link Uri} and extracted using an {@link Extractor}.
@@ -155,6 +156,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
@@ -176,11 +178,13 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *     MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
       return this;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setDrmSessionManagerProvider(
         DrmSessionManagerProvider drmSessionManagerProvider) {

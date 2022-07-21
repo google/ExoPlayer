@@ -22,6 +22,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -66,6 +67,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaCodecAdapterFactory forceEnableAsynchronous() {
     asynchronousMode = MODE_ENABLED;
     return this;
@@ -76,6 +78,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaCodecAdapterFactory forceDisableAsynchronous() {
     asynchronousMode = MODE_DISABLED;
     return this;

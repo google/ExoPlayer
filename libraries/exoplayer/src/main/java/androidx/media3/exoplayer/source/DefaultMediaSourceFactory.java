@@ -51,6 +51,7 @@ import androidx.media3.extractor.text.SubtitleExtractor;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -195,6 +196,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     should be used for subtitles instead of {@link SingleSampleMediaSource}.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory experimentalUseProgressiveMediaSourceForSubtitles(
       boolean useProgressiveMediaSourceForSubtitles) {
@@ -214,6 +216,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @deprecated Use {@link #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}
    *     instead.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   @Deprecated
   public DefaultMediaSourceFactory setAdsLoaderProvider(
@@ -233,6 +236,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @deprecated Use {@link #setLocalAdInsertionComponents(AdsLoader.Provider, AdViewProvider)}
    *     instead.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   @Deprecated
   public DefaultMediaSourceFactory setAdViewProvider(@Nullable AdViewProvider adViewProvider) {
@@ -251,6 +255,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param adViewProvider A provider for information about views for the ad playback UI.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaSourceFactory setLocalAdInsertionComponents(
       AdsLoader.Provider adsLoaderProvider, AdViewProvider adViewProvider) {
     this.adsLoaderProvider = checkNotNull(adsLoaderProvider);
@@ -267,6 +272,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaSourceFactory clearLocalAdInsertionComponents() {
     this.adsLoaderProvider = null;
     this.adViewProvider = null;
@@ -280,6 +286,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param dataSourceFactory The {@link DataSource.Factory}.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public DefaultMediaSourceFactory setDataSourceFactory(DataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
     delegateFactoryLoader.setDataSourceFactory(dataSourceFactory);
@@ -296,6 +303,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     content, or {@code null} to remove a previously set {@link MediaSource.Factory}.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory setServerSideAdInsertionMediaSourceFactory(
       @Nullable MediaSource.Factory serverSideAdInsertionMediaSourceFactory) {
@@ -310,6 +318,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     use the media-defined default.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory setLiveTargetOffsetMs(long liveTargetOffsetMs) {
     this.liveTargetOffsetMs = liveTargetOffsetMs;
@@ -323,6 +332,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#TIME_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory setLiveMinOffsetMs(long liveMinOffsetMs) {
     this.liveMinOffsetMs = liveMinOffsetMs;
@@ -336,6 +346,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#TIME_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory setLiveMaxOffsetMs(long liveMaxOffsetMs) {
     this.liveMaxOffsetMs = liveMaxOffsetMs;
@@ -349,6 +360,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory setLiveMinSpeed(float minSpeed) {
     this.liveMinSpeed = minSpeed;
@@ -362,12 +374,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @CanIgnoreReturnValue
   @UnstableApi
   public DefaultMediaSourceFactory setLiveMaxSpeed(float maxSpeed) {
     this.liveMaxSpeed = maxSpeed;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @UnstableApi
   @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
@@ -381,6 +395,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  @CanIgnoreReturnValue
   @UnstableApi
   @Override
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(

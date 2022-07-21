@@ -59,6 +59,7 @@ import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -222,6 +223,7 @@ public class MediaController implements Player {
      * @param connectionHints A bundle containing the connection hints.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setConnectionHints(Bundle connectionHints) {
       this.connectionHints = new Bundle(checkNotNull(connectionHints));
       return this;
@@ -233,6 +235,7 @@ public class MediaController implements Player {
      * @param listener The listener.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setListener(Listener listener) {
       this.listener = checkNotNull(listener);
       return this;
@@ -247,6 +250,7 @@ public class MediaController implements Player {
      * @param looper The looper.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setApplicationLooper(Looper looper) {
       applicationLooper = checkNotNull(looper);
       return this;

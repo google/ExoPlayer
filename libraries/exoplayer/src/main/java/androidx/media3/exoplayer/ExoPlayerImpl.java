@@ -105,6 +105,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 import androidx.media3.exoplayer.video.spherical.CameraMotionListener;
 import androidx.media3.exoplayer.video.spherical.SphericalGLSurfaceView;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -397,6 +398,7 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -405,6 +407,7 @@ import java.util.concurrent.TimeoutException;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -413,6 +416,7 @@ import java.util.concurrent.TimeoutException;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -421,6 +425,7 @@ import java.util.concurrent.TimeoutException;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated

@@ -30,6 +30,7 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -82,6 +83,7 @@ public final class FileDataSource extends BaseDataSource {
      * @param listener The {@link TransferListener}.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setListener(@Nullable TransferListener listener) {
       this.listener = listener;
       return this;

@@ -31,6 +31,7 @@ import androidx.media3.datasource.DataSourceException;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.test.utils.FakeDataSet.FakeData;
 import androidx.media3.test.utils.FakeDataSet.FakeData.Segment;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -51,11 +52,13 @@ public class FakeDataSource extends BaseDataSource {
       fakeDataSet = new FakeDataSet();
     }
 
+    @CanIgnoreReturnValue
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
       this.fakeDataSet = fakeDataSet;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public final Factory setIsNetwork(boolean isNetwork) {
       this.isNetwork = isNetwork;
       return this;

@@ -29,6 +29,7 @@ import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
 import com.google.ads.interactivemedia.v3.api.StreamRequest.StreamFormat;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,6 +86,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param adsId The ads identifier.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setAdsId(String adsId) {
     this.adsId = adsId;
     return this;
@@ -96,6 +98,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param assetKey Live stream asset key.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setAssetKey(@Nullable String assetKey) {
     this.assetKey = assetKey;
     return this;
@@ -109,6 +112,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param authToken Live stream authorization token.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setAuthToken(@Nullable String authToken) {
     this.authToken = authToken;
     return this;
@@ -120,6 +124,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param contentSourceId VOD stream content source id.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setContentSourceId(@Nullable String contentSourceId) {
     this.contentSourceId = contentSourceId;
     return this;
@@ -131,6 +136,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param videoId VOD stream video id.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setVideoId(@Nullable String videoId) {
     this.videoId = videoId;
     return this;
@@ -142,6 +148,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param format {@link C#TYPE_DASH} or {@link C#TYPE_HLS}.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setFormat(@ContentType int format) {
     checkArgument(format == C.CONTENT_TYPE_DASH || format == C.CONTENT_TYPE_HLS);
     this.format = format;
@@ -156,6 +163,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param apiKey Stream api key.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setApiKey(@Nullable String apiKey) {
     this.apiKey = apiKey;
     return this;
@@ -169,6 +177,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param streamActivityMonitorId ID for debugging the stream with the stream activity monitor.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setStreamActivityMonitorId(
       @Nullable String streamActivityMonitorId) {
     this.streamActivityMonitorId = streamActivityMonitorId;
@@ -187,6 +196,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param adTagParameters A map of extra parameters to pass to the ad server.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setAdTagParameters(
       Map<String, String> adTagParameters) {
     this.adTagParameters = ImmutableMap.copyOf(adTagParameters);
@@ -200,6 +210,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param manifestSuffix Stream manifest's suffix.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setManifestSuffix(@Nullable String manifestSuffix) {
     this.manifestSuffix = manifestSuffix;
     return this;
@@ -213,6 +224,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param contentUrl Deep link to the content's screen.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setContentUrl(@Nullable String contentUrl) {
     this.contentUrl = contentUrl;
     return this;
@@ -226,6 +238,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
    * @param loadVideoTimeoutMs The timeout after which to give up resolving the video URI.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ImaServerSideAdInsertionUriBuilder setLoadVideoTimeoutMs(int loadVideoTimeoutMs) {
     this.loadVideoTimeoutMs = loadVideoTimeoutMs;
     return this;

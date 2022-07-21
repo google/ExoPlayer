@@ -165,6 +165,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12193,6 +12194,7 @@ public final class ExoPlayerTest {
     }
 
     /** Call {@link Renderer.WakeupListener#onSleep()} on the next {@link #render(long, long)} */
+    @CanIgnoreReturnValue
     public FakeSleepRenderer sleepOnNextRender() {
       sleepOnNextRender.set(true);
       return this;

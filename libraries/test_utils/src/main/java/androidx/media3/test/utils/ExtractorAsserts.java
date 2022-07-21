@@ -33,6 +33,7 @@ import androidx.media3.test.utils.FakeExtractorInput.SimulatedIOException;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -147,11 +148,13 @@ public final class ExtractorAsserts {
       private @MonotonicNonNull String dumpFilesPrefix;
       private boolean deduplicateConsecutiveFormats;
 
+      @CanIgnoreReturnValue
       public Builder setDumpFilesPrefix(String dumpFilesPrefix) {
         this.dumpFilesPrefix = dumpFilesPrefix;
         return this;
       }
 
+      @CanIgnoreReturnValue
       public Builder setDeduplicateConsecutiveFormats(boolean deduplicateConsecutiveFormats) {
         this.deduplicateConsecutiveFormats = deduplicateConsecutiveFormats;
         return this;

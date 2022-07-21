@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -65,6 +66,7 @@ public final class CommandButton implements Bundleable {
      * @param sessionCommand The session command.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setSessionCommand(SessionCommand sessionCommand) {
       checkNotNull(sessionCommand, "sessionCommand should not be null.");
       checkArgument(
@@ -83,6 +85,7 @@ public final class CommandButton implements Bundleable {
      * @param playerCommand The player command.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setPlayerCommand(@Player.Command int playerCommand) {
       checkArgument(
           sessionCommand == null,
@@ -102,6 +105,7 @@ public final class CommandButton implements Bundleable {
      * @param resId The resource id of an icon.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setIconResId(@DrawableRes int resId) {
       iconResId = resId;
       return this;
@@ -113,6 +117,7 @@ public final class CommandButton implements Bundleable {
      * @param displayName The display name.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setDisplayName(CharSequence displayName) {
       this.displayName = displayName;
       return this;
@@ -124,6 +129,7 @@ public final class CommandButton implements Bundleable {
      * @param enabled Whether the button is enabled.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setEnabled(boolean enabled) {
       this.enabled = enabled;
       return this;
@@ -135,6 +141,7 @@ public final class CommandButton implements Bundleable {
      * @param extras The extra {@link Bundle}.
      * @return This builder for chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setExtras(Bundle extras) {
       this.extras = new Bundle(extras);
       return this;

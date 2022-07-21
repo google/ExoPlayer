@@ -44,6 +44,7 @@ import androidx.media3.extractor.ts.PsExtractor;
 import androidx.media3.extractor.ts.TsExtractor;
 import androidx.media3.extractor.ts.TsPayloadReader;
 import androidx.media3.extractor.wav.WavExtractor;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -145,6 +146,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *     assumption should be enabled for all extractors that support it.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingEnabled(
       boolean constantBitrateSeekingEnabled) {
     this.constantBitrateSeekingEnabled = constantBitrateSeekingEnabled;
@@ -169,6 +171,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *     duration is unknown.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingAlwaysEnabled(
       boolean constantBitrateSeekingAlwaysEnabled) {
     this.constantBitrateSeekingAlwaysEnabled = constantBitrateSeekingAlwaysEnabled;
@@ -182,6 +185,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setAdtsExtractorFlags(
       @AdtsExtractor.Flags int flags) {
     this.adtsFlags = flags;
@@ -195,6 +199,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setAmrExtractorFlags(@AmrExtractor.Flags int flags) {
     this.amrFlags = flags;
     return this;
@@ -209,6 +214,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setFlacExtractorFlags(
       @FlacExtractor.Flags int flags) {
     this.flacFlags = flags;
@@ -222,6 +228,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMatroskaExtractorFlags(
       @MatroskaExtractor.Flags int flags) {
     this.matroskaFlags = flags;
@@ -235,6 +242,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMp4ExtractorFlags(@Mp4Extractor.Flags int flags) {
     this.mp4Flags = flags;
     return this;
@@ -247,6 +255,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setFragmentedMp4ExtractorFlags(
       @FragmentedMp4Extractor.Flags int flags) {
     this.fragmentedMp4Flags = flags;
@@ -260,6 +269,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMp3ExtractorFlags(@Mp3Extractor.Flags int flags) {
     mp3Flags = flags;
     return this;
@@ -272,6 +282,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param mode The mode to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorMode(@TsExtractor.Mode int mode) {
     tsMode = mode;
     return this;
@@ -285,6 +296,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorFlags(
       @DefaultTsPayloadReaderFactory.Flags int flags) {
     tsFlags = flags;
@@ -299,6 +311,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param timestampSearchBytes The number of search bytes to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorTimestampSearchBytes(
       int timestampSearchBytes) {
     tsTimestampSearchBytes = timestampSearchBytes;

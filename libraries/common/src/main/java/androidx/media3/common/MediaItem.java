@@ -29,6 +29,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -126,6 +127,7 @@ public final class MediaItem implements Bundleable {
      *
      * <p>By default {@link #DEFAULT_MEDIA_ID} is used.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaId(String mediaId) {
       this.mediaId = checkNotNull(mediaId);
       return this;
@@ -138,6 +140,7 @@ public final class MediaItem implements Bundleable {
      * during {@link #build()} and no other {@code Builder} methods that would populate {@link
      * MediaItem#localConfiguration} should be called.
      */
+    @CanIgnoreReturnValue
     public Builder setUri(@Nullable String uri) {
       return setUri(uri == null ? null : Uri.parse(uri));
     }
@@ -149,6 +152,7 @@ public final class MediaItem implements Bundleable {
      * during {@link #build()} and no other {@code Builder} methods that would populate {@link
      * MediaItem#localConfiguration} should be called.
      */
+    @CanIgnoreReturnValue
     public Builder setUri(@Nullable Uri uri) {
       this.uri = uri;
       return this;
@@ -163,12 +167,14 @@ public final class MediaItem implements Bundleable {
      *
      * @param mimeType The MIME type.
      */
+    @CanIgnoreReturnValue
     public Builder setMimeType(@Nullable String mimeType) {
       this.mimeType = mimeType;
       return this;
     }
 
     /** Sets the {@link ClippingConfiguration}, defaults to {@link ClippingConfiguration#UNSET}. */
+    @CanIgnoreReturnValue
     public Builder setClippingConfiguration(ClippingConfiguration clippingConfiguration) {
       this.clippingConfiguration = clippingConfiguration.buildUpon();
       return this;
@@ -178,6 +184,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
      *     ClippingConfiguration.Builder#setStartPositionMs(long)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setClipStartPositionMs(@IntRange(from = 0) long startPositionMs) {
@@ -189,6 +196,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
      *     ClippingConfiguration.Builder#setEndPositionMs(long)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setClipEndPositionMs(long endPositionMs) {
@@ -200,6 +208,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
      *     ClippingConfiguration.Builder#setRelativeToLiveWindow(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setClipRelativeToLiveWindow(boolean relativeToLiveWindow) {
@@ -211,6 +220,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
      *     ClippingConfiguration.Builder#setRelativeToDefaultPosition(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setClipRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
@@ -222,6 +232,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
      *     ClippingConfiguration.Builder#setStartsAtKeyFrame(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setClipStartsAtKeyFrame(boolean startsAtKeyFrame) {
@@ -230,6 +241,7 @@ public final class MediaItem implements Bundleable {
     }
 
     /** Sets the optional DRM configuration. */
+    @CanIgnoreReturnValue
     public Builder setDrmConfiguration(@Nullable DrmConfiguration drmConfiguration) {
       this.drmConfiguration =
           drmConfiguration != null ? drmConfiguration.buildUpon() : new DrmConfiguration.Builder();
@@ -240,6 +252,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setLicenseUri(Uri)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmLicenseUri(@Nullable Uri licenseUri) {
@@ -251,6 +264,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setLicenseUri(String)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmLicenseUri(@Nullable String licenseUri) {
@@ -264,6 +278,7 @@ public final class MediaItem implements Bundleable {
      *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} doesn't accept null, use an empty
      *     map to clear the headers.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmLicenseRequestHeaders(
@@ -277,6 +292,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and pass the {@code uuid} to
      *     {@link DrmConfiguration.Builder#Builder(UUID)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmUuid(@Nullable UUID uuid) {
@@ -288,6 +304,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setMultiSession(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmMultiSession(boolean multiSession) {
@@ -299,6 +316,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setForceDefaultLicenseUri(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
@@ -310,6 +328,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setPlayClearContentWithoutKey(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
@@ -321,6 +340,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setForceSessionsForAudioAndVideoTracks(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
@@ -334,6 +354,7 @@ public final class MediaItem implements Bundleable {
      *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} doesn't accept null, use an
      *     empty list to clear the contents.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmSessionForClearTypes(
@@ -347,6 +368,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
      *     DrmConfiguration.Builder#setKeySetId(byte[])} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setDrmKeySetId(@Nullable byte[] keySetId) {
@@ -363,6 +385,7 @@ public final class MediaItem implements Bundleable {
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the stream keys are used to create a
      * {@link LocalConfiguration} object. Otherwise they will be ignored.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setStreamKeys(@Nullable List<StreamKey> streamKeys) {
       this.streamKeys =
@@ -377,6 +400,7 @@ public final class MediaItem implements Bundleable {
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setCustomCacheKey(@Nullable String customCacheKey) {
       this.customCacheKey = customCacheKey;
@@ -388,6 +412,7 @@ public final class MediaItem implements Bundleable {
      *     #setSubtitleConfigurations(List)} doesn't accept null, use an empty list to clear the
      *     contents.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setSubtitles(@Nullable List<Subtitle> subtitles) {
@@ -401,6 +426,7 @@ public final class MediaItem implements Bundleable {
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
+    @CanIgnoreReturnValue
     public Builder setSubtitleConfigurations(List<SubtitleConfiguration> subtitleConfigurations) {
       this.subtitleConfigurations = ImmutableList.copyOf(subtitleConfigurations);
       return this;
@@ -411,6 +437,7 @@ public final class MediaItem implements Bundleable {
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
+    @CanIgnoreReturnValue
     public Builder setAdsConfiguration(@Nullable AdsConfiguration adsConfiguration) {
       this.adsConfiguration = adsConfiguration;
       return this;
@@ -421,6 +448,7 @@ public final class MediaItem implements Bundleable {
      *     with {@link Uri#parse(String)} and pass the result to {@link
      *     AdsConfiguration.Builder#Builder(Uri)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setAdTagUri(@Nullable String adTagUri) {
@@ -431,6 +459,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)} and pass the {@code adTagUri}
      *     to {@link AdsConfiguration.Builder#Builder(Uri)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setAdTagUri(@Nullable Uri adTagUri) {
@@ -442,6 +471,7 @@ public final class MediaItem implements Bundleable {
      *     {@link AdsConfiguration.Builder#Builder(Uri)} and the {@code adsId} to {@link
      *     AdsConfiguration.Builder#setAdsId(Object)} instead.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setAdTagUri(@Nullable Uri adTagUri, @Nullable Object adsId) {
@@ -451,6 +481,7 @@ public final class MediaItem implements Bundleable {
     }
 
     /** Sets the {@link LiveConfiguration}. Defaults to {@link LiveConfiguration#UNSET}. */
+    @CanIgnoreReturnValue
     public Builder setLiveConfiguration(LiveConfiguration liveConfiguration) {
       this.liveConfiguration = liveConfiguration.buildUpon();
       return this;
@@ -460,6 +491,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
      *     LiveConfiguration.Builder#setTargetOffsetMs(long)}.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setLiveTargetOffsetMs(long liveTargetOffsetMs) {
@@ -471,6 +503,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
      *     LiveConfiguration.Builder#setMinOffsetMs(long)}.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setLiveMinOffsetMs(long liveMinOffsetMs) {
@@ -482,6 +515,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
      *     LiveConfiguration.Builder#setMaxOffsetMs(long)}.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setLiveMaxOffsetMs(long liveMaxOffsetMs) {
@@ -493,6 +527,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
      *     LiveConfiguration.Builder#setMinPlaybackSpeed(float)}.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setLiveMinPlaybackSpeed(float minPlaybackSpeed) {
@@ -504,6 +539,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
      *     LiveConfiguration.Builder#setMaxPlaybackSpeed(float)}.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     @Deprecated
     public Builder setLiveMaxPlaybackSpeed(float maxPlaybackSpeed) {
@@ -518,18 +554,21 @@ public final class MediaItem implements Bundleable {
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
+    @CanIgnoreReturnValue
     public Builder setTag(@Nullable Object tag) {
       this.tag = tag;
       return this;
     }
 
     /** Sets the media metadata. */
+    @CanIgnoreReturnValue
     public Builder setMediaMetadata(MediaMetadata mediaMetadata) {
       this.mediaMetadata = mediaMetadata;
       return this;
     }
 
     /** Sets the request metadata. */
+    @CanIgnoreReturnValue
     public Builder setRequestMetadata(RequestMetadata requestMetadata) {
       this.requestMetadata = requestMetadata;
       return this;
@@ -613,6 +652,7 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the {@link UUID} of the protection scheme. */
+      @CanIgnoreReturnValue
       public Builder setScheme(UUID scheme) {
         this.scheme = scheme;
         return this;
@@ -622,6 +662,7 @@ public final class MediaItem implements Bundleable {
        * @deprecated This only exists to support the deprecated {@link
        *     MediaItem.Builder#setDrmUuid(UUID)}.
        */
+      @CanIgnoreReturnValue
       @Deprecated
       private Builder setNullableScheme(@Nullable UUID scheme) {
         this.scheme = scheme;
@@ -629,24 +670,28 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the optional default DRM license server URI. */
+      @CanIgnoreReturnValue
       public Builder setLicenseUri(@Nullable Uri licenseUri) {
         this.licenseUri = licenseUri;
         return this;
       }
 
       /** Sets the optional default DRM license server URI. */
+      @CanIgnoreReturnValue
       public Builder setLicenseUri(@Nullable String licenseUri) {
         this.licenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
         return this;
       }
 
       /** Sets the optional request headers attached to DRM license requests. */
+      @CanIgnoreReturnValue
       public Builder setLicenseRequestHeaders(Map<String, String> licenseRequestHeaders) {
         this.licenseRequestHeaders = ImmutableMap.copyOf(licenseRequestHeaders);
         return this;
       }
 
       /** Sets whether multi session is enabled. */
+      @CanIgnoreReturnValue
       public Builder setMultiSession(boolean multiSession) {
         this.multiSession = multiSession;
         return this;
@@ -656,6 +701,7 @@ public final class MediaItem implements Bundleable {
        * Sets whether to always use the default DRM license server URI even if the media specifies
        * its own DRM license server URI.
        */
+      @CanIgnoreReturnValue
       public Builder setForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
         this.forceDefaultLicenseUri = forceDefaultLicenseUri;
         return this;
@@ -665,6 +711,7 @@ public final class MediaItem implements Bundleable {
        * Sets whether clear samples within protected content should be played when keys for the
        * encrypted part of the content have yet to be loaded.
        */
+      @CanIgnoreReturnValue
       public Builder setPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
         this.playClearContentWithoutKey = playClearContentWithoutKey;
         return this;
@@ -673,6 +720,7 @@ public final class MediaItem implements Bundleable {
       /**
        * @deprecated Use {@link #setForceSessionsForAudioAndVideoTracks(boolean)} instead.
        */
+      @CanIgnoreReturnValue
       @UnstableApi
       @Deprecated
       @InlineMe(
@@ -690,6 +738,7 @@ public final class MediaItem implements Bundleable {
        * <p>This method overrides what has been set by previously calling {@link
        * #setForcedSessionTrackTypes(List)}.
        */
+      @CanIgnoreReturnValue
       public Builder setForceSessionsForAudioAndVideoTracks(
           boolean forceSessionsForAudioAndVideoTracks) {
         this.setForcedSessionTrackTypes(
@@ -709,6 +758,7 @@ public final class MediaItem implements Bundleable {
        * <p>This method overrides what has been set by previously calling {@link
        * #setForceSessionsForAudioAndVideoTracks(boolean)}.
        */
+      @CanIgnoreReturnValue
       public Builder setForcedSessionTrackTypes(
           List<@C.TrackType Integer> forcedSessionTrackTypes) {
         this.forcedSessionTrackTypes = ImmutableList.copyOf(forcedSessionTrackTypes);
@@ -722,6 +772,7 @@ public final class MediaItem implements Bundleable {
        * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
        * mode,byte[] offlineLicenseKeySetId)}).
        */
+      @CanIgnoreReturnValue
       public Builder setKeySetId(@Nullable byte[] keySetId) {
         this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
         return this;
@@ -864,6 +915,7 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the ad tag URI to load. */
+      @CanIgnoreReturnValue
       public Builder setAdTagUri(Uri adTagUri) {
         this.adTagUri = adTagUri;
         return this;
@@ -875,6 +927,7 @@ public final class MediaItem implements Bundleable {
        * <p>See details on {@link AdsConfiguration#adsId} for how the ads identifier is used and how
        * it's calculated if not explicitly set.
        */
+      @CanIgnoreReturnValue
       public Builder setAdsId(@Nullable Object adsId) {
         this.adsId = adsId;
         return this;
@@ -1093,6 +1146,7 @@ public final class MediaItem implements Bundleable {
        *
        * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
        */
+      @CanIgnoreReturnValue
       public Builder setTargetOffsetMs(long targetOffsetMs) {
         this.targetOffsetMs = targetOffsetMs;
         return this;
@@ -1105,6 +1159,7 @@ public final class MediaItem implements Bundleable {
        *
        * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
        */
+      @CanIgnoreReturnValue
       public Builder setMinOffsetMs(long minOffsetMs) {
         this.minOffsetMs = minOffsetMs;
         return this;
@@ -1117,6 +1172,7 @@ public final class MediaItem implements Bundleable {
        *
        * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
        */
+      @CanIgnoreReturnValue
       public Builder setMaxOffsetMs(long maxOffsetMs) {
         this.maxOffsetMs = maxOffsetMs;
         return this;
@@ -1127,6 +1183,7 @@ public final class MediaItem implements Bundleable {
        *
        * <p>Defaults to {@link C#RATE_UNSET}, indicating the media-defined default will be used.
        */
+      @CanIgnoreReturnValue
       public Builder setMinPlaybackSpeed(float minPlaybackSpeed) {
         this.minPlaybackSpeed = minPlaybackSpeed;
         return this;
@@ -1137,6 +1194,7 @@ public final class MediaItem implements Bundleable {
        *
        * <p>Defaults to {@link C#RATE_UNSET}, indicating the media-defined default will be used.
        */
+      @CanIgnoreReturnValue
       public Builder setMaxPlaybackSpeed(float maxPlaybackSpeed) {
         this.maxPlaybackSpeed = maxPlaybackSpeed;
         return this;
@@ -1329,42 +1387,49 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the {@link Uri} to the subtitle file. */
+      @CanIgnoreReturnValue
       public Builder setUri(Uri uri) {
         this.uri = uri;
         return this;
       }
 
       /** Sets the MIME type. */
+      @CanIgnoreReturnValue
       public Builder setMimeType(@Nullable String mimeType) {
         this.mimeType = mimeType;
         return this;
       }
 
       /** Sets the optional language of the subtitle file. */
+      @CanIgnoreReturnValue
       public Builder setLanguage(@Nullable String language) {
         this.language = language;
         return this;
       }
 
       /** Sets the flags used for track selection. */
+      @CanIgnoreReturnValue
       public Builder setSelectionFlags(@C.SelectionFlags int selectionFlags) {
         this.selectionFlags = selectionFlags;
         return this;
       }
 
       /** Sets the role flags. These are used for track selection. */
+      @CanIgnoreReturnValue
       public Builder setRoleFlags(@C.RoleFlags int roleFlags) {
         this.roleFlags = roleFlags;
         return this;
       }
 
       /** Sets the optional label for this subtitle track. */
+      @CanIgnoreReturnValue
       public Builder setLabel(@Nullable String label) {
         this.label = label;
         return this;
       }
 
       /** Sets the optional ID for this subtitle track. */
+      @CanIgnoreReturnValue
       public Builder setId(@Nullable String id) {
         this.id = id;
         return this;
@@ -1541,6 +1606,7 @@ public final class MediaItem implements Bundleable {
        * Sets the optional start position in milliseconds which must be a value larger than or equal
        * to zero (Default: 0).
        */
+      @CanIgnoreReturnValue
       public Builder setStartPositionMs(@IntRange(from = 0) long startPositionMs) {
         Assertions.checkArgument(startPositionMs >= 0);
         this.startPositionMs = startPositionMs;
@@ -1552,6 +1618,7 @@ public final class MediaItem implements Bundleable {
        * to zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media
        * (Default: {@link C#TIME_END_OF_SOURCE}).
        */
+      @CanIgnoreReturnValue
       public Builder setEndPositionMs(long endPositionMs) {
         Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
         this.endPositionMs = endPositionMs;
@@ -1563,6 +1630,7 @@ public final class MediaItem implements Bundleable {
        * {@code false}, live streams end when playback reaches the end position in live window seen
        * when the media is first loaded (Default: {@code false}).
        */
+      @CanIgnoreReturnValue
       public Builder setRelativeToLiveWindow(boolean relativeToLiveWindow) {
         this.relativeToLiveWindow = relativeToLiveWindow;
         return this;
@@ -1572,6 +1640,7 @@ public final class MediaItem implements Bundleable {
        * Sets whether the start position and the end position are relative to the default position
        * in the window (Default: {@code false}).
        */
+      @CanIgnoreReturnValue
       public Builder setRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
         this.relativeToDefaultPosition = relativeToDefaultPosition;
         return this;
@@ -1581,6 +1650,7 @@ public final class MediaItem implements Bundleable {
        * Sets whether the start point is guaranteed to be a key frame. If {@code false}, the
        * playback transition into the clip may not be seamless (Default: {@code false}).
        */
+      @CanIgnoreReturnValue
       public Builder setStartsAtKeyFrame(boolean startsAtKeyFrame) {
         this.startsAtKeyFrame = startsAtKeyFrame;
         return this;
@@ -1770,18 +1840,21 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the URI of the requested media, or null if not known or applicable. */
+      @CanIgnoreReturnValue
       public Builder setMediaUri(@Nullable Uri mediaUri) {
         this.mediaUri = mediaUri;
         return this;
       }
 
       /** Sets the search query for the requested media, or null if not applicable. */
+      @CanIgnoreReturnValue
       public Builder setSearchQuery(@Nullable String searchQuery) {
         this.searchQuery = searchQuery;
         return this;
       }
 
       /** Sets optional extras {@link Bundle}. */
+      @CanIgnoreReturnValue
       public Builder setExtras(@Nullable Bundle extras) {
         this.extras = extras;
         return this;

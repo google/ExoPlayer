@@ -56,6 +56,7 @@ import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.extractor.Extractor;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -171,12 +172,14 @@ public final class HlsMediaSource extends BaseMediaSource
      *     segments.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setExtractorFactory(@Nullable HlsExtractorFactory extractorFactory) {
       this.extractorFactory =
           extractorFactory != null ? extractorFactory : HlsExtractorFactory.DEFAULT;
       return this;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
@@ -194,6 +197,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setPlaylistParserFactory(HlsPlaylistParserFactory playlistParserFactory) {
       this.playlistParserFactory =
           checkNotNull(
@@ -210,6 +214,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param playlistTrackerFactory A factory for {@link HlsPlaylistTracker} instances.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setPlaylistTrackerFactory(HlsPlaylistTracker.Factory playlistTrackerFactory) {
       this.playlistTrackerFactory =
           checkNotNull(
@@ -229,6 +234,7 @@ public final class HlsMediaSource extends BaseMediaSource
      *     audio etc...).
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setCompositeSequenceableLoaderFactory(
         CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
       this.compositeSequenceableLoaderFactory =
@@ -248,6 +254,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param allowChunklessPreparation Whether chunkless preparation is allowed.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setAllowChunklessPreparation(boolean allowChunklessPreparation) {
       this.allowChunklessPreparation = allowChunklessPreparation;
       return this;
@@ -272,6 +279,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param metadataType The type of metadata to extract.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setMetadataType(@MetadataType int metadataType) {
       this.metadataType = metadataType;
       return this;
@@ -286,11 +294,13 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setUseSessionKeys(boolean useSessionKeys) {
       this.useSessionKeys = useSessionKeys;
       return this;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setDrmSessionManagerProvider(
         DrmSessionManagerProvider drmSessionManagerProvider) {
@@ -311,6 +321,7 @@ public final class HlsMediaSource extends BaseMediaSource
      *     the time since the Unix epoch, in milliseconds.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     /* package */ Factory setElapsedRealTimeOffsetMs(long elapsedRealTimeOffsetMs) {
       this.elapsedRealTimeOffsetMs = elapsedRealTimeOffsetMs;

@@ -56,6 +56,7 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -152,6 +153,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @param imaSdkSettings The {@link ImaSdkSettings}.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setImaSdkSettings(ImaSdkSettings imaSdkSettings) {
       this.imaSdkSettings = checkNotNull(imaSdkSettings);
@@ -166,6 +168,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @param adErrorListener The ad error listener.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setAdErrorListener(AdErrorListener adErrorListener) {
       this.adErrorListener = checkNotNull(adErrorListener);
@@ -179,6 +182,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @param adEventListener The ad event listener.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setAdEventListener(AdEventListener adEventListener) {
       this.adEventListener = checkNotNull(adEventListener);
@@ -195,6 +199,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setVideoAdPlayerCallback(
         VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback) {
@@ -209,6 +214,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setUiElements(Set)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setAdUiElements(Set<UiElement> adUiElements) {
       this.adUiElements = ImmutableSet.copyOf(checkNotNull(adUiElements));
@@ -222,6 +228,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdDisplayContainer#setCompanionSlots(Collection)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setCompanionAdSlots(Collection<CompanionAdSlot> companionAdSlots) {
       this.companionAdSlots = ImmutableList.copyOf(checkNotNull(companionAdSlots));
@@ -240,6 +247,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setMimeTypes(List)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setAdMediaMimeTypes(List<String> adMediaMimeTypes) {
       this.adMediaMimeTypes = ImmutableList.copyOf(checkNotNull(adMediaMimeTypes));
@@ -255,6 +263,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRequest#setContinuousPlayback(boolean)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setEnableContinuousPlayback(boolean enableContinuousPlayback) {
       this.enableContinuousPlayback = enableContinuousPlayback;
@@ -274,6 +283,7 @@ public final class ImaAdsLoader implements AdsLoader {
      *     C#TIME_UNSET} for no timeout.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setAdPreloadTimeoutMs(long adPreloadTimeoutMs) {
       checkArgument(adPreloadTimeoutMs == C.TIME_UNSET || adPreloadTimeoutMs > 0);
@@ -288,6 +298,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRequest#setVastLoadTimeout(float)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setVastLoadTimeoutMs(@IntRange(from = 1) int vastLoadTimeoutMs) {
       checkArgument(vastLoadTimeoutMs > 0);
@@ -302,6 +313,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setLoadVideoTimeout(int)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setMediaLoadTimeoutMs(@IntRange(from = 1) int mediaLoadTimeoutMs) {
       checkArgument(mediaLoadTimeoutMs > 0);
@@ -316,6 +328,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setBitrateKbps(int)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setMaxMediaBitrate(@IntRange(from = 1) int bitrate) {
       checkArgument(bitrate > 0);
@@ -332,6 +345,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setFocusSkipButtonWhenAvailable(boolean)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setFocusSkipButtonWhenAvailable(boolean focusSkipButtonWhenAvailable) {
       this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
@@ -348,6 +362,7 @@ public final class ImaAdsLoader implements AdsLoader {
      *     beginning playback.
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setPlayAdBeforeStartPosition(boolean playAdBeforeStartPosition) {
       this.playAdBeforeStartPosition = playAdBeforeStartPosition;
@@ -364,12 +379,14 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see ImaSdkSettings#setDebugMode(boolean)
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Builder setDebugModeEnabled(boolean debugModeEnabled) {
       this.debugModeEnabled = debugModeEnabled;
       return this;
     }
 
+    @CanIgnoreReturnValue
     @VisibleForTesting
     /* package */ Builder setImaFactory(ImaUtil.ImaFactory imaFactory) {
       this.imaFactory = checkNotNull(imaFactory);

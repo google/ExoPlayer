@@ -44,6 +44,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1329,17 +1330,20 @@ public class MockPlayer implements Player {
       applicationLooper = Util.getCurrentOrMainLooper();
     }
 
+    @CanIgnoreReturnValue
     public Builder setChangePlayerStateWithTransportControl(
         boolean changePlayerStateWithTransportControl) {
       this.changePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setApplicationLooper(Looper applicationLooper) {
       this.applicationLooper = applicationLooper;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setMediaItems(int itemCount) {
       this.itemCount = itemCount;
       return this;
