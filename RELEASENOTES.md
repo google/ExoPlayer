@@ -27,6 +27,10 @@
         small icon ([#104](https://github.com/androidx/media/issues/104)).
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
+*   UI:
+    *   Use current overrides of the player as preset in
+        `TrackSelectionDialogBuilder`
+        ([#10429](https://github.com/google/ExoPlayer/issues/10429)).
 
 ### 1.0.0-beta02 (2022-07-15)
 
@@ -59,9 +63,6 @@ This release corresponds to the
     *   Ensure TalkBack announces the currently active speed option in the
         playback controls menu
         ([#10298](https://github.com/google/ExoPlayer/issues/10298)).
-    *   Use current overrides of the player as preset in
-        `TrackSelectionDialogBuilder`
-        ([#10429](https://github.com/google/ExoPlayer/issues/10429)).
 *   RTSP:
     *   Add RTP reader for H263
         ([#63](https://github.com/androidx/media/pull/63)).
