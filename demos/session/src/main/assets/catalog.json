@@ -13,10 +13,25 @@
       "id": "video_02",
       "title": "TTML Netflix Japanese examples (IMSC1.1)",
       "source": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
-      "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/netflix_japanese_ttml.xml",
       "album": "Video with subtitle",
-      "artist": "Netflix",
+      "artist": "Subtitles",
       "genre": "Video",
+      "image": "https://cdn.pixabay.com/photo/2014/10/09/13/14/video-481821_960_720.png",
+      "subtitles": [
+        {
+          "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/netflix_japanese_ttml.xml",
+          "subtitle_mime_type": "application/ttml+xml",
+          "subtitle_lang": "ja"
+        }
+      ]
+    },
+    {
+      "id": "video_03",
+      "title": "MPEG-4 Timed Text",
+      "album": "Video with subtitle",
+      "artist": "Subtitles",
+      "genre": "Video",
+      "source": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4",
       "image": "https://cdn.pixabay.com/photo/2014/10/09/13/14/video-481821_960_720.png"
     },
     {
