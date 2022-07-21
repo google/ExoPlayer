@@ -174,6 +174,7 @@ public final class DownloadManager {
   private static final int MSG_RELEASE = 12;
 
   private static final String TAG = "DownloadManager";
+  private static final int MAX_REMOVE_TASK_COUNT = 1;
 
   private final Context context;
   private final WritableDownloadIndex downloadIndex;
@@ -709,6 +710,7 @@ public final class DownloadManager {
     private int maxParallelDownloads;
     private int minRetryCount;
     private int activeDownloadTaskCount;
+    private int activeRemoveTaskCount;
 
     public InternalHandler(
         HandlerThread thread,
@@ -1060,6 +1062,10 @@ public final class DownloadManager {
         return;
       }
 
+      if (activeRemoveTaskCount >= MAX_REMOVE_TASK_COUNT) {
+        return;
+      }
+
       // We can start a remove task.
       Downloader downloader = downloaderFactory.createDownloader(download.request);
       activeTask =
@@ -1071,6 +1077,7 @@ public final class DownloadManager {
               minRetryCount,
               /* internalHandler= */ this);
       activeTasks.put(download.request.id, activeTask);
+      activeRemoveTaskCount++;
       activeTask.start();
     }
 
@@ -1100,7 +1107,9 @@ public final class DownloadManager {
       activeTasks.remove(downloadId);
 
       boolean isRemove = task.isRemove;
-      if (!isRemove && --activeDownloadTaskCount == 0) {
+      if (isRemove) {
+        activeRemoveTaskCount--;
+      } else if (--activeDownloadTaskCount == 0) {
         removeMessages(MSG_UPDATE_PROGRESS);
       }
 

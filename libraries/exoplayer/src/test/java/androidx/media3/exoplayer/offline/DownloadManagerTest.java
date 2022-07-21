@@ -713,7 +713,61 @@ public class DownloadManagerTest {
     assertEqualIgnoringUpdateTime(mergedDownload, expectedDownload);
   }
 
+  @Test
+  public void remove_tasks_run_sequentially()
+      throws Throwable {
+    DefaultDownloadIndex defaultDownloadIndex =
+        new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
+    defaultDownloadIndex.putDownload(
+        new Download(
+            new DownloadRequest.Builder(ID1, Uri.EMPTY).build(),
+            Download.STATE_REMOVING,
+            0,
+            1,
+            2,
+            Download.STOP_REASON_NONE,
+            Download.FAILURE_REASON_NONE
+        )
+    );
+    defaultDownloadIndex.putDownload(
+        new Download(
+            new DownloadRequest.Builder(ID2, Uri.EMPTY).build(),
+            Download.STATE_RESTARTING,
+            0,
+            1,
+            2,
+            Download.STOP_REASON_NONE,
+            Download.FAILURE_REASON_NONE
+        )
+    );
+    setupDownloadManager(100, defaultDownloadIndex);
+
+    // The second removal should wait and the first one should be able to complete.
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    assertNoDownloaderAt(1);
+    downloader0.assertId(ID1);
+    downloader0.assertRemoveStarted();
+    downloader0.finish();
+    assertRemoved(ID1);
+
+    // The second removal can start once the first one has completed, and removes a download with
+    // state STATE_RESTARTING, so it should result in a new download being queued.
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID2);
+    downloader1.assertRemoveStarted();
+    downloader1.finish();
+    assertQueued(ID2);
+  }
+
   private void setupDownloadManager(int maxParallelDownloads) throws Exception {
+    setupDownloadManager(
+        maxParallelDownloads, new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider())
+    );
+  }
+
+  private void setupDownloadManager(
+      int maxParallelDownloads, WritableDownloadIndex writableDownloadIndex
+  ) throws Exception {
     if (downloadManager != null) {
       releaseDownloadManager();
     }
@@ -723,7 +777,7 @@ public class DownloadManagerTest {
             downloadManager =
                 new DownloadManager(
                     ApplicationProvider.getApplicationContext(),
-                    new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider()),
+                    writableDownloadIndex,
                     new FakeDownloaderFactory());
             downloadManager.setMaxParallelDownloads(maxParallelDownloads);
             downloadManager.setMinRetryCount(MIN_RETRY_COUNT);
