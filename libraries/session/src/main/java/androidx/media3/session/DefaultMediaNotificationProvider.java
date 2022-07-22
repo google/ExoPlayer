@@ -25,7 +25,6 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_STOP;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.castNonNull;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -45,7 +44,6 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
-import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -58,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * The default {@link MediaNotification.Provider}.
@@ -231,12 +230,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
   private final BitmapLoader bitmapLoader;
-  // Cache the last loaded bitmap to avoid reloading the bitmap again, particularly useful when
-  // showing a notification for the same item (e.g. when switching from playing to paused).
-  private final LoadedBitmapInfo lastLoadedBitmapInfo;
+  // Cache the last bitmap load request to avoid reloading the bitmap again, particularly useful
+  // when showing a notification for the same item (e.g. when switching from playing to paused).
+  private final BitmapLoadRequest lastBitmapLoadRequest;
   private final Handler mainHandler;
 
-  private OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
+  private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
   @DrawableRes private int smallIconResourceId;
 
   private DefaultMediaNotificationProvider(Builder builder) {
@@ -248,9 +247,8 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
-    lastLoadedBitmapInfo = new LoadedBitmapInfo();
+    lastBitmapLoadRequest = new BitmapLoadRequest();
     mainHandler = new Handler(Looper.getMainLooper());
-    pendingOnBitmapLoadedFutureCallback = new OnBitmapLoadedFutureCallback(bitmap -> {});
     smallIconResourceId = R.drawable.media3_notification_small_icon;
   }
 
@@ -281,6 +279,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     builder.setContentTitle(metadata.title).setContentText(metadata.artist);
     @Nullable ListenableFuture<Bitmap> bitmapFuture = loadArtworkBitmap(metadata);
     if (bitmapFuture != null) {
+      if (pendingOnBitmapLoadedFutureCallback != null) {
+        pendingOnBitmapLoadedFutureCallback.discardIfPending();
+      }
       if (bitmapFuture.isDone()) {
         try {
           builder.setLargeIcon(Futures.getDone(bitmapFuture));
@@ -288,14 +289,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
           Log.w(TAG, "Failed to load bitmap", e);
         }
       } else {
+        pendingOnBitmapLoadedFutureCallback =
+            new OnBitmapLoadedFutureCallback(
+                notificationId, builder, onNotificationChangedCallback);
         Futures.addCallback(
             bitmapFuture,
-            new OnBitmapLoadedFutureCallback(
-                bitmap -> {
-                  builder.setLargeIcon(bitmap);
-                  onNotificationChangedCallback.onNotificationChanged(
-                      new MediaNotification(notificationId, builder.build()));
-                }),
+            pendingOnBitmapLoadedFutureCallback,
             // This callback must be executed on the next looper iteration, after this method has
             // returned a media notification.
             mainHandler::post);
@@ -517,32 +516,19 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    */
   @Nullable
   private ListenableFuture<Bitmap> loadArtworkBitmap(MediaMetadata metadata) {
-    if (lastLoadedBitmapInfo.matches(metadata.artworkData)
-        || lastLoadedBitmapInfo.matches(metadata.artworkUri)) {
-      return Futures.immediateFuture(lastLoadedBitmapInfo.getBitmap());
-    }
-
-    ListenableFuture<Bitmap> future;
-    Consumer<Bitmap> onBitmapLoaded;
-    if (metadata.artworkData != null) {
+    @Nullable ListenableFuture<Bitmap> future;
+    if (lastBitmapLoadRequest.matches(metadata.artworkData)
+        || lastBitmapLoadRequest.matches(metadata.artworkUri)) {
+      future = lastBitmapLoadRequest.getFuture();
+    } else if (metadata.artworkData != null) {
       future = bitmapLoader.decodeBitmap(metadata.artworkData);
-      onBitmapLoaded =
-          bitmap -> lastLoadedBitmapInfo.setBitmapInfo(castNonNull(metadata.artworkData), bitmap);
+      lastBitmapLoadRequest.setBitmapFuture(metadata.artworkData, future);
     } else if (metadata.artworkUri != null) {
       future = bitmapLoader.loadBitmap(metadata.artworkUri);
-      onBitmapLoaded =
-          bitmap -> lastLoadedBitmapInfo.setBitmapInfo(castNonNull(metadata.artworkUri), bitmap);
+      lastBitmapLoadRequest.setBitmapFuture(metadata.artworkUri, future);
     } else {
-      return null;
+      future = null;
     }
-
-    pendingOnBitmapLoadedFutureCallback.discardIfPending();
-    pendingOnBitmapLoadedFutureCallback = new OnBitmapLoadedFutureCallback(onBitmapLoaded);
-    Futures.addCallback(
-        future,
-        pendingOnBitmapLoadedFutureCallback,
-        // It's ok to run this immediately to update the last loaded bitmap.
-        runnable -> Util.postOrRun(mainHandler, runnable));
     return future;
   }
 
@@ -560,13 +546,19 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   }
 
   private static class OnBitmapLoadedFutureCallback implements FutureCallback<Bitmap> {
-
-    private final Consumer<Bitmap> consumer;
+    private final int notificationId;
+    private final NotificationCompat.Builder builder;
+    private final Callback onNotificationChangedCallback;
 
     private boolean discarded;
 
-    private OnBitmapLoadedFutureCallback(Consumer<Bitmap> consumer) {
-      this.consumer = consumer;
+    public OnBitmapLoadedFutureCallback(
+        int notificationId,
+        NotificationCompat.Builder builder,
+        Callback onNotificationChangedCallback) {
+      this.notificationId = notificationId;
+      this.builder = builder;
+      this.onNotificationChangedCallback = onNotificationChangedCallback;
     }
 
     public void discardIfPending() {
@@ -576,7 +568,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     @Override
     public void onSuccess(Bitmap result) {
       if (!discarded) {
-        consumer.accept(result);
+        builder.setLargeIcon(result);
+        onNotificationChangedCallback.onNotificationChanged(
+            new MediaNotification(notificationId, builder.build()));
       }
     }
 
@@ -589,35 +583,51 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   }
 
   /**
-   * Caches the last loaded bitmap. The key to identify a bitmap is either a byte array, if the
-   * bitmap is loaded from compressed data, or a URI, if the bitmap was loaded from a URI.
+   * Stores the result of a bitmap load request. Requests are identified either by a byte array, if
+   * the bitmap is loaded from compressed data, or a URI, if the bitmap was loaded from a URI.
    */
-  private static class LoadedBitmapInfo {
+  private static class BitmapLoadRequest {
     @Nullable private byte[] data;
     @Nullable private Uri uri;
-    @Nullable private Bitmap bitmap;
+    @Nullable private ListenableFuture<Bitmap> bitmapFuture;
 
+    /** Whether the bitmap load request was performed for {@code data}. */
     public boolean matches(@Nullable byte[] data) {
       return this.data != null && data != null && Arrays.equals(this.data, data);
     }
 
+    /** Whether the bitmap load request was performed for {@code uri}. */
     public boolean matches(@Nullable Uri uri) {
       return this.uri != null && this.uri.equals(uri);
     }
 
-    public Bitmap getBitmap() {
-      return checkStateNotNull(bitmap);
+    /**
+     * Returns the future that set for the bitmap load request.
+     *
+     * @see #setBitmapFuture(Uri, ListenableFuture)
+     * @see #setBitmapFuture(byte[], ListenableFuture)
+     */
+    public ListenableFuture<Bitmap> getFuture() {
+      return checkStateNotNull(bitmapFuture);
     }
 
-    public void setBitmapInfo(byte[] data, Bitmap bitmap) {
+    /**
+     * Sets the future result of requesting to {@linkplain BitmapLoader#decodeBitmap(byte[]) decode}
+     * a bitmap from {@code data}.
+     */
+    public void setBitmapFuture(byte[] data, ListenableFuture<Bitmap> bitmapFuture) {
       this.data = data;
-      this.bitmap = bitmap;
+      this.bitmapFuture = bitmapFuture;
       this.uri = null;
     }
 
-    public void setBitmapInfo(Uri uri, Bitmap bitmap) {
+    /**
+     * Sets the future result of requesting {@linkplain BitmapLoader#loadBitmap(Uri) load} a bitmap
+     * from {@code uri}.
+     */
+    public void setBitmapFuture(Uri uri, ListenableFuture<Bitmap> bitmapFuture) {
       this.uri = uri;
-      this.bitmap = bitmap;
+      this.bitmapFuture = bitmapFuture;
       this.data = null;
     }
   }
