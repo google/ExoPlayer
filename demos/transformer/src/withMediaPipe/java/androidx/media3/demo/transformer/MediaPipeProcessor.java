@@ -133,6 +133,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     acceptedFrame = false;
     AppTextureFrame appTextureFrame =
         new AppTextureFrame(inputTexture.texId, inputTexture.width, inputTexture.height);
+    // TODO(b/238302213): Handle timestamps restarting from 0 when applying effects to a playlist.
+    //  MediaPipe will fail if the timestamps are not monotonically increasing.
     appTextureFrame.setTimestamp(presentationTimeUs);
     checkStateNotNull(frameProcessor).onNewFrame(appTextureFrame);
     try {
@@ -167,10 +169,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public final void signalEndOfInputStream() {
+  public final void signalEndOfCurrentInputStream() {
     frameProcessor.waitUntilIdle();
     if (listener != null) {
-      listener.onOutputStreamEnded();
+      listener.onCurrentOutputStreamEnded();
     }
   }
 

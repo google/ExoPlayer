@@ -92,9 +92,9 @@ import java.util.Queue;
   }
 
   @Override
-  public void onOutputStreamEnded() {
+  public void onCurrentOutputStreamEnded() {
     if (nextGlTextureProcessor != null) {
-      frameProcessingTaskExecutor.submit(nextGlTextureProcessor::signalEndOfInputStream);
+      frameProcessingTaskExecutor.submit(nextGlTextureProcessor::signalEndOfCurrentInputStream);
     }
   }
 
