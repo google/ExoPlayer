@@ -140,9 +140,9 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   }
 
   @Override
-  public final void signalEndOfInputStream() {
+  public final void signalEndOfCurrentInputStream() {
     if (listener != null) {
-      listener.onOutputStreamEnded();
+      listener.onCurrentOutputStreamEnded();
     }
   }
 
