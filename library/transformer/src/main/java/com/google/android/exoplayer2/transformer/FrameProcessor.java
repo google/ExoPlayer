@@ -58,6 +58,9 @@ import androidx.annotation.Nullable;
    *
    * <p>Pixels are expanded using the {@link FrameInfo#pixelWidthHeightRatio} so that the output
    * frames' pixels have a ratio of 1.
+   *
+   * <p>The caller should update {@link FrameInfo#streamOffsetUs} when switching input streams to
+   * ensure that frame timestamps are always monotonically increasing.
    */
   void setInputFrameInfo(FrameInfo inputFrameInfo);
 
@@ -66,8 +69,8 @@ import androidx.annotation.Nullable;
    *
    * <p>Must be called before rendering a frame to the frame processor's input surface.
    *
-   * @throws IllegalStateException If called after {@link #signalEndOfInputStream()} or before
-   *     {@link #setInputFrameInfo(FrameInfo)}.
+   * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
+   *     #setInputFrameInfo(FrameInfo)}.
    */
   void registerInputFrame();
 
@@ -99,7 +102,7 @@ import androidx.annotation.Nullable;
    *
    * @throws IllegalStateException If called more than once.
    */
-  void signalEndOfInputStream();
+  void signalEndOfInput();
 
   /**
    * Releases all resources.

@@ -69,8 +69,11 @@ public interface GlTextureProcessor {
      */
     void onOutputFrameAvailable(TextureInfo outputTexture, long presentationTimeUs);
 
-    /** Called when the {@link GlTextureProcessor} will not produce further output frames. */
-    void onOutputStreamEnded();
+    /**
+     * Called when the {@link GlTextureProcessor} will not produce further output frames belonging
+     * to the current output stream.
+     */
+    void onCurrentOutputStreamEnded();
 
     /**
      * Called when an exception occurs during asynchronous frame processing.
@@ -107,8 +110,15 @@ public interface GlTextureProcessor {
    */
   void releaseOutputFrame(TextureInfo outputTexture);
 
-  /** Notifies the texture processor that no further input frames will become available. */
-  void signalEndOfInputStream();
+  /**
+   * Notifies the {@code GlTextureProcessor} that no further input frames belonging to the current
+   * input stream will be queued.
+   *
+   * <p>Input frames that are queued after this method is called belong to a different input stream,
+   * so presentation timestamps may reset to start from a smaller presentation timestamp than the
+   * last frame of the previous input stream.
+   */
+  void signalEndOfCurrentInputStream();
 
   /**
    * Releases all resources.
