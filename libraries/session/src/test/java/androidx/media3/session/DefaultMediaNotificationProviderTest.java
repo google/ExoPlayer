@@ -21,14 +21,18 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.media3.common.MediaMetadata;
@@ -37,6 +41,7 @@ import androidx.media3.common.Player.Commands;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +50,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowNotificationManager;
 
 /** Tests for {@link DefaultMediaNotificationProvider}. */
@@ -389,6 +395,60 @@ public class DefaultMediaNotificationProviderTest {
     assertThat(actions.get(0).getExtras().size()).isEqualTo(0);
   }
 
+  /**
+   * Tests that the {@link DefaultMediaNotificationProvider} will not request to load the same
+   * artwork bitmap again, if the same bitmap has been requested already.
+   */
+  @Test
+  public void requestsSameBitmap_withPendingRequest_oneRequestOnly() {
+    // We will advance the main looper manually in the test.
+    shadowOf(Looper.getMainLooper()).pause();
+    // Create a MediaSession whose player returns non-null media metadata so that the
+    // notification provider will request to load artwork bitmaps.
+    MediaSession mockMediaSession =
+        createMockMediaSessionForNotification(
+            new MediaMetadata.Builder()
+                .setArtworkUri(Uri.parse("http://example.test/image.jpg"))
+                .build());
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    SettableFuture<Bitmap> bitmapFuture = SettableFuture.create();
+    when(mockBitmapLoader.loadBitmap(any())).thenReturn(bitmapFuture);
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
+            .setBitmapLoader(mockBitmapLoader)
+            .build();
+
+    // Ask the notification provider to create a notification twice. Use separate callback instances
+    // for each notification so that we can distinguish for which notification we received a
+    // callback.
+    MediaNotification.Provider.Callback mockOnNotificationChangedCallback1 =
+        mock(MediaNotification.Provider.Callback.class);
+    defaultMediaNotificationProvider.createNotification(
+        mockMediaSession,
+        /* customLayout= */ ImmutableList.of(),
+        defaultActionFactory,
+        mockOnNotificationChangedCallback1);
+    ShadowLooper.idleMainLooper();
+    verify(mockBitmapLoader).loadBitmap(Uri.parse("http://example.test/image.jpg"));
+    verifyNoInteractions(mockOnNotificationChangedCallback1);
+    MediaNotification.Provider.Callback mockOnNotificationChangedCallback2 =
+        mock(MediaNotification.Provider.Callback.class);
+    defaultMediaNotificationProvider.createNotification(
+        mockMediaSession,
+        /* customLayout= */ ImmutableList.of(),
+        defaultActionFactory,
+        mockOnNotificationChangedCallback2);
+    // The bitmap has arrived.
+    bitmapFuture.set(Bitmap.createBitmap(/* width= */ 8, /* height= */ 8, Bitmap.Config.RGB_565));
+    ShadowLooper.idleMainLooper();
+
+    verifyNoMoreInteractions(mockBitmapLoader);
+    verify(mockOnNotificationChangedCallback2).onNotificationChanged(any());
+    verifyNoInteractions(mockOnNotificationChangedCallback1);
+  }
+
   @Test
   public void provider_withCustomIds_notificationsUseCustomIds() {
     Context context = ApplicationProvider.getApplicationContext();
@@ -398,7 +458,7 @@ public class DefaultMediaNotificationProviderTest {
             .setChannelId(/* channelId= */ "customChannelId")
             .setChannelName(/* channelNameResourceId= */ R.string.media3_controls_play_description)
             .build();
-    MediaSession mockMediaSession = createMockMediaSessionForNotification();
+    MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
@@ -427,7 +487,7 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultMediaNotificationProvider.Builder(context).build();
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
-    MediaSession mockMediaSession = createMockMediaSessionForNotification();
+    MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
 
     MediaNotification notification =
         defaultMediaNotificationProvider.createNotification(
@@ -467,10 +527,10 @@ public class DefaultMediaNotificationProviderTest {
     assertThat(found).isTrue();
   }
 
-  private static MediaSession createMockMediaSessionForNotification() {
+  private static MediaSession createMockMediaSessionForNotification(MediaMetadata mediaMetadata) {
     Player mockPlayer = mock(Player.class);
     when(mockPlayer.getAvailableCommands()).thenReturn(Commands.EMPTY);
-    when(mockPlayer.getMediaMetadata()).thenReturn(MediaMetadata.EMPTY);
+    when(mockPlayer.getMediaMetadata()).thenReturn(mediaMetadata);
     MediaSession mockMediaSession = mock(MediaSession.class);
     when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
     MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
