@@ -62,7 +62,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static GlEffectsFrameProcessor create(
       Context context,
       FrameProcessor.Listener listener,
-      long streamOffsetUs,
       List<GlEffect> effects,
       DebugViewProvider debugViewProvider,
       boolean useHdr)
@@ -76,7 +75,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 createOpenGlObjectsAndFrameProcessor(
                     context,
                     listener,
-                    streamOffsetUs,
                     effects,
                     debugViewProvider,
                     useHdr,
@@ -104,7 +102,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
       FrameProcessor.Listener listener,
-      long streamOffsetUs,
       List<GlEffect> effects,
       DebugViewProvider debugViewProvider,
       boolean useHdr,
@@ -129,14 +126,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(
-            context,
-            effects,
-            eglDisplay,
-            eglContext,
-            streamOffsetUs,
-            listener,
-            debugViewProvider,
-            useHdr);
+            context, effects, eglDisplay, eglContext, listener, debugViewProvider, useHdr);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainTextureProcessorsWithListeners(textureProcessors, frameProcessingTaskExecutor, listener);
@@ -145,7 +135,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         eglDisplay,
         eglContext,
         frameProcessingTaskExecutor,
-        streamOffsetUs,
         /* inputExternalTextureId= */ GlUtil.createExternalTexture(),
         textureProcessors);
   }
@@ -164,7 +153,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       List<GlEffect> effects,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
-      long streamOffsetUs,
       FrameProcessor.Listener listener,
       DebugViewProvider debugViewProvider,
       boolean useHdr)
@@ -201,7 +189,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             eglDisplay,
             eglContext,
             matrixTransformationListBuilder.build(),
-            streamOffsetUs,
             listener,
             debugViewProvider,
             sampleFromExternalTexture,
@@ -242,11 +229,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-  /**
-   * Offset compared to original media presentation time that has been added to incoming frame
-   * timestamps, in microseconds.
-   */
-  private final long streamOffsetUs;
 
   /** Associated with an OpenGL external texture. */
   private final SurfaceTexture inputSurfaceTexture;
@@ -266,19 +248,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Fields accessed on the frameProcessingTaskExecutor's thread.
   private boolean inputTextureInUse;
   private boolean inputStreamEnded;
+  /**
+   * Offset compared to original media presentation time that has been added to incoming frame
+   * timestamps, in microseconds.
+   */
+  private long previousStreamOffsetUs;
 
   private GlEffectsFrameProcessor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      long streamOffsetUs,
       int inputExternalTextureId,
       ImmutableList<GlTextureProcessor> textureProcessors) {
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
-    this.streamOffsetUs = streamOffsetUs;
     this.inputExternalTextureId = inputExternalTextureId;
 
     checkState(!textureProcessors.isEmpty());
@@ -293,6 +278,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputSurface = new Surface(inputSurfaceTexture);
     inputSurfaceTextureTransformMatrix = new float[16];
     pendingInputFrames = new ConcurrentLinkedQueue<>();
+    previousStreamOffsetUs = C.TIME_UNSET;
   }
 
   @Override
@@ -327,7 +313,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void signalEndOfInputStream() {
+  public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     frameProcessingTaskExecutor.submit(this::processEndOfInputStream);
@@ -363,7 +349,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputTextureInUse = true;
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(inputSurfaceTextureTransformMatrix);
-    queueInputFrameToTextureProcessors();
+    inputExternalTextureProcessor.setTextureTransformMatrix(inputSurfaceTextureTransformMatrix);
+    long inputFrameTimeNs = inputSurfaceTexture.getTimestamp();
+    long streamOffsetUs = checkStateNotNull(pendingInputFrames.peek()).streamOffsetUs;
+    if (streamOffsetUs != previousStreamOffsetUs) {
+      if (previousStreamOffsetUs != C.TIME_UNSET) {
+        inputExternalTextureProcessor.signalEndOfCurrentInputStream();
+      }
+      finalTextureProcessorWrapper.appendStream(streamOffsetUs);
+      previousStreamOffsetUs = streamOffsetUs;
+    }
+    // Correct for the stream offset so processors see original media presentation timestamps.
+    long presentationTimeUs = inputFrameTimeNs / 1000 - streamOffsetUs;
+    queueInputFrameToTextureProcessors(presentationTimeUs);
   }
 
   /**
@@ -372,14 +370,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
    */
   @WorkerThread
-  private void queueInputFrameToTextureProcessors() {
+  private void queueInputFrameToTextureProcessors(long presentationTimeUs) {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
     checkState(inputTextureInUse);
 
-    long inputFrameTimeNs = inputSurfaceTexture.getTimestamp();
-    // Correct for the stream offset so processors see original media presentation timestamps.
-    long presentationTimeUs = inputFrameTimeNs / 1000 - streamOffsetUs;
-    inputExternalTextureProcessor.setTextureTransformMatrix(inputSurfaceTextureTransformMatrix);
     FrameInfo inputFrameInfo = checkStateNotNull(pendingInputFrames.peek());
     if (inputExternalTextureProcessor.maybeQueueInputFrame(
         new TextureInfo(
@@ -394,7 +388,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // asynchronously by the texture processors chained after it.
     } else {
       // Try again later.
-      frameProcessingTaskExecutor.submit(this::queueInputFrameToTextureProcessors);
+      frameProcessingTaskExecutor.submit(
+          () -> queueInputFrameToTextureProcessors(presentationTimeUs));
     }
   }
 
@@ -408,12 +403,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return new FrameInfo(
           (int) (frameInfo.width * frameInfo.pixelWidthHeightRatio),
           frameInfo.height,
-          /* pixelWidthHeightRatio= */ 1);
+          /* pixelWidthHeightRatio= */ 1,
+          frameInfo.streamOffsetUs);
     } else if (frameInfo.pixelWidthHeightRatio < 1f) {
       return new FrameInfo(
           frameInfo.width,
           (int) (frameInfo.height / frameInfo.pixelWidthHeightRatio),
-          /* pixelWidthHeightRatio= */ 1);
+          /* pixelWidthHeightRatio= */ 1,
+          frameInfo.streamOffsetUs);
     } else {
       return frameInfo;
     }
@@ -429,7 +426,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void processEndOfInputStream() {
     if (getPendingInputFrameCount() == 0) {
       // Propagates the end of stream signal through the chained texture processors.
-      inputExternalTextureProcessor.signalEndOfInputStream();
+      inputExternalTextureProcessor.signalEndOfCurrentInputStream();
     } else {
       frameProcessingTaskExecutor.submit(this::processEndOfInputStream);
     }

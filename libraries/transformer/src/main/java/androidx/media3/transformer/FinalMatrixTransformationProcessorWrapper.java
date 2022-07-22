@@ -37,6 +37,8 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -60,12 +62,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
-  private final long streamOffsetUs;
   private final DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
   private final boolean sampleFromExternalTexture;
   private final boolean useHdr;
   private final float[] textureTransformMatrix;
+  private final Queue<Long> streamOffsetUsQueue;
 
   private int inputWidth;
   private int inputHeight;
@@ -89,7 +91,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
-      long streamOffsetUs,
       FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
@@ -98,7 +99,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.matrixTransformations = matrixTransformations;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
-    this.streamOffsetUs = streamOffsetUs;
     this.debugViewProvider = debugViewProvider;
     this.frameProcessorListener = frameProcessorListener;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
@@ -106,6 +106,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     textureTransformMatrix = new float[16];
     Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
+    streamOffsetUsQueue = new ArrayDeque<>();
   }
 
   /**
@@ -122,6 +123,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream specified.");
+
     try {
       synchronized (this) {
         if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
@@ -144,7 +147,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         EGLExt.eglPresentationTimeANDROID(
             eglDisplay,
             outputEglSurface,
-            /* presentationTimeNs= */ (presentationTimeUs + streamOffsetUs) * 1000);
+            /* presentationTimeNs= */ (presentationTimeUs + streamOffsetUsQueue.element()) * 1000);
         EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
       }
     } catch (FrameProcessingException | GlUtil.GlException e) {
@@ -270,8 +273,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void signalEndOfInputStream() {
-    frameProcessorListener.onFrameProcessingEnded();
+  public void signalEndOfCurrentInputStream() {
+    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
+
+    streamOffsetUsQueue.remove();
+    if (streamOffsetUsQueue.isEmpty()) {
+      frameProcessorListener.onFrameProcessingEnded();
+    }
   }
 
   @Override
@@ -294,6 +302,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (matrixTransformationProcessor != null) {
       matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     }
+  }
+
+  /**
+   * Signals that there will be another input stream after all previously appended input streams
+   * have {@linkplain #signalEndOfCurrentInputStream() ended}.
+   *
+   * @param streamOffsetUs The presentation timestamp offset, in microseconds.
+   */
+  public void appendStream(long streamOffsetUs) {
+    streamOffsetUsQueue.add(streamOffsetUs);
   }
 
   public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {

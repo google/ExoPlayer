@@ -131,7 +131,6 @@ import org.checkerframework.dataflow.qual.Pure;
                   }
                 }
               },
-              streamOffsetUs,
               effectsListBuilder.build(),
               debugViewProvider,
               // HDR is only used if the MediaCodec encoder supports FEATURE_HdrEditing. This
@@ -143,7 +142,8 @@ import org.checkerframework.dataflow.qual.Pure;
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
     frameProcessor.setInputFrameInfo(
-        new FrameInfo(decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio));
+        new FrameInfo(
+            decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio, streamOffsetUs));
 
     boolean isToneMappingRequired =
         ColorInfo.isHdr(inputFormat.colorInfo) && !encoderWrapper.isHdrEditingEnabled();
@@ -178,7 +178,7 @@ import org.checkerframework.dataflow.qual.Pure;
       processedData = true;
     }
     if (decoder.isEnded()) {
-      frameProcessor.signalEndOfInputStream();
+      frameProcessor.signalEndOfInput();
     }
     // If the decoder produced output, signal that it may be possible to process data again.
     return processedData;

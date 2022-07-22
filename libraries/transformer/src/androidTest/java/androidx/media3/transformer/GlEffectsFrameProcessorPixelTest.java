@@ -379,12 +379,11 @@ public final class GlEffectsFrameProcessorPixelTest {
                       frameProcessingEnded = true;
                     }
                   },
-                  /* streamOffsetUs= */ 0L,
                   effects,
                   DebugViewProvider.NONE,
                   /* useHdr= */ false));
       glEffectsFrameProcessor.setInputFrameInfo(
-          new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio));
+          new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio, /* streamOffsetUs= */ 0));
       glEffectsFrameProcessor.registerInputFrame();
 
       // Queue the first video frame from the extractor.
@@ -435,7 +434,7 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   private Bitmap processFirstFrameAndEnd() throws InterruptedException {
-    checkNotNull(glEffectsFrameProcessor).signalEndOfInputStream();
+    checkNotNull(glEffectsFrameProcessor).signalEndOfInput();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
     assertThat(frameProcessingEnded).isTrue();
     assertThat(frameProcessingException.get()).isNull();

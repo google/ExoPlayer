@@ -125,10 +125,10 @@ public final class ChainingGlTextureProcessorListenerTest {
   @Test
   public void onOutputStreamEnded_signalsInputStreamEndedToNextGlTextureProcessor()
       throws InterruptedException {
-    chainingGlTextureProcessorListener.onOutputStreamEnded();
+    chainingGlTextureProcessorListener.onCurrentOutputStreamEnded();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(fakeNextGlTextureProcessor, times(1)).signalEndOfInputStream();
+    verify(fakeNextGlTextureProcessor, times(1)).signalEndOfCurrentInputStream();
   }
 
   private static class FakeGlTextureProcessor implements GlTextureProcessor {
@@ -155,7 +155,7 @@ public final class ChainingGlTextureProcessorListenerTest {
     public void releaseOutputFrame(TextureInfo outputTexture) {}
 
     @Override
-    public void signalEndOfInputStream() {}
+    public void signalEndOfCurrentInputStream() {}
 
     @Override
     public void release() {}
