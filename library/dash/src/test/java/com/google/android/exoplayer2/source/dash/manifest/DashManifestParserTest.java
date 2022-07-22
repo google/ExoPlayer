@@ -23,6 +23,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.source.dash.manifest.Representation.MultiSegmentRepresentation;
 import com.google.android.exoplayer2.source.dash.manifest.Representation.SingleSegmentRepresentation;
@@ -79,6 +80,8 @@ public class DashManifestParserTest {
       "media/mpd/sample_mpd_service_description_low_latency_only_playback_rates";
   private static final String SAMPLE_MPD_SERVICE_DESCRIPTION_LOW_LATENCY_ONLY_TARGET_LATENCY =
       "media/mpd/sample_mpd_service_description_low_latency_only_target_latency";
+  private static final String SAMPLE_MPD_CLEAR_KEY_LICENSE_URL =
+      "media/mpd/sample_mpd_clear_key_license_url";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -878,6 +881,37 @@ public class DashManifestParserTest {
                 SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_LIST));
 
     assertThat(manifest.serviceDescription).isNull();
+  }
+
+  @Test
+  public void contentProtections_withClearKeyLicenseUrl() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_CLEAR_KEY_LICENSE_URL));
+
+    assertThat(manifest.getPeriodCount()).isEqualTo(1);
+    Period period = manifest.getPeriod(0);
+    assertThat(period.adaptationSets).hasSize(2);
+    AdaptationSet adaptationSet0 = period.adaptationSets.get(0);
+    AdaptationSet adaptationSet1 = period.adaptationSets.get(1);
+    assertThat(adaptationSet0.representations).hasSize(1);
+    assertThat(adaptationSet1.representations).hasSize(1);
+    Representation representation0 = adaptationSet0.representations.get(0);
+    Representation representation1 = adaptationSet1.representations.get(0);
+    assertThat(representation0.format.drmInitData.schemeType).isEqualTo("cenc");
+    assertThat(representation1.format.drmInitData.schemeType).isEqualTo("cenc");
+    assertThat(representation0.format.drmInitData.schemeDataCount).isEqualTo(1);
+    assertThat(representation1.format.drmInitData.schemeDataCount).isEqualTo(1);
+    DrmInitData.SchemeData schemeData0 = representation0.format.drmInitData.get(0);
+    DrmInitData.SchemeData schemeData1 = representation1.format.drmInitData.get(0);
+    assertThat(schemeData0.uuid).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(schemeData1.uuid).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(schemeData0.licenseServerUrl).isEqualTo("https://testserver1.test/AcquireLicense");
+    assertThat(schemeData1.licenseServerUrl).isEqualTo("https://testserver2.test/AcquireLicense");
   }
 
   private static List<Descriptor> buildCea608AccessibilityDescriptors(String value) {

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -781,40 +782,105 @@ public final class NalUnitUtil {
     }
   }
 
+  /**
+   * Skips any short term reference picture sets contained in a SPS.
+   *
+   * <p>Note: The st_ref_pic_set parsing in this method is simplified for the case where they're
+   * contained in a SPS, and would need generalizing for use elsewhere.
+   */
   private static void skipShortTermReferencePictureSets(ParsableNalUnitBitArray bitArray) {
     int numShortTermRefPicSets = bitArray.readUnsignedExpGolombCodedInt();
-    boolean interRefPicSetPredictionFlag = false;
-    int numNegativePics;
-    int numPositivePics;
-    // As this method applies in a SPS, the only element of NumDeltaPocs accessed is the previous
-    // one, so we just keep track of that rather than storing the whole array.
-    // RefRpsIdx = stRpsIdx - (delta_idx_minus1 + 1) and delta_idx_minus1 is always zero in SPS.
-    int previousNumDeltaPocs = 0;
+    // As this method applies in a SPS, each short term reference picture set only accesses data
+    // from the previous one. This is because RefRpsIdx = stRpsIdx - (delta_idx_minus1 + 1), and
+    // delta_idx_minus1 is always zero in a SPS. Hence we just keep track of variables from the
+    // previous one as we iterate.
+    int previousNumNegativePics = C.INDEX_UNSET;
+    int previousNumPositivePics = C.INDEX_UNSET;
+    int[] previousDeltaPocS0 = new int[0];
+    int[] previousDeltaPocS1 = new int[0];
     for (int stRpsIdx = 0; stRpsIdx < numShortTermRefPicSets; stRpsIdx++) {
-      if (stRpsIdx != 0) {
-        interRefPicSetPredictionFlag = bitArray.readBit();
-      }
+      int numNegativePics;
+      int numPositivePics;
+      int[] deltaPocS0;
+      int[] deltaPocS1;
+
+      boolean interRefPicSetPredictionFlag = stRpsIdx != 0 && bitArray.readBit();
       if (interRefPicSetPredictionFlag) {
-        bitArray.skipBit(); // delta_rps_sign
-        bitArray.readUnsignedExpGolombCodedInt(); // abs_delta_rps_minus1
+        int previousNumDeltaPocs = previousNumNegativePics + previousNumPositivePics;
+
+        int deltaRpsSign = bitArray.readBit() ? 1 : 0;
+        int absDeltaRps = bitArray.readUnsignedExpGolombCodedInt() + 1;
+        int deltaRps = (1 - 2 * deltaRpsSign) * absDeltaRps;
+
+        boolean[] useDeltaFlags = new boolean[previousNumDeltaPocs + 1];
         for (int j = 0; j <= previousNumDeltaPocs; j++) {
           if (!bitArray.readBit()) { // used_by_curr_pic_flag[j]
-            bitArray.skipBit(); // use_delta_flag[j]
+            useDeltaFlags[j] = bitArray.readBit();
+          } else {
+            // When use_delta_flag[j] is not present, its value is 1.
+            useDeltaFlags[j] = true;
           }
         }
+
+        // Derive numNegativePics, numPositivePics, deltaPocS0 and deltaPocS1 as per Rec. ITU-T
+        // H.265 v6 (06/2019) Section 7.4.8
+        int i = 0;
+        deltaPocS0 = new int[previousNumDeltaPocs + 1];
+        deltaPocS1 = new int[previousNumDeltaPocs + 1];
+        for (int j = previousNumPositivePics - 1; j >= 0; j--) {
+          int dPoc = previousDeltaPocS1[j] + deltaRps;
+          if (dPoc < 0 && useDeltaFlags[previousNumNegativePics + j]) {
+            deltaPocS0[i++] = dPoc;
+          }
+        }
+        if (deltaRps < 0 && useDeltaFlags[previousNumDeltaPocs]) {
+          deltaPocS0[i++] = deltaRps;
+        }
+        for (int j = 0; j < previousNumNegativePics; j++) {
+          int dPoc = previousDeltaPocS0[j] + deltaRps;
+          if (dPoc < 0 && useDeltaFlags[j]) {
+            deltaPocS0[i++] = dPoc;
+          }
+        }
+        numNegativePics = i;
+        deltaPocS0 = Arrays.copyOf(deltaPocS0, numNegativePics);
+
+        i = 0;
+        for (int j = previousNumNegativePics - 1; j >= 0; j--) {
+          int dPoc = previousDeltaPocS0[j] + deltaRps;
+          if (dPoc > 0 && useDeltaFlags[j]) {
+            deltaPocS1[i++] = dPoc;
+          }
+        }
+        if (deltaRps > 0 && useDeltaFlags[previousNumDeltaPocs]) {
+          deltaPocS1[i++] = deltaRps;
+        }
+        for (int j = 0; j < previousNumPositivePics; j++) {
+          int dPoc = previousDeltaPocS1[j] + deltaRps;
+          if (dPoc > 0 && useDeltaFlags[previousNumNegativePics + j]) {
+            deltaPocS1[i++] = dPoc;
+          }
+        }
+        numPositivePics = i;
+        deltaPocS1 = Arrays.copyOf(deltaPocS1, numPositivePics);
       } else {
         numNegativePics = bitArray.readUnsignedExpGolombCodedInt();
         numPositivePics = bitArray.readUnsignedExpGolombCodedInt();
-        previousNumDeltaPocs = numNegativePics + numPositivePics;
+        deltaPocS0 = new int[numNegativePics];
         for (int i = 0; i < numNegativePics; i++) {
-          bitArray.readUnsignedExpGolombCodedInt(); // delta_poc_s0_minus1[i]
+          deltaPocS0[i] = bitArray.readUnsignedExpGolombCodedInt() + 1;
           bitArray.skipBit(); // used_by_curr_pic_s0_flag[i]
         }
+        deltaPocS1 = new int[numPositivePics];
         for (int i = 0; i < numPositivePics; i++) {
-          bitArray.readUnsignedExpGolombCodedInt(); // delta_poc_s1_minus1[i]
+          deltaPocS1[i] = bitArray.readUnsignedExpGolombCodedInt() + 1;
           bitArray.skipBit(); // used_by_curr_pic_s1_flag[i]
         }
       }
+      previousNumNegativePics = numNegativePics;
+      previousNumPositivePics = numPositivePics;
+      previousDeltaPocS0 = deltaPocS0;
+      previousDeltaPocS1 = deltaPocS1;
     }
   }
 

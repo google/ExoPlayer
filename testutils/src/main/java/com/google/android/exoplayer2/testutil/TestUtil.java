@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
+import com.google.common.truth.Correspondence;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -197,19 +198,33 @@ public class TestUtil {
 
   /**
    * Asserts that the actual timelines are the same to the expected timelines. This assert differs
-   * from testing equality by not comparing period ids which may be different due to id mapping of
-   * child source period ids.
+   * from testing equality by not comparing:
+   *
+   * <ul>
+   *   <li>Period IDs, which may be different due to ID mapping of child source period IDs.
+   *   <li>Shuffle order, which by default is random and non-deterministic.
+   * </ul>
    *
    * @param actualTimelines A list of actual {@link Timeline timelines}.
    * @param expectedTimelines A list of expected {@link Timeline timelines}.
    */
   public static void assertTimelinesSame(
       List<Timeline> actualTimelines, List<Timeline> expectedTimelines) {
-    assertThat(actualTimelines).hasSize(expectedTimelines.size());
-    for (int i = 0; i < actualTimelines.size(); i++) {
-      assertThat(new NoUidTimeline(actualTimelines.get(i)))
-          .isEqualTo(new NoUidTimeline(expectedTimelines.get(i)));
-    }
+    assertThat(actualTimelines)
+        .comparingElementsUsing(
+            Correspondence.from(
+                TestUtil::timelinesAreSame, "is equal to (ignoring Window.uid and Period.uid)"))
+        .containsExactlyElementsIn(expectedTimelines)
+        .inOrder();
+  }
+
+  /**
+   * Returns true if {@code thisTimeline} is equal to {@code thatTimeline}, ignoring {@link
+   * Timeline.Window#uid} and {@link Timeline.Period#uid} values, and shuffle order.
+   */
+  public static boolean timelinesAreSame(Timeline thisTimeline, Timeline thatTimeline) {
+    return new NoUidOrShufflingTimeline(thisTimeline)
+        .equals(new NoUidOrShufflingTimeline(thatTimeline));
   }
 
   /**
@@ -491,5 +506,69 @@ public class TestUtil {
     }
 
     return list;
+  }
+
+  private static final class NoUidOrShufflingTimeline extends Timeline {
+
+    private final Timeline delegate;
+
+    public NoUidOrShufflingTimeline(Timeline timeline) {
+      this.delegate = timeline;
+    }
+
+    @Override
+    public int getWindowCount() {
+      return delegate.getWindowCount();
+    }
+
+    @Override
+    public int getNextWindowIndex(int windowIndex, int repeatMode, boolean shuffleModeEnabled) {
+      return delegate.getNextWindowIndex(windowIndex, repeatMode, /* shuffleModeEnabled= */ false);
+    }
+
+    @Override
+    public int getPreviousWindowIndex(int windowIndex, int repeatMode, boolean shuffleModeEnabled) {
+      return delegate.getPreviousWindowIndex(
+          windowIndex, repeatMode, /* shuffleModeEnabled= */ false);
+    }
+
+    @Override
+    public int getLastWindowIndex(boolean shuffleModeEnabled) {
+      return delegate.getLastWindowIndex(/* shuffleModeEnabled= */ false);
+    }
+
+    @Override
+    public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+      return delegate.getFirstWindowIndex(/* shuffleModeEnabled= */ false);
+    }
+
+    @Override
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
+      delegate.getWindow(windowIndex, window, defaultPositionProjectionUs);
+      window.uid = 0;
+      return window;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return delegate.getPeriodCount();
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+      delegate.getPeriod(periodIndex, period, setIds);
+      period.uid = 0;
+      return period;
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      return delegate.getIndexOfPeriod(uid);
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      return 0;
+    }
   }
 }

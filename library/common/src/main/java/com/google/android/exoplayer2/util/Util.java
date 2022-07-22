@@ -55,6 +55,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -195,7 +196,7 @@ public final class Util {
    */
   @Nullable
   public static ComponentName startForegroundService(Context context, Intent intent) {
-    if (Util.SDK_INT >= 26) {
+    if (SDK_INT >= 26) {
       return context.startForegroundService(intent);
     } else {
       return context.startService(intent);
@@ -211,12 +212,12 @@ public final class Util {
    * @return Whether a permission request was made.
    */
   public static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri... uris) {
-    if (Util.SDK_INT < 23) {
+    if (SDK_INT < 23) {
       return false;
     }
     for (Uri uri : uris) {
-      if (isLocalFileUri(uri)) {
-        return requestExternalStoragePermission(activity);
+      if (maybeRequestReadExternalStoragePermission(activity, uri)) {
+        return true;
       }
     }
     return false;
@@ -234,23 +235,44 @@ public final class Util {
    */
   public static boolean maybeRequestReadExternalStoragePermission(
       Activity activity, MediaItem... mediaItems) {
-    if (Util.SDK_INT < 23) {
+    if (SDK_INT < 23) {
       return false;
     }
     for (MediaItem mediaItem : mediaItems) {
       if (mediaItem.localConfiguration == null) {
         continue;
       }
-      if (isLocalFileUri(mediaItem.localConfiguration.uri)) {
-        return requestExternalStoragePermission(activity);
+      if (maybeRequestReadExternalStoragePermission(activity, mediaItem.localConfiguration.uri)) {
+        return true;
       }
-      for (int i = 0; i < mediaItem.localConfiguration.subtitleConfigurations.size(); i++) {
-        if (isLocalFileUri(mediaItem.localConfiguration.subtitleConfigurations.get(i).uri)) {
-          return requestExternalStoragePermission(activity);
+      List<MediaItem.SubtitleConfiguration> subtitleConfigs =
+          mediaItem.localConfiguration.subtitleConfigurations;
+      for (int i = 0; i < subtitleConfigs.size(); i++) {
+        if (maybeRequestReadExternalStoragePermission(activity, subtitleConfigs.get(i).uri)) {
+          return true;
         }
       }
     }
     return false;
+  }
+
+  private static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri uri) {
+    return SDK_INT >= 23
+        && (isLocalFileUri(uri) || isMediaStoreExternalContentUri(uri))
+        && requestExternalStoragePermission(activity);
+  }
+
+  private static boolean isMediaStoreExternalContentUri(Uri uri) {
+    if (!"content".equals(uri.getScheme()) || !MediaStore.AUTHORITY.equals(uri.getAuthority())) {
+      return false;
+    }
+    List<String> pathSegments = uri.getPathSegments();
+    if (pathSegments.isEmpty()) {
+      return false;
+    }
+    String firstPathSegment = pathSegments.get(0);
+    return MediaStore.VOLUME_EXTERNAL.equals(firstPathSegment)
+        || MediaStore.VOLUME_EXTERNAL_PRIMARY.equals(firstPathSegment);
   }
 
   /**
@@ -261,7 +283,7 @@ public final class Util {
    * @return Whether it may be possible to load the URIs of the given media items.
    */
   public static boolean checkCleartextTrafficPermitted(MediaItem... mediaItems) {
-    if (Util.SDK_INT < 24) {
+    if (SDK_INT < 24) {
       // We assume cleartext traffic is permitted.
       return true;
     }
@@ -622,7 +644,7 @@ public final class Util {
       normalizedTag = language;
     }
     normalizedTag = Ascii.toLowerCase(normalizedTag);
-    String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
+    String mainLanguage = splitAtFirst(normalizedTag, "-")[0];
     if (languageTagReplacementMap == null) {
       languageTagReplacementMap = createIsoLanguageReplacementMap();
     }
@@ -1633,9 +1655,9 @@ public final class Util {
       case 7:
         return AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
       case 8:
-        if (Util.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
           return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
-        } else if (Util.SDK_INT >= 21) {
+        } else if (SDK_INT >= 21) {
           // Equal to AudioFormat.CHANNEL_OUT_7POINT1_SURROUND, which is hidden before Android M.
           return AudioFormat.CHANNEL_OUT_5POINT1
               | AudioFormat.CHANNEL_OUT_SIDE_LEFT
@@ -1918,7 +1940,7 @@ public final class Util {
   public static @ContentType int inferContentTypeForUriAndMimeType(
       Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
-      return Util.inferContentType(uri);
+      return inferContentType(uri);
     }
     switch (mimeType) {
       case MimeTypes.APPLICATION_MPD:
@@ -2242,7 +2264,7 @@ public final class Util {
 
   /** Returns the default {@link Locale.Category#DISPLAY DISPLAY} {@link Locale}. */
   public static Locale getDefaultDisplayLocale() {
-    return Util.SDK_INT >= 24 ? Locale.getDefault(Locale.Category.DISPLAY) : Locale.getDefault();
+    return SDK_INT >= 24 ? Locale.getDefault(Locale.Category.DISPLAY) : Locale.getDefault();
   }
 
   /**
@@ -2314,7 +2336,7 @@ public final class Util {
    * @return Whether the app is running on an automotive device.
    */
   public static boolean isAutomotive(Context context) {
-    return Util.SDK_INT >= 23
+    return SDK_INT >= 23
         && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
   }
 
@@ -2332,7 +2354,7 @@ public final class Util {
    */
   public static Point getCurrentDisplayModeSize(Context context) {
     @Nullable Display defaultDisplay = null;
-    if (Util.SDK_INT >= 17) {
+    if (SDK_INT >= 17) {
       @Nullable
       DisplayManager displayManager =
           (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -2380,7 +2402,7 @@ public final class Util {
       // vendor.display-size instead.
       @Nullable
       String displaySize =
-          Util.SDK_INT < 28
+          SDK_INT < 28
               ? getSystemProperty("sys.display-size")
               : getSystemProperty("vendor.display-size");
       // If we managed to read the display size, attempt to parse it.
@@ -2401,17 +2423,17 @@ public final class Util {
       }
 
       // Sony Android TVs advertise support for 4k output via a system feature.
-      if ("Sony".equals(Util.MANUFACTURER)
-          && Util.MODEL.startsWith("BRAVIA")
+      if ("Sony".equals(MANUFACTURER)
+          && MODEL.startsWith("BRAVIA")
           && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
         return new Point(3840, 2160);
       }
     }
 
     Point displaySize = new Point();
-    if (Util.SDK_INT >= 23) {
+    if (SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
-    } else if (Util.SDK_INT >= 17) {
+    } else if (SDK_INT >= 17) {
       getDisplaySizeV17(display, displaySize);
     } else {
       getDisplaySizeV16(display, displaySize);
@@ -2629,7 +2651,7 @@ public final class Util {
 
   @RequiresApi(24)
   private static String[] getSystemLocalesV24(Configuration config) {
-    return Util.split(config.getLocales().toLanguageTags(), ",");
+    return split(config.getLocales().toLanguageTags(), ",");
   }
 
   @RequiresApi(21)

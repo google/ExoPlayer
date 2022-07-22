@@ -1817,7 +1817,13 @@ public class StyledPlayerControlView extends FrameLayout {
       if (position < playbackSpeedTexts.length) {
         holder.textView.setText(playbackSpeedTexts[position]);
       }
-      holder.checkView.setVisibility(position == selectedIndex ? VISIBLE : INVISIBLE);
+      if (position == selectedIndex) {
+        holder.itemView.setSelected(true);
+        holder.checkView.setVisibility(VISIBLE);
+      } else {
+        holder.itemView.setSelected(false);
+        holder.checkView.setVisibility(INVISIBLE);
+      }
       holder.itemView.setOnClickListener(
           v -> {
             if (position != selectedIndex) {

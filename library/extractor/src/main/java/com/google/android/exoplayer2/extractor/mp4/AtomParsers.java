@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -1303,7 +1304,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     if (esdsData != null) {
-      formatBuilder.setAverageBitrate(esdsData.bitrate).setPeakBitrate(esdsData.peakBitrate);
+      formatBuilder
+          .setAverageBitrate(Ints.saturatedCast(esdsData.bitrate))
+          .setPeakBitrate(Ints.saturatedCast(esdsData.peakBitrate));
     }
 
     out.format = formatBuilder.build();
@@ -1609,7 +1612,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setLanguage(language);
 
       if (esdsData != null) {
-        formatBuilder.setAverageBitrate(esdsData.bitrate).setPeakBitrate(esdsData.peakBitrate);
+        formatBuilder
+            .setAverageBitrate(Ints.saturatedCast(esdsData.bitrate))
+            .setPeakBitrate(Ints.saturatedCast(esdsData.peakBitrate));
       }
 
       out.format = formatBuilder.build();
@@ -1659,7 +1664,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parent.skipBytes(2);
     }
     if ((flags & 0x40 /* URL_Flag */) != 0) {
-      parent.skipBytes(parent.readUnsignedShort());
+      parent.skipBytes(parent.readUnsignedByte());
     }
     if ((flags & 0x20 /* OCRstreamFlag */) != 0) {
       parent.skipBytes(2);
@@ -1683,8 +1688,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     parent.skipBytes(4);
-    int peakBitrate = parent.readUnsignedIntToInt();
-    int bitrate = parent.readUnsignedIntToInt();
+    long peakBitrate = parent.readUnsignedInt();
+    long bitrate = parent.readUnsignedInt();
 
     // Start of the DecoderSpecificInfo.
     parent.skipBytes(1); // DecoderSpecificInfo tag
@@ -1943,14 +1948,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private static final class EsdsData {
     private final @NullableType String mimeType;
     private final byte @NullableType [] initializationData;
-    private final int bitrate;
-    private final int peakBitrate;
+    private final long bitrate;
+    private final long peakBitrate;
 
     public EsdsData(
         @NullableType String mimeType,
         byte @NullableType [] initializationData,
-        int bitrate,
-        int peakBitrate) {
+        long bitrate,
+        long peakBitrate) {
       this.mimeType = mimeType;
       this.initializationData = initializationData;
       this.bitrate = bitrate;

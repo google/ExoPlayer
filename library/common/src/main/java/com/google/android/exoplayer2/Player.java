@@ -372,6 +372,7 @@ public interface Player {
         COMMAND_GET_TIMELINE,
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_SET_MEDIA_ITEM,
         COMMAND_CHANGE_MEDIA_ITEMS,
         COMMAND_GET_AUDIO_ATTRIBUTES,
         COMMAND_GET_VOLUME,
@@ -383,7 +384,6 @@ public interface Player {
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         COMMAND_GET_TRACKS,
-        COMMAND_SET_MEDIA_ITEM,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -1422,6 +1422,7 @@ public interface Player {
     COMMAND_GET_TIMELINE,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
     COMMAND_SET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_MEDIA_ITEM,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
     COMMAND_GET_VOLUME,
@@ -1433,7 +1434,6 @@ public interface Player {
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
     COMMAND_GET_TRACKS,
-    COMMAND_SET_MEDIA_ITEM,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1490,6 +1490,8 @@ public interface Player {
   int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
   /** Command to set the {@link MediaItem MediaItems} metadata. */
   int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
+  /** Command to set a {@link MediaItem MediaItem}. */
+  int COMMAND_SET_MEDIA_ITEM = 31;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
   int COMMAND_CHANGE_MEDIA_ITEMS = 20;
   /** Command to get the player current {@link AudioAttributes}. */
@@ -1512,8 +1514,6 @@ public interface Player {
   int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 29;
   /** Command to get details of the current track selection. */
   int COMMAND_GET_TRACKS = 30;
-  /** Command to set a {@link MediaItem MediaItem}. */
-  int COMMAND_SET_MEDIA_ITEM = 31;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
