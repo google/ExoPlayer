@@ -29,6 +29,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.source.ShuffleOrder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -275,7 +276,7 @@ public final class FakeTimeline extends Timeline {
   private final TimelineWindowDefinition[] windowDefinitions;
   private final Object[] manifests;
   private final int[] periodOffsets;
-  private final FakeShuffleOrder fakeShuffleOrder;
+  private final ShuffleOrder shuffleOrder;
 
   /**
    * Returns an ad playback state with the specified number of ads in each of the specified ad
@@ -395,6 +396,19 @@ public final class FakeTimeline extends Timeline {
    * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
    */
   public FakeTimeline(Object[] manifests, TimelineWindowDefinition... windowDefinitions) {
+    this(manifests, new FakeShuffleOrder(windowDefinitions.length), windowDefinitions);
+  }
+
+  /**
+   * Creates a fake timeline with the given window definitions and {@link
+   * androidx.media3.exoplayer.source.ShuffleOrder}.
+   *
+   * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
+   */
+  public FakeTimeline(
+      Object[] manifests,
+      ShuffleOrder shuffleOrder,
+      TimelineWindowDefinition... windowDefinitions) {
     this.manifests = new Object[windowDefinitions.length];
     System.arraycopy(manifests, 0, this.manifests, 0, min(this.manifests.length, manifests.length));
     this.windowDefinitions = windowDefinitions;
@@ -403,7 +417,7 @@ public final class FakeTimeline extends Timeline {
     for (int i = 0; i < windowDefinitions.length; i++) {
       periodOffsets[i + 1] = periodOffsets[i] + windowDefinitions[i].periodCount;
     }
-    fakeShuffleOrder = new FakeShuffleOrder(windowDefinitions.length);
+    this.shuffleOrder = shuffleOrder;
   }
 
   @Override
@@ -422,7 +436,7 @@ public final class FakeTimeline extends Timeline {
           ? getFirstWindowIndex(shuffleModeEnabled)
           : C.INDEX_UNSET;
     }
-    return shuffleModeEnabled ? fakeShuffleOrder.getNextIndex(windowIndex) : windowIndex + 1;
+    return shuffleModeEnabled ? shuffleOrder.getNextIndex(windowIndex) : windowIndex + 1;
   }
 
   @Override
@@ -436,20 +450,20 @@ public final class FakeTimeline extends Timeline {
           ? getLastWindowIndex(shuffleModeEnabled)
           : C.INDEX_UNSET;
     }
-    return shuffleModeEnabled ? fakeShuffleOrder.getPreviousIndex(windowIndex) : windowIndex - 1;
+    return shuffleModeEnabled ? shuffleOrder.getPreviousIndex(windowIndex) : windowIndex - 1;
   }
 
   @Override
   public int getLastWindowIndex(boolean shuffleModeEnabled) {
     return shuffleModeEnabled
-        ? fakeShuffleOrder.getLastIndex()
+        ? shuffleOrder.getLastIndex()
         : super.getLastWindowIndex(/* shuffleModeEnabled= */ false);
   }
 
   @Override
   public int getFirstWindowIndex(boolean shuffleModeEnabled) {
     return shuffleModeEnabled
-        ? fakeShuffleOrder.getFirstIndex()
+        ? shuffleOrder.getFirstIndex()
         : super.getFirstWindowIndex(/* shuffleModeEnabled= */ false);
   }
 

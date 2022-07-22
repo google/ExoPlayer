@@ -294,6 +294,7 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_GET_TIMELINE,
                   COMMAND_GET_MEDIA_ITEMS_METADATA,
                   COMMAND_SET_MEDIA_ITEMS_METADATA,
+                  COMMAND_SET_MEDIA_ITEM,
                   COMMAND_CHANGE_MEDIA_ITEMS,
                   COMMAND_GET_TRACKS,
                   COMMAND_GET_AUDIO_ATTRIBUTES,
@@ -303,8 +304,7 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_SET_DEVICE_VOLUME,
                   COMMAND_ADJUST_DEVICE_VOLUME,
                   COMMAND_SET_VIDEO_SURFACE,
-                  COMMAND_GET_TEXT,
-                  COMMAND_SET_MEDIA_ITEM)
+                  COMMAND_GET_TEXT)
               .addIf(
                   COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
               .build();
@@ -433,6 +433,9 @@ import java.util.concurrent.TimeoutException;
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     verifyApplicationThread();
     internalPlayer.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
+    for (AudioOffloadListener listener : audioOffloadListeners) {
+      listener.onExperimentalOffloadSchedulingEnabledChanged(offloadSchedulingEnabled);
+    }
   }
 
   @Override
@@ -707,6 +710,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     verifyApplicationThread();
+    this.shuffleOrder = shuffleOrder;
     Timeline timeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
         maskTimelineAndPosition(
@@ -715,7 +719,6 @@ import java.util.concurrent.TimeoutException;
             maskWindowPositionMsOrGetPeriodPositionUs(
                 timeline, getCurrentMediaItemIndex(), getCurrentPosition()));
     pendingOperationAcks++;
-    this.shuffleOrder = shuffleOrder;
     internalPlayer.setShuffleOrder(shuffleOrder);
     updatePlaybackInfo(
         newPlaybackInfo,
@@ -1962,12 +1965,6 @@ import java.util.concurrent.TimeoutException;
     updateAvailableCommands();
     listeners.flushEvents();
 
-    if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
-      for (AudioOffloadListener listener : audioOffloadListeners) {
-        listener.onExperimentalOffloadSchedulingEnabledChanged(
-            newPlaybackInfo.offloadSchedulingEnabled);
-      }
-    }
     if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
       for (AudioOffloadListener listener : audioOffloadListeners) {
         listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload);

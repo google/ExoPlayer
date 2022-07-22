@@ -69,6 +69,15 @@ import java.util.concurrent.ExecutionException;
  *   <li>{@link MediaController#COMMAND_SEEK_TO_NEXT} to seek to the next item.
  * </ul>
  *
+ * <h2>Custom commands</h2>
+ *
+ * Custom actions are sent to the session under the hood. You can receive them by overriding the
+ * session callback method {@link MediaSession.Callback#onCustomCommand(MediaSession,
+ * MediaSession.ControllerInfo, SessionCommand, Bundle)}. This is useful because starting with
+ * Android 13, the System UI notification sends commands directly to the session. So handling the
+ * custom commands on the session level allows you to handle them at the same callback for all API
+ * levels.
+ *
  * <h2>Drawables</h2>
  *
  * The drawables used can be overridden by drawables with the same names defined the application.
@@ -218,6 +227,14 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * Notification.MediaStyle#setShowActionsInCompactView(int...) compact view}. This can be
    * customized by defining the index of the command in compact view of up to 3 commands in their
    * extras with key {@link DefaultMediaNotificationProvider#COMMAND_KEY_COMPACT_VIEW_INDEX}.
+   *
+   * <p>To make the custom layout and commands work, you need to {@linkplain
+   * MediaSession#setCustomLayout(List) set the custom layout of commands} and add the custom
+   * commands to the available commands when a controller {@linkplain
+   * MediaSession.Callback#onConnect(MediaSession, MediaSession.ControllerInfo) connects to the
+   * session}. Controllers that connect after you called {@link MediaSession#setCustomLayout(List)}
+   * need the custom command set in {@link MediaSession.Callback#onPostConnect(MediaSession,
+   * MediaSession.ControllerInfo)} also.
    *
    * @param playerCommands The available player commands.
    * @param customLayout The {@linkplain MediaSession#setCustomLayout(List) custom layout of

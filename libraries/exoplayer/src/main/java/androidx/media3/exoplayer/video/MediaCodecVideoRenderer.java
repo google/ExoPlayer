@@ -629,7 +629,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         surface = placeholderSurface;
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
-        if (codecInfo != null && shouldUseDummySurface(codecInfo)) {
+        if (codecInfo != null && shouldUsePlaceholderSurface(codecInfo)) {
           placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
           surface = placeholderSurface;
         }
@@ -675,7 +675,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
-    return surface != null || shouldUseDummySurface(codecInfo);
+    return surface != null || shouldUsePlaceholderSurface(codecInfo);
   }
 
   @Override
@@ -706,7 +706,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             deviceNeedsNoPostProcessWorkaround,
             tunneling ? tunnelingAudioSessionId : C.AUDIO_SESSION_ID_UNSET);
     if (surface == null) {
-      if (!shouldUseDummySurface(codecInfo)) {
+      if (!shouldUsePlaceholderSurface(codecInfo)) {
         throw new IllegalStateException();
       }
       if (placeholderSurface == null) {
@@ -1333,7 +1333,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     maybeNotifyRenderedFirstFrame();
   }
 
-  private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
+  private boolean shouldUsePlaceholderSurface(MediaCodecInfo codecInfo) {
     return Util.SDK_INT >= 23
         && !tunneling
         && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
@@ -1572,7 +1572,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     if (haveUnknownDimensions) {
       Log.w(TAG, "Resolutions unknown. Codec max resolution: " + maxWidth + "x" + maxHeight);
-      Point codecMaxSize = getCodecMaxSize(codecInfo, format);
+      @Nullable Point codecMaxSize = getCodecMaxSize(codecInfo, format);
       if (codecMaxSize != null) {
         maxWidth = max(maxWidth, codecMaxSize.x);
         maxHeight = max(maxHeight, codecMaxSize.y);
@@ -1600,8 +1600,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The {@link Format} for which the codec is being configured.
-   * @return The maximum video size to use, or null if the size of {@code format} should be used.
+   * @return The maximum video size to use, or {@code null} if the size of {@code format} should be
+   *     used.
    */
+  @Nullable
   private static Point getCodecMaxSize(MediaCodecInfo codecInfo, Format format) {
     boolean isVerticalVideo = format.height > format.width;
     int formatLongEdgePx = isVerticalVideo ? format.height : format.width;

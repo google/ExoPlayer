@@ -29,7 +29,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.PlaybackParams;
 import android.media.metrics.LogSessionId;
-import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
@@ -44,6 +43,8 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -615,7 +616,8 @@ public final class DefaultAudioSink implements AudioSink {
     enableAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
     offloadMode = Util.SDK_INT >= 29 ? builder.offloadMode : OFFLOAD_MODE_DISABLED;
     audioTrackBufferSizeProvider = builder.audioTrackBufferSizeProvider;
-    releasingConditionVariable = new ConditionVariable(true);
+    releasingConditionVariable = new ConditionVariable(Clock.DEFAULT);
+    releasingConditionVariable.open();
     audioTrackPositionTracker = new AudioTrackPositionTracker(new PositionTrackerListener());
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     trimmingAudioProcessor = new TrimmingAudioProcessor();
@@ -840,13 +842,15 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
-  private void initializeAudioTrack() throws InitializationException {
-    // If we're asynchronously releasing a previous audio track then we block until it has been
+  private boolean initializeAudioTrack() throws InitializationException {
+    // If we're asynchronously releasing a previous audio track then we wait until it has been
     // released. This guarantees that we cannot end up in a state where we have multiple audio
     // track instances. Without this guarantee it would be possible, in extreme cases, to exhaust
     // the shared memory that's available for audio track buffers. This would in turn cause the
     // initialization of the audio track to fail.
-    releasingConditionVariable.block();
+    if (!releasingConditionVariable.isOpen()) {
+      return false;
+    }
 
     audioTrack = buildAudioTrackWithRetry();
     if (isOffloadedPlayback(audioTrack)) {
@@ -874,6 +878,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     startMediaTimeUsNeedsInit = true;
+    return true;
   }
 
   @Override
@@ -930,7 +935,10 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (!isAudioTrackInitialized()) {
       try {
-        initializeAudioTrack();
+        if (!initializeAudioTrack()) {
+          // Not yet ready for initialization of a new AudioTrack.
+          return false;
+        }
       } catch (InitializationException e) {
         if (e.isRecoverable) {
           throw e; // Do not delay the exception if it can be recovered at higher level.

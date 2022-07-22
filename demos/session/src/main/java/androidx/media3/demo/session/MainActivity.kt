@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaBrowser
@@ -164,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         val root: MediaItem = result.value!!
         pushPathStack(root)
       },
-      MoreExecutors.directExecutor()
+      ContextCompat.getMainExecutor(this)
     )
   }
 
