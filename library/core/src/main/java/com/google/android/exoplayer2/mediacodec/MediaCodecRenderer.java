@@ -334,6 +334,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean codecNeedsEosBufferTimestampWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
   private boolean codecNeedsAdaptationWorkaroundBuffer;
+  private boolean codecNeedsSkipSurplusOutBufferWorkaround;
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
   private boolean codecNeedsEosPropagation;
   @Nullable private C2Mp3TimestampTracker c2Mp3TimestampTracker;
@@ -1132,6 +1133,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       this.codecNeedsAdaptationWorkaroundBuffer =
           codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER;
     }
+    codecNeedsSkipSurplusOutBufferWorkaround = codecNeedsSkipSurplusOutBufferWorkaround(codecName, codecInputFormat);
     if ("c2.android.mp3.decoder".equals(codecInfo.name)) {
       c2Mp3TimestampTracker = new C2Mp3TimestampTracker();
     }
@@ -2128,6 +2130,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return true;
       }
     }
+    if (codecNeedsSkipSurplusOutBufferWorkaround && size > 0) {
+      if (Math.min(decodeOnlyPresentationTimestamps.get(0), decodeOnlyPresentationTimestamps.get(size - 1)) < presentationTimeUs
+          && Math.max(decodeOnlyPresentationTimestamps.get(0), decodeOnlyPresentationTimestamps.get(size - 1)) > presentationTimeUs) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -2476,6 +2484,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18
         && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
+  }
+
+  private static boolean codecNeedsSkipSurplusOutBufferWorkaround(String name, Format format) {
+    return Util.SDK_INT >= 29
+        && format.width >= 1920
+        && format.height >= 1080
+        && "OMX.amlogic.avc.decoder.awesome2".equals(name);
   }
 
   @RequiresApi(31)
