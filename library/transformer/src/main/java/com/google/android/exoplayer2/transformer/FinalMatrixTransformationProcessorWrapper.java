@@ -25,7 +25,7 @@ import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -74,7 +74,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private MatrixTransformationProcessor matrixTransformationProcessor;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private @MonotonicNonNull Listener listener;
-  private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
+  private @MonotonicNonNull Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation;
   private @MonotonicNonNull SurfaceView debugSurfaceView;
 
   private volatile boolean outputSizeOrRotationChanged;
@@ -188,14 +188,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         || this.outputSizeBeforeSurfaceTransformation == null) {
       this.inputWidth = inputWidth;
       this.inputHeight = inputHeight;
-      Size outputSizeBeforeSurfaceTransformation =
+      Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation =
           MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
       if (!Util.areEqual(
           this.outputSizeBeforeSurfaceTransformation, outputSizeBeforeSurfaceTransformation)) {
         this.outputSizeBeforeSurfaceTransformation = outputSizeBeforeSurfaceTransformation;
         frameProcessorListener.onOutputSizeChanged(
-            outputSizeBeforeSurfaceTransformation.getWidth(),
-            outputSizeBeforeSurfaceTransformation.getHeight());
+            outputSizeBeforeSurfaceTransformation.first,
+            outputSizeBeforeSurfaceTransformation.second);
       }
     }
 
@@ -264,9 +264,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             useHdr,
             /* outputOpticalColors= */ true);
     matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    Size outputSize = matrixTransformationProcessor.configure(inputWidth, inputHeight);
-    checkState(outputSize.getWidth() == outputSurfaceInfo.width);
-    checkState(outputSize.getHeight() == outputSurfaceInfo.height);
+    Pair<Integer, Integer> outputSize =
+        matrixTransformationProcessor.configure(inputWidth, inputHeight);
+    checkState(outputSize.first == outputSurfaceInfo.width);
+    checkState(outputSize.second == outputSurfaceInfo.height);
     return matrixTransformationProcessor;
   }
 
