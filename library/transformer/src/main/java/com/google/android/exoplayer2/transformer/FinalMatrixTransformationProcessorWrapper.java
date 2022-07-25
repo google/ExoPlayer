@@ -75,6 +75,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private @MonotonicNonNull Listener listener;
   private @MonotonicNonNull Size outputSizeBeforeSurfaceTransformation;
+  private @MonotonicNonNull SurfaceView debugSurfaceView;
+
+  private volatile boolean outputSizeOrRotationChanged;
 
   @GuardedBy("this")
   @Nullable
@@ -207,7 +210,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
-    if (outputEglSurface == null) { // This means that outputSurfaceInfo changed.
+    if (outputEglSurface == null) {
       if (useHdr) {
         outputEglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, outputSurfaceInfo.surface);
       } else {
@@ -218,16 +221,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       SurfaceView debugSurfaceView =
           debugViewProvider.getDebugPreviewSurfaceView(
               outputSurfaceInfo.width, outputSurfaceInfo.height);
-      if (debugSurfaceView != null) {
+      if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
         debugSurfaceViewWrapper =
             new SurfaceViewWrapper(eglDisplay, eglContext, useHdr, debugSurfaceView);
       }
-      if (matrixTransformationProcessor != null) {
-        matrixTransformationProcessor.release();
-        matrixTransformationProcessor = null;
-      }
     }
 
+    if (matrixTransformationProcessor != null && outputSizeOrRotationChanged) {
+      matrixTransformationProcessor.release();
+      matrixTransformationProcessor = null;
+      outputSizeOrRotationChanged = false;
+    }
     if (matrixTransformationProcessor == null) {
       matrixTransformationProcessor =
           createMatrixTransformationProcessorForOutputSurface(outputSurfaceInfo);
@@ -316,8 +320,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
     if (!Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
+      if (outputSurfaceInfo != null
+          && this.outputSurfaceInfo != null
+          && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
+        this.outputEglSurface = null;
+      }
+      outputSizeOrRotationChanged =
+          this.outputSurfaceInfo == null
+              || outputSurfaceInfo == null
+              || this.outputSurfaceInfo.width != outputSurfaceInfo.width
+              || this.outputSurfaceInfo.height != outputSurfaceInfo.height
+              || this.outputSurfaceInfo.orientationDegrees != outputSurfaceInfo.orientationDegrees;
       this.outputSurfaceInfo = outputSurfaceInfo;
-      this.outputEglSurface = null;
     }
   }
 
