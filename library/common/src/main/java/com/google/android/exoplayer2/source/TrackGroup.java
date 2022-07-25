@@ -30,11 +30,11 @@ import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -177,8 +177,11 @@ public final class TrackGroup implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putParcelableArrayList(
-        keyForField(FIELD_FORMATS), BundleableUtil.toBundleArrayList(Lists.newArrayList(formats)));
+    ArrayList<Bundle> arrayList = new ArrayList<>(formats.length);
+    for (Format format : formats) {
+      arrayList.add(format.toBundle(/* excludeMetadata= */ true));
+    }
+    bundle.putParcelableArrayList(keyForField(FIELD_FORMATS), arrayList);
     bundle.putString(keyForField(FIELD_ID), id);
     return bundle;
   }
