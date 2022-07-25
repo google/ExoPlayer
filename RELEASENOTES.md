@@ -14,6 +14,9 @@
         `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
         boolean)` to specify whether the renderer will output metadata early or
         in sync with the player position.
+*   DASH:
+    *   Parse `EventStream.presentationTimeOffset` from manifests
+        ([#10460](https://github.com/google/ExoPlayer/issues/10460)).
 *   UI:
     *   Use current overrides of the player as preset in
         `TrackSelectionDialogBuilder`
