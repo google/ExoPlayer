@@ -17,7 +17,7 @@ package androidx.media3.transformer;
 
 import android.content.Context;
 import android.opengl.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.util.UnstableApi;
 
 /**
@@ -39,10 +39,10 @@ public interface GlMatrixTransformation extends GlEffect {
    *
    * @param inputWidth The input frame width, in pixels.
    * @param inputHeight The input frame height, in pixels.
-   * @return The output frame {@link Size}, in pixels.
+   * @return The output frame width and height, in pixels.
    */
-  default Size configure(int inputWidth, int inputHeight) {
-    return new Size(inputWidth, inputHeight);
+  default Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+    return Pair.create(inputWidth, inputHeight);
   }
 
   /**

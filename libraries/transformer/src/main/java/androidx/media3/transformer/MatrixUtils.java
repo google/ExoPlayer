@@ -18,7 +18,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.opengl.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 
@@ -219,20 +219,19 @@ import java.util.Arrays;
   }
 
   /**
-   * Returns the output frame {@link Size} after applying the given list of {@link
-   * GlMatrixTransformation GlMatrixTransformations} to an input frame with the given size.
+   * Returns the output frame size after applying the given list of {@link GlMatrixTransformation
+   * GlMatrixTransformations} to an input frame with the given size.
    */
-  public static Size configureAndGetOutputSize(
+  public static Pair<Integer, Integer> configureAndGetOutputSize(
       int inputWidth,
       int inputHeight,
       ImmutableList<GlMatrixTransformation> matrixTransformations) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
-    Size outputSize = new Size(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = Pair.create(inputWidth, inputHeight);
     for (int i = 0; i < matrixTransformations.size(); i++) {
-      outputSize =
-          matrixTransformations.get(i).configure(outputSize.getWidth(), outputSize.getHeight());
+      outputSize = matrixTransformations.get(i).configure(outputSize.first, outputSize.second);
     }
 
     return outputSize;

@@ -27,7 +27,7 @@ import android.graphics.Color;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.util.GlUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -93,14 +93,14 @@ public class ContrastProcessorPixelTest {
     String testId = "drawFrame_noContrastChange";
     contrastProcessor =
         new Contrast(/* contrast= */ 0.0f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -114,8 +114,8 @@ public class ContrastProcessorPixelTest {
     String testId = "drawFrame_minimumContrast";
     contrastProcessor =
         new Contrast(/* contrast= */ -1.0f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.createArgb8888BitmapWithSolidColor(
             inputWidth,
@@ -126,7 +126,7 @@ public class ContrastProcessorPixelTest {
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
@@ -141,14 +141,14 @@ public class ContrastProcessorPixelTest {
     String testId = "drawFrame_decreaseContrast";
     contrastProcessor =
         new Contrast(/* contrast= */ -0.75f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap originalBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     assertIncreasedOrDecreasedContrast(originalBitmap, actualBitmap, /* increased= */ false);
@@ -160,14 +160,14 @@ public class ContrastProcessorPixelTest {
     String testId = "drawFrame_increaseContrast";
     contrastProcessor =
         new Contrast(/* contrast= */ 0.75f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap originalBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     assertIncreasedOrDecreasedContrast(originalBitmap, actualBitmap, /* increased= */ true);
@@ -178,14 +178,14 @@ public class ContrastProcessorPixelTest {
     String testId = "drawFrame_maximumContrast";
     contrastProcessor =
         new Contrast(/* contrast= */ 1.0f).toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = contrastProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(MAXIMUM_CONTRAST_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
     float averagePixelAbsoluteDifference =

@@ -21,7 +21,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
@@ -181,7 +181,7 @@ public final class Presentation implements MatrixTransformation {
   }
 
   @Override
-  public Size configure(int inputWidth, int inputHeight) {
+  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
@@ -206,7 +206,7 @@ public final class Presentation implements MatrixTransformation {
       }
       outputHeight = requestedHeightPixels;
     }
-    return new Size(Math.round(outputWidth), Math.round(outputHeight));
+    return Pair.create(Math.round(outputWidth), Math.round(outputHeight));
   }
 
   @Override

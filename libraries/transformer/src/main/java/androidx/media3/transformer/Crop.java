@@ -19,7 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -66,14 +66,14 @@ public final class Crop implements MatrixTransformation {
   }
 
   @Override
-  public Size configure(int inputWidth, int inputHeight) {
+  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
     transformationMatrix = new Matrix();
     if (left == -1f && right == 1f && bottom == -1f && top == 1f) {
       // No crop needed.
-      return new Size(inputWidth, inputHeight);
+      return Pair.create(inputWidth, inputHeight);
     }
 
     float scaleX = (right - left) / GlUtil.LENGTH_NDC;
@@ -86,7 +86,7 @@ public final class Crop implements MatrixTransformation {
 
     int outputWidth = Math.round(inputWidth * scaleX);
     int outputHeight = Math.round(inputHeight * scaleY);
-    return new Size(outputWidth, outputHeight);
+    return Pair.create(outputWidth, outputHeight);
   }
 
   @Override

@@ -20,7 +20,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
@@ -220,7 +220,7 @@ import java.util.Arrays;
   }
 
   @Override
-  public Size configure(int inputWidth, int inputHeight) {
+  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
     return MatrixUtils.configureAndGetOutputSize(inputWidth, inputHeight, matrixTransformations);
   }
 
