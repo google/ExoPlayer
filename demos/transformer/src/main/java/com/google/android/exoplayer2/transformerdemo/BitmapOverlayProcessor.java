@@ -28,7 +28,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Size;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.transformer.FrameProcessingException;
 import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
@@ -111,7 +111,7 @@ import java.util.Locale;
   }
 
   @Override
-  public Size configure(int inputWidth, int inputHeight) {
+  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
     if (inputWidth > inputHeight) {
       bitmapScaleX = inputWidth / (float) inputHeight;
       bitmapScaleY = 1f;
@@ -123,7 +123,7 @@ import java.util.Locale;
     glProgram.setFloatUniform("uScaleX", bitmapScaleX);
     glProgram.setFloatUniform("uScaleY", bitmapScaleY);
 
-    return new Size(inputWidth, inputHeight);
+    return Pair.create(inputWidth, inputHeight);
   }
 
   @Override

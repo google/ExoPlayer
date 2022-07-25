@@ -25,7 +25,7 @@ import android.graphics.Bitmap;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.util.Size;
+import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
@@ -90,14 +90,14 @@ public final class CropPixelTest {
     cropTextureProcessor =
         new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     cropTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -114,14 +114,14 @@ public final class CropPixelTest {
     cropTextureProcessor =
         new Crop(/* left= */ -.9f, /* right= */ .1f, /* bottom= */ -1f, /* top= */ .5f)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_SMALLER_PNG_ASSET_PATH);
 
     cropTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -138,14 +138,14 @@ public final class CropPixelTest {
     cropTextureProcessor =
         new Crop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize = cropTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(CROP_LARGER_PNG_ASSET_PATH);
 
     cropTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);

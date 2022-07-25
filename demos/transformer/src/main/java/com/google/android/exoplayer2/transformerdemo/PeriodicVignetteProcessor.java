@@ -19,7 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Size;
+import android.util.Pair;
 import com.google.android.exoplayer2.transformer.FrameProcessingException;
 import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
 import com.google.android.exoplayer2.util.GlProgram;
@@ -90,8 +90,8 @@ import java.io.IOException;
   }
 
   @Override
-  public Size configure(int inputWidth, int inputHeight) {
-    return new Size(inputWidth, inputHeight);
+  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+    return Pair.create(inputWidth, inputHeight);
   }
 
   @Override

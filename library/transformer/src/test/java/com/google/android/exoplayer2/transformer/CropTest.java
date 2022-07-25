@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.util.Size;
+import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.GlUtil;
 import org.junit.Test;
@@ -36,10 +36,10 @@ public final class CropTest {
     int inputHeight = 150;
     Crop crop = new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1);
 
-    Size outputSize = crop.configure(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = crop.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.first).isEqualTo(inputWidth);
+    assertThat(outputSize.second).isEqualTo(inputHeight);
   }
 
   @Test
@@ -52,11 +52,11 @@ public final class CropTest {
     float top = 1f;
     Crop crop = new Crop(left, right, bottom, top);
 
-    Size outputSize = crop.configure(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = crop.configure(inputWidth, inputHeight);
 
     int expectedPostCropWidth = Math.round(inputWidth * (right - left) / GlUtil.LENGTH_NDC);
     int expectedPostCropHeight = Math.round(inputHeight * (top - bottom) / GlUtil.LENGTH_NDC);
-    assertThat(outputSize.getWidth()).isEqualTo(expectedPostCropWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(expectedPostCropHeight);
+    assertThat(outputSize.first).isEqualTo(expectedPostCropWidth);
+    assertThat(outputSize.second).isEqualTo(expectedPostCropHeight);
   }
 }
