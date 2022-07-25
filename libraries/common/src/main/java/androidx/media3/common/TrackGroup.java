@@ -26,11 +26,11 @@ import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -179,8 +179,11 @@ public final class TrackGroup implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putParcelableArrayList(
-        keyForField(FIELD_FORMATS), BundleableUtil.toBundleArrayList(Lists.newArrayList(formats)));
+    ArrayList<Bundle> arrayList = new ArrayList<>(formats.length);
+    for (Format format : formats) {
+      arrayList.add(format.toBundle(/* excludeMetadata= */ true));
+    }
+    bundle.putParcelableArrayList(keyForField(FIELD_FORMATS), arrayList);
     bundle.putString(keyForField(FIELD_ID), id);
     return bundle;
   }

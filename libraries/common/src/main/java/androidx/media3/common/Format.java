@@ -1547,6 +1547,15 @@ public final class Format implements Bundleable {
   @UnstableApi
   @Override
   public Bundle toBundle() {
+    return toBundle(/* excludeMetadata= */ false);
+  }
+
+  /**
+   * Returns a {@link Bundle} representing the information stored in this object. If {@code
+   * excludeMetadata} is true, {@linkplain Format#metadata metadata} is excluded.
+   */
+  @UnstableApi
+  public Bundle toBundle(boolean excludeMetadata) {
     Bundle bundle = new Bundle();
     bundle.putString(keyForField(FIELD_ID), id);
     bundle.putString(keyForField(FIELD_LABEL), label);
@@ -1556,10 +1565,10 @@ public final class Format implements Bundleable {
     bundle.putInt(keyForField(FIELD_AVERAGE_BITRATE), averageBitrate);
     bundle.putInt(keyForField(FIELD_PEAK_BITRATE), peakBitrate);
     bundle.putString(keyForField(FIELD_CODECS), codecs);
-    // Metadata is currently not Bundleable because Metadata.Entry is an Interface,
-    // which would be difficult to unbundle in a backward compatible way.
-    // The entries are additionally of limited usefulness to remote processes.
-    bundle.putParcelable(keyForField(FIELD_METADATA), metadata);
+    if (!excludeMetadata) {
+      // TODO (internal ref: b/239701618)
+      bundle.putParcelable(keyForField(FIELD_METADATA), metadata);
+    }
     // Container specific.
     bundle.putString(keyForField(FIELD_CONTAINER_MIME_TYPE), containerMimeType);
     // Sample specific.
