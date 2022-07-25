@@ -17,7 +17,7 @@ package androidx.media3.transformer;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
@@ -36,10 +36,10 @@ public final class PresentationTest {
     int inputHeight = 150;
     Presentation presentation = Presentation.createForHeight(C.LENGTH_UNSET);
 
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.first).isEqualTo(inputWidth);
+    assertThat(outputSize.second).isEqualTo(inputHeight);
   }
 
   @Test
@@ -49,10 +49,10 @@ public final class PresentationTest {
     int requestedHeight = 300;
     Presentation presentation = Presentation.createForHeight(requestedHeight);
 
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
-    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
+    assertThat(outputSize.first).isEqualTo(requestedHeight * inputWidth / inputHeight);
+    assertThat(outputSize.second).isEqualTo(requestedHeight);
   }
 
   @Test
@@ -63,10 +63,10 @@ public final class PresentationTest {
     Presentation presentation =
         Presentation.createForAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT);
 
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * inputHeight));
-    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
+    assertThat(outputSize.first).isEqualTo(Math.round(aspectRatio * inputHeight));
+    assertThat(outputSize.second).isEqualTo(inputHeight);
   }
 
   @Test
@@ -79,9 +79,9 @@ public final class PresentationTest {
         Presentation.createForWidthAndHeight(
             requestedWidth, requestedHeight, Presentation.LAYOUT_SCALE_TO_FIT);
 
-    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
 
-    assertThat(outputSize.getWidth()).isEqualTo(requestedWidth);
-    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
+    assertThat(outputSize.first).isEqualTo(requestedWidth);
+    assertThat(outputSize.second).isEqualTo(requestedHeight);
   }
 }

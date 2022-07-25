@@ -25,7 +25,7 @@ import android.graphics.Bitmap;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -99,14 +99,15 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForHeight(C.LENGTH_UNSET)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -124,15 +125,16 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_NARROW_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -150,15 +152,16 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WIDE_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -177,15 +180,16 @@ public final class PresentationPixelTest {
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_NARROW_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -204,15 +208,16 @@ public final class PresentationPixelTest {
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_SCALE_TO_FIT_WITH_CROP_WIDE_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -230,15 +235,16 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_STRETCH_TO_FIT)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_STRETCH_TO_FIT_NARROW_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);
@@ -256,15 +262,16 @@ public final class PresentationPixelTest {
     presentationTextureProcessor =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_STRETCH_TO_FIT)
             .toGlTextureProcessor(context, /* useHdr= */ false);
-    Size outputSize = presentationTextureProcessor.configure(inputWidth, inputHeight);
-    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Pair<Integer, Integer> outputSize =
+        presentationTextureProcessor.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(ASPECT_RATIO_STRETCH_TO_FIT_WIDE_PNG_ASSET_PATH);
 
     presentationTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.getWidth(), outputSize.getHeight());
+            outputSize.first, outputSize.second);
 
     BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
         testId, /* bitmapLabel= */ "actual", actualBitmap);

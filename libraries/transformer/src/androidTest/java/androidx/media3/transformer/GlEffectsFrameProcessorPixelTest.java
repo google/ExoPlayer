@@ -32,7 +32,7 @@ import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.util.Size;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MimeTypes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -463,14 +463,14 @@ public final class GlEffectsFrameProcessorPixelTest {
     }
 
     @Override
-    public Size configure(int inputWidth, int inputHeight) {
+    public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
       adjustedTransformationMatrix = new Matrix();
       adjustedTransformationMatrix.postRotate(degrees);
       float inputAspectRatio = (float) inputWidth / inputHeight;
       adjustedTransformationMatrix.preScale(/* sx= */ inputAspectRatio, /* sy= */ 1f);
       adjustedTransformationMatrix.postScale(/* sx= */ 1f / inputAspectRatio, /* sy= */ 1f);
 
-      return new Size(inputWidth, inputHeight);
+      return Pair.create(inputWidth, inputHeight);
     }
 
     @Override

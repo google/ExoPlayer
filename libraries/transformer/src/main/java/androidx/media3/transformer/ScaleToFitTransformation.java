@@ -21,7 +21,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.graphics.Matrix;
-import android.util.Size;
+import android.util.Pair;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -105,14 +105,14 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
   }
 
   @Override
-  public Size configure(int inputWidth, int inputHeight) {
+  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
     adjustedTransformationMatrix = new Matrix(transformationMatrix);
 
     if (transformationMatrix.isIdentity()) {
-      return new Size(inputWidth, inputHeight);
+      return Pair.create(inputWidth, inputHeight);
     }
 
     float inputAspectRatio = (float) inputWidth / inputHeight;
@@ -141,7 +141,7 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
     float scaleX = (maxX - minX) / GlUtil.LENGTH_NDC;
     float scaleY = (maxY - minY) / GlUtil.LENGTH_NDC;
     adjustedTransformationMatrix.postScale(1f / scaleX, 1f / scaleY);
-    return new Size(Math.round(inputWidth * scaleX), Math.round(inputHeight * scaleY));
+    return Pair.create(Math.round(inputWidth * scaleX), Math.round(inputHeight * scaleY));
   }
 
   @Override
