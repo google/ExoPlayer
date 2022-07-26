@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -42,51 +43,48 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link FrameProcessor} implementation that applies {@link GlEffect} instances using OpenGL on a
  * background thread.
  */
-/* package */ final class GlEffectsFrameProcessor implements FrameProcessor {
+@UnstableApi
+public final class GlEffectsFrameProcessor implements FrameProcessor {
   // TODO(b/227625423): Replace factory method with setters once output surface and effects can be
   //  replaced.
 
-  /**
-   * Creates a new instance.
-   *
-   * @param context A {@link Context}.
-   * @param listener A {@link Listener}.
-   * @param effects The {@link GlEffect GlEffects} to apply to each frame.
-   * @param debugViewProvider A {@link DebugViewProvider}.
-   * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
-   *     EXT_YUV_target} OpenGL extension.
-   * @return A new instance.
-   * @throws FrameProcessingException If reading shader files fails, or an OpenGL error occurs while
-   *     creating and configuring the OpenGL components.
-   */
-  public static GlEffectsFrameProcessor create(
-      Context context,
-      FrameProcessor.Listener listener,
-      List<GlEffect> effects,
-      DebugViewProvider debugViewProvider,
-      boolean useHdr)
-      throws FrameProcessingException {
+  /** A factory for {@link GlEffectsFrameProcessor} instances. */
+  public static class Factory implements FrameProcessor.Factory {
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Using HDR requires the {@code EXT_YUV_target} OpenGL extension.
+     */
+    @Override
+    public GlEffectsFrameProcessor create(
+        Context context,
+        FrameProcessor.Listener listener,
+        List<GlEffect> effects,
+        DebugViewProvider debugViewProvider,
+        boolean useHdr)
+        throws FrameProcessingException {
 
-    ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
+      ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
 
-    Future<GlEffectsFrameProcessor> glFrameProcessorFuture =
-        singleThreadExecutorService.submit(
-            () ->
-                createOpenGlObjectsAndFrameProcessor(
-                    context,
-                    listener,
-                    effects,
-                    debugViewProvider,
-                    useHdr,
-                    singleThreadExecutorService));
+      Future<GlEffectsFrameProcessor> glFrameProcessorFuture =
+          singleThreadExecutorService.submit(
+              () ->
+                  createOpenGlObjectsAndFrameProcessor(
+                      context,
+                      listener,
+                      effects,
+                      debugViewProvider,
+                      useHdr,
+                      singleThreadExecutorService));
 
-    try {
-      return glFrameProcessorFuture.get();
-    } catch (ExecutionException e) {
-      throw new FrameProcessingException(e);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new FrameProcessingException(e);
+      try {
+        return glFrameProcessorFuture.get();
+      } catch (ExecutionException e) {
+        throw new FrameProcessingException(e);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new FrameProcessingException(e);
+      }
     }
   }
 
