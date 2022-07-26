@@ -356,32 +356,33 @@ public final class GlEffectsFrameProcessorPixelTest {
       int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       glEffectsFrameProcessor =
           checkNotNull(
-              GlEffectsFrameProcessor.create(
-                  context,
-                  new FrameProcessor.Listener() {
-                    @Override
-                    public void onOutputSizeChanged(int width, int height) {
-                      outputImageReader =
-                          ImageReader.newInstance(
-                              width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-                      checkNotNull(glEffectsFrameProcessor)
-                          .setOutputSurfaceInfo(
-                              new SurfaceInfo(outputImageReader.getSurface(), width, height));
-                    }
+              new GlEffectsFrameProcessor.Factory()
+                  .create(
+                      context,
+                      new FrameProcessor.Listener() {
+                        @Override
+                        public void onOutputSizeChanged(int width, int height) {
+                          outputImageReader =
+                              ImageReader.newInstance(
+                                  width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+                          checkNotNull(glEffectsFrameProcessor)
+                              .setOutputSurfaceInfo(
+                                  new SurfaceInfo(outputImageReader.getSurface(), width, height));
+                        }
 
-                    @Override
-                    public void onFrameProcessingError(FrameProcessingException exception) {
-                      frameProcessingException.set(exception);
-                    }
+                        @Override
+                        public void onFrameProcessingError(FrameProcessingException exception) {
+                          frameProcessingException.set(exception);
+                        }
 
-                    @Override
-                    public void onFrameProcessingEnded() {
-                      frameProcessingEnded = true;
-                    }
-                  },
-                  effects,
-                  DebugViewProvider.NONE,
-                  /* useHdr= */ false));
+                        @Override
+                        public void onFrameProcessingEnded() {
+                          frameProcessingEnded = true;
+                        }
+                      },
+                      effects,
+                      DebugViewProvider.NONE,
+                      /* useHdr= */ false));
       glEffectsFrameProcessor.setInputFrameInfo(
           new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio, /* streamOffsetUs= */ 0));
       glEffectsFrameProcessor.registerInputFrame();

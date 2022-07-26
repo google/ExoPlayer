@@ -39,6 +39,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final Context context;
   private final boolean clippingStartsAtKeyFrame;
   private final ImmutableList<GlEffect> effects;
+  private final FrameProcessor.Factory frameProcessorFactory;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
   private final DebugViewProvider debugViewProvider;
@@ -53,6 +54,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       TransformationRequest transformationRequest,
       boolean clippingStartsAtKeyFrame,
       ImmutableList<GlEffect> effects,
+      FrameProcessor.Factory frameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       Transformer.AsyncErrorListener asyncErrorListener,
@@ -68,6 +70,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.context = context;
     this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
     this.effects = effects;
+    this.frameProcessorFactory = frameProcessorFactory;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
@@ -113,6 +116,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               streamOffsetUs,
               transformationRequest,
               effects,
+              frameProcessorFactory,
               decoderFactory,
               encoderFactory,
               muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),

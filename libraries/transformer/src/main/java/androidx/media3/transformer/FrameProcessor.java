@@ -15,11 +15,51 @@
  */
 package androidx.media3.transformer;
 
+import android.content.Context;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.UnstableApi;
+import java.util.List;
 
-/** Interface for a frame processor that applies changes to individual video frames. */
-/* package */ interface FrameProcessor {
+/**
+ * Interface for a frame processor that applies changes to individual video frames.
+ *
+ * <p>The changes are specified by {@link GlEffect} instances passed to the {@link Factory}.
+ *
+ * <p>The frame processor manages its input {@link Surface} which can be accessed via {@link
+ * #getInputSurface()}. The output {@link Surface} must be set by the caller using {@link
+ * #setOutputSurfaceInfo(SurfaceInfo)}.
+ *
+ * <p>The caller must {@linkplain #registerInputFrame() register} input frames before rendering them
+ * to the input {@link Surface}.
+ */
+@UnstableApi
+public interface FrameProcessor {
+  // TODO(b/227625423): Allow effects to be replaced.
+
+  /** A factory for {@link FrameProcessor} instances. */
+  interface Factory {
+    /**
+     * Creates a new {@link FrameProcessor} instance.
+     *
+     * @param context A {@link Context}.
+     * @param listener A {@link Listener}.
+     * @param effects The {@link GlEffect} instances to apply to each frame.
+     * @param debugViewProvider A {@link DebugViewProvider}.
+     * @param useHdr Whether to process the input as an HDR signal.
+     * @return A new instance.
+     * @throws FrameProcessingException If a problem occurs while creating the {@link
+     *     FrameProcessor}.
+     */
+    FrameProcessor create(
+        Context context,
+        FrameProcessor.Listener listener,
+        List<GlEffect> effects,
+        DebugViewProvider debugViewProvider,
+        boolean useHdr)
+        throws FrameProcessingException;
+  }
+
   /**
    * Listener for asynchronous frame processing events.
    *
