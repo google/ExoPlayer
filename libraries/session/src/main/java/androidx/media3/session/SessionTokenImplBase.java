@@ -103,7 +103,7 @@ import java.lang.annotation.Target;
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(type, uid, packageName, serviceName);
+    return Objects.hashCode(uid, type, version, packageName, serviceName, componentName, iSession);
   }
 
   @Override
@@ -113,9 +113,11 @@ import java.lang.annotation.Target;
     }
     SessionTokenImplBase other = (SessionTokenImplBase) obj;
     return uid == other.uid
+        && type == other.type
+        && version == other.version
         && TextUtils.equals(packageName, other.packageName)
         && TextUtils.equals(serviceName, other.serviceName)
-        && type == other.type
+        && Util.areEqual(componentName, other.componentName)
         && Util.areEqual(iSession, other.iSession);
   }
 
