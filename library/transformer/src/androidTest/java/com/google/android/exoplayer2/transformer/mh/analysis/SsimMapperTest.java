@@ -36,6 +36,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndL
 import static com.google.android.exoplayer2.transformer.TransformationTestResult.SSIM_UNSET;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;
 import android.net.Uri;
@@ -45,13 +46,17 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +71,8 @@ import org.junit.runners.Parameterized.Parameters;
  */
 @RunWith(Parameterized.class)
 public class SsimMapperTest {
+
+  private static final Splitter FORWARD_SLASH_SPLITTER = Splitter.on('/');
 
   // When running this test, input file list should be restricted more than this. Binary search can
   // take up to 40 minutes to complete for a single clip on lower end devices.
@@ -88,25 +95,46 @@ public class SsimMapperTest {
           MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G);
 
   @Parameters
-  public static ImmutableList<String> parameters() {
-    return INPUT_FILES;
+  public static List<Object[]> parameters() {
+    List<Object[]> parameterList = new ArrayList<>();
+    for (String file : INPUT_FILES) {
+      parameterList.add(new Object[] {file, MimeTypes.VIDEO_H264});
+      // TODO(210593256): Test pre 24 once in-app muxing implemented.
+      if (Util.SDK_INT >= 24) {
+        parameterList.add(new Object[] {file, MimeTypes.VIDEO_H265});
+      }
+    }
+    return parameterList;
   }
 
-  @Parameter @Nullable public String fileUri;
+  @Parameter(0)
+  @Nullable
+  public String fileUri;
+
+  @Parameter(1)
+  @Nullable
+  public String mimeType;
 
   @Test
   public void findSsimMapping() throws Exception {
     String fileUri = checkNotNull(this.fileUri);
+    String mimeType = checkNotNull(this.mimeType);
+
+    String testIdPrefix =
+        String.format(
+            "ssim_search_VBR_%s", checkNotNull(getLast(FORWARD_SLASH_SPLITTER.split(mimeType))));
 
     if (skipAndLogIfInsufficientCodecSupport(
         ApplicationProvider.getApplicationContext(),
-        /* testId= */ "ssim_search_VBR_codecSupport",
+        testIdPrefix + "_codecSupport",
         /* decodingFormat= */ getFormatForTestFile(fileUri),
         /* encodingFormat= */ null)) {
       return;
     }
 
-    new SsimBinarySearcher(ApplicationProvider.getApplicationContext(), fileUri).search();
+    new SsimBinarySearcher(
+            ApplicationProvider.getApplicationContext(), testIdPrefix, fileUri, mimeType)
+        .search();
   }
 
   private static final class SsimBinarySearcher {
@@ -116,8 +144,10 @@ public class SsimMapperTest {
     private static final int MAX_TRANSFORMATIONS = 12;
 
     private final Context context;
+    private final String testIdPrefix;
     private final String videoUri;
     private final Format format;
+    private final String outputMimeType;
 
     private int transformationsLeft;
     private double ssimLowerBound;
@@ -129,11 +159,17 @@ public class SsimMapperTest {
      * Creates a new instance.
      *
      * @param context The {@link Context}.
+     * @param testIdPrefix The test ID prefix.
      * @param videoUri The URI of the video to transform.
+     * @param outputMimeType The video sample MIME type to output, see {@link
+     *     TransformationRequest.Builder#setVideoMimeType}.
      */
-    public SsimBinarySearcher(Context context, String videoUri) {
+    public SsimBinarySearcher(
+        Context context, String testIdPrefix, String videoUri, String outputMimeType) {
       this.context = context;
+      this.testIdPrefix = testIdPrefix;
       this.videoUri = videoUri;
+      this.outputMimeType = outputMimeType;
       transformationsLeft = MAX_TRANSFORMATIONS;
       format = AndroidTestUtil.getFormatForTestFile(videoUri);
     }
@@ -222,8 +258,8 @@ public class SsimMapperTest {
     private double transformAndGetSsim(int bitrate) throws Exception {
       // TODO(b/238094555): Force specific encoders to be used.
 
-      String fileName = checkNotNull(Iterables.getLast(Splitter.on("/").split(videoUri)));
-      String testId = String.format("ssim_search_%s_VBR_%s", bitrate, fileName);
+      String fileName = checkNotNull(getLast(FORWARD_SLASH_SPLITTER.split(videoUri)));
+      String testId = String.format("%s_%s_%s", testIdPrefix, bitrate, fileName);
 
       Map<String, Object> inputValues = new HashMap<>();
       inputValues.put("targetBitrate", bitrate);
@@ -236,6 +272,8 @@ public class SsimMapperTest {
       Transformer transformer =
           new Transformer.Builder(context)
               .setRemoveAudio(true)
+              .setTransformationRequest(
+                  new TransformationRequest.Builder().setVideoMimeType(outputMimeType).build())
               .setEncoderFactory(
                   new DefaultEncoderFactory.Builder(context)
                       .setRequestedVideoEncoderSettings(
@@ -243,6 +281,7 @@ public class SsimMapperTest {
                               .setBitrate(bitrate)
                               .setBitrateMode(BITRATE_MODE_VBR)
                               .build())
+                      .setEnableFallback(false)
                       .build())
               .build();
 
