@@ -242,23 +242,95 @@ public final class ExtractorAsserts {
     Context context = ApplicationProvider.getApplicationContext();
     byte[] fileData = TestUtil.getByteArray(context, file);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, false, false);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ false,
+        /* simulateUnknownLength= */ false,
+        /* simulatePartialReads= */ false);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, false, true);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ false,
+        /* simulateUnknownLength= */ false,
+        /* simulatePartialReads= */ true);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, true, false);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ false,
+        /* simulateUnknownLength= */ true,
+        /* simulatePartialReads= */ false);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, true, true);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ false,
+        /* simulateUnknownLength= */ true,
+        /* simulatePartialReads= */ true);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, false, false);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ true,
+        /* simulateUnknownLength= */ false,
+        /* simulatePartialReads= */ false);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, false, true);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ true,
+        /* simulateUnknownLength= */ false,
+        /* simulatePartialReads= */ true);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, true, false);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ true,
+        /* simulateUnknownLength= */ true,
+        /* simulatePartialReads= */ false);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, true, true);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ true,
+        /* simulateIOErrors= */ true,
+        /* simulateUnknownLength= */ true,
+        /* simulatePartialReads= */ true);
     assertOutput(
-        factory.create(), dumpFilesPrefix, fileData, context, false, false, false, false, false);
+        factory.create(),
+        dumpFilesPrefix,
+        fileData,
+        context,
+        /* deduplicateConsecutiveFormats= */ false,
+        /* sniffFirst= */ false,
+        /* simulateIOErrors= */ false,
+        /* simulateUnknownLength= */ false,
+        /* simulatePartialReads= */ false);
   }
 
   /**
