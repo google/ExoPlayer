@@ -38,15 +38,16 @@ import java.util.concurrent.Executors;
 
 /**
  * A simple bitmap loader that delegates all tasks to an executor and supports fetching images from
- * HTTP/HTTPS endpoints.
+ * {@code file} and {@code http}/{@code https} URIs.
  *
  * <p>Loading tasks are delegated to an {@link ExecutorService} (or {@link
  * ListeningExecutorService}) defined during construction. If no executor service is defined, all
  * tasks are delegated to a single-thread executor service that is shared between instances of this
  * class.
  *
- * <p>The supported URI scheme is only HTTP/HTTPS and this class reads a resource only when the
- * endpoint responds with an {@code HTTP 200} after sending the HTTP request.
+ * <p>The supported URIs schemes are {@code file} and {@code http}/{@code https}.
+ * For HTTP(S) transfers, this class reads a resource only when the endpoint responds
+ * with an {@code HTTP 200} after sending the HTTP request.
  */
 @UnstableApi
 public final class SimpleBitmapLoader implements BitmapLoader {
