@@ -46,21 +46,22 @@ import java.lang.annotation.Target;
 
   private final String serviceName;
 
-  @Nullable private final IBinder iSession;
-
   @Nullable private final ComponentName componentName;
+
+  @Nullable private final IBinder iSession;
 
   private final Bundle extras;
 
   public SessionTokenImplBase(ComponentName serviceComponent, int uid, int type) {
-    componentName = checkNotNull(serviceComponent);
-    packageName = serviceComponent.getPackageName();
-    serviceName = serviceComponent.getClassName();
-    this.uid = uid;
-    this.type = type;
-    version = 0;
-    iSession = null;
-    extras = Bundle.EMPTY;
+    this(
+        uid,
+        type,
+        /* version= */ 0,
+        checkNotNull(serviceComponent).getPackageName(),
+        /* serviceName= */ serviceComponent.getClassName(),
+        /* componentName= */ serviceComponent,
+        /* iSession= */ null,
+        /* extras= */ Bundle.EMPTY);
   }
 
   public SessionTokenImplBase(
@@ -70,14 +71,15 @@ import java.lang.annotation.Target;
       String packageName,
       IMediaSession iSession,
       Bundle tokenExtras) {
-    this.uid = uid;
-    this.type = type;
-    this.version = version;
-    this.packageName = packageName;
-    serviceName = "";
-    componentName = null;
-    this.iSession = iSession.asBinder();
-    extras = checkNotNull(tokenExtras);
+    this(
+        uid,
+        type,
+        version,
+        checkNotNull(packageName),
+        /* serviceName= */ "",
+        /* componentName= */ null,
+        iSession.asBinder(),
+        checkNotNull(tokenExtras));
   }
 
   private SessionTokenImplBase(

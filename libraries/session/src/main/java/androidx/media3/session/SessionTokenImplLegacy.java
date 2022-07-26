@@ -53,21 +53,23 @@ import java.lang.annotation.Target;
 
   public SessionTokenImplLegacy(
       MediaSessionCompat.Token token, String packageName, int uid, Bundle extras) {
-    legacyToken = checkNotNull(token);
-    this.uid = uid;
-    this.packageName = checkNotEmpty(packageName);
-    componentName = null;
-    type = TYPE_SESSION_LEGACY;
-    this.extras = checkNotNull(extras);
+    this(
+        checkNotNull(token),
+        uid,
+        TYPE_SESSION_LEGACY,
+        /* componentName= */ null,
+        checkNotEmpty(packageName),
+        checkNotNull(extras));
   }
 
   public SessionTokenImplLegacy(ComponentName serviceComponent, int uid) {
-    legacyToken = null;
-    this.uid = uid;
-    type = TYPE_BROWSER_SERVICE_LEGACY;
-    packageName = checkNotNull(serviceComponent).getPackageName();
-    componentName = serviceComponent;
-    extras = Bundle.EMPTY;
+    this(
+        /* legacyToken= */ null,
+        uid,
+        TYPE_BROWSER_SERVICE_LEGACY,
+        /* componentName= */ checkNotNull(serviceComponent),
+        /* packageName= */ serviceComponent.getPackageName(),
+        /* extras= */ Bundle.EMPTY);
   }
 
   private SessionTokenImplLegacy(
