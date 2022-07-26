@@ -61,7 +61,8 @@ public final class PresentationPixelTest {
   public static final String ASPECT_RATIO_STRETCH_TO_FIT_WIDE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/aspect_ratio_stretch_to_fit_wide.png";
 
-  private Context context = getApplicationContext();
+  private final Context context = getApplicationContext();
+
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlTextureProcessor presentationTextureProcessor;

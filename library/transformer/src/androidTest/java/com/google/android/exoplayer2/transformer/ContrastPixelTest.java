@@ -45,7 +45,7 @@ import org.junit.runner.RunWith;
  * as recommended in {@link GlEffectsFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
-public class ContrastProcessorPixelTest {
+public class ContrastPixelTest {
   private static final String EXOPLAYER_LOGO_PNG_ASSET_PATH =
       "media/bitmap/exoplayer_logo/original.png";
   // TODO(b/239005261): Migrate png to an emulator generated picture.
