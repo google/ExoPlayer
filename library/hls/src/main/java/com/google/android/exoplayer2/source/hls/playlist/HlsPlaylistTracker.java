@@ -176,6 +176,22 @@ public interface HlsPlaylistTracker {
   HlsMediaPlaylist getPlaylistSnapshot(Uri url, boolean isForPlayback);
 
   /**
+   * Returns the current snapshot of the playlist referenced by the provided {@link
+   * Uri} iff
+   * <ol>
+   *   <li>The playlist is current primary playlist</li>
+   *   <li>It has recently loaded (last load < the target duration * 2</li>
+   * </ol>
+   *
+   * @param url The {@link Uri} corresponding to the requested media playlist.
+   * @return Most recent snapshot of the primary playlist or null if the url is not the
+   *     current primary or it is not yet loaded.
+   */
+  @Nullable
+  HlsMediaPlaylist getFreshPrimaryPlaylist(Uri url);
+
+
+  /**
    * Returns the start time of the first loaded primary playlist, or {@link C#TIME_UNSET} if no
    * media playlist has been loaded.
    */

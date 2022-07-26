@@ -259,9 +259,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable
     HlsMediaPlaylist mediaPlaylist =
         selectedIndex < playlistUrls.length && selectedIndex != C.INDEX_UNSET
-            ? playlistTracker.getPlaylistSnapshot(
-                playlistUrls[trackSelection.getSelectedIndexInTrackGroup()],
-                /* isForPlayback= */ true)
+            ? playlistTracker.getFreshPrimaryPlaylist(playlistUrls[trackSelection.getSelectedIndexInTrackGroup()])
             : null;
 
     if (mediaPlaylist == null

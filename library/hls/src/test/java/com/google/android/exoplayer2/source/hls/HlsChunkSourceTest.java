@@ -74,7 +74,7 @@ public class HlsChunkSourceTest {
             ApplicationProvider.getApplicationContext(), PLAYLIST_INDEPENDENT_SEGMENTS);
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(PLAYLIST_URI, inputStream);
-    when(mockPlaylistTracker.getPlaylistSnapshot(eq(PLAYLIST_URI), anyBoolean()))
+    when(mockPlaylistTracker.getFreshPrimaryPlaylist(eq(PLAYLIST_URI)))
         .thenReturn(playlist);
 
     testChunkSource =
@@ -156,7 +156,7 @@ public class HlsChunkSourceTest {
         TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), PLAYLIST);
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(PLAYLIST_URI, inputStream);
-    when(mockPlaylistTracker.getPlaylistSnapshot(eq(PLAYLIST_URI), anyBoolean()))
+    when(mockPlaylistTracker.getFreshPrimaryPlaylist(eq(PLAYLIST_URI)))
         .thenReturn(playlist);
 
     long adjustedPositionUs =
@@ -172,7 +172,7 @@ public class HlsChunkSourceTest {
         TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), PLAYLIST_EMPTY);
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(PLAYLIST_URI, inputStream);
-    when(mockPlaylistTracker.getPlaylistSnapshot(eq(PLAYLIST_URI), anyBoolean()))
+    when(mockPlaylistTracker.getFreshPrimaryPlaylist(eq(PLAYLIST_URI)))
         .thenReturn(playlist);
 
     long adjustedPositionUs =
@@ -180,6 +180,13 @@ public class HlsChunkSourceTest {
             playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.EXACT);
 
     assertThat(periodTimeToPlaylistTimeUs(adjustedPositionUs)).isEqualTo(100_000_000);
+  }
+
+  @Test
+  public void getAdjustedSeekPositionUs_StalePlaylist() {
+    when(mockPlaylistTracker.getFreshPrimaryPlaylist(eq(PLAYLIST_URI))).thenReturn(null);
+    long adjusted = testChunkSource.getAdjustedSeekPositionUs(playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.CLOSEST_SYNC);
+    assertThat(periodTimeToPlaylistTimeUs(adjusted)).isEqualTo(100_000_000);
   }
 
   private static long playlistTimeToPeriodTimeUs(long playlistTimeUs) {

@@ -196,6 +196,15 @@ public final class DefaultHlsPlaylistTracker
     return snapshot;
   }
 
+  @Nullable
+  @Override
+  public HlsMediaPlaylist getFreshPrimaryPlaylist(Uri url) {
+    MediaPlaylistBundle playlistBundle = playlistBundles.get(url);
+    boolean isPrimary = url.equals(primaryMediaPlaylistUrl);
+    boolean isFresh = playlistBundle.isSnapshotFresh();
+    return isPrimary && isFresh ? playlistBundle.getPlaylistSnapshot() : null;
+  }
+
   @Override
   public long getInitialStartTimeUs() {
     return initialStartTimeUs;
@@ -548,6 +557,18 @@ public final class DefaultHlsPlaylistTracker
           || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
           || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
           || lastSnapshotLoadMs + snapshotValidityDurationMs > currentTimeMs;
+    }
+
+    public boolean isSnapshotFresh() {
+      if (playlistSnapshot == null) {
+        return false;
+      }
+      long currentTimeMs = SystemClock.elapsedRealtime();
+      long updateDelta = currentTimeMs - lastSnapshotLoadMs;
+      return playlistSnapshot.hasEndTag
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
+          || updateDelta <= C.usToMs(playlistSnapshot.targetDurationUs * 2);
     }
 
     public void loadPlaylist() {
