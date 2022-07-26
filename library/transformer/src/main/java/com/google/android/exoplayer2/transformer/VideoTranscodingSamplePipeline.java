@@ -58,6 +58,7 @@ import org.checkerframework.dataflow.qual.Pure;
       long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<GlEffect> effects,
+      FrameProcessor.Factory frameProcessorFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       List<String> allowedOutputMimeTypes,
@@ -102,7 +103,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
     try {
       frameProcessor =
-          GlEffectsFrameProcessor.create(
+          frameProcessorFactory.create(
               context,
               new FrameProcessor.Listener() {
                 @Override

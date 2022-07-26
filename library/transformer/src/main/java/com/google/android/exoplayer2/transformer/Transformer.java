@@ -102,6 +102,7 @@ public final class Transformer {
     private String containerMimeType;
     private TransformationRequest transformationRequest;
     private ImmutableList<GlEffect> videoEffects;
+    private FrameProcessor.Factory frameProcessorFactory;
     private ListenerSet<Transformer.Listener> listeners;
     private DebugViewProvider debugViewProvider;
     private Looper looper;
@@ -126,6 +127,7 @@ public final class Transformer {
       containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
       videoEffects = ImmutableList.of();
+      frameProcessorFactory = new GlEffectsFrameProcessor.Factory();
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
@@ -138,6 +140,7 @@ public final class Transformer {
       this.containerMimeType = transformer.containerMimeType;
       this.transformationRequest = transformer.transformationRequest;
       this.videoEffects = transformer.videoEffects;
+      this.frameProcessorFactory = transformer.frameProcessorFactory;
       this.listeners = transformer.listeners;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
@@ -178,6 +181,26 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder setVideoEffects(List<GlEffect> effects) {
       this.videoEffects = ImmutableList.copyOf(effects);
+      return this;
+    }
+
+    /**
+     * Sets the {@link FrameProcessor.Factory} for the {@link FrameProcessor} to use when applying
+     * {@linkplain GlEffect effects} to the video frames.
+     *
+     * <p>This factory will be used to create the {@link FrameProcessor} used for applying the
+     * {@link GlEffect} instances passed to {@link #setVideoEffects(List<GlEffect>)} and any
+     * additional {@link GlMatrixTransformation} instances derived from the {@link
+     * TransformationRequest} set using {@link #setTransformationRequest(TransformationRequest)}.
+     *
+     * <p>The default is {@link GlEffectsFrameProcessor.Factory}.
+     *
+     * @param frameProcessorFactory The {@link FrameProcessor.Factory} to use.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setFrameProcessorFactory(FrameProcessor.Factory frameProcessorFactory) {
+      this.frameProcessorFactory = frameProcessorFactory;
       return this;
     }
 
@@ -438,6 +461,7 @@ public final class Transformer {
           containerMimeType,
           transformationRequest,
           videoEffects,
+          frameProcessorFactory,
           listeners,
           looper,
           clock,
@@ -546,6 +570,7 @@ public final class Transformer {
   private final String containerMimeType;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<GlEffect> videoEffects;
+  private final FrameProcessor.Factory frameProcessorFactory;
   private final Looper looper;
   private final Clock clock;
   private final DebugViewProvider debugViewProvider;
@@ -567,6 +592,7 @@ public final class Transformer {
       String containerMimeType,
       TransformationRequest transformationRequest,
       ImmutableList<GlEffect> videoEffects,
+      FrameProcessor.Factory frameProcessorFactory,
       ListenerSet<Transformer.Listener> listeners,
       Looper looper,
       Clock clock,
@@ -582,6 +608,7 @@ public final class Transformer {
     this.containerMimeType = containerMimeType;
     this.transformationRequest = transformationRequest;
     this.videoEffects = videoEffects;
+    this.frameProcessorFactory = frameProcessorFactory;
     this.listeners = listeners;
     this.looper = looper;
     this.clock = clock;
@@ -731,6 +758,7 @@ public final class Transformer {
                     transformationRequest,
                     mediaItem.clippingConfiguration.startsAtKeyFrame,
                     videoEffects,
+                    frameProcessorFactory,
                     encoderFactory,
                     decoderFactory,
                     new FallbackListener(mediaItem, listeners, transformationRequest),
@@ -845,6 +873,7 @@ public final class Transformer {
     private final TransformationRequest transformationRequest;
     private final boolean clippingStartsAtKeyFrame;
     private final ImmutableList<GlEffect> videoEffects;
+    private final FrameProcessor.Factory frameProcessorFactory;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final FallbackListener fallbackListener;
@@ -859,6 +888,7 @@ public final class Transformer {
         TransformationRequest transformationRequest,
         boolean clippingStartsAtKeyFrame,
         ImmutableList<GlEffect> videoEffects,
+        FrameProcessor.Factory frameProcessorFactory,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         FallbackListener fallbackListener,
@@ -871,6 +901,7 @@ public final class Transformer {
       this.transformationRequest = transformationRequest;
       this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
       this.videoEffects = videoEffects;
+      this.frameProcessorFactory = frameProcessorFactory;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.fallbackListener = fallbackListener;
@@ -910,6 +941,7 @@ public final class Transformer {
                 transformationRequest,
                 clippingStartsAtKeyFrame,
                 videoEffects,
+                frameProcessorFactory,
                 encoderFactory,
                 decoderFactory,
                 asyncErrorListener,
