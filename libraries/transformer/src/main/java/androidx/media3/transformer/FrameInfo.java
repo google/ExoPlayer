@@ -17,8 +17,11 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 
+import androidx.media3.common.util.UnstableApi;
+
 /** Value class specifying information about a decoded video frame. */
-/* package */ class FrameInfo {
+@UnstableApi
+public class FrameInfo {
   /** The width of the frame, in pixels. */
   public final int width;
   /** The height of the frame, in pixels. */
