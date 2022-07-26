@@ -54,6 +54,7 @@ public final class MatrixTransformationProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/rotate90.png";
 
   private final Context context = getApplicationContext();
+
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTransformationFrameProcessor;
