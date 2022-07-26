@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 /** Value class specifying information about a decoded video frame. */
-/* package */ class FrameInfo {
+public class FrameInfo {
   /** The width of the frame, in pixels. */
   public final int width;
   /** The height of the frame, in pixels. */
