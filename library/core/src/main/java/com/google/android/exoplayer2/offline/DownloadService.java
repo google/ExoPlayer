@@ -170,9 +170,11 @@ public abstract class DownloadService extends Service {
 
   private static final String TAG = "DownloadService";
 
-  // Keep a DownloadManagerHelper for each DownloadService as long as the process is running. The
-  // helper is needed to restart the DownloadService when there's no scheduler. Even when there is a
-  // scheduler, the DownloadManagerHelper is typically able to restart the DownloadService faster.
+  // Maps each concrete DownloadService subclass to a single DownloadManagerHelper instance. This
+  // ensures getDownloadManager is only called once per subclass, even if a new instance of the
+  // service is created. The DownloadManagerHelper wrapper also takes care of restarting the service
+  // when there's no scheduler, and is often able to restart the service faster than the scheduler
+  // even when there is one.
   private static final HashMap<Class<? extends DownloadService>, DownloadManagerHelper>
       downloadManagerHelpers = new HashMap<>();
 
@@ -710,8 +712,11 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Returns a {@link DownloadManager} to be used to downloaded content. Called only once in the
-   * life cycle of the process.
+   * Returns a {@link DownloadManager} to be used to downloaded content. For each concrete download
+   * service subclass, this is called once in the lifecycle of the process when {@link #onCreate} is
+   * called on the first instance of the service. If the service is destroyed and a new instance is
+   * created later, the new instance will use the previously returned {@link DownloadManager}
+   * without this method being called again.
    */
   protected abstract DownloadManager getDownloadManager();
 
