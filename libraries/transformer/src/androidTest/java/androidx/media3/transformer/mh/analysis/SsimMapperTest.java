@@ -27,12 +27,20 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1920W_1080H
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_ONEPLUSNORD2;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_1920W_1080H_60_FPS_30_SECOND_ROOF_REDMINOTE9;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_2400W_1080H_34_SECOND_ROOF_SAMSUNGS20ULTRA5G;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_ONEPLUSNORD2;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_3840W_2160H_30_SECOND_ROOF_REDMINOTE9;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_3840W_2160H_32_SECOND_HIGHMOTION;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_3840W_2160H_5_SECOND_HIGHMOTION;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
 import static androidx.media3.transformer.AndroidTestUtil.getFormatForTestFile;
 import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfInsufficientCodecSupport;
 import static androidx.media3.transformer.TransformationTestResult.SSIM_UNSET;
@@ -78,6 +86,14 @@ public class SsimMapperTest {
   // take up to 40 minutes to complete for a single clip on lower end devices.
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
+          MP4_REMOTE_256W_144H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED,
+          MP4_REMOTE_256W_144H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED,
+          MP4_REMOTE_426W_240H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED,
+          MP4_REMOTE_426W_240H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED,
+          MP4_REMOTE_640W_360H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED,
+          MP4_REMOTE_640W_360H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED,
+          MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED,
+          MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED,
           MP4_REMOTE_640W_480H_31_SECOND_ROOF_SONYXPERIAXZ3,
           MP4_REMOTE_1280W_720H_5_SECOND_HIGHMOTION,
           MP4_REMOTE_1280W_720H_30_SECOND_HIGHMOTION,
