@@ -19,9 +19,11 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.UnstableApi;
 
 /** Immutable value class for a {@link Surface} and supporting information. */
-/* package */ final class SurfaceInfo {
+@UnstableApi
+public final class SurfaceInfo {
 
   /** The {@link Surface}. */
   public final Surface surface;
