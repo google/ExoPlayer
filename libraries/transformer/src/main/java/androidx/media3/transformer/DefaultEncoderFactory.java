@@ -224,7 +224,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     @Nullable
     VideoEncoderQueryResult encoderAndClosestFormatSupport =
-        findEncoderWithClosestFormatSupport(
+        findEncoderWithClosestSupportedFormat(
             format,
             requestedVideoEncoderSettings,
             videoEncoderSelector,
@@ -342,14 +342,15 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   }
 
   /**
-   * Finds an {@linkplain MediaCodecInfo encoder} that supports the requested format most closely.
+   * Finds an {@linkplain MediaCodecInfo encoder} that supports a format closest to the requested
+   * format.
    *
    * <p>Returns the {@linkplain MediaCodecInfo encoder} and the supported {@link Format} in a {@link
    * Pair}, or {@code null} if none is found.
    */
   @RequiresNonNull("#1.sampleMimeType")
   @Nullable
-  private static VideoEncoderQueryResult findEncoderWithClosestFormatSupport(
+  private static VideoEncoderQueryResult findEncoderWithClosestSupportedFormat(
       Format requestedFormat,
       VideoEncoderSettings videoEncoderSettings,
       EncoderSelector encoderSelector,
