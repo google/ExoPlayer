@@ -21,7 +21,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 
 /** Immutable value class for a {@link Surface} and supporting information. */
-/* package */ final class SurfaceInfo {
+public final class SurfaceInfo {
 
   /** The {@link Surface}. */
   public final Surface surface;
