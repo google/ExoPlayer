@@ -52,7 +52,8 @@ public final class CropPixelTest {
   public static final String CROP_LARGER_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/crop_larger.png";
 
-  private Context context = getApplicationContext();
+  private final Context context = getApplicationContext();
+
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlTextureProcessor cropTextureProcessor;
