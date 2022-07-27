@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.Contrast;
 import com.google.android.exoplayer2.transformer.DebugViewProvider;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.Effect;
 import com.google.android.exoplayer2.transformer.GlEffect;
 import com.google.android.exoplayer2.transformer.GlTextureProcessor;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
@@ -265,7 +266,7 @@ public final class TransformerActivity extends AppCompatActivity {
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
                   .build());
 
-      ImmutableList.Builder<GlEffect> effects = new ImmutableList.Builder<>();
+      ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
       @Nullable
       boolean[] selectedEffects =
           bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
@@ -281,43 +282,45 @@ public final class TransformerActivity extends AppCompatActivity {
                 clazz.getConstructor(
                     Context.class, Boolean.class, String.class, String.class, String.class);
             effects.add(
-                (Context context, boolean useHdr) -> {
-                  try {
-                    return (GlTextureProcessor)
-                        constructor.newInstance(
-                            context,
-                            useHdr,
-                            /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
-                            /* inputStreamName= */ "input_video",
-                            /* outputStreamName= */ "output_video");
-                  } catch (Exception e) {
-                    runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
-                    throw new RuntimeException("Failed to load MediaPipe processor", e);
-                  }
-                });
+                (GlEffect)
+                    (Context context, boolean useHdr) -> {
+                      try {
+                        return (GlTextureProcessor)
+                            constructor.newInstance(
+                                context,
+                                useHdr,
+                                /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
+                                /* inputStreamName= */ "input_video",
+                                /* outputStreamName= */ "output_video");
+                      } catch (Exception e) {
+                        runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
+                        throw new RuntimeException("Failed to load MediaPipe processor", e);
+                      }
+                    });
           } catch (Exception e) {
             showToast(R.string.no_media_pipe_error);
           }
         }
         if (selectedEffects[2]) {
           effects.add(
-              (Context context, boolean useHdr) ->
-                  new PeriodicVignetteProcessor(
-                      context,
-                      useHdr,
-                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
-                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
-                      /* minInnerRadius= */ bundle.getFloat(
-                          ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
-                      /* maxInnerRadius= */ bundle.getFloat(
-                          ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
-                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
+              (GlEffect)
+                  (Context context, boolean useHdr) ->
+                      new PeriodicVignetteProcessor(
+                          context,
+                          useHdr,
+                          bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                          bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                          /* minInnerRadius= */ bundle.getFloat(
+                              ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                          /* maxInnerRadius= */ bundle.getFloat(
+                              ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                          bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
         if (selectedEffects[3]) {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
         if (selectedEffects[4]) {
-          effects.add(BitmapOverlayProcessor::new);
+          effects.add((GlEffect) BitmapOverlayProcessor::new);
         }
         if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());

@@ -57,7 +57,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Format inputFormat,
       long streamOffsetUs,
       TransformationRequest transformationRequest,
-      ImmutableList<GlEffect> effects,
+      ImmutableList<Effect> effects,
       FrameProcessor.Factory frameProcessorFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -78,8 +78,8 @@ import org.checkerframework.dataflow.qual.Pure;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
 
-    ImmutableList.Builder<GlEffect> effectsListBuilder =
-        new ImmutableList.Builder<GlEffect>().addAll(effects);
+    ImmutableList.Builder<Effect> effectsListBuilder =
+        new ImmutableList.Builder<Effect>().addAll(effects);
     if (transformationRequest.scaleX != 1f
         || transformationRequest.scaleY != 1f
         || transformationRequest.rotationDegrees != 0f) {
@@ -136,7 +136,7 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               // HDR is only used if the MediaCodec encoder supports FEATURE_HdrEditing. This
               // implies that the OpenGL EXT_YUV_target extension is supported and hence the
-              // GlEffectsFrameProcessor also supports HDR.
+              // default FrameProcessor, GlEffectsFrameProcessor, also supports HDR.
               /* useHdr= */ encoderWrapper.isHdrEditingEnabled());
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessingException(

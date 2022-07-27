@@ -295,7 +295,7 @@ public final class GlEffectsFrameProcessorPixelTest {
         "processData_withManyComposedMatrixTransformations_producesSameOutputAsCombinedTransformation";
     Crop centerCrop =
         new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
-    ImmutableList.Builder<GlEffect> full10StepRotationAndCenterCrop = new ImmutableList.Builder<>();
+    ImmutableList.Builder<Effect> full10StepRotationAndCenterCrop = new ImmutableList.Builder<>();
     for (int i = 0; i < 10; i++) {
       full10StepRotationAndCenterCrop.add(new Rotation(/* degrees= */ 36));
     }
@@ -336,7 +336,7 @@ public final class GlEffectsFrameProcessorPixelTest {
     setUpAndPrepareFirstFrame(pixelWidthHeightRatio, asList(effects));
   }
 
-  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, List<GlEffect> effects)
+  private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, List<Effect> effects)
       throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();

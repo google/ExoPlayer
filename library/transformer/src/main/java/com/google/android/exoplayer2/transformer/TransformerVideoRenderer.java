@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final Context context;
   private final boolean clippingStartsAtKeyFrame;
-  private final ImmutableList<GlEffect> effects;
+  private final ImmutableList<Effect> effects;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
@@ -53,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
       boolean clippingStartsAtKeyFrame,
-      ImmutableList<GlEffect> effects,
+      ImmutableList<Effect> effects,
       FrameProcessor.Factory frameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,

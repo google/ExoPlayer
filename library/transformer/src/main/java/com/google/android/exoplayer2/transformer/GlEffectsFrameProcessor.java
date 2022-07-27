@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
@@ -51,13 +52,15 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     /**
      * {@inheritDoc}
      *
+     * <p>All {@link Effect} instances must be {@link GlEffect} instances.
+     *
      * <p>Using HDR requires the {@code EXT_YUV_target} OpenGL extension.
      */
     @Override
     public GlEffectsFrameProcessor create(
         Context context,
         FrameProcessor.Listener listener,
-        List<GlEffect> effects,
+        List<Effect> effects,
         DebugViewProvider debugViewProvider,
         boolean useHdr)
         throws FrameProcessingException {
@@ -91,6 +94,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * GlTextureProcessor} instances corresponding to the {@link GlEffect} instances, and returns a
    * new {@code GlEffectsFrameProcessor}.
    *
+   * <p>All {@link Effect} instances must be {@link GlEffect} instances.
+   *
    * <p>This method must be executed using the {@code singleThreadExecutorService}, as later OpenGL
    * commands will be called on that thread.
    */
@@ -98,7 +103,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private static GlEffectsFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
       FrameProcessor.Listener listener,
-      List<GlEffect> effects,
+      List<Effect> effects,
       DebugViewProvider debugViewProvider,
       boolean useHdr,
       ExecutorService singleThreadExecutorService)
@@ -140,13 +145,15 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    * MatrixTransformationProcessor} and converts all other {@link GlEffect} instances to separate
    * {@link GlTextureProcessor} instances.
    *
+   * <p>All {@link Effect} instances must be {@link GlEffect} instances.
+   *
    * @return A non-empty list of {@link GlTextureProcessor} instances to apply in the given order.
    *     The first is an {@link ExternalTextureProcessor} and the last is a {@link
    *     FinalMatrixTransformationProcessorWrapper}.
    */
   private static ImmutableList<GlTextureProcessor> getGlTextureProcessorsForGlEffects(
       Context context,
-      List<GlEffect> effects,
+      List<Effect> effects,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       FrameProcessor.Listener listener,
@@ -159,9 +166,11 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         new ImmutableList.Builder<>();
     boolean sampleFromExternalTexture = true;
     for (int i = 0; i < effects.size(); i++) {
-      GlEffect effect = effects.get(i);
-      if (effect instanceof GlMatrixTransformation) {
-        matrixTransformationListBuilder.add((GlMatrixTransformation) effect);
+      Effect effect = effects.get(i);
+      checkArgument(effect instanceof GlEffect, "GlEffectsFrameProcessor only supports GlEffects");
+      GlEffect glEffect = (GlEffect) effect;
+      if (glEffect instanceof GlMatrixTransformation) {
+        matrixTransformationListBuilder.add((GlMatrixTransformation) glEffect);
         continue;
       }
       ImmutableList<GlMatrixTransformation> matrixTransformations =
@@ -177,7 +186,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
-      textureProcessorListBuilder.add(effect.toGlTextureProcessor(context, useHdr));
+      textureProcessorListBuilder.add(glEffect.toGlTextureProcessor(context, useHdr));
     }
     textureProcessorListBuilder.add(
         new FinalMatrixTransformationProcessorWrapper(

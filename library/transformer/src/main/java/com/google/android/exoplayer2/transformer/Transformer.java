@@ -101,7 +101,7 @@ public final class Transformer {
     private boolean removeVideo;
     private String containerMimeType;
     private TransformationRequest transformationRequest;
-    private ImmutableList<GlEffect> videoEffects;
+    private ImmutableList<Effect> videoEffects;
     private FrameProcessor.Factory frameProcessorFactory;
     private ListenerSet<Transformer.Listener> listeners;
     private DebugViewProvider debugViewProvider;
@@ -166,32 +166,36 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@linkplain GlEffect effects} to apply to each video frame.
+     * Sets the {@link Effect} instances to apply to each video frame.
      *
-     * <p>The {@linkplain GlEffect effects} are applied before any {@linkplain
+     * <p>The {@link Effect} instances are applied before any {@linkplain
      * TransformationRequest.Builder#setScale(float, float) scale}, {@linkplain
      * TransformationRequest.Builder#setRotationDegrees(float) rotation}, or {@linkplain
      * TransformationRequest.Builder#setResolution(int) resolution} changes specified in the {@link
      * #setTransformationRequest(TransformationRequest) TransformationRequest} but after {@linkplain
      * TransformationRequest.Builder#setFlattenForSlowMotion(boolean) slow-motion flattening}.
      *
-     * @param effects The {@linkplain GlEffect effects} to apply to each video frame.
+     * <p>The default {@link FrameProcessor} only supports {@link GlEffect} instances. To use other
+     * effects, call {@link #setFrameProcessorFactory(FrameProcessor.Factory)} with a custom {@link
+     * FrameProcessor.Factory}.
+     *
+     * @param effects The {@link Effect} instances to apply to each video frame.
      * @return This builder.
      */
     @CanIgnoreReturnValue
-    public Builder setVideoEffects(List<GlEffect> effects) {
+    public Builder setVideoEffects(List<Effect> effects) {
       this.videoEffects = ImmutableList.copyOf(effects);
       return this;
     }
 
     /**
      * Sets the {@link FrameProcessor.Factory} for the {@link FrameProcessor} to use when applying
-     * {@linkplain GlEffect effects} to the video frames.
+     * {@linkplain Effect effects} to the video frames.
      *
      * <p>This factory will be used to create the {@link FrameProcessor} used for applying the
-     * {@link GlEffect} instances passed to {@link #setVideoEffects(List<GlEffect>)} and any
-     * additional {@link GlMatrixTransformation} instances derived from the {@link
-     * TransformationRequest} set using {@link #setTransformationRequest(TransformationRequest)}.
+     * {@link Effect} instances passed to {@link #setVideoEffects(List<Effect>)} and any additional
+     * {@link GlMatrixTransformation} instances derived from the {@link TransformationRequest} set
+     * using {@link #setTransformationRequest(TransformationRequest)}.
      *
      * <p>The default is {@link GlEffectsFrameProcessor.Factory}.
      *
@@ -569,7 +573,7 @@ public final class Transformer {
   private final boolean removeVideo;
   private final String containerMimeType;
   private final TransformationRequest transformationRequest;
-  private final ImmutableList<GlEffect> videoEffects;
+  private final ImmutableList<Effect> videoEffects;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final Looper looper;
   private final Clock clock;
@@ -591,7 +595,7 @@ public final class Transformer {
       boolean removeVideo,
       String containerMimeType,
       TransformationRequest transformationRequest,
-      ImmutableList<GlEffect> videoEffects,
+      ImmutableList<Effect> videoEffects,
       FrameProcessor.Factory frameProcessorFactory,
       ListenerSet<Transformer.Listener> listeners,
       Looper looper,
@@ -872,7 +876,7 @@ public final class Transformer {
     private final boolean removeVideo;
     private final TransformationRequest transformationRequest;
     private final boolean clippingStartsAtKeyFrame;
-    private final ImmutableList<GlEffect> videoEffects;
+    private final ImmutableList<Effect> videoEffects;
     private final FrameProcessor.Factory frameProcessorFactory;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
@@ -887,7 +891,7 @@ public final class Transformer {
         boolean removeVideo,
         TransformationRequest transformationRequest,
         boolean clippingStartsAtKeyFrame,
-        ImmutableList<GlEffect> videoEffects,
+        ImmutableList<Effect> videoEffects,
         FrameProcessor.Factory frameProcessorFactory,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
