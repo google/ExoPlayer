@@ -24,7 +24,7 @@ import android.content.Context;
  * #toGlTextureProcessor(Context, boolean) converted} to a {@link GlTextureProcessor} which applies
  * the effect.
  */
-public interface GlEffect {
+public interface GlEffect extends Effect {
 
   /**
    * Returns a {@link SingleFrameGlTextureProcessor} that applies the effect.

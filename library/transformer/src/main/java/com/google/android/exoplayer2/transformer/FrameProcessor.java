@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Interface for a frame processor that applies changes to individual video frames.
  *
- * <p>The changes are specified by {@link GlEffect} instances passed to the {@link Factory}.
+ * <p>The changes are specified by {@link Effect} instances passed to the {@link Factory}.
  *
  * <p>The frame processor manages its input {@link Surface} which can be accessed via {@link
  * #getInputSurface()}. The output {@link Surface} must be set by the caller using {@link
@@ -42,7 +42,7 @@ public interface FrameProcessor {
      *
      * @param context A {@link Context}.
      * @param listener A {@link Listener}.
-     * @param effects The {@link GlEffect} instances to apply to each frame.
+     * @param effects The {@link Effect} instances to apply to each frame.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param useHdr Whether to process the input as an HDR signal.
      * @return A new instance.
@@ -52,7 +52,7 @@ public interface FrameProcessor {
     FrameProcessor create(
         Context context,
         FrameProcessor.Listener listener,
-        List<GlEffect> effects,
+        List<Effect> effects,
         DebugViewProvider debugViewProvider,
         boolean useHdr)
         throws FrameProcessingException;
