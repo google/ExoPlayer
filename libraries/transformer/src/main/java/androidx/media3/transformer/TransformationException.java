@@ -70,8 +70,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODING_FAILED,
         ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
         ERROR_CODE_HDR_EDITING_UNSUPPORTED,
-        ERROR_CODE_GL_INIT_FAILED,
-        ERROR_CODE_GL_PROCESSING_FAILED,
+        ERROR_CODE_FRAME_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
       })
   public @interface ErrorCode {}
@@ -157,10 +156,8 @@ public final class TransformationException extends Exception {
 
   // Video editing errors (5xxx).
 
-  /** Caused by a GL initialization failure. */
-  public static final int ERROR_CODE_GL_INIT_FAILED = 5001;
-  /** Caused by a failure while using or releasing a GL program. */
-  public static final int ERROR_CODE_GL_PROCESSING_FAILED = 5002;
+  /** Caused by a frame processing failure. */
+  public static final int ERROR_CODE_FRAME_PROCESSING_FAILED = 5001;
 
   // Muxing errors (6xxx).
   /** Caused by a failure while muxing media samples. */
@@ -185,8 +182,7 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
           .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
           .put("ERROR_CODE_HDR_EDITING_UNSUPPORTED", ERROR_CODE_HDR_EDITING_UNSUPPORTED)
-          .put("ERROR_CODE_GL_INIT_FAILED", ERROR_CODE_GL_INIT_FAILED)
-          .put("ERROR_CODE_GL_PROCESSING_FAILED", ERROR_CODE_GL_PROCESSING_FAILED)
+          .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
 
@@ -204,7 +200,7 @@ public final class TransformationException extends Exception {
    * Equivalent to {@link TransformationException#getErrorCodeName(int)
    * TransformationException.getErrorCodeName(this.errorCode)}.
    */
-  public final String getErrorCodeName() {
+  public String getErrorCodeName() {
     return getErrorCodeName(errorCode);
   }
 
