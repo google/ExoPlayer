@@ -26,7 +26,7 @@ import androidx.media3.common.util.UnstableApi;
  * the effect.
  */
 @UnstableApi
-public interface GlEffect {
+public interface GlEffect extends Effect {
 
   /**
    * Returns a {@link SingleFrameGlTextureProcessor} that applies the effect.
