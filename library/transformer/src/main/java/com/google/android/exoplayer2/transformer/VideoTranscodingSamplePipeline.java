@@ -120,7 +120,7 @@ import org.checkerframework.dataflow.qual.Pure;
                 public void onFrameProcessingError(FrameProcessingException exception) {
                   asyncErrorListener.onTransformationException(
                       TransformationException.createForFrameProcessingException(
-                          exception, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED));
+                          exception, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED));
                 }
 
                 @Override
@@ -140,7 +140,7 @@ import org.checkerframework.dataflow.qual.Pure;
               /* useHdr= */ encoderWrapper.isHdrEditingEnabled());
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessingException(
-          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
+          e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
     }
     frameProcessor.setInputFrameInfo(
         new FrameInfo(
