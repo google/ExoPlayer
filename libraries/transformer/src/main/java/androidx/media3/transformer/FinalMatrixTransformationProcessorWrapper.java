@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * GlTextureProcessor} instances used by {@link FrameProcessor}.
  */
 /* package */ final class FinalMatrixTransformationProcessorWrapper
-    implements GlTextureProcessor, ExternalTextureProcessor {
+    implements ExternalTextureProcessor {
 
   private static final String TAG = "FinalProcessorWrapper";
 
