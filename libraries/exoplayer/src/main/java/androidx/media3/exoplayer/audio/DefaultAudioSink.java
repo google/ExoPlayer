@@ -30,6 +30,7 @@ import android.media.AudioTrack;
 import android.media.PlaybackParams;
 import android.media.metrics.LogSessionId;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.DoNotInline;
@@ -1904,7 +1905,7 @@ public final class DefaultAudioSink implements AudioSink {
     private final AudioTrack.StreamEventCallback callback;
 
     public StreamEventCallbackV29() {
-      handler = new Handler();
+      handler = new Handler(Looper.myLooper());
       // Avoid StreamEventCallbackV29 inheriting directly from AudioTrack.StreamEventCallback as it
       // would cause a NoClassDefFoundError warning on load of DefaultAudioSink for SDK < 29.
       // See: https://github.com/google/ExoPlayer/issues/8058
@@ -1912,7 +1913,10 @@ public final class DefaultAudioSink implements AudioSink {
           new AudioTrack.StreamEventCallback() {
             @Override
             public void onDataRequest(AudioTrack track, int size) {
-              Assertions.checkState(track == audioTrack);
+              if (!track.equals(audioTrack)) {
+                // Stale event.
+                return;
+              }
               if (listener != null && playing) {
                 // Do not signal that the buffer is emptying if not playing as it is a transient
                 // state.
@@ -1922,7 +1926,10 @@ public final class DefaultAudioSink implements AudioSink {
 
             @Override
             public void onTearDown(AudioTrack track) {
-              Assertions.checkState(track == audioTrack);
+              if (!track.equals(audioTrack)) {
+                // Stale event.
+                return;
+              }
               if (listener != null && playing) {
                 // The audio track was destroyed while in use. Thus a new AudioTrack needs to be
                 // created and its buffer filled, which will be done on the next handleBuffer call.
