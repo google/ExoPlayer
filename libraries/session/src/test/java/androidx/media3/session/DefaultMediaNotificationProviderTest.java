@@ -535,7 +535,7 @@ public class DefaultMediaNotificationProviderTest {
     when(mockMediaSession.getPlayer()).thenReturn(mockPlayer);
     MediaSessionImpl mockMediaSessionImpl = mock(MediaSessionImpl.class);
     when(mockMediaSession.getImpl()).thenReturn(mockMediaSessionImpl);
-    when(mockMediaSessionImpl.getUri()).thenReturn(Uri.parse("http://example.com"));
+    when(mockMediaSessionImpl.getUri()).thenReturn(Uri.parse("https://example.test"));
     return mockMediaSession;
   }
 
