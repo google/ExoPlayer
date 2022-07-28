@@ -38,6 +38,7 @@ dependencies {
     implementation project(modulePrefix + 'lib-session')
     implementation project(modulePrefix + 'test-session-common')
     implementation 'androidx.media:media:' + androidxMediaVersion
+    androidTestImplementation project(modulePrefix + 'lib-exoplayer')
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     androidTestImplementation 'androidx.test.ext:truth:' + androidxTestTruthVersion
     androidTestImplementation 'androidx.test:core:' + androidxTestCoreVersion

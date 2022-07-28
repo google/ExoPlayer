@@ -162,6 +162,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   public static final String TAG = "MCImplBase";
 
+  private static final long RELEASE_TIMEOUT_MS = 30_000;
+
   private final MediaController instance;
   protected final SequencedFutureManager sequencedFutureManager;
   protected final MediaControllerStub controllerStub;
@@ -315,14 +317,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     released = true;
-    if (serviceConnection != null) {
-      context.unbindService(serviceConnection);
-      serviceConnection = null;
-    }
     connectedToken = null;
     flushCommandQueueHandler.release();
     this.iSession = null;
-    controllerStub.destroy();
     if (iSession != null) {
       int seq = sequencedFutureManager.obtainNextSequenceNumber();
       try {
@@ -332,8 +329,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         // No-op.
       }
     }
-    sequencedFutureManager.release();
     listeners.release();
+    sequencedFutureManager.lazyRelease(
+        RELEASE_TIMEOUT_MS,
+        () -> {
+          if (serviceConnection != null) {
+            context.unbindService(serviceConnection);
+            serviceConnection = null;
+          }
+          controllerStub.destroy();
+        });
   }
 
   @Override
