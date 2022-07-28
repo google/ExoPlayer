@@ -969,7 +969,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           && ituTT35TerminalProviderCode == 0x003C
           && ituTT35TerminalProviderOrientedCode == 0x0001
           && applicationIdentifier == 4
-          && applicationVersion == 0) {
+          && (applicationVersion == 0 || applicationVersion == 1)) {
         // The metadata size may vary so allocate a new array every time. This is not too
         // inefficient because the metadata is only a few tens of bytes.
         byte[] hdr10PlusInfo = new byte[data.remaining()];
