@@ -369,6 +369,7 @@ import java.util.concurrent.ExecutionException;
   public void connect(
       IMediaController caller,
       int controllerVersion,
+      int controllerInterfaceVersion,
       String callingPackage,
       int pid,
       int uid,
@@ -379,6 +380,7 @@ import java.util.concurrent.ExecutionException;
         new ControllerInfo(
             remoteUserInfo,
             controllerVersion,
+            controllerInterfaceVersion,
             sessionManager.isTrustedForMediaControl(remoteUserInfo),
             new Controller2Cb(caller),
             connectionHints);
@@ -529,7 +531,14 @@ import java.util.concurrent.ExecutionException;
     // If it's the case, use PID from the ConnectionRequest.
     int pid = (callingPid != 0) ? callingPid : request.pid;
     try {
-      connect(caller, request.version, request.packageName, pid, uid, request.connectionHints);
+      connect(
+          caller,
+          request.libraryVersion,
+          request.controllerInterfaceVersion,
+          request.packageName,
+          pid,
+          uid,
+          request.connectionHints);
     } finally {
       Binder.restoreCallingIdentity(token);
     }

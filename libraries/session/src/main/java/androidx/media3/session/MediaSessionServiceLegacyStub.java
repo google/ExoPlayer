@@ -96,6 +96,7 @@ import java.util.concurrent.atomic.AtomicReference;
     return new ControllerInfo(
         info,
         ControllerInfo.LEGACY_CONTROLLER_VERSION,
+        ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
         manager.isTrustedForMediaControl(info),
         /* cb= */ null,
         /* connectionHints= */ Bundle.EMPTY);

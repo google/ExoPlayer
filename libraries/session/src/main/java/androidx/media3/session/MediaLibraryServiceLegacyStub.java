@@ -321,6 +321,7 @@ import java.util.concurrent.atomic.AtomicReference;
     return new ControllerInfo(
         remoteUserInfo,
         ControllerInfo.LEGACY_CONTROLLER_VERSION,
+        ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
         getMediaSessionManager().isTrustedForMediaControl(remoteUserInfo),
         new BrowserLegacyCb(remoteUserInfo),
         /* connectionHints= */ Bundle.EMPTY);

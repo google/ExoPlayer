@@ -35,6 +35,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private static final String TAG = "MediaControllerStub";
 
+  /** The version of the IMediaController interface. */
+  public static final int VERSION_INT = 1;
+
   private final WeakReference<MediaControllerImplBase> controller;
 
   public MediaControllerStub(MediaControllerImplBase controller) {

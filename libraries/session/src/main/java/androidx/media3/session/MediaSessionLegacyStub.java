@@ -650,6 +650,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           new ControllerInfo(
               remoteUserInfo,
               ControllerInfo.LEGACY_CONTROLLER_VERSION,
+              ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
               sessionManager.isTrustedForMediaControl(remoteUserInfo),
               controllerCb,
               /* connectionHints= */ Bundle.EMPTY);
