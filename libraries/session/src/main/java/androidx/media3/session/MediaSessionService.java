@@ -516,7 +516,8 @@ public abstract class MediaSessionService extends Service {
                 ControllerInfo controllerInfo =
                     new ControllerInfo(
                         remoteUserInfo,
-                        /* controllerVersion= */ request.version,
+                        request.libraryVersion,
+                        request.controllerInterfaceVersion,
                         isTrusted,
                         /* cb= */ null,
                         request.connectionHints);
@@ -533,7 +534,8 @@ public abstract class MediaSessionService extends Service {
 
                   session.handleControllerConnectionFromService(
                       caller,
-                      request.version,
+                      request.libraryVersion,
+                      request.controllerInterfaceVersion,
                       request.packageName,
                       pid,
                       uid,

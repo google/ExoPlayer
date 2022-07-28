@@ -325,9 +325,12 @@ public class MediaSession {
 
     /** The {@linkplain #getControllerVersion() controller version} of legacy controllers. */
     public static final int LEGACY_CONTROLLER_VERSION = 0;
+    /** The {@linkplain #getInterfaceVersion()} interface version} of legacy controllers. */
+    @UnstableApi public static final int LEGACY_CONTROLLER_INTERFACE_VERSION = 0;
 
     private final RemoteUserInfo remoteUserInfo;
-    private final int controllerVersion;
+    private final int libraryVersion;
+    private final int interfaceVersion;
     private final boolean isTrusted;
     @Nullable private final ControllerCb controllerCb;
     private final Bundle connectionHints;
@@ -344,12 +347,14 @@ public class MediaSession {
      */
     /* package */ ControllerInfo(
         RemoteUserInfo remoteUserInfo,
-        int controllerVersion,
+        int libraryVersion,
+        int interfaceVersion,
         boolean trusted,
         @Nullable ControllerCb cb,
         Bundle connectionHints) {
       this.remoteUserInfo = remoteUserInfo;
-      this.controllerVersion = controllerVersion;
+      this.libraryVersion = libraryVersion;
+      this.interfaceVersion = interfaceVersion;
       isTrusted = trusted;
       controllerCb = cb;
       this.connectionHints = connectionHints;
@@ -366,7 +371,13 @@ public class MediaSession {
      * than {@code 1000000} if the controller is a legacy controller.
      */
     public int getControllerVersion() {
-      return controllerVersion;
+      return libraryVersion;
+    }
+
+    /** Returns the interface version of the controller, or 0 if it's a legacy controller. */
+    @UnstableApi
+    public int getInterfaceVersion() {
+      return interfaceVersion;
     }
 
     /**
@@ -459,6 +470,7 @@ public class MediaSession {
       return new ControllerInfo(
           legacyRemoteUserInfo,
           ControllerInfo.LEGACY_CONTROLLER_VERSION,
+          ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
           /* trusted= */ false,
           /* cb= */ null,
           /* connectionHints= */ Bundle.EMPTY);
@@ -780,11 +792,19 @@ public class MediaSession {
   /* package */ void handleControllerConnectionFromService(
       IMediaController controller,
       int controllerVersion,
+      int controllerInterfaceVersion,
       String packageName,
       int pid,
       int uid,
       Bundle connectionHints) {
-    impl.connectFromService(controller, controllerVersion, packageName, pid, uid, connectionHints);
+    impl.connectFromService(
+        controller,
+        controllerVersion,
+        controllerInterfaceVersion,
+        packageName,
+        pid,
+        uid,
+        connectionHints);
   }
 
   /* package */ IBinder getLegacyBrowserServiceBinder() {

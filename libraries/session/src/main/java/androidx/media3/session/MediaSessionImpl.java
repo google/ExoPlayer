@@ -476,12 +476,19 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   public void connectFromService(
       IMediaController caller,
       int controllerVersion,
+      int controllerInterfaceVersion,
       String packageName,
       int pid,
       int uid,
       Bundle connectionHints) {
     sessionStub.connect(
-        caller, controllerVersion, packageName, pid, uid, checkStateNotNull(connectionHints));
+        caller,
+        controllerVersion,
+        controllerInterfaceVersion,
+        packageName,
+        pid,
+        uid,
+        checkStateNotNull(connectionHints));
   }
 
   public MediaSessionCompat getSessionCompat() {
