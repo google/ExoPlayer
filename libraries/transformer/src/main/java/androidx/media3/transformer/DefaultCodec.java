@@ -32,6 +32,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -317,7 +318,7 @@ public final class DefaultCodec implements Codec {
     }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = getFormat(mediaCodec.getOutputFormat());
+        outputFormat = convertToFormat(mediaCodec.getOutputFormat());
         if (!isColorTransferEqual(configuredOutputColor, outputFormat.colorInfo)) {
           // TODO(b/237674316): These exceptions throw when the container ColorInfo doesn't match
           //  the video ColorInfo. Instead of throwing when seeing unexpected ColorInfos, consider
@@ -412,7 +413,7 @@ public final class DefaultCodec implements Codec {
     return TransformationException.createForUnexpected(cause);
   }
 
-  private static Format getFormat(MediaFormat mediaFormat) {
+  private static Format convertToFormat(MediaFormat mediaFormat) {
     ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
     int csdIndex = 0;
     while (true) {
@@ -432,7 +433,7 @@ public final class DefaultCodec implements Codec {
       formatBuilder
           .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
           .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
-          .setColorInfo(getColorInfo(mediaFormat));
+          .setColorInfo(MediaFormatUtil.getColorInfo(mediaFormat));
     } else if (MimeTypes.isAudio(mimeType)) {
       // TODO(b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
       // simulate more realistic codec input/output formats in tests.
@@ -471,35 +472,5 @@ public final class DefaultCodec implements Codec {
     // Frame dropping is never desired, so a workaround is needed for older API levels.
     return SDK_INT < 29
         || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
-  }
-
-  @Nullable
-  private static ColorInfo getColorInfo(MediaFormat mediaFormat) {
-    if (SDK_INT < 29) {
-      return null;
-    }
-    // TODO(b/227624622): Set hdrStaticInfo accordingly using KEY_HDR_STATIC_INFO.
-    int colorSpace = mediaFormat.getInteger(MediaFormat.KEY_COLOR_STANDARD, Format.NO_VALUE);
-    int colorRange = mediaFormat.getInteger(MediaFormat.KEY_COLOR_RANGE, Format.NO_VALUE);
-    int colorTransfer = mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER, Format.NO_VALUE);
-    if (colorSpace != C.COLOR_SPACE_BT709
-        && colorSpace != C.COLOR_SPACE_BT601
-        && colorSpace != C.COLOR_SPACE_BT2020
-        && colorSpace != Format.NO_VALUE) {
-      return null;
-    }
-    if (colorRange != C.COLOR_RANGE_LIMITED
-        && colorRange != C.COLOR_RANGE_FULL
-        && colorRange != Format.NO_VALUE) {
-      return null;
-    }
-    if (colorTransfer != C.COLOR_TRANSFER_SDR
-        && colorTransfer != C.COLOR_TRANSFER_ST2084
-        && colorTransfer != C.COLOR_TRANSFER_HLG
-        && colorTransfer != Format.NO_VALUE) {
-      return null;
-    }
-
-    return new ColorInfo(colorSpace, colorRange, colorTransfer, /* hdrStaticInfo= */ null);
   }
 }
