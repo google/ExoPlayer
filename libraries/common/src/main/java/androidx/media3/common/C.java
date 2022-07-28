@@ -1044,6 +1044,7 @@ public final class C {
    */
   @UnstableApi public static final int STEREO_MODE_STEREO_MESH = 3;
 
+  // LINT.IfChange(color_space)
   /**
    * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT709}, {@link
    * #COLOR_SPACE_BT601} or {@link #COLOR_SPACE_BT2020}.
@@ -1067,6 +1068,7 @@ public final class C {
    */
   @UnstableApi public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
 
+  // LINT.IfChange(color_transfer)
   /**
    * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
    * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
@@ -1090,6 +1092,7 @@ public final class C {
    */
   @UnstableApi public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
+  // LINT.IfChange(color_range)
   /**
    * Video color range. One of {@link Format#NO_VALUE}, {@link #COLOR_RANGE_LIMITED} or {@link
    * #COLOR_RANGE_FULL}.

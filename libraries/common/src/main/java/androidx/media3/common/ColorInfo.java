@@ -77,7 +77,9 @@ public final class ColorInfo implements Bundleable {
 
   /** Returns whether the {@code ColorInfo} uses an HDR {@link C.ColorTransfer}. */
   public static boolean isHdr(@Nullable ColorInfo colorInfo) {
-    return colorInfo != null && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
+    return colorInfo != null
+        && colorInfo.colorTransfer != Format.NO_VALUE
+        && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
   }
 
   /**
