@@ -15,10 +15,14 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
+import android.os.Handler;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Util;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -38,6 +42,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @GuardedBy("lock")
   private final ArrayMap<Integer, SequencedFuture<?>> seqToFutureMap;
+
+  @GuardedBy("lock")
+  @Nullable
+  private Runnable pendingLazyReleaseCallback;
+
+  @GuardedBy("lock")
+  @Nullable
+  private Handler releaseCallbackHandler;
+
+  @GuardedBy("lock")
+  private boolean isReleased;
 
   public SequencedFutureManager() {
     lock = new Object();
@@ -66,7 +81,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     synchronized (lock) {
       int seq = obtainNextSequenceNumber();
       SequencedFuture<T> result = SequencedFuture.create(seq, resultWhenClosed);
-      seqToFutureMap.put(seq, result);
+      if (isReleased) {
+        result.setWithTheValueOfResultWhenClosed();
+      } else {
+        seqToFutureMap.put(seq, result);
+      }
       return result;
     }
   }
@@ -94,17 +113,39 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                   + result.getClass());
         }
       }
+      if (pendingLazyReleaseCallback != null && seqToFutureMap.isEmpty()) {
+        release();
+      }
     }
   }
 
   public void release() {
     List<SequencedFuture<?>> pendingResults;
     synchronized (lock) {
+      isReleased = true;
       pendingResults = new ArrayList<>(seqToFutureMap.values());
       seqToFutureMap.clear();
+      if (pendingLazyReleaseCallback != null) {
+        checkNotNull(releaseCallbackHandler).post(pendingLazyReleaseCallback);
+        pendingLazyReleaseCallback = null;
+        releaseCallbackHandler = null;
+      }
     }
     for (SequencedFuture<?> result : pendingResults) {
       result.setWithTheValueOfResultWhenClosed();
+    }
+  }
+
+  public void lazyRelease(long timeoutMs, Runnable releaseCallback) {
+    synchronized (lock) {
+      Handler releaseCallbackHandler = Util.createHandlerForCurrentLooper();
+      this.releaseCallbackHandler = releaseCallbackHandler;
+      pendingLazyReleaseCallback = releaseCallback;
+      if (seqToFutureMap.isEmpty()) {
+        release();
+      } else {
+        releaseCallbackHandler.postDelayed(this::release, timeoutMs);
+      }
     }
   }
 

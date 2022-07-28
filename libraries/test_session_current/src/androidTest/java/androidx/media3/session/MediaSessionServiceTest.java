@@ -25,8 +25,12 @@ import static org.junit.Assert.assertThrows;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -34,11 +38,14 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -77,6 +84,65 @@ public class MediaSessionServiceTest {
   @After
   public void cleanUp() {
     TestServiceRegistry.getInstance().cleanUp();
+  }
+
+  @Test
+  public void controllerRelease_keepsControllerBoundUntilCommandsHandled() throws Exception {
+    TestServiceRegistry testServiceRegistry = TestServiceRegistry.getInstance();
+    ConditionVariable mediaItemsAdded = new ConditionVariable();
+    AtomicBoolean controllerBoundWhenMediaItemsAdded = new AtomicBoolean(false);
+    testServiceRegistry.setOnGetSessionHandler(
+        controllerInfo -> {
+          // Save bound state at the point where media items are added and listeners are informed.
+          MockMediaSessionService service =
+              (MockMediaSessionService) testServiceRegistry.getServiceInstance();
+          Player player = new ExoPlayer.Builder(service).build();
+          player.addListener(
+              new Player.Listener() {
+                @Override
+                public void onEvents(Player player, Player.Events events) {
+                  if (events.contains(Player.EVENT_TIMELINE_CHANGED)
+                      && !player.getCurrentTimeline().isEmpty()) {
+                    controllerBoundWhenMediaItemsAdded.set(service.hasBoundController());
+                    mediaItemsAdded.open();
+                  }
+                }
+              });
+          // Add short delay for resolving media items.
+          return new MediaSession.Builder(service, player)
+              .setCallback(
+                  new MediaSession.Callback() {
+                    @Override
+                    public ListenableFuture<List<MediaItem>> onAddMediaItems(
+                        MediaSession mediaSession,
+                        ControllerInfo controller,
+                        List<MediaItem> mediaItems) {
+                      SettableFuture<List<MediaItem>> future = SettableFuture.create();
+                      MediaItem playableItem =
+                          mediaItems.get(0).buildUpon().setUri("https://test.test").build();
+                      new Handler(Looper.myLooper())
+                          .postDelayed(
+                              () -> future.set(ImmutableList.of(playableItem)),
+                              /* delayMillis= */ 500);
+                      return future;
+                    }
+                  })
+              .build();
+        });
+    RemoteMediaController controller =
+        controllerTestRule.createRemoteController(
+            token, /* waitForConnection= */ true, /* connectionHints= */ null);
+    MockMediaSessionService service =
+        (MockMediaSessionService) testServiceRegistry.getServiceInstance();
+
+    // Add items and release controller immediately.
+    controller.addMediaItem(new MediaItem.Builder().setMediaId("media_id").build());
+    controller.release();
+
+    // Assert controller is still bound when command is fully handled and unbound after that.
+    mediaItemsAdded.block(TIMEOUT_MS);
+    assertThat(controllerBoundWhenMediaItemsAdded.get()).isEqualTo(true);
+    service.blockUntilAllControllersUnbind(TIMEOUT_MS);
   }
 
   /**

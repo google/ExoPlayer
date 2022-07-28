@@ -17,11 +17,17 @@ package androidx.media3.session;
 
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 
+import android.content.Intent;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** A mock MediaSessionService */
 @UnstableApi
@@ -29,8 +35,37 @@ public class MockMediaSessionService extends MediaSessionService {
   /** ID of the session that this service will create. */
   public static final String ID = "TestSession";
 
+  private final AtomicInteger boundControllerCount;
+
   public MediaSession session;
+
   private HandlerThread handlerThread;
+  private ConditionVariable allControllersUnbound;
+
+  public MockMediaSessionService() {
+    boundControllerCount = new AtomicInteger(/* initialValue= */ 0);
+    allControllersUnbound = new ConditionVariable();
+    allControllersUnbound.open();
+  }
+
+  /** Returns whether at least one controller is bound to this service. */
+  public boolean hasBoundController() {
+    return !allControllersUnbound.isOpen();
+  }
+
+  /**
+   * Blocks until all bound controllers unbind.
+   *
+   * @param timeoutMs The block timeout in milliseconds.
+   * @throws TimeoutException If the block timed out.
+   * @throws InterruptedException If the block was interrupted.
+   */
+  public void blockUntilAllControllersUnbind(long timeoutMs)
+      throws TimeoutException, InterruptedException {
+    if (!allControllersUnbound.block(timeoutMs)) {
+      throw new TimeoutException();
+    }
+  }
 
   @Override
   public void onCreate() {
@@ -38,6 +73,21 @@ public class MockMediaSessionService extends MediaSessionService {
     super.onCreate();
     handlerThread = new HandlerThread("MockMediaSessionService");
     handlerThread.start();
+  }
+
+  @Override
+  public IBinder onBind(@Nullable Intent intent) {
+    boundControllerCount.incrementAndGet();
+    allControllersUnbound.close();
+    return super.onBind(intent);
+  }
+
+  @Override
+  public boolean onUnbind(Intent intent) {
+    if (boundControllerCount.decrementAndGet() == 0) {
+      allControllersUnbound.open();
+    }
+    return super.onUnbind(intent);
   }
 
   @Override

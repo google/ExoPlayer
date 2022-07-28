@@ -98,8 +98,10 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
  * {@link MediaSession} in it. {@link MediaSessionService} will provide a session to connect.
  *
  * <p>When you're done, use {@link #releaseFuture(Future)} or {@link #release()} to clean up
- * resources. This also helps session service to be destroyed when there's no controller associated
- * with it.
+ * resources. This also helps the session service to be destroyed when there's no controller
+ * associated with it. Releasing the controller will still deliver all pending commands sent to the
+ * session and only unbind from the session service once these commands have been handled, or after
+ * a timeout of {@link #RELEASE_UNBIND_TIMEOUT_MS}.
  *
  * <h2 id="ThreadingModel">Threading Model</h2>
  *
@@ -160,6 +162,12 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
  * session.
  */
 public class MediaController implements Player {
+
+  /**
+   * The timeout for handling pending commands after calling {@link #release()}. If the timeout is
+   * reached, the controller is unbound from the session service even if commands are still pending.
+   */
+  @UnstableApi public static final long RELEASE_UNBIND_TIMEOUT_MS = 30_000;
 
   private static final String TAG = "MediaController";
 
