@@ -1024,22 +1024,22 @@ public final class C {
 
   // LINT.IfChange(color_space)
   /**
-   * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT709}, {@link
-   * #COLOR_SPACE_BT601} or {@link #COLOR_SPACE_BT2020}.
+   * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT601}, {@link
+   * #COLOR_SPACE_BT709} or {@link #COLOR_SPACE_BT2020}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
+  @IntDef({Format.NO_VALUE, COLOR_SPACE_BT601, COLOR_SPACE_BT709, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT709
-   */
-  public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
   /**
    * @see MediaFormat#COLOR_STANDARD_BT601_PAL
    */
   public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT709
+   */
+  public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
   /**
    * @see MediaFormat#COLOR_STANDARD_BT2020
    */
