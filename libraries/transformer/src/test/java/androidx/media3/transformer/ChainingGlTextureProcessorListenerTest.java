@@ -20,6 +20,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.After;

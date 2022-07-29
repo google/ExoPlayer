@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import android.util.Pair;
 import androidx.annotation.CallSuper;
+import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;

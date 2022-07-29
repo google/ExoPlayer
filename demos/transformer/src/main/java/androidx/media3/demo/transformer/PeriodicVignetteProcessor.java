@@ -20,9 +20,9 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Pair;
+import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
-import androidx.media3.transformer.FrameProcessingException;
 import androidx.media3.transformer.SingleFrameGlTextureProcessor;
 import java.io.IOException;
 

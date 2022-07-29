@@ -16,6 +16,8 @@
 package androidx.media3.transformer;
 
 import android.content.Context;
+import androidx.media3.common.Effect;
+import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
 /**

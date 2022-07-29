@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
+import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
 /** A {@link GlEffect} to control the contrast of video frames. */
