@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -36,9 +37,14 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTransformationTest {
   @Test
-  public void videoDecoderUnexpectedColorInfo_completesWithError() {
+  public void videoDecoderUnexpectedColorInfo_completesWithError() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    if (Util.SDK_INT < 24) {
+    if (Util.SDK_INT < 29) {
+      recordTestSkipped(
+          context,
+          "SetHdrEditingTransformationTest",
+          /* reason= */ "Skipping on this API version due to lack of support for"
+              + " MediaFormat#getInteger(String, int).");
       return;
     }
 
