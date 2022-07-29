@@ -24,6 +24,7 @@ import static androidx.media3.common.util.Util.SDK_INT;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -327,7 +328,7 @@ public final class DefaultCodec implements Codec {
           throw createTransformationException(
               new IllegalStateException(
                   "Codec output color format does not match configured color format. Configured: "
-                      + configurationFormat.colorInfo
+                      + configuredOutputColor
                       + ". Actual: "
                       + outputFormat.colorInfo));
         }
@@ -445,6 +446,7 @@ public final class DefaultCodec implements Codec {
     return formatBuilder.build();
   }
 
+  /** Calls and traces {@link MediaCodec#configure(MediaFormat, Surface, MediaCrypto, int)}. */
   private static void configureCodec(
       MediaCodec codec,
       MediaFormat mediaFormat,
@@ -459,6 +461,7 @@ public final class DefaultCodec implements Codec {
     TraceUtil.endSection();
   }
 
+  /** Calls and traces {@link MediaCodec#start()}. */
   private static void startCodec(MediaCodec codec) {
     TraceUtil.beginSection("startCodec");
     codec.start();

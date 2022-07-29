@@ -303,8 +303,8 @@ public final class MediaFormatUtil {
   /** Whether this is a valid {@link C.ColorSpace} instance. */
   private static boolean isValidColorSpace(int colorSpace) {
     // LINT.IfChange(color_space)
-    return colorSpace == C.COLOR_SPACE_BT709
-        || colorSpace == C.COLOR_SPACE_BT601
+    return colorSpace == C.COLOR_SPACE_BT601
+        || colorSpace == C.COLOR_SPACE_BT709
         || colorSpace == C.COLOR_SPACE_BT2020
         || colorSpace == Format.NO_VALUE;
   }
