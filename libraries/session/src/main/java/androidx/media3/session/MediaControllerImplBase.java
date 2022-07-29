@@ -2326,7 +2326,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         new SessionToken(
             token.getUid(),
             TYPE_SESSION,
-            result.version,
+            result.libraryVersion,
+            result.sessionInterfaceVersion,
             token.getPackageName(),
             result.sessionBinder,
             result.tokenExtras);

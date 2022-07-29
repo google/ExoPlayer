@@ -37,7 +37,9 @@ import java.lang.annotation.Target;
  */
 /* package */ class ConnectionState implements Bundleable {
 
-  public final int version;
+  public final int libraryVersion;
+
+  public final int sessionInterfaceVersion;
 
   public final IMediaSession sessionBinder;
 
@@ -54,7 +56,8 @@ import java.lang.annotation.Target;
   public final PlayerInfo playerInfo;
 
   public ConnectionState(
-      int version,
+      int libraryVersion,
+      int sessionInterfaceVersion,
       IMediaSession sessionBinder,
       @Nullable PendingIntent sessionActivity,
       SessionCommands sessionCommands,
@@ -62,7 +65,8 @@ import java.lang.annotation.Target;
       Player.Commands playerCommandsFromPlayer,
       Bundle tokenExtras,
       PlayerInfo playerInfo) {
-    this.version = version;
+    this.libraryVersion = libraryVersion;
+    this.sessionInterfaceVersion = sessionInterfaceVersion;
     this.sessionBinder = sessionBinder;
     this.sessionCommands = sessionCommands;
     this.playerCommandsFromSession = playerCommandsFromSession;
@@ -78,7 +82,7 @@ import java.lang.annotation.Target;
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
-    FIELD_VERSION,
+    FIELD_LIBRARY_VERSION,
     FIELD_SESSION_BINDER,
     FIELD_SESSION_ACTIVITY,
     FIELD_SESSION_COMMANDS,
@@ -86,10 +90,11 @@ import java.lang.annotation.Target;
     FIELD_PLAYER_COMMANDS_FROM_PLAYER,
     FIELD_TOKEN_EXTRAS,
     FIELD_PLAYER_INFO,
+    FIELD_SESSION_INTERFACE_VERSION,
   })
   private @interface FieldNumber {}
 
-  private static final int FIELD_VERSION = 0;
+  private static final int FIELD_LIBRARY_VERSION = 0;
   private static final int FIELD_SESSION_BINDER = 1;
   private static final int FIELD_SESSION_ACTIVITY = 2;
   private static final int FIELD_SESSION_COMMANDS = 3;
@@ -97,12 +102,13 @@ import java.lang.annotation.Target;
   private static final int FIELD_PLAYER_COMMANDS_FROM_PLAYER = 5;
   private static final int FIELD_TOKEN_EXTRAS = 6;
   private static final int FIELD_PLAYER_INFO = 7;
-  // Next field key = 8
+  private static final int FIELD_SESSION_INTERFACE_VERSION = 8;
+  // Next field key = 9
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_VERSION), version);
+    bundle.putInt(keyForField(FIELD_LIBRARY_VERSION), libraryVersion);
     BundleCompat.putBinder(bundle, keyForField(FIELD_SESSION_BINDER), sessionBinder.asBinder());
     bundle.putParcelable(keyForField(FIELD_SESSION_ACTIVITY), sessionActivity);
     bundle.putBundle(keyForField(FIELD_SESSION_COMMANDS), sessionCommands.toBundle());
@@ -124,6 +130,7 @@ import java.lang.annotation.Target;
             /* excludeTimeline= */ false,
             /* excludeTracks= */ !playerCommandsFromPlayer.contains(Player.COMMAND_GET_TRACKS)
                 || !playerCommandsFromSession.contains(Player.COMMAND_GET_TRACKS)));
+    bundle.putInt(keyForField(FIELD_SESSION_INTERFACE_VERSION), sessionInterfaceVersion);
     return bundle;
   }
 
@@ -131,7 +138,9 @@ import java.lang.annotation.Target;
   public static final Creator<ConnectionState> CREATOR = ConnectionState::fromBundle;
 
   private static ConnectionState fromBundle(Bundle bundle) {
-    int version = bundle.getInt(keyForField(FIELD_VERSION), /* defaultValue= */ 0);
+    int libraryVersion = bundle.getInt(keyForField(FIELD_LIBRARY_VERSION), /* defaultValue= */ 0);
+    int sessionInterfaceVersion =
+        bundle.getInt(keyForField(FIELD_SESSION_INTERFACE_VERSION), /* defaultValue= */ 0);
     IBinder sessionBinder =
         checkNotNull(BundleCompat.getBinder(bundle, keyForField(FIELD_SESSION_BINDER)));
     @Nullable
@@ -162,7 +171,8 @@ import java.lang.annotation.Target;
             ? PlayerInfo.DEFAULT
             : PlayerInfo.CREATOR.fromBundle(playerInfoBundle);
     return new ConnectionState(
-        version,
+        libraryVersion,
+        sessionInterfaceVersion,
         IMediaSession.Stub.asInterface(sessionBinder),
         sessionActivity,
         sessionCommands,
