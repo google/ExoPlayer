@@ -212,6 +212,8 @@ public final class MediaFormatUtil {
     @Nullable
     byte[] hdrStaticInfo =
         hdrStaticInfoByteBuffer != null ? getArray(hdrStaticInfoByteBuffer) : null;
+    // Some devices may produce invalid values from MediaFormat#getInteger.
+    // See b/239435670 for more information.
     if (!isValidColorSpace(colorSpace)) {
       colorSpace = Format.NO_VALUE;
     }
