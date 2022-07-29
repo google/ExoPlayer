@@ -21,6 +21,9 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
+import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.Effect;
+import androidx.media3.common.FrameProcessor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;

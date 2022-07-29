@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import androidx.media3.common.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 
 /**

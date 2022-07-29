@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import androidx.media3.common.FrameProcessingException;
+
 /**
  * Processes frames from one OpenGL 2D texture to another.
  *

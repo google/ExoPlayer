@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
-
-import com.google.android.exoplayer2.C;
+package androidx.media3.common;
 
 /** Thrown when an exception occurs while applying effects to video frames. */
 public final class FrameProcessingException extends Exception {

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import android.util.Pair;
 import androidx.annotation.CallSuper;
+import androidx.media3.common.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;

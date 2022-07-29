@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
+import androidx.media3.common.FrameProcessingException;
 
 /** A {@link GlEffect} to control the contrast of video frames. */
 public class Contrast implements GlEffect {

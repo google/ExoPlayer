@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import android.content.Context;
 import android.opengl.Matrix;
 import android.util.Pair;
+import androidx.media3.common.FrameProcessingException;
 
 /**
  * Specifies a 4x4 transformation {@link Matrix} to apply in the vertex shader for each frame.

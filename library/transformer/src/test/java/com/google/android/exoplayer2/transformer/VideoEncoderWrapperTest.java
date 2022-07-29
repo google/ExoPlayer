@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import android.net.Uri;
 import android.os.Looper;
+import androidx.media3.common.SurfaceInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
