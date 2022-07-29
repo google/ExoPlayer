@@ -320,7 +320,7 @@ public final class DefaultCodec implements Codec {
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
         outputFormat = convertToFormat(mediaCodec.getOutputFormat());
-        if (!isColorTransferEqual(configuredOutputColor, outputFormat.colorInfo)) {
+        if (!areColorTransfersEqual(configuredOutputColor, outputFormat.colorInfo)) {
           // TODO(b/237674316): These exceptions throw when the container ColorInfo doesn't match
           //  the video ColorInfo. Instead of throwing when seeing unexpected ColorInfos, consider
           //  reconfiguring downstream components (ex. FrameProcessor and encoder) when different
@@ -374,12 +374,16 @@ public final class DefaultCodec implements Codec {
             : TransformationException.ERROR_CODE_ENCODING_FAILED);
   }
 
-  private static boolean isColorTransferEqual(
+  private static boolean areColorTransfersEqual(
       @Nullable ColorInfo colorInfo1, @Nullable ColorInfo colorInfo2) {
-    @C.ColorTransfer
-    int transfer1 = (colorInfo1 != null) ? colorInfo1.colorTransfer : C.COLOR_TRANSFER_SDR;
-    @C.ColorTransfer
-    int transfer2 = (colorInfo2 != null) ? colorInfo2.colorTransfer : C.COLOR_TRANSFER_SDR;
+    @C.ColorTransfer int transfer1 = C.COLOR_TRANSFER_SDR;
+    if (colorInfo1 != null && colorInfo1.colorTransfer != Format.NO_VALUE) {
+      transfer1 = colorInfo1.colorTransfer;
+    }
+    @C.ColorTransfer int transfer2 = C.COLOR_TRANSFER_SDR;
+    if (colorInfo2 != null && colorInfo2.colorTransfer != Format.NO_VALUE) {
+      transfer2 = colorInfo2.colorTransfer;
+    }
     return transfer1 == transfer2;
   }
 
