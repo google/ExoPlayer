@@ -403,7 +403,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   /**
    * Expands or shrinks the frame based on the {@link FrameInfo#pixelWidthHeightRatio} and returns a
    * new {@link FrameInfo} instance with scaled dimensions and {@link
-   * FrameInfo#pixelWidthHeightRatio} 1.
+   * FrameInfo#pixelWidthHeightRatio} of {@code 1}.
    */
   private FrameInfo adjustForPixelWidthHeightRatio(FrameInfo frameInfo) {
     if (frameInfo.pixelWidthHeightRatio > 1f) {
