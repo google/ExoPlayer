@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.transformer;
 
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.FrameProcessor;
 import java.util.ArrayDeque;
 import java.util.Queue;
 

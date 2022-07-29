@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.transformer;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.FrameProcessor;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;

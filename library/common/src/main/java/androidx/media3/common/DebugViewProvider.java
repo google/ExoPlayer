@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
+package androidx.media3.common;
 
 import android.view.SurfaceView;
 import androidx.annotation.Nullable;

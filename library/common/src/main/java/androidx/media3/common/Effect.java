@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer;
+package androidx.media3.common;
 
 /** Marker interface for a video frame effect. */
 public interface Effect {}

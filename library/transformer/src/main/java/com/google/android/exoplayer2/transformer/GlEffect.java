@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
+import androidx.media3.common.Effect;
+import androidx.media3.common.FrameProcessingException;
 
 /**
  * Interface for a video frame effect with a {@link GlTextureProcessor} implementation.

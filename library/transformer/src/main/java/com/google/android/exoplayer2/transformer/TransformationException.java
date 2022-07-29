@@ -22,6 +22,7 @@ import android.media.MediaFormat;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.media3.common.FrameProcessingException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.audio.AudioProcessor;
