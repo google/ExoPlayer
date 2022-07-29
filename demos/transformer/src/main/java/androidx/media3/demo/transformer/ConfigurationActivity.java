@@ -67,6 +67,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
   public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
   public static final String PERIODIC_VIGNETTE_OUTER_RADIUS = "periodic_vignette_outer_radius";
+  public static final String CONTRAST_VALUE = "contrast_value";
   private static final String[] INPUT_URIS = {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
@@ -100,13 +101,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final String[] DEMO_EFFECTS = {
     "Dizzy crop",
     "Edge detector (Media Pipe)",
+    "Contrast",
     "Periodic vignette",
     "3D spin",
     "Overlay logo & timer",
     "Zoom in start",
-    "Increase contrast"
   };
-  private static final int PERIODIC_VIGNETTE_INDEX = 2;
+  private static final int CONTRAST_INDEX = 2;
+  private static final int PERIODIC_VIGNETTE_INDEX = 3;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
@@ -130,6 +132,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private int inputUriPosition;
   private long trimStartMs;
   private long trimEndMs;
+  private float contrastValue;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
   private float periodicVignetteInnerRadius;
@@ -285,6 +288,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
+    bundle.putFloat(CONTRAST_VALUE, contrastValue);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
@@ -347,10 +351,35 @@ public final class ConfigurationActivity extends AppCompatActivity {
   @RequiresNonNull("demoEffectsSelections")
   private void selectDemoEffect(DialogInterface dialog, int which, boolean isChecked) {
     demoEffectsSelections[which] = isChecked;
-    if (!isChecked || which != PERIODIC_VIGNETTE_INDEX) {
+    if (!isChecked) {
       return;
     }
 
+    switch (which) {
+      case CONTRAST_INDEX:
+        controlContrastSettings();
+        break;
+      case PERIODIC_VIGNETTE_INDEX:
+        controlPeriodicVignetteSettings();
+        break;
+    }
+  }
+
+  private void controlContrastSettings() {
+    View dialogView = getLayoutInflater().inflate(R.layout.contrast_options, /* root= */ null);
+    Slider contrastSlider = checkNotNull(dialogView.findViewById(R.id.contrast_slider));
+    new AlertDialog.Builder(/* context= */ this)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              contrastValue = contrastSlider.getValue();
+            })
+        .create()
+        .show();
+  }
+
+  private void controlPeriodicVignetteSettings() {
     View dialogView =
         getLayoutInflater().inflate(R.layout.periodic_vignette_options, /* root= */ null);
     Slider centerXSlider =
