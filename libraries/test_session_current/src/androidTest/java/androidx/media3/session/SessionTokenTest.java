@@ -71,6 +71,8 @@ public class SessionTokenTest {
     assertThat(token.getPackageName()).isEqualTo(context.getPackageName());
     assertThat(token.getUid()).isEqualTo(Process.myUid());
     assertThat(token.getType()).isEqualTo(SessionToken.TYPE_SESSION_SERVICE);
+    assertThat(token.getInterfaceVersion()).isEqualTo(0);
+    assertThat(token.getSessionVersion()).isEqualTo(0);
   }
 
   @Test
@@ -84,6 +86,8 @@ public class SessionTokenTest {
     assertThat(token.getUid()).isEqualTo(Process.myUid());
     assertThat(token.getType()).isEqualTo(SessionToken.TYPE_LIBRARY_SERVICE);
     assertThat(token.getServiceName()).isEqualTo(testComponentName.getClassName());
+    assertThat(token.getInterfaceVersion()).isEqualTo(0);
+    assertThat(token.getSessionVersion()).isEqualTo(0);
   }
 
   @Test
@@ -101,6 +105,7 @@ public class SessionTokenTest {
     assertThat(token.getUid()).isEqualTo(Process.myUid());
     assertThat(token.getType()).isEqualTo(SessionToken.TYPE_SESSION);
     assertThat(token.getSessionVersion()).isEqualTo(MediaLibraryInfo.VERSION_INT);
+    assertThat(token.getInterfaceVersion()).isEqualTo(MediaSessionStub.VERSION_INT);
     assertThat(TestUtils.equals(testTokenExtras, token.getExtras())).isTrue();
     assertThat(token.getServiceName()).isEmpty();
   }

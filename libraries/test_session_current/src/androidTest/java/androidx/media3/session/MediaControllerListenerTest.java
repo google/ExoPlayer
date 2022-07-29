@@ -54,6 +54,7 @@ import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.FlagSet;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
@@ -227,6 +228,18 @@ public class MediaControllerListenerTest {
             });
     threadTestRule.getHandler().postAndSync(controller::release);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  public void connection_correctVersions() throws Exception {
+    SessionToken token = new SessionToken(context, MOCK_MEDIA3_SESSION_SERVICE);
+
+    MediaController controller = controllerTestRule.createController(token);
+
+    assertThat(controller.getConnectedToken().getInterfaceVersion())
+        .isEqualTo(MediaSessionStub.VERSION_INT);
+    assertThat(controller.getConnectedToken().getSessionVersion())
+        .isEqualTo(MediaLibraryInfo.VERSION_INT);
   }
 
   @Test

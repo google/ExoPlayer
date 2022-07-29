@@ -102,6 +102,9 @@ import java.util.concurrent.ExecutionException;
 
   private static final String TAG = "MediaSessionStub";
 
+  /** The version of the IMediaSession interface. */
+  public static final int VERSION_INT = 1;
+
   private final WeakReference<MediaSessionImpl> sessionImpl;
   private final MediaSessionManager sessionManager;
   private final ConnectedControllersManager<IBinder> connectedControllersManager;
@@ -446,6 +449,7 @@ import java.util.concurrent.ExecutionException;
             ConnectionState state =
                 new ConnectionState(
                     MediaLibraryInfo.VERSION_INT,
+                    MediaSessionStub.VERSION_INT,
                     MediaSessionStub.this,
                     sessionImpl.getSessionActivity(),
                     connectionResult.availableSessionCommands,

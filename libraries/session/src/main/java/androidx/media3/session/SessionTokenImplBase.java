@@ -40,7 +40,9 @@ import java.lang.annotation.Target;
 
   @SessionToken.TokenType private final int type;
 
-  private final int version;
+  private final int libraryVersion;
+
+  private final int interfaceVersion;
 
   private final String packageName;
 
@@ -56,7 +58,8 @@ import java.lang.annotation.Target;
     this(
         uid,
         type,
-        /* version= */ 0,
+        /* libraryVersion= */ 0,
+        /* interfaceVersion= */ 0,
         checkNotNull(serviceComponent).getPackageName(),
         /* serviceName= */ serviceComponent.getClassName(),
         /* componentName= */ serviceComponent,
@@ -67,14 +70,16 @@ import java.lang.annotation.Target;
   public SessionTokenImplBase(
       int uid,
       int type,
-      int version,
+      int libraryVersion,
+      int interfaceVersion,
       String packageName,
       IMediaSession iSession,
       Bundle tokenExtras) {
     this(
         uid,
         type,
-        version,
+        libraryVersion,
+        interfaceVersion,
         checkNotNull(packageName),
         /* serviceName= */ "",
         /* componentName= */ null,
@@ -85,7 +90,8 @@ import java.lang.annotation.Target;
   private SessionTokenImplBase(
       int uid,
       int type,
-      int version,
+      int libraryVersion,
+      int interfaceVersion,
       String packageName,
       String serviceName,
       @Nullable ComponentName componentName,
@@ -93,7 +99,8 @@ import java.lang.annotation.Target;
       Bundle extras) {
     this.uid = uid;
     this.type = type;
-    this.version = version;
+    this.libraryVersion = libraryVersion;
+    this.interfaceVersion = interfaceVersion;
     this.packageName = packageName;
     this.serviceName = serviceName;
     this.componentName = componentName;
@@ -103,7 +110,15 @@ import java.lang.annotation.Target;
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(uid, type, version, packageName, serviceName, componentName, iSession);
+    return Objects.hashCode(
+        uid,
+        type,
+        libraryVersion,
+        interfaceVersion,
+        packageName,
+        serviceName,
+        componentName,
+        iSession);
   }
 
   @Override
@@ -114,7 +129,8 @@ import java.lang.annotation.Target;
     SessionTokenImplBase other = (SessionTokenImplBase) obj;
     return uid == other.uid
         && type == other.type
-        && version == other.version
+        && libraryVersion == other.libraryVersion
+        && interfaceVersion == other.interfaceVersion
         && TextUtils.equals(packageName, other.packageName)
         && TextUtils.equals(serviceName, other.serviceName)
         && Util.areEqual(componentName, other.componentName)
@@ -127,8 +143,10 @@ import java.lang.annotation.Target;
         + packageName
         + " type="
         + type
-        + " version="
-        + version
+        + " libraryVersion="
+        + libraryVersion
+        + " interfaceVersion="
+        + interfaceVersion
         + " service="
         + serviceName
         + " IMediaSession="
@@ -171,8 +189,13 @@ import java.lang.annotation.Target;
   }
 
   @Override
-  public int getSessionVersion() {
-    return version;
+  public int getLibraryVersion() {
+    return libraryVersion;
+  }
+
+  @Override
+  public int getInterfaceVersion() {
+    return interfaceVersion;
   }
 
   @Override
@@ -194,35 +217,39 @@ import java.lang.annotation.Target;
   @IntDef({
     FIELD_UID,
     FIELD_TYPE,
-    FIELD_VERSION,
+    FIELD_LIBRARY_VERSION,
     FIELD_PACKAGE_NAME,
     FIELD_SERVICE_NAME,
     FIELD_ISESSION,
     FIELD_COMPONENT_NAME,
-    FIELD_EXTRAS
+    FIELD_EXTRAS,
+    FIELD_INTERFACE_VERSION
   })
   private @interface FieldNumber {}
 
   private static final int FIELD_UID = 0;
   private static final int FIELD_TYPE = 1;
-  private static final int FIELD_VERSION = 2;
+  private static final int FIELD_LIBRARY_VERSION = 2;
   private static final int FIELD_PACKAGE_NAME = 3;
   private static final int FIELD_SERVICE_NAME = 4;
   private static final int FIELD_COMPONENT_NAME = 5;
   private static final int FIELD_ISESSION = 6;
   private static final int FIELD_EXTRAS = 7;
+  private static final int FIELD_INTERFACE_VERSION = 8;
+  // Next field key = 9
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putInt(keyForField(FIELD_UID), uid);
     bundle.putInt(keyForField(FIELD_TYPE), type);
-    bundle.putInt(keyForField(FIELD_VERSION), version);
+    bundle.putInt(keyForField(FIELD_LIBRARY_VERSION), libraryVersion);
     bundle.putString(keyForField(FIELD_PACKAGE_NAME), packageName);
     bundle.putString(keyForField(FIELD_SERVICE_NAME), serviceName);
     BundleCompat.putBinder(bundle, keyForField(FIELD_ISESSION), iSession);
     bundle.putParcelable(keyForField(FIELD_COMPONENT_NAME), componentName);
     bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+    bundle.putInt(keyForField(FIELD_INTERFACE_VERSION), interfaceVersion);
     return bundle;
   }
 
@@ -234,7 +261,9 @@ import java.lang.annotation.Target;
     int uid = bundle.getInt(keyForField(FIELD_UID));
     checkArgument(bundle.containsKey(keyForField(FIELD_TYPE)), "type should be set.");
     int type = bundle.getInt(keyForField(FIELD_TYPE));
-    int version = bundle.getInt(keyForField(FIELD_VERSION), /* defaultValue= */ 0);
+    int libraryVersion = bundle.getInt(keyForField(FIELD_LIBRARY_VERSION), /* defaultValue= */ 0);
+    int interfaceVersion =
+        bundle.getInt(keyForField(FIELD_INTERFACE_VERSION), /* defaultValue= */ 0);
     String packageName =
         checkNotEmpty(
             bundle.getString(keyForField(FIELD_PACKAGE_NAME)), "package name should be set.");
@@ -245,7 +274,8 @@ import java.lang.annotation.Target;
     return new SessionTokenImplBase(
         uid,
         type,
-        version,
+        libraryVersion,
+        interfaceVersion,
         packageName,
         serviceName,
         componentName,

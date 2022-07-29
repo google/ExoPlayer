@@ -154,7 +154,12 @@ import java.lang.annotation.Target;
   }
 
   @Override
-  public int getSessionVersion() {
+  public int getLibraryVersion() {
+    return 0;
+  }
+
+  @Override
+  public int getInterfaceVersion() {
     return 0;
   }
 
