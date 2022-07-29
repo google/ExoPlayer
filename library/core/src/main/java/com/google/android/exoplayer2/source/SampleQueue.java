@@ -716,6 +716,7 @@ public class SampleQueue implements TrackOutput {
     buffer.setFlags(flags[relativeReadIndex]);
     buffer.timeUs = timesUs[relativeReadIndex];
     if (buffer.timeUs < startTimeUs) {
+      android.util.Log.d("test", "buffer.timeUs = " + buffer.timeUs + ", startTimeUs = " + startTimeUs);
       buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
     extrasHolder.size = sizes[relativeReadIndex];

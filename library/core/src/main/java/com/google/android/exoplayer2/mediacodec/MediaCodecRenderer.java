@@ -1342,6 +1342,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (buffer.isDecodeOnly()) {
+      if (codecNeedsSkipSurplusOutBufferWorkaround) {
+        android.util.Log.d("test", "add presentationTimeUs = " + presentationTimeUs);
+      }
       decodeOnlyPresentationTimestamps.add(presentationTimeUs);
     }
     if (waitingForFirstSampleInFormat) {
@@ -1461,7 +1464,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // member variables are updated during the logic below.
     MediaCodecAdapter codec = this.codec;
     MediaCodecInfo codecInfo = this.codecInfo;
-
+    codecNeedsSkipSurplusOutBufferWorkaround = codecNeedsSkipSurplusOutBufferWorkaround(codecInfo.name, newFormat);
     Format oldFormat = codecInputFormat;
     if (drmNeedsCodecReinitialization(codecInfo, newFormat, codecDrmSession, sourceDrmSession)) {
       drainAndReinitializeCodec();
@@ -1862,6 +1865,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         outputBufferInfo.presentationTimeUs = largestQueuedPresentationTimeUs;
       }
       isDecodeOnlyOutputBuffer = isDecodeOnlyBuffer(outputBufferInfo.presentationTimeUs);
+      android.util.Log.d("test", "codecNeedsSkipSurplusOutBufferWorkaround = " + codecNeedsSkipSurplusOutBufferWorkaround);
+      if (codecNeedsSkipSurplusOutBufferWorkaround) {
+        android.util.Log.d("test", "outputBufferInfo.presentationTimeUs = " + outputBufferInfo.presentationTimeUs + ", isDecodeOnlyOutputBuffer = " + isDecodeOnlyOutputBuffer);
+      }
       isLastOutputBuffer =
           lastBufferInStreamPresentationTimeUs == outputBufferInfo.presentationTimeUs;
       updateOutputFormatForTime(outputBufferInfo.presentationTimeUs);
@@ -2131,8 +2138,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
     if (codecNeedsSkipSurplusOutBufferWorkaround && size > 0) {
-      if (Math.min(decodeOnlyPresentationTimestamps.get(0), decodeOnlyPresentationTimestamps.get(size - 1)) < presentationTimeUs
-          && Math.max(decodeOnlyPresentationTimestamps.get(0), decodeOnlyPresentationTimestamps.get(size - 1)) > presentationTimeUs) {
+      if (Math.max(decodeOnlyPresentationTimestamps.get(0), decodeOnlyPresentationTimestamps.get(size - 1)) > presentationTimeUs) {
         return true;
       }
     }

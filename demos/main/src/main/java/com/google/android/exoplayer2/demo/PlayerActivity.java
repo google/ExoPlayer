@@ -134,10 +134,16 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    releasePlayer();
-    releaseClientSideAdsLoader();
-    clearStartPosition();
-    setIntent(intent);
+    String action = intent.getAction();
+    if ("com.google.android.exoplayer.action.SEEK_TO".equals(action)) {
+      long seekTo =  intent.getIntExtra("position", C.POSITION_UNSET);
+      player.seekTo(seekTo);
+    } else {
+      releasePlayer();
+      releaseClientSideAdsLoader();
+      clearStartPosition();
+      setIntent(intent);
+    }
   }
 
   @Override
