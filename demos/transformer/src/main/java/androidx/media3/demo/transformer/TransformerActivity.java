@@ -301,6 +301,9 @@ public final class TransformerActivity extends AppCompatActivity {
           }
         }
         if (selectedEffects[2]) {
+          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+        }
+        if (selectedEffects[3]) {
           effects.add(
               (GlEffect)
                   (Context context, boolean useHdr) ->
@@ -315,18 +318,14 @@ public final class TransformerActivity extends AppCompatActivity {
                               ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                           bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedEffects[3]) {
+        if (selectedEffects[4]) {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
-        if (selectedEffects[4]) {
+        if (selectedEffects[5]) {
           effects.add((GlEffect) BitmapOverlayProcessor::new);
         }
-        if (selectedEffects[5]) {
-          effects.add(MatrixTransformationFactory.createZoomInTransition());
-        }
         if (selectedEffects[6]) {
-          // TODO(b/238630175): Add slider for contrast adjustments.
-          effects.add(new Contrast(0.75f));
+          effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
         transformerBuilder.setVideoEffects(effects.build());
       }
