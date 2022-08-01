@@ -49,7 +49,6 @@ import org.junit.runner.RunWith;
 public class ContrastPixelTest {
   private static final String EXOPLAYER_LOGO_PNG_ASSET_PATH =
       "media/bitmap/exoplayer_logo/original.png";
-  // TODO(b/239005261): Migrate png to an emulator generated picture.
   private static final String MAXIMUM_CONTRAST_PNG_ASSET_PATH =
       "media/bitmap/exoplayer_logo/maximum_contrast.png";
 
