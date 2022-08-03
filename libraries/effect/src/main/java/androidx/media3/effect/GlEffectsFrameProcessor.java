@@ -52,8 +52,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @UnstableApi
 public final class GlEffectsFrameProcessor implements FrameProcessor {
-  // TODO(b/227625423): Replace factory method with setters once output surface and effects can be
-  //  replaced.
 
   /** A factory for {@link GlEffectsFrameProcessor} instances. */
   public static class Factory implements FrameProcessor.Factory {
