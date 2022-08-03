@@ -62,7 +62,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
-    sampleLength = 0;
   }
 
   @Override

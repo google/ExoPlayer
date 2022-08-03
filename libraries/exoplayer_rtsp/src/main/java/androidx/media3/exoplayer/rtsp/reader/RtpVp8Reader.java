@@ -74,9 +74,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     fragmentedSampleTimeUs = C.TIME_UNSET;
     // The start time offset must be 0 until the first seek.
     startTimeOffsetUs = 0;
-    gotFirstPacketOfVp8Frame = false;
-    isKeyFrame = false;
-    isOutputFormatSet = false;
   }
 
   @Override
