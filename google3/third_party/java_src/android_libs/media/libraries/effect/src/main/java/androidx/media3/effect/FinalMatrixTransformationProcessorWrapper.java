@@ -79,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private @MonotonicNonNull Listener listener;
   private @MonotonicNonNull Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation;
-  private @MonotonicNonNull SurfaceView debugSurfaceView;
+  @Nullable private SurfaceView debugSurfaceView;
 
   private volatile boolean outputSizeOrRotationChanged;
 
@@ -229,6 +229,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         debugSurfaceViewWrapper =
             new SurfaceViewWrapper(eglDisplay, eglContext, useHdr, debugSurfaceView);
       }
+      this.debugSurfaceView = debugSurfaceView;
     }
 
     if (matrixTransformationProcessor != null && outputSizeOrRotationChanged) {
