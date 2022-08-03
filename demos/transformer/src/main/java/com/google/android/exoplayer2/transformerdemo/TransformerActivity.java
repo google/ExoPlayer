@@ -37,13 +37,13 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
+import androidx.media3.effect.Contrast;
+import androidx.media3.effect.GlEffect;
+import androidx.media3.effect.GlTextureProcessor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.transformer.Contrast;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
-import com.google.android.exoplayer2.transformer.GlEffect;
-import com.google.android.exoplayer2.transformer.GlTextureProcessor;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
@@ -280,7 +280,7 @@ public final class TransformerActivity extends AppCompatActivity {
                 Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
             Constructor<?> constructor =
                 clazz.getConstructor(
-                    Context.class, Boolean.class, String.class, String.class, String.class);
+                    Context.class, boolean.class, String.class, String.class, String.class);
             effects.add(
                 (GlEffect)
                     (Context context, boolean useHdr) -> {
