@@ -21,7 +21,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
-import com.google.android.exoplayer2.transformer.SingleFrameGlTextureProcessor;
+import androidx.media3.effect.SingleFrameGlTextureProcessor;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
