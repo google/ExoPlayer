@@ -26,8 +26,8 @@ void main() {
     vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
 
     gl_FragColor = vec4(
-        clamp(uContrastFactor * (inputColor.r - 0.5) + 0.5, 0.0, 1.0),
-        clamp(uContrastFactor * (inputColor.g - 0.5) + 0.5, 0.0, 1.0),
-        clamp(uContrastFactor * (inputColor.b - 0.5) + 0.5, 0.0, 1.0),
+        uContrastFactor * (inputColor.r - 0.5) + 0.5,
+        uContrastFactor * (inputColor.g - 0.5) + 0.5,
+        uContrastFactor * (inputColor.b - 0.5) + 0.5,
         inputColor.a);
 }
