@@ -384,6 +384,11 @@ import org.checkerframework.dataflow.qual.Pure;
       }
 
       boolean isInputToneMapped = ColorInfo.isHdr(inputFormat.colorInfo) && !isHdrEditingEnabled();
+      // When tone-mapping HDR to SDR is enabled, assume we get BT.709 to avoid having the encoder
+      // populate default color info, which depends on the resolution.
+      // TODO(b/237674316): Get the color info from the decoder output media format instead.
+      ColorInfo outputColorInfo =
+          isInputToneMapped ? ColorInfo.SDR_BT709_LIMITED : inputFormat.colorInfo;
       Format requestedEncoderFormat =
           new Format.Builder()
               .setWidth(requestedWidth)
@@ -391,7 +396,7 @@ import org.checkerframework.dataflow.qual.Pure;
               .setRotationDegrees(0)
               .setFrameRate(inputFormat.frameRate)
               .setSampleMimeType(requestedOutputMimeType)
-              .setColorInfo(isInputToneMapped ? null : inputFormat.colorInfo)
+              .setColorInfo(outputColorInfo)
               .build();
 
       encoder =
