@@ -34,6 +34,8 @@ import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.effect.Presentation;
+import androidx.media3.effect.ScaleToFitTransformation;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

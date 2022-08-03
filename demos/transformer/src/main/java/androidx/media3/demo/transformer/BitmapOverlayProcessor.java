@@ -33,7 +33,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
-import androidx.media3.transformer.SingleFrameGlTextureProcessor;
+import androidx.media3.effect.SingleFrameGlTextureProcessor;
 import java.io.IOException;
 import java.util.Locale;
 

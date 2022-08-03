@@ -48,6 +48,9 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.GlEffect;
+import androidx.media3.effect.GlEffectsFrameProcessor;
+import androidx.media3.effect.GlMatrixTransformation;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.Renderer;
@@ -198,9 +201,9 @@ public final class Transformer {
      * {@linkplain Effect effects} to the video frames.
      *
      * <p>This factory will be used to create the {@link FrameProcessor} used for applying the
-     * {@link Effect} instances passed to {@link #setVideoEffects(List<Effect>)} and any additional
-     * {@link GlMatrixTransformation} instances derived from the {@link TransformationRequest} set
-     * using {@link #setTransformationRequest(TransformationRequest)}.
+     * {@link Effect} instances passed to {@link #setVideoEffects(List)} and any additional {@link
+     * GlMatrixTransformation} instances derived from the {@link TransformationRequest} set using
+     * {@link #setTransformationRequest(TransformationRequest)}.
      *
      * <p>The default is {@link GlEffectsFrameProcessor.Factory}.
      *
