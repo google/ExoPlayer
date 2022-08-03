@@ -81,10 +81,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     previousSequenceNumber = C.INDEX_UNSET;
     width = C.LENGTH_UNSET;
     height = C.LENGTH_UNSET;
-    // TODO(b/240318842) Clean up VP8/VP9 reader.
-    gotFirstPacketOfVp9Frame = false;
-    reportedOutputFormat = false;
-    isKeyFrame = false;
   }
 
   @Override
