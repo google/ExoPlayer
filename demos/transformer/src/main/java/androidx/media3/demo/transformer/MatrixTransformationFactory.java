@@ -18,8 +18,8 @@ package androidx.media3.demo.transformer;
 import android.graphics.Matrix;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Util;
-import androidx.media3.transformer.GlMatrixTransformation;
-import androidx.media3.transformer.MatrixTransformation;
+import androidx.media3.effect.GlMatrixTransformation;
+import androidx.media3.effect.MatrixTransformation;
 
 /**
  * Factory for {@link GlMatrixTransformation GlMatrixTransformations} and {@link
