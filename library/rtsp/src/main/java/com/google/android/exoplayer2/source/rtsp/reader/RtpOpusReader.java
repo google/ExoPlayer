@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.source.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
@@ -38,7 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class RtpOpusReader implements RtpPayloadReader {
   private static final String TAG = "RtpOpusReader";
   /* Opus uses a fixed 48KHz media clock RFC7845 Section 4. */
-  private static final long MEDIA_CLOCK_FREQUENCY = 48_000;
+  private static final int MEDIA_CLOCK_FREQUENCY = 48_000;
 
   private final RtpPayloadFormat payloadFormat;
 
@@ -113,7 +114,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // sending opus data.
       int size = data.bytesLeft();
       trackOutput.sampleData(data, size);
-      long timeUs = toSampleTimeUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
+      long timeUs =
+          toSampleTimeUs(
+              startTimeOffsetUs, timestamp, firstReceivedTimestamp, MEDIA_CLOCK_FREQUENCY);
       trackOutput.sampleMetadata(
           timeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset*/ 0, /* cryptoData*/ null);
     }
@@ -143,15 +146,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkArgument(header.equals("OpusHead"), "ID Header missing");
     checkArgument(data.readUnsignedByte() == 1, "version number must always be 1");
     data.setPosition(currPosition);
-  }
-
-  /** Returns the correct sample time from RTP timestamp, accounting for the OPUS sampling rate. */
-  private static long toSampleTimeUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            rtpTimestamp - firstReceivedRtpTimestamp,
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 }

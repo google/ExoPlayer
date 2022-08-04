@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.reader;
 
+import static com.google.android.exoplayer2.source.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -39,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final String TAG = "RtpVp9Reader";
 
-  private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
+  private static final int MEDIA_CLOCK_FREQUENCY = 90_000;
   private static final int SCALABILITY_STRUCTURE_SIZE = 4;
 
   private final RtpPayloadFormat payloadFormat;
@@ -123,7 +124,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else {
         fragmentedSampleSizeBytes += currentFragmentSizeBytes;
       }
-      fragmentedSampleTimeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
+      fragmentedSampleTimeUs =
+          toSampleTimeUs(
+              startTimeOffsetUs, timestamp, firstReceivedTimestamp, MEDIA_CLOCK_FREQUENCY);
 
       if (rtpMarker) {
         outputSampleMetadataForFragmentedPackets();
@@ -270,14 +273,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     fragmentedSampleSizeBytes = C.LENGTH_UNSET;
     fragmentedSampleTimeUs = C.TIME_UNSET;
     gotFirstPacketOfVp9Frame = false;
-  }
-
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            (rtpTimestamp - firstReceivedRtpTimestamp),
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 }
