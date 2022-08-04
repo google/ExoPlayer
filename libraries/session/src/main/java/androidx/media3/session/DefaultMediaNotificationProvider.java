@@ -508,6 +508,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
             channelId,
             context.getString(channelNameResourceId),
             NotificationManager.IMPORTANCE_LOW);
+    if (Util.SDK_INT == 26 || Util.SDK_INT == 27) {
+      channel.setShowBadge(false);
+    }
     notificationManager.createNotificationChannel(channel);
   }
 
