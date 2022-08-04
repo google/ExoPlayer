@@ -1187,10 +1187,12 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (bytesWrittenOrError < 0) {
       int error = bytesWrittenOrError;
-      boolean isRecoverable = isAudioTrackDeadObject(error);
-      if (isRecoverable) {
-        maybeDisableOffload();
-      }
+
+      // Treat a write error on a previously successful offload channel as recoverable
+      // without disabling offload. Offload will be disabled when a new AudioTrack is created,
+      // if no longer supported.
+      boolean isRecoverable = isAudioTrackDeadObject(error) && writtenEncodedFrames > 0;
+
       WriteException e = new WriteException(error, configuration.inputFormat, isRecoverable);
       if (listener != null) {
         listener.onAudioSinkError(e);
