@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.rtsp.reader;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.exoplayer.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 
 import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
@@ -182,15 +183,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return isWideBand
         ? AMR_WB_FRAME_TYPE_INDEX_TO_FRAME_SIZE[frameType]
         : AMR_NB_FRAME_TYPE_INDEX_TO_FRAME_SIZE[frameType];
-  }
-
-  /** Returns the correct sample time from RTP timestamp, accounting for the AMR sampling rate. */
-  private static long toSampleTimeUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp, int sampleRate) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            rtpTimestamp - firstReceivedRtpTimestamp,
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ sampleRate);
   }
 }
