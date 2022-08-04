@@ -39,6 +39,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
@@ -265,6 +266,7 @@ public final class DefaultAudioSink implements AudioSink {
     private boolean enableAudioTrackPlaybackParams;
     private int offloadMode;
     AudioTrackBufferSizeProvider audioTrackBufferSizeProvider;
+    @Nullable AudioOffloadListener audioOffloadListener;
 
     /** Creates a new builder. */
     public Builder() {
@@ -367,6 +369,19 @@ public final class DefaultAudioSink implements AudioSink {
     public Builder setAudioTrackBufferSizeProvider(
         AudioTrackBufferSizeProvider audioTrackBufferSizeProvider) {
       this.audioTrackBufferSizeProvider = audioTrackBufferSizeProvider;
+      return this;
+    }
+
+    /**
+     * Sets an optional {@link AudioOffloadListener} to receive events relevant to offloaded
+     * playback.
+     *
+     * <p>The default value is null.
+     */
+    @CanIgnoreReturnValue
+    public Builder setExperimentalAudioOffloadListener(
+        @Nullable AudioOffloadListener audioOffloadListener) {
+      this.audioOffloadListener = audioOffloadListener;
       return this;
     }
 
@@ -500,6 +515,7 @@ public final class DefaultAudioSink implements AudioSink {
       initializationExceptionPendingExceptionHolder;
   private final PendingExceptionHolder<WriteException> writeExceptionPendingExceptionHolder;
   private final AudioTrackBufferSizeProvider audioTrackBufferSizeProvider;
+  @Nullable private final AudioOffloadListener audioOffloadListener;
 
   @Nullable private PlayerId playerId;
   @Nullable private Listener listener;
@@ -660,6 +676,7 @@ public final class DefaultAudioSink implements AudioSink {
         new PendingExceptionHolder<>(AUDIO_TRACK_RETRY_DURATION_MS);
     writeExceptionPendingExceptionHolder =
         new PendingExceptionHolder<>(AUDIO_TRACK_RETRY_DURATION_MS);
+    audioOffloadListener = builder.audioOffloadListener;
   }
 
   // AudioSink implementation.
@@ -1087,7 +1104,12 @@ public final class DefaultAudioSink implements AudioSink {
 
   private AudioTrack buildAudioTrack(Configuration configuration) throws InitializationException {
     try {
-      return configuration.buildAudioTrack(tunneling, audioAttributes, audioSessionId);
+      AudioTrack audioTrack =
+          configuration.buildAudioTrack(tunneling, audioAttributes, audioSessionId);
+      if (audioOffloadListener != null) {
+        audioOffloadListener.onExperimentalOffloadedPlayback(isOffloadedPlayback(audioTrack));
+      }
+      return audioTrack;
     } catch (InitializationException e) {
       if (listener != null) {
         listener.onAudioSinkError(e);
