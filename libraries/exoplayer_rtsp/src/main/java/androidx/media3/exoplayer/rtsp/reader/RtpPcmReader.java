@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.rtsp.reader;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.exoplayer.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 
 import android.util.Log;
 import androidx.media3.common.C;
@@ -78,7 +79,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     long sampleTimeUs =
-        toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp, payloadFormat.clockRate);
+        toSampleTimeUs(
+            startTimeOffsetUs, timestamp, firstReceivedTimestamp, payloadFormat.clockRate);
     int size = data.bytesLeft();
     trackOutput.sampleData(data, size);
     trackOutput.sampleMetadata(
@@ -92,15 +94,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // TODO(b/198620566) Rename firstReceivedTimestamp to timestampBase for all RtpPayloadReaders.
     firstReceivedTimestamp = nextRtpTimestamp;
     startTimeOffsetUs = timeUs;
-  }
-
-  /** Returns the correct sample time from RTP timestamp, accounting for the given clock rate. */
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp, int clockRate) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            rtpTimestamp - firstReceivedRtpTimestamp,
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ clockRate);
   }
 }

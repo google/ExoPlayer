@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.rtsp.reader;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.exoplayer.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 
 import androidx.media3.common.C;
 import androidx.media3.common.util.Log;
@@ -35,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class RtpH263Reader implements RtpPayloadReader {
   private static final String TAG = "RtpH263Reader";
 
-  private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
+  private static final int MEDIA_CLOCK_FREQUENCY = 90_000;
 
   /** I-frame VOP unit type. */
   private static final int I_VOP = 0;
@@ -164,7 +165,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Write the video sample.
     trackOutput.sampleData(data, fragmentSize);
     fragmentedSampleSizeBytes += fragmentSize;
-    fragmentedSampleTimeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
+    fragmentedSampleTimeUs =
+        toSampleTimeUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp, MEDIA_CLOCK_FREQUENCY);
 
     if (rtpMarker) {
       outputSampleMetadataForFragmentedPackets();
@@ -241,14 +243,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     fragmentedSampleTimeUs = C.TIME_UNSET;
     isKeyFrame = false;
     gotFirstPacketOfH263Frame = false;
-  }
-
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            (rtpTimestamp - firstReceivedRtpTimestamp),
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 }
