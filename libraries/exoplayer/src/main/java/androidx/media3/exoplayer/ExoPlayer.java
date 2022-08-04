@@ -435,6 +435,16 @@ public interface ExoPlayer extends Player {
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
     default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
+
+    /**
+     * Called when the value of {@link AudioTrack#isOffloadedPlayback} changes.
+     *
+     * <p>This should not be generally required to be acted upon. But when offload is critical for
+     * efficiency, or audio features (gapless, playback speed), this will let the app know.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalOffloadedPlayback(boolean offloadedPlayback) {}
   }
 
   /**
