@@ -123,6 +123,7 @@ public final class EncoderUtil {
         if (colorTransfer == C.COLOR_TRANSFER_HLG) {
           return ImmutableList.of(MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10);
         }
+        // CodecProfileLevel does not support PQ/HDR10 for H264.
         break;
       case MimeTypes.VIDEO_H265:
         if (colorTransfer == C.COLOR_TRANSFER_HLG) {
