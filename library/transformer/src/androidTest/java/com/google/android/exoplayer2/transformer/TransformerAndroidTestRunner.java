@@ -52,7 +52,7 @@ public class TransformerAndroidTestRunner {
   public static class Builder {
     private final Context context;
     private final Transformer transformer;
-    private boolean maybeCalculateSsim;
+    private boolean requestCalculateSsim;
     private int timeoutSeconds;
     private boolean suppressAnalysisExceptions;
     @Nullable private Map<String, Object> inputValues;
@@ -85,22 +85,21 @@ public class TransformerAndroidTestRunner {
     }
 
     /**
-     * Sets whether to try to calculate the SSIM of the transformation output.
+     * Sets whether to calculate the SSIM of the transformation output compared to the input, if
+     * supported. Calculating SSIM is not supported if the input and output video dimensions don't
+     * match, or if the input video is trimmed.
      *
-     * <p>SSIM requires the input and output video dimensions to match. Therefore, if encoder
-     * resolution fallback occurs, this calculation is skipped.
-     *
-     * <p>The calculation involves decoding and comparing both the input and the output video.
-     * Consequently this calculation is not cost-free.
+     * <p>Calculating SSIM involves decoding and comparing frames of the expected and actual videos,
+     * which will increase the runtime of the test.
      *
      * <p>The default value is {@code false}.
      *
-     * @param maybeCalculateSsim Whether to try to calculate SSIM.
+     * @param requestCalculateSsim Whether to calculate SSIM, if supported.
      * @return This {@link Builder}.
      */
     @CanIgnoreReturnValue
-    public Builder setMaybeCalculateSsim(boolean maybeCalculateSsim) {
-      this.maybeCalculateSsim = maybeCalculateSsim;
+    public Builder setRequestCalculateSsim(boolean requestCalculateSsim) {
+      this.requestCalculateSsim = requestCalculateSsim;
       return this;
     }
 
@@ -146,7 +145,7 @@ public class TransformerAndroidTestRunner {
           context,
           transformer,
           timeoutSeconds,
-          maybeCalculateSsim,
+          requestCalculateSsim,
           suppressAnalysisExceptions,
           inputValues);
     }
@@ -156,7 +155,7 @@ public class TransformerAndroidTestRunner {
   private final CodecNameForwardingCodecFactory transformerCodecFactory;
   private final Transformer transformer;
   private final int timeoutSeconds;
-  private final boolean maybeCalculateSsim;
+  private final boolean requestCalculateSsim;
   private final boolean suppressAnalysisExceptions;
   @Nullable private final Map<String, Object> inputValues;
 
@@ -164,7 +163,7 @@ public class TransformerAndroidTestRunner {
       Context context,
       Transformer transformer,
       int timeoutSeconds,
-      boolean maybeCalculateSsim,
+      boolean requestCalculateSsim,
       boolean suppressAnalysisExceptions,
       @Nullable Map<String, Object> inputValues) {
     this.context = context;
@@ -177,7 +176,7 @@ public class TransformerAndroidTestRunner {
             .setEncoderFactory(transformerCodecFactory)
             .build();
     this.timeoutSeconds = timeoutSeconds;
-    this.maybeCalculateSsim = maybeCalculateSsim;
+    this.requestCalculateSsim = requestCalculateSsim;
     this.suppressAnalysisExceptions = suppressAnalysisExceptions;
     this.inputValues = inputValues;
   }
@@ -229,7 +228,7 @@ public class TransformerAndroidTestRunner {
   private TransformationTestResult runInternal(String testId, MediaItem mediaItem)
       throws InterruptedException, IOException, TimeoutException, TransformationException {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && maybeCalculateSsim) {
+        && requestCalculateSsim) {
       throw new UnsupportedOperationException(
           "SSIM calculation is not supported for clipped inputs.");
     }
@@ -323,7 +322,7 @@ public class TransformerAndroidTestRunner {
             .setFilePath(outputVideoFile.getPath())
             .setElapsedTimeMs(elapsedTimeMs);
 
-    if (!maybeCalculateSsim) {
+    if (!requestCalculateSsim) {
       return resultBuilder.build();
     }
     if (fallbackResolutionApplied.get()) {

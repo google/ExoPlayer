@@ -306,7 +306,7 @@ public class SsimMapperTest {
       double ssim =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .setInputValues(inputValues)
-              .setMaybeCalculateSsim(true)
+              .setRequestCalculateSsim(true)
               .build()
               .run(testId, MediaItem.fromUri(Uri.parse(videoUri)))
               .ssim;
