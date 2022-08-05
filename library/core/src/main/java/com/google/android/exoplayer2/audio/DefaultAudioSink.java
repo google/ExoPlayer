@@ -225,7 +225,7 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   /** Provides the buffer size to use when creating an {@link AudioTrack}. */
-  interface AudioTrackBufferSizeProvider {
+  public interface AudioTrackBufferSizeProvider {
     /** Default instance. */
     AudioTrackBufferSizeProvider DEFAULT =
         new DefaultAudioTrackBufferSizeProvider.Builder().build();
