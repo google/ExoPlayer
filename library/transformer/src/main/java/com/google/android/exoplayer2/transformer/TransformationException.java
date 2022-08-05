@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.FrameProcessingException;
+import androidx.media3.common.FrameProcessor;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.audio.AudioProcessor;
@@ -273,7 +274,7 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for a {@link GlEffectsFrameProcessor} related exception.
+   * Creates an instance for a {@link FrameProcessor} related exception.
    *
    * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
