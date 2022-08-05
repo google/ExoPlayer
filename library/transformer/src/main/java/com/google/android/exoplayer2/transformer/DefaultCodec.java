@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
@@ -27,7 +28,9 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -35,6 +38,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
@@ -54,12 +58,8 @@ public final class DefaultCodec implements Codec {
   private final MediaFormat configurationMediaFormat;
 
   private final Format configurationFormat;
-  /** The expected {@link ColorInfo} output from the codec. */
-  @Nullable private final ColorInfo configuredOutputColor;
-
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
-
   private final boolean decoderNeedsFrameDroppingWorkaround;
 
   private @MonotonicNonNull Format outputFormat;
@@ -101,8 +101,18 @@ public final class DefaultCodec implements Codec {
     @Nullable MediaCodec mediaCodec = null;
     @Nullable Surface inputSurface = null;
     try {
+      boolean requestedHdrToneMapping =
+          Util.SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
+      if (SDK_INT >= 29 && requestedHdrToneMapping) {
+        // The MediaCodec input format reflects whether tone-mapping is possible after configure().
+        // See
+        // https://developer.android.com/reference/android/media/MediaFormat#KEY_COLOR_TRANSFER_REQUEST.
+        checkArgument(
+            Api29.isSdrToneMappingEnabled(mediaCodec.getInputFormat()),
+            "Tone-mapping requested but not supported by the decoder");
+      }
       if (isVideo && !isDecoder) {
         inputSurface = mediaCodec.createInputSurface();
       }
@@ -119,12 +129,6 @@ public final class DefaultCodec implements Codec {
           e, configurationMediaFormat, isVideo, isDecoder, mediaCodecName);
     }
     this.mediaCodec = mediaCodec;
-    boolean toneMapRequested =
-        SDK_INT >= 31
-            && isDecoder
-            && (configurationMediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER_REQUEST, 0)
-                == MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
-    configuredOutputColor = toneMapRequested ? null : configurationFormat.colorInfo;
     this.inputSurface = inputSurface;
     decoderNeedsFrameDroppingWorkaround = decoderNeedsFrameDroppingWorkaround(context);
   }
@@ -281,11 +285,7 @@ public final class DefaultCodec implements Codec {
    */
   @Override
   public String getName() {
-    if (SDK_INT >= 29) {
-      return mediaCodec.getCanonicalName();
-    }
-
-    return mediaCodec.getName();
+    return SDK_INT >= 29 ? Api29.getCanonicalName(mediaCodec) : mediaCodec.getName();
   }
 
   @VisibleForTesting
@@ -318,15 +318,19 @@ public final class DefaultCodec implements Codec {
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
         outputFormat = convertToFormat(mediaCodec.getOutputFormat());
-        if (!areColorTransfersEqual(configuredOutputColor, outputFormat.colorInfo)) {
+        boolean isToneMappingEnabled =
+            SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
+        ColorInfo expectedColorInfo =
+            isToneMappingEnabled ? ColorInfo.SDR_BT709_LIMITED : configurationFormat.colorInfo;
+        if (!areColorTransfersEqual(expectedColorInfo, outputFormat.colorInfo)) {
           // TODO(b/237674316): These exceptions throw when the container ColorInfo doesn't match
           //  the video ColorInfo. Instead of throwing when seeing unexpected ColorInfos, consider
           //  reconfiguring downstream components (ex. FrameProcessor and encoder) when different
           //  ColorInfo values are output.
           throw createTransformationException(
               new IllegalStateException(
-                  "Codec output color format does not match configured color format. Configured: "
-                      + configuredOutputColor
+                  "Codec output color format does not match configured color format. Expected: "
+                      + expectedColorInfo
                       + ". Actual: "
                       + outputFormat.colorInfo));
         }
@@ -477,5 +481,22 @@ public final class DefaultCodec implements Codec {
     // Frame dropping is never desired, so a workaround is needed for older API levels.
     return SDK_INT < 29
         || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29;
+  }
+
+  @RequiresApi(29)
+  private static final class Api29 {
+    @DoNotInline
+    public static String getCanonicalName(MediaCodec mediaCodec) {
+      return mediaCodec.getCanonicalName();
+    }
+
+    @DoNotInline
+    public static boolean isSdrToneMappingEnabled(MediaFormat mediaFormat) {
+      // MediaFormat.getInteger(String, int) was added in API 29 but applying a color transfer
+      // request is only possible from API 31.
+      return SDK_INT >= 31
+          && mediaFormat.getInteger(MediaFormat.KEY_COLOR_TRANSFER_REQUEST, /* defaultValue= */ 0)
+              == MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+    }
   }
 }
