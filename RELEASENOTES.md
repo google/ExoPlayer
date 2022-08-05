@@ -12,9 +12,10 @@
     *   Limit parallel download removals to 1 to avoid excessive thread creation
         ([#10458](https://github.com/google/ExoPlayer/issues/10458)).
 *   Audio:
-    *   Adds AudioOffloadListener.onExperimentalOffloadedPlayback for the
+    *   Adds `AudioOffloadListener.onExperimentalOffloadedPlayback` for the
         AudioTrack offload state.
         ([#134](https://github.com/androidx/media/issues/134)).
+    *   Make `AudioTrackBufferSizeProvider` a public interface.
 *   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
