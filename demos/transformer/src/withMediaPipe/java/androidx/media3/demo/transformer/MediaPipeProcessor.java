@@ -21,15 +21,11 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.EGL14;
-import android.os.Build;
-import androidx.annotation.ChecksSdkIntAtLeast;
-import androidx.annotation.Nullable;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.effect.GlTextureProcessor;
 import androidx.media3.effect.TextureInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.LibraryLoader;
-import com.google.android.exoplayer2.util.Util;
 import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.framework.AppTextureFrame;
 import com.google.mediapipe.framework.TextureFrame;
@@ -61,11 +57,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final FrameProcessor frameProcessor;
   private volatile GlTextureProcessor.@MonotonicNonNull Listener listener;
   private volatile boolean acceptedFrame;
-  // Only available from API 23 and above.
-  @Nullable private final ConcurrentHashMap<TextureInfo, TextureFrame> outputFrames;
-  // Used instead for API 21 and 22.
-  @Nullable private volatile TextureInfo outputTexture;
-  @Nullable private volatile TextureFrame outputFrame;
+  private final ConcurrentHashMap<TextureInfo, TextureFrame> outputFrames;
 
   /**
    * Creates a new texture processor that wraps a MediaPipe graph.
@@ -91,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     frameProcessor =
         new FrameProcessor(
             context, eglManager.getNativeContext(), graphName, inputStreamName, outputStreamName);
-    outputFrames = areMultipleOutputFramesSupported() ? new ConcurrentHashMap<>() : null;
+    outputFrames = new ConcurrentHashMap<>();
     frameProcessor.setConsumer(
         frame -> {
           TextureInfo texture =
@@ -100,12 +92,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   /* fboId= */ C.INDEX_UNSET,
                   frame.getWidth(),
                   frame.getHeight());
-          if (areMultipleOutputFramesSupported()) {
-            checkStateNotNull(outputFrames).put(texture, frame);
-          } else {
-            outputFrame = frame;
-            outputTexture = texture;
-          }
+          outputFrames.put(texture, frame);
           if (listener != null) {
             listener.onOutputFrameAvailable(texture, frame.getTimestamp());
           }
@@ -126,17 +113,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
-    if (!areMultipleOutputFramesSupported() && outputTexture != null) {
-      return false;
-    }
-
     acceptedFrame = false;
     AppTextureFrame appTextureFrame =
         new AppTextureFrame(inputTexture.texId, inputTexture.width, inputTexture.height);
     // TODO(b/238302213): Handle timestamps restarting from 0 when applying effects to a playlist.
     //  MediaPipe will fail if the timestamps are not monotonically increasing.
     appTextureFrame.setTimestamp(presentationTimeUs);
-    checkStateNotNull(frameProcessor).onNewFrame(appTextureFrame);
+    frameProcessor.onNewFrame(appTextureFrame);
     try {
       appTextureFrame.waitUntilReleasedWithGpuSync();
     } catch (InterruptedException e) {
@@ -153,19 +136,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void releaseOutputFrame(TextureInfo outputTexture) {
-    if (areMultipleOutputFramesSupported()) {
-      checkStateNotNull(checkStateNotNull(outputFrames).get(outputTexture)).release();
-    } else {
-      checkState(Util.areEqual(outputTexture, this.outputTexture));
-      this.outputTexture = null;
-      checkStateNotNull(outputFrame).release();
-      outputFrame = null;
-    }
+    checkStateNotNull(outputFrames.get(outputTexture)).release();
   }
 
   @Override
   public void release() {
-    checkStateNotNull(frameProcessor).close();
+    frameProcessor.close();
   }
 
   @Override
@@ -174,13 +150,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (listener != null) {
       listener.onCurrentOutputStreamEnded();
     }
-  }
-
-  @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.M)
-  private static boolean areMultipleOutputFramesSupported() {
-    // Android devices running Lollipop (API 21/22) have a bug in ConcurrentHashMap that can result
-    // in lost updates, so we only allow one output frame to be pending at a time to avoid using
-    // ConcurrentHashMap.
-    return Util.SDK_INT >= 23;
   }
 }
