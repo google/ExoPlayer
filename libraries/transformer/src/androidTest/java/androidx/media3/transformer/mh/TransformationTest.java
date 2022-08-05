@@ -55,7 +55,7 @@ public class TransformationTest {
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
@@ -86,7 +86,7 @@ public class TransformationTest {
                         .build()))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
@@ -109,7 +109,7 @@ public class TransformationTest {
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_4K60_PORTRAIT_URI_STRING)));
@@ -132,7 +132,7 @@ public class TransformationTest {
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .setTimeoutSeconds(180)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_8K24_URI_STRING)));
@@ -148,7 +148,7 @@ public class TransformationTest {
             .setRemoveAudio(true)
             .build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setMaybeCalculateSsim(true)
+        .setRequestCalculateSsim(true)
         .build()
         .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
   }
