@@ -40,7 +40,7 @@ public final class RgbAdjustment implements RgbaMatrix {
     }
 
     /**
-     * Scales the red channel of the frame by {@param redScale}.
+     * Scales the red channel of the frame by {@code redScale}.
      *
      * @param redScale The scale to apply to the red channel. Needs to be non-negative and the
      *     default value is {@code 1}.
@@ -53,7 +53,7 @@ public final class RgbAdjustment implements RgbaMatrix {
     }
 
     /**
-     * Scales the green channel of the frame by {@param greenScale}.
+     * Scales the green channel of the frame by {@code greenScale}.
      *
      * @param greenScale The scale to apply to the green channel. Needs to be non-negative and the
      *     default value is {@code 1}.
@@ -66,7 +66,7 @@ public final class RgbAdjustment implements RgbaMatrix {
     }
 
     /**
-     * Scales the blue channel of the frame by {@param blueScale}.
+     * Scales the blue channel of the frame by {@code blueScale}.
      *
      * @param blueScale The scale to apply to the blue channel. Needs to be non-negative and the
      *     default value is {@code 1}.
