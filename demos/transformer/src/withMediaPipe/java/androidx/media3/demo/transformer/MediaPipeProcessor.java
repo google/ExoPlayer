@@ -69,7 +69,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param inputStreamName Name of the input video stream in the graph.
    * @param outputStreamName Name of the input video stream in the graph.
    */
-  @SuppressWarnings("AndroidConcurrentHashMap") // Only used on API >= 23.
   public MediaPipeProcessor(
       Context context,
       boolean useHdr,
