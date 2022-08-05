@@ -182,13 +182,6 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Codes that identify causes of player errors.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlaybackException.FieldNumber.html" title="annotation in com.google.android.exoplayer2">PlaybackException.FieldNumber</a></span></code></th>
-<td class="colLast">
-<div class="block">Identifiers for fields in a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> which represents a playback exception.</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
@@ -481,7 +474,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FIELD_CUSTOM_ID_BASE">FIELD_CUSTOM_ID_BASE</a></span></code></th>
 <td class="colLast">
-<div class="block">Defines a minimum field id value for subclasses to use when implementing <a href="#toBundle()"><code>toBundle()</code></a>
+<div class="block">Defines a minimum field ID value for subclasses to use when implementing <a href="#toBundle()"><code>toBundle()</code></a>
  and <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.</div>
 </td>
 </tr>
@@ -578,10 +571,10 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyForField(@com.google.android.exoplayer2.PlaybackException.FieldNumberint)">keyForField</a></span>&#8203;(@com.google.android.exoplayer2.PlaybackException.FieldNumber int&nbsp;field)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyForField(int)">keyForField</a></span>&#8203;(int&nbsp;field)</code></th>
 <td class="colLast">
-<div class="block">Converts the given <a href="PlaybackException.FieldNumber.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.FieldNumber</code></a> to a string which can be used as a field key when
- implementing <a href="#toBundle()"><code>toBundle()</code></a> and <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.</div>
+<div class="block">Converts the given field number to a string which can be used as a field key when implementing
+ <a href="#toBundle()"><code>toBundle()</code></a> and <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -1169,11 +1162,11 @@ public final&nbsp;@com.google.android.exoplayer2.PlaybackException.ErrorCode int
 <li class="blockList">
 <h4>FIELD_CUSTOM_ID_BASE</h4>
 <pre>protected static final&nbsp;int FIELD_CUSTOM_ID_BASE</pre>
-<div class="block">Defines a minimum field id value for subclasses to use when implementing <a href="#toBundle()"><code>toBundle()</code></a>
+<div class="block">Defines a minimum field ID value for subclasses to use when implementing <a href="#toBundle()"><code>toBundle()</code></a>
  and <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.
 
  <p>Subclasses should obtain their <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle's</code></a> field keys by applying a non-negative
- offset on this constant and passing the result to <a href="#keyForField(@com.google.android.exoplayer2.PlaybackException.FieldNumberint)"><code>keyForField(int)</code></a>.</div>
+ offset on this constant and passing the result to <a href="#keyForField(int)"><code>keyForField(int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.PlaybackException.FIELD_CUSTOM_ID_BASE">Constant Field Values</a></dd>
@@ -1309,15 +1302,17 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.h
 </dl>
 </li>
 </ul>
-<a id="keyForField(@com.google.android.exoplayer2.PlaybackException.FieldNumberint)">
+<a id="keyForField(int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>keyForField</h4>
-<pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;keyForField&#8203;(@com.google.android.exoplayer2.PlaybackException.FieldNumber int&nbsp;field)</pre>
-<div class="block">Converts the given <a href="PlaybackException.FieldNumber.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.FieldNumber</code></a> to a string which can be used as a field key when
- implementing <a href="#toBundle()"><code>toBundle()</code></a> and <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.</div>
+<pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;keyForField&#8203;(int&nbsp;field)</pre>
+<div class="block">Converts the given field number to a string which can be used as a field key when implementing
+ <a href="#toBundle()"><code>toBundle()</code></a> and <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.
+
+ <p>Subclasses should use <code>field</code> values greater than or equal to <a href="#FIELD_CUSTOM_ID_BASE"><code>FIELD_CUSTOM_ID_BASE</code></a>.</div>
 </li>
 </ul>
 </li>

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -38,7 +39,6 @@ import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -144,7 +144,7 @@ public final class MainActivity extends Activity {
       String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
       String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
       UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));
-      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSource.Factory();
+      DataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSource.Factory();
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
       drmSessionManager =
@@ -157,13 +157,18 @@ public final class MainActivity extends Activity {
 
     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
     MediaSource mediaSource;
-    @C.ContentType int type = Util.inferContentType(uri, intent.getStringExtra(EXTENSION_EXTRA));
-    if (type == C.TYPE_DASH) {
+    @Nullable String fileExtension = intent.getStringExtra(EXTENSION_EXTRA);
+    @C.ContentType
+    int type =
+        TextUtils.isEmpty(fileExtension)
+            ? Util.inferContentType(uri)
+            : Util.inferContentTypeForExtension(fileExtension);
+    if (type == C.CONTENT_TYPE_DASH) {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
-    } else if (type == C.TYPE_OTHER) {
+    } else if (type == C.CONTENT_TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
@@ -181,7 +186,7 @@ public final class MainActivity extends Activity {
         Assertions.checkNotNull(this.videoProcessingGLSurfaceView);
     videoProcessingGLSurfaceView.setPlayer(player);
     Assertions.checkNotNull(playerView).setPlayer(player);
-    player.addAnalyticsListener(new EventLogger(/* trackSelector= */ null));
+    player.addAnalyticsListener(new EventLogger());
     this.player = player;
   }
 

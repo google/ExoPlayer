@@ -37,14 +37,14 @@
     <item quantity="one">%d வினாடி ஃபாஸ்ட் ஃபார்வர்ட் ஆகும்</item>
     <item quantity="other">%d வினாடிகள் ஃபாஸ்ட் ஃபார்வர்ட் ஆகும்</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">எதையும் மீண்டும் இயக்காதே</string>
-  <string name="exo_controls_repeat_one_description">இதை மட்டும் மீண்டும் இயக்கு</string>
-  <string name="exo_controls_repeat_all_description">அனைத்தையும் மீண்டும் இயக்கு</string>
-  <string name="exo_controls_shuffle_on_description">கலைத்துப் போடுதல்: ஆன்</string>
-  <string name="exo_controls_shuffle_off_description">கலைத்துப் போடுதல்: ஆஃப்</string>
+  <string name="exo_controls_repeat_off_description">தற்போதைய பயன்முறை: எதையும் மீண்டும் இயக்காது. மீண்டும் இயக்குதலை நிலைமாற்றும்.</string>
+  <string name="exo_controls_repeat_one_description">தற்போதைய பயன்முறை: ஒன்றை மட்டும் மீண்டும் இயக்கும். மீண்டும் இயக்குதலை நிலைமாற்றும்.</string>
+  <string name="exo_controls_repeat_all_description">தற்போதைய பயன்முறை: அனைத்தையும் மீண்டும் இயக்கும். மீண்டும் இயக்குதலை நிலைமாற்றும்.</string>
+  <string name="exo_controls_shuffle_on_description">கலைத்துப் போடும் பயன்முறையை முடக்கும்</string>
+  <string name="exo_controls_shuffle_off_description">கலைத்துப் போடும் பயன்முறையை இயக்கும்</string>
   <string name="exo_controls_vr_description">VR பயன்முறை</string>
-  <string name="exo_controls_cc_enabled_description">வசனங்களை முடக்கும்</string>
-  <string name="exo_controls_cc_disabled_description">வசனங்களை இயக்கும்</string>
+  <string name="exo_controls_cc_enabled_description">சப்டைட்டில்களை முடக்கும்</string>
+  <string name="exo_controls_cc_disabled_description">சப்டைட்டில்களை இயக்கும்</string>
   <string name="exo_controls_playback_speed">வேகம்</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0.25x</item>

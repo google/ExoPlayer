@@ -23,6 +23,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.source.dash.manifest.Representation.MultiSegmentRepresentation;
 import com.google.android.exoplayer2.source.dash.manifest.Representation.SingleSegmentRepresentation;
@@ -79,6 +80,8 @@ public class DashManifestParserTest {
       "media/mpd/sample_mpd_service_description_low_latency_only_playback_rates";
   private static final String SAMPLE_MPD_SERVICE_DESCRIPTION_LOW_LATENCY_ONLY_TARGET_LATENCY =
       "media/mpd/sample_mpd_service_description_low_latency_only_target_latency";
+  private static final String SAMPLE_MPD_CLEAR_KEY_LICENSE_URL =
+      "media/mpd/sample_mpd_clear_key_license_url";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -136,7 +139,7 @@ public class DashManifestParserTest {
                 ApplicationProvider.getApplicationContext(), SAMPLE_MPD_EVENT_STREAM));
 
     Period period = manifest.getPeriod(0);
-    assertThat(period.eventStreams).hasSize(3);
+    assertThat(period.eventStreams).hasSize(4);
 
     // assert text-only event stream
     EventStream eventStream1 = period.eventStreams.get(0);
@@ -147,10 +150,18 @@ public class DashManifestParserTest {
     assertThat(eventStream1.events[0]).isEqualTo(expectedEvent1);
     assertThat(eventStream1.presentationTimesUs[0]).isEqualTo(0);
 
-    // assert CData-structured event stream
+    // assert event stream with presentationTimeOffset
     EventStream eventStream2 = period.eventStreams.get(1);
     assertThat(eventStream2.events.length).isEqualTo(1);
     EventMessage expectedEvent2 =
+        new EventMessage("urn:uuid:with-pto", "pto-4s", 10000, 0, "pt=1s".getBytes(Charsets.UTF_8));
+    assertThat(eventStream2.events[0]).isEqualTo(expectedEvent2);
+    assertThat(eventStream2.presentationTimesUs[0]).isEqualTo(1000000);
+
+    // assert CData-structured event stream
+    EventStream eventStream3 = period.eventStreams.get(2);
+    assertThat(eventStream3.events.length).isEqualTo(1);
+    EventMessage expectedEvent3 =
         new EventMessage(
             "urn:dvb:iptv:cpm:2014",
             "",
@@ -170,13 +181,13 @@ public class DashManifestParserTest {
                     + "      </InstanceDescription>\n"
                     + "      </BroadcastEvent>]]>"));
 
-    assertThat(eventStream2.events[0]).isEqualTo(expectedEvent2);
-    assertThat(eventStream2.presentationTimesUs[0]).isEqualTo(300000000);
+    assertThat(eventStream3.events[0]).isEqualTo(expectedEvent3);
+    assertThat(eventStream3.presentationTimesUs[0]).isEqualTo(300000000);
 
     // assert xml-structured event stream
-    EventStream eventStream3 = period.eventStreams.get(2);
-    assertThat(eventStream3.events.length).isEqualTo(1);
-    EventMessage expectedEvent3 =
+    EventStream eventStream4 = period.eventStreams.get(3);
+    assertThat(eventStream4.events.length).isEqualTo(1);
+    EventMessage expectedEvent4 =
         new EventMessage(
             "urn:scte:scte35:2014:xml+bin",
             "",
@@ -188,8 +199,8 @@ public class DashManifestParserTest {
                     + "         /DAIAAAAAAAAAAAQAAZ/I0VniQAQAgBDVUVJQAAAAH+cAAAAAA==\n"
                     + "         </scte35:Binary>\n"
                     + "       </scte35:Signal>"));
-    assertThat(eventStream3.events[0]).isEqualTo(expectedEvent3);
-    assertThat(eventStream3.presentationTimesUs[0]).isEqualTo(1000000000);
+    assertThat(eventStream4.events[0]).isEqualTo(expectedEvent4);
+    assertThat(eventStream4.presentationTimesUs[0]).isEqualTo(1000000000);
   }
 
   @Test
@@ -274,14 +285,6 @@ public class DashManifestParserTest {
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
     Format format = adaptationSets.get(0).representations.get(0).format;
-    assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_RAWCC);
-    assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA608);
-    assertThat(format.codecs).isEqualTo("cea608");
-    assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE | C.ROLE_FLAG_MAIN);
-    assertThat(format.selectionFlags).isEqualTo(0);
-    assertThat(adaptationSets.get(0).type).isEqualTo(C.TRACK_TYPE_TEXT);
-
-    format = adaptationSets.get(1).representations.get(0).format;
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_MP4);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isEqualTo("stpp.ttml.im1t");
@@ -291,11 +294,11 @@ public class DashManifestParserTest {
 
     // Ensure that forced-subtitle and forced_subtitle are both parsed as a 'forced' text track.
     // https://github.com/google/ExoPlayer/issues/9727
-    format = adaptationSets.get(2).representations.get(0).format;
+    format = adaptationSets.get(1).representations.get(0).format;
     assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE);
     assertThat(format.selectionFlags).isEqualTo(C.SELECTION_FLAG_FORCED);
 
-    format = adaptationSets.get(3).representations.get(0).format;
+    format = adaptationSets.get(2).representations.get(0).format;
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isNull();
@@ -627,11 +630,10 @@ public class DashManifestParserTest {
 
     assertThat(manifest.getPeriodCount()).isEqualTo(1);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
-    assertThat(adaptationSets).hasSize(4);
+    assertThat(adaptationSets).hasSize(3);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(0))).isEqualTo(C.TIME_UNSET);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(1))).isEqualTo(C.TIME_UNSET);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(2))).isEqualTo(C.TIME_UNSET);
-    assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(3))).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -887,6 +889,37 @@ public class DashManifestParserTest {
                 SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_LIST));
 
     assertThat(manifest.serviceDescription).isNull();
+  }
+
+  @Test
+  public void contentProtections_withClearKeyLicenseUrl() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_CLEAR_KEY_LICENSE_URL));
+
+    assertThat(manifest.getPeriodCount()).isEqualTo(1);
+    Period period = manifest.getPeriod(0);
+    assertThat(period.adaptationSets).hasSize(2);
+    AdaptationSet adaptationSet0 = period.adaptationSets.get(0);
+    AdaptationSet adaptationSet1 = period.adaptationSets.get(1);
+    assertThat(adaptationSet0.representations).hasSize(1);
+    assertThat(adaptationSet1.representations).hasSize(1);
+    Representation representation0 = adaptationSet0.representations.get(0);
+    Representation representation1 = adaptationSet1.representations.get(0);
+    assertThat(representation0.format.drmInitData.schemeType).isEqualTo("cenc");
+    assertThat(representation1.format.drmInitData.schemeType).isEqualTo("cenc");
+    assertThat(representation0.format.drmInitData.schemeDataCount).isEqualTo(1);
+    assertThat(representation1.format.drmInitData.schemeDataCount).isEqualTo(1);
+    DrmInitData.SchemeData schemeData0 = representation0.format.drmInitData.get(0);
+    DrmInitData.SchemeData schemeData1 = representation1.format.drmInitData.get(0);
+    assertThat(schemeData0.uuid).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(schemeData1.uuid).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(schemeData0.licenseServerUrl).isEqualTo("https://testserver1.test/AcquireLicense");
+    assertThat(schemeData1.licenseServerUrl).isEqualTo("https://testserver2.test/AcquireLicense");
   }
 
   private static List<Descriptor> buildCea608AccessibilityDescriptors(String value) {

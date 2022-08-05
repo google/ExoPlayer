@@ -13,6 +13,20 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="exo_controls_show">הצגת פקדי הנגן</string>
   <string name="exo_controls_hide">הסתרת פקדי הנגן</string>
@@ -41,11 +55,11 @@
     <item quantity="many">הרצה %d שניות קדימה</item>
     <item quantity="other">הרצה %d שניות קדימה</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">אל תחזור על אף פריט</string>
-  <string name="exo_controls_repeat_one_description">חזור על פריט אחד</string>
-  <string name="exo_controls_repeat_all_description">חזור על הכול</string>
-  <string name="exo_controls_shuffle_on_description">ההשמעה האקראית מופעלת</string>
-  <string name="exo_controls_shuffle_off_description">ההשמעה האקראית מושבתת</string>
+  <string name="exo_controls_repeat_off_description">המצב הנוכחי: ללא חזרה. לחצן להחלפת מצב החזרה.</string>
+  <string name="exo_controls_repeat_one_description">המצב הנוכחי: חזרה על פריט אחד. לחצן להחלפת מצב החזרה.</string>
+  <string name="exo_controls_repeat_all_description">המצב הנוכחי: חזרה על כל הפריטים. לחצן להחלפת מצב החזרה.</string>
+  <string name="exo_controls_shuffle_on_description">השבתת מצב ההפעלה האקראית</string>
+  <string name="exo_controls_shuffle_off_description">הפעלת מצב ההפעלה האקראית</string>
   <string name="exo_controls_vr_description">מצב VR</string>
   <string name="exo_controls_cc_enabled_description">השבתת כתוביות</string>
   <string name="exo_controls_cc_disabled_description">הפעלת כתוביות</string>

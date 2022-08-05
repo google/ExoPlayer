@@ -74,7 +74,9 @@ public final class Requirements implements Parcelable {
 
   private final @RequirementFlags int requirements;
 
-  /** @param requirements A combination of requirement flags. */
+  /**
+   * @param requirements A combination of requirement flags.
+   */
   public Requirements(@RequirementFlags int requirements) {
     if ((requirements & NETWORK_UNMETERED) != 0) {
       // Make sure network requirement flags are consistent.
@@ -180,8 +182,8 @@ public final class Requirements implements Parcelable {
   private boolean isDeviceCharging(Context context) {
     @Nullable
     Intent batteryStatus =
-        context.registerReceiver(
-            /* receiver= */ null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        Util.registerReceiverNotExported(
+            context, /* receiver= */ null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     if (batteryStatus == null) {
       return false;
     }
@@ -199,8 +201,8 @@ public final class Requirements implements Parcelable {
   }
 
   private boolean isStorageNotLow(Context context) {
-    return context.registerReceiver(
-            /* receiver= */ null, new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW))
+    return Util.registerReceiverNotExported(
+            context, /* receiver= */ null, new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW))
         == null;
   }
 

@@ -56,13 +56,17 @@ public final class RawResourceDataSource extends BaseDataSource {
 
   /** Thrown when an {@link IOException} is encountered reading from a raw resource. */
   public static class RawResourceDataSourceException extends DataSourceException {
-    /** @deprecated Use {@link #RawResourceDataSourceException(String, Throwable, int)}. */
+    /**
+     * @deprecated Use {@link #RawResourceDataSourceException(String, Throwable, int)}.
+     */
     @Deprecated
     public RawResourceDataSourceException(String message) {
       super(message, /* cause= */ null, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
-    /** @deprecated Use {@link #RawResourceDataSourceException(String, Throwable, int)}. */
+    /**
+     * @deprecated Use {@link #RawResourceDataSourceException(String, Throwable, int)}.
+     */
     @Deprecated
     public RawResourceDataSourceException(Throwable cause) {
       super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
@@ -99,7 +103,9 @@ public final class RawResourceDataSource extends BaseDataSource {
   private long bytesRemaining;
   private boolean opened;
 
-  /** @param context A context. */
+  /**
+   * @param context A context.
+   */
   public RawResourceDataSource(Context context) {
     super(/* isNetwork= */ false);
     this.resources = context.getResources();

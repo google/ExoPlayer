@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,6 +80,7 @@ public class ContentMetadataMutations {
    * @param value The value to be set.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ContentMetadataMutations set(String name, String value) {
     return checkAndSet(name, value);
   }
@@ -90,6 +92,7 @@ public class ContentMetadataMutations {
    * @param value The value to be set.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ContentMetadataMutations set(String name, long value) {
     return checkAndSet(name, value);
   }
@@ -101,6 +104,7 @@ public class ContentMetadataMutations {
    * @param value The value to be set.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ContentMetadataMutations set(String name, byte[] value) {
     return checkAndSet(name, Arrays.copyOf(value, value.length));
   }
@@ -111,6 +115,7 @@ public class ContentMetadataMutations {
    * @param name The name of the metadata value.
    * @return This instance, for convenience.
    */
+  @CanIgnoreReturnValue
   public ContentMetadataMutations remove(String name) {
     removedValues.add(name);
     editedValues.remove(name);
@@ -135,6 +140,7 @@ public class ContentMetadataMutations {
     return Collections.unmodifiableMap(hashMap);
   }
 
+  @CanIgnoreReturnValue
   private ContentMetadataMutations checkAndSet(String name, Object value) {
     editedValues.put(Assertions.checkNotNull(name), Assertions.checkNotNull(value));
     removedValues.remove(name);

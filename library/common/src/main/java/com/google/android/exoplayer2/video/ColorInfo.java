@@ -32,7 +32,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
 /** Stores color info. */
 public final class ColorInfo implements Bundleable {
-
   /**
    * Returns the {@link C.ColorSpace} corresponding to the given ISO color primary code, as per
    * table A.7.21.1 in Rec. ITU-T T.832 (03/2009), or {@link Format#NO_VALUE} if no mapping can be
@@ -75,6 +74,11 @@ public final class ColorInfo implements Bundleable {
       default:
         return Format.NO_VALUE;
     }
+  }
+
+  /** Returns whether the {@code ColorInfo} uses an HDR {@link C.ColorTransfer}. */
+  public static boolean isHdr(@Nullable ColorInfo colorInfo) {
+    return colorInfo != null && colorInfo.colorTransfer != C.COLOR_TRANSFER_SDR;
   }
 
   /**

@@ -24,6 +24,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.view.View;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -76,6 +77,7 @@ public final class AdOverlayInfo {
      *
      * @return This builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setDetailedReason(@Nullable String detailedReason) {
       this.detailedReason = detailedReason;
       return this;
@@ -96,13 +98,17 @@ public final class AdOverlayInfo {
   /** An optional, detailed reason that the overlay view is needed. */
   @Nullable public final String reasonDetail;
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose) {
     this(view, purpose, /* detailedReason= */ null);
   }
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose, @Nullable String detailedReason) {
     this.view = view;

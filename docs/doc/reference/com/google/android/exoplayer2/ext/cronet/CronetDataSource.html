@@ -367,7 +367,9 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html#setContentTypePredicate(com.google.common.base.Predicate)"><code>CronetDataSource.Factory.setContentTypePredicate(Predicate)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
@@ -495,14 +497,9 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
                                     <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets a content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
- <a href="../../upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(DataSpec)</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>, or <code>null</code> to clear a
-     predicate that was previously set.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html#setContentTypePredicate(com.google.common.base.Predicate)"><code>CronetDataSource.Factory.setContentTypePredicate(Predicate)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setRequestProperty(java.lang.String,java.lang.String)">

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
@@ -37,19 +36,19 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public MediaSourceFactory setDrmSessionManagerProvider(
-      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      DrmSessionManagerProvider drmSessionManagerProvider) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public MediaSourceFactory setLoadErrorHandlingPolicy(
-      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public int[] getSupportedTypes() {
-    return new int[] {C.TYPE_OTHER};
+    return new int[] {C.CONTENT_TYPE_OTHER};
   }
 
   @Override

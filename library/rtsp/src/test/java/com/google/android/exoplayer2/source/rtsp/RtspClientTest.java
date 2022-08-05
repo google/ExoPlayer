@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.PlaybackEventListener;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
@@ -345,7 +344,7 @@ public final class RtspClientTest {
   }
 
   @Test
-  public void connectServerAndClient_malformedSdpInDescribeResponse_doesNotUpdateTimeline()
+  public void connectServerAndClient_sdpInDescribeResponseHasNoTracks_doesNotUpdateTimeline()
       throws Exception {
     class ResponseProvider implements RtspServer.ResponseProvider {
       @Override
@@ -357,14 +356,16 @@ public final class RtspClientTest {
 
       @Override
       public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
-        // This session description misses required the o, t and s tags.
         return RtspTestUtils.newDescribeResponseWithSdpMessage(
-            /* sessionDescription= */ "v=0\r\n", rtpPacketStreamDumps, requestedUri);
+            /* sessionDescription= */ "v=0\r\n",
+            // This session description has no tracks.
+            /* rtpPacketStreamDumps= */ ImmutableList.of(),
+            requestedUri);
       }
     }
     rtspServer = new RtspServer(new ResponseProvider());
 
-    AtomicReference<Throwable> failureCause = new AtomicReference<>();
+    AtomicBoolean timelineRequestFailed = new AtomicBoolean();
     rtspClient =
         new RtspClient(
             new SessionInfoListener() {
@@ -375,7 +376,7 @@ public final class RtspClientTest {
               @Override
               public void onSessionTimelineRequestFailed(
                   String message, @Nullable Throwable cause) {
-                failureCause.set(cause);
+                timelineRequestFailed.set(true);
               }
             },
             EMPTY_PLAYBACK_LISTENER,
@@ -385,8 +386,7 @@ public final class RtspClientTest {
             /* debugLoggingEnabled= */ false);
     rtspClient.start();
 
-    RobolectricUtil.runMainLooperUntil(() -> failureCause.get() != null);
-    assertThat(failureCause.get()).hasCauseThat().isInstanceOf(ParserException.class);
+    RobolectricUtil.runMainLooperUntil(timelineRequestFailed::get);
     assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 }

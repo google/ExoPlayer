@@ -29,19 +29,19 @@
   <string name="exo_controls_stop_description">Interrompi</string>
   <string name="exo_controls_rewind_description">Riavvolgi</string>
   <plurals name="exo_controls_rewind_by_amount_description">
-    <item quantity="one">Indietro di %d secondi</item>
+    <item quantity="one">Indietro di %d secondo</item>
     <item quantity="other">Indietro di %d secondi</item>
   </plurals>
   <string name="exo_controls_fastforward_description">Avanti veloce</string>
   <plurals name="exo_controls_fastforward_by_amount_description">
-    <item quantity="one">Avanti di %d secondi</item>
+    <item quantity="one">Avanti di %d secondo</item>
     <item quantity="other">Avanti di %d secondi</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Non ripetere nulla</string>
-  <string name="exo_controls_repeat_one_description">Ripeti uno</string>
-  <string name="exo_controls_repeat_all_description">Ripeti tutto</string>
-  <string name="exo_controls_shuffle_on_description">Attiva riproduzione casuale</string>
-  <string name="exo_controls_shuffle_off_description">Disattiva riproduzione casuale</string>
+  <string name="exo_controls_repeat_off_description">Modalità attuale: Non ripetere nulla. Cambia modalità di ripetizione.</string>
+  <string name="exo_controls_repeat_one_description">Modalità attuale: Ripeti uno. Cambia modalità di ripetizione.</string>
+  <string name="exo_controls_repeat_all_description">Modalità attuale: Ripeti tutto. Cambia modalità di ripetizione.</string>
+  <string name="exo_controls_shuffle_on_description">Disattiva la riproduzione casuale</string>
+  <string name="exo_controls_shuffle_off_description">Attiva la riproduzione casuale</string>
   <string name="exo_controls_vr_description">Modalità VR</string>
   <string name="exo_controls_cc_enabled_description">Disattiva i sottotitoli</string>
   <string name="exo_controls_cc_disabled_description">Attiva i sottotitoli</string>

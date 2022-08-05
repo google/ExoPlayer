@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.database;
 
 import android.content.Context;
 
-/** @deprecated Use {@link StandaloneDatabaseProvider}. */
+/**
+ * @deprecated Use {@link StandaloneDatabaseProvider}.
+ */
 @Deprecated
 public final class ExoDatabaseProvider extends StandaloneDatabaseProvider {
 

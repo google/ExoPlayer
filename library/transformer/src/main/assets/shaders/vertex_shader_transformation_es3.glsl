@@ -1,5 +1,5 @@
 #version 300 es
-// Copyright 2022 The Android Open Source Project
+// Copyright 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// ES 3 vertex shader that applies the 4 * 4 transformation matrices
+// uTransformationMatrix and the uTexTransformationMatrix.
+
 in vec4 aFramePosition;
-in vec4 aTexCoords;
-uniform mat4 uTexTransform;
 uniform mat4 uTransformationMatrix;
-out vec2 vTexCoords;
+uniform mat4 uTexTransformationMatrix;
+out vec2 vTexSamplingCoord;
 void main() {
   gl_Position = uTransformationMatrix * aFramePosition;
-  vTexCoords = (uTexTransform * aTexCoords).xy;
+  vec4 texturePosition = vec4(aFramePosition.x * 0.5 + 0.5, aFramePosition.y * 0.5 + 0.5, 0.0, 1.0);
+  vTexSamplingCoord = (uTexTransformationMatrix * texturePosition).xy;
 }

@@ -21,9 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
@@ -39,12 +37,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected final MuxerWrapper muxerWrapper;
   protected final TransformerMediaClock mediaClock;
   protected final TransformationRequest transformationRequest;
+  protected final Transformer.AsyncErrorListener asyncErrorListener;
   protected final FallbackListener fallbackListener;
 
-  protected boolean isRendererStarted;
-  protected boolean muxerWrapperTrackAdded;
-  protected boolean muxerWrapperTrackEnded;
+  private boolean isTransformationRunning;
+  private boolean muxerWrapperTrackAdded;
+  private boolean muxerWrapperTrackEnded;
   protected long streamOffsetUs;
+  protected long streamStartPositionUs;
   protected @MonotonicNonNull SamplePipeline samplePipeline;
 
   public TransformerBaseRenderer(
@@ -52,11 +52,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
+      Transformer.AsyncErrorListener asyncErrorListener,
       FallbackListener fallbackListener) {
     super(trackType);
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
     this.transformationRequest = transformationRequest;
+    this.asyncErrorListener = asyncErrorListener;
     this.fallbackListener = fallbackListener;
   }
 
@@ -90,17 +92,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public final void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public final void render(long positionUs, long elapsedRealtimeUs) {
     try {
-      if (!isRendererStarted || isEnded() || !ensureConfigured()) {
+      if (!isTransformationRunning || isEnded() || !ensureConfigured()) {
         return;
       }
 
       while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
-      throw wrapTransformationException(e);
+      isTransformationRunning = false;
+      asyncErrorListener.onTransformationException(e);
     } catch (Muxer.MuxerException e) {
-      throw wrapTransformationException(
+      isTransformationRunning = false;
+      asyncErrorListener.onTransformationException(
           TransformationException.createForMuxer(
               e, TransformationException.ERROR_CODE_MUXING_FAILED));
     }
@@ -109,6 +113,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected final void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.streamOffsetUs = offsetUs;
+    this.streamStartPositionUs = startPositionUs;
   }
 
   @Override
@@ -120,12 +125,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected final void onStarted() {
-    isRendererStarted = true;
+    isTransformationRunning = true;
   }
 
   @Override
   protected final void onStopped() {
-    isRendererStarted = false;
+    isTransformationRunning = false;
   }
 
   @Override
@@ -176,11 +181,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
 
+    long samplePresentationTimeUs = samplePipelineOutputBuffer.timeUs - streamStartPositionUs;
+    // TODO(b/204892224): Consider subtracting the first sample timestamp from the sample pipeline
+    //  buffer from all samples so that they are guaranteed to start from zero in the output file.
     if (!muxerWrapper.writeSample(
         getTrackType(),
         checkStateNotNull(samplePipelineOutputBuffer.data),
         samplePipelineOutputBuffer.isKeyFrame(),
-        samplePipelineOutputBuffer.timeUs)) {
+        samplePresentationTimeUs)) {
       return false;
     }
     samplePipeline.releaseOutputBuffer();
@@ -210,7 +218,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           return false;
         }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        samplePipelineInputBuffer.timeUs -= streamOffsetUs;
         checkStateNotNull(samplePipelineInputBuffer.data);
         maybeQueueSampleToPipeline(samplePipelineInputBuffer);
         return true;
@@ -220,24 +227,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       default:
         return false;
     }
-  }
-
-  /**
-   * Returns an {@link ExoPlaybackException} wrapping the {@link TransformationException}.
-   *
-   * <p>This temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer. {@link
-   * Transformer} extracts the {@link TransformationException} from this {@link
-   * ExoPlaybackException} again.
-   */
-  private ExoPlaybackException wrapTransformationException(
-      TransformationException transformationException) {
-    return ExoPlaybackException.createForRenderer(
-        transformationException,
-        "Transformer",
-        getIndex(),
-        /* rendererFormat= */ null,
-        C.FORMAT_HANDLED,
-        /* isRecoverable= */ false,
-        PlaybackException.ERROR_CODE_UNSPECIFIED);
   }
 }

@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -49,11 +50,13 @@ public class FakeDataSource extends BaseDataSource {
       fakeDataSet = new FakeDataSet();
     }
 
+    @CanIgnoreReturnValue
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
       this.fakeDataSet = fakeDataSet;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public final Factory setIsNetwork(boolean isNetwork) {
       this.isNetwork = isNetwork;
       return this;

@@ -39,11 +39,11 @@
     <item quantity="few">Premotavanje %d sekunde naprijed</item>
     <item quantity="other">Premotavanje %d sekundi naprijed</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ne ponavljaj</string>
-  <string name="exo_controls_repeat_one_description">Ponovi jedno</string>
-  <string name="exo_controls_repeat_all_description">Ponovi sve</string>
-  <string name="exo_controls_shuffle_on_description">Uključi nasumično</string>
-  <string name="exo_controls_shuffle_off_description">Isključi nasumično</string>
+  <string name="exo_controls_repeat_off_description">Trenutni način: Ne ponavljaj. Uklj./isklj. ponavlj.</string>
+  <string name="exo_controls_repeat_one_description">Trenutni način: Ponovi jedno. Uklj./isklj. ponavlj.</string>
+  <string name="exo_controls_repeat_all_description">Trenutni način: Ponovi sve. Uklj./isklj. ponavlj.</string>
+  <string name="exo_controls_shuffle_on_description">Onemogućavanje nasumičnog načina rada</string>
+  <string name="exo_controls_shuffle_off_description">Omogućavanje nasumičnog načina rada</string>
   <string name="exo_controls_vr_description">VR način rada</string>
   <string name="exo_controls_cc_enabled_description">Onemogućavanje titlova</string>
   <string name="exo_controls_cc_disabled_description">Omogućavanje titlova</string>

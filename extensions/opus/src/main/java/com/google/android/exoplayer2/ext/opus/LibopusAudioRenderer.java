@@ -113,6 +113,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
             format.initializationData,
             cryptoConfig,
             outputFloat);
+    decoder.experimentalSetDiscardPaddingEnabled(experimentalGetDiscardPaddingEnabled());
 
     TraceUtil.endSection();
     return decoder;
@@ -123,5 +124,15 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     @C.PcmEncoding
     int pcmEncoding = decoder.outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     return Util.getPcmFormat(pcmEncoding, decoder.channelCount, OpusDecoder.SAMPLE_RATE);
+  }
+
+  /**
+   * Returns true if support for padding removal from the end of decoder output buffer should be
+   * enabled.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   */
+  protected boolean experimentalGetDiscardPaddingEnabled() {
+    return false;
   }
 }

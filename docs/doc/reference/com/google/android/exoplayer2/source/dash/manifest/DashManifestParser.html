@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":10,"i30":10,"i31":10,"i32":9,"i33":9,"i34":10,"i35":9,"i36":10,"i37":9,"i38":9,"i39":10,"i40":9,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":9,"i59":9,"i60":10,"i61":10,"i62":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":9,"i31":10,"i32":10,"i33":10,"i34":9,"i35":9,"i36":10,"i37":9,"i38":10,"i39":9,"i40":9,"i41":10,"i42":9,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":9,"i61":9,"i62":10,"i63":10,"i64":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -447,25 +447,44 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDolbyChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDolbyChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
-<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
- schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
- in ETSI TS 102 366, or the legacy schemeIdUri
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+ schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011" as defined by table E.5
+ in ETSI TS 102 366, or by the legacy schemeIdUri
  "urn:dolby:dash:audio_channel_configuration:2011".</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDtsChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDtsChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+ schemeIdUri "tag:dts.com,2014:dash:audio_channel_configuration:2012" as defined by Annex G
+ (3.2) in ETSI TS 102 114 V1.6.1, or by the legacy schemeIdUri
+ "urn:dts:dash:audio_channel_configuration:2012".</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDtsxChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDtsxChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+ schemeIdUri "tag:dts.com,2018:uhd:audio_channel_configuration" as defined by table B-5 in ETSI
+ TS 103 491 v1.2.1.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDuration(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseDuration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
              long&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEac3SupplementalProperties(java.util.List)">parseEac3SupplementalProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg" target="_top">EventMessage</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,java.io.ByteArrayOutputStream)">parseEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
@@ -476,7 +495,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <div class="block">Parses a single Event node in the manifest.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEventObject(org.xmlpull.v1.XmlPullParser,java.io.ByteArrayOutputStream)">parseEventObject</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)</code></th>
@@ -484,72 +503,72 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <div class="block">Parses an event object.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected <a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEventStream(org.xmlpull.v1.XmlPullParser)">parseEventStream</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
 <div class="block">Parses a single EventStream node in the manifest.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseFloat(org.xmlpull.v1.XmlPullParser,java.lang.String,float)">parseFloat</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
           float&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseFrameRate(org.xmlpull.v1.XmlPullParser,float)">parseFrameRate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
               float&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseInitialization(org.xmlpull.v1.XmlPullParser)">parseInitialization</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseInt(org.xmlpull.v1.XmlPullParser,java.lang.String,int)">parseInt</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
         int&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLabel(org.xmlpull.v1.XmlPullParser)">parseLabel</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
 <div class="block">Parses a Label element.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLastSegmentNumberSupplementalProperty(java.util.List)">parseLastSegmentNumberSupplementalProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>protected static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLong(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseLong</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
          long&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected <a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMediaPresentationDescription(org.xmlpull.v1.XmlPullParser,android.net.Uri)">parseMediaPresentationDescription</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;documentBaseUri)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMpegChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseMpegChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
-<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePeriod(org.xmlpull.v1.XmlPullParser,java.util.List,long,long,long,long,boolean)">parsePeriod</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;parentBaseUrls,
@@ -560,26 +579,26 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
            boolean&nbsp;dvbProfileDeclared)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseProfiles(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String%5B%5D)">parseProfiles</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;attributeName,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>protected <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseProgramInformation(org.xmlpull.v1.XmlPullParser)">parseProgramInformation</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRangedUrl(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">parseRangedUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlAttribute,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rangeAttribute)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected <a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRepresentation(org.xmlpull.v1.XmlPullParser,java.util.List,java.lang.String,java.lang.String,int,int,float,int,int,java.lang.String,java.util.List,java.util.List,java.util.List,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,long,long,long,long,long,boolean)">parseRepresentation</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;parentBaseUrls,
@@ -604,33 +623,33 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                    boolean&nbsp;dvbProfileDeclared)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">parseRoleFlagsFromAccessibilityDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromDashRoleScheme(java.lang.String)">parseRoleFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromProperties(java.util.List)">parseRoleFlagsFromProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromRoleDescriptors(java.util.List)">parseRoleFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentBase(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase)">parseSegmentBase</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parent)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentList(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList,long,long,long,long,long)">parseSegmentList</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>&nbsp;parent,
@@ -641,7 +660,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                 long&nbsp;timeShiftBufferDepthMs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentTemplate(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate,java.util.List,long,long,long,long,long)">parseSegmentTemplate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                     <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>&nbsp;parent,
@@ -653,59 +672,59 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                     long&nbsp;timeShiftBufferDepthMs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentTimeline(org.xmlpull.v1.XmlPullParser,long,long)">parseSegmentTimeline</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                     long&nbsp;timescale,
                     long&nbsp;periodDurationMs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentUrl(org.xmlpull.v1.XmlPullParser)">parseSegmentUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromDashRoleScheme(java.lang.String)">parseSelectionFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromRoleDescriptors(java.util.List)">parseSelectionFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>protected <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseServiceDescription(org.xmlpull.v1.XmlPullParser)">parseServiceDescription</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseString(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">parseString</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseText(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseText</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTvaAudioPurposeCsValue(java.lang.String)">parseTvaAudioPurposeCsValue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>protected <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUrlTemplate(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate)">parseUrlTemplate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                 <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>protected <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUtcTiming(org.xmlpull.v1.XmlPullParser)">parseUtcTiming</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -1728,8 +1747,47 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudio
 <li class="blockList">
 <h4>parseMpegChannelConfiguration</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseMpegChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
-<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed number of channels, or <a href="../../../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if the channel count could
+     not be parsed.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseDtsChannelConfiguration(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseDtsChannelConfiguration</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseDtsChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+ schemeIdUri "tag:dts.com,2014:dash:audio_channel_configuration:2012" as defined by Annex G
+ (3.2) in ETSI TS 102 114 V1.6.1, or by the legacy schemeIdUri
+ "urn:dts:dash:audio_channel_configuration:2012".</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed number of channels, or <a href="../../../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if the channel count could
+     not be parsed.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseDtsxChannelConfiguration(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseDtsxChannelConfiguration</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseDtsxChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+ schemeIdUri "tag:dts.com,2018:uhd:audio_channel_configuration" as defined by table B-5 in ETSI
+ TS 103 491 v1.2.1.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>xpp</code> - The parser from which to read.</dd>
@@ -1746,9 +1804,9 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudio
 <li class="blockList">
 <h4>parseDolbyChannelConfiguration</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseDolbyChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
-<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
- schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
- in ETSI TS 102 366, or the legacy schemeIdUri
+<div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
+ schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011" as defined by table E.5
+ in ETSI TS 102 366, or by the legacy schemeIdUri
  "urn:dolby:dash:audio_channel_configuration:2011".</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

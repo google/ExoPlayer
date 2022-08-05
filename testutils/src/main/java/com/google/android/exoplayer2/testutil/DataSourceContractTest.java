@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +64,7 @@ import org.mockito.Mockito;
  *
  * <p>Most implementations should pass all these tests. If necessary, subclasses can disable tests
  * by overriding the {@link Test @Test} method with a no-op implementation. It's recommended (but
- * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correclty reports the
+ * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correctly reports the
  * test as skipped/ignored instead of passing.
  */
 @RequiresApi(19)
@@ -662,17 +663,20 @@ public abstract class DataSourceContractTest {
       /**
        * Sets a human-readable name for this resource which will be shown in test failure messages.
        */
+      @CanIgnoreReturnValue
       public Builder setName(String name) {
         this.name = name;
         return this;
       }
 
       /** Sets the URI where this resource is located. */
+      @CanIgnoreReturnValue
       public Builder setUri(String uri) {
         return setUri(Uri.parse(uri));
       }
 
       /** Sets the URI where this resource is located. */
+      @CanIgnoreReturnValue
       public Builder setUri(Uri uri) {
         this.uri = uri;
         return this;
@@ -683,6 +687,7 @@ public abstract class DataSourceContractTest {
        *
        * <p>Must be at least 5 bytes.
        */
+      @CanIgnoreReturnValue
       public Builder setExpectedBytes(byte[] expectedBytes) {
         checkArgument(expectedBytes.length >= 5);
         this.expectedBytes = expectedBytes;

@@ -22,16 +22,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link TrackSelectionParameters}. */
 @RunWith(AndroidJUnit4.class)
 public final class TrackSelectionParametersTest {
+
+  private static final TrackGroup AAC_TRACK_GROUP =
+      new TrackGroup(new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).build());
 
   @Test
   public void defaultValue_withoutChange_isAsExpected() {
@@ -59,26 +60,25 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredAudioMimeTypes).isEmpty();
     assertThat(parameters.preferredTextLanguages).isEmpty();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(0);
+    assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(0);
     assertThat(parameters.selectUndeterminedTextLanguage).isFalse();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isFalse();
-    assertThat(parameters.trackSelectionOverrides.asList()).isEmpty();
+    assertThat(parameters.overrides).isEmpty();
     assertThat(parameters.disabledTrackTypes).isEmpty();
   }
 
   @Test
   public void parametersSet_fromDefault_isAsExpected() {
-    TrackSelectionOverrides trackSelectionOverrides =
-        new TrackSelectionOverrides.Builder()
-            .addOverride(new TrackSelectionOverride(new TrackGroup(new Format.Builder().build())))
-            .addOverride(
-                new TrackSelectionOverride(
-                    new TrackGroup(
-                        new Format.Builder().setId(4).build(),
-                        new Format.Builder().setId(5).build()),
-                    /* trackIndices= */ ImmutableList.of(1)))
-            .build();
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(
+            new TrackGroup(new Format.Builder().build()), /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(
+            new TrackGroup(
+                new Format.Builder().setId(4).build(), new Format.Builder().setId(5).build()),
+            /* trackIndices= */ ImmutableList.of(1));
     TrackSelectionParameters parameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
             .buildUpon()
@@ -103,12 +103,22 @@ public final class TrackSelectionParametersTest {
             // Text
             .setPreferredTextLanguages("de", "en")
             .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
+            .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
             .setSelectUndeterminedTextLanguage(true)
             // General
             .setForceLowestBitrate(false)
             .setForceHighestSupportedBitrate(true)
-            .setTrackSelectionOverrides(trackSelectionOverrides)
-            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT))
+            .addOverride(
+                new TrackSelectionOverride(
+                    new TrackGroup(new Format.Builder().build()), /* trackIndex= */ 0))
+            .addOverride(
+                new TrackSelectionOverride(
+                    new TrackGroup(
+                        new Format.Builder().setId(4).build(),
+                        new Format.Builder().setId(5).build()),
+                    /* trackIndices= */ ImmutableList.of(1)))
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
+            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, /* disabled= */ true)
             .build();
 
     // Video
@@ -137,11 +147,14 @@ public final class TrackSelectionParametersTest {
     // Text
     assertThat(parameters.preferredTextLanguages).containsExactly("de", "en").inOrder();
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(C.ROLE_FLAG_CAPTION);
+    assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(C.SELECTION_FLAG_AUTOSELECT);
     assertThat(parameters.selectUndeterminedTextLanguage).isTrue();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isTrue();
-    assertThat(parameters.trackSelectionOverrides).isEqualTo(trackSelectionOverrides);
+    assertThat(parameters.overrides)
+        .containsExactly(
+            override1.mediaTrackGroup, override1, override2.mediaTrackGroup, override2);
     assertThat(parameters.disabledTrackTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT);
   }
@@ -181,5 +194,116 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.viewportWidth).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.viewportHeight).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.viewportOrientationMayChange).isTrue();
+  }
+
+  @Test
+  public void roundTripViaBundle_withOverride_yieldsEqualInstance() {
+    TrackSelectionOverride override =
+        new TrackSelectionOverride(
+            newTrackGroupWithIds(3, 4), /* trackIndices= */ ImmutableList.of(1));
+    TrackSelectionParameters trackSelectionParameters =
+        new TrackSelectionParameters.Builder(getApplicationContext()).addOverride(override).build();
+
+    TrackSelectionParameters fromBundle =
+        TrackSelectionParameters.fromBundle(trackSelectionParameters.toBundle());
+
+    assertThat(fromBundle).isEqualTo(trackSelectionParameters);
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override.mediaTrackGroup, override);
+  }
+
+  @Test
+  public void addOverride_onDifferentGroups_addsOverride() {
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(2), /* trackIndex= */ 0);
+
+    TrackSelectionParameters trackSelectionParameters =
+        new TrackSelectionParameters.Builder(getApplicationContext())
+            .addOverride(override1)
+            .addOverride(override2)
+            .build();
+
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(
+            override1.mediaTrackGroup, override1, override2.mediaTrackGroup, override2);
+  }
+
+  @Test
+  public void addOverride_onSameGroup_replacesOverride() {
+    TrackGroup trackGroup = newTrackGroupWithIds(1, 2, 3);
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(trackGroup, /* trackIndices= */ ImmutableList.of(0));
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(trackGroup, /* trackIndices= */ ImmutableList.of(1));
+
+    TrackSelectionParameters trackSelectionParameters =
+        new TrackSelectionParameters.Builder(getApplicationContext())
+            .addOverride(override1)
+            .addOverride(override2)
+            .build();
+
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override2.mediaTrackGroup, override2);
+  }
+
+  @Test
+  public void setOverrideForType_onSameType_replacesOverride() {
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(2), /* trackIndex= */ 0);
+
+    TrackSelectionParameters trackSelectionParameters =
+        new TrackSelectionParameters.Builder(getApplicationContext())
+            .setOverrideForType(override1)
+            .setOverrideForType(override2)
+            .build();
+
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override2.mediaTrackGroup, override2);
+  }
+
+  @Test
+  public void clearOverridesOfType_ofTypeAudio_removesAudioOverride() {
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(AAC_TRACK_GROUP, /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
+    TrackSelectionParameters trackSelectionParameters =
+        new TrackSelectionParameters.Builder(getApplicationContext())
+            .addOverride(override1)
+            .addOverride(override2)
+            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+            .build();
+
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override2.mediaTrackGroup, override2);
+  }
+
+  @Test
+  public void clearOverride_ofTypeGroup_removesOverride() {
+    TrackSelectionOverride override1 =
+        new TrackSelectionOverride(AAC_TRACK_GROUP, /* trackIndex= */ 0);
+    TrackSelectionOverride override2 =
+        new TrackSelectionOverride(newTrackGroupWithIds(1), /* trackIndex= */ 0);
+    TrackSelectionParameters trackSelectionParameters =
+        new TrackSelectionParameters.Builder(getApplicationContext())
+            .addOverride(override1)
+            .addOverride(override2)
+            .clearOverride(override2.mediaTrackGroup)
+            .build();
+
+    assertThat(trackSelectionParameters.overrides)
+        .containsExactly(override1.mediaTrackGroup, override1);
+  }
+
+  private static TrackGroup newTrackGroupWithIds(int... ids) {
+    Format[] formats = new Format[ids.length];
+    for (int i = 0; i < ids.length; i++) {
+      formats[i] = new Format.Builder().setId(ids[i]).build();
+    }
+    return new TrackGroup(formats);
   }
 }

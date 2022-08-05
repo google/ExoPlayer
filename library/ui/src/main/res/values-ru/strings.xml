@@ -41,11 +41,11 @@
     <item quantity="many">Перемотать на %d секунд вперед</item>
     <item quantity="other">Перемотать на %d секунды вперед</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Не повторять</string>
-  <string name="exo_controls_repeat_one_description">Повторять трек</string>
-  <string name="exo_controls_repeat_all_description">Повторять все</string>
-  <string name="exo_controls_shuffle_on_description">Перемешивание включено</string>
-  <string name="exo_controls_shuffle_off_description">Перемешивание отключено</string>
+  <string name="exo_controls_repeat_off_description">Выбрано: не повторять. Изменить режим повтора.</string>
+  <string name="exo_controls_repeat_one_description">Выбрано: повторять один раз. Изменить режим повтора.</string>
+  <string name="exo_controls_repeat_all_description">Выбрано: повторять все. Изменить режим повтора.</string>
+  <string name="exo_controls_shuffle_on_description">Отключить перемешивание</string>
+  <string name="exo_controls_shuffle_off_description">Включить перемешивание</string>
   <string name="exo_controls_vr_description">VR-режим</string>
   <string name="exo_controls_cc_enabled_description">Выключить субтитры</string>
   <string name="exo_controls_cc_disabled_description">Включить субтитры</string>

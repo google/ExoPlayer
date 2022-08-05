@@ -37,11 +37,11 @@
     <item quantity="one">Γρήγορη προώθηση κατά %d δευτερόλεπτο</item>
     <item quantity="other">Γρήγορη προώθηση κατά %d δευτερόλεπτα</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Καμία επανάληψη</string>
-  <string name="exo_controls_repeat_one_description">Επανάληψη ενός κομματιού</string>
-  <string name="exo_controls_repeat_all_description">Επανάληψη όλων</string>
-  <string name="exo_controls_shuffle_on_description">Τυχαία αναπαραγωγή: Ενεργή</string>
-  <string name="exo_controls_shuffle_off_description">Τυχαία αναπαραγωγή: Ανενεργή</string>
+  <string name="exo_controls_repeat_off_description">Τρέχ. λειτουργία: Καμία επανάλ. Εναλλαγή λειτουργ. επανάλ.</string>
+  <string name="exo_controls_repeat_one_description">Τρέχ. λειτουργία: Επανάλ. ενός. Εναλλαγή λειτουργ. επανάλ.</string>
+  <string name="exo_controls_repeat_all_description">Τρέχ. λειτουργία: Επανάλ. όλων Εναλλαγή λειτουργ. επανάλ.</string>
+  <string name="exo_controls_shuffle_on_description">Απενεργ. λειτουργ. τυχαίας αναπαραγωγής</string>
+  <string name="exo_controls_shuffle_off_description">Ενεργοπ. λειτουργ. τυχαίας αναπαραγωγής</string>
   <string name="exo_controls_vr_description">Λειτουργία VR mode</string>
   <string name="exo_controls_cc_enabled_description">Απενεργοποίηση υπότιτλων</string>
   <string name="exo_controls_cc_disabled_description">Ενεργοποίηση υπότιτλων</string>

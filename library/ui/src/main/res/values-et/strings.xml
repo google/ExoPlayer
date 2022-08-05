@@ -37,11 +37,11 @@
     <item quantity="one">Keri %d sekund edasi</item>
     <item quantity="other">Keri %d sekundit edasi</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Ära korda ühtegi</string>
-  <string name="exo_controls_repeat_one_description">Korda ühte</string>
-  <string name="exo_controls_repeat_all_description">Korda kõiki</string>
-  <string name="exo_controls_shuffle_on_description">Lülita juh. järj. esit. sisse</string>
-  <string name="exo_controls_shuffle_off_description">Lülita juh. järj. esit. välja</string>
+  <string name="exo_controls_repeat_off_description">Praegune režiim: Ära korda. Aktiveerige kordusrežiim.</string>
+  <string name="exo_controls_repeat_one_description">Praegune režiim: Korda ühte. Aktiveerige kordusrežiim.</string>
+  <string name="exo_controls_repeat_all_description">Praegune režiim: Korda kõiki. Aktiveerige kordusrežiim.</string>
+  <string name="exo_controls_shuffle_on_description">Juhuesituse režiimi keelamine</string>
+  <string name="exo_controls_shuffle_off_description">Juhuesituse režiimi lubamine</string>
   <string name="exo_controls_vr_description">VR-režiim</string>
   <string name="exo_controls_cc_enabled_description">Keela subtiitrid</string>
   <string name="exo_controls_cc_disabled_description">Luba subtiitrid</string>

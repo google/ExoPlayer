@@ -37,11 +37,11 @@
     <item quantity="one">ເລື່ອນໄປໜ້າ %d ວິນາທີ</item>
     <item quantity="other">ເລື່ອນໄປໜ້າ %d ວິນາທີ</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">ບໍ່ຫຼິ້ນຊ້ຳ</string>
-  <string name="exo_controls_repeat_one_description">ຫຼິ້ນຊໍ້າ</string>
-  <string name="exo_controls_repeat_all_description">ຫຼິ້ນຊ້ຳທັງໝົດ</string>
-  <string name="exo_controls_shuffle_on_description">ເປີດການສຸ່ມເພງແລ້ວ</string>
-  <string name="exo_controls_shuffle_off_description">ປິດການສຸ່ມເພງແລ້ວ</string>
+  <string name="exo_controls_repeat_off_description">ໂໝດປັດຈຸບັນ: ບໍ່ເປີດຊ້ຳ. ສະຫຼັບໂໝດເປີດຊ້ຳ.</string>
+  <string name="exo_controls_repeat_one_description">ໂໝດປັດຈຸບັນ: ເປີດຊ້ຳອັນດຽວ. ສະຫຼັບໂໝດເປີດຊ້ຳ.</string>
+  <string name="exo_controls_repeat_all_description">ໂໝດປັດຈຸບັນ: ເປີດຊ້ຳທັງໝົດ. ສະຫຼັບໂໝດເປີດຊ້ຳ.</string>
+  <string name="exo_controls_shuffle_on_description">ປິດການນຳໃຊ້ໂໝດສັບ</string>
+  <string name="exo_controls_shuffle_off_description">ເປີດການນຳໃຊ້ໂໝດສັບ</string>
   <string name="exo_controls_vr_description">ໂໝດ VR</string>
   <string name="exo_controls_cc_enabled_description">ປິດການນຳໃຊ້ຄຳແປ</string>
   <string name="exo_controls_cc_disabled_description">ເປີດການນຳໃຊ້ຄຳແປ</string>

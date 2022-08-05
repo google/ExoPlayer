@@ -65,7 +65,10 @@ public class FakeTrackSelector extends DefaultTrackSelector {
     for (int i = 0; i < rendererCount; i++) {
       TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
       boolean hasTracks = trackGroupArray.length > 0;
-      definitions[i] = hasTracks ? new ExoTrackSelection.Definition(trackGroupArray.get(0)) : null;
+      definitions[i] =
+          hasTracks
+              ? new ExoTrackSelection.Definition(trackGroupArray.get(0), /* tracks...= */ 0)
+              : null;
     }
     return definitions;
   }

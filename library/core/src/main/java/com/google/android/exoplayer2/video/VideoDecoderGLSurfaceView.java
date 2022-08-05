@@ -21,9 +21,11 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -45,9 +47,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     implements VideoDecoderOutputBufferRenderer {
 
+  private static final String TAG = "VideoDecoderGLSV";
+
   private final Renderer renderer;
 
-  /** @param context A {@link Context}. */
+  /**
+   * @param context A {@link Context}.
+   */
   public VideoDecoderGLSurfaceView(Context context) {
     this(context, /* attrs= */ null);
   }
@@ -71,7 +77,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     renderer.setOutputBuffer(outputBuffer);
   }
 
-  /** @deprecated This class implements {@link VideoDecoderOutputBufferRenderer} directly. */
+  /**
+   * @deprecated This class implements {@link VideoDecoderOutputBufferRenderer} directly.
+   */
   @Deprecated
   public VideoDecoderOutputBufferRenderer getVideoDecoderOutputBufferRenderer() {
     return this;
@@ -144,7 +152,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     // glDrawArrays uses it.
     private final FloatBuffer[] textureCoords;
 
-    private GlUtil.@MonotonicNonNull Program program;
+    private @MonotonicNonNull GlProgram program;
     private int colorMatrixLocation;
 
     // Accessed only from the GL thread.
@@ -165,22 +173,26 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-      program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
-      int posLocation = program.getAttributeArrayLocationAndEnable("in_pos");
-      GLES20.glVertexAttribPointer(
-          posLocation,
-          2,
-          GLES20.GL_FLOAT,
-          /* normalized= */ false,
-          /* stride= */ 0,
-          TEXTURE_VERTICES);
-      texLocations[0] = program.getAttributeArrayLocationAndEnable("in_tc_y");
-      texLocations[1] = program.getAttributeArrayLocationAndEnable("in_tc_u");
-      texLocations[2] = program.getAttributeArrayLocationAndEnable("in_tc_v");
-      colorMatrixLocation = program.getUniformLocation("mColorConversion");
-      GlUtil.checkGlError();
-      setupTextures();
-      GlUtil.checkGlError();
+      try {
+        program = new GlProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+        int posLocation = program.getAttributeArrayLocationAndEnable("in_pos");
+        GLES20.glVertexAttribPointer(
+            posLocation,
+            2,
+            GLES20.GL_FLOAT,
+            /* normalized= */ false,
+            /* stride= */ 0,
+            TEXTURE_VERTICES);
+        texLocations[0] = program.getAttributeArrayLocationAndEnable("in_tc_y");
+        texLocations[1] = program.getAttributeArrayLocationAndEnable("in_tc_u");
+        texLocations[2] = program.getAttributeArrayLocationAndEnable("in_tc_v");
+        colorMatrixLocation = program.getUniformLocation("mColorConversion");
+        GlUtil.checkGlError();
+        setupTextures();
+        GlUtil.checkGlError();
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Failed to set up the textures and program", e);
+      }
     }
 
     @Override
@@ -277,7 +289,11 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
       GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-      GlUtil.checkGlError();
+      try {
+        GlUtil.checkGlError();
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Failed to draw a frame", e);
+      }
     }
 
     public void setOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
@@ -293,21 +309,17 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
     @RequiresNonNull("program")
     private void setupTextures() {
-      GLES20.glGenTextures(3, yuvTextures, /* offset= */ 0);
-      for (int i = 0; i < 3; i++) {
-        GLES20.glUniform1i(program.getUniformLocation(TEXTURE_UNIFORMS[i]), i);
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameterf(
-            GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+      try {
+        GLES20.glGenTextures(/* n= */ 3, yuvTextures, /* offset= */ 0);
+        for (int i = 0; i < 3; i++) {
+          GLES20.glUniform1i(program.getUniformLocation(TEXTURE_UNIFORMS[i]), i);
+          GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
+          GlUtil.bindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
+        }
+        GlUtil.checkGlError();
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Failed to set up the textures", e);
       }
-      GlUtil.checkGlError();
     }
   }
 }

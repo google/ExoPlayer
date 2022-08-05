@@ -169,7 +169,9 @@ public final class Mp3Extractor implements Extractor {
     this(0);
   }
 
-  /** @param flags Flags that control the extractor's behavior. */
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
   public Mp3Extractor(@Flags int flags) {
     this(flags, C.TIME_UNSET);
   }

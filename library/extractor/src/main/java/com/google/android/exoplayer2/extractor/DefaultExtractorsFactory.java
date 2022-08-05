@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
+import com.google.android.exoplayer2.extractor.avi.AviExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
 import com.google.android.exoplayer2.extractor.jpeg.JpegExtractor;
@@ -42,7 +43,9 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader;
 import com.google.android.exoplayer2.extractor.wav.WavExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +78,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *             the FLAC extension or the FFmpeg extension.
  *       </ul>
  *   <li>JPEG ({@link JpegExtractor})
+ *   <li>MIDI, if available, the MIDI extension's {@code
+ *       com.google.android.exoplayer2.decoder.midi.MidiExtractor} is used.
  * </ul>
  */
 public final class DefaultExtractorsFactory implements ExtractorsFactory {
@@ -98,10 +103,17 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.AC3,
         FileTypes.AC4,
         FileTypes.MP3,
+        // The following extractors are not part of the optimized ordering, and were appended
+        // without further analysis.
+        FileTypes.AVI,
+        FileTypes.MIDI,
         FileTypes.JPEG,
       };
 
-  private static final FlacExtensionLoader FLAC_EXTENSION_LOADER = new FlacExtensionLoader();
+  private static final ExtensionLoader FLAC_EXTENSION_LOADER =
+      new ExtensionLoader(DefaultExtractorsFactory::getFlacExtractorConstructor);
+  private static final ExtensionLoader MIDI_EXTENSION_LOADER =
+      new ExtensionLoader(DefaultExtractorsFactory::getMidiExtractorConstructor);
 
   private boolean constantBitrateSeekingEnabled;
   private boolean constantBitrateSeekingAlwaysEnabled;
@@ -132,6 +144,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *     assumption should be enabled for all extractors that support it.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingEnabled(
       boolean constantBitrateSeekingEnabled) {
     this.constantBitrateSeekingEnabled = constantBitrateSeekingEnabled;
@@ -156,6 +169,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *     duration is unknown.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingAlwaysEnabled(
       boolean constantBitrateSeekingAlwaysEnabled) {
     this.constantBitrateSeekingAlwaysEnabled = constantBitrateSeekingAlwaysEnabled;
@@ -169,6 +183,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setAdtsExtractorFlags(
       @AdtsExtractor.Flags int flags) {
     this.adtsFlags = flags;
@@ -182,6 +197,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setAmrExtractorFlags(@AmrExtractor.Flags int flags) {
     this.amrFlags = flags;
     return this;
@@ -196,6 +212,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setFlacExtractorFlags(
       @FlacExtractor.Flags int flags) {
     this.flacFlags = flags;
@@ -209,6 +226,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMatroskaExtractorFlags(
       @MatroskaExtractor.Flags int flags) {
     this.matroskaFlags = flags;
@@ -222,6 +240,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMp4ExtractorFlags(@Mp4Extractor.Flags int flags) {
     this.mp4Flags = flags;
     return this;
@@ -234,6 +253,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setFragmentedMp4ExtractorFlags(
       @FragmentedMp4Extractor.Flags int flags) {
     this.fragmentedMp4Flags = flags;
@@ -247,6 +267,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setMp3ExtractorFlags(@Mp3Extractor.Flags int flags) {
     mp3Flags = flags;
     return this;
@@ -259,6 +280,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param mode The mode to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorMode(@TsExtractor.Mode int mode) {
     tsMode = mode;
     return this;
@@ -272,6 +294,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorFlags(
       @DefaultTsPayloadReaderFactory.Flags int flags) {
     tsFlags = flags;
@@ -286,6 +309,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    * @param timestampSearchBytes The number of search bytes to use.
    * @return The factory, for convenience.
    */
+  @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTsExtractorTimestampSearchBytes(
       int timestampSearchBytes) {
     tsTimestampSearchBytes = timestampSearchBytes;
@@ -300,7 +324,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   @Override
   public synchronized Extractor[] createExtractors(
       Uri uri, Map<String, List<String>> responseHeaders) {
-    List<Extractor> extractors = new ArrayList<>(/* initialCapacity= */ 14);
+    List<Extractor> extractors =
+        new ArrayList<>(/* initialCapacity= */ DEFAULT_EXTRACTOR_ORDER.length);
 
     @FileTypes.Type
     int responseHeadersInferredFileType = inferFileTypeFromResponseHeaders(responseHeaders);
@@ -397,6 +422,15 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
       case FileTypes.JPEG:
         extractors.add(new JpegExtractor());
         break;
+      case FileTypes.MIDI:
+        @Nullable Extractor midiExtractor = MIDI_EXTENSION_LOADER.getExtractor();
+        if (midiExtractor != null) {
+          extractors.add(midiExtractor);
+        }
+        break;
+      case FileTypes.AVI:
+        extractors.add(new AviExtractor());
+        break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:
       default:
@@ -404,28 +438,63 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     }
   }
 
-  private static final class FlacExtensionLoader {
+  private static Constructor<? extends Extractor> getMidiExtractorConstructor()
+      throws ClassNotFoundException, NoSuchMethodException {
+    return Class.forName("com.google.android.exoplayer2.decoder.midi.MidiExtractor")
+        .asSubclass(Extractor.class)
+        .getConstructor();
+  }
+
+  @Nullable
+  private static Constructor<? extends Extractor> getFlacExtractorConstructor()
+      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+          IllegalAccessException {
+    @SuppressWarnings("nullness:argument")
+    boolean isFlacNativeLibraryAvailable =
+        Boolean.TRUE.equals(
+            Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
+                .getMethod("isAvailable")
+                .invoke(/* obj= */ null));
+    if (isFlacNativeLibraryAvailable) {
+      return Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
+          .asSubclass(Extractor.class)
+          .getConstructor(int.class);
+    }
+    return null;
+  }
+
+  private static final class ExtensionLoader {
+
+    public interface ConstructorSupplier {
+      @Nullable
+      Constructor<? extends Extractor> getConstructor()
+          throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
+              ClassNotFoundException;
+    }
+
+    private final ConstructorSupplier constructorSupplier;
     private final AtomicBoolean extensionLoaded;
 
     @GuardedBy("extensionLoaded")
     @Nullable
     private Constructor<? extends Extractor> extractorConstructor;
 
-    public FlacExtensionLoader() {
+    public ExtensionLoader(ConstructorSupplier constructorSupplier) {
+      this.constructorSupplier = constructorSupplier;
       extensionLoaded = new AtomicBoolean(false);
     }
 
     @Nullable
-    public Extractor getExtractor(int flags) {
+    public Extractor getExtractor(Object... constructorParams) {
       @Nullable
       Constructor<? extends Extractor> extractorConstructor = maybeLoadExtractorConstructor();
       if (extractorConstructor == null) {
         return null;
       }
       try {
-        return extractorConstructor.newInstance(flags);
+        return extractorConstructor.newInstance(constructorParams);
       } catch (Exception e) {
-        throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
+        throw new IllegalStateException("Unexpected error creating extractor", e);
       }
     }
 
@@ -436,23 +505,12 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
           return extractorConstructor;
         }
         try {
-          @SuppressWarnings("nullness:argument")
-          boolean isFlacNativeLibraryAvailable =
-              Boolean.TRUE.equals(
-                  Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
-                      .getMethod("isAvailable")
-                      .invoke(/* obj= */ null));
-          if (isFlacNativeLibraryAvailable) {
-            extractorConstructor =
-                Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
-                    .asSubclass(Extractor.class)
-                    .getConstructor(int.class);
-          }
+          return constructorSupplier.getConstructor();
         } catch (ClassNotFoundException e) {
-          // Expected if the app was built without the FLAC extension.
+          // Expected if the app was built without the extension.
         } catch (Exception e) {
-          // The FLAC extension is present, but instantiation failed.
-          throw new RuntimeException("Error instantiating FLAC extension", e);
+          // The extension is present, but instantiation failed.
+          throw new RuntimeException("Error instantiating extension", e);
         }
         extensionLoaded.set(true);
         return extractorConstructor;

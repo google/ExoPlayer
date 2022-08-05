@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
+#ifdef __ANDROID__
 #include <android/log.h>
+#endif
 #include <jni.h>
 
+#include <cstdint>
 #include <cstdlib>
 
 #include "opus.h"              // NOLINT
 #include "opus_multistream.h"  // NOLINT
 
+#ifdef __ANDROID__
 #define LOG_TAG "opus_jni"
 #define LOGE(...) \
   ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
+#else  //  __ANDROID__
+#define LOGE(...) \
+  do {            \
+  } while (0)
+#endif  //  __ANDROID__
 
 #define DECODER_FUNC(RETURN_TYPE, NAME, ...)                          \
   extern "C" {                                                        \

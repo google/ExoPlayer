@@ -27,7 +27,9 @@ import java.lang.annotation.Target;
 /** Defines the capabilities of a {@link Renderer}. */
 public interface RendererCapabilities {
 
-  /** @deprecated Use {@link C.FormatSupport} instead. */
+  /**
+   * @deprecated Use {@link C.FormatSupport} instead.
+   */
   @SuppressWarnings("deprecation")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -43,15 +45,25 @@ public interface RendererCapabilities {
   @interface FormatSupport {}
   /** A mask to apply to {@link Capabilities} to obtain the {@link C.FormatSupport} only. */
   int FORMAT_SUPPORT_MASK = 0b111;
-  /** @deprecated Use {@link C#FORMAT_HANDLED} instead. */
+  /**
+   * @deprecated Use {@link C#FORMAT_HANDLED} instead.
+   */
   @Deprecated int FORMAT_HANDLED = C.FORMAT_HANDLED;
-  /** @deprecated Use {@link C#FORMAT_EXCEEDS_CAPABILITIES} instead. */
+  /**
+   * @deprecated Use {@link C#FORMAT_EXCEEDS_CAPABILITIES} instead.
+   */
   @Deprecated int FORMAT_EXCEEDS_CAPABILITIES = C.FORMAT_EXCEEDS_CAPABILITIES;
-  /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_DRM} instead. */
+  /**
+   * @deprecated Use {@link C#FORMAT_UNSUPPORTED_DRM} instead.
+   */
   @Deprecated int FORMAT_UNSUPPORTED_DRM = C.FORMAT_UNSUPPORTED_DRM;
-  /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_SUBTYPE} instead. */
+  /**
+   * @deprecated Use {@link C#FORMAT_UNSUPPORTED_SUBTYPE} instead.
+   */
   @Deprecated int FORMAT_UNSUPPORTED_SUBTYPE = C.FORMAT_UNSUPPORTED_SUBTYPE;
-  /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_TYPE} instead. */
+  /**
+   * @deprecated Use {@link C#FORMAT_UNSUPPORTED_TYPE} instead.
+   */
   @Deprecated int FORMAT_UNSUPPORTED_TYPE = C.FORMAT_UNSUPPORTED_TYPE;
 
   /**

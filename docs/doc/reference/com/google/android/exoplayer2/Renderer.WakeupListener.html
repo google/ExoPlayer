@@ -152,7 +152,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSleep(long)">onSleep</a></span>&#8203;(long&nbsp;wakeupDeadlineMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSleep()">onSleep</a></span>()</code></th>
 <td class="colLast">
 <div class="block">The renderer no longer needs to render until the next wakeup.</div>
 </td>
@@ -181,21 +181,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="onSleep(long)">
+<a id="onSleep()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onSleep</h4>
-<pre class="methodSignature">void&nbsp;onSleep&#8203;(long&nbsp;wakeupDeadlineMs)</pre>
+<pre class="methodSignature">void&nbsp;onSleep()</pre>
 <div class="block">The renderer no longer needs to render until the next wakeup.
 
  <p>Must be called from the thread ExoPlayer invokes the renderer from.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>wakeupDeadlineMs</code> - Maximum time in milliseconds until <a href="#onWakeup()"><code>onWakeup()</code></a> will be
-     called.</dd>
-</dl>
 </li>
 </ul>
 <a id="onWakeup()">

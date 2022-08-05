@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":6,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":10,"i7":6,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -166,6 +166,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
        track selection for the currently playing period differs from the one that was invalidated.
        Implementing subclasses can trigger invalidation by calling <a href="#invalidate()"><code>invalidate()</code></a>, which
        will call <a href="TrackSelector.InvalidationListener.html#onTrackSelectionsInvalidated()"><code>TrackSelector.InvalidationListener.onTrackSelectionsInvalidated()</code></a>.
+   <li>When the player is <a href="../Player.html#release()">released</a>, it will release the track
+       selector by calling <a href="#release()"><code>release()</code></a>.
  </ul>
 
  <h2>Renderer configuration</h2>
@@ -296,6 +298,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Called by the player to release the selector.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>abstract <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)">selectTracks</a></span>&#8203;(<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
             <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
@@ -305,7 +314,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Called by the player to perform a track selection.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">setAudioAttributes</a></span>&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
+<td class="colLast">
+<div class="block">Called by the player to set the <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used for playback.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setParameters</a></span>&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</code></th>
 <td class="colLast">
@@ -361,8 +377,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;init&#8203;(<a href="TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a>&nbsp;listener,
-                       <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<pre class="methodSignature">@CallSuper
+public&nbsp;void&nbsp;init&#8203;(<a href="TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a>&nbsp;listener,
+                 <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
 <div class="block">Called by the player to initialize the selector.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -370,6 +387,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
      it has previously made are no longer valid.</dd>
 <dd><code>bandwidthMeter</code> - A bandwidth meter which can be used by track selections to select tracks.</dd>
 </dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">@CallSuper
+public&nbsp;void&nbsp;release()</pre>
+<div class="block">Called by the player to release the selector. The selector cannot be used until <a href="#init(com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener,com.google.android.exoplayer2.upstream.BandwidthMeter)"><code>init(InvalidationListener, BandwidthMeter)</code></a> is called again.</div>
 </li>
 </ul>
 <a id="selectTracks(com.google.android.exoplayer2.RendererCapabilities[],com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)">
@@ -451,6 +479,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <p>The same value is always returned for a given <code>TrackSelector</code> instance.</div>
 </li>
 </ul>
+<a id="setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioAttributes</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setAudioAttributes&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<div class="block">Called by the player to set the <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used for playback.</div>
+</li>
+</ul>
 <a id="invalidate()">
 <!--   -->
 </a>
@@ -470,7 +508,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>getBandwidthMeter</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;getBandwidthMeter()</pre>
 <div class="block">Returns a bandwidth meter which can be used by track selections to select tracks. Must only be
- called after <a href="#init(com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener,com.google.android.exoplayer2.upstream.BandwidthMeter)"><code>init(InvalidationListener, BandwidthMeter)</code></a> has been called.</div>
+ called when the track selector is <a href="#init(com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener,com.google.android.exoplayer2.upstream.BandwidthMeter)">initialized</a>.</div>
 </li>
 </ul>
 </li>

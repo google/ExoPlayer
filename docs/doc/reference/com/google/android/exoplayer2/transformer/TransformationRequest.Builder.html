@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -203,26 +203,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnableRequestSdrToneMapping(boolean)">setEnableRequestSdrToneMapping</a></span>&#8203;(boolean&nbsp;enableRequestSdrToneMapping)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to request tone-mapping to standard dynamic range (SDR).</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlattenForSlowMotion(boolean)">setFlattenForSlowMotion</a></span>&#8203;(boolean&nbsp;flattenForSlowMotion)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the input should be flattened for media containing slow motion markers.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResolution(int)">setResolution</a></span>&#8203;(int&nbsp;outputHeight)</code></th>
 <td class="colLast">
 <div class="block">Sets the output resolution using the output height.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransformationMatrix(android.graphics.Matrix)">setTransformationMatrix</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;transformationMatrix)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRotationDegrees(float)">setRotationDegrees</a></span>&#8203;(float&nbsp;rotationDegrees)</code></th>
 <td class="colLast">
-<div class="block">Sets the transformation matrix.</div>
+<div class="block">Sets the rotation, in degrees, counterclockwise, to apply to each frame.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScale(float,float)">setScale</a></span>&#8203;(float&nbsp;scaleX,
+        float&nbsp;scaleY)</code></th>
+<td class="colLast">
+<div class="block">Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
+ the video along these axes appropriately.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoMimeType(java.lang.String)">setVideoMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoMimeType)</code></th>
 <td class="colLast">
@@ -276,30 +292,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setTransformationMatrix(android.graphics.Matrix)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setTransformationMatrix</h4>
-<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setTransformationMatrix&#8203;(<a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;transformationMatrix)</pre>
-<div class="block">Sets the transformation matrix. The default value is to apply no change.
-
- <p>This can be used to perform operations supported by <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a>, like scaling and
- rotating the video.
-
- <p>The video dimensions will be on the x axis, from -aspectRatio to aspectRatio, and on the y
- axis, from -1 to 1.
-
- <p>For now, resolution will not be affected by this method.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>transformationMatrix</code> - The transformation to apply to video frames.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
 <a id="setFlattenForSlowMotion(boolean)">
 <!--   -->
 </a>
@@ -307,10 +299,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setFlattenForSlowMotion</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setFlattenForSlowMotion&#8203;(boolean&nbsp;flattenForSlowMotion)</pre>
-<div class="block">Sets whether the input should be flattened for media containing slow motion markers. The
- transformed output is obtained by removing the slow motion metadata and by actually slowing
- down the parts of the video and audio streams defined in this metadata. The default value for
- <code>flattenForSlowMotion</code> is <code>false</code>.
+<div class="block">Sets whether the input should be flattened for media containing slow motion markers.
+
+ <p>The transformed output is obtained by removing the slow motion metadata and by actually
+ slowing down the parts of the video and audio streams defined in this metadata. The default
+ value for <code>flattenForSlowMotion</code> is <code>false</code>.
 
  <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. The
  transformation has no effect if the input does not contain this metadata type.
@@ -324,10 +317,56 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  </ul>
 
  <p>If specifying a <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> using <a href="Transformer.Builder.html#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)"><code>Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)</code></a>, make sure that <a href="../extractor/mp4/Mp4Extractor.html#FLAG_READ_SEF_DATA"><code>Mp4Extractor.FLAG_READ_SEF_DATA</code></a> is set on the <a href="../extractor/mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> used. Otherwise, the slow
- motion metadata will be ignored and the input won't be flattened.</div>
+ motion metadata will be ignored and the input won't be flattened.
+
+ <p>Using slow motion flattening together with <a href="../MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.ClippingConfiguration</code></a> is not supported yet.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flattenForSlowMotion</code> - Whether to flatten for slow motion.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setScale(float,float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setScale</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setScale&#8203;(float&nbsp;scaleX,
+                                              float&nbsp;scaleY)</pre>
+<div class="block">Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
+ the video along these axes appropriately.
+
+ <p>The default value for <code>scaleX</code> and <code>scaleY</code>, 1, corresponds to not scaling
+ along the x and y axes, respectively.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>scaleX</code> - The multiplier by which the frame will scale horizontally, along the x-axis.</dd>
+<dd><code>scaleY</code> - The multiplier by which the frame will scale vertically, along the y-axis.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setRotationDegrees(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRotationDegrees</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setRotationDegrees&#8203;(float&nbsp;rotationDegrees)</pre>
+<div class="block">Sets the rotation, in degrees, counterclockwise, to apply to each frame.
+
+ <p>The output frame's width and height are automatically adjusted to preserve all input
+ pixels. The rotated input frame is fitted inside an enclosing black rectangle if its edges
+ aren't parallel to the x and y axes.
+
+ <p>The default value, 0, corresponds to not applying any rotation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>rotationDegrees</code> - The counterclockwise rotation, in degrees.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -340,21 +379,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setResolution</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setResolution&#8203;(int&nbsp;outputHeight)</pre>
-<div class="block">Sets the output resolution using the output height. The default value <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
- corresponds to using the same height as the input. Output width will scale to preserve the
- input video's aspect ratio.
+<div class="block">Sets the output resolution using the output height.
 
- <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
- supported, to ensure compatibility on different devices.
+ <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
+ other transformations.
 
- <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).</div>
+ <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
+
+ <p>The default value, <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, leaves the width and height unchanged unless
+ <a href="#setScale(float,float)">scaling</a> or @linkplain #setRotationDegrees(float)
+ rotation} are requested.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>outputHeight</code> - The output height in pixels.</dd>
+<dd><code>outputHeight</code> - The output height of the displayed video, in pixels.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>outputHeight</code> is not supported.</dd>
 </dl>
 </li>
 </ul>
@@ -366,8 +405,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setVideoMimeType</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setVideoMimeType&#8203;(@Nullable
                                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoMimeType)</pre>
-<div class="block">Sets the video MIME type of the output. The default value is <code>null</code> which corresponds
- to using the same MIME type as the input. Supported MIME types are:
+<div class="block">Sets the video MIME type of the output.
+
+ <p>The default value is <code>null</code> which corresponds to using the same MIME type as the
+ input. Supported MIME types are:
 
  <ul>
    <li><a href="../util/MimeTypes.html#VIDEO_H263"><code>MimeTypes.VIDEO_H263</code></a>
@@ -382,7 +423,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>videoMimeType</code> is non-null but not a video
-     <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util"><code>MIME type</code></a>.</dd>
+     <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>.</dd>
 </dl>
 </li>
 </ul>
@@ -394,8 +435,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setAudioMimeType</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setAudioMimeType&#8203;(@Nullable
                                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioMimeType)</pre>
-<div class="block">Sets the audio MIME type of the output. The default value is <code>null</code> which corresponds
- to using the same MIME type as the input. Supported MIME types are:
+<div class="block">Sets the audio MIME type of the output.
+
+ <p>The default value is <code>null</code> which corresponds to using the same MIME type as the
+ input. Supported MIME types are:
 
  <ul>
    <li><a href="../util/MimeTypes.html#AUDIO_AAC"><code>MimeTypes.AUDIO_AAC</code></a>
@@ -409,7 +452,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>audioMimeType</code> is non-null but not an audio
-     <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util"><code>MIME type</code></a>.</dd>
+     <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="setEnableRequestSdrToneMapping(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEnableRequestSdrToneMapping</h4>
+<pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setEnableRequestSdrToneMapping&#8203;(boolean&nbsp;enableRequestSdrToneMapping)</pre>
+<div class="block">Sets whether to request tone-mapping to standard dynamic range (SDR). If enabled and
+ supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
+ transfer function before processing.
+
+ <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
+ supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>enableRequestSdrToneMapping</code> - Whether to request tone-mapping down to SDR.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
 </dl>
 </li>
 </ul>
@@ -425,7 +489,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p>This method is experimental, and will be renamed or removed in a future release. The HDR
  editing feature is under development and is intended for developing/testing HDR processing
- and encoding support.</div>
+ and encoding support. HDR editing can't be enabled at the same time as <a href="#setEnableRequestSdrToneMapping(boolean)">SDR tone-mapping</a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>enableHdrEditing</code> - Whether to attempt to process any input video stream as a high

@@ -27,7 +27,9 @@ import java.util.List;
 
   private final List<Cue> cues;
 
-  /** @param cues The subtitle cues. */
+  /**
+   * @param cues The subtitle cues.
+   */
   public CeaSubtitle(List<Cue> cues) {
     this.cues = cues;
   }

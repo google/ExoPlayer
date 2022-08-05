@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -1116,6 +1117,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Nullable String codecs = null;
     @Nullable byte[] projectionData = null;
     @C.StereoMode int stereoMode = Format.NO_VALUE;
+    @Nullable EsdsData esdsData = null;
 
     // HDR related metadata.
     @C.ColorSpace int colorSpace = Format.NO_VALUE;
@@ -1210,10 +1212,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         mimeType = MimeTypes.VIDEO_H263;
       } else if (childAtomType == Atom.TYPE_esds) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
-        Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationDataBytes =
-            parseEsdsFromParent(parent, childStartPosition);
-        mimeType = mimeTypeAndInitializationDataBytes.first;
-        @Nullable byte[] initializationDataBytes = mimeTypeAndInitializationDataBytes.second;
+        esdsData = parseEsdsFromParent(parent, childStartPosition);
+        mimeType = esdsData.mimeType;
+        @Nullable byte[] initializationDataBytes = esdsData.initializationData;
         if (initializationDataBytes != null) {
           initializationData = ImmutableList.of(initializationDataBytes);
         }
@@ -1301,6 +1302,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               colorTransfer,
               hdrStaticInfo != null ? hdrStaticInfo.array() : null));
     }
+
+    if (esdsData != null) {
+      formatBuilder
+          .setAverageBitrate(Ints.saturatedCast(esdsData.bitrate))
+          .setPeakBitrate(Ints.saturatedCast(esdsData.peakBitrate));
+    }
+
     out.format = formatBuilder.build();
   }
 
@@ -1391,6 +1399,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int sampleRateMlp = 0;
     @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
     @Nullable String codecs = null;
+    @Nullable EsdsData esdsData = null;
 
     if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
       channelCount = parent.readUnsignedShort();
@@ -1507,10 +1516,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 ? childPosition
                 : findBoxPosition(parent, Atom.TYPE_esds, childPosition, childAtomSize);
         if (esdsAtomPosition != C.POSITION_UNSET) {
-          Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationData =
-              parseEsdsFromParent(parent, esdsAtomPosition);
-          mimeType = mimeTypeAndInitializationData.first;
-          @Nullable byte[] initializationDataBytes = mimeTypeAndInitializationData.second;
+          esdsData = parseEsdsFromParent(parent, esdsAtomPosition);
+          mimeType = esdsData.mimeType;
+          @Nullable byte[] initializationDataBytes = esdsData.initializationData;
           if (initializationDataBytes != null) {
             if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
               // Update sampleRate and channelCount from the AudioSpecificConfig initialization
@@ -1591,7 +1599,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     if (out.format == null && mimeType != null) {
-      out.format =
+      Format.Builder formatBuilder =
           new Format.Builder()
               .setId(trackId)
               .setSampleMimeType(mimeType)
@@ -1601,8 +1609,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setPcmEncoding(pcmEncoding)
               .setInitializationData(initializationData)
               .setDrmInitData(drmInitData)
-              .setLanguage(language)
-              .build();
+              .setLanguage(language);
+
+      if (esdsData != null) {
+        formatBuilder
+            .setAverageBitrate(Ints.saturatedCast(esdsData.bitrate))
+            .setPeakBitrate(Ints.saturatedCast(esdsData.peakBitrate));
+      }
+
+      out.format = formatBuilder.build();
     }
   }
 
@@ -1637,8 +1652,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */
-  private static Pair<@NullableType String, byte @NullableType []> parseEsdsFromParent(
-      ParsableByteArray parent, int position) {
+  private static EsdsData parseEsdsFromParent(ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the ES_Descriptor (defined in ISO/IEC 14496-1)
     parent.skipBytes(1); // ES_Descriptor tag
@@ -1650,7 +1664,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parent.skipBytes(2);
     }
     if ((flags & 0x40 /* URL_Flag */) != 0) {
-      parent.skipBytes(parent.readUnsignedShort());
+      parent.skipBytes(parent.readUnsignedByte());
     }
     if ((flags & 0x20 /* OCRstreamFlag */) != 0) {
       parent.skipBytes(2);
@@ -1666,17 +1680,29 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (MimeTypes.AUDIO_MPEG.equals(mimeType)
         || MimeTypes.AUDIO_DTS.equals(mimeType)
         || MimeTypes.AUDIO_DTS_HD.equals(mimeType)) {
-      return Pair.create(mimeType, null);
+      return new EsdsData(
+          mimeType,
+          /* initializationData= */ null,
+          /* bitrate= */ Format.NO_VALUE,
+          /* peakBitrate= */ Format.NO_VALUE);
     }
 
-    parent.skipBytes(12);
+    parent.skipBytes(4);
+    long peakBitrate = parent.readUnsignedInt();
+    long bitrate = parent.readUnsignedInt();
 
     // Start of the DecoderSpecificInfo.
     parent.skipBytes(1); // DecoderSpecificInfo tag
     int initializationDataSize = parseExpandableClassSize(parent);
     byte[] initializationData = new byte[initializationDataSize];
     parent.readBytes(initializationData, 0, initializationDataSize);
-    return Pair.create(mimeType, initializationData);
+
+    // Skipping zero values as unknown.
+    return new EsdsData(
+        mimeType,
+        /* initializationData= */ initializationData,
+        /* bitrate= */ bitrate > 0 ? bitrate : Format.NO_VALUE,
+        /* peakBitrate= */ peakBitrate > 0 ? peakBitrate : Format.NO_VALUE);
   }
 
   /**
@@ -1915,6 +1941,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public StsdData(int numberOfEntries) {
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
       requiredSampleTransformation = Track.TRANSFORMATION_NONE;
+    }
+  }
+
+  /** Data parsed from an esds box. */
+  private static final class EsdsData {
+    private final @NullableType String mimeType;
+    private final byte @NullableType [] initializationData;
+    private final long bitrate;
+    private final long peakBitrate;
+
+    public EsdsData(
+        @NullableType String mimeType,
+        byte @NullableType [] initializationData,
+        long bitrate,
+        long peakBitrate) {
+      this.mimeType = mimeType;
+      this.initializationData = initializationData;
+      this.bitrate = bitrate;
+      this.peakBitrate = peakBitrate;
     }
   }
 

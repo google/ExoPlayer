@@ -37,11 +37,11 @@
     <item quantity="one">Spola framåt %d sekund</item>
     <item quantity="other">Spola framåt %d sekunder</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Upprepa inga</string>
-  <string name="exo_controls_repeat_one_description">Upprepa en</string>
-  <string name="exo_controls_repeat_all_description">Upprepa alla</string>
-  <string name="exo_controls_shuffle_on_description">Blanda spår</string>
-  <string name="exo_controls_shuffle_off_description">Blanda inte spår</string>
+  <string name="exo_controls_repeat_off_description">Aktuellt läge: Upprepa inga. Ändra läge för upprepning.</string>
+  <string name="exo_controls_repeat_one_description">Aktuellt läge: Upprepa en. Ändra läge för upprepning.</string>
+  <string name="exo_controls_repeat_all_description">Aktuellt läge: Upprepa alla. Ändra läge för upprepning.</string>
+  <string name="exo_controls_shuffle_on_description">Inaktivera blandningsläget</string>
+  <string name="exo_controls_shuffle_off_description">Aktivera blandningsläget</string>
   <string name="exo_controls_vr_description">VR-läge</string>
   <string name="exo_controls_cc_enabled_description">Inaktivera undertexter</string>
   <string name="exo_controls_cc_disabled_description">Aktivera undertexter</string>

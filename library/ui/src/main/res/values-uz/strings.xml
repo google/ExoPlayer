@@ -37,11 +37,11 @@
     <item quantity="one">%d soniya oldinga</item>
     <item quantity="other">%d soniya oldinga</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Takrorlanmasin</string>
-  <string name="exo_controls_repeat_one_description">Bittasini takrorlash</string>
-  <string name="exo_controls_repeat_all_description">Hammasini takrorlash</string>
-  <string name="exo_controls_shuffle_on_description">Tasodifiy ijro yoqilgan</string>
-  <string name="exo_controls_shuffle_off_description">Tasodifiy ijro yoqilmagan</string>
+  <string name="exo_controls_repeat_off_description">Joriy rejim: Hech qaysi takrorlanmaydi. Takrorlash rejimiga oʻting.</string>
+  <string name="exo_controls_repeat_one_description">Joriy rejim: Bittasi takrorlanadi. Takrorlash rejimiga oʻting.</string>
+  <string name="exo_controls_repeat_all_description">Joriy rejim: Barchasi takrorlanadi. Takrorlash rejimiga oʻting.</string>
+  <string name="exo_controls_shuffle_on_description">Tasodifiy rejimni faolsizlantiring</string>
+  <string name="exo_controls_shuffle_off_description">Tasodifiy rejimni yoqing</string>
   <string name="exo_controls_vr_description">VR rejimi</string>
   <string name="exo_controls_cc_enabled_description">Taglavhalarni faolsizlantirish</string>
   <string name="exo_controls_cc_disabled_description">Taglavhalarni yoqish</string>

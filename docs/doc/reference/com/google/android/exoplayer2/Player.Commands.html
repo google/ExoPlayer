@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -243,29 +243,36 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(@com.google.android.exoplayer2.Player.Commandint...)">containsAny</a></span>&#8203;(@com.google.android.exoplayer2.Player.Command int...&nbsp;commands)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the set of commands contains at least one of the given <code>commands</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.Player.Command int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> at the given index.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the number of commands in this set.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -345,6 +352,17 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <pre class="methodSignature">public&nbsp;boolean&nbsp;contains&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
                         @com.google.android.exoplayer2.Player.Command int&nbsp;command)</pre>
 <div class="block">Returns whether the set of commands contains the specified <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</div>
+</li>
+</ul>
+<a id="containsAny(@com.google.android.exoplayer2.Player.Commandint...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>containsAny</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;containsAny&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+                           @com.google.android.exoplayer2.Player.Command int...&nbsp;commands)</pre>
+<div class="block">Returns whether the set of commands contains at least one of the given <code>commands</code>.</div>
 </li>
 </ul>
 <a id="size()">

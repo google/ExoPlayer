@@ -169,7 +169,9 @@ public final class AmrExtractor implements Extractor {
     this(/* flags= */ 0);
   }
 
-  /** @param flags Flags that control the extractor's behavior. */
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
   public AmrExtractor(@Flags int flags) {
     if ((flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS) != 0) {
       flags |= FLAG_ENABLE_CONSTANT_BITRATE_SEEKING;
@@ -410,6 +412,7 @@ public final class AmrExtractor implements Extractor {
    * @return The stream bitrate.
    */
   private static int getBitrateFromFrameSize(int frameSize, long durationUsPerFrame) {
-    return (int) ((frameSize * C.BITS_PER_BYTE * C.MICROS_PER_SECOND) / durationUsPerFrame);
+    return (int)
+        ((frameSize * ((long) C.BITS_PER_BYTE) * C.MICROS_PER_SECOND) / durationUsPerFrame);
   }
 }

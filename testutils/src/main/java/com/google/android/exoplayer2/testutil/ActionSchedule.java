@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.HandlerWrapper;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Schedules a sequence of {@link Action}s for execution during a test. */
@@ -112,7 +113,9 @@ public final class ActionSchedule {
     private long currentDelayMs;
     private ActionNode previousNode;
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public Builder(String tag) {
       this.tag = tag;
       rootNode = new ActionNode(new RootAction(tag), 0);
@@ -125,6 +128,7 @@ public final class ActionSchedule {
      * @param delayMs The delay in milliseconds.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder delay(long delayMs) {
       currentDelayMs += delayMs;
       return this;
@@ -136,6 +140,7 @@ public final class ActionSchedule {
      * @param action The action to schedule.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder apply(Action action) {
       return appendActionNode(new ActionNode(action, currentDelayMs));
     }
@@ -147,6 +152,7 @@ public final class ActionSchedule {
      * @param intervalMs The interval between each repetition in milliseconds.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder repeat(Action action, long intervalMs) {
       return appendActionNode(new ActionNode(action, currentDelayMs, intervalMs));
     }
@@ -157,6 +163,7 @@ public final class ActionSchedule {
      * @param positionMs The seek position.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder seek(long positionMs) {
       return apply(new Seek(tag, positionMs));
     }
@@ -168,6 +175,7 @@ public final class ActionSchedule {
      * @param positionMs The seek position.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder seek(int mediaItemIndex, long positionMs) {
       return apply(
           new Seek(tag, mediaItemIndex, positionMs, /* catchIllegalSeekException= */ false));
@@ -181,6 +189,7 @@ public final class ActionSchedule {
      * @param catchIllegalSeekException Whether an illegal seek position should be caught or not.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder seek(int mediaItemIndex, long positionMs, boolean catchIllegalSeekException) {
       return apply(new Seek(tag, mediaItemIndex, positionMs, catchIllegalSeekException));
     }
@@ -204,6 +213,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForPendingPlayerCommands() {
       return apply(new WaitForPendingPlayerCommands(tag));
     }
@@ -215,6 +225,7 @@ public final class ActionSchedule {
      * @return The builder, for convenience.
      * @see Player#setPlaybackParameters(PlaybackParameters)
      */
+    @CanIgnoreReturnValue
     public Builder setPlaybackParameters(PlaybackParameters playbackParameters) {
       return apply(new SetPlaybackParameters(tag, playbackParameters));
     }
@@ -224,6 +235,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder stop() {
       return apply(new Stop(tag));
     }
@@ -234,6 +246,7 @@ public final class ActionSchedule {
      * @param reset Whether the player should be reset.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder stop(boolean reset) {
       return apply(new Stop(tag, reset));
     }
@@ -243,6 +256,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder play() {
       return apply(new SetPlayWhenReady(tag, true));
     }
@@ -255,6 +269,7 @@ public final class ActionSchedule {
      * @param positionMs The position in that media item at which the player should be paused again.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder playUntilPosition(int mediaItemIndex, long positionMs) {
       return apply(new PlayUntilPosition(tag, mediaItemIndex, positionMs));
     }
@@ -266,6 +281,7 @@ public final class ActionSchedule {
      * @param mediaItemIndex The media item index at which the player should be paused again.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder playUntilStartOfMediaItem(int mediaItemIndex) {
       return apply(new PlayUntilPosition(tag, mediaItemIndex, /* positionMs= */ 0));
     }
@@ -275,6 +291,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder pause() {
       return apply(new SetPlayWhenReady(tag, false));
     }
@@ -284,6 +301,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder enableRenderer(int index) {
       return apply(new SetRendererDisabled(tag, index, false));
     }
@@ -293,6 +311,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder disableRenderer(int index) {
       return apply(new SetRendererDisabled(tag, index, true));
     }
@@ -302,6 +321,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder clearVideoSurface() {
       return apply(new ClearVideoSurface(tag));
     }
@@ -311,6 +331,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setVideoSurface() {
       return apply(new SetVideoSurface(tag));
     }
@@ -320,6 +341,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
       return apply(new SetAudioAttributes(tag, audioAttributes, handleAudioFocus));
     }
@@ -335,6 +357,7 @@ public final class ActionSchedule {
      *     parameter is ignored.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSources(int mediaItemIndex, long positionMs, MediaSource... sources) {
       return apply(new Action.SetMediaItems(tag, mediaItemIndex, positionMs, sources));
     }
@@ -345,6 +368,7 @@ public final class ActionSchedule {
      * @param resetPosition Whether the playback position should be reset.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSources(boolean resetPosition, MediaSource... sources) {
       return apply(new Action.SetMediaItemsResetPosition(tag, resetPosition, sources));
     }
@@ -355,6 +379,7 @@ public final class ActionSchedule {
      * @param mediaSources The media sources to add.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaSources(MediaSource... mediaSources) {
       return apply(
           new Action.SetMediaItems(
@@ -369,6 +394,7 @@ public final class ActionSchedule {
      * @param mediaSources The media sources to add.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder addMediaSources(MediaSource... mediaSources) {
       return apply(new Action.AddMediaItems(tag, mediaSources));
     }
@@ -380,6 +406,7 @@ public final class ActionSchedule {
      * @param newIndex The index after the item has been moved.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder moveMediaItem(int currentIndex, int newIndex) {
       return apply(new Action.MoveMediaItem(tag, currentIndex, newIndex));
     }
@@ -390,6 +417,7 @@ public final class ActionSchedule {
      * @param index The index of the media item to be removed.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder removeMediaItem(int index) {
       return apply(new Action.RemoveMediaItem(tag, index));
     }
@@ -401,6 +429,7 @@ public final class ActionSchedule {
      * @param toIndex The end of the range of media items to be removed (exclusive).
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder removeMediaItems(int fromIndex, int toIndex) {
       return apply(new Action.RemoveMediaItems(tag, fromIndex, toIndex));
     }
@@ -410,6 +439,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder prepare() {
       return apply(new Action.Prepare(tag));
     }
@@ -419,6 +449,7 @@ public final class ActionSchedule {
      *
      * @return The builder. for convenience,
      */
+    @CanIgnoreReturnValue
     public Builder clearMediaItems() {
       return apply(new Action.ClearMediaItems(tag));
     }
@@ -428,6 +459,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setRepeatMode(@Player.RepeatMode int repeatMode) {
       return apply(new SetRepeatMode(tag, repeatMode));
     }
@@ -438,6 +470,7 @@ public final class ActionSchedule {
      * @param shuffleOrder The shuffle order.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setShuffleOrder(ShuffleOrder shuffleOrder) {
       return apply(new SetShuffleOrder(tag, shuffleOrder));
     }
@@ -447,6 +480,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder setShuffleModeEnabled(boolean shuffleModeEnabled) {
       return apply(new SetShuffleModeEnabled(tag, shuffleModeEnabled));
     }
@@ -458,6 +492,7 @@ public final class ActionSchedule {
      *     in milliseconds.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder sendMessage(Target target, long positionMs) {
       return apply(new SendMessages(tag, target, positionMs));
     }
@@ -470,6 +505,7 @@ public final class ActionSchedule {
      * @param positionMs The position at which the message should be sent, in milliseconds.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder sendMessage(Target target, int mediaItemIndex, long positionMs) {
       return apply(
           new SendMessages(
@@ -485,6 +521,7 @@ public final class ActionSchedule {
      * @param deleteAfterDelivery Whether the message will be deleted after delivery.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder sendMessage(
         Target target, int mediaItemIndex, long positionMs, boolean deleteAfterDelivery) {
       return apply(new SendMessages(tag, target, mediaItemIndex, positionMs, deleteAfterDelivery));
@@ -495,6 +532,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForTimelineChanged() {
       return apply(new WaitForTimelineChanged(tag));
     }
@@ -506,6 +544,7 @@ public final class ActionSchedule {
      * @param expectedReason The expected reason of the timeline change.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForTimelineChanged(
         Timeline expectedTimeline, @Player.TimelineChangeReason int expectedReason) {
       return apply(new WaitForTimelineChanged(tag, expectedTimeline, expectedReason));
@@ -516,6 +555,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForPositionDiscontinuity() {
       return apply(new WaitForPositionDiscontinuity(tag));
     }
@@ -526,6 +566,7 @@ public final class ActionSchedule {
      * @param targetPlayWhenReady The target playWhenReady value.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForPlayWhenReady(boolean targetPlayWhenReady) {
       return apply(new WaitForPlayWhenReady(tag, targetPlayWhenReady));
     }
@@ -536,6 +577,7 @@ public final class ActionSchedule {
      * @param targetPlaybackState The target playback state.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForPlaybackState(@Player.State int targetPlaybackState) {
       return apply(new WaitForPlaybackState(tag, targetPlaybackState));
     }
@@ -546,6 +588,7 @@ public final class ActionSchedule {
      * @param targetIsLoading The target value of {@code player.isLoading()}.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForIsLoading(boolean targetIsLoading) {
       return apply(new WaitForIsLoading(tag, targetIsLoading));
     }
@@ -556,6 +599,7 @@ public final class ActionSchedule {
      * @param playerTarget The target to observe.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder waitForMessage(PlayerTarget playerTarget) {
       return apply(new WaitForMessage(tag, playerTarget));
     }
@@ -565,6 +609,7 @@ public final class ActionSchedule {
      *
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder executeRunnable(Runnable runnable) {
       return apply(new ExecuteRunnable(tag, runnable));
     }
@@ -575,6 +620,7 @@ public final class ActionSchedule {
      * @param exception The exception to throw.
      * @return The builder, for convenience.
      */
+    @CanIgnoreReturnValue
     public Builder throwPlaybackException(ExoPlaybackException exception) {
       return apply(new ThrowPlaybackException(tag, exception));
     }
@@ -586,6 +632,7 @@ public final class ActionSchedule {
       return new ActionSchedule(rootNode, callbackAction);
     }
 
+    @CanIgnoreReturnValue
     private Builder appendActionNode(ActionNode actionNode) {
       previousNode.setNext(actionNode);
       previousNode = actionNode;

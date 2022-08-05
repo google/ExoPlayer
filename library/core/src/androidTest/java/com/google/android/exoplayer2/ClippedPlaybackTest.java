@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem.SubtitleConfiguration;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
@@ -132,8 +133,8 @@ public final class ClippedPlaybackTest {
     }
 
     @Override
-    public void onCues(List<Cue> cues) {
-      this.cues.add(cues);
+    public void onCues(CueGroup cueGroup) {
+      this.cues.add(cueGroup.cues);
     }
 
     @Override

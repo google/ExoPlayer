@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -26,7 +27,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaItem.ClippingConfiguration;
 import com.google.android.exoplayer2.MediaItem.SubtitleConfiguration;
 import com.google.android.exoplayer2.MediaMetadata;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class IntentUtil {
 
   /** Populates the intent with the given list of {@link MediaItem media items}. */
   public static void addToIntent(List<MediaItem> mediaItems, Intent intent) {
-    Assertions.checkArgument(!mediaItems.isEmpty());
+    checkArgument(!mediaItems.isEmpty());
     if (mediaItems.size() == 1) {
       MediaItem mediaItem = mediaItems.get(0);
       MediaItem.LocalConfiguration localConfiguration = checkNotNull(mediaItem.localConfiguration);
@@ -178,7 +178,7 @@ public class IntentUtil {
         headers.put(keyRequestPropertiesArray[i], keyRequestPropertiesArray[i + 1]);
       }
     }
-    @Nullable UUID drmUuid = Util.getDrmUuid(Util.castNonNull(drmSchemeExtra));
+    @Nullable UUID drmUuid = Util.getDrmUuid(drmSchemeExtra);
     if (drmUuid != null) {
       builder.setDrmConfiguration(
           new MediaItem.DrmConfiguration.Builder(drmUuid)
@@ -189,7 +189,7 @@ public class IntentUtil {
                   intent.getBooleanExtra(
                       DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
               .setLicenseRequestHeaders(headers)
-              .forceSessionsForAudioAndVideoTracks(
+              .setForceSessionsForAudioAndVideoTracks(
                   intent.getBooleanExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, false))
               .build());
     }
@@ -242,7 +242,7 @@ public class IntentUtil {
         drmConfiguration.forcedSessionTrackTypes;
     if (!forcedDrmSessionTrackTypes.isEmpty()) {
       // Only video and audio together are supported.
-      Assertions.checkState(
+      checkState(
           forcedDrmSessionTrackTypes.size() == 2
               && forcedDrmSessionTrackTypes.contains(C.TRACK_TYPE_VIDEO)
               && forcedDrmSessionTrackTypes.contains(C.TRACK_TYPE_AUDIO));

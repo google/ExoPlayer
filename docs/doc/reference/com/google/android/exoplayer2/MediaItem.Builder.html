@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":42,"i5":42,"i6":10,"i7":42,"i8":42,"i9":42,"i10":42,"i11":10,"i12":10,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":10,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":42,"i35":10,"i36":10,"i37":10};
+var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":42,"i5":42,"i6":10,"i7":42,"i8":42,"i9":42,"i10":42,"i11":10,"i12":10,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":10,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -358,7 +358,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearPeriods(boolean)">setDrmSessionForClearPeriods</a></span>&#8203;(boolean&nbsp;sessionForClearPeriods)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#forceSessionsForAudioAndVideoTracks(boolean)"><code>MediaItem.DrmConfiguration.Builder.forceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setForceSessionsForAudioAndVideoTracks(boolean)"><code>MediaItem.DrmConfiguration.Builder.setForceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
 </div>
 </td>
 </tr>
@@ -456,20 +456,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRequestMetadata(com.google.android.exoplayer2.MediaItem.RequestMetadata)">setRequestMetadata</a></span>&#8203;(<a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2">MediaItem.RequestMetadata</a>&nbsp;requestMetadata)</code></th>
+<td class="colLast">
+<div class="block">Sets the request metadata.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStreamKeys(java.util.List)">setStreamKeys</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional stream keys by which the manifest is filtered (only used for adaptive
  streams).</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubtitleConfigurations(java.util.List)">setSubtitleConfigurations</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.SubtitleConfiguration.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.SubtitleConfiguration</a>&gt;&nbsp;subtitleConfigurations)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional subtitles.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubtitles(java.util.List)">setSubtitles</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.Subtitle</a>&gt;&nbsp;subtitles)</code></th>
 <td class="colLast">
@@ -478,21 +485,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTag(java.lang.Object)">setTag</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional tag for custom attributes.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(android.net.Uri)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional URI.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(java.lang.String)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</code></th>
 <td class="colLast">
@@ -795,7 +802,7 @@ public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearPeriods&#8203;(boolean&nbsp;sessionForClearPeriods)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#forceSessionsForAudioAndVideoTracks(boolean)"><code>MediaItem.DrmConfiguration.Builder.forceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setForceSessionsForAudioAndVideoTracks(boolean)"><code>MediaItem.DrmConfiguration.Builder.setForceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
 </div>
 </li>
 </ul>
@@ -1043,6 +1050,16 @@ public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.
 <h4>setMediaMetadata</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setMediaMetadata&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</pre>
 <div class="block">Sets the media metadata.</div>
+</li>
+</ul>
+<a id="setRequestMetadata(com.google.android.exoplayer2.MediaItem.RequestMetadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRequestMetadata</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setRequestMetadata&#8203;(<a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2">MediaItem.RequestMetadata</a>&nbsp;requestMetadata)</pre>
+<div class="block">Sets the request metadata.</div>
 </li>
 </ul>
 <a id="build()">

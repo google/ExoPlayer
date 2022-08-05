@@ -348,8 +348,10 @@ MediaCodecAdapter (exotest.video.avc):
   buffers[125] = length 0, hash 1
 TextOutput:
   Subtitle[0]:
+    presentationTimeUs = 0
     Cues = []
   Subtitle[1]:
+    presentationTimeUs = 0
     Cue[0]:
       text = This is the first subtitle.
       textAlignment = ALIGN_CENTER
@@ -360,8 +362,10 @@ TextOutput:
       positionAnchor = 1
       size = 1.0
   Subtitle[2]:
+    presentationTimeUs = 1234000
     Cues = []
   Subtitle[3]:
+    presentationTimeUs = 2345000
     Cue[0]:
       text = This is the second subtitle.
       textAlignment = ALIGN_CENTER
@@ -372,4 +376,5 @@ TextOutput:
       positionAnchor = 1
       size = 1.0
   Subtitle[4]:
+    presentationTimeUs = 3456000
     Cues = []

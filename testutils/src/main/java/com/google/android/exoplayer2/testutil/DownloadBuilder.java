@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadProgress;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -106,91 +107,136 @@ public final class DownloadBuilder {
     this.progress = new DownloadProgress();
   }
 
-  /** @see DownloadRequest#uri */
+  /**
+   * @see DownloadRequest#uri
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setUri(String uri) {
     this.uri = Uri.parse(uri);
     return this;
   }
 
-  /** @see DownloadRequest#uri */
+  /**
+   * @see DownloadRequest#uri
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setUri(Uri uri) {
     this.uri = uri;
     return this;
   }
 
-  /** @see DownloadRequest#mimeType */
+  /**
+   * @see DownloadRequest#mimeType
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setMimeType(String mimeType) {
     this.mimeType = mimeType;
     return this;
   }
 
-  /** @see DownloadRequest#keySetId */
+  /**
+   * @see DownloadRequest#keySetId
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setKeySetId(byte[] keySetId) {
     this.keySetId = keySetId;
     return this;
   }
 
-  /** @see DownloadRequest#customCacheKey */
+  /**
+   * @see DownloadRequest#customCacheKey
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setCacheKey(@Nullable String cacheKey) {
     this.cacheKey = cacheKey;
     return this;
   }
 
-  /** @see Download#state */
+  /**
+   * @see Download#state
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setState(@Download.State int state) {
     this.state = state;
     return this;
   }
 
-  /** @see DownloadProgress#percentDownloaded */
+  /**
+   * @see DownloadProgress#percentDownloaded
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setPercentDownloaded(float percentDownloaded) {
     progress.percentDownloaded = percentDownloaded;
     return this;
   }
 
-  /** @see DownloadProgress#bytesDownloaded */
+  /**
+   * @see DownloadProgress#bytesDownloaded
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setBytesDownloaded(long bytesDownloaded) {
     progress.bytesDownloaded = bytesDownloaded;
     return this;
   }
 
-  /** @see Download#contentLength */
+  /**
+   * @see Download#contentLength
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setContentLength(long contentLength) {
     this.contentLength = contentLength;
     return this;
   }
 
-  /** @see Download#failureReason */
+  /**
+   * @see Download#failureReason
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setFailureReason(int failureReason) {
     this.failureReason = failureReason;
     return this;
   }
 
-  /** @see Download#stopReason */
+  /**
+   * @see Download#stopReason
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setStopReason(int stopReason) {
     this.stopReason = stopReason;
     return this;
   }
 
-  /** @see Download#startTimeMs */
+  /**
+   * @see Download#startTimeMs
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setStartTimeMs(long startTimeMs) {
     this.startTimeMs = startTimeMs;
     return this;
   }
 
-  /** @see Download#updateTimeMs */
+  /**
+   * @see Download#updateTimeMs
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setUpdateTimeMs(long updateTimeMs) {
     this.updateTimeMs = updateTimeMs;
     return this;
   }
 
-  /** @see DownloadRequest#streamKeys */
+  /**
+   * @see DownloadRequest#streamKeys
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setStreamKeys(StreamKey... streamKeys) {
     this.streamKeys = Arrays.asList(streamKeys);
     return this;
   }
 
-  /** @see DownloadRequest#data */
+  /**
+   * @see DownloadRequest#data
+   */
+  @CanIgnoreReturnValue
   public DownloadBuilder setCustomMetadata(byte[] customMetadata) {
     this.customMetadata = customMetadata;
     return this;

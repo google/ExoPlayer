@@ -55,6 +55,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -112,6 +113,17 @@ public final class HlsMediaSource extends BaseMediaSource
     /**
      * Creates a new factory for {@link HlsMediaSource}s.
      *
+     * <p>The factory will use the following default components:
+     *
+     * <ul>
+     *   <li>{@link DefaultDrmSessionManagerProvider}
+     *   <li>{@link DefaultHlsPlaylistParserFactory}
+     *   <li>{@link DefaultHlsPlaylistTracker#FACTORY}
+     *   <li>{@link HlsExtractorFactory#DEFAULT}
+     *   <li>{@link DefaultLoadErrorHandlingPolicy}
+     *   <li>{@link DefaultCompositeSequenceableLoaderFactory}
+     * </ul>
+     *
      * @param dataSourceFactory A data source factory that will be wrapped by a {@link
      *     DefaultHlsDataSourceFactory} to create {@link DataSource}s for manifests, segments and
      *     keys.
@@ -122,6 +134,17 @@ public final class HlsMediaSource extends BaseMediaSource
 
     /**
      * Creates a new factory for {@link HlsMediaSource}s.
+     *
+     * <p>The factory will use the following default components:
+     *
+     * <ul>
+     *   <li>{@link DefaultDrmSessionManagerProvider}
+     *   <li>{@link DefaultHlsPlaylistParserFactory}
+     *   <li>{@link DefaultHlsPlaylistTracker#FACTORY}
+     *   <li>{@link HlsExtractorFactory#DEFAULT}
+     *   <li>{@link DefaultLoadErrorHandlingPolicy}
+     *   <li>{@link DefaultCompositeSequenceableLoaderFactory}
+     * </ul>
      *
      * @param hlsDataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for
      *     manifests, segments and keys.
@@ -147,76 +170,77 @@ public final class HlsMediaSource extends BaseMediaSource
      *     segments.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setExtractorFactory(@Nullable HlsExtractorFactory extractorFactory) {
       this.extractorFactory =
           extractorFactory != null ? extractorFactory : HlsExtractorFactory.DEFAULT;
       return this;
     }
 
-    /**
-     * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
-     * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
-     *
-     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
-     * @return This factory, for convenience.
-     */
-    public Factory setLoadErrorHandlingPolicy(
-        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    @CanIgnoreReturnValue
+    @Override
+    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
-          loadErrorHandlingPolicy != null
-              ? loadErrorHandlingPolicy
-              : new DefaultLoadErrorHandlingPolicy();
+          checkNotNull(
+              loadErrorHandlingPolicy,
+              "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
+                  + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
+                  + " pass an instance in order to retain the old behavior.");
       return this;
     }
 
     /**
-     * Sets the factory from which playlist parsers will be obtained. The default value is a {@link
-     * DefaultHlsPlaylistParserFactory}.
+     * Sets the factory from which playlist parsers will be obtained.
      *
      * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
      * @return This factory, for convenience.
      */
-    public Factory setPlaylistParserFactory(
-        @Nullable HlsPlaylistParserFactory playlistParserFactory) {
+    @CanIgnoreReturnValue
+    public Factory setPlaylistParserFactory(HlsPlaylistParserFactory playlistParserFactory) {
       this.playlistParserFactory =
-          playlistParserFactory != null
-              ? playlistParserFactory
-              : new DefaultHlsPlaylistParserFactory();
+          checkNotNull(
+              playlistParserFactory,
+              "HlsMediaSource.Factory#setPlaylistParserFactory no longer handles null by"
+                  + " instantiating a new DefaultHlsPlaylistParserFactory. Explicitly"
+                  + " construct and pass an instance in order to retain the old behavior.");
       return this;
     }
 
     /**
-     * Sets the {@link HlsPlaylistTracker} factory. The default value is {@link
-     * DefaultHlsPlaylistTracker#FACTORY}.
+     * Sets the {@link HlsPlaylistTracker} factory.
      *
      * @param playlistTrackerFactory A factory for {@link HlsPlaylistTracker} instances.
      * @return This factory, for convenience.
      */
-    public Factory setPlaylistTrackerFactory(
-        @Nullable HlsPlaylistTracker.Factory playlistTrackerFactory) {
+    @CanIgnoreReturnValue
+    public Factory setPlaylistTrackerFactory(HlsPlaylistTracker.Factory playlistTrackerFactory) {
       this.playlistTrackerFactory =
-          playlistTrackerFactory != null
-              ? playlistTrackerFactory
-              : DefaultHlsPlaylistTracker.FACTORY;
+          checkNotNull(
+              playlistTrackerFactory,
+              "HlsMediaSource.Factory#setPlaylistTrackerFactory no longer handles null by"
+                  + " defaulting to DefaultHlsPlaylistTracker.FACTORY. Explicitly"
+                  + " pass a reference to this instance in order to retain the old behavior.");
       return this;
     }
 
     /**
      * Sets the factory to create composite {@link SequenceableLoader}s for when this media source
-     * loads data from multiple streams (video, audio etc...). The default is an instance of {@link
-     * DefaultCompositeSequenceableLoaderFactory}.
+     * loads data from multiple streams (video, audio etc...).
      *
      * @param compositeSequenceableLoaderFactory A factory to create composite {@link
      *     SequenceableLoader}s for when this media source loads data from multiple streams (video,
      *     audio etc...).
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setCompositeSequenceableLoaderFactory(
-        @Nullable CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
+        CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
       this.compositeSequenceableLoaderFactory =
-          compositeSequenceableLoaderFactory != null
-              ? compositeSequenceableLoaderFactory
-              : new DefaultCompositeSequenceableLoaderFactory();
+          checkNotNull(
+              compositeSequenceableLoaderFactory,
+              "HlsMediaSource.Factory#setCompositeSequenceableLoaderFactory no longer handles null"
+                  + " by instantiating a new DefaultCompositeSequenceableLoaderFactory. Explicitly"
+                  + " construct and pass an instance in order to retain the old behavior.");
       return this;
     }
 
@@ -228,6 +252,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param allowChunklessPreparation Whether chunkless preparation is allowed.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setAllowChunklessPreparation(boolean allowChunklessPreparation) {
       this.allowChunklessPreparation = allowChunklessPreparation;
       return this;
@@ -252,6 +277,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param metadataType The type of metadata to extract.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setMetadataType(@MetadataType int metadataType) {
       this.metadataType = metadataType;
       return this;
@@ -266,18 +292,22 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     public Factory setUseSessionKeys(boolean useSessionKeys) {
       this.useSessionKeys = useSessionKeys;
       return this;
     }
 
+    @CanIgnoreReturnValue
     @Override
     public Factory setDrmSessionManagerProvider(
-        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+        DrmSessionManagerProvider drmSessionManagerProvider) {
       this.drmSessionManagerProvider =
-          drmSessionManagerProvider != null
-              ? drmSessionManagerProvider
-              : new DefaultDrmSessionManagerProvider();
+          checkNotNull(
+              drmSessionManagerProvider,
+              "MediaSource.Factory#setDrmSessionManagerProvider no longer handles null by"
+                  + " instantiating a new DefaultDrmSessionManagerProvider. Explicitly construct"
+                  + " and pass an instance in order to retain the old behavior.");
       return this;
     }
 
@@ -289,6 +319,7 @@ public final class HlsMediaSource extends BaseMediaSource
      *     the time since the Unix epoch, in milliseconds.
      * @return This factory, for convenience.
      */
+    @CanIgnoreReturnValue
     @VisibleForTesting
     /* package */ Factory setElapsedRealTimeOffsetMs(long elapsedRealTimeOffsetMs) {
       this.elapsedRealTimeOffsetMs = elapsedRealTimeOffsetMs;
@@ -329,7 +360,7 @@ public final class HlsMediaSource extends BaseMediaSource
 
     @Override
     public int[] getSupportedTypes() {
-      return new int[] {C.TYPE_HLS};
+      return new int[] {C.CONTENT_TYPE_HLS};
     }
   }
 

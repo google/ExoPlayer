@@ -37,11 +37,11 @@
     <item quantity="one">वीडियो को %d सेकंड आगे बढ़ाएं</item>
     <item quantity="other">वीडियो को %d सेकंड आगे बढ़ाएं</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">किसी को न दोहराएं</string>
-  <string name="exo_controls_repeat_one_description">एक को दोहराएं</string>
-  <string name="exo_controls_repeat_all_description">सभी को दोहराएं</string>
-  <string name="exo_controls_shuffle_on_description">शफ़ल करना चालू है</string>
-  <string name="exo_controls_shuffle_off_description">शफ़ल करना बंद है</string>
+  <string name="exo_controls_repeat_off_description">मौजूदा मोड: किसी को न दोहराएं. रिपीट मोड टॉगल करें.</string>
+  <string name="exo_controls_repeat_one_description">मौजूदा मोड: एक को दोहराएं. रिपीट मोड टॉगल करें.</string>
+  <string name="exo_controls_repeat_all_description">मौजूदा मोड: सभी को दोहराएं. रिपीट मोड टॉगल करें.</string>
+  <string name="exo_controls_shuffle_on_description">शफ़ल मोड बंद करें</string>
+  <string name="exo_controls_shuffle_off_description">शफ़ल मोड चालू करें</string>
   <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_controls_cc_enabled_description">सबटाइटल बंद करें</string>
   <string name="exo_controls_cc_disabled_description">सबटाइटल चालू करें</string>

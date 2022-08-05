@@ -37,11 +37,11 @@
     <item quantity="one">%d saniyə irəli çəkin</item>
     <item quantity="other">%d saniyə irəli çəkin</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Heç biri təkrarlanmasın</string>
-  <string name="exo_controls_repeat_one_description">Biri təkrarlansın</string>
-  <string name="exo_controls_repeat_all_description">Hamısı təkrarlansın</string>
-  <string name="exo_controls_shuffle_on_description">Qarışdırma aktivdir</string>
-  <string name="exo_controls_shuffle_off_description">Qarışdırma deaktivdir</string>
+  <string name="exo_controls_repeat_off_description">Cari rejim: Heç birini təkrarlamayın. Təkrarlanma rejimini keçirin.</string>
+  <string name="exo_controls_repeat_one_description">Cari rejim: Birini təkrarlayın. Təkrarlanma rejimini keçirin.</string>
+  <string name="exo_controls_repeat_all_description">Cari rejim: Hamısını təkrarlayın. Təkrarlanma rejimini keçirin.</string>
+  <string name="exo_controls_shuffle_on_description">Qarışdırma rejimini deaktiv edin</string>
+  <string name="exo_controls_shuffle_off_description">Qarışdırma rejimini aktiv edin</string>
   <string name="exo_controls_vr_description">VR rejimi</string>
   <string name="exo_controls_cc_enabled_description">Subtitrləri deaktiv edin</string>
   <string name="exo_controls_cc_disabled_description">Subtitrləri aktiv edin</string>

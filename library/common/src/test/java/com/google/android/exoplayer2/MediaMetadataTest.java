@@ -41,7 +41,6 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.displayTitle).isNull();
     assertThat(mediaMetadata.subtitle).isNull();
     assertThat(mediaMetadata.description).isNull();
-    assertThat(mediaMetadata.mediaUri).isNull();
     assertThat(mediaMetadata.userRating).isNull();
     assertThat(mediaMetadata.overallRating).isNull();
     assertThat(mediaMetadata.artworkData).isNull();
@@ -127,7 +126,6 @@ public class MediaMetadataTest {
         .setDisplayTitle("display title")
         .setSubtitle("subtitle")
         .setDescription("description")
-        .setMediaUri(Uri.parse("https://www.google.com"))
         .setUserRating(new HeartRating(false))
         .setOverallRating(new PercentageRating(87.4f))
         .setArtworkData(

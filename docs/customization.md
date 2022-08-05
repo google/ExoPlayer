@@ -43,32 +43,7 @@ described below.
 
 ### Configuring the network stack ###
 
-ExoPlayer supports Android's default network stack, as well as Cronet and
-OkHttp. In each case it's possible to customize the network stack for your use
-case. The following example shows how to customize the player to use Android's
-default network stack with cross-protocol redirects enabled:
-
-~~~
-// Build a HttpDataSource.Factory with cross-protocol redirects enabled.
-HttpDataSource.Factory httpDataSourceFactory =
-    new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
-
-// Wrap the HttpDataSource.Factory in a DefaultDataSource.Factory, which adds in
-// support for requesting data from other sources (e.g., files, resources, etc).
-DefaultDataSource.Factory dataSourceFactory =
-    new DefaultDataSource.Factory(context, httpDataSourceFactory);
-
-// Inject the DefaultDataSourceFactory when creating the player.
-ExoPlayer player =
-    new ExoPlayer.Builder(context)
-        .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
-        .build();
-~~~
-{: .language-java}
-
-The same approach can be used to configure and inject `HttpDataSource.Factory`
-implementations provided by the [Cronet extension] and the [OkHttp extension],
-depending on your preferred choice of network stack.
+We have a page about [customizing the network stack used by ExoPlayer].
 
 ### Caching data loaded from the network ###
 
@@ -84,7 +59,8 @@ DataSource.Factory cacheDataSourceFactory =
 
 ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(
-        new DefaultMediaSourceFactory(cacheDataSourceFactory))
+        new DefaultMediaSourceFactory(context)
+            .setDataSourceFactory(cacheDataSourceFactory))
     .build();
 ~~~
 {: .language-java}
@@ -108,7 +84,9 @@ DataSource.Factory dataSourceFactory = () -> {
 };
 
 ExoPlayer player = new ExoPlayer.Builder(context)
-    .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
+    .setMediaSourceFactory(
+        new DefaultMediaSourceFactory(context)
+            .setDataSourceFactory(dataSourceFactory))
     .build();
 ~~~
 {: .language-java}
@@ -206,6 +184,56 @@ DefaultExtractorsFactory extractorsFactory =
 The `ExtractorsFactory` can then be injected via `DefaultMediaSourceFactory` as
 described for customizing extractor flags above.
 
+
+### Enabling asynchronous buffer queueing ###
+
+Asynchronous buffer queueing is an enhancement in ExoPlayer's rendering
+pipeline, which operates `MediaCodec` instances in [asynchronous mode][] and
+uses additional threads to schedule decoding and rendering of data. Enabling it
+can reduce dropped frames and audio underruns.
+
+Asynchronous buffer queueing is enabled by default on devices running Android 12
+and above, and can be enabled manually from Android 6. Consider enabling the
+feature for specific devices on which you observe dropped frames or audio
+underruns, particularly when playing DRM protected or high frame rate content.
+
+In the simplest case, you need to inject a `DefaultRenderersFactory` to the
+player as follows:
+
+~~~
+DefaultRenderersFactory renderersFactory =
+    new DefaultRenderersFactory(context)
+        .forceEnableMediaCodecAsynchronousQueueing();
+ExoPlayer exoPlayer = new ExoPlayer.Builder(context, renderersFactory).build();
+~~~
+{: .language-java}
+
+If you're instantiating renderers directly, pass a
+`AsynchronousMediaCodecAdapter.Factory` to the `MediaCodecVideoRenderer` and
+`MediaCodecAudioRenderer` constructors.
+
+### Intercepting method calls with `ForwardingPlayer` ###
+
+You can customize some of the behavior of a `Player` instance by wrapping it in
+a subclass of `ForwardingPlayer` and overriding methods in order to do any of
+the following:
+
+* Access parameters before passing them to the delegate `Player`.
+* Access the return value from the delegate `Player` before returning it.
+* Re-implement the method completely.
+
+When overriding `ForwardingPlayer` methods it's important to ensure the
+implementation remains self-consistent and compliant with the `Player`
+interface, especially when dealing with methods that are intended to have
+identical or related behavior. For example, if you want to override every 'play'
+operation, you need to override both `ForwardingPlayer.play` and
+`ForwardingPlayer.setPlayWhenReady`, because a caller will expect the behavior
+of these methdods to be identical when `playWhenReady = true`. Similarly, if you
+want to change the seek-forward increment you need to override both
+`ForwardingPlayer.seekForward` to perform a seek with your customized increment,
+and `ForwardingPlayer.getSeekForwardIncrement` in order to report the correct
+customized increment back to the caller.
+
 ## MediaSource customization ##
 
 The examples above inject customized components for use during playback of all
@@ -270,8 +298,8 @@ When building custom components, we recommend the following:
   ensures that they are executed in order with any other operations being
   performed on the player.
 
-[Cronet extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/cronet
-[OkHttp extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/okhttp
+[customizing the network stack used by ExoPlayer]: {{ site.baseurl }}/network-stacks.html
 [LoadErrorHandlingPolicy]: {{ site.exo_sdk }}/upstream/LoadErrorHandlingPolicy.html
 [media source based playlist API]: {{ site.baseurl }}/media-sources.html#media-source-based-playlist-api
+[asynchronous mode]: https://developer.android.com/reference/android/media/MediaCodec#asynchronous-processing-using-buffers
 

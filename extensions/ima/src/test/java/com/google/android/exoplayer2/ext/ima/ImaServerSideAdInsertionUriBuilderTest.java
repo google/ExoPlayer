@@ -60,7 +60,7 @@ public final class ImaServerSideAdInsertionUriBuilderTest {
     builder.setContentUrl(CONTENT_URL);
     builder.setAuthToken(AUTH_TOKEN);
     builder.setStreamActivityMonitorId(STREAM_ACTIVITY_MONITOR_ID);
-    builder.setFormat(C.TYPE_HLS);
+    builder.setFormat(C.CONTENT_TYPE_HLS);
     builder.setAdTagParameters(adTagParameters);
     builder.setLoadVideoTimeoutMs(ADS_LOADER_TIMEOUT_MS);
     Uri uri = builder.build();
@@ -96,7 +96,7 @@ public final class ImaServerSideAdInsertionUriBuilderTest {
     builder.setContentUrl(CONTENT_URL);
     builder.setAuthToken(AUTH_TOKEN);
     builder.setStreamActivityMonitorId(STREAM_ACTIVITY_MONITOR_ID);
-    builder.setFormat(C.TYPE_DASH);
+    builder.setFormat(C.CONTENT_TYPE_DASH);
     builder.setAdTagParameters(adTagParameters);
     builder.setLoadVideoTimeoutMs(ADS_LOADER_TIMEOUT_MS);
     Uri uri = builder.build();
@@ -127,7 +127,7 @@ public final class ImaServerSideAdInsertionUriBuilderTest {
     ImaServerSideAdInsertionUriBuilder builder = new ImaServerSideAdInsertionUriBuilder();
     builder.setContentSourceId(CONTENT_SOURCE_ID);
     builder.setVideoId(VIDEO_ID);
-    builder.setFormat(C.TYPE_DASH);
+    builder.setFormat(C.CONTENT_TYPE_DASH);
 
     Uri streamRequest = builder.build();
 
@@ -139,7 +139,7 @@ public final class ImaServerSideAdInsertionUriBuilderTest {
   public void build_liveWithNoAdsId_usesAssetKeyAsDefault() {
     ImaServerSideAdInsertionUriBuilder builder = new ImaServerSideAdInsertionUriBuilder();
     builder.setAssetKey(ASSET_KEY);
-    builder.setFormat(C.TYPE_DASH);
+    builder.setFormat(C.CONTENT_TYPE_DASH);
 
     Uri streamRequest = builder.build();
 
@@ -177,7 +177,7 @@ public final class ImaServerSideAdInsertionUriBuilderTest {
     Uri uri =
         new ImaServerSideAdInsertionUriBuilder()
             .setAssetKey(ASSET_KEY)
-            .setFormat(C.TYPE_DASH)
+            .setFormat(C.CONTENT_TYPE_DASH)
             .build();
 
     int loadVideoTimeoutMs = ImaServerSideAdInsertionUriBuilder.getLoadVideoTimeoutMs(uri);

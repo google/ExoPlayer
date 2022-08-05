@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -83,7 +82,7 @@ public final class DashUtil {
   /**
    * Loads a DASH manifest.
    *
-   * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
+   * @param dataSource The {@link DataSource} from which the manifest should be read.
    * @param uri The {@link Uri} of the manifest to be read.
    * @return An instance of {@link DashManifest}.
    * @throws IOException Thrown when there is an error while loading.
@@ -95,7 +94,7 @@ public final class DashUtil {
   /**
    * Loads a {@link Format} for acquiring keys for a given period in a DASH manifest.
    *
-   * @param dataSource The {@link HttpDataSource} from which data should be loaded.
+   * @param dataSource The {@link DataSource} from which data should be loaded.
    * @param period The {@link Period}.
    * @return The loaded {@link Format}, or null if none is defined.
    * @throws IOException Thrown when there is an error while loading.

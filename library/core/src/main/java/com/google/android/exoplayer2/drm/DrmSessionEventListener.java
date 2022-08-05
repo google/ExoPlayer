@@ -28,7 +28,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /** Listener of {@link DrmSessionManager} events. */
 public interface DrmSessionEventListener {
 
-  /** @deprecated Implement {@link #onDrmSessionAcquired(int, MediaPeriodId, int)} instead. */
+  /**
+   * @deprecated Implement {@link #onDrmSessionAcquired(int, MediaPeriodId, int)} instead.
+   */
   @Deprecated
   default void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
 

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -131,7 +131,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public final class <span class="typeNameLabel">Log</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Log</code></a> which allows to set the log level.</div>
+<div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Log</code></a> which allows to set the log level and to specify a custom
+ log output.</div>
 </li>
 </ul>
 </div>
@@ -153,6 +154,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util">Log.Logger</a></span></code></th>
+<td class="colLast">
+<div class="block">Interface for a logger that can output messages with a tag.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util">Log.LogLevel</a></span></code></th>
 <td class="colLast">
@@ -286,25 +294,32 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLogger(com.google.android.exoplayer2.util.Log.Logger)">setLogger</a></span>&#8203;(<a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util">Log.Logger</a>&nbsp;logger)</code></th>
+<td class="colLast">
+<div class="block">Sets a custom <a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util"><code>Log.Logger</code></a> as the output.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLogLevel(@com.google.android.exoplayer2.util.Log.LogLevelint)">setLogLevel</a></span>&#8203;(@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;logLevel)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util"><code>Log.LogLevel</code></a> for ExoPlayer logcat logging.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLogStackTraces(boolean)">setLogStackTraces</a></span>&#8203;(boolean&nbsp;logStackTraces)</code></th>
 <td class="colLast">
 <div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#w(java.lang.String,java.lang.String)">w</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#w(java.lang.String,java.lang.String,java.lang.Throwable)">w</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
@@ -452,6 +467,20 @@ public static&nbsp;@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;get
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>logStackTraces</code> - Whether stack traces will be logged.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLogger(com.google.android.exoplayer2.util.Log.Logger)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLogger</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;setLogger&#8203;(<a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util">Log.Logger</a>&nbsp;logger)</pre>
+<div class="block">Sets a custom <a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util"><code>Log.Logger</code></a> as the output.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>logger</code> - The <a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util"><code>Log.Logger</code></a>.</dd>
 </dl>
 </li>
 </ul>

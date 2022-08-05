@@ -28,9 +28,11 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -117,6 +119,7 @@ public class WebServerDispatcher extends Dispatcher {
        *
        * @return this builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public Builder setPath(String path) {
         this.path = path.startsWith("/") ? path : "/" + path;
         return this;
@@ -127,6 +130,7 @@ public class WebServerDispatcher extends Dispatcher {
        *
        * @return this builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public Builder setData(byte[] data) {
         this.data = data;
         return this;
@@ -137,6 +141,7 @@ public class WebServerDispatcher extends Dispatcher {
        *
        * @return this builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public Builder supportsRangeRequests(boolean supportsRangeRequests) {
         this.supportsRangeRequests = supportsRangeRequests;
         return this;
@@ -150,6 +155,7 @@ public class WebServerDispatcher extends Dispatcher {
        *
        * @return this builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public Builder resolvesToUnknownLength(boolean resolvesToUnknownLength) {
         this.resolvesToUnknownLength = resolvesToUnknownLength;
         return this;
@@ -161,6 +167,7 @@ public class WebServerDispatcher extends Dispatcher {
        *
        * @return this builder, for convenience.
        */
+      @CanIgnoreReturnValue
       public Builder setGzipSupport(@GzipSupport int gzipSupport) {
         this.gzipSupport = gzipSupport;
         return this;
@@ -239,7 +246,7 @@ public class WebServerDispatcher extends Dispatcher {
 
   /** Returns the path for a given {@link RecordedRequest}, stripping any query parameters. */
   public static String getRequestPath(RecordedRequest request) {
-    return Util.splitAtFirst(request.getPath(), "\\?")[0];
+    return Util.splitAtFirst(Strings.nullToEmpty(request.getPath()), "\\?")[0];
   }
 
   /**

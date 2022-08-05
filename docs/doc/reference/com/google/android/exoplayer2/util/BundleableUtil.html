@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -168,41 +168,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromBundleNullableList(com.google.android.exoplayer2.Bundleable.Creator,java.util.List,java.util.List)">fromBundleNullableList</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleList,
-                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;defaultValue)</code></th>
-<td class="colLast">
-<div class="block">Converts a list of <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromBundleNullableSparseArray(com.google.android.exoplayer2.Bundleable.Creator,android.util.SparseArray,android.util.SparseArray)">fromBundleNullableSparseArray</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                             <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleSparseArray,
-                             <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;&nbsp;defaultValue)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromBundleSparseArray(com.google.android.exoplayer2.Bundleable.Creator,android.util.SparseArray)">fromBundleSparseArray</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
+                     <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleSparseArray)</code></th>
 <td class="colLast">
 <div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br>T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromNullableBundle(com.google.android.exoplayer2.Bundleable.Creator,android.os.Bundle)">fromNullableBundle</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                  <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</code></th>
-<td class="colLast">
-<div class="block">Converts a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br>T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromNullableBundle(com.google.android.exoplayer2.Bundleable.Creator,android.os.Bundle,T)">fromNullableBundle</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                  <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle,
-                  T&nbsp;defaultValue)</code></th>
-<td class="colLast">
-<div class="block">Converts a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleArrayList(java.util.Collection)">toBundleArrayList</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;T&gt;&nbsp;bundleables)</code></th>
 <td class="colLast">
@@ -211,25 +184,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  conveniently.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleList(java.util.List)">toBundleList</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;bundleableList)</code></th>
 <td class="colLast">
 <div class="block">Converts a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a list <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleSparseArray(android.util.SparseArray)">toBundleSparseArray</a></span>&#8203;(<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;&nbsp;bundleableSparseArray)</code></th>
 <td class="colLast">
 <div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to an <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> so that the returned <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> can be put to <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> using <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true#putSparseParcelableArray(java.lang.String,android.util.SparseArray)" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle.putSparseParcelableArray(java.lang.String, android.util.SparseArray&lt;? extends android.os.Parcelable&gt;)</code></a> conveniently.</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toNullableBundle(com.google.android.exoplayer2.Bundleable)">toNullableBundle</a></span>&#8203;(<a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&nbsp;bundleable)</code></th>
-<td class="colLast">
-<div class="block">Converts a <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -256,46 +222,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="toNullableBundle(com.google.android.exoplayer2.Bundleable)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>toNullableBundle</h4>
-<pre class="methodSignature">@Nullable
-public static&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toNullableBundle&#8203;(@Nullable
-                                      <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&nbsp;bundleable)</pre>
-<div class="block">Converts a <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a>. It's a convenience wrapper of <a href="../Bundleable.html#toBundle()" target="_top"><code>Bundleable.toBundle()</code></a> that can take nullable values.</div>
-</li>
-</ul>
-<a id="fromNullableBundle(com.google.android.exoplayer2.Bundleable.Creator,android.os.Bundle)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromNullableBundle</h4>
-<pre class="methodSignature">@Nullable
-public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;T&nbsp;fromNullableBundle&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                                                          @Nullable
-                                                          <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</pre>
-<div class="block">Converts a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a>. It's a convenience wrapper of <a href="../Bundleable.Creator.html#fromBundle(android.os.Bundle)" target="_top"><code>Bundleable.Creator.fromBundle(android.os.Bundle)</code></a> that can take nullable values.</div>
-</li>
-</ul>
-<a id="fromNullableBundle(com.google.android.exoplayer2.Bundleable.Creator,android.os.Bundle,com.google.android.exoplayer2.Bundleable)">
-<!--   -->
-</a><a id="fromNullableBundle(com.google.android.exoplayer2.Bundleable.Creator,android.os.Bundle,T)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromNullableBundle</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;T&nbsp;fromNullableBundle&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                                                          @Nullable
-                                                          <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle,
-                                                          T&nbsp;defaultValue)</pre>
-<div class="block">Converts a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a>. It's a convenience wrapper of <a href="../Bundleable.Creator.html#fromBundle(android.os.Bundle)" target="_top"><code>Bundleable.Creator.fromBundle(android.os.Bundle)</code></a> that provides default value to ensure non-null.</div>
-</li>
-</ul>
 <a id="toBundleList(java.util.List)">
 <!--   -->
 </a>
@@ -317,33 +243,6 @@ public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface i
 <div class="block">Converts a list of <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </li>
 </ul>
-<a id="fromBundleNullableList(com.google.android.exoplayer2.Bundleable.Creator,java.util.List,java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromBundleNullableList</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;T&gt;&nbsp;fromBundleNullableList&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2" target="_top">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                                                                    @Nullable
-                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleList,
-                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;defaultValue)</pre>
-<div class="block">Converts a list of <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>. Returns <code>defaultValue</code>
- if <code>bundleList</code> is null.</div>
-</li>
-</ul>
-<a id="fromBundleNullableSparseArray(com.google.android.exoplayer2.Bundleable.Creator,android.util.SparseArray,android.util.SparseArray)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>fromBundleNullableSparseArray</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;T&gt;&nbsp;fromBundleNullableSparseArray&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2" target="_top">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
-                                                                                  @Nullable
-                                                                                  <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleSparseArray,
-                                                                                  <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;&nbsp;defaultValue)</pre>
-<div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>. Returns <code>defaultValue</code> if <code>bundleSparseArray</code> is null.</div>
-</li>
-</ul>
 <a id="toBundleArrayList(java.util.Collection)">
 <!--   -->
 </a>
@@ -354,6 +253,17 @@ public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface i
 <div class="block">Converts a collection of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to an <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink"><code>ArrayList</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> so that
  the returned list can be put to <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> using <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true#putParcelableArrayList(java.lang.String,java.util.ArrayList)" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle.putParcelableArrayList(java.lang.String, java.util.ArrayList&lt;? extends android.os.Parcelable&gt;)</code></a>
  conveniently.</div>
+</li>
+</ul>
+<a id="fromBundleSparseArray(com.google.android.exoplayer2.Bundleable.Creator,android.util.SparseArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fromBundleSparseArray</h4>
+<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;T&gt;&nbsp;fromBundleSparseArray&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2" target="_top">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
+                                                                          <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleSparseArray)</pre>
+<div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </li>
 </ul>
 <a id="toBundleSparseArray(android.util.SparseArray)">

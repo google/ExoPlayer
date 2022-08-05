@@ -37,11 +37,11 @@
     <item quantity="one">%d վայրկյան առաջ տալ</item>
     <item quantity="other">%d վայրկյան առաջ տալ</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Չկրկնել</string>
-  <string name="exo_controls_repeat_one_description">Կրկնել մեկը</string>
-  <string name="exo_controls_repeat_all_description">Կրկնել բոլորը</string>
-  <string name="exo_controls_shuffle_on_description">Խառնումը միացված է</string>
-  <string name="exo_controls_shuffle_off_description">Խառնումն անջատված է</string>
+  <string name="exo_controls_repeat_off_description">Ընթացիկ ռեժիմը՝ «Չկրկնել»։ Փոխել կրկնության ռեժիմը։</string>
+  <string name="exo_controls_repeat_one_description">Ընթացիկ ռեժիմը՝ «Կրկնել մեկը»։ Փոխել կրկնության ռեժիմը։</string>
+  <string name="exo_controls_repeat_all_description">Ընթացիկ ռեժիմը՝ «Կրկնել բոլորը»։ Փոխել կրկնության ռեժիմը։</string>
+  <string name="exo_controls_shuffle_on_description">Անջատել խառը նվագարկման ռեժիմը</string>
+  <string name="exo_controls_shuffle_off_description">Միացնել խառը նվագարկման ռեժիմը</string>
   <string name="exo_controls_vr_description">VR ռեժիմ</string>
   <string name="exo_controls_cc_enabled_description">Անջատել ենթագրերը</string>
   <string name="exo_controls_cc_disabled_description">Միացնել ենթագրերը</string>

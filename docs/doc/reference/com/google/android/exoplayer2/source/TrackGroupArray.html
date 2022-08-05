@@ -136,7 +136,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">TrackGroupArray</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
-<div class="block">An immutable array of <a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s.</div>
+<div class="block">An immutable array of <a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s.
+
+ <p>This class is typically used to represent all of the tracks available in a piece of media.
+ Tracks that are known to present the same content are grouped together (e.g., the same video feed
+ provided at different resolutions in an adaptive stream). Tracks that are known to present
+ different content are in separate track groups (e.g., an audio track will not be in the same
+ group as a video track, and an audio track in one language will be in a different group to an
+ audio track in another language).</div>
 </li>
 </ul>
 </div>

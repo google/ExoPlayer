@@ -828,6 +828,36 @@ public final class AdPlaybackState implements Bundleable {
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
+  /**
+   * Returns a copy of the ad playback state with the given ads ID.
+   *
+   * @param adsId The new ads ID.
+   * @param adPlaybackState The ad playback state to copy.
+   * @return The new ad playback state.
+   */
+  public static AdPlaybackState fromAdPlaybackState(Object adsId, AdPlaybackState adPlaybackState) {
+    AdGroup[] adGroups =
+        new AdGroup[adPlaybackState.adGroupCount - adPlaybackState.removedAdGroupCount];
+    for (int i = 0; i < adGroups.length; i++) {
+      AdGroup adGroup = adPlaybackState.adGroups[i];
+      adGroups[i] =
+          new AdGroup(
+              adGroup.timeUs,
+              adGroup.count,
+              Arrays.copyOf(adGroup.states, adGroup.states.length),
+              Arrays.copyOf(adGroup.uris, adGroup.uris.length),
+              Arrays.copyOf(adGroup.durationsUs, adGroup.durationsUs.length),
+              adGroup.contentResumeOffsetUs,
+              adGroup.isServerSideInserted);
+    }
+    return new AdPlaybackState(
+        adsId,
+        adGroups,
+        adPlaybackState.adResumePositionUs,
+        adPlaybackState.contentDurationUs,
+        adPlaybackState.removedAdGroupCount);
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {

@@ -37,11 +37,11 @@
     <item quantity="one">წინ გადახვევა %d წამით</item>
     <item quantity="other">წინ გადახვევა %d წამით</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">არცერთის გამეორება</string>
-  <string name="exo_controls_repeat_one_description">ერთის გამეორება</string>
-  <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>
-  <string name="exo_controls_shuffle_on_description">არეულად დაკვრა ჩართულია</string>
-  <string name="exo_controls_shuffle_off_description">არეულად დაკვრა გამორთულია</string>
+  <string name="exo_controls_repeat_off_description">მიმდინარე რეჟიმი: არაფრის გამეორება. გადართეთ გამეორების რეჟიმი.</string>
+  <string name="exo_controls_repeat_one_description">მიმდინარე რეჟიმი: ერთის გამეორება. გადართეთ გამეორების რეჟიმი.</string>
+  <string name="exo_controls_repeat_all_description">მიმდინარე რეჟიმი: ყველას გამეორება. გადართეთ გამეორების რეჟიმი.</string>
+  <string name="exo_controls_shuffle_on_description">არეულად დაკვრის რეჟიმის გათიშვა</string>
+  <string name="exo_controls_shuffle_off_description">არეულად დაკვრის რეჟიმის ჩართვა</string>
   <string name="exo_controls_vr_description">VR რეჟიმი</string>
   <string name="exo_controls_cc_enabled_description">სუბტიტრების გათიშვა</string>
   <string name="exo_controls_cc_disabled_description">სუბტიტრების ჩართვა</string>

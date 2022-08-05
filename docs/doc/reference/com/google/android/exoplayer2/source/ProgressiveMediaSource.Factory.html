@@ -180,8 +180,7 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource.Factory)">Factory</a></span>&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
 <td class="colLast">
-<div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s, using the extractors provided by
- <a href="../extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a>.</div>
+<div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -261,7 +260,7 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
+<div class="block">Sets an optional <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -295,11 +294,19 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>Factory</h4>
 <pre>public&nbsp;Factory&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
-<div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s, using the extractors provided by
- <a href="../extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a>.</div>
+<div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s.
+
+ <p>The factory will use the following default components:
+
+ <ul>
+   <li><a href="../extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a>
+   <li><a href="../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a>
+   <li><a href="../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>
+ </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s to read the media.</dd>
+<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">data sources</a> to read the
+     media.</dd>
 </dl>
 </li>
 </ul>
@@ -312,7 +319,21 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <pre>public&nbsp;Factory&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                <a href="../extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a>&nbsp;extractorsFactory)</pre>
 <div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.source.ProgressiveMediaExtractor.Factory)"><code>new
- Factory(dataSourceFactory, () -> new BundledExtractorsAdapter(extractorsFactory)</code></a>.</div>
+ Factory(dataSourceFactory, () -> new BundledExtractorsAdapter(extractorsFactory)</code></a>.
+
+ <p>The factory will use the following default components:
+
+ <ul>
+   <li><a href="../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a>
+   <li><a href="../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>
+ </ul></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">data sources</a> to read the
+     media.</dd>
+<dd><code>extractorsFactory</code> - A factory for the <a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">extractors</a> used to extract
+     the media from its container.</dd>
+</dl>
 </li>
 </ul>
 <a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.source.ProgressiveMediaExtractor.Factory)">
@@ -323,12 +344,20 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <h4>Factory</h4>
 <pre>public&nbsp;Factory&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                <a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor.Factory</a>&nbsp;progressiveMediaExtractorFactory)</pre>
-<div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s.</div>
+<div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s.
+
+ <p>The factory will use the following default components:
+
+ <ul>
+   <li><a href="../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a>
+   <li><a href="../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>
+ </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s to read the media.</dd>
+<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">data sources</a> to read the
+     media.</dd>
 <dd><code>progressiveMediaExtractorFactory</code> - A factory for the <a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source"><code>ProgressiveMediaExtractor</code></a>
-     to extract media from its container.</dd>
+     to extract the media from its container.</dd>
 </dl>
 </li>
 </ul>
@@ -346,7 +375,8 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <div class="block">Creates a new factory for <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a>s.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s to read the media.</dd>
+<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">data sources</a> to read the
+     media.</dd>
 <dd><code>progressiveMediaExtractorFactory</code> - A factory for the <a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source"><code>ProgressiveMediaExtractor</code></a>
      to extract media from its container.</dd>
 <dd><code>drmSessionManagerProvider</code> - A provider to obtain a <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
@@ -373,14 +403,12 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre class="methodSignature">public&nbsp;<a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(@Nullable
-                                                                 <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
-<div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>. The default value is created by calling <a href="../upstream/DefaultLoadErrorHandlingPolicy.html#%3Cinit%3E()"><code>DefaultLoadErrorHandlingPolicy()</code></a>.</div>
+<pre class="methodSignature">public&nbsp;<a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">MediaSource.Factory</a></code></span></div>
+<div class="block">Sets an optional <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>loadErrorHandlingPolicy</code> - A <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -410,13 +438,10 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionManagerProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(@Nullable
-                                                                   <a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets the <a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManagerProvider</code></a> used to obtain a <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
- <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.
-
- <p>If not set, <a href="../drm/DefaultDrmSessionManagerProvider.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManagerProvider</code></a> is used.</div>
+ <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>

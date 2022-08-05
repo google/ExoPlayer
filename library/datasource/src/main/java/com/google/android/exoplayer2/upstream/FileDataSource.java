@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -39,13 +40,17 @@ public final class FileDataSource extends BaseDataSource {
   /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
   public static class FileDataSourceException extends DataSourceException {
 
-    /** @deprecated Use {@link #FileDataSourceException(Throwable, int)} */
+    /**
+     * @deprecated Use {@link #FileDataSourceException(Throwable, int)}
+     */
     @Deprecated
     public FileDataSourceException(Exception cause) {
       super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
-    /** @deprecated Use {@link #FileDataSourceException(String, Throwable, int)} */
+    /**
+     * @deprecated Use {@link #FileDataSourceException(String, Throwable, int)}
+     */
     @Deprecated
     public FileDataSourceException(String message, IOException cause) {
       super(message, cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
@@ -76,6 +81,7 @@ public final class FileDataSource extends BaseDataSource {
      * @param listener The {@link TransferListener}.
      * @return This factory.
      */
+    @CanIgnoreReturnValue
     public Factory setListener(@Nullable TransferListener listener) {
       this.listener = listener;
       return this;

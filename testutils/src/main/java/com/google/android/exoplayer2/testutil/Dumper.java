@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -42,15 +43,18 @@ public final class Dumper {
     sb = new StringBuilder();
   }
 
+  @CanIgnoreReturnValue
   public Dumper add(String field, @Nullable Object value) {
     return addString(field + " = " + value + '\n');
   }
 
+  @CanIgnoreReturnValue
   public Dumper add(Dumpable object) {
     object.dump(this);
     return this;
   }
 
+  @CanIgnoreReturnValue
   public Dumper add(String field, @Nullable byte[] value) {
     String string =
         String.format(
@@ -62,16 +66,19 @@ public final class Dumper {
     return addString(string);
   }
 
+  @CanIgnoreReturnValue
   public Dumper addTime(String field, long time) {
     return add(field, time == C.TIME_UNSET ? "UNSET TIME" : time);
   }
 
+  @CanIgnoreReturnValue
   public Dumper startBlock(String name) {
     addString(name + ":\n");
     indent += INDENT_SIZE_IN_SPACES;
     return this;
   }
 
+  @CanIgnoreReturnValue
   public Dumper endBlock() {
     indent -= INDENT_SIZE_IN_SPACES;
     return this;
@@ -82,6 +89,7 @@ public final class Dumper {
     return sb.toString();
   }
 
+  @CanIgnoreReturnValue
   private Dumper addString(String string) {
     for (int i = 0; i < indent; i++) {
       sb.append(' ');

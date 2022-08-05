@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.parseInt
 import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_FMTP;
 import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_RTPMAP;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import androidx.annotation.Nullable;
@@ -30,6 +29,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -103,6 +103,17 @@ import java.util.HashMap;
 
   /** Builder class for {@link MediaDescription}. */
   public static final class Builder {
+
+    /**
+     * RTPMAP attribute format: {@code <payloadType> <mediaEncoding>/<clockRate>/<channelCount>}.
+     */
+    private static final String RTP_MAP_ATTR_AUDIO_FMT = "%d %s/%d/%d";
+
+    private static final int RTP_STATIC_PAYLOAD_TYPE_PCMU = 0;
+    private static final int RTP_STATIC_PAYLOAD_TYPE_PCMA = 8;
+    private static final int RTP_STATIC_PAYLOAD_TYPE_L16_STEREO = 10;
+    private static final int RTP_STATIC_PAYLOAD_TYPE_L16_MONO = 11;
+
     private final String mediaType;
     private final int port;
     private final String transportProtocol;
@@ -137,6 +148,7 @@ import java.util.HashMap;
      * @param mediaTitle The assigned media title.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaTitle(String mediaTitle) {
       this.mediaTitle = mediaTitle;
       return this;
@@ -148,6 +160,7 @@ import java.util.HashMap;
      * @param connection The connection parameter.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setConnection(String connection) {
       this.connection = connection;
       return this;
@@ -159,6 +172,7 @@ import java.util.HashMap;
      * @param bitrate The estimated bitrate measured in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setBitrate(int bitrate) {
       this.bitrate = bitrate;
       return this;
@@ -170,6 +184,7 @@ import java.util.HashMap;
      * @param key The encryption parameter.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setKey(String key) {
       this.key = key;
       return this;
@@ -184,6 +199,7 @@ import java.util.HashMap;
      * @param attributeValue The value of the attribute, or "" if the attribute bears no value.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder addAttribute(String attributeName, String attributeValue) {
       attributes.put(attributeName, attributeValue);
       return this;
@@ -197,14 +213,54 @@ import java.util.HashMap;
      */
     public MediaDescription build() {
       try {
-        // rtpmap attribute is mandatory in RTSP (RFC2326 Section C.1.3).
-        checkState(attributes.containsKey(ATTR_RTPMAP));
         RtpMapAttribute rtpMapAttribute =
-            RtpMapAttribute.parse(castNonNull(attributes.get(ATTR_RTPMAP)));
+            attributes.containsKey(ATTR_RTPMAP)
+                ? RtpMapAttribute.parse(castNonNull(attributes.get(ATTR_RTPMAP)))
+                : RtpMapAttribute.parse(getRtpMapStringByPayloadType(payloadType));
         return new MediaDescription(this, ImmutableMap.copyOf(attributes), rtpMapAttribute);
       } catch (ParserException e) {
         throw new IllegalStateException(e);
       }
+    }
+
+    private static String getRtpMapStringByPayloadType(int rtpPayloadType) {
+      checkArgument(rtpPayloadType < 96);
+
+      switch (rtpPayloadType) {
+          // See RFC3551 Section 6.
+        case RTP_STATIC_PAYLOAD_TYPE_PCMU:
+          return constructAudioRtpMap(
+              RTP_STATIC_PAYLOAD_TYPE_PCMU,
+              /* mediaEncoding= */ "PCMU",
+              /* clockRate= */ 8_000,
+              /* channelCount= */ 1);
+        case RTP_STATIC_PAYLOAD_TYPE_PCMA:
+          return constructAudioRtpMap(
+              RTP_STATIC_PAYLOAD_TYPE_PCMA,
+              /* mediaEncoding= */ "PCMA",
+              /* clockRate= */ 8_000,
+              /* channelCount= */ 1);
+        case RTP_STATIC_PAYLOAD_TYPE_L16_STEREO:
+          return constructAudioRtpMap(
+              RTP_STATIC_PAYLOAD_TYPE_L16_STEREO,
+              /* mediaEncoding= */ "L16",
+              /* clockRate= */ 44_100,
+              /* channelCount= */ 2);
+        case RTP_STATIC_PAYLOAD_TYPE_L16_MONO:
+          return constructAudioRtpMap(
+              RTP_STATIC_PAYLOAD_TYPE_L16_MONO,
+              /* mediaEncoding= */ "L16",
+              /* clockRate= */ 44_100,
+              /* channelCount= */ 1);
+        default:
+          throw new IllegalStateException("Unsupported static paylod type " + rtpPayloadType);
+      }
+    }
+
+    private static String constructAudioRtpMap(
+        int payloadType, String mediaEncoding, int clockRate, int channelCount) {
+      return Util.formatInvariant(
+          RTP_MAP_ATTR_AUDIO_FMT, payloadType, mediaEncoding, clockRate, channelCount);
     }
   }
 

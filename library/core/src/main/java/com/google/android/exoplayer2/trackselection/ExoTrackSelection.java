@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Log;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -45,6 +46,8 @@ public interface ExoTrackSelection extends TrackSelection {
     /** The type that will be returned from {@link TrackSelection#getType()}. */
     public final @Type int type;
 
+    private static final String TAG = "ETSDefinition";
+
     /**
      * @param group The {@link TrackGroup}. Must not be null.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
@@ -61,6 +64,10 @@ public interface ExoTrackSelection extends TrackSelection {
      * @param type The type that will be returned from {@link TrackSelection#getType()}.
      */
     public Definition(TrackGroup group, int[] tracks, @Type int type) {
+      if (tracks.length == 0) {
+        // TODO: Turn this into an assertion.
+        Log.e(TAG, "Empty tracks are not allowed", new IllegalArgumentException());
+      }
       this.group = group;
       this.tracks = tracks;
       this.type = type;

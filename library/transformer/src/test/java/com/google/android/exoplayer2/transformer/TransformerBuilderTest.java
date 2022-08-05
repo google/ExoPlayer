@@ -39,11 +39,6 @@ public class TransformerBuilderTest {
   }
 
   @Test
-  public void build_withoutContext_throws() {
-    assertThrows(NullPointerException.class, () -> new Transformer.Builder().build());
-  }
-
-  @Test
   public void build_removeAudioAndVideo_throws() {
     Context context = ApplicationProvider.getApplicationContext();
 

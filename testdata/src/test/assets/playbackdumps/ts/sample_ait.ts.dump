@@ -22,11 +22,14 @@ MediaCodecAdapter (exotest.audio.eac3):
   buffers[19] = length 0, hash 1
 MetadataOutput:
   Metadata[0]:
+    presentationTimeUs = 0
     entry[0] = Ait(controlCode=1,url=http://static-cdn.arte.tv/redbutton/index_fr.html)
     entry[1] = Ait(controlCode=2,url=http://www.arte.tv/hbbtvv2/index.html?lang=fr_FR&page=PLUS7)
   Metadata[1]:
+    presentationTimeUs = 192000
     entry[0] = Ait(controlCode=1,url=http://static-cdn.arte.tv/redbutton/index_fr.html)
     entry[1] = Ait(controlCode=2,url=http://www.arte.tv/hbbtvv2/index.html?lang=fr_FR&page=PLUS7)
   Metadata[2]:
+    presentationTimeUs = 384000
     entry[0] = Ait(controlCode=1,url=http://static-cdn.arte.tv/redbutton/index_fr.html)
     entry[1] = Ait(controlCode=2,url=http://www.arte.tv/hbbtvv2/index.html?lang=fr_FR&page=PLUS7)

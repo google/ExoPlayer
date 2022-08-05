@@ -553,8 +553,10 @@ public final class HlsMediaPeriod
     this.sampleStreamWrappers = sampleStreamWrappers.toArray(new HlsSampleStreamWrapper[0]);
     this.manifestUrlIndicesPerWrapper = manifestUrlIndicesPerWrapper.toArray(new int[0][]);
     pendingPrepareCount = this.sampleStreamWrappers.length;
-    // Set timestamp master and trigger preparation (if not already prepared)
-    this.sampleStreamWrappers[0].setIsTimestampMaster(true);
+    // Set timestamp masters and trigger preparation (if not already prepared)
+    for (int i = 0; i < audioVideoSampleStreamWrapperCount; i++) {
+      this.sampleStreamWrappers[i].setIsTimestampMaster(true);
+    }
     for (HlsSampleStreamWrapper sampleStreamWrapper : this.sampleStreamWrappers) {
       sampleStreamWrapper.continuePreparing();
     }
@@ -644,7 +646,8 @@ public final class HlsMediaPeriod
     int numberOfVideoCodecs = Util.getCodecCountOfType(codecs, C.TRACK_TYPE_VIDEO);
     int numberOfAudioCodecs = Util.getCodecCountOfType(codecs, C.TRACK_TYPE_AUDIO);
     boolean codecsStringAllowsChunklessPreparation =
-        numberOfAudioCodecs <= 1
+        (numberOfAudioCodecs == 1
+                || (numberOfAudioCodecs == 0 && multivariantPlaylist.audios.isEmpty()))
             && numberOfVideoCodecs <= 1
             && numberOfAudioCodecs + numberOfVideoCodecs > 0;
     @C.TrackType
