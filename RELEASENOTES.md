@@ -9,6 +9,9 @@
     *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
         OutOfMemory errors when releasing multiple players at the same time
         ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
+    *   Limit parallel download removals to 1 to avoid excessive thread creation
+        ([#10458](https://github.com/google/ExoPlayer/issues/10458)).
+*   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
         `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
