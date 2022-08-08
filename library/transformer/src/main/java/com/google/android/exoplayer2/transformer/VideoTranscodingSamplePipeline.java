@@ -47,7 +47,6 @@ import org.checkerframework.dataflow.qual.Pure;
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
 /* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
-  private static final String TAG = "VideoTranscodingSP";
 
   private final int maxPendingFrameCount;
 
