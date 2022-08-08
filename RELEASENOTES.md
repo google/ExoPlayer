@@ -36,6 +36,8 @@
         small icon ([#104](https://github.com/androidx/media/issues/104)).
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
+    *   `SimpleBitmapLoader` can load bitmap from `file://` URIs
+        ([#108](https://github.com/androidx/media/issues/108)).
 *   RTSP:
     *   Add H263 fragmented packet handling
         ([#119](https://github.com/androidx/media/pull/119)).
