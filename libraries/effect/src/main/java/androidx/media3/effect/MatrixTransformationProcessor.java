@@ -21,6 +21,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Pair;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
@@ -112,11 +113,13 @@ import java.util.Arrays;
       Context context, boolean useHdr, MatrixTransformation matrixTransformation)
       throws FrameProcessingException {
     this(
-        context,
+        createGlProgram(
+            context,
+            /* inputOpticalColorsFromExternalTexture= */ false,
+            useHdr,
+            /* outputOpticalColors= */ false),
         ImmutableList.of(matrixTransformation),
-        /* sampleFromExternalTexture= */ false,
-        useHdr,
-        /* outputOpticalColors= */ false);
+        useHdr);
   }
 
   /**
@@ -133,43 +136,89 @@ import java.util.Arrays;
       Context context, boolean useHdr, GlMatrixTransformation matrixTransformation)
       throws FrameProcessingException {
     this(
-        context,
+        createGlProgram(
+            context,
+            /* inputOpticalColorsFromExternalTexture= */ false,
+            useHdr,
+            /* outputOpticalColors= */ false),
         ImmutableList.of(matrixTransformation),
-        /* sampleFromExternalTexture= */ false,
-        useHdr,
-        /* outputOpticalColors= */ false);
+        useHdr);
   }
 
   /**
    * Creates a new instance.
    *
+   * <p>Able to convert optical {@link ColorInfo} inputs and outputs to and from the intermediate
+   * {@link GlTextureProcessor} colors of linear RGB BT.2020 for HDR, and gamma RGB BT.709 for SDR.
+   *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
    *     apply to each frame in order.
-   * @param sampleFromExternalTexture Whether the input will be provided using an external texture.
-   *     If {@code true}, the caller should use {@link #setTextureTransformMatrix(float[])} to
-   *     provide the transformation matrix associated with the external texture.
-   * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
-   *     EXT_YUV_target} OpenGL extension.
-   * @param outputOpticalColors If {@code true} and {@code useHdr} is also {@code true}, outputs a
-   *     non-linear optical, or display light colors, possibly by applying the EOTF (Electro-optical
-   *     transfer function). Otherwise, outputs linear electrical colors.
+   * @param inputOpticalColorsFromExternalTexture Whether optical color input will be provided using
+   *     an external texture. If {@code true}, the caller should use {@link
+   *     #setTextureTransformMatrix(float[])} to provide the transformation matrix associated with
+   *     the external texture.
+   * @param opticalColorInfo The optical {@link ColorInfo}, only used to transform between color
+   *     spaces and transfers, when {@code inputOpticalColorsFromExternalTexture} or {@code
+   *     outputOpticalColors} are {@code true}. If it {@link ColorInfo#isHdr(ColorInfo)},
+   *     intermediate {@link GlTextureProcessor} colors will be in linear RGB BT.2020. Otherwise,
+   *     these colors will be in gamma RGB BT.709.
+   * @param outputOpticalColors If {@code true}, outputs {@code opticalColorInfo}. If {@code false},
+   *     outputs intermediate colors of linear RGB BT.2020 if {@code opticalColorInfo} {@link
+   *     ColorInfo#isHdr(ColorInfo)}, and gamma RGB BT.709 otherwise.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
   public MatrixTransformationProcessor(
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
-      boolean sampleFromExternalTexture,
-      boolean useHdr,
+      boolean inputOpticalColorsFromExternalTexture,
+      ColorInfo opticalColorInfo,
       boolean outputOpticalColors)
       throws FrameProcessingException {
-    super(useHdr);
-    if (sampleFromExternalTexture && useHdr && !GlUtil.isYuvTargetExtensionSupported()) {
+    this(
+        createGlProgram(
+            context,
+            inputOpticalColorsFromExternalTexture,
+            ColorInfo.isHdr(opticalColorInfo),
+            outputOpticalColors),
+        matrixTransformations,
+        ColorInfo.isHdr(opticalColorInfo));
+    if (!ColorInfo.isHdr(opticalColorInfo) || !inputOpticalColorsFromExternalTexture) {
+      return;
+    }
+    // TODO(b/227624622): Implement YUV to RGB conversions in COLOR_RANGE_LIMITED as well, using
+    //  opticalColorInfo.colorRange to select between them.
+
+    // In HDR editing mode the decoder output is sampled in YUV.
+    if (!GlUtil.isYuvTargetExtensionSupported()) {
       throw new FrameProcessingException(
           "The EXT_YUV_target extension is required for HDR editing input.");
     }
+    glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
+    // TODO(b/227624622): Implement PQ and gamma TFs, and use an @IntDef to select between HLG,
+    //  PQ, and gamma, coming from opticalColorInfo.colorTransfer.
 
+    // Applying the OETF will output a linear signal. Not applying the OETF will output an optical
+    // signal.
+    glProgram.setFloatUniform("uApplyHlgOetf", outputOpticalColors ? 0.0f : 1.0f);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param glProgram The {@link GlProgram}.
+   * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
+   *     apply to each frame in order.
+   * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
+   *     EXT_YUV_target} OpenGL extension.
+   */
+  private MatrixTransformationProcessor(
+      GlProgram glProgram,
+      ImmutableList<GlMatrixTransformation> matrixTransformations,
+      boolean useHdr) {
+    super(useHdr);
+    this.glProgram = glProgram;
     this.matrixTransformations = matrixTransformations;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
@@ -177,42 +226,44 @@ import java.util.Arrays;
     tempResultMatrix = new float[16];
     Matrix.setIdentityM(compositeTransformationMatrix, /* smOffset= */ 0);
     visiblePolygon = NDC_SQUARE;
+  }
+
+  private static GlProgram createGlProgram(
+      Context context,
+      boolean inputOpticalColorsFromExternalTexture,
+      boolean useHdr,
+      boolean outputOpticalColors)
+      throws FrameProcessingException {
 
     String vertexShaderFilePath;
     String fragmentShaderFilePath;
-    if (sampleFromExternalTexture) {
-      vertexShaderFilePath =
-          useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
-      fragmentShaderFilePath =
-          useHdr ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
-    } else if (outputOpticalColors) {
-      vertexShaderFilePath =
-          useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
-      fragmentShaderFilePath =
-          useHdr ? FRAGMENT_SHADER_HLG_EOTF_ES3_PATH : FRAGMENT_SHADER_COPY_PATH;
+    if (inputOpticalColorsFromExternalTexture) {
+      if (useHdr) {
+        vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_ES3_PATH;
+        fragmentShaderFilePath = FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH;
+      } else {
+        vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
+        fragmentShaderFilePath = FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+      }
+    } else if (outputOpticalColors && useHdr) {
+      vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_ES3_PATH;
+      fragmentShaderFilePath = FRAGMENT_SHADER_HLG_EOTF_ES3_PATH;
     } else {
       vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
       fragmentShaderFilePath = FRAGMENT_SHADER_COPY_PATH;
     }
 
+    GlProgram glProgram;
     try {
       glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
     } catch (IOException | GlUtil.GlException e) {
       throw new FrameProcessingException(e);
     }
 
-    if (useHdr && sampleFromExternalTexture) {
-      // In HDR editing mode the decoder output is sampled in YUV.
-      glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
-      // TODO(b/227624622): Implement PQ, and use an @IntDef to select between HLG, PQ, and no
-      //  transfer function.
-      // Applying the OETF will output a linear signal. Not applying the OETF will output an optical
-      // signal.
-      glProgram.setFloatUniform("uApplyHlgOetf", outputOpticalColors ? 0.0f : 1.0f);
-    }
     float[] identityMatrix = new float[16];
     Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
     glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
+    return glProgram;
   }
 
   @Override
@@ -276,11 +327,11 @@ import java.util.Arrays;
     visiblePolygon = NDC_SQUARE;
     for (float[] transformationMatrix : transformationMatrixCache) {
       Matrix.multiplyMM(
-          tempResultMatrix,
+          /* result= */ tempResultMatrix,
           /* resultOffset= */ 0,
-          transformationMatrix,
+          /* lhs= */ transformationMatrix,
           /* lhsOffset= */ 0,
-          compositeTransformationMatrix,
+          /* rhs= */ compositeTransformationMatrix,
           /* rhsOffset= */ 0);
       System.arraycopy(
           /* src= */ tempResultMatrix,

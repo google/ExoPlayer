@@ -34,6 +34,7 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
@@ -388,7 +389,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                       },
                       effects,
                       DebugViewProvider.NONE,
-                      /* useHdr= */ false));
+                      ColorInfo.SDR_BT709_LIMITED));
       glEffectsFrameProcessor.setInputFrameInfo(
           new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio, /* streamOffsetUs= */ 0));
       glEffectsFrameProcessor.registerInputFrame();
