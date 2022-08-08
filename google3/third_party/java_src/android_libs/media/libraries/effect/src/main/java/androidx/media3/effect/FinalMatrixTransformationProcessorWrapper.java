@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -69,7 +70,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final DebugViewProvider debugViewProvider;
   private final FrameProcessor.Listener frameProcessorListener;
   private final boolean sampleFromExternalTexture;
-  private final boolean useHdr;
+  private final ColorInfo colorInfo;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
 
@@ -91,8 +92,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private EGLSurface outputEglSurface;
 
-  // TODO(b/227624622): Instead of inputting useHdr, input ColorInfo to handle HLG and PQ
-  //  differently.
   public FinalMatrixTransformationProcessorWrapper(
       Context context,
       EGLDisplay eglDisplay,
@@ -101,7 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
-      boolean useHdr) {
+      ColorInfo colorInfo) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.eglDisplay = eglDisplay;
@@ -109,7 +108,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.debugViewProvider = debugViewProvider;
     this.frameProcessorListener = frameProcessorListener;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
-    this.useHdr = useHdr;
+    this.colorInfo = colorInfo;
 
     textureTransformMatrix = new float[16];
     Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
@@ -215,7 +214,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
-      if (useHdr) {
+      boolean colorInfoIsHdr = ColorInfo.isHdr(colorInfo);
+      if (colorInfoIsHdr) {
         outputEglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, outputSurfaceInfo.surface);
       } else {
         outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
@@ -227,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputSurfaceInfo.width, outputSurfaceInfo.height);
       if (debugSurfaceView != null && !Util.areEqual(this.debugSurfaceView, debugSurfaceView)) {
         debugSurfaceViewWrapper =
-            new SurfaceViewWrapper(eglDisplay, eglContext, useHdr, debugSurfaceView);
+            new SurfaceViewWrapper(eglDisplay, eglContext, colorInfoIsHdr, debugSurfaceView);
       }
       this.debugSurfaceView = debugSurfaceView;
     }
@@ -266,7 +266,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             context,
             matrixTransformationListBuilder.build(),
             sampleFromExternalTexture,
-            useHdr,
+            colorInfo,
             /* outputOpticalColors= */ true);
     matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     Pair<Integer, Integer> outputSize =

@@ -42,6 +42,7 @@ import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -388,7 +389,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                       },
                       effects,
                       DebugViewProvider.NONE,
-                      /* useHdr= */ false));
+                      ColorInfo.SDR_BT709_LIMITED));
       glEffectsFrameProcessor.setInputFrameInfo(
           new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio, /* streamOffsetUs= */ 0));
       glEffectsFrameProcessor.registerInputFrame();
