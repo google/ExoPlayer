@@ -37,6 +37,7 @@ import androidx.media3.common.SurfaceInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -66,7 +67,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         FrameProcessor.Listener listener,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        boolean useHdr)
+        ColorInfo colorInfo)
         throws FrameProcessingException {
 
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
@@ -79,7 +80,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                       listener,
                       effects,
                       debugViewProvider,
-                      useHdr,
+                      colorInfo,
                       singleThreadExecutorService));
 
       try {
@@ -109,11 +110,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       FrameProcessor.Listener listener,
       List<Effect> effects,
       DebugViewProvider debugViewProvider,
-      boolean useHdr,
+      ColorInfo colorInfo,
       ExecutorService singleThreadExecutorService)
       throws GlUtil.GlException, FrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
 
+    // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
+    //  configure based on the color info from the decoder output media format instead.
+    boolean useHdr = ColorInfo.isHdr(colorInfo);
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext =
         useHdr
@@ -131,7 +135,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(
-            context, effects, eglDisplay, eglContext, listener, debugViewProvider, useHdr);
+            context, effects, eglDisplay, eglContext, listener, debugViewProvider, colorInfo);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainTextureProcessorsWithListeners(textureProcessors, frameProcessingTaskExecutor, listener);
@@ -162,7 +166,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       EGLContext eglContext,
       FrameProcessor.Listener listener,
       DebugViewProvider debugViewProvider,
-      boolean useHdr)
+      ColorInfo colorInfo)
       throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
         new ImmutableList.Builder<>();
@@ -185,12 +189,13 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                 context,
                 matrixTransformations,
                 sampleFromExternalTexture,
-                useHdr,
+                colorInfo,
                 /* outputOpticalColors= */ false));
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
-      textureProcessorListBuilder.add(glEffect.toGlTextureProcessor(context, useHdr));
+      textureProcessorListBuilder.add(
+          glEffect.toGlTextureProcessor(context, ColorInfo.isHdr(colorInfo)));
     }
     textureProcessorListBuilder.add(
         new FinalMatrixTransformationProcessorWrapper(
@@ -201,7 +206,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             listener,
             debugViewProvider,
             sampleFromExternalTexture,
-            useHdr));
+            colorInfo));
     return textureProcessorListBuilder.build();
   }
 

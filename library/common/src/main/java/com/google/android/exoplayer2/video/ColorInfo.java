@@ -30,7 +30,12 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Stores color info. */
+/**
+ * Stores color info.
+ *
+ * <p>When a {@code null} {@code ColorInfo} instance is used, this often represents a generic {@link
+ * #SDR_BT709_LIMITED} instance.
+ */
 public final class ColorInfo implements Bundleable {
 
   /** Color info representing SDR BT.709 limited range, which is a common SDR video color format. */

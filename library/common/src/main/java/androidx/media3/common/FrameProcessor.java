@@ -44,17 +44,17 @@ public interface FrameProcessor {
      * @param listener A {@link Listener}.
      * @param effects The {@link Effect} instances to apply to each frame.
      * @param debugViewProvider A {@link DebugViewProvider}.
-     * @param useHdr Whether to process the input as an HDR signal.
+     * @param colorInfo The {@link ColorInfo} for input and output frames.
      * @return A new instance.
      * @throws FrameProcessingException If a problem occurs while creating the {@link
      *     FrameProcessor}.
      */
     FrameProcessor create(
         Context context,
-        FrameProcessor.Listener listener,
+        Listener listener,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        boolean useHdr)
+        ColorInfo colorInfo)
         throws FrameProcessingException;
   }
 
