@@ -30,6 +30,9 @@
         small icon ([#104](https://github.com/androidx/media/issues/104)).
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
+*   RTSP:
+    *   Add H263 fragmented packet handling
+        ([#119](https://github.com/androidx/media/pull/119)).
 
 ### 1.0.0-beta02 (2022-07-15)
 
