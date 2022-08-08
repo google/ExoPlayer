@@ -76,6 +76,8 @@ This release corresponds to the
         ([#63](https://github.com/androidx/media/pull/63)).
     *   Add VP8 fragmented packet handling
         ([#110](https://github.com/androidx/media/pull/110)).
+    *   Support frames/fragments in VP9
+        ([#115](https://github.com/androidx/media/pull/115)).
 *   Leanback extension:
     *   Listen to `playWhenReady` changes in `LeanbackAdapter`
         ([10420](https://github.com/google/ExoPlayer/issues/10420)).
