@@ -16,92 +16,75 @@
 package androidx.media3.effect;
 
 import android.util.Pair;
-import androidx.annotation.Nullable;
-import androidx.media3.common.FrameProcessingException;
-import androidx.media3.common.FrameProcessor;
+import androidx.media3.effect.GlTextureProcessor.InputListener;
+import androidx.media3.effect.GlTextureProcessor.OutputListener;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 /**
- * A {@link GlTextureProcessor.Listener} that connects the {@link GlTextureProcessor} it is
- * {@linkplain GlTextureProcessor#setListener(GlTextureProcessor.Listener) set} on to a previous and
- * next {@link GlTextureProcessor}.
+ * Connects a producing and a consuming {@link GlTextureProcessor} instance.
+ *
+ * <p>This listener should be set as {@link InputListener} on the consuming {@link
+ * GlTextureProcessor} and as {@link OutputListener} on the producing {@link GlTextureProcessor}.
  */
 /* package */ final class ChainingGlTextureProcessorListener
-    implements GlTextureProcessor.Listener {
+    implements GlTextureProcessor.InputListener, GlTextureProcessor.OutputListener {
 
-  @Nullable private final GlTextureProcessor previousGlTextureProcessor;
-  @Nullable private final GlTextureProcessor nextGlTextureProcessor;
+  private final GlTextureProcessor producingGlTextureProcessor;
+  private final GlTextureProcessor consumingGlTextureProcessor;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-  private final FrameProcessor.Listener frameProcessorListener;
-  private final Queue<Pair<TextureInfo, Long>> pendingFrames;
+  private final Queue<Pair<TextureInfo, Long>> availableFrames;
 
   /**
    * Creates a new instance.
    *
-   * @param previousGlTextureProcessor The {@link GlTextureProcessor} that comes before the {@link
-   *     GlTextureProcessor} this listener is set on or {@code null} if not applicable.
-   * @param nextGlTextureProcessor The {@link GlTextureProcessor} that comes after the {@link
-   *     GlTextureProcessor} this listener is set on or {@code null} if not applicable.
+   * @param producingGlTextureProcessor The {@link GlTextureProcessor} for which this listener will
+   *     be set as {@link OutputListener}.
+   * @param consumingGlTextureProcessor The {@link GlTextureProcessor} for which this listener will
+   *     be set as {@link InputListener}.
    * @param frameProcessingTaskExecutor The {@link FrameProcessingTaskExecutor} that is used for
-   *     OpenGL calls. All calls to the previous/next {@link GlTextureProcessor} will be executed by
-   *     the {@link FrameProcessingTaskExecutor}. The caller is responsible for releasing the {@link
-   *     FrameProcessingTaskExecutor}.
-   * @param frameProcessorListener The {@link FrameProcessor.Listener} to forward exceptions to.
+   *     OpenGL calls. All calls to the producing/consuming {@link GlTextureProcessor} will be
+   *     executed by the {@link FrameProcessingTaskExecutor}. The caller is responsible for
+   *     releasing the {@link FrameProcessingTaskExecutor}.
    */
   public ChainingGlTextureProcessorListener(
-      @Nullable GlTextureProcessor previousGlTextureProcessor,
-      @Nullable GlTextureProcessor nextGlTextureProcessor,
-      FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      FrameProcessor.Listener frameProcessorListener) {
-    this.previousGlTextureProcessor = previousGlTextureProcessor;
-    this.nextGlTextureProcessor = nextGlTextureProcessor;
+      GlTextureProcessor producingGlTextureProcessor,
+      GlTextureProcessor consumingGlTextureProcessor,
+      FrameProcessingTaskExecutor frameProcessingTaskExecutor) {
+    this.producingGlTextureProcessor = producingGlTextureProcessor;
+    this.consumingGlTextureProcessor = consumingGlTextureProcessor;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
-    this.frameProcessorListener = frameProcessorListener;
-    pendingFrames = new ArrayDeque<>();
+    availableFrames = new ArrayDeque<>();
   }
 
   @Override
   public void onInputFrameProcessed(TextureInfo inputTexture) {
-    if (previousGlTextureProcessor != null) {
-      GlTextureProcessor nonNullPreviousGlTextureProcessor = previousGlTextureProcessor;
-      frameProcessingTaskExecutor.submit(
-          () -> nonNullPreviousGlTextureProcessor.releaseOutputFrame(inputTexture));
-    }
+    frameProcessingTaskExecutor.submit(
+        () -> producingGlTextureProcessor.releaseOutputFrame(inputTexture));
   }
 
   @Override
   public void onOutputFrameAvailable(TextureInfo outputTexture, long presentationTimeUs) {
-    if (nextGlTextureProcessor != null) {
-      GlTextureProcessor nonNullNextGlTextureProcessor = nextGlTextureProcessor;
-      frameProcessingTaskExecutor.submit(
-          () -> {
-            pendingFrames.add(new Pair<>(outputTexture, presentationTimeUs));
-            processFrameNowOrLater(nonNullNextGlTextureProcessor);
-          });
-    }
+    frameProcessingTaskExecutor.submit(
+        () -> {
+          availableFrames.add(new Pair<>(outputTexture, presentationTimeUs));
+          processFrameNowOrLater();
+        });
   }
 
-  private void processFrameNowOrLater(GlTextureProcessor nextGlTextureProcessor) {
-    Pair<TextureInfo, Long> pendingFrame = pendingFrames.element();
+  private void processFrameNowOrLater() {
+    Pair<TextureInfo, Long> pendingFrame = availableFrames.element();
     TextureInfo outputTexture = pendingFrame.first;
     long presentationTimeUs = pendingFrame.second;
-    if (nextGlTextureProcessor.maybeQueueInputFrame(outputTexture, presentationTimeUs)) {
-      pendingFrames.remove();
+    if (consumingGlTextureProcessor.maybeQueueInputFrame(outputTexture, presentationTimeUs)) {
+      availableFrames.remove();
     } else {
-      frameProcessingTaskExecutor.submit(() -> processFrameNowOrLater(nextGlTextureProcessor));
+      frameProcessingTaskExecutor.submit(this::processFrameNowOrLater);
     }
   }
 
   @Override
   public void onCurrentOutputStreamEnded() {
-    if (nextGlTextureProcessor != null) {
-      frameProcessingTaskExecutor.submit(nextGlTextureProcessor::signalEndOfCurrentInputStream);
-    }
-  }
-
-  @Override
-  public void onFrameProcessingError(FrameProcessingException e) {
-    frameProcessorListener.onFrameProcessingError(e);
+    frameProcessingTaskExecutor.submit(consumingGlTextureProcessor::signalEndOfCurrentInputStream);
   }
 }

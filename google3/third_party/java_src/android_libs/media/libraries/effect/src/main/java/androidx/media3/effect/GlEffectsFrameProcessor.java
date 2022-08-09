@@ -217,26 +217,21 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private static void chainTextureProcessorsWithListeners(
       ImmutableList<GlTextureProcessor> textureProcessors,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      FrameProcessor.Listener listener) {
-    for (int i = 0; i < textureProcessors.size(); i++) {
-      @Nullable
-      GlTextureProcessor previousGlTextureProcessor =
-          i - 1 >= 0 ? textureProcessors.get(i - 1) : null;
-      @Nullable
-      GlTextureProcessor nextGlTextureProcessor =
-          i + 1 < textureProcessors.size() ? textureProcessors.get(i + 1) : null;
-      textureProcessors
-          .get(i)
-          .setListener(
-              new ChainingGlTextureProcessorListener(
-                  previousGlTextureProcessor,
-                  nextGlTextureProcessor,
-                  frameProcessingTaskExecutor,
-                  listener));
+      FrameProcessor.Listener frameProcessorListener) {
+    for (int i = 0; i < textureProcessors.size() - 1; i++) {
+      GlTextureProcessor producingGlTextureProcessor = textureProcessors.get(i);
+      GlTextureProcessor consumingGlTextureProcessor = textureProcessors.get(i + 1);
+      ChainingGlTextureProcessorListener chainingGlTextureProcessorListener =
+          new ChainingGlTextureProcessorListener(
+              producingGlTextureProcessor,
+              consumingGlTextureProcessor,
+              frameProcessingTaskExecutor);
+      producingGlTextureProcessor.setOutputListener(chainingGlTextureProcessorListener);
+      producingGlTextureProcessor.setErrorListener(frameProcessorListener::onFrameProcessingError);
+      consumingGlTextureProcessor.setInputListener(chainingGlTextureProcessorListener);
     }
   }
 
-  private static final String TAG = "GlEffectsFrameProcessor";
   private static final String THREAD_NAME = "Transformer:GlEffectsFrameProcessor";
   private static final long RELEASE_WAIT_TIME_MS = 100;
 
