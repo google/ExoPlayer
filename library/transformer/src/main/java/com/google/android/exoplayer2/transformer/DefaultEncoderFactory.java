@@ -281,7 +281,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     }
 
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, encoderSupportedFormat.colorInfo);
-    if (Util.SDK_INT >= 31 && ColorInfo.isHdr(format.colorInfo)) {
+    if (Util.SDK_INT >= 31 && ColorInfo.isTransferHdr(format.colorInfo)) {
       if (EncoderUtil.getSupportedColorFormats(encoderInfo, mimeType)
           .contains(MediaCodecInfo.CodecCapabilities.COLOR_Format32bitABGR2101010)) {
         mediaFormat.setInteger(

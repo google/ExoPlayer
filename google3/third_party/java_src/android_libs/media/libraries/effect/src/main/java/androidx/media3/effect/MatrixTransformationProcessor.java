@@ -158,12 +158,12 @@ import java.util.Arrays;
    *     the external texture.
    * @param opticalColorInfo The optical {@link ColorInfo}, only used to transform between color
    *     spaces and transfers, when {@code inputOpticalColorsFromExternalTexture} or {@code
-   *     outputOpticalColors} are {@code true}. If it {@link ColorInfo#isHdr(ColorInfo)},
+   *     outputOpticalColors} are {@code true}. If it {@link ColorInfo#isTransferHdr(ColorInfo)},
    *     intermediate {@link GlTextureProcessor} colors will be in linear RGB BT.2020. Otherwise,
    *     these colors will be in gamma RGB BT.709.
    * @param outputOpticalColors If {@code true}, outputs {@code opticalColorInfo}. If {@code false},
    *     outputs intermediate colors of linear RGB BT.2020 if {@code opticalColorInfo} {@link
-   *     ColorInfo#isHdr(ColorInfo)}, and gamma RGB BT.709 otherwise.
+   *     ColorInfo#isTransferHdr(ColorInfo)}, and gamma RGB BT.709 otherwise.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
@@ -178,11 +178,11 @@ import java.util.Arrays;
         createGlProgram(
             context,
             inputOpticalColorsFromExternalTexture,
-            ColorInfo.isHdr(opticalColorInfo),
+            ColorInfo.isTransferHdr(opticalColorInfo),
             outputOpticalColors),
         matrixTransformations,
-        ColorInfo.isHdr(opticalColorInfo));
-    if (!ColorInfo.isHdr(opticalColorInfo) || !inputOpticalColorsFromExternalTexture) {
+        ColorInfo.isTransferHdr(opticalColorInfo));
+    if (!ColorInfo.isTransferHdr(opticalColorInfo) || !inputOpticalColorsFromExternalTexture) {
       return;
     }
     // TODO(b/227624622): Implement YUV to RGB conversions in COLOR_RANGE_LIMITED as well, using
