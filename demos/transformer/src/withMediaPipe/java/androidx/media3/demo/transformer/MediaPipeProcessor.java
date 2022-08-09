@@ -31,7 +31,6 @@ import com.google.mediapipe.framework.AppTextureFrame;
 import com.google.mediapipe.framework.TextureFrame;
 import com.google.mediapipe.glutil.EglManager;
 import java.util.concurrent.ConcurrentHashMap;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Runs a MediaPipe graph on input frames. */
 /* package */ final class MediaPipeProcessor implements GlTextureProcessor {
@@ -55,9 +54,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private final FrameProcessor frameProcessor;
-  private volatile GlTextureProcessor.@MonotonicNonNull Listener listener;
-  private volatile boolean acceptedFrame;
   private final ConcurrentHashMap<TextureInfo, TextureFrame> outputFrames;
+
+  private InputListener inputListener;
+  private OutputListener outputListener;
+  private ErrorListener errorListener;
+  private boolean acceptedFrame;
 
   /**
    * Creates a new texture processor that wraps a MediaPipe graph.
@@ -78,11 +80,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkState(LOADER.isAvailable());
     // TODO(b/227624622): Confirm whether MediaPipeProcessor could support HDR colors.
     checkArgument(!useHdr, "MediaPipeProcessor does not support HDR colors.");
+    inputListener = new InputListener() {};
+    outputListener = new OutputListener() {};
+    errorListener = (frameProcessingException) -> {};
     EglManager eglManager = new EglManager(EGL14.eglGetCurrentContext());
     frameProcessor =
         new FrameProcessor(
             context, eglManager.getNativeContext(), graphName, inputStreamName, outputStreamName);
     outputFrames = new ConcurrentHashMap<>();
+    // OnWillAddFrameListener is called on the same thread as frameProcessor.onNewFrame(...), so no
+    // synchronization is needed for acceptedFrame.
+    frameProcessor.setOnWillAddFrameListener((long timestamp) -> acceptedFrame = true);
+  }
+
+  @Override
+  public void setInputListener(InputListener inputListener) {
+    this.inputListener = inputListener;
+  }
+
+  @Override
+  public void setOutputListener(OutputListener outputListener) {
+    this.outputListener = outputListener;
     frameProcessor.setConsumer(
         frame -> {
           TextureInfo texture =
@@ -92,22 +110,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   frame.getWidth(),
                   frame.getHeight());
           outputFrames.put(texture, frame);
-          if (listener != null) {
-            listener.onOutputFrameAvailable(texture, frame.getTimestamp());
-          }
+          outputListener.onOutputFrameAvailable(texture, frame.getTimestamp());
         });
-    frameProcessor.setAsynchronousErrorListener(
-        error -> {
-          if (listener != null) {
-            listener.onFrameProcessingError(new FrameProcessingException(error));
-          }
-        });
-    frameProcessor.setOnWillAddFrameListener((long timestamp) -> acceptedFrame = true);
   }
 
   @Override
-  public void setListener(GlTextureProcessor.Listener listener) {
-    this.listener = listener;
+  public void setErrorListener(ErrorListener errorListener) {
+    this.errorListener = errorListener;
+    frameProcessor.setAsynchronousErrorListener(
+        error -> errorListener.onFrameProcessingError(new FrameProcessingException(error)));
   }
 
   @Override
@@ -123,13 +134,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       appTextureFrame.waitUntilReleasedWithGpuSync();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      if (listener != null) {
-        listener.onFrameProcessingError(new FrameProcessingException(e));
-      }
+      errorListener.onFrameProcessingError(new FrameProcessingException(e));
     }
-    if (listener != null) {
-      listener.onInputFrameProcessed(inputTexture);
-    }
+    inputListener.onInputFrameProcessed(inputTexture);
     return acceptedFrame;
   }
 
@@ -146,8 +153,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public final void signalEndOfCurrentInputStream() {
     frameProcessor.waitUntilIdle();
-    if (listener != null) {
-      listener.onCurrentOutputStreamEnded();
-    }
+    outputListener.onCurrentOutputStreamEnded();
   }
 }

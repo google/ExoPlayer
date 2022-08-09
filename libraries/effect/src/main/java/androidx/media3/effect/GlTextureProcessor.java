@@ -23,14 +23,14 @@ import androidx.media3.common.util.UnstableApi;
  *
  * <p>The {@code GlTextureProcessor} consumes input frames it accepts via {@link
  * #maybeQueueInputFrame(TextureInfo, long)} and surrenders each texture back to the caller via its
- * {@linkplain Listener#onInputFrameProcessed(TextureInfo) listener} once the texture's contents
- * have been processed.
+ * {@linkplain InputListener#onInputFrameProcessed(TextureInfo) listener} once the texture's
+ * contents have been processed.
  *
  * <p>The {@code GlTextureProcessor} produces output frames asynchronously and notifies its owner
- * when they are available via its {@linkplain Listener#onOutputFrameAvailable(TextureInfo, long)
- * listener}. The {@code GlTextureProcessor} instance's owner must surrender the texture back to the
- * {@code GlTextureProcessor} via {@link #releaseOutputFrame(TextureInfo)} when it has finished
- * processing it.
+ * when they are available via its {@linkplain OutputListener#onOutputFrameAvailable(TextureInfo,
+ * long) listener}. The {@code GlTextureProcessor} instance's owner must surrender the texture back
+ * to the {@code GlTextureProcessor} via {@link #releaseOutputFrame(TextureInfo)} when it has
+ * finished processing it.
  *
  * <p>{@code GlTextureProcessor} implementations can choose to produce output frames before
  * receiving input frames or process several input frames before producing an output frame. However,
@@ -46,19 +46,26 @@ import androidx.media3.common.util.UnstableApi;
 public interface GlTextureProcessor {
 
   /**
-   * Listener for frame processing events.
+   * Listener for input-related frame processing events.
    *
    * <p>This listener can be called from any thread.
    */
-  interface Listener {
+  interface InputListener {
     /**
      * Called when the {@link GlTextureProcessor} has processed an input frame.
      *
      * @param inputTexture The {@link TextureInfo} that was used to {@linkplain
      *     #maybeQueueInputFrame(TextureInfo, long) queue} the input frame.
      */
-    void onInputFrameProcessed(TextureInfo inputTexture);
+    default void onInputFrameProcessed(TextureInfo inputTexture) {}
+  }
 
+  /**
+   * Listener for output-related frame processing events.
+   *
+   * <p>This listener can be called from any thread.
+   */
+  interface OutputListener {
     /**
      * Called when the {@link GlTextureProcessor} has produced an output frame.
      *
@@ -71,14 +78,21 @@ public interface GlTextureProcessor {
      *     frame.
      * @param presentationTimeUs The presentation timestamp of the output frame, in microseconds.
      */
-    void onOutputFrameAvailable(TextureInfo outputTexture, long presentationTimeUs);
+    default void onOutputFrameAvailable(TextureInfo outputTexture, long presentationTimeUs) {}
 
     /**
      * Called when the {@link GlTextureProcessor} will not produce further output frames belonging
      * to the current output stream.
      */
-    void onCurrentOutputStreamEnded();
+    default void onCurrentOutputStreamEnded() {}
+  }
 
+  /**
+   * Listener for frame processing errors.
+   *
+   * <p>This listener can be called from any thread.
+   */
+  interface ErrorListener {
     /**
      * Called when an exception occurs during asynchronous frame processing.
      *
@@ -88,16 +102,22 @@ public interface GlTextureProcessor {
     void onFrameProcessingError(FrameProcessingException e);
   }
 
-  /** Sets the {@link Listener} for frame processing events. */
-  void setListener(Listener listener);
+  /** Sets the {@link InputListener}. */
+  void setInputListener(InputListener inputListener);
+
+  /** Sets the {@link OutputListener}. */
+  void setOutputListener(OutputListener outputListener);
+
+  /** Sets the {@link ErrorListener}. */
+  void setErrorListener(ErrorListener errorListener);
 
   /**
    * Processes an input frame if possible.
    *
    * <p>If this method returns {@code true} the input frame has been accepted. The {@code
    * GlTextureProcessor} owns the accepted frame until it calls {@link
-   * Listener#onInputFrameProcessed(TextureInfo)}. The caller should not overwrite or release the
-   * texture before the {@code GlTextureProcessor} has finished processing it.
+   * InputListener#onInputFrameProcessed(TextureInfo)}. The caller should not overwrite or release
+   * the texture before the {@code GlTextureProcessor} has finished processing it.
    *
    * <p>If this method returns {@code false}, the input frame could not be accepted and the caller
    * should decide whether to drop the frame or try again later.

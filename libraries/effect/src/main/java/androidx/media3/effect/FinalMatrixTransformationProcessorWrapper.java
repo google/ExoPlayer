@@ -78,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int inputHeight;
   @Nullable private MatrixTransformationProcessor matrixTransformationProcessor;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
-  private @MonotonicNonNull Listener listener;
+  private InputListener inputListener;
   private @MonotonicNonNull Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation;
   @Nullable private SurfaceView debugSurfaceView;
 
@@ -113,18 +113,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     textureTransformMatrix = new float[16];
     Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
     streamOffsetUsQueue = new ArrayDeque<>();
+    inputListener = new InputListener() {};
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The {@code FinalMatrixTransformationProcessorWrapper} will only call {@link
-   * Listener#onInputFrameProcessed(TextureInfo)}. Other events are handled via the {@link
-   * FrameProcessor.Listener} passed to the constructor.
-   */
   @Override
-  public void setListener(Listener listener) {
-    this.listener = listener;
+  public void setInputListener(InputListener inputListener) {
+    this.inputListener = inputListener;
+  }
+
+  @Override
+  public void setOutputListener(OutputListener outputListener) {
+    // The FrameProcessor.Listener passed to the constructor is used for output-related events.
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setErrorListener(ErrorListener errorListener) {
+    // The FrameProcessor.Listener passed to the constructor is used for errors.
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -174,9 +180,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Log.d(TAG, "Error rendering to debug preview", e);
       }
     }
-    if (listener != null) {
-      listener.onInputFrameProcessed(inputTexture);
-    }
+    inputListener.onInputFrameProcessed(inputTexture);
     return true;
   }
 
@@ -278,8 +282,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void releaseOutputFrame(TextureInfo outputTexture) {
-    throw new UnsupportedOperationException(
-        "The final texture processor writes to a surface so there is no texture to release");
+    // The final texture processor writes to a surface so there is no texture to release.
+    throw new UnsupportedOperationException();
   }
 
   @Override
