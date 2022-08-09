@@ -218,7 +218,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
-      boolean colorInfoIsHdr = ColorInfo.isHdr(colorInfo);
+      boolean colorInfoIsHdr = ColorInfo.isTransferHdr(colorInfo);
       if (colorInfoIsHdr) {
         outputEglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, outputSurfaceInfo.surface);
       } else {

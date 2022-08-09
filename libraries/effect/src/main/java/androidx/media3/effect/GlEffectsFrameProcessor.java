@@ -119,7 +119,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
     // TODO(b/237674316): Delay initialization of things requiring the colorInfo, to
     //  configure based on the color info from the decoder output media format instead.
-    boolean useHdr = ColorInfo.isHdr(colorInfo);
+    boolean useHdr = ColorInfo.isTransferHdr(colorInfo);
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext =
         useHdr
@@ -197,7 +197,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         sampleFromExternalTexture = false;
       }
       textureProcessorListBuilder.add(
-          glEffect.toGlTextureProcessor(context, ColorInfo.isHdr(colorInfo)));
+          glEffect.toGlTextureProcessor(context, ColorInfo.isTransferHdr(colorInfo)));
     }
     textureProcessorListBuilder.add(
         new FinalMatrixTransformationProcessorWrapper(

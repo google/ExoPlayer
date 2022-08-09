@@ -99,7 +99,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if (SDK_INT < 31 && ColorInfo.isHdr(inputFormat.colorInfo)) {
+    if (SDK_INT < 31 && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
       throw TransformationException.createForCodec(
           new IllegalArgumentException("HDR editing not supported under API 31."),
           /* isVideo= */ true,
