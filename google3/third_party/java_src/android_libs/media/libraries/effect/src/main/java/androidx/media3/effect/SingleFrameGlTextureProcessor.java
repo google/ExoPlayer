@@ -34,7 +34,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public abstract class SingleFrameGlTextureProcessor implements GlTextureProcessor {
 
-  private @MonotonicNonNull Listener listener;
+  private InputListener inputListener;
+  private OutputListener outputListener;
+  private ErrorListener errorListener;
   private int inputWidth;
   private int inputHeight;
   private @MonotonicNonNull TextureInfo outputTexture;
@@ -49,6 +51,9 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
    */
   public SingleFrameGlTextureProcessor(boolean useHdr) {
     this.useHdr = useHdr;
+    inputListener = new InputListener() {};
+    outputListener = new OutputListener() {};
+    errorListener = (frameProcessingException) -> {};
   }
 
   /**
@@ -81,8 +86,18 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
       throws FrameProcessingException;
 
   @Override
-  public final void setListener(Listener listener) {
-    this.listener = listener;
+  public final void setInputListener(InputListener inputListener) {
+    this.inputListener = inputListener;
+  }
+
+  @Override
+  public final void setOutputListener(OutputListener outputListener) {
+    this.outputListener = outputListener;
+  }
+
+  @Override
+  public final void setErrorListener(ErrorListener errorListener) {
+    this.errorListener = errorListener;
   }
 
   @Override
@@ -102,17 +117,13 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
           outputTexture.fboId, outputTexture.width, outputTexture.height);
       GlUtil.clearOutputFrame();
       drawFrame(inputTexture.texId, presentationTimeUs);
-      if (listener != null) {
-        listener.onInputFrameProcessed(inputTexture);
-        listener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
-      }
+      inputListener.onInputFrameProcessed(inputTexture);
+      outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
     } catch (FrameProcessingException | GlUtil.GlException | RuntimeException e) {
-      if (listener != null) {
-        listener.onFrameProcessingError(
-            e instanceof FrameProcessingException
-                ? (FrameProcessingException) e
-                : new FrameProcessingException(e));
-      }
+      errorListener.onFrameProcessingError(
+          e instanceof FrameProcessingException
+              ? (FrameProcessingException) e
+              : new FrameProcessingException(e));
     }
     return true;
   }
@@ -142,9 +153,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
 
   @Override
   public final void signalEndOfCurrentInputStream() {
-    if (listener != null) {
-      listener.onCurrentOutputStreamEnded();
-    }
+    outputListener.onCurrentOutputStreamEnded();
   }
 
   @Override
