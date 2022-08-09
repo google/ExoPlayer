@@ -231,13 +231,18 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
-     * signal.
+     * Sets whether to allow processing high dynamic range (HDR) input video streams as HDR.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
-     * editing feature is under development and is intended for developing/testing HDR processing
-     * and encoding support. HDR editing can't be enabled at the same time as {@linkplain
+     * editing feature is under development and is intended for developing/testing HDR support. HDR
+     * editing can't be enabled at the same time as {@linkplain
      * #setEnableRequestSdrToneMapping(boolean) SDR tone-mapping}.
+     *
+     * <p>With this flag enabled, HDR streams will correctly edit in HDR, convert via tone-mapping
+     * to SDR, or throw an error, based on the device's HDR support. Without both this flag and
+     * {@linkplain #setEnableRequestSdrToneMapping(boolean) SDR tone-mapping} as false, HDR streams
+     * will be incorrectly interpreted as SDR streams, with no conversion. SDR streams will be
+     * interpreted the same way regardless of this flag's state.
      *
      * @param enableHdrEditing Whether to attempt to process any input video stream as a high
      *     dynamic range (HDR) signal.
