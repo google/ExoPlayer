@@ -156,8 +156,8 @@ import org.checkerframework.dataflow.qual.Pure;
             decodedWidth, decodedHeight, inputFormat.pixelWidthHeightRatio, streamOffsetUs));
 
     boolean isToneMappingRequired =
-        ColorInfo.isHdr(inputFormat.colorInfo)
-            && !ColorInfo.isHdr(encoderWrapper.getSupportedInputColor());
+        ColorInfo.isTransferHdr(inputFormat.colorInfo)
+            && !ColorInfo.isTransferHdr(encoderWrapper.getSupportedInputColor());
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat, frameProcessor.getInputSurface(), isToneMappingRequired);
@@ -363,7 +363,8 @@ import org.checkerframework.dataflow.qual.Pure;
           transformationRequest.enableHdrEditing
               && !transformationRequest.enableRequestSdrToneMapping
               && !supportedEncoderNamesForHdrEditing.isEmpty();
-      boolean isInputToneMapped = !isHdrEditingEnabled && ColorInfo.isHdr(inputFormat.colorInfo);
+      boolean isInputToneMapped =
+          !isHdrEditingEnabled && ColorInfo.isTransferHdr(inputFormat.colorInfo);
       if (isInputToneMapped) {
         // When tone-mapping HDR to SDR is enabled, assume we get BT.709 to avoid having the encoder
         // populate default color info, which depends on the resolution.
@@ -413,7 +414,7 @@ import org.checkerframework.dataflow.qual.Pure;
           encoderFactory.createForVideoEncoding(requestedEncoderFormat, allowedOutputMimeTypes);
 
       Format encoderSupportedFormat = encoder.getConfigurationFormat();
-      if (ColorInfo.isHdr(requestedEncoderFormat.colorInfo)) {
+      if (ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo)) {
         if (!requestedOutputMimeType.equals(encoderSupportedFormat.sampleMimeType)) {
           throw createEncodingException(
               new IllegalStateException("MIME type fallback unsupported with HDR editing"),
@@ -425,8 +426,8 @@ import org.checkerframework.dataflow.qual.Pure;
         }
       }
       boolean isInputToneMapped =
-          ColorInfo.isHdr(inputFormat.colorInfo)
-              && !ColorInfo.isHdr(requestedEncoderFormat.colorInfo);
+          ColorInfo.isTransferHdr(inputFormat.colorInfo)
+              && !ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo);
       fallbackListener.onTransformationRequestFinalized(
           createFallbackTransformationRequest(
               transformationRequest,
