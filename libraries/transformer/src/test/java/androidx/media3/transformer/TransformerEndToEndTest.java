@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
@@ -271,9 +270,9 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    verify(mockListener1, times(1)).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener2, times(1)).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener2).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
   }
 
   @Test
@@ -294,9 +293,9 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    verify(mockListener1, times(1)).onTransformationError(mediaItem, exception);
-    verify(mockListener2, times(1)).onTransformationError(mediaItem, exception);
-    verify(mockListener3, times(1)).onTransformationError(mediaItem, exception);
+    verify(mockListener1).onTransformationError(mediaItem, exception);
+    verify(mockListener2).onTransformationError(mediaItem, exception);
+    verify(mockListener3).onTransformationError(mediaItem, exception);
   }
 
   @Test
@@ -319,11 +318,11 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    verify(mockListener1, times(1))
+    verify(mockListener1)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
-    verify(mockListener2, times(1))
+    verify(mockListener2)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
-    verify(mockListener3, times(1))
+    verify(mockListener3)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
   }
 
@@ -345,9 +344,9 @@ public final class TransformerEndToEndTest {
     transformer2.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer2);
 
-    verify(mockListener1, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener1).onTransformationCompleted(eq(mediaItem), any());
     verify(mockListener2, never()).onTransformationCompleted(eq(mediaItem), any());
-    verify(mockListener3, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener3).onTransformationCompleted(eq(mediaItem), any());
   }
 
   @Test
@@ -474,7 +473,7 @@ public final class TransformerEndToEndTest {
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
-    verify(mockListener, times(1))
+    verify(mockListener)
         .onFallbackApplied(mediaItem, originalTransformationRequest, fallbackTransformationRequest);
   }
 
