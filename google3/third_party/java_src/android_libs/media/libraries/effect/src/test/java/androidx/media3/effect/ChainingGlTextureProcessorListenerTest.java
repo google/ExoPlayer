@@ -58,7 +58,7 @@ public final class ChainingGlTextureProcessorListenerTest {
     chainingGlTextureProcessorListener.onInputFrameProcessed(texture);
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockProducingGlTextureProcessor, times(1)).releaseOutputFrame(texture);
+    verify(mockProducingGlTextureProcessor).releaseOutputFrame(texture);
   }
 
   @Test
@@ -71,8 +71,7 @@ public final class ChainingGlTextureProcessorListenerTest {
     chainingGlTextureProcessorListener.onOutputFrameAvailable(texture, presentationTimeUs);
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(fakeConsumingGlTextureProcessor, times(1))
-        .maybeQueueInputFrame(texture, presentationTimeUs);
+    verify(fakeConsumingGlTextureProcessor).maybeQueueInputFrame(texture, presentationTimeUs);
   }
 
   @Test
@@ -109,7 +108,7 @@ public final class ChainingGlTextureProcessorListenerTest {
 
     verify(fakeConsumingGlTextureProcessor, times(2))
         .maybeQueueInputFrame(firstTexture, firstPresentationTimeUs);
-    verify(fakeConsumingGlTextureProcessor, times(1))
+    verify(fakeConsumingGlTextureProcessor)
         .maybeQueueInputFrame(secondTexture, secondPresentationTimeUs);
   }
 
@@ -119,7 +118,7 @@ public final class ChainingGlTextureProcessorListenerTest {
     chainingGlTextureProcessorListener.onCurrentOutputStreamEnded();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(fakeConsumingGlTextureProcessor, times(1)).signalEndOfCurrentInputStream();
+    verify(fakeConsumingGlTextureProcessor).signalEndOfCurrentInputStream();
   }
 
   private static class FakeGlTextureProcessor implements GlTextureProcessor {
