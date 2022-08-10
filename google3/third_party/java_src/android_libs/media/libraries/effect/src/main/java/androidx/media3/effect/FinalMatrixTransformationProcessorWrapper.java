@@ -119,6 +119,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void setInputListener(InputListener inputListener) {
     this.inputListener = inputListener;
+    inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override
@@ -134,13 +135,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+  public boolean acceptsInputFrame() {
+    return true;
+  }
+
+  @Override
+  public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     checkState(!streamOffsetUsQueue.isEmpty(), "No input stream specified.");
 
     try {
       synchronized (this) {
         if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
-          return false;
+          inputListener.onInputFrameProcessed(inputTexture);
+          return; // Drop frames when there is no output surface.
         }
 
         EGLSurface outputEglSurface = this.outputEglSurface;
@@ -181,7 +188,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     inputListener.onInputFrameProcessed(inputTexture);
-    return true;
+    inputListener.onReadyToAcceptInputFrame();
   }
 
   @EnsuresNonNullIf(

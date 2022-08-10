@@ -280,7 +280,12 @@ public final class TransformerActivity extends AppCompatActivity {
                 Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
             Constructor<?> constructor =
                 clazz.getConstructor(
-                    Context.class, boolean.class, String.class, String.class, String.class);
+                    Context.class,
+                    boolean.class,
+                    String.class,
+                    boolean.class,
+                    String.class,
+                    String.class);
             effects.add(
                 (GlEffect)
                     (Context context, boolean useHdr) -> {
@@ -290,6 +295,7 @@ public final class TransformerActivity extends AppCompatActivity {
                                 context,
                                 useHdr,
                                 /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
+                                /* isSingleFrameGraph= */ true,
                                 /* inputStreamName= */ "input_video",
                                 /* outputStreamName= */ "output_video");
                       } catch (Exception e) {

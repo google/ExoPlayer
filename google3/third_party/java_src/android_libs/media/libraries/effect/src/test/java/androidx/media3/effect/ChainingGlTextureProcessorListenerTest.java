@@ -16,8 +16,6 @@
 package androidx.media3.effect;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import androidx.media3.common.FrameProcessor;
@@ -32,16 +30,17 @@ import org.junit.runner.RunWith;
 public final class ChainingGlTextureProcessorListenerTest {
   private static final long EXECUTOR_WAIT_TIME_MS = 100;
 
+  private final FrameProcessor.Listener mockFrameProcessorListener =
+      mock(FrameProcessor.Listener.class);
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor =
       new FrameProcessingTaskExecutor(
-          Util.newSingleThreadExecutor("Test"), mock(FrameProcessor.Listener.class));
+          Util.newSingleThreadExecutor("Test"), mockFrameProcessorListener);
   private final GlTextureProcessor mockProducingGlTextureProcessor = mock(GlTextureProcessor.class);
-  private final FakeGlTextureProcessor fakeConsumingGlTextureProcessor =
-      spy(new FakeGlTextureProcessor());
+  private final GlTextureProcessor mockConsumingGlTextureProcessor = mock(GlTextureProcessor.class);
   private final ChainingGlTextureProcessorListener chainingGlTextureProcessorListener =
       new ChainingGlTextureProcessorListener(
           mockProducingGlTextureProcessor,
-          fakeConsumingGlTextureProcessor,
+          mockConsumingGlTextureProcessor,
           frameProcessingTaskExecutor);
 
   @After
@@ -62,35 +61,35 @@ public final class ChainingGlTextureProcessorListenerTest {
   }
 
   @Test
-  public void onOutputFrameAvailable_passesFrameToNextGlTextureProcessor()
+  public void onOutputFrameAvailable_afterAcceptsInputFrame_passesFrameToNextGlTextureProcessor()
+      throws InterruptedException {
+    TextureInfo texture =
+        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
+    long presentationTimeUs = 123;
+
+    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
+    chainingGlTextureProcessorListener.onOutputFrameAvailable(texture, presentationTimeUs);
+    Thread.sleep(EXECUTOR_WAIT_TIME_MS);
+
+    verify(mockConsumingGlTextureProcessor).queueInputFrame(texture, presentationTimeUs);
+  }
+
+  @Test
+  public void onOutputFrameAvailable_beforeAcceptsInputFrame_passesFrameToNextGlTextureProcessor()
       throws InterruptedException {
     TextureInfo texture =
         new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
     long presentationTimeUs = 123;
 
     chainingGlTextureProcessorListener.onOutputFrameAvailable(texture, presentationTimeUs);
+    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(fakeConsumingGlTextureProcessor).maybeQueueInputFrame(texture, presentationTimeUs);
+    verify(mockConsumingGlTextureProcessor).queueInputFrame(texture, presentationTimeUs);
   }
 
   @Test
-  public void onOutputFrameAvailable_nextGlTextureProcessorRejectsFrame_triesAgain()
-      throws InterruptedException {
-    TextureInfo texture =
-        new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
-    long presentationTimeUs = 123;
-    fakeConsumingGlTextureProcessor.rejectNextFrame();
-
-    chainingGlTextureProcessorListener.onOutputFrameAvailable(texture, presentationTimeUs);
-    Thread.sleep(EXECUTOR_WAIT_TIME_MS);
-
-    verify(fakeConsumingGlTextureProcessor, times(2))
-        .maybeQueueInputFrame(texture, presentationTimeUs);
-  }
-
-  @Test
-  public void onOutputFrameAvailable_twoFramesWithFirstRejected_retriesFirstBeforeSecond()
+  public void onOutputFrameAvailable_twoFrames_passesFirstBeforeSecondToNextGlTextureProcessor()
       throws InterruptedException {
     TextureInfo firstTexture =
         new TextureInfo(/* texId= */ 1, /* fboId= */ 1, /* width= */ 100, /* height= */ 100);
@@ -98,18 +97,18 @@ public final class ChainingGlTextureProcessorListenerTest {
     TextureInfo secondTexture =
         new TextureInfo(/* texId= */ 2, /* fboId= */ 2, /* width= */ 100, /* height= */ 100);
     long secondPresentationTimeUs = 567;
-    fakeConsumingGlTextureProcessor.rejectNextFrame();
 
     chainingGlTextureProcessorListener.onOutputFrameAvailable(
         firstTexture, firstPresentationTimeUs);
     chainingGlTextureProcessorListener.onOutputFrameAvailable(
         secondTexture, secondPresentationTimeUs);
+    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
+    chainingGlTextureProcessorListener.onReadyToAcceptInputFrame();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(fakeConsumingGlTextureProcessor, times(2))
-        .maybeQueueInputFrame(firstTexture, firstPresentationTimeUs);
-    verify(fakeConsumingGlTextureProcessor)
-        .maybeQueueInputFrame(secondTexture, secondPresentationTimeUs);
+    verify(mockConsumingGlTextureProcessor).queueInputFrame(firstTexture, firstPresentationTimeUs);
+    verify(mockConsumingGlTextureProcessor)
+        .queueInputFrame(secondTexture, secondPresentationTimeUs);
   }
 
   @Test
@@ -118,46 +117,6 @@ public final class ChainingGlTextureProcessorListenerTest {
     chainingGlTextureProcessorListener.onCurrentOutputStreamEnded();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(fakeConsumingGlTextureProcessor).signalEndOfCurrentInputStream();
-  }
-
-  private static class FakeGlTextureProcessor implements GlTextureProcessor {
-
-    private volatile boolean rejectNextFrame;
-
-    public void rejectNextFrame() {
-      rejectNextFrame = true;
-    }
-
-    @Override
-    public void setInputListener(InputListener inputListener) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setOutputListener(OutputListener outputListener) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setErrorListener(ErrorListener errorListener) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
-      boolean acceptFrame = !rejectNextFrame;
-      rejectNextFrame = false;
-      return acceptFrame;
-    }
-
-    @Override
-    public void releaseOutputFrame(TextureInfo outputTexture) {}
-
-    @Override
-    public void signalEndOfCurrentInputStream() {}
-
-    @Override
-    public void release() {}
+    verify(mockConsumingGlTextureProcessor).signalEndOfCurrentInputStream();
   }
 }
