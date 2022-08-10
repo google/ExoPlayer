@@ -15,11 +15,17 @@
  */
 package androidx.media3.effect;
 
+import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
 
 /** Contains information describing an OpenGL texture. */
 @UnstableApi
 public final class TextureInfo {
+
+  /** A {@link TextureInfo} instance with all fields unset. */
+  public static final TextureInfo UNSET =
+      new TextureInfo(C.INDEX_UNSET, C.INDEX_UNSET, C.LENGTH_UNSET, C.LENGTH_UNSET);
+
   /** The OpenGL texture identifier. */
   public final int texId;
   /** Identifier of a framebuffer object associated with the texture. */

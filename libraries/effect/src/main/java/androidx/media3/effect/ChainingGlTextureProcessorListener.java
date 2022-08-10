@@ -16,6 +16,9 @@
 package androidx.media3.effect;
 
 import android.util.Pair;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.effect.GlTextureProcessor.InputListener;
 import androidx.media3.effect.GlTextureProcessor.OutputListener;
 import java.util.ArrayDeque;
@@ -33,7 +36,12 @@ import java.util.Queue;
   private final GlTextureProcessor producingGlTextureProcessor;
   private final GlTextureProcessor consumingGlTextureProcessor;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
+
+  @GuardedBy("this")
   private final Queue<Pair<TextureInfo, Long>> availableFrames;
+
+  @GuardedBy("this")
+  private int nextGlTextureProcessorInputCapacity;
 
   /**
    * Creates a new instance.
@@ -58,33 +66,52 @@ import java.util.Queue;
   }
 
   @Override
+  public synchronized void onReadyToAcceptInputFrame() {
+    @Nullable Pair<TextureInfo, Long> pendingFrame = availableFrames.poll();
+    if (pendingFrame == null) {
+      nextGlTextureProcessorInputCapacity++;
+      return;
+    }
+
+    long presentationTimeUs = pendingFrame.second;
+    if (presentationTimeUs == C.TIME_END_OF_SOURCE) {
+      frameProcessingTaskExecutor.submit(
+          consumingGlTextureProcessor::signalEndOfCurrentInputStream);
+    } else {
+      frameProcessingTaskExecutor.submit(
+          () ->
+              consumingGlTextureProcessor.queueInputFrame(
+                  /* inputTexture= */ pendingFrame.first, presentationTimeUs));
+    }
+  }
+
+  @Override
   public void onInputFrameProcessed(TextureInfo inputTexture) {
     frameProcessingTaskExecutor.submit(
         () -> producingGlTextureProcessor.releaseOutputFrame(inputTexture));
   }
 
   @Override
-  public void onOutputFrameAvailable(TextureInfo outputTexture, long presentationTimeUs) {
-    frameProcessingTaskExecutor.submit(
-        () -> {
-          availableFrames.add(new Pair<>(outputTexture, presentationTimeUs));
-          processFrameNowOrLater();
-        });
-  }
-
-  private void processFrameNowOrLater() {
-    Pair<TextureInfo, Long> pendingFrame = availableFrames.element();
-    TextureInfo outputTexture = pendingFrame.first;
-    long presentationTimeUs = pendingFrame.second;
-    if (consumingGlTextureProcessor.maybeQueueInputFrame(outputTexture, presentationTimeUs)) {
-      availableFrames.remove();
+  public synchronized void onOutputFrameAvailable(
+      TextureInfo outputTexture, long presentationTimeUs) {
+    if (nextGlTextureProcessorInputCapacity > 0) {
+      frameProcessingTaskExecutor.submit(
+          () ->
+              consumingGlTextureProcessor.queueInputFrame(
+                  /* inputTexture= */ outputTexture, presentationTimeUs));
+      nextGlTextureProcessorInputCapacity--;
     } else {
-      frameProcessingTaskExecutor.submit(this::processFrameNowOrLater);
+      availableFrames.add(new Pair<>(outputTexture, presentationTimeUs));
     }
   }
 
   @Override
-  public void onCurrentOutputStreamEnded() {
-    frameProcessingTaskExecutor.submit(consumingGlTextureProcessor::signalEndOfCurrentInputStream);
+  public synchronized void onCurrentOutputStreamEnded() {
+    if (!availableFrames.isEmpty()) {
+      availableFrames.add(new Pair<>(TextureInfo.UNSET, C.TIME_END_OF_SOURCE));
+    } else {
+      frameProcessingTaskExecutor.submit(
+          consumingGlTextureProcessor::signalEndOfCurrentInputStream);
+    }
   }
 }
