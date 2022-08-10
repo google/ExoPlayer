@@ -41,7 +41,7 @@ import java.util.Queue;
   private final Queue<Pair<TextureInfo, Long>> availableFrames;
 
   @GuardedBy("this")
-  private int nextGlTextureProcessorInputCapacity;
+  private int consumingGlTextureProcessorInputCapacity;
 
   /**
    * Creates a new instance.
@@ -69,7 +69,7 @@ import java.util.Queue;
   public synchronized void onReadyToAcceptInputFrame() {
     @Nullable Pair<TextureInfo, Long> pendingFrame = availableFrames.poll();
     if (pendingFrame == null) {
-      nextGlTextureProcessorInputCapacity++;
+      consumingGlTextureProcessorInputCapacity++;
       return;
     }
 
@@ -94,12 +94,12 @@ import java.util.Queue;
   @Override
   public synchronized void onOutputFrameAvailable(
       TextureInfo outputTexture, long presentationTimeUs) {
-    if (nextGlTextureProcessorInputCapacity > 0) {
+    if (consumingGlTextureProcessorInputCapacity > 0) {
       frameProcessingTaskExecutor.submit(
           () ->
               consumingGlTextureProcessor.queueInputFrame(
                   /* inputTexture= */ outputTexture, presentationTimeUs));
-      nextGlTextureProcessorInputCapacity--;
+      consumingGlTextureProcessorInputCapacity--;
     } else {
       availableFrames.add(new Pair<>(outputTexture, presentationTimeUs));
     }
