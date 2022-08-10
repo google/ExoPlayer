@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.media.MediaCodec;
@@ -232,27 +233,27 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   /**
-   * Creates a fallback transformation request to execute, based on device-specific support.
+   * Creates a {@link TransformationRequest}, based on an original {@code TransformationRequest} and
+   * parameters specifying alterations to it that indicate device support.
    *
    * @param transformationRequest The requested transformation.
    * @param hasOutputFormatRotation Whether the input video will be rotated to landscape during
    *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
    * @param requestedFormat The requested format.
    * @param supportedFormat A format supported by the device.
-   * @param fallbackToSdr Whether HDR editing was requested via the TransformationRequest or
-   *     inferred from the input and tone-mapping to SDR was used instead due to lack of encoder
-   *     capabilities.
+   * @param isToneMappedToSdr Whether tone mapping to SDR will be applied.
+   * @return The created instance.
    */
   @Pure
-  private static TransformationRequest createFallbackTransformationRequest(
+  private static TransformationRequest createSupportedTransformationRequest(
       TransformationRequest transformationRequest,
       boolean hasOutputFormatRotation,
       Format requestedFormat,
       Format supportedFormat,
-      boolean fallbackToSdr) {
+      boolean isToneMappedToSdr) {
     // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
     //  implemented.
-    if (!fallbackToSdr
+    if (transformationRequest.enableRequestSdrToneMapping == isToneMappedToSdr
         && Util.areEqual(requestedFormat.sampleMimeType, supportedFormat.sampleMimeType)
         && (hasOutputFormatRotation
             ? requestedFormat.width == supportedFormat.width
@@ -260,7 +261,8 @@ import org.checkerframework.dataflow.qual.Pure;
       return transformationRequest;
     }
     TransformationRequest.Builder transformationRequestBuilder = transformationRequest.buildUpon();
-    if (fallbackToSdr) {
+    if (transformationRequest.enableRequestSdrToneMapping != isToneMappedToSdr) {
+      checkState(isToneMappedToSdr);
       transformationRequestBuilder
           .setEnableRequestSdrToneMapping(true)
           .experimental_setEnableHdrEditing(false);
@@ -429,7 +431,7 @@ import org.checkerframework.dataflow.qual.Pure;
           ColorInfo.isTransferHdr(inputFormat.colorInfo)
               && !ColorInfo.isTransferHdr(requestedEncoderFormat.colorInfo);
       fallbackListener.onTransformationRequestFinalized(
-          createFallbackTransformationRequest(
+          createSupportedTransformationRequest(
               transformationRequest,
               /* hasOutputFormatRotation= */ flipOrientation,
               requestedEncoderFormat,
