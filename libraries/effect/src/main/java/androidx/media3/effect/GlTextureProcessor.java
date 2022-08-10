@@ -22,7 +22,7 @@ import androidx.media3.common.util.UnstableApi;
  * Processes frames from one OpenGL 2D texture to another.
  *
  * <p>The {@code GlTextureProcessor} consumes input frames it accepts via {@link
- * #maybeQueueInputFrame(TextureInfo, long)} and surrenders each texture back to the caller via its
+ * #queueInputFrame(TextureInfo, long)} and surrenders each texture back to the caller via its
  * {@linkplain InputListener#onInputFrameProcessed(TextureInfo) listener} once the texture's
  * contents have been processed.
  *
@@ -52,10 +52,18 @@ public interface GlTextureProcessor {
    */
   interface InputListener {
     /**
+     * Called when the {@link GlTextureProcessor} is ready to accept another input frame.
+     *
+     * <p>For each time this method is called, {@link #queueInputFrame(TextureInfo, long)} can be
+     * called once.
+     */
+    default void onReadyToAcceptInputFrame() {}
+
+    /**
      * Called when the {@link GlTextureProcessor} has processed an input frame.
      *
      * @param inputTexture The {@link TextureInfo} that was used to {@linkplain
-     *     #maybeQueueInputFrame(TextureInfo, long) queue} the input frame.
+     *     #queueInputFrame(TextureInfo, long) queue} the input frame.
      */
     default void onInputFrameProcessed(TextureInfo inputTexture) {}
   }
@@ -114,19 +122,17 @@ public interface GlTextureProcessor {
   /**
    * Processes an input frame if possible.
    *
-   * <p>If this method returns {@code true} the input frame has been accepted. The {@code
-   * GlTextureProcessor} owns the accepted frame until it calls {@link
+   * <p>The {@code GlTextureProcessor} owns the accepted frame until it calls {@link
    * InputListener#onInputFrameProcessed(TextureInfo)}. The caller should not overwrite or release
    * the texture before the {@code GlTextureProcessor} has finished processing it.
    *
-   * <p>If this method returns {@code false}, the input frame could not be accepted and the caller
-   * should decide whether to drop the frame or try again later.
+   * <p>This method must only be called when the {@code GlTextureProcessor} can {@linkplain
+   * InputListener#onReadyToAcceptInputFrame() accept an input frame}.
    *
    * @param inputTexture A {@link TextureInfo} describing the texture containing the input frame.
    * @param presentationTimeUs The presentation timestamp of the input frame, in microseconds.
-   * @return Whether the frame was accepted.
    */
-  boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs);
+  void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs);
 
   /**
    * Notifies the texture processor that the frame on the given output texture is no longer used and

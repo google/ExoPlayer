@@ -386,13 +386,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     checkState(inputTextureInUse);
 
     FrameInfo inputFrameInfo = checkStateNotNull(pendingInputFrames.peek());
-    if (inputExternalTextureProcessor.maybeQueueInputFrame(
-        new TextureInfo(
-            inputExternalTextureId,
-            /* fboId= */ C.INDEX_UNSET,
-            inputFrameInfo.width,
-            inputFrameInfo.height),
-        presentationTimeUs)) {
+    if (inputExternalTextureProcessor.acceptsInputFrame()) {
+      inputExternalTextureProcessor.queueInputFrame(
+          new TextureInfo(
+              inputExternalTextureId,
+              /* fboId= */ C.INDEX_UNSET,
+              inputFrameInfo.width,
+              inputFrameInfo.height),
+          presentationTimeUs);
       inputTextureInUse = false;
       pendingInputFrames.remove();
       // After the externalTextureProcessor has produced an output frame, it is processed
