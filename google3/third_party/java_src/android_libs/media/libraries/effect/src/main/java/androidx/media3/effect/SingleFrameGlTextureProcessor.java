@@ -15,6 +15,8 @@
  */
 package androidx.media3.effect;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.util.Pair;
 import androidx.annotation.CallSuper;
 import androidx.media3.common.FrameProcessingException;
@@ -34,6 +36,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public abstract class SingleFrameGlTextureProcessor implements GlTextureProcessor {
 
+  private final boolean useHdr;
+
   private InputListener inputListener;
   private OutputListener outputListener;
   private ErrorListener errorListener;
@@ -41,7 +45,6 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   private int inputHeight;
   private @MonotonicNonNull TextureInfo outputTexture;
   private boolean outputTextureInUse;
-  private final boolean useHdr;
 
   /**
    * Creates a {@code SingleFrameGlTextureProcessor} instance.
@@ -88,6 +91,9 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   @Override
   public final void setInputListener(InputListener inputListener) {
     this.inputListener = inputListener;
+    if (!outputTextureInUse) {
+      inputListener.onReadyToAcceptInputFrame();
+    }
   }
 
   @Override
@@ -100,11 +106,16 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
     this.errorListener = errorListener;
   }
 
+  public final boolean acceptsInputFrame() {
+    return !outputTextureInUse;
+  }
+
   @Override
-  public final boolean maybeQueueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
-    if (outputTextureInUse) {
-      return false;
-    }
+  public final void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
+    checkState(
+        !outputTextureInUse,
+        "The texture processor does not currently accept input frames. Release prior output frames"
+            + " first.");
 
     try {
       if (outputTexture == null
@@ -125,7 +136,6 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
               ? (FrameProcessingException) e
               : new FrameProcessingException(e));
     }
-    return true;
   }
 
   @EnsuresNonNull("outputTexture")
@@ -149,6 +159,7 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
   @Override
   public final void releaseOutputFrame(TextureInfo outputTexture) {
     outputTextureInUse = false;
+    inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override

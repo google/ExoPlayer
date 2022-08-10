@@ -31,4 +31,11 @@ package androidx.media3.effect;
    *     android.graphics.SurfaceTexture#getTransformMatrix(float[]) transform matrix}.
    */
   void setTextureTransformMatrix(float[] textureTransformMatrix);
+
+  /**
+   * Returns whether another input frame can be {@linkplain #queueInputFrame(TextureInfo, long)
+   * queued}.
+   */
+  // TODO(b/227625423): Remove this method and use the input listener instead.
+  boolean acceptsInputFrame();
 }
