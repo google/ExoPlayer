@@ -46,6 +46,10 @@
 *   RTSP:
     *   Add H263 fragmented packet handling
         ([#119](https://github.com/androidx/media/pull/119)).
+*   IMA:
+    *   Add timeout for loading ad information to handle cases where the IMA SDK
+        gets stuck loading an ad
+        ([#10510](https://github.com/google/ExoPlayer/issues/10510)).
 
 ### 1.0.0-beta02 (2022-07-21)
 
