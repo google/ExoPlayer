@@ -143,6 +143,7 @@ import java.util.Map;
   private final BiMap<AdMediaInfo, AdInfo> adInfoByAdMediaInfo;
   private final AdDisplayContainer adDisplayContainer;
   private final AdsLoader adsLoader;
+  private final Runnable adLoadTimeoutRunnable;
 
   @Nullable private Object pendingAdRequestContext;
   @Nullable private Player player;
@@ -256,6 +257,7 @@ import java.util.Map;
     contentDurationMs = C.TIME_UNSET;
     timeline = Timeline.EMPTY;
     adPlaybackState = AdPlaybackState.NONE;
+    adLoadTimeoutRunnable = this::handleAdLoadTimeout;
     if (adViewGroup != null) {
       adDisplayContainer =
           imaFactory.createAdDisplayContainer(adViewGroup, /* player= */ componentListener);
@@ -488,7 +490,7 @@ import java.util.Map;
 
     if (playbackState == Player.STATE_BUFFERING
         && !player.isPlayingAd()
-        && isWaitingForAdToLoad()) {
+        && isWaitingForFirstAdToPreload()) {
       waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } else if (playbackState == Player.STATE_READY) {
       waitingForPreloadElapsedRealtimeMs = C.TIME_UNSET;
@@ -780,7 +782,7 @@ import java.util.Map;
    * Returns whether this instance is expecting the first ad in an the upcoming ad group to load
    * within the {@link ImaUtil.Configuration#adPreloadTimeoutMs preload timeout}.
    */
-  private boolean isWaitingForAdToLoad() {
+  private boolean isWaitingForFirstAdToPreload() {
     @Nullable Player player = this.player;
     if (player == null) {
       return false;
@@ -800,6 +802,23 @@ import java.util.Map;
     long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
     long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
     return timeUntilAdMs < configuration.adPreloadTimeoutMs;
+  }
+
+  private boolean isWaitingForCurrentAdToLoad() {
+    @Nullable Player player = this.player;
+    if (player == null) {
+      return false;
+    }
+    int adGroupIndex = player.getCurrentAdGroupIndex();
+    if (adGroupIndex == C.INDEX_UNSET) {
+      return false;
+    }
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    int adIndexInAdGroup = player.getCurrentAdIndexInAdGroup();
+    if (adGroup.count == C.LENGTH_UNSET || adGroup.count <= adIndexInAdGroup) {
+      return true;
+    }
+    return adGroup.states[adIndexInAdGroup] == AdPlaybackState.AD_STATE_UNAVAILABLE;
   }
 
   private void handlePlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
@@ -892,6 +911,10 @@ import java.util.Map;
         }
       }
     }
+    if (isWaitingForCurrentAdToLoad()) {
+      handler.removeCallbacks(adLoadTimeoutRunnable);
+      handler.postDelayed(adLoadTimeoutRunnable, configuration.adPreloadTimeoutMs);
+    }
   }
 
   private void loadAdInternal(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
@@ -917,6 +940,12 @@ import java.util.Map;
       // We have already marked this ad as having failed to load, so ignore the request. IMA will
       // timeout after its media load timeout.
       return;
+    }
+    if (player != null
+        && player.getCurrentAdGroupIndex() == adGroupIndex
+        && player.getCurrentAdIndexInAdGroup() == adIndexInAdGroup) {
+      // Loaded ad info the player is currently waiting for.
+      handler.removeCallbacks(adLoadTimeoutRunnable);
     }
 
     // The ad count may increase on successive loads of ads in the same ad pod, for example, due to
@@ -1061,6 +1090,12 @@ import java.util.Map;
     if (pendingAdLoadError == null) {
       pendingAdLoadError = AdLoadException.createForAdGroup(error, adGroupIndex);
     }
+  }
+
+  private void handleAdLoadTimeout() {
+    // IMA got stuck and didn't load an ad in time, so skip the entire group.
+    handleAdGroupLoadError(new IOException("Ad loading timed out"));
+    maybeNotifyPendingAdLoadError();
   }
 
   private void markAdGroupInErrorStateAndClearPendingContentPosition(int adGroupIndex) {
@@ -1334,7 +1369,7 @@ import java.util.Map;
       } else if (pendingContentPositionMs != C.TIME_UNSET
           && player != null
           && player.getPlaybackState() == Player.STATE_BUFFERING
-          && isWaitingForAdToLoad()) {
+          && isWaitingForFirstAdToPreload()) {
         // Prepare to timeout the load of an ad for the pending seek operation.
         waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
       }
