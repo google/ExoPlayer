@@ -21,20 +21,20 @@ import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
 /**
- * Specifies a 4x4 RGBA color transformation matrix to apply to each frame in the fragment shader.
+ * Specifies a 4x4 RGB color transformation matrix to apply to each frame in the fragment shader.
  */
 @UnstableApi
-public interface RgbaMatrix extends GlEffect {
+public interface RgbMatrix extends GlEffect {
 
   /**
-   * Returns the 4x4 RGBA transformation {@linkplain android.opengl.Matrix matrix} to apply to the
+   * Returns the 4x4 RGB transformation {@linkplain android.opengl.Matrix matrix} to apply to the
    * color values of each pixel in the frame with the given timestamp.
    */
   float[] getMatrix(long presentationTimeUs);
 
   @Override
-  default RgbaMatrixProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  default RgbMatrixProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new RgbaMatrixProcessor(context, /* rgbaMatrix= */ this, useHdr);
+    return new RgbMatrixProcessor(context, /* rgbMatrix= */ this, useHdr);
   }
 }

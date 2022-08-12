@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel tests for {@link RgbaMatrix}.
+ * Pixel tests for {@link RgbMatrix}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -63,7 +63,7 @@ public final class RgbAdjustmentPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor rgbaMatrixProcessor;
+  private @MonotonicNonNull SingleFrameGlTextureProcessor rgbMatrixProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int outputTexId;
@@ -95,27 +95,27 @@ public final class RgbAdjustmentPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (rgbaMatrixProcessor != null) {
-      rgbaMatrixProcessor.release();
+    if (rgbMatrixProcessor != null) {
+      rgbMatrixProcessor.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
 
-  private static RgbaMatrixProcessor createRgbaMatrixProcessor(Context context, float[] rgbaMatrix)
+  private static RgbMatrixProcessor createRgbMatrixProcessor(Context context, float[] rgbMatrix)
       throws FrameProcessingException {
-    return ((RgbaMatrix) presentationTimeUs -> rgbaMatrix)
+    return ((RgbMatrix) presentationTimeUs -> rgbMatrix)
         .toGlTextureProcessor(context, /* useHdr= */ false);
   }
 
   @Test
   public void drawFrame_identityMatrix_leavesFrameUnchanged() throws Exception {
     String testId = "drawFrame_identityMatrix";
-    RgbaMatrix identityMatrix = new RgbAdjustment.Builder().build();
-    rgbaMatrixProcessor = new RgbaMatrixProcessor(context, identityMatrix, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = rgbaMatrixProcessor.configure(inputWidth, inputHeight);
+    RgbMatrix identityMatrix = new RgbAdjustment.Builder().build();
+    rgbMatrixProcessor = new RgbMatrixProcessor(context, identityMatrix, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    rgbaMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
@@ -131,15 +131,15 @@ public final class RgbAdjustmentPixelTest {
   @Test
   public void drawFrame_removeColors_producesBlackFrame() throws Exception {
     String testId = "drawFrame_removeColors";
-    RgbaMatrix removeColorMatrix =
+    RgbMatrix removeColorMatrix =
         new RgbAdjustment.Builder().setRedScale(0).setGreenScale(0).setBlueScale(0).build();
-    rgbaMatrixProcessor = new RgbaMatrixProcessor(context, removeColorMatrix, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = rgbaMatrixProcessor.configure(inputWidth, inputHeight);
+    rgbMatrixProcessor = new RgbMatrixProcessor(context, removeColorMatrix, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
         BitmapTestUtil.createArgb8888BitmapWithSolidColor(
             outputSize.first, outputSize.second, Color.BLACK);
 
-    rgbaMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
@@ -155,12 +155,12 @@ public final class RgbAdjustmentPixelTest {
   @Test
   public void drawFrame_redOnlyFilter_setsBlueAndGreenValuesToZero() throws Exception {
     String testId = "drawFrame_redOnlyFilter";
-    RgbaMatrix redOnlyMatrix = new RgbAdjustment.Builder().setBlueScale(0).setGreenScale(0).build();
-    rgbaMatrixProcessor = new RgbaMatrixProcessor(context, redOnlyMatrix, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = rgbaMatrixProcessor.configure(inputWidth, inputHeight);
+    RgbMatrix redOnlyMatrix = new RgbAdjustment.Builder().setBlueScale(0).setGreenScale(0).build();
+    rgbMatrixProcessor = new RgbMatrixProcessor(context, redOnlyMatrix, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ONLY_RED_CHANNEL_PNG_ASSET_PATH);
 
-    rgbaMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
@@ -176,12 +176,12 @@ public final class RgbAdjustmentPixelTest {
   @Test
   public void drawFrame_increaseRedChannel_producesBrighterAndRedderFrame() throws Exception {
     String testId = "drawFrame_increaseRedChannel";
-    RgbaMatrix increaseRedMatrix = new RgbAdjustment.Builder().setRedScale(5).build();
-    rgbaMatrixProcessor = new RgbaMatrixProcessor(context, increaseRedMatrix, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = rgbaMatrixProcessor.configure(inputWidth, inputHeight);
+    RgbMatrix increaseRedMatrix = new RgbAdjustment.Builder().setRedScale(5).build();
+    rgbMatrixProcessor = new RgbMatrixProcessor(context, increaseRedMatrix, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
 
-    rgbaMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
@@ -197,14 +197,14 @@ public final class RgbAdjustmentPixelTest {
   @Test
   public void drawFrame_increaseBrightness_increasesAllValues() throws Exception {
     String testId = "drawFrame_increaseBrightness";
-    RgbaMatrix increaseBrightnessMatrix =
+    RgbMatrix increaseBrightnessMatrix =
         new RgbAdjustment.Builder().setRedScale(5).setGreenScale(5).setBlueScale(5).build();
-    rgbaMatrixProcessor =
-        new RgbaMatrixProcessor(context, increaseBrightnessMatrix, /* useHdr = */ false);
-    Pair<Integer, Integer> outputSize = rgbaMatrixProcessor.configure(inputWidth, inputHeight);
+    rgbMatrixProcessor =
+        new RgbMatrixProcessor(context, increaseBrightnessMatrix, /* useHdr = */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
 
-    rgbaMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
@@ -227,11 +227,11 @@ public final class RgbAdjustmentPixelTest {
       0.2126f, 0.2126f, 0.2126f, 0, 0.7152f, 0.7152f, 0.7152f, 0, 0.0722f, 0.0722f, 0.0722f, 0, 0,
       0, 0, 1
     };
-    rgbaMatrixProcessor = createRgbaMatrixProcessor(/* context= */ context, grayscaleMatrix);
-    Pair<Integer, Integer> outputSize = rgbaMatrixProcessor.configure(inputWidth, inputHeight);
+    rgbMatrixProcessor = createRgbMatrixProcessor(/* context= */ context, grayscaleMatrix);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
-    rgbaMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
