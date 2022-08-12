@@ -42,8 +42,8 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -112,7 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     textureTransformMatrix = new float[16];
     Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
-    streamOffsetUsQueue = new ArrayDeque<>();
+    streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
     inputListener = new InputListener() {};
   }
 
@@ -132,11 +132,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void setErrorListener(ErrorListener errorListener) {
     // The FrameProcessor.Listener passed to the constructor is used for errors.
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean acceptsInputFrame() {
-    return true;
   }
 
   @Override
@@ -329,12 +324,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Signals that there will be another input stream after all previously appended input streams
    * have {@linkplain #signalEndOfCurrentInputStream() ended}.
    *
+   * <p>This method does not need to be called on the GL thread, but the caller must ensure that
+   * stream offsets are appended in the correct order.
+   *
    * @param streamOffsetUs The presentation timestamp offset, in microseconds.
    */
   public void appendStream(long streamOffsetUs) {
     streamOffsetUsQueue.add(streamOffsetUs);
   }
 
+  /**
+   * Sets the output {@link SurfaceInfo}.
+   *
+   * @see FrameProcessor#setOutputSurfaceInfo(SurfaceInfo)
+   */
   public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
     if (!Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
       if (outputSurfaceInfo != null
