@@ -23,6 +23,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_STOP;
+import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
@@ -269,7 +270,11 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     int[] compactViewIndices =
         addNotificationActions(
             mediaSession,
-            getMediaButtons(player.getAvailableCommands(), customLayout, player.getPlayWhenReady()),
+            getMediaButtons(
+                player.getAvailableCommands(),
+                customLayout,
+                /* showPauseButton= */ player.getPlayWhenReady()
+                    && player.getPlaybackState() != STATE_ENDED),
             builder,
             actionFactory);
     mediaStyle.setShowActionsInCompactView(compactViewIndices);
@@ -371,11 +376,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * @param playerCommands The available player commands.
    * @param customLayout The {@linkplain MediaSession#setCustomLayout(List) custom layout of
    *     commands}.
-   * @param playWhenReady The current {@code playWhenReady} state.
+   * @param showPauseButton Whether the notification should show a pause button (e.g., because the
+   *     player is currently playing content), otherwise show a play button to start playback.
    * @return The ordered list of command buttons to be placed on the notification.
    */
   protected List<CommandButton> getMediaButtons(
-      Player.Commands playerCommands, List<CommandButton> customLayout, boolean playWhenReady) {
+      Player.Commands playerCommands, List<CommandButton> customLayout, boolean showPauseButton) {
     // Skip to previous action.
     List<CommandButton> commandButtons = new ArrayList<>();
     if (playerCommands.containsAny(COMMAND_SEEK_TO_PREVIOUS, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
@@ -397,12 +403,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
           new CommandButton.Builder()
               .setPlayerCommand(COMMAND_PLAY_PAUSE)
               .setIconResId(
-                  playWhenReady
+                  showPauseButton
                       ? R.drawable.media3_notification_pause
                       : R.drawable.media3_notification_play)
               .setExtras(commandButtonExtras)
               .setDisplayName(
-                  playWhenReady
+                  showPauseButton
                       ? context.getString(R.string.media3_controls_pause_description)
                       : context.getString(R.string.media3_controls_play_description))
               .build());

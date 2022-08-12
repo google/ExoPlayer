@@ -26,6 +26,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.view.KeyEvent;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
@@ -166,17 +167,50 @@ public class MediaSessionKeyEventTest {
   }
 
   @Test
-  public void playPauseKeyEvent_play() throws Exception {
+  public void playPauseKeyEvent_paused_play() throws Exception {
+    handler.postAndSync(
+        () -> {
+          player.playbackState = Player.STATE_READY;
+        });
+
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
   }
 
   @Test
-  public void playPauseKeyEvent_pause() throws Exception {
+  public void playPauseKeyEvent_fromIdle_prepareAndPlay() throws Exception {
+    handler.postAndSync(
+        () -> {
+          player.playbackState = Player.STATE_IDLE;
+        });
+
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+  }
+
+  @Test
+  public void playPauseKeyEvent_playWhenReadyAndEnded_seekAndPlay() throws Exception {
     handler.postAndSync(
         () -> {
           player.playWhenReady = true;
+          player.playbackState = Player.STATE_ENDED;
+        });
+
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+  }
+
+  @Test
+  public void playPauseKeyEvent_playing_pause() throws Exception {
+    handler.postAndSync(
+        () -> {
+          player.playWhenReady = true;
+          player.playbackState = Player.STATE_READY;
         });
 
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);

@@ -241,17 +241,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private void handleMediaPlayPauseOnHandler(RemoteUserInfo remoteUserInfo) {
     mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
-    if (sessionImpl.getPlayerWrapper().getPlayWhenReady()) {
-      dispatchSessionTaskWithPlayerCommand(
-          COMMAND_PLAY_PAUSE,
-          (controller) -> sessionImpl.getPlayerWrapper().pause(),
-          remoteUserInfo);
-    } else {
-      dispatchSessionTaskWithPlayerCommand(
-          COMMAND_PLAY_PAUSE,
-          (controller) -> {
-            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
-            @Player.State int playbackState = playerWrapper.getPlaybackState();
+    dispatchSessionTaskWithPlayerCommand(
+        COMMAND_PLAY_PAUSE,
+        (controller) -> {
+          PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+          @Player.State int playbackState = playerWrapper.getPlaybackState();
+          if (!playerWrapper.getPlayWhenReady()
+              || playbackState == STATE_ENDED
+              || playbackState == STATE_IDLE) {
             if (playbackState == STATE_IDLE) {
               playerWrapper.prepare();
             } else if (playbackState == STATE_ENDED) {
@@ -259,9 +256,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                   playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
             }
             playerWrapper.play();
-          },
-          remoteUserInfo);
-    }
+          } else {
+            playerWrapper.pause();
+          }
+        },
+        remoteUserInfo);
   }
 
   @Override
