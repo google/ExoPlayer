@@ -108,10 +108,6 @@ public abstract class SingleFrameGlTextureProcessor implements GlTextureProcesso
     this.errorListener = errorListener;
   }
 
-  public final boolean acceptsInputFrame() {
-    return !outputTextureInUse;
-  }
-
   @Override
   public final void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     checkState(
