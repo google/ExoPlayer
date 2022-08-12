@@ -162,7 +162,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   public void updateNotification(MediaSession session) {
-    if (!mediaSessionService.isSessionAdded(session) || !canStartPlayback(session.getPlayer())) {
+    if (!mediaSessionService.isSessionAdded(session)
+        || !shouldShowNotification(session.getPlayer())) {
       maybeStopForegroundService(/* removeNotifications= */ true);
       return;
     }
@@ -199,7 +200,7 @@ import java.util.concurrent.TimeoutException;
 
     this.mediaNotification = mediaNotification;
     Player player = session.getPlayer();
-    if (player.getPlayWhenReady() && canStartPlayback(player)) {
+    if (shouldRunInForeground(player)) {
       ContextCompat.startForegroundService(mediaSessionService, startSelfIntent);
       if (Util.SDK_INT >= 29) {
         Api29.startForeground(mediaSessionService, mediaNotification);
@@ -223,8 +224,7 @@ import java.util.concurrent.TimeoutException;
   private void maybeStopForegroundService(boolean removeNotifications) {
     List<MediaSession> sessions = mediaSessionService.getSessions();
     for (int i = 0; i < sessions.size(); i++) {
-      Player player = sessions.get(i).getPlayer();
-      if (player.getPlayWhenReady() && canStartPlayback(player)) {
+      if (shouldRunInForeground(sessions.get(i).getPlayer())) {
         return;
       }
     }
@@ -242,12 +242,14 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
-  /**
-   * Returns whether {@code player} can start playback and therefore we should present a
-   * notification for this player.
-   */
-  private static boolean canStartPlayback(Player player) {
-    return player.getPlaybackState() != Player.STATE_IDLE && !player.getCurrentTimeline().isEmpty();
+  private static boolean shouldShowNotification(Player player) {
+    return !player.getCurrentTimeline().isEmpty() && player.getPlaybackState() != Player.STATE_IDLE;
+  }
+
+  private static boolean shouldRunInForeground(Player player) {
+    return player.getPlayWhenReady()
+        && (player.getPlaybackState() == Player.STATE_READY
+            || player.getPlaybackState() == Player.STATE_BUFFERING);
   }
 
   private static final class MediaControllerListener
@@ -266,8 +268,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     public void onConnected() {
-      if (canStartPlayback(session.getPlayer())) {
-        // We need to present a notification.
+      if (shouldShowNotification(session.getPlayer())) {
         mediaSessionService.onUpdateNotification(session);
       }
     }
