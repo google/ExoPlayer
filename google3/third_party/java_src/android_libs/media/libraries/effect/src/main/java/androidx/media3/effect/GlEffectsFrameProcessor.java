@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
@@ -40,7 +39,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -141,11 +139,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     chainTextureProcessorsWithListeners(textureProcessors, frameProcessingTaskExecutor, listener);
 
     return new GlEffectsFrameProcessor(
-        eglDisplay,
-        eglContext,
-        frameProcessingTaskExecutor,
-        /* inputExternalTextureId= */ GlUtil.createExternalTexture(),
-        textureProcessors);
+        eglDisplay, eglContext, frameProcessingTaskExecutor, textureProcessors);
   }
 
   /**
@@ -232,30 +226,18 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     }
   }
 
-  private static final String THREAD_NAME = "Transformer:GlEffectsFrameProcessor";
+  private static final String THREAD_NAME = "Effect:GlThread";
   private static final long RELEASE_WAIT_TIME_MS = 100;
 
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
-
-  /** Associated with an OpenGL external texture. */
-  private final SurfaceTexture inputSurfaceTexture;
-  /** Wraps the {@link #inputSurfaceTexture}. */
+  private final ExternalTextureManager inputExternalTextureManager;
   private final Surface inputSurface;
-
-  private final float[] inputSurfaceTextureTransformMatrix;
-  private final int inputExternalTextureId;
-  private final ExternalTextureProcessor inputExternalTextureProcessor;
   private final FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper;
   private final ImmutableList<GlTextureProcessor> allTextureProcessors;
-  private final ConcurrentLinkedQueue<FrameInfo> pendingInputFrames;
 
-  // Fields accessed on the thread used by the GlEffectsFrameProcessor's caller.
   private @MonotonicNonNull FrameInfo nextInputFrameInfo;
-
-  // Fields accessed on the frameProcessingTaskExecutor's thread.
-  private boolean inputTextureInUse;
   private boolean inputStreamEnded;
   /**
    * Offset compared to original media presentation time that has been added to incoming frame
@@ -267,39 +249,41 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      int inputExternalTextureId,
-      ImmutableList<GlTextureProcessor> textureProcessors) {
+      ImmutableList<GlTextureProcessor> textureProcessors)
+      throws FrameProcessingException {
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
-    this.inputExternalTextureId = inputExternalTextureId;
 
     checkState(!textureProcessors.isEmpty());
     checkState(textureProcessors.get(0) instanceof ExternalTextureProcessor);
     checkState(getLast(textureProcessors) instanceof FinalMatrixTransformationProcessorWrapper);
-    inputExternalTextureProcessor = (ExternalTextureProcessor) textureProcessors.get(0);
+    ExternalTextureProcessor inputExternalTextureProcessor =
+        (ExternalTextureProcessor) textureProcessors.get(0);
+    inputExternalTextureManager =
+        new ExternalTextureManager(inputExternalTextureProcessor, frameProcessingTaskExecutor);
+    inputExternalTextureProcessor.setInputListener(inputExternalTextureManager);
+    inputSurface = new Surface(inputExternalTextureManager.getSurfaceTexture());
     finalTextureProcessorWrapper =
         (FinalMatrixTransformationProcessorWrapper) getLast(textureProcessors);
     allTextureProcessors = textureProcessors;
-
-    inputSurfaceTexture = new SurfaceTexture(inputExternalTextureId);
-    inputSurface = new Surface(inputSurfaceTexture);
-    inputSurfaceTextureTransformMatrix = new float[16];
-    pendingInputFrames = new ConcurrentLinkedQueue<>();
     previousStreamOffsetUs = C.TIME_UNSET;
   }
 
   @Override
   public Surface getInputSurface() {
-    inputSurfaceTexture.setOnFrameAvailableListener(
-        surfaceTexture -> frameProcessingTaskExecutor.submit(this::processInputFrame));
     return inputSurface;
   }
 
   @Override
   public void setInputFrameInfo(FrameInfo inputFrameInfo) {
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
+
+    if (nextInputFrameInfo.streamOffsetUs != previousStreamOffsetUs) {
+      finalTextureProcessorWrapper.appendStream(nextInputFrameInfo.streamOffsetUs);
+      previousStreamOffsetUs = nextInputFrameInfo.streamOffsetUs;
+    }
   }
 
   @Override
@@ -308,12 +292,12 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     checkStateNotNull(
         nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
 
-    pendingInputFrames.add(nextInputFrameInfo);
+    inputExternalTextureManager.registerInputFrame(nextInputFrameInfo);
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return pendingInputFrames.size();
+    return inputExternalTextureManager.getPendingFrameCount();
   }
 
   @Override
@@ -325,7 +309,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   public void signalEndOfInput() {
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    frameProcessingTaskExecutor.submit(this::processEndOfInputStream);
+    frameProcessingTaskExecutor.submit(inputExternalTextureManager::signalEndOfInput);
   }
 
   @Override
@@ -338,69 +322,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
     }
-    inputSurfaceTexture.release();
+    inputExternalTextureManager.release();
     inputSurface.release();
-  }
-
-  /**
-   * Processes an input frame from the {@link #inputSurfaceTexture}.
-   *
-   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
-   */
-  @WorkerThread
-  private void processInputFrame() {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-    if (inputTextureInUse) {
-      frameProcessingTaskExecutor.submit(this::processInputFrame); // Try again later.
-      return;
-    }
-
-    inputTextureInUse = true;
-    inputSurfaceTexture.updateTexImage();
-    inputSurfaceTexture.getTransformMatrix(inputSurfaceTextureTransformMatrix);
-    inputExternalTextureProcessor.setTextureTransformMatrix(inputSurfaceTextureTransformMatrix);
-    long inputFrameTimeNs = inputSurfaceTexture.getTimestamp();
-    long streamOffsetUs = checkStateNotNull(pendingInputFrames.peek()).streamOffsetUs;
-    if (streamOffsetUs != previousStreamOffsetUs) {
-      if (previousStreamOffsetUs != C.TIME_UNSET) {
-        inputExternalTextureProcessor.signalEndOfCurrentInputStream();
-      }
-      finalTextureProcessorWrapper.appendStream(streamOffsetUs);
-      previousStreamOffsetUs = streamOffsetUs;
-    }
-    // Correct for the stream offset so processors see original media presentation timestamps.
-    long presentationTimeUs = inputFrameTimeNs / 1000 - streamOffsetUs;
-    queueInputFrameToTextureProcessors(presentationTimeUs);
-  }
-
-  /**
-   * Queues the input frame to the first texture processor until it is accepted.
-   *
-   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
-   */
-  @WorkerThread
-  private void queueInputFrameToTextureProcessors(long presentationTimeUs) {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-    checkState(inputTextureInUse);
-
-    FrameInfo inputFrameInfo = checkStateNotNull(pendingInputFrames.peek());
-    if (inputExternalTextureProcessor.acceptsInputFrame()) {
-      inputExternalTextureProcessor.queueInputFrame(
-          new TextureInfo(
-              inputExternalTextureId,
-              /* fboId= */ C.INDEX_UNSET,
-              inputFrameInfo.width,
-              inputFrameInfo.height),
-          presentationTimeUs);
-      inputTextureInUse = false;
-      pendingInputFrames.remove();
-      // After the externalTextureProcessor has produced an output frame, it is processed
-      // asynchronously by the texture processors chained after it.
-    } else {
-      // Try again later.
-      frameProcessingTaskExecutor.submit(
-          () -> queueInputFrameToTextureProcessors(presentationTimeUs));
-    }
   }
 
   /**
@@ -423,22 +346,6 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
           frameInfo.streamOffsetUs);
     } else {
       return frameInfo;
-    }
-  }
-
-  /**
-   * Propagates the end-of-stream signal through the texture processors once no more input frames
-   * are pending.
-   *
-   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
-   */
-  @WorkerThread
-  private void processEndOfInputStream() {
-    if (getPendingInputFrameCount() == 0) {
-      // Propagates the end of stream signal through the chained texture processors.
-      inputExternalTextureProcessor.signalEndOfCurrentInputStream();
-    } else {
-      frameProcessingTaskExecutor.submit(this::processEndOfInputStream);
     }
   }
 
