@@ -22,7 +22,7 @@ import android.opengl.Matrix;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Scales the red, green, and blue color channels of a frame. */
-public final class RgbAdjustment implements RgbaMatrix {
+public final class RgbAdjustment implements RgbMatrix {
 
   /** A builder for {@link RgbAdjustment} instances. */
   public static final class Builder {
@@ -78,27 +78,23 @@ public final class RgbAdjustment implements RgbaMatrix {
 
     /** Creates a new {@link RgbAdjustment} instance. */
     public RgbAdjustment build() {
-      float[] rgbaMatrix = new float[16];
-      Matrix.setIdentityM(rgbaMatrix, /* smOffset= */ 0);
+      float[] rgbMatrix = new float[16];
+      Matrix.setIdentityM(rgbMatrix, /* smOffset= */ 0);
       Matrix.scaleM(
-          rgbaMatrix,
-          /* smOffset= */ 0,
-          /* x= */ redScale,
-          /* y= */ greenScale,
-          /* z= */ blueScale);
+          rgbMatrix, /* smOffset= */ 0, /* x= */ redScale, /* y= */ greenScale, /* z= */ blueScale);
 
-      return new RgbAdjustment(rgbaMatrix);
+      return new RgbAdjustment(rgbMatrix);
     }
   }
 
-  private final float[] rgbaMatrix;
+  private final float[] rgbMatrix;
 
-  private RgbAdjustment(float[] rgbaMatrix) {
-    this.rgbaMatrix = rgbaMatrix;
+  private RgbAdjustment(float[] rgbMatrix) {
+    this.rgbMatrix = rgbMatrix;
   }
 
   @Override
   public float[] getMatrix(long presentationTimeUs) {
-    return rgbaMatrix;
+    return rgbMatrix;
   }
 }

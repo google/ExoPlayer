@@ -25,21 +25,21 @@ import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 
-/** Applies an {@link RgbaMatrix} to each frame. */
-/* package */ final class RgbaMatrixProcessor extends SingleFrameGlTextureProcessor {
+/** Applies an {@link RgbMatrix} to each frame. */
+/* package */ final class RgbMatrixProcessor extends SingleFrameGlTextureProcessor {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH =
       "shaders/fragment_shader_transformation_es2.glsl";
 
   private final GlProgram glProgram;
-  private final RgbaMatrix rgbaMatrix;
+  private final RgbMatrix rgbMatrix;
 
-  // TODO(b/239431666): Support chaining multiple RgbaMatrix instances in RgbaMatrixProcessor.
-  // TODO(b/239757183): Merge RgbaMatrixProcessor with MatrixTransformationProcessor.
-  public RgbaMatrixProcessor(Context context, RgbaMatrix rgbaMatrix, boolean useHdr)
+  // TODO(b/239431666): Support chaining multiple RgbMatrix instances in RgbMatrixProcessor.
+  // TODO(b/239757183): Merge RgbMatrixProcessor with MatrixTransformationProcessor.
+  public RgbMatrixProcessor(Context context, RgbMatrix rgbMatrix, boolean useHdr)
       throws FrameProcessingException {
     super(useHdr);
-    this.rgbaMatrix = rgbaMatrix;
+    this.rgbMatrix = rgbMatrix;
 
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -66,11 +66,11 @@ import java.io.IOException;
 
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
-    float[] rgbaMatrixArray = rgbaMatrix.getMatrix(presentationTimeUs);
+    float[] rgbMatrixArray = rgbMatrix.getMatrix(presentationTimeUs);
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
-      glProgram.setFloatsUniform("uColorMatrix", rgbaMatrixArray);
+      glProgram.setFloatsUniform("uColorMatrix", rgbMatrixArray);
       glProgram.bindAttributesAndUniforms();
 
       // The four-vertex triangle strip forms a quad.
