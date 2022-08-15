@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.7.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21.0 FATAL_ERROR)
+
 set(CMAKE_CXX_STANDARD 11)
 
 project(libgav1JNI C CXX)
