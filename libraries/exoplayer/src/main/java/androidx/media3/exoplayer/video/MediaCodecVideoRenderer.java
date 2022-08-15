@@ -114,6 +114,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /** Magic frame render timestamp that indicates the EOS in tunneling mode. */
   private static final long TUNNELING_EOS_PRESENTATION_TIME_US = Long.MAX_VALUE;
 
+  /** The minimum input buffer size for HEVC. */
+  private static final int HEVC_MAX_INPUT_SIZE_THRESHOLD = 2 * 1024 * 1024;
+
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
 
@@ -790,14 +793,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     // Attempt to infer a maximum input size from the format.
-    int maxPixels;
-    int minCompressionRatio;
     switch (sampleMimeType) {
       case MimeTypes.VIDEO_H263:
       case MimeTypes.VIDEO_MP4V:
-        maxPixels = width * height;
-        minCompressionRatio = 2;
-        break;
+      case MimeTypes.VIDEO_AV1:
+        // Assume a min compression of 2 similar to the platform's C2SoftAomDec.cpp.
+      case MimeTypes.VIDEO_VP8:
+        // Assume a min compression of 2 similar to the platform's SoftVPX.cpp.
+        return getMaxSampleSize(/* pixelCount= */ width * height, /* minCompressionRatio= */ 2);
+      case MimeTypes.VIDEO_H265:
+        // Assume a min compression of 2 similar to the platform's C2SoftHevcDec.cpp, but restrict
+        // the minimum size.
+        return max(
+            HEVC_MAX_INPUT_SIZE_THRESHOLD,
+            getMaxSampleSize(/* pixelCount= */ width * height, /* minCompressionRatio= */ 2));
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
             || ("Amazon".equals(Util.MANUFACTURER)
@@ -808,27 +817,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           return Format.NO_VALUE;
         }
         // Round up width/height to an integer number of macroblocks.
-        maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_AV1:
-        // AV1 does not specify a ratio so use the values from the platform's C2SoftAomDec.cpp.
-      case MimeTypes.VIDEO_VP8:
-        // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
-        maxPixels = width * height;
-        minCompressionRatio = 2;
-        break;
-      case MimeTypes.VIDEO_H265:
+        int maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
+        return getMaxSampleSize(maxPixels, /* minCompressionRatio= */ 2);
       case MimeTypes.VIDEO_VP9:
-        maxPixels = width * height;
-        minCompressionRatio = 4;
-        break;
+        return getMaxSampleSize(/* pixelCount= */ width * height, /* minCompressionRatio= */ 4);
       default:
         // Leave the default max input size.
         return Format.NO_VALUE;
     }
-    // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
-    return (maxPixels * 3) / (2 * minCompressionRatio);
   }
 
   @Override
@@ -1734,6 +1730,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       this.height = height;
       this.inputSize = inputSize;
     }
+  }
+
+  /**
+   * Returns the maximum sample size assuming three channel 4:2:0 subsampled input frames with the
+   * specified {@code minCompressionRatio}
+   *
+   * @param pixelCount The number of pixels
+   * @param minCompressionRatio The minimum compression ratio
+   */
+  private static int getMaxSampleSize(int pixelCount, int minCompressionRatio) {
+    return (pixelCount * 3) / (2 * minCompressionRatio);
   }
 
   private static boolean evaluateDeviceNeedsSetOutputSurfaceWorkaround() {
