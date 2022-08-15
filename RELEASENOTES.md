@@ -59,6 +59,10 @@
 *   FFmpeg extension:
     *   Add newly required flags to link FFmpeg libraries with NDK 23.1.7779620
         and above ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
+*   AV1 extension:
+    *   Update CMake version to avoid incompatibilities with the latest Android
+        Studio releases
+        ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 
 ### 1.0.0-beta02 (2022-07-15)
 
