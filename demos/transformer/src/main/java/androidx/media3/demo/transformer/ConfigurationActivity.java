@@ -96,7 +96,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "H264 video and AAC audio (portrait, H < W, 90\u00B0)",
     "SEF slow motion with 240 fps",
     "480p DASH (non-square pixels)",
-    "HDR (HDR10) H265 video (encoding may fail)",
+    "HDR (HDR10) H265 limited range video (encoding may fail)",
   };
   private static final String[] DEMO_EFFECTS = {
     "Dizzy crop",

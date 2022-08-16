@@ -21,6 +21,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Pair;
+import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
@@ -64,12 +65,19 @@ import java.util.Arrays;
           new float[] {-1, 1, 0, 1},
           new float[] {1, 1, 0, 1},
           new float[] {1, -1, 0, 1});
-  // Color transform coefficients from
-  // https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp;l=668-670;drc=487adf977a50cac3929eba15fad0d0f461c7ff0f.
-  private static final float[] MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM = {
-    1.168f, 1.168f, 1.168f,
-    0.0f, -0.188f, 2.148f,
-    1.683f, -0.652f, 0.0f,
+
+  // YUV to RGB color transform coefficients can be calculated from the BT.2020 specification, by
+  // inverting the RGB to YUV equations, and scaling for limited range.
+  // https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.2020-2-201510-I!!PDF-E.pdf
+  private static final float[] BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX = {
+    1.0000f, 1.0000f, 1.0000f,
+    0.0000f, -0.1646f, 1.8814f,
+    1.4746f, -0.5714f, 0.0000f
+  };
+  private static final float[] BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX = {
+    1.1689f, 1.1689f, 1.1689f,
+    0.0000f, -0.1881f, 2.1502f,
+    1.6853f, -0.6530f, 0.0000f,
   };
 
   /** The {@link MatrixTransformation MatrixTransformations} to apply. */
@@ -195,7 +203,12 @@ import java.util.Arrays;
       throw new FrameProcessingException(
           "The EXT_YUV_target extension is required for HDR editing input.");
     }
-    glProgram.setFloatsUniform("uColorTransform", MATRIX_YUV_TO_BT2020_COLOR_TRANSFORM);
+    glProgram.setFloatsUniform(
+        "uYuvToRgbColorTransform",
+        opticalColorInfo.colorRange == C.COLOR_RANGE_FULL
+            ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
+            : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
+
     // TODO(b/227624622): Implement PQ and gamma TFs, and use an @IntDef to select between HLG,
     //  PQ, and gamma, coming from opticalColorInfo.colorTransfer.
 

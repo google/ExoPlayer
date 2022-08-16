@@ -18,7 +18,7 @@
 //    the sampler uses the EXT_YUV_target extension specified at
 //    https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt,
 // 2. Applies a YUV to RGB conversion using the specified color transform
-//    uColorTransform, yielding HLG BT.2020 RGB,
+//    uYuvToRgbColorTransform, yielding HLG BT.2020 RGB,
 // 3. If uApplyHlgOetf is 1, outputs HLG BT.2020 RGB. If 0, outputs
 //    linear BT.2020 RGB for intermediate shaders by applying the HLG OETF.
 // 4. Copies this converted texture color to the current output.
@@ -27,8 +27,7 @@
 #extension GL_EXT_YUV_target : require
 precision mediump float;
 uniform __samplerExternal2DY2YEXT uTexSampler;
-// YUV to RGB conversion matrix.
-uniform mat3 uColorTransform;
+uniform mat3 uYuvToRgbColorTransform;
 uniform float uApplyHlgOetf;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
@@ -63,8 +62,9 @@ highp vec4 hlgOetf(highp vec4 hlgColor) {
 
 /** Convert YUV to RGBA. */
 vec4 yuvToRgba(vec3 yuv) {
-  vec3 yuvOffset = vec3(yuv.x - 0.0625, yuv.y - 0.5, yuv.z - 0.5);
-  return vec4(uColorTransform * yuvOffset, 1.0);
+  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);
+  vec3 rgb = uYuvToRgbColorTransform * (yuv - yuvOffset);
+  return vec4(rgb, 1.0);
 }
 
 void main() {
