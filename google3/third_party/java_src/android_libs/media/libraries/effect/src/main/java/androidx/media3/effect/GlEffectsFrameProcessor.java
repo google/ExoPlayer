@@ -153,6 +153,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    *     The first is an {@link ExternalTextureProcessor} and the last is a {@link
    *     FinalMatrixTransformationProcessorWrapper}.
    */
+  // TODO(b/239757183): Squash GlMatrixTransformation and RgbMatrix together.
   private static ImmutableList<GlTextureProcessor> getGlTextureProcessorsForGlEffects(
       Context context,
       List<Effect> effects,
@@ -166,13 +167,23 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         new ImmutableList.Builder<>();
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<>();
+    ImmutableList.Builder<RgbMatrix> rgbaMatrixTransformationListBuilder =
+        new ImmutableList.Builder<>();
     boolean sampleFromExternalTexture = true;
     for (int i = 0; i < effects.size(); i++) {
       Effect effect = effects.get(i);
       checkArgument(effect instanceof GlEffect, "GlEffectsFrameProcessor only supports GlEffects");
       GlEffect glEffect = (GlEffect) effect;
+      // The following logic may change the order of the RgbMatrix and GlMatrixTransformation
+      // effects. This does not influence the output since RgbMatrix only changes the individual
+      // pixels and does not take any location in account, which the GlMatrixTransformation
+      // may change.
       if (glEffect instanceof GlMatrixTransformation) {
         matrixTransformationListBuilder.add((GlMatrixTransformation) glEffect);
+        continue;
+      }
+      if (glEffect instanceof RgbMatrix) {
+        rgbaMatrixTransformationListBuilder.add((RgbMatrix) glEffect);
         continue;
       }
       ImmutableList<GlMatrixTransformation> matrixTransformations =
@@ -188,9 +199,40 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
+      ImmutableList<RgbMatrix> rgbaMatrixTransformations =
+          rgbaMatrixTransformationListBuilder.build();
+      if (!rgbaMatrixTransformations.isEmpty()) {
+        textureProcessorListBuilder.add(
+            new RgbMatrixProcessor(
+                context, rgbaMatrixTransformations, ColorInfo.isTransferHdr(colorInfo)));
+        rgbaMatrixTransformationListBuilder = new ImmutableList.Builder<>();
+      }
       textureProcessorListBuilder.add(
           glEffect.toGlTextureProcessor(context, ColorInfo.isTransferHdr(colorInfo)));
     }
+
+    ImmutableList<RgbMatrix> rgbaMatrixTransformations =
+        rgbaMatrixTransformationListBuilder.build();
+    if (!rgbaMatrixTransformations.isEmpty()) {
+      // Add a MatrixTransformationProcessor if none yet exists for sampling from an external
+      // texture.
+      if (sampleFromExternalTexture) {
+        // TODO(b/239757183): Remove the unnecessary MatrixTransformationProcessor after it got
+        // merged with RgbMatrixProcessor.
+        textureProcessorListBuilder.add(
+            new MatrixTransformationProcessor(
+                context,
+                ImmutableList.of(),
+                sampleFromExternalTexture,
+                colorInfo,
+                /* outputOpticalColors= */ false));
+        sampleFromExternalTexture = false;
+      }
+      textureProcessorListBuilder.add(
+          new RgbMatrixProcessor(
+              context, rgbaMatrixTransformations, ColorInfo.isTransferHdr(colorInfo)));
+    }
+
     textureProcessorListBuilder.add(
         new FinalMatrixTransformationProcessorWrapper(
             context,

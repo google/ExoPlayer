@@ -31,6 +31,7 @@ import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -153,7 +154,7 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
-  public void drawFrame_redOnlyFilter_setsBlueAndGreenValuesToZero() throws Exception {
+  public void drawFrame_redOnlyFilter_removeBlueAndGreenValues() throws Exception {
     String testId = "drawFrame_redOnlyFilter";
     RgbMatrix redOnlyMatrix = new RgbAdjustment.Builder().setBlueScale(0).setGreenScale(0).build();
     rgbMatrixProcessor = new RgbMatrixProcessor(context, redOnlyMatrix, /* useHdr= */ false);
@@ -230,6 +231,84 @@ public final class RgbAdjustmentPixelTest {
     rgbMatrixProcessor = createRgbMatrixProcessor(/* context= */ context, grayscaleMatrix);
     Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(GRAYSCALE_PNG_ASSET_PATH);
+
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
+            outputSize.first, outputSize.second);
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_removeRedGreenAndBlueValuesInAChain_producesBlackImage() throws Exception {
+    String testId = "drawFrame_removeRedGreenBlueValuesInAChain";
+    RgbMatrix noRed = new RgbAdjustment.Builder().setRedScale(0).build();
+    RgbMatrix noGreen = new RgbAdjustment.Builder().setGreenScale(0).build();
+    RgbMatrix noBlue = new RgbAdjustment.Builder().setBlueScale(0).build();
+    rgbMatrixProcessor =
+        new RgbMatrixProcessor(
+            context, ImmutableList.of(noRed, noGreen, noBlue), /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap =
+        BitmapTestUtil.createArgb8888BitmapWithSolidColor(
+            outputSize.first, outputSize.second, Color.BLACK);
+
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
+            outputSize.first, outputSize.second);
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_removeBlueAndGreenValuesInAChain_producesOnlyRedImage() throws Exception {
+    String testId = "drawFrame_removeBlueAndGreenValuesInAChain";
+    RgbMatrix noGreen = new RgbAdjustment.Builder().setGreenScale(0).build();
+    RgbMatrix noBlue = new RgbAdjustment.Builder().setBlueScale(0).build();
+    rgbMatrixProcessor =
+        new RgbMatrixProcessor(context, ImmutableList.of(noGreen, noBlue), /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ONLY_RED_CHANNEL_PNG_ASSET_PATH);
+
+    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
+            outputSize.first, outputSize.second);
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_increasesAndDecreasesRed_producesNoChange() throws Exception {
+    String testId = "drawFrame_increaseAndDecreaseRed";
+    float redScale = 4;
+    RgbMatrix scaleRedMatrix = new RgbAdjustment.Builder().setRedScale(redScale).build();
+    RgbMatrix scaleRedByInverseMatrix =
+        new RgbAdjustment.Builder().setRedScale(1 / redScale).build();
+    rgbMatrixProcessor =
+        new RgbMatrixProcessor(
+            context,
+            ImmutableList.of(scaleRedMatrix, scaleRedByInverseMatrix),
+            /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
