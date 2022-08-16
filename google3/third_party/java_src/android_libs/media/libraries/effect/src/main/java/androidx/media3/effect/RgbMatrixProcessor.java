@@ -23,23 +23,53 @@ import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 
-/** Applies an {@link RgbMatrix} to each frame. */
+/**
+ * Applies a sequence of {@link RgbMatrix} to each frame.
+ *
+ * <p>After applying all {@link RgbMatrix} instances, color values are clamped to the limits of the
+ * color space. Intermediate reults are not clamped.
+ */
 /* package */ final class RgbMatrixProcessor extends SingleFrameGlTextureProcessor {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH =
       "shaders/fragment_shader_transformation_es2.glsl";
 
   private final GlProgram glProgram;
-  private final RgbMatrix rgbMatrix;
+  private final ImmutableList<RgbMatrix> rgbMatrices;
 
-  // TODO(b/239431666): Support chaining multiple RgbMatrix instances in RgbMatrixProcessor.
   // TODO(b/239757183): Merge RgbMatrixProcessor with MatrixTransformationProcessor.
+  /**
+   * Creates a new instance.
+   *
+   * @param context The {@link Context}.
+   * @param rgbMatrix The {@link RgbMatrix} to apply to each frame.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
+   *     operation fails or is unsupported.
+   */
   public RgbMatrixProcessor(Context context, RgbMatrix rgbMatrix, boolean useHdr)
       throws FrameProcessingException {
+    this(context, ImmutableList.of(rgbMatrix), useHdr);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param context The {@link Context}.
+   * @param rgbMatrices The {@link RgbMatrix} to apply to each frame.
+   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
+   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
+   *     operation fails or is unsupported.
+   */
+  public RgbMatrixProcessor(Context context, ImmutableList<RgbMatrix> rgbMatrices, boolean useHdr)
+      throws FrameProcessingException {
     super(useHdr);
-    this.rgbMatrix = rgbMatrix;
+    this.rgbMatrices = rgbMatrices;
 
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -64,9 +94,35 @@ import java.io.IOException;
     return Pair.create(inputWidth, inputHeight);
   }
 
+  private static float[] createCompositeRgbaMatrixArray(
+      ImmutableList<RgbMatrix> rgbMatrices, long presentationTimeUs) {
+    float[] tempResultMatrix = new float[16];
+    float[] compositeRgbaMatrix = new float[16];
+    Matrix.setIdentityM(compositeRgbaMatrix, /* smOffset= */ 0);
+
+    for (int i = 0; i < rgbMatrices.size(); i++) {
+      Matrix.multiplyMM(
+          /* result= */ tempResultMatrix,
+          /* resultOffset= */ 0,
+          /* lhs= */ rgbMatrices.get(i).getMatrix(presentationTimeUs),
+          /* lhsOffset= */ 0,
+          /* rhs= */ compositeRgbaMatrix,
+          /* rhsOffset= */ 0);
+      System.arraycopy(
+          /* src= */ tempResultMatrix,
+          /* srcPos= */ 0,
+          /* dest= */ compositeRgbaMatrix,
+          /* destPost= */ 0,
+          /* length= */ tempResultMatrix.length);
+    }
+
+    return compositeRgbaMatrix;
+  }
+
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
-    float[] rgbMatrixArray = rgbMatrix.getMatrix(presentationTimeUs);
+    // TODO(b/239431666): Add caching for compacting Matrices.
+    float[] rgbMatrixArray = createCompositeRgbaMatrixArray(rgbMatrices, presentationTimeUs);
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);

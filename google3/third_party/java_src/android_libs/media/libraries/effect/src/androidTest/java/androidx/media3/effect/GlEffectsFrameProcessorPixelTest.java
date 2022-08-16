@@ -80,6 +80,10 @@ public final class GlEffectsFrameProcessorPixelTest {
       "media/bitmap/sample_mp4_first_frame/crop_then_aspect_ratio.png";
   public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/rotate_45_scale_to_fit.png";
+  public static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/increase_brightness.png";
+  public static final String GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/grayscale_then_increase_red_channel.png";
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
@@ -324,6 +328,101 @@ public final class GlEffectsFrameProcessorPixelTest {
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             centerCropResultBitmap, fullRotationAndCenterCropResultBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_increaseBrightness_producesExpectedOutput() throws Exception {
+    String testId = "processData_increaseBrightness";
+    ImmutableList<Effect> increaseBrightness =
+        ImmutableList.of(
+            new RgbAdjustment.Builder().setRedScale(5).build(),
+            new RgbAdjustment.Builder().setGreenScale(5).build(),
+            new RgbAdjustment.Builder().setBlueScale(5).build());
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, increaseBrightness);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_fullRotationIncreaseBrightnessAndCenterCrop_producesExpectedOutput()
+      throws Exception {
+    String testId = "drawFrame_fullRotationIncreaseBrightnessAndCenterCrop";
+    Crop centerCrop =
+        new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
+    ImmutableList<Effect> increaseBrightnessFullRotationCenterCrop =
+        ImmutableList.of(
+            new Rotation(/* degrees= */ 90),
+            new RgbAdjustment.Builder().setRedScale(5).build(),
+            new RgbAdjustment.Builder().setGreenScale(5).build(),
+            new Rotation(/* degrees= */ 90),
+            new Rotation(/* degrees= */ 90),
+            new RgbAdjustment.Builder().setBlueScale(5).build(),
+            new Rotation(/* degrees= */ 90),
+            centerCrop);
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO,
+        ImmutableList.of(
+            new RgbAdjustment.Builder().setRedScale(5).setBlueScale(5).setGreenScale(5).build(),
+            centerCrop));
+    Bitmap centerCropAndBrightnessIncreaseResultBitmap = processFirstFrameAndEnd();
+    setUpAndPrepareFirstFrame(
+        DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, increaseBrightnessFullRotationCenterCrop);
+
+    Bitmap fullRotationBrightnessIncreaseAndCenterCropResultBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "centerCrop", centerCropAndBrightnessIncreaseResultBitmap);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId,
+        /* bitmapLabel= */ "full4StepRotationBrightnessIncreaseAndCenterCrop",
+        fullRotationBrightnessIncreaseAndCenterCropResultBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            centerCropAndBrightnessIncreaseResultBitmap,
+            fullRotationBrightnessIncreaseAndCenterCropResultBitmap,
+            testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  // TODO(b/239757183): Consider moving RgbMatrix composition tests to a new file.
+  public void drawFrame_grayscaleAndIncreaseRedChannel_producesGrayscaleAndRedImage()
+      throws Exception {
+    String testId = "drawFrame_grayscale";
+    // Grayscale transformation matrix with the BT.709 standard from
+    // https://en.wikipedia.org/wiki/Grayscale#Converting_colour_to_grayscale
+    // TODO(b/241240659): Use static grayscale filter from RgbFilter once it exists.
+    float[] grayscaleMatrix = {
+      0.2126f, 0.2126f, 0.2126f, 0, 0.7152f, 0.7152f, 0.7152f, 0, 0.0722f, 0.0722f, 0.0722f, 0, 0,
+      0, 0, 1
+    };
+    ImmutableList<Effect> grayscaleThenIncreaseRed =
+        ImmutableList.of(
+            (RgbMatrix) presentationTimeUs -> grayscaleMatrix,
+            new RgbAdjustment.Builder().setRedScale(3).build());
+    setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, grayscaleThenIncreaseRed);
+    Bitmap expectedBitmap =
+        BitmapTestUtil.readBitmap(GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
+
+    Bitmap actualBitmap = processFirstFrameAndEnd();
+
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
