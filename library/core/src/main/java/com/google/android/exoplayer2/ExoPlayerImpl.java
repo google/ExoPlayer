@@ -345,7 +345,7 @@ import java.util.concurrent.TimeoutException;
       } else {
         audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
-      currentCueGroup = new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
+      currentCueGroup = CueGroup.EMPTY_TIME_ZERO;
       throwsWhenUsingWrongThread = true;
 
       addListener(analyticsCollector);
@@ -990,7 +990,7 @@ import java.util.concurrent.TimeoutException;
       checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
-    currentCueGroup = new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
+    currentCueGroup = CueGroup.EMPTY_TIME_ZERO;
     playerReleased = true;
   }
 
