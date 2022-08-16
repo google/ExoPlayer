@@ -113,8 +113,6 @@ public final class CastPlayer extends BasePlayer {
 
   private static final long PROGRESS_REPORT_PERIOD_MS = 1000;
   private static final long[] EMPTY_TRACK_ID_ARRAY = new long[0];
-  private static final CueGroup EMPTY_CUE_GROUP =
-      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   private final CastContext castContext;
   private final MediaItemConverter mediaItemConverter;
@@ -728,7 +726,7 @@ public final class CastPlayer extends BasePlayer {
   /** This method is not supported and returns an empty {@link CueGroup}. */
   @Override
   public CueGroup getCurrentCues() {
-    return EMPTY_CUE_GROUP;
+    return CueGroup.EMPTY_TIME_ZERO;
   }
 
   /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */

@@ -35,6 +35,12 @@ import java.util.List;
 
 /** Class to represent the state of active {@link Cue Cues} at a particular time. */
 public final class CueGroup implements Bundleable {
+
+  /** An empty group with no {@link Cue Cues} and presentation time of zero. */
+  @UnstableApi
+  public static final CueGroup EMPTY_TIME_ZERO =
+      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
+
   /**
    * The cues in this group.
    *

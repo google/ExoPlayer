@@ -112,8 +112,6 @@ import java.util.concurrent.Callable;
 public class MediaSessionProviderService extends Service {
 
   private static final String TAG = "MSProviderService";
-  private static final CueGroup EMPTY_CUE_GROUP =
-      new CueGroup(ImmutableList.of(), /* presentationTimeUs= */ 0);
 
   private Map<String, MediaSession> sessionMap = new HashMap<>();
   private RemoteMediaSessionStub sessionBinder;
@@ -363,7 +361,9 @@ public class MediaSessionProviderService extends Service {
       }
       Bundle cueGroupBundle = config.getBundle(KEY_CURRENT_CUE_GROUP);
       player.cueGroup =
-          cueGroupBundle == null ? EMPTY_CUE_GROUP : CueGroup.CREATOR.fromBundle(cueGroupBundle);
+          cueGroupBundle == null
+              ? CueGroup.EMPTY_TIME_ZERO
+              : CueGroup.CREATOR.fromBundle(cueGroupBundle);
       @Nullable Bundle deviceInfoBundle = config.getBundle(KEY_DEVICE_INFO);
       if (deviceInfoBundle != null) {
         player.deviceInfo = DeviceInfo.CREATOR.fromBundle(deviceInfoBundle);
