@@ -30,7 +30,7 @@ import java.io.IOException;
  * Applies a sequence of {@link RgbMatrix} to each frame.
  *
  * <p>After applying all {@link RgbMatrix} instances, color values are clamped to the limits of the
- * color space. Intermediate reults are not clamped.
+ * color space. Intermediate results are not clamped.
  */
 /* package */ final class RgbMatrixProcessor extends SingleFrameGlTextureProcessor {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
