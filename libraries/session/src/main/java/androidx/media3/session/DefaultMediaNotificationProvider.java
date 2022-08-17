@@ -140,7 +140,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     /**
      * Sets the {@link MediaNotification#notificationId} used for the created notifications. By
-     * default this is set to {@link #DEFAULT_NOTIFICATION_ID}.
+     * default, this is set to {@link #DEFAULT_NOTIFICATION_ID}.
      *
      * @param notificationId The notification ID.
      * @return This builder.
@@ -153,7 +153,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     /**
      * Sets the ID of the {@link NotificationChannel} on which created notifications are posted on.
-     * By default this is set to {@link #DEFAULT_CHANNEL_ID}.
+     * By default, this is set to {@link #DEFAULT_CHANNEL_ID}.
      *
      * @param channelId The channel ID.
      * @return This builder.
@@ -166,7 +166,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     /**
      * Sets the name of the {@link NotificationChannel} on which created notifications are posted
-     * on. By default this is set to {@link #DEFAULT_CHANNEL_NAME_RESOURCE_ID}.
+     * on. By default, this is set to {@link #DEFAULT_CHANNEL_NAME_RESOURCE_ID}.
      *
      * @param channelNameResourceId The string resource ID with the channel name.
      * @return This builder.
@@ -360,7 +360,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * <p>Override this method to customize the buttons on the notification. Commands of the buttons
    * returned by this method must be contained in {@link MediaController#getAvailableCommands()}.
    *
-   * <p>By default the notification shows {@link Player#COMMAND_PLAY_PAUSE} in {@linkplain
+   * <p>By default, the notification shows {@link Player#COMMAND_PLAY_PAUSE} in {@linkplain
    * Notification.MediaStyle#setShowActionsInCompactView(int...) compact view}. This can be
    * customized by defining the index of the command in compact view of up to 3 commands in their
    * extras with key {@link DefaultMediaNotificationProvider#COMMAND_KEY_COMPACT_VIEW_INDEX}.
@@ -446,7 +446,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * and define which actions are shown in compact view by returning the indices of the buttons to
    * be shown in compact view.
    *
-   * <p>By default {@link Player#COMMAND_PLAY_PAUSE} is shown in compact view, unless some of the
+   * <p>By default, {@link Player#COMMAND_PLAY_PAUSE} is shown in compact view, unless some of the
    * buttons are marked with {@link DefaultMediaNotificationProvider#COMMAND_KEY_COMPACT_VIEW_INDEX}
    * to declare the index in compact view of the given command button in the button extras.
    *
