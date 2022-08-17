@@ -139,7 +139,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     /**
      * Sets the {@link MediaNotification#notificationId} used for the created notifications. By
-     * default, this is set to {@link #DEFAULT_NOTIFICATION_ID}.
+     * default this is set to {@link #DEFAULT_NOTIFICATION_ID}.
      *
      * @param notificationId The notification ID.
      * @return This builder.
@@ -152,7 +152,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     /**
      * Sets the ID of the {@link NotificationChannel} on which created notifications are posted on.
-     * By default, this is set to {@link #DEFAULT_CHANNEL_ID}.
+     * By default this is set to {@link #DEFAULT_CHANNEL_ID}.
      *
      * @param channelId The channel ID.
      * @return This builder.
@@ -165,7 +165,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     /**
      * Sets the name of the {@link NotificationChannel} on which created notifications are posted
-     * on. By default, this is set to {@link #DEFAULT_CHANNEL_NAME_RESOURCE_ID}.
+     * on. By default this is set to {@link #DEFAULT_CHANNEL_NAME_RESOURCE_ID}.
      *
      * @param channelNameResourceId The string resource ID with the channel name.
      * @return This builder.
