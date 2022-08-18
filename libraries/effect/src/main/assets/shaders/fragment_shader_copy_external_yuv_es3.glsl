@@ -63,7 +63,7 @@ highp vec4 hlgOetf(highp vec4 hlgColor) {
 /** Convert YUV to RGBA. */
 vec4 yuvToRgba(vec3 yuv) {
   const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);
-  vec3 rgb = uYuvToRgbColorTransform * (yuv - yuvOffset);
+  vec3 rgb = clamp(uYuvToRgbColorTransform * (yuv - yuvOffset), 0.0, 1.0);
   return vec4(rgb, 1.0);
 }
 
