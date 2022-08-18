@@ -126,6 +126,11 @@ import org.checkerframework.dataflow.qual.Pure;
                 }
 
                 @Override
+                public void onOutputFrameAvailable(long presentationTimeNs) {
+                  // Do nothing as frames are released automatically.
+                }
+
+                @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
                   asyncErrorListener.onTransformationException(
                       TransformationException.createForFrameProcessingException(
@@ -147,7 +152,8 @@ import org.checkerframework.dataflow.qual.Pure;
               // This implies that the OpenGL EXT_YUV_target extension is supported and hence the
               // default FrameProcessor, GlEffectsFrameProcessor, also supports HDR. Otherwise, tone
               // mapping is applied, which ensures the decoder outputs SDR output for an HDR input.
-              encoderWrapper.getSupportedInputColor());
+              encoderWrapper.getSupportedInputColor(),
+              /* releaseFramesAutomatically= */ true);
     } catch (FrameProcessingException e) {
       throw TransformationException.createForFrameProcessingException(
           e, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED);
