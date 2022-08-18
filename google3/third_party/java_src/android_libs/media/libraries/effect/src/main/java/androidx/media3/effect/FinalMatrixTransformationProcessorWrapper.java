@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import android.opengl.EGL14;
@@ -71,8 +72,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final FrameProcessor.Listener frameProcessorListener;
   private final boolean sampleFromExternalTexture;
   private final ColorInfo colorInfo;
+  private final boolean releaseFramesAutomatically;
   private final float[] textureTransformMatrix;
   private final Queue<Long> streamOffsetUsQueue;
+  private final Queue<Pair<TextureInfo, Long>> availableFrames;
 
   private int inputWidth;
   private int inputHeight;
@@ -100,7 +103,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
-      ColorInfo colorInfo) {
+      ColorInfo colorInfo,
+      boolean releaseFramesAutomatically) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
     this.eglDisplay = eglDisplay;
@@ -109,11 +113,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.frameProcessorListener = frameProcessorListener;
     this.sampleFromExternalTexture = sampleFromExternalTexture;
     this.colorInfo = colorInfo;
+    this.releaseFramesAutomatically = releaseFramesAutomatically;
 
     textureTransformMatrix = new float[16];
     Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
     inputListener = new InputListener() {};
+    availableFrames = new ConcurrentLinkedQueue<>();
   }
 
   @Override
@@ -136,54 +142,149 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
-    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream specified.");
+    long streamOffsetUs =
+        checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
+    long presentationTimeNs = (presentationTimeUs + streamOffsetUs) * 1000;
+    frameProcessorListener.onOutputFrameAvailable(presentationTimeNs);
+    if (releaseFramesAutomatically) {
+      renderFrameToSurfaces(
+          inputTexture,
+          presentationTimeUs,
+          /* releaseTimeNs= */ presentationTimeNs,
+          /* dropLateFrame= */ false);
+    } else {
+      availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
+    }
+    inputListener.onReadyToAcceptInputFrame();
+  }
 
-    try {
-      synchronized (this) {
-        if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
-          inputListener.onInputFrameProcessed(inputTexture);
-          return; // Drop frames when there is no output surface.
-        }
+  @Override
+  public void releaseOutputFrame(TextureInfo outputTexture) {
+    // The final texture processor writes to a surface so there is no texture to release.
+    throw new UnsupportedOperationException();
+  }
 
-        EGLSurface outputEglSurface = this.outputEglSurface;
-        SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-        MatrixTransformationProcessor matrixTransformationProcessor =
-            this.matrixTransformationProcessor;
+  @WorkerThread
+  public void releaseOutputFrame(long releaseTimeNs) {
+    checkState(!releaseFramesAutomatically);
 
-        GlUtil.focusEglSurface(
-            eglDisplay,
-            eglContext,
-            outputEglSurface,
-            outputSurfaceInfo.width,
-            outputSurfaceInfo.height);
-        GlUtil.clearOutputFrame();
-        matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
-        EGLExt.eglPresentationTimeANDROID(
-            eglDisplay,
-            outputEglSurface,
-            /* presentationTimeNs= */ (presentationTimeUs + streamOffsetUsQueue.element()) * 1000);
-        EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
+    Pair<TextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
+    renderFrameToSurfaces(
+        /* inputTexture= */ oldestAvailableFrame.first,
+        /* presentationTimeUs= */ oldestAvailableFrame.second,
+        releaseTimeNs,
+        /* dropLateFrame= */ true);
+  }
+
+  @Override
+  public void signalEndOfCurrentInputStream() {
+    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
+
+    streamOffsetUsQueue.remove();
+    if (streamOffsetUsQueue.isEmpty()) {
+      frameProcessorListener.onFrameProcessingEnded();
+    }
+  }
+
+  @Override
+  @WorkerThread
+  public void release() throws FrameProcessingException {
+    if (matrixTransformationProcessor != null) {
+      matrixTransformationProcessor.release();
+    }
+  }
+
+  @Override
+  public void setTextureTransformMatrix(float[] textureTransformMatrix) {
+    System.arraycopy(
+        /* src= */ textureTransformMatrix,
+        /* srcPos= */ 0,
+        /* dest= */ this.textureTransformMatrix,
+        /* destPost= */ 0,
+        /* length= */ textureTransformMatrix.length);
+
+    if (matrixTransformationProcessor != null) {
+      matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    }
+  }
+
+  /**
+   * Signals that there will be another input stream after all previously appended input streams
+   * have {@linkplain #signalEndOfCurrentInputStream() ended}.
+   *
+   * <p>This method does not need to be called on the GL thread, but the caller must ensure that
+   * stream offsets are appended in the correct order.
+   *
+   * @param streamOffsetUs The presentation timestamp offset, in microseconds.
+   */
+  public void appendStream(long streamOffsetUs) {
+    streamOffsetUsQueue.add(streamOffsetUs);
+  }
+
+  /**
+   * Sets the output {@link SurfaceInfo}.
+   *
+   * @see FrameProcessor#setOutputSurfaceInfo(SurfaceInfo)
+   */
+  public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    if (!Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
+      if (outputSurfaceInfo != null
+          && this.outputSurfaceInfo != null
+          && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
+        this.outputEglSurface = null;
       }
+      outputSizeOrRotationChanged =
+          this.outputSurfaceInfo == null
+              || outputSurfaceInfo == null
+              || this.outputSurfaceInfo.width != outputSurfaceInfo.width
+              || this.outputSurfaceInfo.height != outputSurfaceInfo.height
+              || this.outputSurfaceInfo.orientationDegrees != outputSurfaceInfo.orientationDegrees;
+      this.outputSurfaceInfo = outputSurfaceInfo;
+    }
+  }
+
+  private void renderFrameToSurfaces(
+      TextureInfo inputTexture,
+      long presentationTimeUs,
+      long releaseTimeNs,
+      boolean dropLateFrame) {
+    try {
+      maybeRenderFrameToOutputSurface(
+          inputTexture, presentationTimeUs, releaseTimeNs, dropLateFrame);
     } catch (FrameProcessingException | GlUtil.GlException e) {
       frameProcessorListener.onFrameProcessingError(
           FrameProcessingException.from(e, presentationTimeUs));
     }
-
-    if (debugSurfaceViewWrapper != null && matrixTransformationProcessor != null) {
-      MatrixTransformationProcessor matrixTransformationProcessor =
-          this.matrixTransformationProcessor;
-      try {
-        debugSurfaceViewWrapper.maybeRenderToSurfaceView(
-            () -> {
-              GlUtil.clearOutputFrame();
-              matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
-            });
-      } catch (FrameProcessingException | GlUtil.GlException e) {
-        Log.d(TAG, "Error rendering to debug preview", e);
-      }
-    }
+    maybeRenderFrameToDebugSurface(inputTexture, presentationTimeUs);
     inputListener.onInputFrameProcessed(inputTexture);
-    inputListener.onReadyToAcceptInputFrame();
+  }
+
+  private synchronized void maybeRenderFrameToOutputSurface(
+      TextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs, boolean dropLateFrame)
+      throws FrameProcessingException, GlUtil.GlException {
+    if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
+      return; // Drop frames when there is no output surface.
+    }
+
+    EGLSurface outputEglSurface = this.outputEglSurface;
+    SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
+    MatrixTransformationProcessor matrixTransformationProcessor =
+        this.matrixTransformationProcessor;
+
+    GlUtil.focusEglSurface(
+        eglDisplay,
+        eglContext,
+        outputEglSurface,
+        outputSurfaceInfo.width,
+        outputSurfaceInfo.height);
+    GlUtil.clearOutputFrame();
+    matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+
+    if (dropLateFrame && System.nanoTime() > releaseTimeNs) {
+      return;
+    }
+    EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, releaseTimeNs);
+    EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
   }
 
   @EnsuresNonNullIf(
@@ -282,76 +383,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return matrixTransformationProcessor;
   }
 
-  @Override
-  public void releaseOutputFrame(TextureInfo outputTexture) {
-    // The final texture processor writes to a surface so there is no texture to release.
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void signalEndOfCurrentInputStream() {
-    checkState(!streamOffsetUsQueue.isEmpty(), "No input stream to end.");
-
-    streamOffsetUsQueue.remove();
-    if (streamOffsetUsQueue.isEmpty()) {
-      frameProcessorListener.onFrameProcessingEnded();
+  private void maybeRenderFrameToDebugSurface(TextureInfo inputTexture, long presentationTimeUs) {
+    if (debugSurfaceViewWrapper == null || matrixTransformationProcessor == null) {
+      return;
     }
-  }
 
-  @Override
-  @WorkerThread
-  public void release() throws FrameProcessingException {
-    if (matrixTransformationProcessor != null) {
-      matrixTransformationProcessor.release();
-    }
-  }
-
-  @Override
-  public void setTextureTransformMatrix(float[] textureTransformMatrix) {
-    System.arraycopy(
-        /* src= */ textureTransformMatrix,
-        /* srcPos= */ 0,
-        /* dest= */ this.textureTransformMatrix,
-        /* destPost= */ 0,
-        /* length= */ textureTransformMatrix.length);
-
-    if (matrixTransformationProcessor != null) {
-      matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    }
-  }
-
-  /**
-   * Signals that there will be another input stream after all previously appended input streams
-   * have {@linkplain #signalEndOfCurrentInputStream() ended}.
-   *
-   * <p>This method does not need to be called on the GL thread, but the caller must ensure that
-   * stream offsets are appended in the correct order.
-   *
-   * @param streamOffsetUs The presentation timestamp offset, in microseconds.
-   */
-  public void appendStream(long streamOffsetUs) {
-    streamOffsetUsQueue.add(streamOffsetUs);
-  }
-
-  /**
-   * Sets the output {@link SurfaceInfo}.
-   *
-   * @see FrameProcessor#setOutputSurfaceInfo(SurfaceInfo)
-   */
-  public synchronized void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    if (!Util.areEqual(this.outputSurfaceInfo, outputSurfaceInfo)) {
-      if (outputSurfaceInfo != null
-          && this.outputSurfaceInfo != null
-          && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
-        this.outputEglSurface = null;
-      }
-      outputSizeOrRotationChanged =
-          this.outputSurfaceInfo == null
-              || outputSurfaceInfo == null
-              || this.outputSurfaceInfo.width != outputSurfaceInfo.width
-              || this.outputSurfaceInfo.height != outputSurfaceInfo.height
-              || this.outputSurfaceInfo.orientationDegrees != outputSurfaceInfo.orientationDegrees;
-      this.outputSurfaceInfo = outputSurfaceInfo;
+    MatrixTransformationProcessor matrixTransformationProcessor =
+        this.matrixTransformationProcessor;
+    try {
+      debugSurfaceViewWrapper.maybeRenderToSurfaceView(
+          () -> {
+            GlUtil.clearOutputFrame();
+            matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+          });
+    } catch (FrameProcessingException | GlUtil.GlException e) {
+      Log.d(TAG, "Error rendering to debug preview", e);
     }
   }
 

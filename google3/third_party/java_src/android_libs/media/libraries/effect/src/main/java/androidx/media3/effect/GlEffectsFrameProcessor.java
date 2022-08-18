@@ -65,7 +65,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         FrameProcessor.Listener listener,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        ColorInfo colorInfo)
+        ColorInfo colorInfo,
+        boolean releaseFramesAutomatically)
         throws FrameProcessingException {
 
       ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
@@ -79,6 +80,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                       effects,
                       debugViewProvider,
                       colorInfo,
+                      releaseFramesAutomatically,
                       singleThreadExecutorService));
 
       try {
@@ -109,6 +111,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       List<Effect> effects,
       DebugViewProvider debugViewProvider,
       ColorInfo colorInfo,
+      boolean releaseFramesAutomatically,
       ExecutorService singleThreadExecutorService)
       throws GlUtil.GlException, FrameProcessingException {
     checkState(Thread.currentThread().getName().equals(THREAD_NAME));
@@ -133,13 +136,24 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(
-            context, effects, eglDisplay, eglContext, listener, debugViewProvider, colorInfo);
+            context,
+            effects,
+            eglDisplay,
+            eglContext,
+            listener,
+            debugViewProvider,
+            colorInfo,
+            releaseFramesAutomatically);
     FrameProcessingTaskExecutor frameProcessingTaskExecutor =
         new FrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     chainTextureProcessorsWithListeners(textureProcessors, frameProcessingTaskExecutor, listener);
 
     return new GlEffectsFrameProcessor(
-        eglDisplay, eglContext, frameProcessingTaskExecutor, textureProcessors);
+        eglDisplay,
+        eglContext,
+        frameProcessingTaskExecutor,
+        textureProcessors,
+        releaseFramesAutomatically);
   }
 
   /**
@@ -161,7 +175,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       EGLContext eglContext,
       FrameProcessor.Listener listener,
       DebugViewProvider debugViewProvider,
-      ColorInfo colorInfo)
+      ColorInfo colorInfo,
+      boolean releaseFramesAutomatically)
       throws FrameProcessingException {
     ImmutableList.Builder<GlTextureProcessor> textureProcessorListBuilder =
         new ImmutableList.Builder<>();
@@ -242,7 +257,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
             listener,
             debugViewProvider,
             sampleFromExternalTexture,
-            colorInfo));
+            colorInfo,
+            releaseFramesAutomatically));
     return textureProcessorListBuilder.build();
   }
 
@@ -276,6 +292,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final FrameProcessingTaskExecutor frameProcessingTaskExecutor;
   private final ExternalTextureManager inputExternalTextureManager;
   private final Surface inputSurface;
+  private final boolean releaseFramesAutomatically;
   private final FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper;
   private final ImmutableList<GlTextureProcessor> allTextureProcessors;
 
@@ -291,12 +308,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       FrameProcessingTaskExecutor frameProcessingTaskExecutor,
-      ImmutableList<GlTextureProcessor> textureProcessors)
+      ImmutableList<GlTextureProcessor> textureProcessors,
+      boolean releaseFramesAutomatically)
       throws FrameProcessingException {
 
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.frameProcessingTaskExecutor = frameProcessingTaskExecutor;
+    this.releaseFramesAutomatically = releaseFramesAutomatically;
 
     checkState(!textureProcessors.isEmpty());
     checkState(textureProcessors.get(0) instanceof ExternalTextureProcessor);
@@ -345,6 +364,15 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
     finalTextureProcessorWrapper.setOutputSurfaceInfo(outputSurfaceInfo);
+  }
+
+  @Override
+  public void releaseOutputFrame(long releaseTimeNs) {
+    checkState(
+        !releaseFramesAutomatically,
+        "Calling this method is not allowed when releaseFramesAutomatically is enabled");
+    frameProcessingTaskExecutor.submitWithHighPriority(
+        () -> finalTextureProcessorWrapper.releaseOutputFrame(releaseTimeNs));
   }
 
   @Override
