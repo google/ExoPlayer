@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
+import android.media.MediaCodecList;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -67,6 +68,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -436,6 +438,40 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, tunneling), format);
   }
 
+  @RequiresApi(24)
+  private static List<MediaCodecInfo> tryEvaluatingCodecByFormat(
+      Format format,
+      boolean requiresSecureDecoder,
+      boolean requiresTunnelingDecoder) {
+
+    assert format.sampleMimeType != null;
+    String mimeType = format.sampleMimeType;
+    List<MediaCodecInfo> decoderInfos = new ArrayList<MediaCodecInfo>();
+    MediaFormat mediaFormat = getMediaFormat(format, requiresSecureDecoder,
+        requiresTunnelingDecoder);
+
+    int codecKind = requiresSecureDecoder || requiresTunnelingDecoder ?
+        MediaCodecList.ALL_CODECS :
+        MediaCodecList.REGULAR_CODECS;
+    MediaCodecList mcl = new MediaCodecList(codecKind);
+
+    String codecName = mcl.findDecoderForFormat(mediaFormat);
+    if (codecName != null) {
+      CodecCapabilities capabilities = null;
+      for (android.media.MediaCodecInfo info : mcl.getCodecInfos()) {
+        if (codecName.equals(info.getName())) {
+          capabilities = info.getCapabilitiesForType(mimeType);
+        }
+      }
+      decoderInfos.add(
+          MediaCodecInfo.newInstance(codecName, mimeType, mimeType, capabilities,
+              false, false, false, false,
+              requiresSecureDecoder));
+    }
+
+    return decoderInfos;
+  }
+
   /**
    * Returns a list of decoders that can decode media in the specified format, in the priority order
    * specified by the {@link MediaCodecSelector}. Note that since the {@link MediaCodecSelector}
@@ -462,9 +498,24 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (mimeType == null) {
       return ImmutableList.of();
     }
-    List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+
+    List<MediaCodecInfo> decoderInfos = new ArrayList<MediaCodecInfo>();
+    if (Util.SDK_INT >= 24) {
+      /*
+        platform with API level higher than 24 will consider following keys:
+        MediaFormat#KEY_PROFILE,
+        MediaFormat#KEY_LEVEL,
+        MediaFormat#KEY_BIT_RATE,
+       */
+      decoderInfos.addAll(
+          tryEvaluatingCodecByFormat(format, requiresSecureDecoder, requiresTunnelingDecoder));
+    }
+
+    if (decoderInfos.isEmpty()) {
+      decoderInfos.addAll(
+          mediaCodecSelector.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder));
+    }
+
     @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
     if (alternativeMimeType == null) {
       return ImmutableList.copyOf(decoderInfos);
@@ -1518,6 +1569,38 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
       configureTunnelingV21(mediaFormat, tunnelingAudioSessionId);
     }
+    return mediaFormat;
+  }
+
+  @SuppressLint("InlinedApi")
+  @RequiresApi(21)
+  private static MediaFormat getMediaFormat(Format format, boolean secure, boolean tunneling) {
+    MediaFormat mediaFormat = new MediaFormat();
+
+    mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
+    mediaFormat.setInteger(MediaFormat.KEY_WIDTH, format.width);
+    mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, format.height);
+    MediaFormatUtil.maybeSetFloat(mediaFormat, MediaFormat.KEY_FRAME_RATE, format.frameRate);
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+      if (codecProfileAndLevel != null) {
+        MediaFormatUtil.maybeSetInteger(
+            mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
+        if (Util.SDK_INT >= 23) {
+          MediaFormatUtil.maybeSetInteger(
+              mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
+        }
+      }
+    }
+
+    if (secure) {
+      mediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_SecurePlayback, true);
+    }
+
+    if (tunneling) {
+      mediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_TunneledPlayback, true);
+    }
+
     return mediaFormat;
   }
 
