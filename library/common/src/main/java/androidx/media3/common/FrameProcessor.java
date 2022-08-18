@@ -45,6 +45,10 @@ public interface FrameProcessor {
      * @param effects The {@link Effect} instances to apply to each frame.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param colorInfo The {@link ColorInfo} for input and output frames.
+     * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will release
+     *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
+     *     automatically as they become available. If {@code false}, the {@link FrameProcessor} will
+     *     wait to release each frame until {@link #releaseOutputFrame(long)} is called.
      * @return A new instance.
      * @throws FrameProcessingException If a problem occurs while creating the {@link
      *     FrameProcessor}.
@@ -54,7 +58,8 @@ public interface FrameProcessor {
         Listener listener,
         List<Effect> effects,
         DebugViewProvider debugViewProvider,
-        ColorInfo colorInfo)
+        ColorInfo colorInfo,
+        boolean releaseFramesAutomatically)
         throws FrameProcessingException;
   }
 
@@ -72,6 +77,13 @@ public interface FrameProcessor {
      * {@link #setOutputSurfaceInfo(SurfaceInfo)}.
      */
     void onOutputSizeChanged(int width, int height);
+
+    /**
+     * Called when an output frame with the given {@code presentationTimeNs} becomes available.
+     *
+     * @param presentationTimeNs The presentation time of the frame, in nanoseconds.
+     */
+    void onOutputFrameAvailable(long presentationTimeNs);
 
     /**
      * Called when an exception occurs during asynchronous frame processing.
@@ -134,6 +146,20 @@ public interface FrameProcessor {
    * the previous output surface is no longer being used and can safely be released by the caller.
    */
   void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo);
+
+  /**
+   * Releases the oldest unreleased output frame that has become {@linkplain
+   * Listener#onOutputFrameAvailable(long) available} at the given {@code releaseTimeNs}.
+   *
+   * <p>This method must only be called if {@code releaseFramesAutomatically} was set to {@code
+   * false} using the {@link Factory} and should be called exactly once for each frame that becomes
+   * {@linkplain Listener#onOutputFrameAvailable(long) available}.
+   *
+   * @param releaseTimeNs The release time to use for the frame, in nanoseconds. Use {@link
+   *     C#TIME_UNSET} to drop the frame. If {@code releaseTimeNs} is after {@link
+   *     System#nanoTime()} at the time of the release, the frame is also dropped.
+   */
+  void releaseOutputFrame(long releaseTimeNs);
 
   /**
    * Informs the {@code FrameProcessor} that no further input frames should be accepted.

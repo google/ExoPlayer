@@ -477,6 +477,11 @@ public final class GlEffectsFrameProcessorPixelTest {
                         }
 
                         @Override
+                        public void onOutputFrameAvailable(long presentationTimeNs) {
+                          // Do nothing as frames are released automatically.
+                        }
+
+                        @Override
                         public void onFrameProcessingError(FrameProcessingException exception) {
                           frameProcessingException.set(exception);
                         }
@@ -488,7 +493,8 @@ public final class GlEffectsFrameProcessorPixelTest {
                       },
                       effects,
                       DebugViewProvider.NONE,
-                      ColorInfo.SDR_BT709_LIMITED));
+                      ColorInfo.SDR_BT709_LIMITED,
+                      /* releaseFramesAutomatically= */ true));
       glEffectsFrameProcessor.setInputFrameInfo(
           new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio, /* streamOffsetUs= */ 0));
       glEffectsFrameProcessor.registerInputFrame();
