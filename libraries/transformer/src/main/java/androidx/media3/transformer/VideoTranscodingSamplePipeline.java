@@ -126,7 +126,7 @@ import org.checkerframework.dataflow.qual.Pure;
                 }
 
                 @Override
-                public void onOutputFrameAvailable(long presentationTimeNs) {
+                public void onOutputFrameAvailable(long presentationTimeUs) {
                   // Do nothing as frames are released automatically.
                 }
 

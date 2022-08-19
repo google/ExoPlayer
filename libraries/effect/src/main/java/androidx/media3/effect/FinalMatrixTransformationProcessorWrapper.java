@@ -144,13 +144,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void queueInputFrame(TextureInfo inputTexture, long presentationTimeUs) {
     long streamOffsetUs =
         checkStateNotNull(streamOffsetUsQueue.peek(), "No input stream specified.");
-    long presentationTimeNs = (presentationTimeUs + streamOffsetUs) * 1000;
-    frameProcessorListener.onOutputFrameAvailable(presentationTimeNs);
+    long offsetPresentationTimeUs = presentationTimeUs + streamOffsetUs;
+    frameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs);
     if (releaseFramesAutomatically) {
       renderFrameToSurfaces(
           inputTexture,
           presentationTimeUs,
-          /* releaseTimeNs= */ presentationTimeNs,
+          /* releaseTimeNs= */ offsetPresentationTimeUs * 1000,
           /* dropLateFrame= */ false);
     } else {
       availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
