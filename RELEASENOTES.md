@@ -63,6 +63,10 @@
     *   Update CMake version to avoid incompatibilities with the latest Android
         Studio releases
         ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
+*   Cast extension:
+    *   Implement `getDeviceInfo()` to be able to identify `CastPlayer` when
+        controlling playback with a `MediaController`
+        ([#142](https://github.com/google/ExoPlayer/issues/142)).
 
 ### 1.0.0-beta02 (2022-07-15)
 

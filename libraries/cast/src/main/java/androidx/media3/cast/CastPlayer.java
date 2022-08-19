@@ -82,6 +82,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 @UnstableApi
 public final class CastPlayer extends BasePlayer {
 
+  /** The {@link DeviceInfo} returned by {@link #getDeviceInfo() this player}. */
+  public static final DeviceInfo DEVICE_INFO =
+      new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 0);
+
   static {
     MediaLibraryInfo.registerModule("media3.cast");
   }
@@ -729,10 +733,10 @@ public final class CastPlayer extends BasePlayer {
     return CueGroup.EMPTY_TIME_ZERO;
   }
 
-  /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */
+  /** This method always returns {@link CastPlayer#DEVICE_INFO}. */
   @Override
   public DeviceInfo getDeviceInfo() {
-    return DeviceInfo.UNKNOWN;
+    return DEVICE_INFO;
   }
 
   /** This method is not supported and always returns {@code 0}. */
