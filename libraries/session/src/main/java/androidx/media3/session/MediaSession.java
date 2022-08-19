@@ -993,7 +993,7 @@ public class MediaSession {
     /**
      * Called when a controller requested to add new {@linkplain MediaItem media items} to the
      * playlist via one of the {@code Player.addMediaItem(s)} or {@code Player.setMediaItem(s)}
-     * methods.
+     * methods. For instance when selecting an item on Android Auto, which should then be played.
      *
      * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
      * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
