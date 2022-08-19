@@ -63,6 +63,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DeviceInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -1862,6 +1863,14 @@ public class CastPlayerTest {
 
     verify(mockListener, times(3)).onMediaItemTransition(any(), anyInt());
     verify(mockListener, never()).onMediaMetadataChanged(any());
+  }
+
+  @Test
+  public void getDeviceInfo_returnsCorrectDeviceInfoWithPlaybackTypeRemote() {
+    DeviceInfo deviceInfo = castPlayer.getDeviceInfo();
+
+    assertThat(deviceInfo).isEqualTo(CastPlayer.DEVICE_INFO);
+    assertThat(deviceInfo.playbackType).isEqualTo(DeviceInfo.PLAYBACK_TYPE_REMOTE);
   }
 
   private int[] createMediaQueueItemIds(int numberOfIds) {
