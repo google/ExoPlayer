@@ -477,7 +477,7 @@ public final class GlEffectsFrameProcessorPixelTest {
                         }
 
                         @Override
-                        public void onOutputFrameAvailable(long presentationTimeNs) {
+                        public void onOutputFrameAvailable(long presentationTimeUs) {
                           // Do nothing as frames are released automatically.
                         }
 

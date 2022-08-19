@@ -72,52 +72,57 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   @Test
   public void automaticFrameRelease_withOneFrame_reusesInputTimestamp() throws Exception {
     long originalPresentationTimeUs = 1234;
-    AtomicLong actualPresentationTimeNs = new AtomicLong();
+    AtomicLong actualPresentationTimeUs = new AtomicLong();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
-        /* onFrameAvailableListener= */ actualPresentationTimeNs::set,
+        /* onFrameAvailableListener= */ actualPresentationTimeUs::set,
         /* releaseFramesAutomatically= */ true);
 
     checkNotNull(produceBlankFramesTask).run();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimeNs.get())
-        .isEqualTo(MICROS_TO_NANOS * originalPresentationTimeUs);
+    assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
     assertThat(outputReleaseTimesNs).containsExactly(MICROS_TO_NANOS * originalPresentationTimeUs);
   }
 
   @Test
   public void automaticFrameRelease_withThreeFrames_reusesInputTimestamps() throws Exception {
     long[] originalPresentationTimesUs = new long[] {1234, 3456, 4567};
-    ArrayList<Long> actualPresentationTimesNs = new ArrayList<>();
+    ArrayList<Long> actualPresentationTimesUs = new ArrayList<>();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         originalPresentationTimesUs,
-        /* onFrameAvailableListener= */ actualPresentationTimesNs::add,
+        /* onFrameAvailableListener= */ actualPresentationTimesUs::add,
         /* releaseFramesAutomatically= */ true);
 
     checkNotNull(produceBlankFramesTask).run();
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimesNs)
+    assertThat(actualPresentationTimesUs)
+        .containsExactly(
+            originalPresentationTimesUs[0],
+            originalPresentationTimesUs[1],
+            originalPresentationTimesUs[2])
+        .inOrder();
+    assertThat(outputReleaseTimesNs)
         .containsExactly(
             MICROS_TO_NANOS * originalPresentationTimesUs[0],
             MICROS_TO_NANOS * originalPresentationTimesUs[1],
             MICROS_TO_NANOS * originalPresentationTimesUs[2])
         .inOrder();
-    assertThat(outputReleaseTimesNs).containsExactlyElementsIn(actualPresentationTimesNs).inOrder();
+    ;
   }
 
   @Test
   public void controlledFrameRelease_withOneFrame_usesGivenTimestamp() throws Exception {
     long originalPresentationTimeUs = 1234;
     long releaseTimesNs = System.nanoTime() + MILLIS_TO_NANOS * FRAME_PROCESSING_WAIT_MS + 345678;
-    AtomicLong actualPresentationTimeNs = new AtomicLong();
+    AtomicLong actualPresentationTimeUs = new AtomicLong();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
-        /* onFrameAvailableListener= */ presentationTimeNs -> {
-          actualPresentationTimeNs.set(presentationTimeNs);
+        /* onFrameAvailableListener= */ presentationTimeUs -> {
+          actualPresentationTimeUs.set(presentationTimeUs);
           checkNotNull(glEffectsFrameProcessor).releaseOutputFrame(releaseTimesNs);
         },
         /* releaseFramesAutomatically= */ false);
@@ -126,8 +131,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimeNs.get())
-        .isEqualTo(MICROS_TO_NANOS * originalPresentationTimeUs);
+    assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
     assertThat(outputReleaseTimesNs).containsExactly(releaseTimesNs);
   }
 
@@ -135,11 +139,11 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   public void controlledFrameRelease_withLateFrame_dropsFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
     long releaseTimeBeforeCurrentTimeNs = System.nanoTime() - 345678;
-    AtomicLong actualPresentationTimeNs = new AtomicLong();
+    AtomicLong actualPresentationTimeUs = new AtomicLong();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
-        /* onFrameAvailableListener= */ presentationTimeNs -> {
-          actualPresentationTimeNs.set(presentationTimeNs);
+        /* onFrameAvailableListener= */ presentationTimeUs -> {
+          actualPresentationTimeUs.set(presentationTimeUs);
           checkNotNull(glEffectsFrameProcessor).releaseOutputFrame(releaseTimeBeforeCurrentTimeNs);
         },
         /* releaseFramesAutomatically= */ false);
@@ -148,19 +152,18 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimeNs.get())
-        .isEqualTo(MICROS_TO_NANOS * originalPresentationTimeUs);
+    assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
     assertThat(outputReleaseTimesNs).isEmpty();
   }
 
   @Test
   public void controlledFrameRelease_withUnsetReleaseTime_dropsFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
-    AtomicLong actualPresentationTimeNs = new AtomicLong();
+    AtomicLong actualPresentationTimeUs = new AtomicLong();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
         /* onFrameAvailableListener= */ presentationTimeNs -> {
-          actualPresentationTimeNs.set(presentationTimeNs);
+          actualPresentationTimeUs.set(presentationTimeNs);
           checkNotNull(glEffectsFrameProcessor)
               .releaseOutputFrame(/* releaseTimeNs= */ C.TIME_UNSET);
         },
@@ -170,8 +173,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimeNs.get())
-        .isEqualTo(MICROS_TO_NANOS * originalPresentationTimeUs);
+    assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
     assertThat(outputReleaseTimesNs).isEmpty();
   }
 
@@ -181,12 +183,12 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     long[] originalPresentationTimesUs = new long[] {1234, 3456, 4567};
     long offsetNs = System.nanoTime() + MILLIS_TO_NANOS * FRAME_PROCESSING_WAIT_MS;
     long[] releaseTimesNs = new long[] {offsetNs + 123456, offsetNs + 234567, offsetNs + 345678};
-    ArrayList<Long> actualPresentationTimesNs = new ArrayList<>();
+    ArrayList<Long> actualPresentationTimesUs = new ArrayList<>();
     AtomicInteger frameIndex = new AtomicInteger();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         /* inputPresentationTimesUs= */ originalPresentationTimesUs,
-        /* onFrameAvailableListener= */ presentationTimeNs -> {
-          actualPresentationTimesNs.add(presentationTimeNs);
+        /* onFrameAvailableListener= */ presentationTimeUs -> {
+          actualPresentationTimesUs.add(presentationTimeUs);
           checkNotNull(glEffectsFrameProcessor)
               .releaseOutputFrame(releaseTimesNs[frameIndex.getAndIncrement()]);
         },
@@ -196,11 +198,11 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimesNs)
+    assertThat(actualPresentationTimesUs)
         .containsExactly(
-            MICROS_TO_NANOS * originalPresentationTimesUs[0],
-            MICROS_TO_NANOS * originalPresentationTimesUs[1],
-            MICROS_TO_NANOS * originalPresentationTimesUs[2])
+            originalPresentationTimesUs[0],
+            originalPresentationTimesUs[1],
+            originalPresentationTimesUs[2])
         .inOrder();
     assertThat(frameIndex.get()).isEqualTo(originalPresentationTimesUs.length);
     assertThat(outputReleaseTimesNs)
@@ -213,10 +215,10 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     long[] originalPresentationTimesUs = new long[] {1234, 3456, 4567};
     long offsetNs = System.nanoTime() + MILLIS_TO_NANOS * 2 * FRAME_PROCESSING_WAIT_MS;
     long[] releaseTimesNs = new long[] {offsetNs + 123456, offsetNs + 234567, offsetNs + 345678};
-    ArrayList<Long> actualPresentationTimesNs = new ArrayList<>();
+    ArrayList<Long> actualPresentationTimesUs = new ArrayList<>();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
         /* inputPresentationTimesUs= */ originalPresentationTimesUs,
-        /* onFrameAvailableListener= */ actualPresentationTimesNs::add,
+        /* onFrameAvailableListener= */ actualPresentationTimesUs::add,
         /* releaseFramesAutomatically= */ false);
 
     checkNotNull(produceBlankFramesTask).run();
@@ -227,11 +229,11 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
     Thread.sleep(FRAME_PROCESSING_WAIT_MS);
 
     assertThat(frameProcessingException.get()).isNull();
-    assertThat(actualPresentationTimesNs)
+    assertThat(actualPresentationTimesUs)
         .containsExactly(
-            MICROS_TO_NANOS * originalPresentationTimesUs[0],
-            MICROS_TO_NANOS * originalPresentationTimesUs[1],
-            MICROS_TO_NANOS * originalPresentationTimesUs[2])
+            originalPresentationTimesUs[0],
+            originalPresentationTimesUs[1],
+            originalPresentationTimesUs[2])
         .inOrder();
     assertThat(outputReleaseTimesNs)
         .containsExactly(releaseTimesNs[0], releaseTimesNs[1], releaseTimesNs[2])
@@ -239,7 +241,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   }
 
   private interface OnFrameAvailableListener {
-    void onFrameAvailable(long presentationTimeNs);
+    void onFrameAvailable(long presentationTimeUs);
   }
 
   @EnsuresNonNull("glEffectsFrameProcessor")
@@ -275,8 +277,8 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
                       }
 
                       @Override
-                      public void onOutputFrameAvailable(long presentationTimeNs) {
-                        onFrameAvailableListener.onFrameAvailable(presentationTimeNs);
+                      public void onOutputFrameAvailable(long presentationTimeUs) {
+                        onFrameAvailableListener.onFrameAvailable(presentationTimeUs);
                       }
 
                       @Override

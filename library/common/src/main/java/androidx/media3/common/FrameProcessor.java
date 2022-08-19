@@ -79,11 +79,11 @@ public interface FrameProcessor {
     void onOutputSizeChanged(int width, int height);
 
     /**
-     * Called when an output frame with the given {@code presentationTimeNs} becomes available.
+     * Called when an output frame with the given {@code presentationTimeUs} becomes available.
      *
-     * @param presentationTimeNs The presentation time of the frame, in nanoseconds.
+     * @param presentationTimeUs The presentation time of the frame, in microseconds.
      */
-    void onOutputFrameAvailable(long presentationTimeNs);
+    void onOutputFrameAvailable(long presentationTimeUs);
 
     /**
      * Called when an exception occurs during asynchronous frame processing.
