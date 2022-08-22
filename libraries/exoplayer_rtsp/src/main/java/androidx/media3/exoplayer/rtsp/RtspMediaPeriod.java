@@ -229,6 +229,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     trackSelected = true;
+    if (positionUs != 0) {
+      // Track selection is performed only once in RTSP streams.
+      requestedSeekPositionUs = positionUs;
+      pendingSeekPositionUs = positionUs;
+      pendingSeekPositionUsForTcpRetry = positionUs;
+    }
     maybeSetupTracks();
     return positionUs;
   }
@@ -273,7 +279,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     //   2b.2. If RTSP PLAY (for the first seek) has not been sent, the new seek position will be
     //     used in the following PLAY request.
 
-    // TODO(internal: b/198620566) Handle initial seek.
     // TODO(internal: b/213153670) Handle dropped seek position.
     if (getBufferedPositionUs() == 0 && !isUsingRtpTcp) {
       // Stores the seek position for later, if no RTP packet is received when using UDP.
@@ -571,7 +576,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onRtspSetupCompleted() {
-      rtspClient.startPlayback(/* offsetMs= */ 0);
+      long offsetMs = 0;
+      if (pendingSeekPositionUs != C.TIME_UNSET) {
+        offsetMs = Util.usToMs(pendingSeekPositionUs);
+      } else if (pendingSeekPositionUsForTcpRetry != C.TIME_UNSET) {
+        offsetMs = Util.usToMs(pendingSeekPositionUsForTcpRetry);
+      }
+      rtspClient.startPlayback(offsetMs);
     }
 
     @Override
@@ -610,6 +621,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (isSeekPending() && pendingSeekPositionUs == requestedSeekPositionUs) {
           // Seek loadable only when all pending seeks are processed, or SampleQueues will report
           // inconsistent bufferedPosition.
+          // Seeks to the start position when the initial seek position is set.
           dataLoadable.seekToUs(startPositionUs, trackTiming.rtpTimestamp);
         }
       }
@@ -624,7 +636,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           pendingSeekPositionUs = C.TIME_UNSET;
           seekToUs(requestedSeekPositionUs);
         }
-      } else if (pendingSeekPositionUsForTcpRetry != C.TIME_UNSET) {
+      } else if (pendingSeekPositionUsForTcpRetry != C.TIME_UNSET && isUsingRtpTcp) {
         seekToUs(pendingSeekPositionUsForTcpRetry);
         pendingSeekPositionUsForTcpRetry = C.TIME_UNSET;
       }
