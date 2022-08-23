@@ -31,13 +31,12 @@ import java.io.IOException;
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_contrast_es2.glsl";
 
   private final GlProgram glProgram;
-  private final float contrastFactor;
 
   public ContrastProcessor(Context context, Contrast contrastEffect, boolean useHdr)
       throws FrameProcessingException {
     super(useHdr);
     // Use 1.0001f to avoid division by zero issues.
-    contrastFactor = (1 + contrastEffect.contrast) / (1.0001f - contrastEffect.contrast);
+    float contrastFactor = (1 + contrastEffect.contrast) / (1.0001f - contrastEffect.contrast);
 
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -55,6 +54,7 @@ import java.io.IOException;
     Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
     glProgram.setFloatsUniform("uTransformationMatrix", identityMatrix);
     glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
+    glProgram.setFloatUniform("uContrastFactor", contrastFactor);
   }
 
   @Override
@@ -67,7 +67,6 @@ import java.io.IOException;
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
-      glProgram.setFloatUniform("uContrastFactor", contrastFactor);
       glProgram.bindAttributesAndUniforms();
 
       // The four-vertex triangle strip forms a quad.
