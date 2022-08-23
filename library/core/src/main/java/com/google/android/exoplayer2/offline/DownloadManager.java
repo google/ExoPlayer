@@ -531,6 +531,7 @@ public final class DownloadManager {
         Thread.currentThread().interrupt();
       }
       applicationHandler.removeCallbacksAndMessages(/* token= */ null);
+      requirementsWatcher.stop();
       // Reset state.
       downloads = Collections.emptyList();
       pendingMessages = 0;
