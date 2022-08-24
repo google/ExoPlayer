@@ -374,7 +374,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             matrixTransformationListBuilder.build(),
             sampleFromExternalTexture,
             colorInfo,
-            /* outputOpticalColors= */ true);
+            /* outputElectricalColors= */ true);
     matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     Pair<Integer, Integer> outputSize =
         matrixTransformationProcessor.configure(inputWidth, inputHeight);

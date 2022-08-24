@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.opengl.Matrix;
 import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -51,8 +53,8 @@ import java.util.Arrays;
   private static final String VERTEX_SHADER_TRANSFORMATION_ES3_PATH =
       "shaders/vertex_shader_transformation_es3.glsl";
   private static final String FRAGMENT_SHADER_COPY_PATH = "shaders/fragment_shader_copy_es2.glsl";
-  private static final String FRAGMENT_SHADER_HLG_EOTF_ES3_PATH =
-      "shaders/fragment_shader_hlg_eotf_es3.glsl";
+  private static final String FRAGMENT_SHADER_OETF_ES3_PATH =
+      "shaders/fragment_shader_oetf_es3.glsl";
   private static final String FRAGMENT_SHADER_COPY_EXTERNAL_PATH =
       "shaders/fragment_shader_copy_external_es2.glsl";
   private static final String FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH =
@@ -121,9 +123,9 @@ import java.util.Arrays;
     this(
         createGlProgram(
             context,
-            /* inputOpticalColorsFromExternalTexture= */ false,
+            /* inputElectricalColorsFromExternalTexture= */ false,
             useHdr,
-            /* outputOpticalColors= */ false),
+            /* outputElectricalColors= */ false),
         ImmutableList.of(matrixTransformation),
         useHdr);
   }
@@ -144,9 +146,9 @@ import java.util.Arrays;
     this(
         createGlProgram(
             context,
-            /* inputOpticalColorsFromExternalTexture= */ false,
+            /* inputElectricalColorsFromExternalTexture= */ false,
             useHdr,
-            /* outputOpticalColors= */ false),
+            /* outputElectricalColors= */ false),
         ImmutableList.of(matrixTransformation),
         useHdr);
   }
@@ -154,65 +156,70 @@ import java.util.Arrays;
   /**
    * Creates a new instance.
    *
-   * <p>Able to convert optical {@link ColorInfo} inputs and outputs to and from the intermediate
-   * {@link GlTextureProcessor} colors of linear RGB BT.2020 for HDR, and gamma RGB BT.709 for SDR.
+   * <p>Able to convert nonlinear electrical {@link ColorInfo} inputs and outputs to and from the
+   * intermediate optical {@link GlTextureProcessor} colors of linear RGB BT.2020 for HDR, and gamma
+   * RGB BT.709 for SDR.
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
    *     apply to each frame in order.
-   * @param inputOpticalColorsFromExternalTexture Whether optical color input will be provided using
-   *     an external texture. If {@code true}, the caller should use {@link
+   * @param inputElectricalColorsFromExternalTexture Whether electrical color input will be provided
+   *     using an external texture. If {@code true}, the caller should use {@link
    *     #setTextureTransformMatrix(float[])} to provide the transformation matrix associated with
    *     the external texture.
-   * @param opticalColorInfo The optical {@link ColorInfo}, only used to transform between color
-   *     spaces and transfers, when {@code inputOpticalColorsFromExternalTexture} or {@code
-   *     outputOpticalColors} are {@code true}. If it {@link ColorInfo#isTransferHdr(ColorInfo)},
-   *     intermediate {@link GlTextureProcessor} colors will be in linear RGB BT.2020. Otherwise,
-   *     these colors will be in gamma RGB BT.709.
-   * @param outputOpticalColors If {@code true}, outputs {@code opticalColorInfo}. If {@code false},
-   *     outputs intermediate colors of linear RGB BT.2020 if {@code opticalColorInfo} {@link
-   *     ColorInfo#isTransferHdr(ColorInfo)}, and gamma RGB BT.709 otherwise.
+   * @param electricalColorInfo The electrical {@link ColorInfo}, only used to transform between
+   *     color spaces and transfers, when {@code inputElectricalColorsFromExternalTexture} or {@code
+   *     outputElectricalColors} are {@code true}. If it is {@linkplain
+   *     ColorInfo#isTransferHdr(ColorInfo) HDR}, intermediate {@link GlTextureProcessor} colors
+   *     will be in linear RGB BT.2020. Otherwise, these colors will be in gamma RGB BT.709.
+   * @param outputElectricalColors If {@code true}, outputs {@code electricalColorInfo}. If {@code
+   *     false}, outputs intermediate colors of linear RGB BT.2020 if {@code electricalColorInfo} is
+   *     {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and gamma RGB BT.709 otherwise.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
   public MatrixTransformationProcessor(
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
-      boolean inputOpticalColorsFromExternalTexture,
-      ColorInfo opticalColorInfo,
-      boolean outputOpticalColors)
+      boolean inputElectricalColorsFromExternalTexture,
+      ColorInfo electricalColorInfo,
+      boolean outputElectricalColors)
       throws FrameProcessingException {
     this(
         createGlProgram(
             context,
-            inputOpticalColorsFromExternalTexture,
-            ColorInfo.isTransferHdr(opticalColorInfo),
-            outputOpticalColors),
+            inputElectricalColorsFromExternalTexture,
+            ColorInfo.isTransferHdr(electricalColorInfo),
+            outputElectricalColors),
         matrixTransformations,
-        ColorInfo.isTransferHdr(opticalColorInfo));
-    if (!ColorInfo.isTransferHdr(opticalColorInfo) || !inputOpticalColorsFromExternalTexture) {
+        ColorInfo.isTransferHdr(electricalColorInfo));
+    if (!ColorInfo.isTransferHdr(electricalColorInfo)) {
       return;
     }
-    // TODO(b/227624622): Implement YUV to RGB conversions in COLOR_RANGE_LIMITED as well, using
-    //  opticalColorInfo.colorRange to select between them.
 
-    // In HDR editing mode the decoder output is sampled in YUV.
-    if (!GlUtil.isYuvTargetExtensionSupported()) {
-      throw new FrameProcessingException(
-          "The EXT_YUV_target extension is required for HDR editing input.");
+    @C.ColorTransfer int colorTransfer = electricalColorInfo.colorTransfer;
+    checkArgument(
+        colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084);
+    if (inputElectricalColorsFromExternalTexture) {
+      // In HDR editing mode the decoder output is sampled in YUV.
+      if (!GlUtil.isYuvTargetExtensionSupported()) {
+        throw new FrameProcessingException(
+            "The EXT_YUV_target extension is required for HDR editing input.");
+      }
+      glProgram.setFloatsUniform(
+          "uYuvToRgbColorTransform",
+          electricalColorInfo.colorRange == C.COLOR_RANGE_FULL
+              ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
+              : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
+
+      // TODO(b/241902517): Implement gamma transfer functions.
+
+      // If electrical colors are both input and output, no EOTF is needed.
+      glProgram.setIntUniform(
+          "uEotfGlColorTransfer", outputElectricalColors ? Format.NO_VALUE : colorTransfer);
+    } else if (outputElectricalColors) {
+      glProgram.setIntUniform("uOetfGlColorTransfer", colorTransfer);
     }
-    glProgram.setFloatsUniform(
-        "uYuvToRgbColorTransform",
-        opticalColorInfo.colorRange == C.COLOR_RANGE_FULL
-            ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
-            : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
-
-    // TODO(b/227624622): Implement PQ and gamma TFs, and use an @IntDef to select between HLG,
-    //  PQ, and gamma, coming from opticalColorInfo.colorTransfer.
-
-    // Applying the OETF will output a linear signal. Not applying the OETF will output an optical
-    // signal.
-    glProgram.setFloatUniform("uApplyHlgOetf", outputOpticalColors ? 0.0f : 1.0f);
   }
 
   /**
@@ -241,14 +248,14 @@ import java.util.Arrays;
 
   private static GlProgram createGlProgram(
       Context context,
-      boolean inputOpticalColorsFromExternalTexture,
+      boolean inputElectricalColorsFromExternalTexture,
       boolean useHdr,
-      boolean outputOpticalColors)
+      boolean outputElectricalColors)
       throws FrameProcessingException {
 
     String vertexShaderFilePath;
     String fragmentShaderFilePath;
-    if (inputOpticalColorsFromExternalTexture) {
+    if (inputElectricalColorsFromExternalTexture) {
       if (useHdr) {
         vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_ES3_PATH;
         fragmentShaderFilePath = FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH;
@@ -256,9 +263,9 @@ import java.util.Arrays;
         vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
         fragmentShaderFilePath = FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
       }
-    } else if (outputOpticalColors && useHdr) {
+    } else if (outputElectricalColors && useHdr) {
       vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_ES3_PATH;
-      fragmentShaderFilePath = FRAGMENT_SHADER_HLG_EOTF_ES3_PATH;
+      fragmentShaderFilePath = FRAGMENT_SHADER_OETF_ES3_PATH;
     } else {
       vertexShaderFilePath = VERTEX_SHADER_TRANSFORMATION_PATH;
       fragmentShaderFilePath = FRAGMENT_SHADER_COPY_PATH;
