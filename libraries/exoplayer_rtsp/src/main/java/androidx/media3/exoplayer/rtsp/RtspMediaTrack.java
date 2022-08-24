@@ -267,7 +267,8 @@ import com.google.common.collect.ImmutableMap;
     }
 
     checkArgument(clockRate > 0);
-    return new RtpPayloadFormat(formatBuilder.build(), rtpPayloadType, clockRate, fmtpParameters);
+    return new RtpPayloadFormat(
+        formatBuilder.build(), rtpPayloadType, clockRate, fmtpParameters, mediaEncoding);
   }
 
   private static int inferChannelCount(int encodingParameter, String mimeType) {

@@ -55,6 +55,7 @@ public final class RtpPayloadFormat {
   private static final String RTP_MEDIA_PCMU = "PCMU";
   private static final String RTP_MEDIA_VP8 = "VP8";
   private static final String RTP_MEDIA_VP9 = "VP9";
+  public static final String RTP_MEDIA_MPEG4_AUDIO = "MP4A-LATM";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
   public static boolean isFormatSupported(MediaDescription mediaDescription) {
@@ -66,6 +67,7 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_H263_2000:
       case RTP_MEDIA_H264:
       case RTP_MEDIA_H265:
+      case RTP_MEDIA_MPEG4_AUDIO:
       case RTP_MEDIA_MPEG4_VIDEO:
       case RTP_MEDIA_MPEG4_GENERIC:
       case RTP_MEDIA_OPUS:
@@ -97,6 +99,7 @@ public final class RtpPayloadFormat {
       case RTP_MEDIA_AMR_WB:
         return MimeTypes.AUDIO_AMR_WB;
       case RTP_MEDIA_MPEG4_GENERIC:
+      case RTP_MEDIA_MPEG4_AUDIO:
         return MimeTypes.AUDIO_AAC;
       case RTP_MEDIA_OPUS:
         return MimeTypes.AUDIO_OPUS;
@@ -142,6 +145,7 @@ public final class RtpPayloadFormat {
   public final Format format;
   /** The format parameters, mapped from the SDP FMTP attribute (RFC2327 Page 22). */
   public final ImmutableMap<String, String> fmtpParameters;
+  public final String mediaEncoding;
 
   /**
    * Creates a new instance.
@@ -154,12 +158,13 @@ public final class RtpPayloadFormat {
    *     empty if unset. The keys and values are specified in the RFCs for specific formats. For
    *     instance, RFC3640 Section 4.1 defines keys like profile-level-id and config.
    */
-  public RtpPayloadFormat(
-      Format format, int rtpPayloadType, int clockRate, Map<String, String> fmtpParameters) {
+  public RtpPayloadFormat(Format format, int rtpPayloadType, int clockRate, Map<String,
+      String> fmtpParameters, String mediaEncoding) {
     this.rtpPayloadType = rtpPayloadType;
     this.clockRate = clockRate;
     this.format = format;
     this.fmtpParameters = ImmutableMap.copyOf(fmtpParameters);
+    this.mediaEncoding = mediaEncoding;
   }
 
   @Override
