@@ -182,12 +182,17 @@ public final class GlProgram {
     checkNotNull(uniformByName.get(name)).setSamplerTexId(texId, texUnitIndex);
   }
 
-  /** Sets a float type uniform. */
+  /** Sets an {@code int} type uniform. */
+  public void setIntUniform(String name, int value) {
+    checkNotNull(uniformByName.get(name)).setInt(value);
+  }
+
+  /** Sets a {@code float} type uniform. */
   public void setFloatUniform(String name, float value) {
     checkNotNull(uniformByName.get(name)).setFloat(value);
   }
 
-  /** Sets a float array type uniform. */
+  /** Sets a {@code float[]} type uniform. */
   public void setFloatsUniform(String name, float[] value) {
     checkNotNull(uniformByName.get(name)).setFloats(value);
   }
@@ -321,16 +326,17 @@ public final class GlProgram {
 
     private final int location;
     private final int type;
-    private final float[] value;
+    private final float[] floatValue;
 
-    private int texId;
+    private int intValue;
+    private int texIdValue;
     private int texUnitIndex;
 
     private Uniform(String name, int location, int type) {
       this.name = name;
       this.location = location;
       this.type = type;
-      this.value = new float[16];
+      this.floatValue = new float[16];
     }
 
     /**
@@ -340,18 +346,22 @@ public final class GlProgram {
      * @param texUnitIndex The GL texture unit index.
      */
     public void setSamplerTexId(int texId, int texUnitIndex) {
-      this.texId = texId;
+      this.texIdValue = texId;
       this.texUnitIndex = texUnitIndex;
     }
-
-    /** Configures {@link #bind()} to use the specified float {@code value} for this uniform. */
-    public void setFloat(float value) {
-      this.value[0] = value;
+    /** Configures {@link #bind()} to use the specified {@code int} {@code value}. */
+    public void setInt(int value) {
+      this.intValue = value;
     }
 
-    /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
+    /** Configures {@link #bind()} to use the specified {@code float} {@code value}. */
+    public void setFloat(float value) {
+      this.floatValue[0] = value;
+    }
+
+    /** Configures {@link #bind()} to use the specified {@code float[]} {@code value}. */
     public void setFloats(float[] value) {
-      System.arraycopy(value, /* srcPos= */ 0, this.value, /* destPos= */ 0, value.length);
+      System.arraycopy(value, /* srcPos= */ 0, this.floatValue, /* destPos= */ 0, value.length);
     }
 
     /**
@@ -362,32 +372,35 @@ public final class GlProgram {
      */
     public void bind() throws GlUtil.GlException {
       switch (type) {
+        case GLES20.GL_INT:
+          GLES20.glUniform1i(location, intValue);
+          break;
         case GLES20.GL_FLOAT:
-          GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GLES20.glUniform1fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_VEC2:
-          GLES20.glUniform2fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GLES20.glUniform2fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_VEC3:
-          GLES20.glUniform3fv(location, /* count= */ 1, value, /* offset= */ 0);
+          GLES20.glUniform3fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_MAT3:
           GLES20.glUniformMatrix3fv(
-              location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+              location, /* count= */ 1, /* transpose= */ false, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_FLOAT_MAT4:
           GLES20.glUniformMatrix4fv(
-              location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+              location, /* count= */ 1, /* transpose= */ false, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
         case GLES20.GL_SAMPLER_2D:
         case GLES11Ext.GL_SAMPLER_EXTERNAL_OES:
         case GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
-          if (texId == 0) {
+          if (texIdValue == 0) {
             throw new IllegalStateException("No call to setSamplerTexId() before bind.");
           }
           GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texUnitIndex);
@@ -396,7 +409,7 @@ public final class GlProgram {
               type == GLES20.GL_SAMPLER_2D
                   ? GLES20.GL_TEXTURE_2D
                   : GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
-              texId);
+              texIdValue);
           GLES20.glUniform1i(location, texUnitIndex);
           GlUtil.checkGlError();
           break;

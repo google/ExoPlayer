@@ -210,7 +210,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                 matrixTransformations,
                 sampleFromExternalTexture,
                 colorInfo,
-                /* outputOpticalColors= */ false));
+                /* outputElectricalColors= */ false));
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
@@ -240,7 +240,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
                 ImmutableList.of(),
                 sampleFromExternalTexture,
                 colorInfo,
-                /* outputOpticalColors= */ false));
+                /* outputElectricalColors= */ false));
         sampleFromExternalTexture = false;
       }
       textureProcessorListBuilder.add(
