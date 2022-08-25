@@ -52,6 +52,7 @@ dependencies {
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'library-ui')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
 }

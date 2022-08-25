@@ -22,6 +22,7 @@
   <uses-sdk/>
 
   <application
+      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/application_name">
