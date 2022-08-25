@@ -323,12 +323,10 @@ import java.util.Arrays;
   @Override
   public void release() throws FrameProcessingException {
     super.release();
-    if (glProgram != null) {
-      try {
-        glProgram.delete();
-      } catch (GlUtil.GlException e) {
-        throw new FrameProcessingException(e);
-      }
+    try {
+      glProgram.delete();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
     }
   }
 
