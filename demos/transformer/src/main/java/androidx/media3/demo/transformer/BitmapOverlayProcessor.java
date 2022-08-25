@@ -129,7 +129,7 @@ import java.util.Locale;
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     try {
-      checkStateNotNull(glProgram).use();
+      glProgram.use();
 
       // Draw to the canvas and store it in a texture.
       String text =
@@ -159,12 +159,10 @@ import java.util.Locale;
   @Override
   public void release() throws FrameProcessingException {
     super.release();
-    if (glProgram != null) {
-      try {
-        glProgram.delete();
-      } catch (GlUtil.GlException e) {
-        throw new FrameProcessingException(e);
-      }
+    try {
+      glProgram.delete();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
     }
   }
 

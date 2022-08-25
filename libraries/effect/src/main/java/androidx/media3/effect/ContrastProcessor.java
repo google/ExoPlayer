@@ -75,4 +75,14 @@ import java.io.IOException;
       throw new FrameProcessingException(e, presentationTimeUs);
     }
   }
+
+  @Override
+  public void release() throws FrameProcessingException {
+    super.release();
+    try {
+      glProgram.delete();
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
+    }
+  }
 }
