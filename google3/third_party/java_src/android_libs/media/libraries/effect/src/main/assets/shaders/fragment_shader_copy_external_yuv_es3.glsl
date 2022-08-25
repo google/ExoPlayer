@@ -20,7 +20,7 @@
 //    https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt,
 // 2. Applies a YUV to RGB conversion using the specified color transform
 //    uYuvToRgbColorTransform, yielding electrical (HLG or PQ) BT.2020 RGB,
-// 3. If uEotfGlColorTransfer is GL_COLOR_TRANSFER_NO_VALUE, outputs electrical
+// 3. If uEotfColorTransfer is COLOR_TRANSFER_NO_VALUE, outputs electrical
 //    (HLG or PQ) BT.2020 RGB. Otherwise, outputs optical linear BT.2020 RGB for
 //    intermediate shaders by applying the HLG or PQ EOTF.
 // 4. Copies this converted texture color to the current output, with alpha = 1.
@@ -30,8 +30,8 @@
 precision mediump float;
 uniform __samplerExternal2DY2YEXT uTexSampler;
 uniform mat3 uYuvToRgbColorTransform;
-// C.java#GlColorTransfer value.
-uniform int uEotfGlColorTransfer;
+// C.java#ColorTransfer value.
+uniform int uEotfColorTransfer;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
 
@@ -84,9 +84,9 @@ highp vec3 getOpticalColor(highp vec3 electricalColor) {
   const int COLOR_TRANSFER_ST2084 = 6;
   const int COLOR_TRANSFER_HLG = 7;
 
-  if (uEotfGlColorTransfer == COLOR_TRANSFER_ST2084) {
+  if (uEotfColorTransfer == COLOR_TRANSFER_ST2084) {
     return pqEotf(electricalColor);
-  } else if (uEotfGlColorTransfer == COLOR_TRANSFER_HLG) {
+  } else if (uEotfColorTransfer == COLOR_TRANSFER_HLG) {
     return hlgEotf(electricalColor);
   } else {
     return electricalColor;
