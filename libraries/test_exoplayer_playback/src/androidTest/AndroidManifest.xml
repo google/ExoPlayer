@@ -23,7 +23,9 @@
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
   <uses-sdk/>
 
+  <!-- TODO(b/243799715): Use android:name="androidx.multidex.MultiDexApplication" instead. -->
   <application
+      android:name="android.support.multidex.MultiDexApplication"
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <activity android:name="androidx.media3.test.utils.HostActivity"
