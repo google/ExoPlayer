@@ -24,9 +24,9 @@ precision mediump float;
 uniform sampler2D uTexSampler;
 in vec2 vTexSamplingCoord;
 out vec4 outColor;
-// C.java#GlColorTransfer value.
-// Only GL_COLOR_TRANSFER_ST2084 and GL_COLOR_TRANSFER_HLG are allowed.
-uniform int uOetfGlColorTransfer;
+// C.java#ColorTransfer value.
+// Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
+uniform int uOetfColorTransfer;
 uniform mat3 uColorTransform;
 
 // TODO(b/227624622): Consider using mediump to save precision, if it won't lead
@@ -76,8 +76,8 @@ highp vec3 pqOetf(highp vec3 linearColor) {
 // electrical signals. Input and output are both normalzied to [0, 1].
 highp vec3 getElectricalColor(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
-  const int GL_COLOR_TRANSFER_ST2084 = 6;
-  return (uOetfGlColorTransfer == GL_COLOR_TRANSFER_ST2084) ?
+  const int COLOR_TRANSFER_ST2084 = 6;
+  return (uOetfColorTransfer == COLOR_TRANSFER_ST2084) ?
       pqOetf(linearColor) : hlgOetf(linearColor);
 }
 
