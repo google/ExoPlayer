@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.media3.demo.session">
 
   <uses-sdk/>
@@ -21,10 +22,12 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
   <application
+      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
-      android:theme="@style/Theme.Media3Demo">
+      android:theme="@style/Theme.Media3Demo"
+      tools:replace="android:name">
 
     <activity
         android:name=".MainActivity"
