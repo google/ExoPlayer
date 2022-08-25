@@ -218,9 +218,9 @@ import java.util.Arrays;
 
       // If electrical colors are both input and output, no EOTF is needed.
       glProgram.setIntUniform(
-          "uEotfGlColorTransfer", outputElectricalColors ? Format.NO_VALUE : colorTransfer);
+          "uEotfColorTransfer", outputElectricalColors ? Format.NO_VALUE : colorTransfer);
     } else if (outputElectricalColors) {
-      glProgram.setIntUniform("uOetfGlColorTransfer", colorTransfer);
+      glProgram.setIntUniform("uOetfColorTransfer", colorTransfer);
     }
   }
 
