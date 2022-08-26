@@ -35,6 +35,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -49,6 +50,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A default {@link Codec} implementation that uses {@link MediaCodec}. */
 public final class DefaultCodec implements Codec {
+
+  private static final String TAG = "DefaultCodec";
+
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
   // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
   private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
@@ -323,16 +327,15 @@ public final class DefaultCodec implements Codec {
         ColorInfo expectedColorInfo =
             isToneMappingEnabled ? ColorInfo.SDR_BT709_LIMITED : configurationFormat.colorInfo;
         if (!areColorTransfersEqual(expectedColorInfo, outputFormat.colorInfo)) {
-          // TODO(b/237674316): These exceptions throw when the container ColorInfo doesn't match
-          //  the video ColorInfo. Instead of throwing when seeing unexpected ColorInfos, consider
-          //  reconfiguring downstream components (ex. FrameProcessor and encoder) when different
-          //  ColorInfo values are output.
-          throw createTransformationException(
-              new IllegalStateException(
-                  "Codec output color format does not match configured color format. Expected: "
-                      + expectedColorInfo
-                      + ". Actual: "
-                      + outputFormat.colorInfo));
+          // TODO(b/237674316): The container ColorInfo's transfer doesn't match the decoder output
+          //   MediaFormat, or we requested tone-mapping but it hasn't bee applied. We should
+          //   reconfigure downstream components for this case instead.
+          Log.w(
+              TAG,
+              "Codec output color format does not match configured color format. Expected: "
+                  + expectedColorInfo
+                  + ". Actual: "
+                  + outputFormat.colorInfo);
         }
       }
       return false;
