@@ -88,19 +88,7 @@ public final class ProgressiveDownloader implements Downloader {
   public void download(@Nullable ProgressListener progressListener)
       throws IOException, InterruptedException {
     this.progressListener = progressListener;
-    downloadRunnable =
-        new RunnableFutureTask<Void, IOException>() {
-          @Override
-          protected Void doWork() throws IOException {
-            cacheWriter.cache();
-            return null;
-          }
-
-          @Override
-          protected void cancelWork() {
-            cacheWriter.cancel();
-          }
-        };
+    downloadRunnable = createDownloadTask();
 
     if (priorityTaskManager != null) {
       priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
@@ -119,6 +107,8 @@ public final class ProgressiveDownloader implements Downloader {
           Throwable cause = Assertions.checkNotNull(e.getCause());
           if (cause instanceof PriorityTooLowException) {
             // The next loop iteration will block until the task is able to proceed.
+            // recreate downloadRunnable in order to prevent error state caching
+            downloadRunnable = createDownloadTask();
           } else if (cause instanceof IOException) {
             throw (IOException) cause;
           } else {
@@ -160,5 +150,20 @@ public final class ProgressiveDownloader implements Downloader {
             ? C.PERCENTAGE_UNSET
             : ((bytesCached * 100f) / contentLength);
     progressListener.onProgress(contentLength, bytesCached, percentDownloaded);
+  }
+
+  private RunnableFutureTask<Void, IOException> createDownloadTask() {
+    return new RunnableFutureTask<Void, IOException>() {
+      @Override
+      protected Void doWork() throws IOException {
+        cacheWriter.cache();
+        return null;
+      }
+
+      @Override
+      protected void cancelWork() {
+        cacheWriter.cancel();
+      }
+    };
   }
 }
