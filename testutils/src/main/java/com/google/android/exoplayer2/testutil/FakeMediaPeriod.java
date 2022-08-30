@@ -118,7 +118,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         mediaSourceEventDispatcher,
         DrmSessionManager.DRM_UNSUPPORTED,
         new DrmSessionEventListener.EventDispatcher(),
-        /* deferOnPrepared */ false);
+        /* deferOnPrepared= */ false);
   }
 
   /**
