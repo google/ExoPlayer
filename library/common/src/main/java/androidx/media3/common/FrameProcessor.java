@@ -23,10 +23,10 @@ import java.util.List;
 /**
  * Interface for a frame processor that applies changes to individual video frames.
  *
- * <p>The changes are specified by {@link Effect} instances passed to the {@link Factory}.
+ * <p>The changes are specified by {@link Effect} instances passed to {@link Factory#create}.
  *
- * <p>The frame processor manages its input {@link Surface} which can be accessed via {@link
- * #getInputSurface()}. The output {@link Surface} must be set by the caller using {@link
+ * <p>Manages its input {@link Surface}, which can be accessed via {@link #getInputSurface()}. The
+ * output {@link Surface} must be set by the caller using {@link
  * #setOutputSurfaceInfo(SurfaceInfo)}.
  *
  * <p>The caller must {@linkplain #registerInputFrame() register} input frames before rendering them
@@ -45,10 +45,11 @@ public interface FrameProcessor {
      * @param effects The {@link Effect} instances to apply to each frame.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param colorInfo The {@link ColorInfo} for input and output frames.
-     * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will release
+     * @param releaseFramesAutomatically If {@code true}, the {@link FrameProcessor} will render
      *     output frames to the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface}
-     *     automatically as they become available. If {@code false}, the {@link FrameProcessor} will
-     *     wait to release each frame until {@link #releaseOutputFrame(long)} is called.
+     *     automatically as {@link FrameProcessor} is done processing them. If {@code false}, the
+     *     {@link FrameProcessor} will block until {@link #releaseOutputFrame(long)} is called, to
+     *     render or drop the frame.
      * @return A new instance.
      * @throws FrameProcessingException If a problem occurs while creating the {@link
      *     FrameProcessor}.
@@ -97,7 +98,7 @@ public interface FrameProcessor {
     void onFrameProcessingEnded();
   }
 
-  /** Returns the input {@link Surface}. */
+  /** Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from. */
   Surface getInputSurface();
 
   /**
@@ -131,11 +132,12 @@ public interface FrameProcessor {
   int getPendingInputFrameCount();
 
   /**
-   * Sets the output surface and supporting information.
+   * Sets the output surface and supporting information. When output frames are released and not
+   * dropped, they will be rendered to this output {@link SurfaceInfo}.
    *
    * <p>The new output {@link SurfaceInfo} is applied from the next output frame rendered onwards.
    * If the output {@link SurfaceInfo} is {@code null}, the {@code FrameProcessor} will stop
-   * rendering and resume rendering pending frames once a non-null {@link SurfaceInfo} is set.
+   * rendering pending frames and resume rendering once a non-null {@link SurfaceInfo} is set.
    *
    * <p>If the dimensions given in {@link SurfaceInfo} do not match the {@linkplain
    * Listener#onOutputSizeChanged(int,int) output size after applying the final effect} the frames
@@ -150,6 +152,9 @@ public interface FrameProcessor {
   /**
    * Releases the oldest unreleased output frame that has become {@linkplain
    * Listener#onOutputFrameAvailable(long) available} at the given {@code releaseTimeNs}.
+   *
+   * <p>This will either render the output frame to the {@linkplain #setOutputSurfaceInfo output
+   * surface}, or drop the frame, per {@code releaseTimeNs}.
    *
    * <p>This method must only be called if {@code releaseFramesAutomatically} was set to {@code
    * false} using the {@link Factory} and should be called exactly once for each frame that becomes
