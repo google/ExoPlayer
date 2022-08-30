@@ -57,8 +57,6 @@ public final class RgbAdjustmentPixelTest {
       "media/bitmap/sample_mp4_first_frame/increase_red_channel.png";
   public static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/increase_brightness.png";
-  public static final String GRAYSCALE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/grayscale.png";
 
   private final Context context = getApplicationContext();
 
@@ -100,12 +98,6 @@ public final class RgbAdjustmentPixelTest {
       rgbMatrixProcessor.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
-  }
-
-  private static RgbMatrixProcessor createRgbMatrixProcessor(Context context, float[] rgbMatrix)
-      throws FrameProcessingException {
-    return ((RgbMatrix) presentationTimeUs -> rgbMatrix)
-        .toGlTextureProcessor(context, /* useHdr= */ false);
   }
 
   @Test
@@ -204,33 +196,6 @@ public final class RgbAdjustmentPixelTest {
         new RgbMatrixProcessor(context, increaseBrightnessMatrix, /* useHdr = */ false);
     Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INCREASE_BRIGHTNESS_PNG_ASSET_PATH);
-
-    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
-
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
-    float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  @Test
-  // TODO(b/239430283): Move test to RgbFilterPixelTest once it exists.
-  public void drawFrame_grayscale_producesGrayscaleImage() throws Exception {
-    String testId = "drawFrame_grayscale";
-    // Grayscale transformation matrix with the BT.709 standard from
-    // https://en.wikipedia.org/wiki/Grayscale#Converting_colour_to_grayscale
-    float[] grayscaleMatrix = {
-      0.2126f, 0.2126f, 0.2126f, 0, 0.7152f, 0.7152f, 0.7152f, 0, 0.0722f, 0.0722f, 0.0722f, 0, 0,
-      0, 0, 1
-    };
-    rgbMatrixProcessor = createRgbMatrixProcessor(/* context= */ context, grayscaleMatrix);
-    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
     rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
