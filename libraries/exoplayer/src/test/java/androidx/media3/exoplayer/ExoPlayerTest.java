@@ -1232,10 +1232,10 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2))
             .waitForTimelineChanged(
-                timeline2, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline2, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
             .build();
     ExoPlayerTestRunner testRunner =
@@ -1758,7 +1758,7 @@ public final class ExoPlayerTest {
             .playUntilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 2000)
             .setMediaSources(/* mediaItemIndex= */ 0, /* positionMs= */ 2000, secondSource)
             .waitForTimelineChanged(
-                secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                secondTimeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -1812,7 +1812,7 @@ public final class ExoPlayerTest {
             .playUntilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 2000)
             .setMediaSources(/* resetPosition= */ true, secondSource)
             .waitForTimelineChanged(
-                secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                secondTimeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -1869,7 +1869,7 @@ public final class ExoPlayerTest {
             .playUntilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 2000)
             .setMediaSources(secondSource)
             .waitForTimelineChanged(
-                secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                secondTimeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -2306,7 +2306,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .sendMessage(target, /* positionMs= */ 50)
             .play()
             .build();
@@ -2495,7 +2495,7 @@ public final class ExoPlayerTest {
             .waitForPlaybackState(Player.STATE_BUFFERING)
             .sendMessage(target, /* positionMs= */ 50)
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .seek(/* positionMs= */ 50)
             .build();
     new ExoPlayerTestRunner.Builder(context)
@@ -2535,7 +2535,7 @@ public final class ExoPlayerTest {
             .pause()
             .sendMessage(target, /* positionMs= */ 50)
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .seek(/* positionMs= */ 51)
             .play()
             .build();
@@ -2612,11 +2612,11 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .sendMessage(target, /* positionMs= */ 50)
             .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline))
             .waitForTimelineChanged(
-                secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                secondTimeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
             .build();
     new ExoPlayerTestRunner.Builder(context)
@@ -2658,7 +2658,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .sendMessage(target, /* mediaItemIndex = */ 2, /* positionMs= */ 50)
             .play()
             .build();
@@ -2689,11 +2689,11 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .sendMessage(target, /* mediaItemIndex = */ 1, /* positionMs= */ 50)
             .executeRunnable(() -> mediaSource.setNewSourceInfo(secondTimeline))
             .waitForTimelineChanged(
-                secondTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                secondTimeline, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .seek(/* mediaItemIndex= */ 0, /* positionMs= */ 0)
             .play()
             .build();
@@ -2903,7 +2903,7 @@ public final class ExoPlayerTest {
                 /* positionMs= */ Util.usToMs(TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US))
             .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2))
             .waitForTimelineChanged(
-                timeline2, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+                timeline2, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .play()
             .build();
     ExoPlayerTestRunner testRunner =
@@ -9378,7 +9378,7 @@ public final class ExoPlayerTest {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
-    Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty */ true);
+    Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -9406,7 +9406,7 @@ public final class ExoPlayerTest {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
-    Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty */ true);
+    Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -10099,7 +10099,7 @@ public final class ExoPlayerTest {
     // Verify test setup (now = 20 seconds in live window, default start position = 20 seconds).
     assertThat(liveOffsetAtStart).isIn(Range.closed(-100L, 100L));
 
-    player.setPlaybackParameters(new PlaybackParameters(/* speed */ 2.0f));
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
     // Play until close to the end of the available live window.
     TestPlayerRunHelper.playUntilPosition(
         player, /* mediaItemIndex= */ 0, /* positionMs= */ 999_000);
