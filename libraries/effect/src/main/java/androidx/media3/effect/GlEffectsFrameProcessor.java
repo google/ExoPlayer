@@ -206,13 +206,17 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
       ImmutableList<GlMatrixTransformation> matrixTransformations =
           matrixTransformationListBuilder.build();
       if (!matrixTransformations.isEmpty() || sampleFromExternalTexture) {
-        textureProcessorListBuilder.add(
-            new MatrixTransformationProcessor(
-                context,
-                matrixTransformations,
-                sampleFromExternalTexture,
-                colorInfo,
-                /* outputElectricalColors= */ false));
+        MatrixTransformationProcessor matrixTransformationProcessor;
+        if (sampleFromExternalTexture) {
+          matrixTransformationProcessor =
+              MatrixTransformationProcessor.createWithExternalSamplerApplyingEotf(
+                  context, matrixTransformations, colorInfo);
+        } else {
+          matrixTransformationProcessor =
+              MatrixTransformationProcessor.create(
+                  context, matrixTransformations, ColorInfo.isTransferHdr(colorInfo));
+        }
+        textureProcessorListBuilder.add(matrixTransformationProcessor);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
       }
@@ -237,12 +241,8 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
         // TODO(b/239757183): Remove the unnecessary MatrixTransformationProcessor after it got
         // merged with RgbMatrixProcessor.
         textureProcessorListBuilder.add(
-            new MatrixTransformationProcessor(
-                context,
-                ImmutableList.of(),
-                sampleFromExternalTexture,
-                colorInfo,
-                /* outputElectricalColors= */ false));
+            MatrixTransformationProcessor.createWithExternalSamplerApplyingEotf(
+                context, /* matrixTransformations= */ ImmutableList.of(), colorInfo));
         sampleFromExternalTexture = false;
       }
       textureProcessorListBuilder.add(
