@@ -368,13 +368,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Presentation.createForWidthAndHeight(
             outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
 
-    MatrixTransformationProcessor matrixTransformationProcessor =
-        new MatrixTransformationProcessor(
-            context,
-            matrixTransformationListBuilder.build(),
-            sampleFromExternalTexture,
-            colorInfo,
-            /* outputElectricalColors= */ true);
+    MatrixTransformationProcessor matrixTransformationProcessor;
+    ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
+        matrixTransformationListBuilder.build();
+    if (sampleFromExternalTexture) {
+      matrixTransformationProcessor =
+          MatrixTransformationProcessor.createWithExternalSamplerApplyingEotfThenOetf(
+              context, expandedMatrixTransformations, colorInfo);
+    } else {
+      matrixTransformationProcessor =
+          MatrixTransformationProcessor.createApplyingOetf(
+              context, expandedMatrixTransformations, colorInfo);
+    }
+
     matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
     Pair<Integer, Integer> outputSize =
         matrixTransformationProcessor.configure(inputWidth, inputHeight);

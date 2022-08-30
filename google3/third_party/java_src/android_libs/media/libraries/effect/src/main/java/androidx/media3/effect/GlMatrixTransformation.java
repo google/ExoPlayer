@@ -19,6 +19,7 @@ import android.content.Context;
 import android.opengl.Matrix;
 import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Specifies a 4x4 transformation {@link Matrix} to apply in the vertex shader for each frame.
@@ -52,6 +53,7 @@ public interface GlMatrixTransformation extends GlEffect {
   @Override
   default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new MatrixTransformationProcessor(context, useHdr, /* matrixTransformation= */ this);
+    return MatrixTransformationProcessor.create(
+        context, /* matrixTransformations= */ ImmutableList.of(this), useHdr);
   }
 }
