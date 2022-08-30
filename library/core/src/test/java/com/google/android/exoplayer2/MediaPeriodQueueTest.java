@@ -1081,7 +1081,7 @@ public final class MediaPeriodQueueTest {
     mediaSourceList.setMediaSources(
         ImmutableList.of(mediaSourceHolder), new FakeShuffleOrder(/* length= */ 1));
     mediaSourceHolder.mediaSource.prepareSource(
-        mock(MediaSourceCaller.class), /* mediaTransferListener */ null, PlayerId.UNSET);
+        mock(MediaSourceCaller.class), /* mediaTransferListener= */ null, PlayerId.UNSET);
 
     Timeline playlistTimeline = mediaSourceList.createTimeline();
     firstPeriodUid = playlistTimeline.getUidOfPeriod(/* periodIndex= */ 0);
