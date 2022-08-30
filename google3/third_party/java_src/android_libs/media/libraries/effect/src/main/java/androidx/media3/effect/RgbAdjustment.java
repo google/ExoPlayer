@@ -94,7 +94,7 @@ public final class RgbAdjustment implements RgbMatrix {
   }
 
   @Override
-  public float[] getMatrix(long presentationTimeUs) {
+  public float[] getMatrix(long presentationTimeUs, boolean useHdr) {
     return rgbMatrix;
   }
 }
