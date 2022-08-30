@@ -27,4 +27,4 @@ To generate new "expected" assets:
     third_party/java_src/android_libs/media/libraries/test_data/src/test/assets/media/bitmap/sample_mp4_first_frame/rotate90.png
     ```
 
-    <!-- copybara:strip_end -->
+<!-- copybara:strip_end -->
