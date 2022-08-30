@@ -17,14 +17,11 @@ package androidx.media3.transformer.mh;
 
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
-import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
@@ -37,7 +34,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTransformationTest {
   @Test
-  public void videoDecoderUnexpectedColorInfo_completesWithError() throws Exception {
+  public void transformUnexpectedColorInfo() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     if (Util.SDK_INT < 29) {
       recordTestSkipped(
@@ -53,17 +50,10 @@ public class SetHdrEditingTransformationTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
             .build();
-    TransformationException exception =
-        assertThrows(
-            TransformationException.class,
-            () ->
-                new TransformerAndroidTestRunner.Builder(context, transformer)
-                    .build()
-                    .run(
-                        /* testId= */ "videoDecoderUnexpectedColorInfo_completesWithError",
-                        MediaItem.fromUri(
-                            Uri.parse(MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER))));
-    assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
-    assertThat(exception.errorCode).isEqualTo(TransformationException.ERROR_CODE_DECODING_FAILED);
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(
+            /* testId= */ "transformUnexpectedColorInfo",
+            MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER)));
   }
 }

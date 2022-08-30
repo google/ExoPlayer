@@ -330,7 +330,7 @@ public final class DefaultCodec implements Codec {
             isToneMappingEnabled ? ColorInfo.SDR_BT709_LIMITED : configurationFormat.colorInfo;
         if (!areColorTransfersEqual(expectedColorInfo, outputFormat.colorInfo)) {
           // TODO(b/237674316): The container ColorInfo's transfer doesn't match the decoder output
-          //   MediaFormat, or we requested tone-mapping but it hasn't bee applied. We should
+          //   MediaFormat, or we requested tone-mapping but it hasn't been applied. We should
           //   reconfigure downstream components for this case instead.
           Log.w(
               TAG,
