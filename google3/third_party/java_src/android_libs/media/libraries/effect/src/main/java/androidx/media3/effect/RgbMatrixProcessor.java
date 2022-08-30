@@ -39,6 +39,7 @@ import java.io.IOException;
 
   private final GlProgram glProgram;
   private final ImmutableList<RgbMatrix> rgbMatrices;
+  private final boolean useHdr;
 
   // TODO(b/239757183): Merge RgbMatrixProcessor with MatrixTransformationProcessor.
   /**
@@ -70,6 +71,7 @@ import java.io.IOException;
       throws FrameProcessingException {
     super(useHdr);
     this.rgbMatrices = rgbMatrices;
+    this.useHdr = useHdr;
 
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -95,7 +97,7 @@ import java.io.IOException;
   }
 
   private static float[] createCompositeRgbaMatrixArray(
-      ImmutableList<RgbMatrix> rgbMatrices, long presentationTimeUs) {
+      ImmutableList<RgbMatrix> rgbMatrices, boolean useHdr, long presentationTimeUs) {
     float[] tempResultMatrix = new float[16];
     float[] compositeRgbaMatrix = new float[16];
     Matrix.setIdentityM(compositeRgbaMatrix, /* smOffset= */ 0);
@@ -104,7 +106,7 @@ import java.io.IOException;
       Matrix.multiplyMM(
           /* result= */ tempResultMatrix,
           /* resultOffset= */ 0,
-          /* lhs= */ rgbMatrices.get(i).getMatrix(presentationTimeUs),
+          /* lhs= */ rgbMatrices.get(i).getMatrix(presentationTimeUs, useHdr),
           /* lhsOffset= */ 0,
           /* rhs= */ compositeRgbaMatrix,
           /* rhsOffset= */ 0);
@@ -122,7 +124,8 @@ import java.io.IOException;
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
     // TODO(b/239431666): Add caching for compacting Matrices.
-    float[] rgbMatrixArray = createCompositeRgbaMatrixArray(rgbMatrices, presentationTimeUs);
+    float[] rgbMatrixArray =
+        createCompositeRgbaMatrixArray(rgbMatrices, useHdr, presentationTimeUs);
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);

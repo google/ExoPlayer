@@ -400,17 +400,9 @@ public final class GlEffectsFrameProcessorPixelTest {
   public void drawFrame_grayscaleAndIncreaseRedChannel_producesGrayscaleAndRedImage()
       throws Exception {
     String testId = "drawFrame_grayscale";
-    // Grayscale transformation matrix with the BT.709 standard from
-    // https://en.wikipedia.org/wiki/Grayscale#Converting_colour_to_grayscale
-    // TODO(b/241240659): Use static grayscale filter from RgbFilter once it exists.
-    float[] grayscaleMatrix = {
-      0.2126f, 0.2126f, 0.2126f, 0, 0.7152f, 0.7152f, 0.7152f, 0, 0.0722f, 0.0722f, 0.0722f, 0, 0,
-      0, 0, 1
-    };
     ImmutableList<Effect> grayscaleThenIncreaseRed =
         ImmutableList.of(
-            (RgbMatrix) presentationTimeUs -> grayscaleMatrix,
-            new RgbAdjustment.Builder().setRedScale(3).build());
+            RgbFilter.createGrayscaleFilter(), new RgbAdjustment.Builder().setRedScale(3).build());
     setUpAndPrepareFirstFrame(DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO, grayscaleThenIncreaseRed);
     Bitmap expectedBitmap =
         BitmapTestUtil.readBitmap(GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH);
