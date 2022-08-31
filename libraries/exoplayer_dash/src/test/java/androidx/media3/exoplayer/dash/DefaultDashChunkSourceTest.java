@@ -95,7 +95,7 @@ public class DefaultDashChunkSourceTest {
             /* elapsedRealtimeOffsetMs= */ 0,
             /* maxSegmentsPerLoad= */ 1,
             /* enableEventMessageTrack= */ false,
-            /* closedCaptionFormats */ ImmutableList.of(),
+            /* closedCaptionFormats= */ ImmutableList.of(),
             /* playerTrackEmsgHandler= */ null,
             PlayerId.UNSET);
 
@@ -144,7 +144,7 @@ public class DefaultDashChunkSourceTest {
             /* elapsedRealtimeOffsetMs= */ 0,
             /* maxSegmentsPerLoad= */ 1,
             /* enableEventMessageTrack= */ false,
-            /* closedCaptionFormats */ ImmutableList.of(),
+            /* closedCaptionFormats= */ ImmutableList.of(),
             /* playerTrackEmsgHandler= */ null,
             PlayerId.UNSET);
 
@@ -328,7 +328,7 @@ public class DefaultDashChunkSourceTest {
         /* elapsedRealtimeOffsetMs= */ 0,
         /* maxSegmentsPerLoad= */ 1,
         /* enableEventMessageTrack= */ false,
-        /* closedCaptionFormats */ ImmutableList.of(),
+        /* closedCaptionFormats= */ ImmutableList.of(),
         /* playerTrackEmsgHandler= */ null,
         PlayerId.UNSET);
   }
