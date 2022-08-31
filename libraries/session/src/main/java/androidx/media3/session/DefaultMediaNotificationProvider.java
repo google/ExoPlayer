@@ -281,7 +281,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     // Set metadata info in the notification.
     MediaMetadata metadata = player.getMediaMetadata();
-    builder.setContentTitle(metadata.title).setContentText(metadata.artist);
+    builder
+        .setContentTitle(getNotificationContentTitle(metadata))
+        .setContentText(getNotificationContentText(metadata));
     @Nullable ListenableFuture<Bitmap> bitmapFuture = loadArtworkBitmap(metadata);
     if (bitmapFuture != null) {
       if (pendingOnBitmapLoadedFutureCallback != null) {
@@ -502,6 +504,42 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       }
     }
     return compactViewIndices;
+  }
+
+  /**
+   * Returns the content title to be used to build the notification.
+   *
+   * <p>This method is called each time a new notification is built.
+   *
+   * <p>Override this method to customize which field of {@link MediaMetadata} is used for content
+   * title of the notification.
+   *
+   * <p>By default, the notification shows {@link MediaMetadata#title} as content title.
+   *
+   * @param metadata The media metadata from which content title is fetched.
+   * @return Notification content title.
+   */
+  @Nullable
+  protected CharSequence getNotificationContentTitle(MediaMetadata metadata) {
+    return metadata.title;
+  }
+
+  /**
+   * Returns the content text to be used to build the notification.
+   *
+   * <p>This method is called each time a new notification is built.
+   *
+   * <p>Override this method to customize which field of {@link MediaMetadata} is used for content
+   * text of the notification.
+   *
+   * <p>By default, the notification shows {@link MediaMetadata#artist} as content text.
+   *
+   * @param metadata The media metadata from which content text is fetched.
+   * @return Notification content text.
+   */
+  @Nullable
+  protected CharSequence getNotificationContentText(MediaMetadata metadata) {
+    return metadata.artist;
   }
 
   private void ensureNotificationChannel() {
