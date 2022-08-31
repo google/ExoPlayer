@@ -510,6 +510,52 @@ public class DefaultMediaNotificationProviderTest {
         .isEqualTo(R.drawable.media3_icon_circular_play);
   }
 
+  @Test
+  public void setMediaMetadataTitle_notificationUsesItAsContentTitle() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(context).build();
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    MediaSession mockMediaSession =
+        createMockMediaSessionForNotification(
+            new MediaMetadata.Builder().setTitle("title").build());
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            ImmutableList.of(),
+            defaultActionFactory,
+            mock(MediaNotification.Provider.Callback.class));
+
+    boolean isMediaMetadataTitleEqualToNotificationContentTitle =
+        "title".contentEquals(NotificationCompat.getContentTitle(notification.notification));
+    assertThat(isMediaMetadataTitleEqualToNotificationContentTitle).isTrue();
+  }
+
+  @Test
+  public void setMediaMetadataArtist_notificationUsesItAsContentText() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(context).build();
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    MediaSession mockMediaSession =
+        createMockMediaSessionForNotification(
+            new MediaMetadata.Builder().setArtist("artist").build());
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            ImmutableList.of(),
+            defaultActionFactory,
+            mock(MediaNotification.Provider.Callback.class));
+
+    boolean isMediaMetadataArtistEqualToNotificationContentText =
+        "artist".contentEquals(NotificationCompat.getContentText(notification.notification));
+    assertThat(isMediaMetadataArtistEqualToNotificationContentText).isTrue();
+  }
+
   private static void assertHasNotificationChannel(
       List<Object> notificationChannels, String channelId, String channelName) {
     boolean found = false;
