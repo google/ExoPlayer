@@ -143,9 +143,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (transformationRequest.enableRequestSdrToneMapping) {
       return false;
     }
-    if (transformationRequest.enableHdrEditing) {
-      return false;
-    }
     if (transformationRequest.videoMimeType != null
         && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
       return false;
