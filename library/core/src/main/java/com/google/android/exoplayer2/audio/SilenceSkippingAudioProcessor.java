@@ -143,17 +143,16 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   // AudioProcessor implementation.
 
   @Override
-  public AudioFormat onConfigure(AudioFormat inputAudioFormat)
-      throws UnhandledAudioFormatException {
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat) {
     if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
-      throw new UnhandledAudioFormatException(inputAudioFormat);
+      return AudioFormat.NOT_SET;
     }
-    return enabled ? inputAudioFormat : AudioFormat.NOT_SET;
+    return inputAudioFormat;
   }
 
   @Override
   public boolean isActive() {
-    return enabled;
+    return super.isActive() && enabled;
   }
 
   @Override

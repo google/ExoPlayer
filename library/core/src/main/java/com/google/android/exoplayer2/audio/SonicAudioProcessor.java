@@ -140,9 +140,9 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public AudioFormat configure(AudioFormat inputAudioFormat) throws UnhandledAudioFormatException {
+  public AudioFormat configure(AudioFormat inputAudioFormat) {
     if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
-      throw new UnhandledAudioFormatException(inputAudioFormat);
+      return AudioFormat.NOT_SET;
     }
     int outputSampleRateHz =
         pendingOutputSampleRate == SAMPLE_RATE_NO_CHANGE
