@@ -38,7 +38,6 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.MoreExecutors
 
 class PlayableFolderActivity : AppCompatActivity() {
   private lateinit var browserFuture: ListenableFuture<MediaBrowser>
@@ -132,7 +131,7 @@ class PlayableFolderActivity : AppCompatActivity() {
           SessionToken(this, ComponentName(this, PlaybackService::class.java))
         )
         .buildAsync()
-    browserFuture.addListener({ displayFolder() }, MoreExecutors.directExecutor())
+    browserFuture.addListener({ displayFolder() }, ContextCompat.getMainExecutor(this))
   }
 
   private fun releaseBrowser() {
