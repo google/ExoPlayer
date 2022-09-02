@@ -18,9 +18,11 @@ package androidx.media3.session;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,7 +36,7 @@ public class SessionPositionInfoTest {
         new SessionPositionInfo(
             new PositionInfo(
                 /* windowUid= */ null,
-                /* windowIndex= */ 33,
+                /* mediaItemIndex= */ 33,
                 new MediaItem.Builder().setMediaId("1234").build(),
                 /* periodUid= */ null,
                 /* periodIndex= */ 44,
@@ -55,5 +57,32 @@ public class SessionPositionInfoTest {
     SessionPositionInfo sessionPositionInfo =
         SessionPositionInfo.CREATOR.fromBundle(sessionPositionInfoBundle);
     assertThat(sessionPositionInfo).isEqualTo(testSessionPositionInfo);
+  }
+
+  @Test
+  public void constructor_invalidIsPlayingAd_throwsIllegalArgumentException() {
+    Assert.assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new SessionPositionInfo(
+                new PositionInfo(
+                    /* windowUid= */ null,
+                    /* mediaItemIndex= */ 33,
+                    MediaItem.EMPTY,
+                    /* periodUid= */ null,
+                    /* periodIndex= */ 44,
+                    /* positionMs= */ 233L,
+                    /* contentPositionMs= */ 333L,
+                    /* adGroupIndex= */ 2,
+                    /* adIndexInAdGroup= */ C.INDEX_UNSET),
+                /* isPlayingAd= */ false,
+                /* eventTimeMs= */ 103L,
+                /* durationMs= */ 400L,
+                /* bufferedPositionMs= */ 200L,
+                /* bufferedPercentage= */ 50,
+                /* totalBufferedDurationMs= */ 500L,
+                /* currentLiveOffsetMs= */ 20L,
+                /* contentDurationMs= */ 400L,
+                /* contentBufferedPositionMs= */ 223L));
   }
 }

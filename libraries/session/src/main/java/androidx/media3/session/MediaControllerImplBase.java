@@ -2674,7 +2674,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return playerInfo;
     }
 
-    checkState(!isAd(newPeriod, newPositionUs));
+    checkState(playerInfo.sessionPositionInfo.positionInfo.adGroupIndex == C.INDEX_UNSET);
 
     PositionInfo oldPositionInfo =
         new PositionInfo(
@@ -2685,8 +2685,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             oldPeriodIndex,
             /* positionMs= */ usToMs(oldPeriod.positionInWindowUs + oldPositionUs),
             /* contentPositionMs= */ usToMs(oldPeriod.positionInWindowUs + oldPositionUs),
-            playerInfo.sessionPositionInfo.positionInfo.adGroupIndex,
-            playerInfo.sessionPositionInfo.positionInfo.adIndexInAdGroup);
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
 
     timeline.getPeriod(newPeriodIndex, newPeriod);
     Window newWindow = new Window();
@@ -2700,8 +2700,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             newPeriodIndex,
             /* positionMs= */ usToMs(newPeriod.positionInWindowUs + newPositionUs),
             /* contentPositionMs= */ usToMs(newPeriod.positionInWindowUs + newPositionUs),
-            playerInfo.sessionPositionInfo.positionInfo.adGroupIndex,
-            playerInfo.sessionPositionInfo.positionInfo.adIndexInAdGroup);
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
     playerInfo =
         playerInfo.copyWithPositionInfos(
             oldPositionInfo, newPositionInfo, DISCONTINUITY_REASON_SEEK);
@@ -2766,10 +2766,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       windowPositionMs = timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
     return getPeriodInfo(timeline, window, period, windowIndex, Util.msToUs(windowPositionMs));
-  }
-
-  private boolean isAd(Period period, long periodPosition) {
-    return period.getAdGroupIndexForPositionUs(periodPosition) != C.INDEX_UNSET;
   }
 
   @Nullable

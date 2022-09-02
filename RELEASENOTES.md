@@ -43,6 +43,8 @@
         ([#99](https://github.com/androidx/media/issues/99)).
     *   `SimpleBitmapLoader` can load bitmap from `file://` URIs
         ([#108](https://github.com/androidx/media/issues/108)).
+    *   Fix assertion that prevents `MediaController` to seek over an ad in a
+        period ([#122](https://github.com/androidx/media/issues/122)).
     *   Fix bug where the `MediaSessionService` was kept started in the
         foreground and a notification with a pause button was still shown when
         the player completed playback. Now, once playback is completed, the
