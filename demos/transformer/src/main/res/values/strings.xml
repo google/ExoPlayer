@@ -42,6 +42,11 @@
   <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
   <string name="transformation_error" translatable="false">Transformation error</string>
   <string name="trim_range">Bounds in seconds</string>
+  <string-array name="color_filter_options">
+    <item>Grayscale</item>
+    <item>Inverted</item>
+    <item>Sepia</item>
+  </string-array>
   <string name="contrast_value" translatable="false">Contrast value</string>
   <string name="center_x">Center X</string>
   <string name="center_y">Center Y</string>
