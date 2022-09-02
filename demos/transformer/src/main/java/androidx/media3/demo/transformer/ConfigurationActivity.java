@@ -67,7 +67,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
   public static final String PERIODIC_VIGNETTE_INNER_RADIUS = "periodic_vignette_inner_radius";
   public static final String PERIODIC_VIGNETTE_OUTER_RADIUS = "periodic_vignette_outer_radius";
+  public static final String COLOR_FILTER_SELECTION = "color_filter_selection";
   public static final String CONTRAST_VALUE = "contrast_value";
+  public static final int COLOR_FILTER_GRAYSCALE = 0;
+  public static final int COLOR_FILTER_INVERTED = 1;
+  public static final int COLOR_FILTER_SEPIA = 2;
   private static final String[] INPUT_URIS = {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
@@ -101,14 +105,16 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final String[] DEMO_EFFECTS = {
     "Dizzy crop",
     "Edge detector (Media Pipe)",
+    "Color filters",
     "Contrast",
     "Periodic vignette",
     "3D spin",
     "Overlay logo & timer",
     "Zoom in start",
   };
-  private static final int CONTRAST_INDEX = 2;
-  private static final int PERIODIC_VIGNETTE_INDEX = 3;
+  private static final int COLOR_FILTERS_INDEX = 2;
+  private static final int CONTRAST_INDEX = 3;
+  private static final int PERIODIC_VIGNETTE_INDEX = 4;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
@@ -132,6 +138,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private int inputUriPosition;
   private long trimStartMs;
   private long trimEndMs;
+  private int colorFilterSelection;
   private float contrastValue;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
@@ -288,6 +295,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
+    bundle.putInt(COLOR_FILTER_SELECTION, colorFilterSelection);
     bundle.putFloat(CONTRAST_VALUE, contrastValue);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
@@ -356,6 +364,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
 
     switch (which) {
+      case COLOR_FILTERS_INDEX:
+        controlColorFiltersSettings();
+        break;
       case CONTRAST_INDEX:
         controlContrastSettings();
         break;
@@ -365,6 +376,24 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
   }
 
+  private void controlColorFiltersSettings() {
+    new AlertDialog.Builder(/* context= */ this)
+        .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+        .setSingleChoiceItems(
+            this.getResources().getStringArray(R.array.color_filter_options),
+            colorFilterSelection,
+            (DialogInterface dialogInterface, int i) -> {
+              checkState(
+                  i == COLOR_FILTER_GRAYSCALE
+                      || i == COLOR_FILTER_INVERTED
+                      || i == COLOR_FILTER_SEPIA);
+              colorFilterSelection = i;
+              dialogInterface.dismiss();
+            })
+        .create()
+        .show();
+  }
+
   private void controlContrastSettings() {
     View dialogView = getLayoutInflater().inflate(R.layout.contrast_options, /* root= */ null);
     Slider contrastSlider = checkNotNull(dialogView.findViewById(R.id.contrast_slider));
@@ -372,9 +401,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .setView(dialogView)
         .setPositiveButton(
             android.R.string.ok,
-            (DialogInterface dialogInterface, int i) -> {
-              contrastValue = contrastSlider.getValue();
-            })
+            (DialogInterface dialogInterface, int i) -> contrastValue = contrastSlider.getValue())
         .create()
         .show();
   }
