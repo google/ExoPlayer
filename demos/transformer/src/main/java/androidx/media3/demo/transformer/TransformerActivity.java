@@ -44,6 +44,8 @@ import androidx.media3.common.util.Util;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlTextureProcessor;
+import androidx.media3.effect.RgbFilter;
+import androidx.media3.effect.RgbMatrix;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -307,9 +309,35 @@ public final class TransformerActivity extends AppCompatActivity {
           }
         }
         if (selectedEffects[2]) {
-          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+          switch (bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION)) {
+            case ConfigurationActivity.COLOR_FILTER_GRAYSCALE:
+              effects.add(RgbFilter.createGrayscaleFilter());
+              break;
+            case ConfigurationActivity.COLOR_FILTER_INVERTED:
+              effects.add(RgbFilter.createInvertedFilter());
+              break;
+            case ConfigurationActivity.COLOR_FILTER_SEPIA:
+              // W3C Sepia RGBA matrix with sRGB as a target color space:
+              // https://www.w3.org/TR/filter-effects-1/#sepiaEquivalent
+              // The matrix is defined for the sRGB color space and the Transformer library
+              // uses a linear RGB color space internally. Meaning this is only for demonstration
+              // purposes and it does not display a correct sepia frame.
+              float[] sepiaMatrix = {
+                0.393f, 0.349f, 0.272f, 0, 0.769f, 0.686f, 0.534f, 0, 0.189f, 0.168f, 0.131f, 0, 0,
+                0, 0, 1
+              };
+              effects.add((RgbMatrix) (presentationTimeUs, useHdr) -> sepiaMatrix);
+              break;
+            default:
+              throw new IllegalStateException(
+                  "Unexpected color filter "
+                      + bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION));
+          }
         }
         if (selectedEffects[3]) {
+          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+        }
+        if (selectedEffects[4]) {
           effects.add(
               (GlEffect)
                   (Context context, boolean useHdr) ->
@@ -324,13 +352,13 @@ public final class TransformerActivity extends AppCompatActivity {
                               ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                           bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedEffects[4]) {
+        if (selectedEffects[5]) {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
-        if (selectedEffects[5]) {
+        if (selectedEffects[6]) {
           effects.add((GlEffect) BitmapOverlayProcessor::new);
         }
-        if (selectedEffects[6]) {
+        if (selectedEffects[7]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
         transformerBuilder.setVideoEffects(effects.build());
