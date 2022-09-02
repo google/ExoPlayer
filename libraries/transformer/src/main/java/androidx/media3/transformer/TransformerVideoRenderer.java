@@ -108,10 +108,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           /* mediaCodecName= */ null,
           TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
     }
-    if (shouldPassthrough(inputFormat)) {
-      samplePipeline =
-          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
-    } else {
+    if (shouldTranscode(inputFormat)) {
       samplePipeline =
           new VideoTranscodingSamplePipeline(
               context,
@@ -126,6 +123,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               fallbackListener,
               asyncErrorListener,
               debugViewProvider);
+    } else {
+      samplePipeline =
+          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     }
     if (transformationRequest.flattenForSlowMotion) {
       sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
@@ -133,47 +133,47 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
-  private boolean shouldPassthrough(Format inputFormat) {
+  private boolean shouldTranscode(Format inputFormat) {
     if ((streamStartPositionUs - streamOffsetUs) != 0 && !clippingStartsAtKeyFrame) {
-      return false;
+      return true;
     }
     if (encoderFactory.videoNeedsEncoding()) {
-      return false;
+      return true;
     }
     if (transformationRequest.enableRequestSdrToneMapping) {
-      return false;
+      return true;
     }
     if (transformationRequest.videoMimeType != null
         && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
-      return false;
+      return true;
     }
     if (transformationRequest.videoMimeType == null
         && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-      return false;
+      return true;
     }
     if (inputFormat.pixelWidthHeightRatio != 1f) {
-      return false;
+      return true;
     }
     if (transformationRequest.rotationDegrees != 0f) {
-      return false;
+      return true;
     }
     if (transformationRequest.scaleX != 1f) {
-      return false;
+      return true;
     }
     if (transformationRequest.scaleY != 1f) {
-      return false;
+      return true;
     }
     // The decoder rotates encoded frames for display by inputFormat.rotationDegrees.
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
         && transformationRequest.outputHeight != decodedHeight) {
-      return false;
+      return true;
     }
     if (!effects.isEmpty()) {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
   /**
