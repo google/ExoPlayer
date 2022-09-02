@@ -899,6 +899,8 @@ public class MediaControllerTest {
             .setDuration(10_000L)
             .setIsPlaying(true)
             .setIsPlayingAd(true)
+            .setCurrentAdGroupIndex(0)
+            .setCurrentAdIndexInAdGroup(0)
             .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
             .build();
     remoteSession.setPlayer(playerConfig);

@@ -331,6 +331,7 @@ public class MediaControllerListenerTest {
     AtomicReference<Timeline> timelineRef = new AtomicReference<>();
     AtomicReference<MediaMetadata> playlistMetadataRef = new AtomicReference<>();
     AtomicReference<AudioAttributes> audioAttributesRef = new AtomicReference<>();
+    AtomicBoolean isPlayingAdRef = new AtomicBoolean();
     AtomicInteger currentAdGroupIndexRef = new AtomicInteger();
     AtomicInteger currentAdIndexInAdGroupRef = new AtomicInteger();
     AtomicBoolean shuffleModeEnabledRef = new AtomicBoolean();
@@ -373,6 +374,7 @@ public class MediaControllerListenerTest {
                           PositionInfo oldPosition,
                           PositionInfo newPosition,
                           @DiscontinuityReason int reason) {
+                        isPlayingAdRef.set(controller.isPlayingAd());
                         currentAdGroupIndexRef.set(newPosition.adGroupIndex);
                         currentAdIndexInAdGroupRef.set(newPosition.adIndexInAdGroup);
                         latch.countDown();
@@ -398,6 +400,7 @@ public class MediaControllerListenerTest {
             .setPlaylistMetadata(testPlaylistMetadata)
             .setShuffleModeEnabled(testShuffleModeEnabled)
             .setRepeatMode(testRepeatMode)
+            .setIsPlayingAd(true)
             .setCurrentAdGroupIndex(testCurrentAdGroupIndex)
             .setCurrentAdIndexInAdGroup(testCurrentAdIndexInAdGroup)
             .build();

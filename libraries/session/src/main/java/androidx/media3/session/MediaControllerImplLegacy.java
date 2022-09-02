@@ -404,7 +404,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             !currentTimeline.isEmpty()
                 ? currentTimeline.getWindow(newMediaItemIndex, new Window()).mediaItem
                 : null,
-            newPositionMs);
+            newPositionMs,
+            /* isPlayingAd= */ false);
     PlayerInfo maskedPlayerInfo =
         controllerInfo.playerInfo.copyWithSessionPositionInfo(
             createSessionPositionInfo(
@@ -656,7 +657,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         controllerInfo.playerInfo.copyWithTimelineAndSessionPositionInfo(
             newQueueTimeline,
             createSessionPositionInfo(
-                createPositionInfo(startIndex, mediaItems.get(startIndex), startPositionMs),
+                createPositionInfo(
+                    startIndex,
+                    mediaItems.get(startIndex),
+                    startPositionMs,
+                    /* isPlayingAd= */ false),
                 /* isPlayingAd= */ false,
                 /* durationMs= */ C.TIME_UNSET,
                 /* bufferedPositionMs= */ 0,
@@ -2089,7 +2094,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Nullable MediaItem currentMediaItem = currentTimeline.getMediaItemAt(currentMediaItemIndex);
     PositionInfo positionInfo =
-        createPositionInfo(currentMediaItemIndex, currentMediaItem, currentPositionMs);
+        createPositionInfo(currentMediaItemIndex, currentMediaItem, currentPositionMs, isPlayingAd);
 
     SessionPositionInfo sessionPositionInfo =
         new SessionPositionInfo(
@@ -2142,7 +2147,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static PositionInfo createPositionInfo(
-      int mediaItemIndex, @Nullable MediaItem mediaItem, long currentPositionMs) {
+      int mediaItemIndex,
+      @Nullable MediaItem mediaItem,
+      long currentPositionMs,
+      boolean isPlayingAd) {
     return new PositionInfo(
         /* windowUid= */ null,
         /* mediaItemIndex= */ mediaItemIndex,
@@ -2151,8 +2159,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         /* periodIndex= */ mediaItemIndex,
         /* positionMs= */ currentPositionMs,
         /* contentPositionMs= */ currentPositionMs,
-        /* adGroupIndex= */ C.INDEX_UNSET,
-        /* adIndexInAdGroup= */ C.INDEX_UNSET);
+        /* adGroupIndex= */ isPlayingAd ? 0 : C.INDEX_UNSET,
+        /* adIndexInAdGroup= */ isPlayingAd ? 0 : C.INDEX_UNSET);
   }
 
   private static SessionPositionInfo createSessionPositionInfo(

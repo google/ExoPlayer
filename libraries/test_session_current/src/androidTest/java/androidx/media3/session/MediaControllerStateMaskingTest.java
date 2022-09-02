@@ -1166,6 +1166,8 @@ public class MediaControllerStateMaskingTest {
             .setCurrentPosition(initialPosition)
             .setContentPosition(initialPosition)
             .setIsPlayingAd(/* isPlayingAd= */ true)
+            .setCurrentAdGroupIndex(0)
+            .setCurrentAdIndexInAdGroup(0)
             .build();
     remoteSession.setPlayer(playerConfig);
 
