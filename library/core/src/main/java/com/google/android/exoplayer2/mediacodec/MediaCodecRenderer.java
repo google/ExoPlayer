@@ -2073,6 +2073,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     // Note: Both oldSession and newSession are non-null, and they are different sessions.
+   if(!newSession.getSchemeUuid().equals(oldSession.getSchemeUuid())) return true;
 
     if (Util.SDK_INT < 23) {
       // MediaCrypto.setMediaDrmSession is only available from API level 23, so re-initialization is
