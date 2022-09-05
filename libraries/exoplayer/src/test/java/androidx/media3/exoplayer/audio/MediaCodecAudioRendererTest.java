@@ -153,7 +153,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
 
     mediaCodecAudioRenderer.start();
     mediaCodecAudioRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -210,7 +210,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
 
     mediaCodecAudioRenderer.start();
     mediaCodecAudioRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -284,7 +284,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
 
     exceptionThrowingRenderer.start();
     exceptionThrowingRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
