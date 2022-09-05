@@ -145,7 +145,7 @@ public final class CronetDataSourceTest {
     testResponseHeader.put("Content-Type", TEST_CONTENT_TYPE);
     // This value can be anything since the DataSpec is unset.
     testResponseHeader.put("Content-Length", Long.toString(TEST_CONTENT_LENGTH));
-    testUrlResponseInfo = createUrlResponseInfo(200); // statusCode
+    testUrlResponseInfo = createUrlResponseInfo(/* statusCode= */ 200);
   }
 
   @After
