@@ -58,7 +58,7 @@ public final class RgbFilterPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor rgbMatrixProcessor;
+  private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTransformationProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int outputTexId;
@@ -90,8 +90,8 @@ public final class RgbFilterPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (rgbMatrixProcessor != null) {
-      rgbMatrixProcessor.release();
+    if (matrixTransformationProcessor != null) {
+      matrixTransformationProcessor.release();
     }
     GlUtil.destroyEglContext(eglDisplay, eglContext);
   }
@@ -100,11 +100,13 @@ public final class RgbFilterPixelTest {
   public void drawFrame_grayscale_producesGrayscaleImage() throws Exception {
     String testId = "drawFrame_grayscale";
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
-    rgbMatrixProcessor = new RgbMatrixProcessor(context, grayscaleMatrix, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
+    matrixTransformationProcessor =
+        grayscaleMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize =
+        matrixTransformationProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
-    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixTransformationProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
@@ -121,11 +123,13 @@ public final class RgbFilterPixelTest {
   public void drawFrame_inverted_producesInvertedFrame() throws Exception {
     String testId = "drawFrame_inverted";
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
-    rgbMatrixProcessor = new RgbMatrixProcessor(context, invertedMatrix, /* useHdr= */ false);
-    Pair<Integer, Integer> outputSize = rgbMatrixProcessor.configure(inputWidth, inputHeight);
+    matrixTransformationProcessor =
+        invertedMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
+    Pair<Integer, Integer> outputSize =
+        matrixTransformationProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INVERT_PNG_ASSET_PATH);
 
-    rgbMatrixProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixTransformationProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);

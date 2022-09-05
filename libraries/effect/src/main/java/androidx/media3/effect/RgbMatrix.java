@@ -19,6 +19,7 @@ package androidx.media3.effect;
 import android.content.Context;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Specifies a 4x4 RGB color transformation matrix to apply to each frame in the fragment shader.
@@ -39,8 +40,12 @@ public interface RgbMatrix extends GlEffect {
   float[] getMatrix(long presentationTimeUs, boolean useHdr);
 
   @Override
-  default RgbMatrixProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  default MatrixTransformationProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return new RgbMatrixProcessor(context, /* rgbMatrix= */ this, useHdr);
+    return MatrixTransformationProcessor.create(
+        context,
+        /* matrixTransformations= */ ImmutableList.of(),
+        /* rgbMatrices= */ ImmutableList.of(this),
+        useHdr);
   }
 }
