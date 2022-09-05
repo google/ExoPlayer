@@ -320,7 +320,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return result;
   }
 
-  /* Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}. */
+  /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}. */
   public static MediaDescriptionCompat convertToMediaDescriptionCompat(MediaItem item) {
     MediaDescriptionCompat.Builder builder =
         new MediaDescriptionCompat.Builder()
