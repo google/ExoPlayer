@@ -66,6 +66,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final Context context;
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
+  private final ImmutableList<RgbMatrix> rgbMatrices;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final DebugViewProvider debugViewProvider;
@@ -100,6 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
+      ImmutableList<RgbMatrix> rgbMatrices,
       FrameProcessor.Listener frameProcessorListener,
       DebugViewProvider debugViewProvider,
       boolean sampleFromExternalTexture,
@@ -107,6 +109,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean releaseFramesAutomatically) {
     this.context = context;
     this.matrixTransformations = matrixTransformations;
+    this.rgbMatrices = rgbMatrices;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.debugViewProvider = debugViewProvider;
@@ -374,11 +377,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (sampleFromExternalTexture) {
       matrixTransformationProcessor =
           MatrixTransformationProcessor.createWithExternalSamplerApplyingEotfThenOetf(
-              context, expandedMatrixTransformations, colorInfo);
+              context, expandedMatrixTransformations, rgbMatrices, colorInfo);
     } else {
       matrixTransformationProcessor =
           MatrixTransformationProcessor.createApplyingOetf(
-              context, expandedMatrixTransformations, colorInfo);
+              context, expandedMatrixTransformations, rgbMatrices, colorInfo);
     }
 
     matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);

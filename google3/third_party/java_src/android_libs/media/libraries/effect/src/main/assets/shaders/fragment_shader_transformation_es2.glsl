@@ -19,11 +19,11 @@
 
 precision mediump float;
 uniform sampler2D uTexSampler;
-uniform mat4 uColorMatrix;
+uniform mat4 uRgbMatrix;
 varying vec2 vTexSamplingCoord;
 
 void main() {
     vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
-    gl_FragColor = uColorMatrix * vec4(inputColor.rgb, 1);
+    gl_FragColor = uRgbMatrix * vec4(inputColor.rgb, 1);
     gl_FragColor.a = inputColor.a;
 }
