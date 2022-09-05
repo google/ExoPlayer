@@ -15,7 +15,8 @@
 
 // ES 3 fragment shader that:
 // 1. samples optical linear BT.2020 RGB from a (non-external) texture with
-//    uTexSampler,
+//    uTexSampler, and applies a 4x4 RGB color matrix to change the pixel
+//    colors,
 // 2. applies the HLG or PQ OETF to yield electrical (HLG or PQ) BT.2020 RGB,
 //    and
 // 3. copies this converted texture color to the current output.
@@ -28,6 +29,7 @@ out vec4 outColor;
 // Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
 uniform int uOetfColorTransfer;
 uniform mat3 uColorTransform;
+uniform mat4 uRgbMatrix;
 
 // TODO(b/227624622): Consider using mediump to save precision, if it won't lead
 //  to noticeable quantization.
@@ -83,5 +85,6 @@ highp vec3 getElectricalColor(highp vec3 linearColor) {
 
 void main() {
   vec4 inputColor = texture(uTexSampler, vTexSamplingCoord);
-  outColor = vec4(getElectricalColor(inputColor.rgb), inputColor.a);
+  vec4 transformedColors = uRgbMatrix * vec4(inputColor.rgb, 1);
+  outColor = vec4(getElectricalColor(transformedColors.rgb), inputColor.a);
 }
