@@ -183,7 +183,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         controller ->
             controller.onPlayerInfoChanged(
                 playerInfo,
-                /* timelineChangedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
+                /* timelineChangedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
                 isTimelineExcluded));
   }
 

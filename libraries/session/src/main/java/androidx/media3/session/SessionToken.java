@@ -399,7 +399,7 @@ public final class SessionToken implements Bundleable {
     try {
       return manager.getApplicationInfo(packageName, 0).uid;
     } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalArgumentException("Cannot find package " + packageName);
+      throw new IllegalArgumentException("Cannot find package " + packageName, e);
     }
   }
 

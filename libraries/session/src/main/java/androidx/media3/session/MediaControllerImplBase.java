@@ -1261,7 +1261,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ currentItemRemoved,
           DISCONTINUITY_REASON_REMOVE,
-          /* mediaItemTransition*/ playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex
+          /* mediaItemTransition= */ playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex
                   >= fromIndex
               && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < clippedToIndex,
           MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
