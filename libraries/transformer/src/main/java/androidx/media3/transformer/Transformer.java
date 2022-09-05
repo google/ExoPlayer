@@ -537,8 +537,9 @@ public final class Transformer {
      * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
      *     building {@link Transformer}.
      * @param fallbackTransformationRequest The alternative {@link TransformationRequest}, with
-     *     supported {@link TransformationRequest#outputHeight} and {@link
-     *     TransformationRequest#videoMimeType} values set.
+     *     supported {@link TransformationRequest#audioMimeType}, {@link
+     *     TransformationRequest#videoMimeType}, {@link TransformationRequest#outputHeight}, and
+     *     {@link TransformationRequest#enableRequestSdrToneMapping} values set.
      */
     default void onFallbackApplied(
         MediaItem inputMediaItem,
