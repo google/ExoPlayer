@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
@@ -106,7 +105,7 @@ public final class DefaultCodec implements Codec {
     @Nullable Surface inputSurface = null;
     try {
       boolean requestedHdrToneMapping =
-          Util.SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
+          SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
       if (SDK_INT >= 29 && requestedHdrToneMapping) {
