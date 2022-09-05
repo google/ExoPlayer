@@ -40,7 +40,6 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
@@ -108,7 +107,7 @@ public final class DefaultCodec implements Codec {
     @Nullable Surface inputSurface = null;
     try {
       boolean requestedHdrToneMapping =
-          Util.SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
+          SDK_INT >= 29 && Api29.isSdrToneMappingEnabled(configurationMediaFormat);
       mediaCodec = MediaCodec.createByCodecName(mediaCodecName);
       configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
       if (SDK_INT >= 29 && requestedHdrToneMapping) {

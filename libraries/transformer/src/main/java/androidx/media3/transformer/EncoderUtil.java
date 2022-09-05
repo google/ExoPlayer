@@ -88,7 +88,7 @@ public final class EncoderUtil {
     for (int i = 0; i < mediaCodecInfos.size(); i++) {
       MediaCodecInfo mediaCodecInfo = mediaCodecInfos.get(i);
       if (mediaCodecInfo.isAlias()
-          || !EncoderUtil.isFeatureSupported(
+          || !isFeatureSupported(
               mediaCodecInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing)) {
         continue;
       }
