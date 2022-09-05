@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import android.content.Context;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Provides common color filters. */
@@ -91,9 +92,13 @@ public class RgbFilter implements RgbMatrix {
   }
 
   @Override
-  public RgbMatrixProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public MatrixTransformationProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     checkForConsistentHdrSetting(useHdr);
-    return new RgbMatrixProcessor(context, /* rgbMatrix= */ this, useHdr);
+    return MatrixTransformationProcessor.create(
+        context,
+        /* matrixTransformations= */ ImmutableList.of(),
+        /* rgbMatrices= */ ImmutableList.of(this),
+        useHdr);
   }
 }

@@ -23,13 +23,15 @@
 // 3. If uEotfColorTransfer is COLOR_TRANSFER_NO_VALUE, outputs electrical
 //    (HLG or PQ) BT.2020 RGB. Otherwise, outputs optical linear BT.2020 RGB for
 //    intermediate shaders by applying the HLG or PQ EOTF.
-// 4. Copies this converted texture color to the current output, with alpha = 1.
+// 4. Copies this converted texture color to the current output, with alpha = 1,
+//    while applying a 4x4 RGB color matrix to change the pixel colors.
 
 #extension GL_OES_EGL_image_external : require
 #extension GL_EXT_YUV_target : require
 precision mediump float;
 uniform __samplerExternal2DY2YEXT uTexSampler;
 uniform mat3 uYuvToRgbColorTransform;
+uniform mat4 uRgbMatrix;
 // C.java#ColorTransfer value.
 uniform int uEotfColorTransfer;
 in vec2 vTexSamplingCoord;
@@ -101,5 +103,5 @@ vec3 yuvToRgb(vec3 yuv) {
 void main() {
   vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
   vec3 rgb = yuvToRgb(srcYuv);
-  outColor = vec4(getOpticalColor(rgb), 1.0);
+  outColor = uRgbMatrix * vec4(getOpticalColor(rgb), 1.0);
 }

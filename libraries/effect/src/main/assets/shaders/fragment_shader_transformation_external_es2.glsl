@@ -1,5 +1,5 @@
 #version 100
-// Copyright 2022 The Android Open Source Project
+// Copyright 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ES 2 fragment shader that samples from a (non-external) texture with uTexSampler,
-// copying from this texture to the current output.
+// ES 2 fragment shader that samples from an external texture with uTexSampler,
+// copying from this texture to the current output while applying a 4x4 RGB
+// color matrix to change the pixel colors.
 
+#extension GL_OES_EGL_image_external : require
 precision mediump float;
-uniform sampler2D uTexSampler;
+uniform samplerExternalOES uTexSampler;
+uniform mat4 uRgbMatrix;
 varying vec2 vTexSamplingCoord;
+
 void main() {
-  gl_FragColor = texture2D(uTexSampler, vTexSamplingCoord);
+  vec4 inputColor = texture2D(uTexSampler, vTexSamplingCoord);
+  gl_FragColor = uRgbMatrix * vec4(inputColor.rgb, 1);
+  gl_FragColor.a = inputColor.a;
 }

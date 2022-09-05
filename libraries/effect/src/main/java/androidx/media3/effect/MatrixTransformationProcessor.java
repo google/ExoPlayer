@@ -34,17 +34,22 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * Applies a sequence of transformation matrices in the vertex shader, and copies input pixels into
- * an output frame based on their locations after applying the sequence of transformation matrices.
+ * Applies a sequence of {@link MatrixTransformation MatrixTransformations} in the vertex shader and
+ * a sequence of {@link RgbMatrix RgbMatrices} in the fragment shader. Copies input pixels into an
+ * output frame based on their locations after applying the sequence of transformation matrices.
  *
- * <p>Operations are done on normalized device coordinates (-1 to 1 on x, y, and z axes).
- * Transformed vertices that are moved outside of this range after any of the transformation
- * matrices are clipped to the NDC range.
+ * <p>{@link MatrixTransformation} operations are done on normalized device coordinates (-1 to 1 on
+ * x, y, and z axes). Transformed vertices that are moved outside of this range after any of the
+ * transformation matrices are clipped to the NDC range.
+ *
+ * <p>After applying all {@link RgbMatrix} instances, color values are clamped to the limits of the
+ * color space (e.g. BT.709 for SDR). Intermediate results are not clamped.
  *
  * <p>The background color of the output frame will be (r=0, g=0, b=0, a=0).
  *
  * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
  */
+// TODO(b/239757183): Rename Matrix to a more generic name.
 @UnstableApi
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 /* package */ final class MatrixTransformationProcessor extends SingleFrameGlTextureProcessor
@@ -54,13 +59,14 @@ import java.util.Arrays;
       "shaders/vertex_shader_transformation_es2.glsl";
   private static final String VERTEX_SHADER_TRANSFORMATION_ES3_PATH =
       "shaders/vertex_shader_transformation_es3.glsl";
-  private static final String FRAGMENT_SHADER_COPY_PATH = "shaders/fragment_shader_copy_es2.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_PATH =
+      "shaders/fragment_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_OETF_ES3_PATH =
       "shaders/fragment_shader_oetf_es3.glsl";
-  private static final String FRAGMENT_SHADER_COPY_EXTERNAL_PATH =
-      "shaders/fragment_shader_copy_external_es2.glsl";
-  private static final String FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH =
-      "shaders/fragment_shader_copy_external_yuv_es3.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_PATH =
+      "shaders/fragment_shader_transformation_external_es2.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH =
+      "shaders/fragment_shader_transformation_external_yuv_es3.glsl";
   private static final ImmutableList<float[]> NDC_SQUARE =
       ImmutableList.of(
           new float[] {-1, -1, 0, 1},
@@ -84,6 +90,10 @@ import java.util.Arrays;
 
   /** The {@link MatrixTransformation MatrixTransformations} to apply. */
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
+  /** The {@link RgbMatrix RgbMatrices} to apply. */
+  private final ImmutableList<RgbMatrix> rgbMatrices;
+  /** Whether the frame is in HDR or not. */
+  private final boolean useHdr;
   /**
    * The transformation matrices provided by the {@link MatrixTransformation MatrixTransformations}
    * for the most recent frame.
@@ -117,19 +127,25 @@ import java.util.Arrays;
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order.
+   *     apply to each frame in order. Can be empty to apply no vertex transformations.
+   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
+   *     empty to apply no color transformations.
    * @param useHdr Whether input and output colors are HDR.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
   public static MatrixTransformationProcessor create(
-      Context context, ImmutableList<GlMatrixTransformation> matrixTransformations, boolean useHdr)
+      Context context,
+      ImmutableList<GlMatrixTransformation> matrixTransformations,
+      ImmutableList<RgbMatrix> rgbMatrices,
+      boolean useHdr)
       throws FrameProcessingException {
     GlProgram glProgram =
-        createGlProgram(context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_COPY_PATH);
+        createGlProgram(
+            context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
 
     // No transfer functions needed, because input and output are both optical colors.
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, useHdr);
+    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
   }
 
   /**
@@ -148,7 +164,9 @@ import java.util.Arrays;
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order.
+   *     apply to each frame in order. Can be empty to apply no vertex transformations.
+   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
+   *     empty to apply no color transformations.
    * @param electricalColorInfo The electrical {@link ColorInfo} describing input colors.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
@@ -156,13 +174,16 @@ import java.util.Arrays;
   public static MatrixTransformationProcessor createWithExternalSamplerApplyingEotf(
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
+      ImmutableList<RgbMatrix> rgbMatrices,
       ColorInfo electricalColorInfo)
       throws FrameProcessingException {
     boolean useHdr = ColorInfo.isTransferHdr(electricalColorInfo);
     String vertexShaderFilePath =
         useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
     String fragmentShaderFilePath =
-        useHdr ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+        useHdr
+            ? FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH
+            : FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
     // TODO(b/241902517): Implement gamma transfer functions.
@@ -184,7 +205,7 @@ import java.util.Arrays;
       glProgram.setIntUniform("uEotfColorTransfer", colorTransfer);
     }
 
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, useHdr);
+    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
   }
 
   /**
@@ -199,7 +220,9 @@ import java.util.Arrays;
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order.
+   *     apply to each frame in order. Can be empty to apply no vertex transformations.
+   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
+   *     empty to apply no color transformations.
    * @param electricalColorInfo The electrical {@link ColorInfo} describing output colors.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
@@ -207,13 +230,14 @@ import java.util.Arrays;
   public static MatrixTransformationProcessor createApplyingOetf(
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
+      ImmutableList<RgbMatrix> rgbMatrices,
       ColorInfo electricalColorInfo)
       throws FrameProcessingException {
     boolean useHdr = ColorInfo.isTransferHdr(electricalColorInfo);
     String vertexShaderFilePath =
         useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
     String fragmentShaderFilePath =
-        useHdr ? FRAGMENT_SHADER_OETF_ES3_PATH : FRAGMENT_SHADER_COPY_PATH;
+        useHdr ? FRAGMENT_SHADER_OETF_ES3_PATH : FRAGMENT_SHADER_TRANSFORMATION_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
     // TODO(b/241902517): Implement gamma transfer functions.
@@ -224,7 +248,7 @@ import java.util.Arrays;
       glProgram.setIntUniform("uOetfColorTransfer", colorTransfer);
     }
 
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, useHdr);
+    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
   }
 
   /**
@@ -239,7 +263,9 @@ import java.util.Arrays;
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order.
+   *     apply to each frame in order. Can be empty to apply no vertex transformations.
+   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
+   *     empty to apply no color transformations.
    * @param electricalColorInfo The electrical {@link ColorInfo} describing input and output colors.
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
@@ -247,13 +273,16 @@ import java.util.Arrays;
   public static MatrixTransformationProcessor createWithExternalSamplerApplyingEotfThenOetf(
       Context context,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
+      ImmutableList<RgbMatrix> rgbMatrices,
       ColorInfo electricalColorInfo)
       throws FrameProcessingException {
     boolean useHdr = ColorInfo.isTransferHdr(electricalColorInfo);
     String vertexShaderFilePath =
         useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
     String fragmentShaderFilePath =
-        useHdr ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
+        useHdr
+            ? FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH
+            : FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
     // TODO(b/241902517): Implement gamma transfer functions.
@@ -273,7 +302,7 @@ import java.util.Arrays;
       glProgram.setIntUniform("uEotfColorTransfer", Format.NO_VALUE);
     }
 
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, useHdr);
+    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
   }
 
   /**
@@ -281,17 +310,22 @@ import java.util.Arrays;
    *
    * @param glProgram The {@link GlProgram}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order.
+   *     apply to each frame in order. Can be empty to apply no vertex transformations.
+   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
+   *     empty to apply no color transformations.
    * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
    *     EXT_YUV_target} OpenGL extension.
    */
   private MatrixTransformationProcessor(
       GlProgram glProgram,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
+      ImmutableList<RgbMatrix> rgbMatrices,
       boolean useHdr) {
     super(useHdr);
     this.glProgram = glProgram;
     this.matrixTransformations = matrixTransformations;
+    this.rgbMatrices = rgbMatrices;
+    this.useHdr = useHdr;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
     compositeTransformationMatrix = new float[16];
@@ -333,11 +367,13 @@ import java.util.Arrays;
     if (visiblePolygon.size() < 3) {
       return; // Need at least three visible vertices for a triangle.
     }
-
+    float[] compositeRgbMatrix =
+        createCompositeRgbaMatrixArray(rgbMatrices, useHdr, presentationTimeUs);
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
       glProgram.setFloatsUniform("uTransformationMatrix", compositeTransformationMatrix);
+      glProgram.setFloatsUniform("uRgbMatrix", compositeRgbMatrix);
       glProgram.setBufferAttribute(
           "aFramePosition",
           GlUtil.createVertexBuffer(visiblePolygon),
@@ -424,5 +460,32 @@ import java.util.Arrays;
       }
     }
     return matrixChanged;
+  }
+
+  // TODO(b/239757183): Add caching for RgbMatrix and refactor RgbMatrix and MatrixTransformation
+  // composing.
+  private static float[] createCompositeRgbaMatrixArray(
+      ImmutableList<RgbMatrix> rgbMatrices, boolean useHdr, long presentationTimeUs) {
+    float[] tempResultMatrix = new float[16];
+    float[] compositeRgbaMatrix = new float[16];
+    Matrix.setIdentityM(compositeRgbaMatrix, /* smOffset= */ 0);
+
+    for (int i = 0; i < rgbMatrices.size(); i++) {
+      Matrix.multiplyMM(
+          /* result= */ tempResultMatrix,
+          /* resultOffset= */ 0,
+          /* lhs= */ rgbMatrices.get(i).getMatrix(presentationTimeUs, useHdr),
+          /* lhsOffset= */ 0,
+          /* rhs= */ compositeRgbaMatrix,
+          /* rhsOffset= */ 0);
+      System.arraycopy(
+          /* src= */ tempResultMatrix,
+          /* srcPos= */ 0,
+          /* dest= */ compositeRgbaMatrix,
+          /* destPost= */ 0,
+          /* length= */ tempResultMatrix.length);
+    }
+
+    return compositeRgbaMatrix;
   }
 }
