@@ -66,6 +66,7 @@ public interface TsPayloadReader {
     public final int streamType;
     @Nullable public final String language;
     public final List<DvbSubtitleInfo> dvbSubtitleInfos;
+    public final List<DvbTeletextInfo> dvbTeletextInfos;
     public final byte[] descriptorBytes;
 
     /**
@@ -79,6 +80,7 @@ public interface TsPayloadReader {
         int streamType,
         @Nullable String language,
         @Nullable List<DvbSubtitleInfo> dvbSubtitleInfos,
+        @Nullable List<DvbTeletextInfo> dvbTeletextInfos,
         byte[] descriptorBytes) {
       this.streamType = streamType;
       this.language = language;
@@ -86,6 +88,10 @@ public interface TsPayloadReader {
           dvbSubtitleInfos == null
               ? Collections.emptyList()
               : Collections.unmodifiableList(dvbSubtitleInfos);
+      this.dvbTeletextInfos =
+          dvbTeletextInfos == null
+              ? Collections.emptyList()
+              : Collections.unmodifiableList(dvbTeletextInfos);
       this.descriptorBytes = descriptorBytes;
     }
   }
@@ -105,6 +111,27 @@ public interface TsPayloadReader {
      * @param initializationData The composition and ancillary page ids.
      */
     public DvbSubtitleInfo(String language, int type, byte[] initializationData) {
+      this.language = language;
+      this.type = type;
+      this.initializationData = initializationData;
+    }
+  }
+
+  /**
+   * Holds information about a DVB Teletext, as defined in ETSI EN 300 468 V1.16.1 section 6.2.43.
+   */
+  final class DvbTeletextInfo {
+
+    public final String language;
+    public final int type;
+    public final byte[] initializationData;
+
+    /**
+     * @param language The ISO 639-2 three-letter language code.
+     * @param type The Teletext type.
+     * @param initializationData The magazine number and page number.
+     */
+    public DvbTeletextInfo(String language, int type, byte[] initializationData) {
       this.language = language;
       this.type = type;
       this.initializationData = initializationData;
