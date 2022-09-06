@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Applies a sequence of {@link MatrixTransformation MatrixTransformations} in the vertex shader and
@@ -134,8 +135,8 @@ import java.util.Arrays;
    */
   public static MatrixTransformationProcessor create(
       Context context,
-      ImmutableList<GlMatrixTransformation> matrixTransformations,
-      ImmutableList<RgbMatrix> rgbMatrices,
+      List<GlMatrixTransformation> matrixTransformations,
+      List<RgbMatrix> rgbMatrices,
       boolean useHdr)
       throws FrameProcessingException {
     GlProgram glProgram =
@@ -143,7 +144,11 @@ import java.util.Arrays;
             context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
 
     // No transfer functions needed, because input and output are both optical colors.
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
+    return new MatrixTransformationProcessor(
+        glProgram,
+        ImmutableList.copyOf(matrixTransformations),
+        ImmutableList.copyOf(rgbMatrices),
+        useHdr);
   }
 
   /**
@@ -171,8 +176,8 @@ import java.util.Arrays;
    */
   public static MatrixTransformationProcessor createWithExternalSamplerApplyingEotf(
       Context context,
-      ImmutableList<GlMatrixTransformation> matrixTransformations,
-      ImmutableList<RgbMatrix> rgbMatrices,
+      List<GlMatrixTransformation> matrixTransformations,
+      List<RgbMatrix> rgbMatrices,
       ColorInfo electricalColorInfo)
       throws FrameProcessingException {
     boolean useHdr = ColorInfo.isTransferHdr(electricalColorInfo);
@@ -203,7 +208,11 @@ import java.util.Arrays;
       glProgram.setIntUniform("uEotfColorTransfer", colorTransfer);
     }
 
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
+    return new MatrixTransformationProcessor(
+        glProgram,
+        ImmutableList.copyOf(matrixTransformations),
+        ImmutableList.copyOf(rgbMatrices),
+        useHdr);
   }
 
   /**
@@ -227,8 +236,8 @@ import java.util.Arrays;
    */
   public static MatrixTransformationProcessor createApplyingOetf(
       Context context,
-      ImmutableList<GlMatrixTransformation> matrixTransformations,
-      ImmutableList<RgbMatrix> rgbMatrices,
+      List<GlMatrixTransformation> matrixTransformations,
+      List<RgbMatrix> rgbMatrices,
       ColorInfo electricalColorInfo)
       throws FrameProcessingException {
     boolean useHdr = ColorInfo.isTransferHdr(electricalColorInfo);
@@ -246,7 +255,11 @@ import java.util.Arrays;
       glProgram.setIntUniform("uOetfColorTransfer", colorTransfer);
     }
 
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
+    return new MatrixTransformationProcessor(
+        glProgram,
+        ImmutableList.copyOf(matrixTransformations),
+        ImmutableList.copyOf(rgbMatrices),
+        useHdr);
   }
 
   /**
@@ -270,8 +283,8 @@ import java.util.Arrays;
    */
   public static MatrixTransformationProcessor createWithExternalSamplerApplyingEotfThenOetf(
       Context context,
-      ImmutableList<GlMatrixTransformation> matrixTransformations,
-      ImmutableList<RgbMatrix> rgbMatrices,
+      List<GlMatrixTransformation> matrixTransformations,
+      List<RgbMatrix> rgbMatrices,
       ColorInfo electricalColorInfo)
       throws FrameProcessingException {
     boolean useHdr = ColorInfo.isTransferHdr(electricalColorInfo);
@@ -300,7 +313,11 @@ import java.util.Arrays;
       glProgram.setIntUniform("uEotfColorTransfer", Format.NO_VALUE);
     }
 
-    return new MatrixTransformationProcessor(glProgram, matrixTransformations, rgbMatrices, useHdr);
+    return new MatrixTransformationProcessor(
+        glProgram,
+        ImmutableList.copyOf(matrixTransformations),
+        ImmutableList.copyOf(rgbMatrices),
+        useHdr);
   }
 
   /**
