@@ -220,6 +220,122 @@ public class MetadataRendererTest {
     assertThat(metadata.get(1).presentationTimeUs).isEqualTo(1_000_000);
   }
 
+  @Test
+  public void replaceStream_withIncreasingOffsetUs_updatesPendingMetadataPresentationTime()
+      throws Exception {
+    EventMessage emsg =
+        new EventMessage(
+            "urn:test-scheme-id",
+            /* value= */ "",
+            /* durationMs= */ 1,
+            /* id= */ 0,
+            "Test data".getBytes(UTF_8));
+    byte[] encodedEmsg = eventMessageEncoder.encode(emsg);
+    List<Metadata> metadataOutput = new ArrayList<>();
+    MetadataRenderer renderer =
+        new MetadataRenderer(
+            /* output= */ metadataOutput::add,
+            /* outputLooper= */ null,
+            MetadataDecoderFactory.DEFAULT,
+            /* outputMetadataEarly= */ false);
+    FakeSampleStream fakeSampleStream =
+        createFakeSampleStream(
+            ImmutableList.of(
+                sample(/* timeUs= */ 100_000, C.BUFFER_FLAG_KEY_FRAME, encodedEmsg),
+                sample(/* timeUs= */ 200_000, C.BUFFER_FLAG_KEY_FRAME, encodedEmsg),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    // Start of the first reading period.
+    renderer.replaceStream(
+        new Format[] {EMSG_FORMAT},
+        fakeSampleStream,
+        /* startPositionUs= */ 0L,
+        /* offsetUs= */ 0L);
+    // Read the format
+    renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+
+    // Read and render the first metadata. The second metadata is immediately read as pending.
+    // The offset is added to timeUs of the samples when reading (100_000 and 200_000).
+    renderer.render(/* positionUs= */ 99_999, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).isEmpty();
+    renderer.render(/* positionUs= */ 100_000, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).hasSize(1);
+
+    // Start of the 2nd reading period. Replace the stream with a different offset. This adjusts the
+    // presentation time of the pending metadata.
+    renderer.replaceStream(
+        new Format[] {EMSG_FORMAT},
+        fakeSampleStream,
+        /* startPositionUs= */ 0L,
+        /* offsetUs= */ 100_000L);
+    renderer.render(/* positionUs= */ 199_999, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).hasSize(1);
+
+    // Output second metadata.
+    renderer.render(/* positionUs= */ 200_000, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).hasSize(2);
+    assertThat(metadataOutput.get(0).presentationTimeUs).isEqualTo(100_000);
+    assertThat(metadataOutput.get(1).presentationTimeUs).isEqualTo(100_000);
+  }
+
+  @Test
+  public void replaceStream_withDecreasingOffsetUs_updatesPendingMetadataPresentationTime()
+      throws Exception {
+    EventMessage emsg =
+        new EventMessage(
+            "urn:test-scheme-id",
+            /* value= */ "",
+            /* durationMs= */ 1,
+            /* id= */ 0,
+            "Test data".getBytes(UTF_8));
+    byte[] encodedEmsg = eventMessageEncoder.encode(emsg);
+    List<Metadata> metadataOutput = new ArrayList<>();
+    MetadataRenderer renderer =
+        new MetadataRenderer(
+            /* output= */ metadataOutput::add,
+            /* outputLooper= */ null,
+            MetadataDecoderFactory.DEFAULT,
+            /* outputMetadataEarly= */ false);
+    FakeSampleStream fakeSampleStream =
+        createFakeSampleStream(
+            ImmutableList.of(
+                sample(/* timeUs= */ 100_000, C.BUFFER_FLAG_KEY_FRAME, encodedEmsg),
+                sample(/* timeUs= */ 200_000, C.BUFFER_FLAG_KEY_FRAME, encodedEmsg),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    // Start of the first reading period.
+    renderer.replaceStream(
+        new Format[] {EMSG_FORMAT},
+        fakeSampleStream,
+        /* startPositionUs= */ 0L,
+        /* offsetUs= */ 100_000L);
+    // Read the format
+    renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+
+    // Read and render the first metadata. The second metadata is immediately read as pending.
+    // The offset of 0 is added to timeUs of the samples when reading (100_000 and 200_000).
+    renderer.render(/* positionUs= */ 199_999, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).isEmpty();
+    renderer.render(/* positionUs= */ 200_000, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).hasSize(1);
+
+    // Start of the 2nd reading period. Replace the stream with a different offset and adjust the
+    // presentation time of the pending metadata.
+    renderer.replaceStream(
+        new Format[] {EMSG_FORMAT},
+        fakeSampleStream,
+        /* startPositionUs= */ 0L,
+        /* offsetUs= */ 0L);
+    renderer.render(/* positionUs= */ 299_999, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).hasSize(1);
+
+    // Output second metadata.
+    renderer.render(/* positionUs= */ 300_000, /* elapsedRealtimeUs= */ 0);
+    assertThat(metadataOutput).hasSize(2);
+    assertThat(metadataOutput.get(0).presentationTimeUs).isEqualTo(100_000);
+    assertThat(metadataOutput.get(1).presentationTimeUs).isEqualTo(300_000);
+  }
+
   private static List<Metadata> runRenderer(byte[] input) throws ExoPlaybackException {
     List<Metadata> metadata = new ArrayList<>();
     MetadataRenderer renderer = new MetadataRenderer(metadata::add, /* outputLooper= */ null);
