@@ -46,14 +46,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class EncoderCapabilityAnalysisTest {
 
-  // TODO(b/228167357): Remove after bumping compileApiVersion to 33.
-  /** Re-definition of {@code MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing} in API33. */
-  private static final String FEATURE_HdrEditing = "hdr-editing";
-  /**
-   * Re-definition of {@code MediaCodecInfo.CodecCapabilities.FEATURE_EncodingStatistics} in API33.
-   */
-  private static final String FEATURE_EncodingStatistics = "encoding-statistics";
-
   private static final String CAMCORDER_FORMAT_STRING = "%dx%d@%dfps:%dkbps";
   private static final String CAMCORDER_TIMELAPSE_FORMAT_STRING = "timelapse_%dx%d@%dfps:%dkbps";
   private static final String CAMCORDER_HIGH_SPEED_FORMAT_STRING = "highspeed_%dx%d@%dfps:%dkbps";
@@ -162,13 +154,16 @@ public class EncoderCapabilityAnalysisTest {
         capabilities.put(
             "supports_hdr_editing",
             Util.SDK_INT >= 33
-                && EncoderUtil.isFeatureSupported(encoderInfo, mimeType, FEATURE_HdrEditing));
+                && EncoderUtil.isFeatureSupported(
+                    encoderInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing));
 
         capabilities.put(
             "supports_encoding_statistics",
             Util.SDK_INT >= 33
                 && EncoderUtil.isFeatureSupported(
-                    encoderInfo, mimeType, FEATURE_EncodingStatistics));
+                    encoderInfo,
+                    mimeType,
+                    MediaCodecInfo.CodecCapabilities.FEATURE_EncodingStatistics));
 
         encoderCapabilitiesForMimeType.add(capabilities);
       }
