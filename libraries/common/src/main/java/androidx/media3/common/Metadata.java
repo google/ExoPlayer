@@ -154,6 +154,19 @@ public final class Metadata implements Parcelable {
         presentationTimeUs, Util.nullSafeArrayConcatenation(entries, entriesToAppend));
   }
 
+  /**
+   * Returns a copy of this metadata with the specified presentation time.
+   *
+   * @param presentationTimeUs The new presentation time, in microseconds.
+   * @return The metadata instance with the new presentation time.
+   */
+  public Metadata copyWithPresentationTimeUs(long presentationTimeUs) {
+    if (this.presentationTimeUs == presentationTimeUs) {
+      return this;
+    }
+    return new Metadata(presentationTimeUs, entries);
+  }
+
   @Override
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
