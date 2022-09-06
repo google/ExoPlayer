@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Util.castNonNull;
+import static androidx.media3.exoplayer.rtsp.reader.RtpReaderUtils.toSampleTimeUs;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -27,6 +28,7 @@ import androidx.media3.common.util.ParsableBitArray;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.rtsp.RtpPacket;
 import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.TrackOutput;
@@ -39,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Refer to RFC3016 for more details.
  */
 @UnstableApi
-/* package */ final class RtpMp4aPayloadReader  implements RtpPayloadReader {
+/* package */ final class RtpMp4aReader implements RtpPayloadReader {
   private static final String TAG = "RtpMp4aLatmReader";
 
   private static final String PARAMETER_MP4A_CONFIG = "config";
@@ -47,17 +49,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final RtpPayloadFormat payloadFormat;
   private @MonotonicNonNull TrackOutput trackOutput;
   private long firstReceivedTimestamp;
+  private int previousSequenceNumber;
   /** The combined size of a sample that is fragmented into multiple subFrames. */
   private int fragmentedSampleSizeBytes;
   private long startTimeOffsetUs;
+  private long sampleTimeUsOfFragmentedSample;
+  private int numSubFrames;
 
   /** Creates an instance. */
-  public RtpMp4aPayloadReader(RtpPayloadFormat payloadFormat) {
+  public RtpMp4aReader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
+    previousSequenceNumber = C.INDEX_UNSET;
     fragmentedSampleSizeBytes = 0;
     // The start time offset must be 0 until the first seek.
     startTimeOffsetUs = 0;
+    sampleTimeUsOfFragmentedSample = C.TIME_UNSET;
   }
 
   @Override
@@ -70,7 +77,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {
     checkState(firstReceivedTimestamp == C.TIME_UNSET);
     firstReceivedTimestamp = timestamp;
-  }
+    try {
+      numSubFrames = getNumOfSubframesFromMpeg4AudioConfig(payloadFormat.fmtpParameters);
+    } catch (ParserException e) {
+      e.printStackTrace();
+    }
+}
 
   @Override
   public void consume(
@@ -78,8 +90,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throws ParserException {
     checkStateNotNull(trackOutput);
 
+    int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
+    if(fragmentedSampleSizeBytes > 0 && expectedSequenceNumber < sequenceNumber) {
+      outputSampleMetadataForFragmentedPackets();
+    }
     int sampleOffset = 0;
-    int numSubFrames = getNumOfSubframesFromMpeg4AudioConfig(payloadFormat.fmtpParameters);
     for (int subFrame = 0; subFrame <= numSubFrames; subFrame++) {
       int sampleLength = 0;
 
@@ -98,13 +113,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       sampleOffset += sampleLength;
       fragmentedSampleSizeBytes += sampleLength;
     }
+    sampleTimeUsOfFragmentedSample = toSampleTimeUs(startTimeOffsetUs, timestamp,
+        firstReceivedTimestamp, payloadFormat.clockRate);
     if (rtpMarker) {
-      long timeUs =
-          toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp, payloadFormat.clockRate);
-      trackOutput.sampleMetadata(
-          timeUs, C.BUFFER_FLAG_KEY_FRAME, fragmentedSampleSizeBytes, 0, null);
-      fragmentedSampleSizeBytes = 0;
+      outputSampleMetadataForFragmentedPackets();
     }
+    previousSequenceNumber = sequenceNumber;
   }
 
   @Override
@@ -115,14 +129,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   // Internal methods.
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp, int sampleRate) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-        rtpTimestamp - firstReceivedRtpTimestamp,
-        /* multiplier= */ C.MICROS_PER_SECOND,
-        /* divisor= */ sampleRate);
-  }
 
   /**
    * Parses an MPEG-4 Audio Stream Mux configuration, as defined in ISO/IEC14496-3. FMTP attribute
@@ -134,7 +140,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws ParserException If the MPEG-4 Audio Stream Mux configuration cannot be parsed due to
    *     unsupported audioMuxVersion.
    */
-  public static Integer getNumOfSubframesFromMpeg4AudioConfig(
+  private static Integer getNumOfSubframesFromMpeg4AudioConfig(
       ImmutableMap<String, String> fmtpAttributes) throws ParserException {
     @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4A_CONFIG);
     int numSubFrames = 0;
@@ -153,5 +159,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     return numSubFrames;
+  }
+
+  /**
+   * Outputs sample metadata.
+   *
+   * <p>Call this method only when receiving a end of Mpeg4 partition
+   */
+  private void outputSampleMetadataForFragmentedPackets() {
+    trackOutput.sampleMetadata(
+        sampleTimeUsOfFragmentedSample,
+        C.BUFFER_FLAG_KEY_FRAME,
+        fragmentedSampleSizeBytes,
+        /* offset= */ 0,
+        /* cryptoData= */ null);
+    fragmentedSampleSizeBytes = 0;
+    sampleTimeUsOfFragmentedSample = C.TIME_UNSET;
   }
 }
