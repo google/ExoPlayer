@@ -12095,6 +12095,26 @@ public final class ExoPlayerTest {
     verify(listener, atLeast(2)).onDeviceVolumeChanged(anyInt(), anyBoolean());
   }
 
+  @Test
+  public void loadControlBackBuffer_withInsufficientMemoryLimits_stillContinuesPlayback()
+      throws Exception {
+    DefaultLoadControl loadControl =
+        new DefaultLoadControl.Builder()
+            .setTargetBufferBytes(500_000)
+            .setBackBuffer(
+                /* backBufferDurationMs= */ 1_000_000, /* retainBackBufferFromKeyframe= */ true)
+            .build();
+
+    ExoPlayer player = new TestExoPlayerBuilder(context).setLoadControl(loadControl).build();
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    // Assert that playing works without getting stuck due to the memory used by the back buffer.
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
