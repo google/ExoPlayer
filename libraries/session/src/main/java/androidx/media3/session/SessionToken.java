@@ -118,10 +118,10 @@ public final class SessionToken implements Bundleable {
       type = TYPE_BROWSER_SERVICE_LEGACY;
     } else {
       throw new IllegalArgumentException(
-          serviceComponent
-              + " doesn't implement none of"
-              + " MediaSessionService, MediaLibraryService, MediaBrowserService nor"
-              + " MediaBrowserServiceCompat. Use service's full name");
+          "Failed to resolve SessionToken for "
+              + serviceComponent
+              + ". Manifest doesn't declare one of either MediaSessionService, MediaLibraryService,"
+              + " MediaBrowserService or MediaBrowserServiceCompat. Use service's full name.");
     }
     if (type != TYPE_BROWSER_SERVICE_LEGACY) {
       impl = new SessionTokenImplBase(serviceComponent, uid, type);
