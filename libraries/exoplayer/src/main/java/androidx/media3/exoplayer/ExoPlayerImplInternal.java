@@ -175,6 +175,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * to load it.
    */
   private static final long PLAYBACK_STUCK_AFTER_MS = 4000;
+  /**
+   * Threshold under which a buffered duration is assumed to be empty. We cannot use zero to account
+   * for buffers currently hold but not played by the renderer.
+   */
+  private static final long PLAYBACK_BUFFER_EMPTY_THRESHOLD_US = 500_000;
 
   private final Renderer[] renderers;
   private final Set<Renderer> renderersToReset;
@@ -1058,7 +1063,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         }
       }
       if (!playbackInfo.isLoading
-          && playbackInfo.totalBufferedDurationUs < 500_000
+          && playbackInfo.totalBufferedDurationUs < PLAYBACK_BUFFER_EMPTY_THRESHOLD_US
           && isLoadingPossible()) {
         // The renderers are not ready, there is more media available to load, and the LoadControl
         // is refusing to load it (indicated by !playbackInfo.isLoading). This could be because the
@@ -2314,8 +2319,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
             ? loadingPeriodHolder.toPeriodTime(rendererPositionUs)
             : loadingPeriodHolder.toPeriodTime(rendererPositionUs)
                 - loadingPeriodHolder.info.startPositionUs;
-    return loadControl.shouldContinueLoading(
-        playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
+    boolean shouldContinueLoading =
+        loadControl.shouldContinueLoading(
+            playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
+    if (!shouldContinueLoading
+        && bufferedDurationUs < PLAYBACK_BUFFER_EMPTY_THRESHOLD_US
+        && (backBufferDurationUs > 0 || retainBackBufferFromKeyframe)) {
+      // LoadControl doesn't want to continue loading despite no buffered data. Clear back buffer
+      // and try again in case it's blocked on memory usage of the back buffer.
+      queue
+          .getPlayingPeriod()
+          .mediaPeriod
+          .discardBuffer(playbackInfo.positionUs, /* toKeyframe= */ false);
+      shouldContinueLoading =
+          loadControl.shouldContinueLoading(
+              playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
+    }
+    return shouldContinueLoading;
   }
 
   private boolean isLoadingPossible() {
