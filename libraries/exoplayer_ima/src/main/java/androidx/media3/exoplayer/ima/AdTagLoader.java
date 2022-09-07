@@ -965,7 +965,7 @@ import java.util.Map;
 
     Uri adUri = Uri.parse(adMediaInfo.getUrl());
     adPlaybackState =
-        adPlaybackState.withAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
+        adPlaybackState.withAvailableAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
     updateAdPlaybackState();
   }
 

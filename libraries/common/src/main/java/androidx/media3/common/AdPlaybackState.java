@@ -125,6 +125,9 @@ public final class AdPlaybackState implements Bundleable {
      * Returns the index of the next ad in the ad group that should be played after playing {@code
      * lastPlayedAdIndex}, or {@link #count} if no later ads should be played. If no ads have been
      * played, pass -1 to get the index of the first ad to play.
+     *
+     * <p>Note: {@linkplain #isServerSideInserted Server side inserted ads} are always considered
+     * playable.
      */
     public int getNextAdIndexToPlay(@IntRange(from = -1) int lastPlayedAdIndex) {
       int nextAdIndexToPlay = lastPlayedAdIndex + 1;
@@ -235,7 +238,7 @@ public final class AdPlaybackState implements Bundleable {
     @CheckResult
     public AdGroup withAdState(@AdState int state, @IntRange(from = 0) int index) {
       checkArgument(count == C.LENGTH_UNSET || index < count);
-      @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, index + 1);
+      @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, /* count= */ index + 1);
       checkArgument(
           states[index] == AD_STATE_UNAVAILABLE
               || states[index] == AD_STATE_AVAILABLE
@@ -470,7 +473,7 @@ public final class AdPlaybackState implements Bundleable {
    */
   public final long contentDurationUs;
   /**
-   * The number of ad groups the have been removed. Ad groups with indices between {@code 0}
+   * The number of ad groups that have been removed. Ad groups with indices between {@code 0}
    * (inclusive) and {@code removedAdGroupCount} (exclusive) will be empty and must not be modified
    * by any of the {@code with*} methods.
    */
@@ -639,18 +642,40 @@ public final class AdPlaybackState implements Bundleable {
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
-  /** Returns an instance with the specified ad URI. */
+  /**
+   * Returns an instance with the specified ad URI and the ad marked as {@linkplain
+   * #AD_STATE_AVAILABLE available}.
+   *
+   * @throws IllegalStateException If {@link Uri#EMPTY} is passed as argument for a client-side
+   *     inserted ad group.
+   */
   @CheckResult
-  public AdPlaybackState withAdUri(
+  public AdPlaybackState withAvailableAdUri(
       @IntRange(from = 0) int adGroupIndex, @IntRange(from = 0) int adIndexInAdGroup, Uri uri) {
     int adjustedIndex = adGroupIndex - removedAdGroupCount;
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    checkState(!Uri.EMPTY.equals(uri) || adGroups[adjustedIndex].isServerSideInserted);
     adGroups[adjustedIndex] = adGroups[adjustedIndex].withAdUri(uri, adIndexInAdGroup);
     return new AdPlaybackState(
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
-  /** Returns an instance with the specified ad marked as played. */
+  /**
+   * Returns an instance with the specified ad marked as {@linkplain #AD_STATE_AVAILABLE available}.
+   *
+   * <p>Must not be called with client side inserted ad groups. Client side inserted ads should use
+   * {@link #withAvailableAdUri}.
+   *
+   * @throws IllegalStateException in case this methods is called on an ad group that {@linkplain
+   *     AdGroup#isServerSideInserted is not server side inserted}.
+   */
+  @CheckResult
+  public AdPlaybackState withAvailableAd(
+      @IntRange(from = 0) int adGroupIndex, @IntRange(from = 0) int adIndexInAdGroup) {
+    return withAvailableAdUri(adGroupIndex, adIndexInAdGroup, Uri.EMPTY);
+  }
+
+  /** Returns an instance with the specified ad marked as {@linkplain #AD_STATE_PLAYED played}. */
   @CheckResult
   public AdPlaybackState withPlayedAd(
       @IntRange(from = 0) int adGroupIndex, @IntRange(from = 0) int adIndexInAdGroup) {
@@ -662,7 +687,7 @@ public final class AdPlaybackState implements Bundleable {
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
-  /** Returns an instance with the specified ad marked as skipped. */
+  /** Returns an instance with the specified ad marked as {@linkplain #AD_STATE_SKIPPED skipped}. */
   @CheckResult
   public AdPlaybackState withSkippedAd(
       @IntRange(from = 0) int adGroupIndex, @IntRange(from = 0) int adIndexInAdGroup) {
@@ -674,7 +699,10 @@ public final class AdPlaybackState implements Bundleable {
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
-  /** Returns an instance with the specified ad marked as having a load error. */
+  /**
+   * Returns an instance with the specified ad marked {@linkplain #AD_STATE_ERROR as having a load
+   * error}.
+   */
   @CheckResult
   public AdPlaybackState withAdLoadError(
       @IntRange(from = 0) int adGroupIndex, @IntRange(from = 0) int adIndexInAdGroup) {
