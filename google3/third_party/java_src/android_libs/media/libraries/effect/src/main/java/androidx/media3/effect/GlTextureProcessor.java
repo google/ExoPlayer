@@ -60,6 +60,9 @@ public interface GlTextureProcessor {
     /**
      * Called when the {@link GlTextureProcessor} has processed an input frame.
      *
+     * <p>The implementation shall not assume the {@link GlTextureProcessor} is {@linkplain
+     * #onReadyToAcceptInputFrame ready to accept another input frame} when this method is called.
+     *
      * @param inputTexture The {@link TextureInfo} that was used to {@linkplain
      *     #queueInputFrame(TextureInfo, long) queue} the input frame.
      */
