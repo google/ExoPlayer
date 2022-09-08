@@ -17,12 +17,10 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
 import android.content.Context;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
@@ -99,15 +97,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if (SDK_INT < 31 && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
-      throw TransformationException.createForCodec(
-          new IllegalArgumentException("HDR editing not supported under API 31."),
-          /* isVideo= */ true,
-          /* isDecoder= */ false,
-          inputFormat,
-          /* mediaCodecName= */ null,
-          TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
-    }
     if (shouldTranscode(inputFormat)) {
       samplePipeline =
           new VideoTranscodingSamplePipeline(
