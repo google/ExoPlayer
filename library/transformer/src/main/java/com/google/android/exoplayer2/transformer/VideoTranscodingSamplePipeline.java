@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
 import android.media.MediaCodec;
@@ -75,6 +76,16 @@ import org.checkerframework.dataflow.qual.Pure;
       Transformer.AsyncErrorListener asyncErrorListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
+    if (SDK_INT < 31 && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
+      throw TransformationException.createForCodec(
+          new IllegalArgumentException("HDR editing and tone mapping not supported under API 31."),
+          /* isVideo= */ true,
+          /* isDecoder= */ false,
+          inputFormat,
+          /* mediaCodecName= */ null,
+          TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
+    }
+
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer =
