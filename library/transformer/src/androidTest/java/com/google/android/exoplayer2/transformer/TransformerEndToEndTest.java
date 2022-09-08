@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -110,11 +109,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEncoderFormatUnsupported_completesWithError() {
-    // TODO(b/236943611): Re-enable this test after investigating flakiness.
-    if (Util.SDK_INT == 31) {
-      return;
-    }
-
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new VideoUnsupportedEncoderFactory(context))
