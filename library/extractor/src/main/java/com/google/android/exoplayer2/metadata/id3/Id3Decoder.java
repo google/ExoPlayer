@@ -459,10 +459,10 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
     int descriptionEndIndex = indexOfEos(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
-
-    // Text information frames can contain multiple values delimited by a null terminator.
-    // Thus, we after each "end of stream" marker we actually need to keep looking for more
-    // data, at least until the index is equal to the data length.
+    
+    // In ID3v2.4, text information frames can contain multiple values delimited by a null
+    // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
+    // for more data, at least until the index is equal to the data length.
     ArrayList<String> values = new ArrayList<>();
 
     int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
@@ -474,7 +474,6 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       valueStartIndex = valueEndIndex + delimiterLength(encoding);
       valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
     }
-
 
     return new TextInformationFrame("TXXX", description, values.toArray(new String[0]));
   }
@@ -493,9 +492,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    // Text information frames can contain multiple values delimited by a null terminator.
-    // Thus, we after each "end of stream" marker we actually need to keep looking for more
-    // data, at least until the index is equal to the data length.
+    // In ID3v2.4, text information frames can contain multiple values delimited by a null
+    // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
+    // for more data, at least until the index is equal to the data length.
     ArrayList<String> values = new ArrayList<>();
 
     int valueStartIndex = 0;
