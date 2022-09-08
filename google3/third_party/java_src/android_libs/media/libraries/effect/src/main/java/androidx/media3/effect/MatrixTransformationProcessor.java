@@ -98,11 +98,18 @@ import java.util.List;
    * for the most recent frame.
    */
   private final float[][] transformationMatrixCache;
+  /** The RGB matrices provided by the {@link RgbMatrix RgbMatrices} for the most recent frame. */
+  private final float[][] rgbMatrixCache;
   /**
    * The product of the {@link #transformationMatrixCache} for the most recent frame, to be applied
    * in the vertex shader.
    */
-  private final float[] compositeTransformationMatrix;
+  private final float[] compositeTransformationMatrixArray;
+  /**
+   * The product of the {@link #rgbMatrixCache} for the most recent frame, to be applied in the
+   * fragment shader.
+   */
+  private final float[] compositeRgbMatrixArray;
   /** Matrix for storing an intermediate calculation result. */
   private final float[] tempResultMatrix;
 
@@ -110,9 +117,9 @@ import java.util.List;
    * A polygon in the input space chosen such that no additional clipping is needed to keep vertices
    * inside the NDC range when applying each of the {@link #matrixTransformations}.
    *
-   * <p>This means that this polygon and {@link #compositeTransformationMatrix} can be used instead
-   * of applying each of the {@link #matrixTransformations} to {@link #NDC_SQUARE} in separate
-   * shaders.
+   * <p>This means that this polygon and {@link #compositeTransformationMatrixArray} can be used
+   * instead of applying each of the {@link #matrixTransformations} to {@link #NDC_SQUARE} in
+   * separate shaders.
    */
   private ImmutableList<float[]> visiblePolygon;
 
@@ -343,8 +350,11 @@ import java.util.List;
     this.useHdr = useHdr;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
-    compositeTransformationMatrix = new float[16];
-    Matrix.setIdentityM(compositeTransformationMatrix, /* smOffset= */ 0);
+    rgbMatrixCache = new float[rgbMatrices.size()][16];
+    compositeTransformationMatrixArray = new float[16];
+    Matrix.setIdentityM(compositeTransformationMatrixArray, /* smOffset= */ 0);
+    compositeRgbMatrixArray = new float[16];
+    Matrix.setIdentityM(compositeRgbMatrixArray, /* smOffset= */ 0);
     tempResultMatrix = new float[16];
     visiblePolygon = NDC_SQUARE;
   }
@@ -378,17 +388,17 @@ import java.util.List;
 
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs) throws FrameProcessingException {
+    updateCompositeRgbaMatrixArray(presentationTimeUs);
     updateCompositeTransformationMatrixAndVisiblePolygon(presentationTimeUs);
     if (visiblePolygon.size() < 3) {
       return; // Need at least three visible vertices for a triangle.
     }
-    float[] compositeRgbMatrix =
-        createCompositeRgbaMatrixArray(rgbMatrices, useHdr, presentationTimeUs);
+
     try {
       glProgram.use();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
-      glProgram.setFloatsUniform("uTransformationMatrix", compositeTransformationMatrix);
-      glProgram.setFloatsUniform("uRgbMatrix", compositeRgbMatrix);
+      glProgram.setFloatsUniform("uTransformationMatrix", compositeTransformationMatrixArray);
+      glProgram.setFloatsUniform("uRgbMatrix", compositeRgbMatrixArray);
       glProgram.setBufferAttribute(
           "aFramePosition",
           GlUtil.createVertexBuffer(visiblePolygon),
@@ -413,17 +423,23 @@ import java.util.List;
   }
 
   /**
-   * Updates {@link #compositeTransformationMatrix} and {@link #visiblePolygon} based on the given
-   * frame timestamp.
+   * Updates {@link #compositeTransformationMatrixArray} and {@link #visiblePolygon} based on the
+   * given frame timestamp.
    */
   private void updateCompositeTransformationMatrixAndVisiblePolygon(long presentationTimeUs) {
-    if (!updateTransformationMatrixCache(presentationTimeUs)) {
+    float[][] matricesAtPresentationTime = new float[matrixTransformations.size()][16];
+    for (int i = 0; i < matrixTransformations.size(); i++) {
+      matricesAtPresentationTime[i] =
+          matrixTransformations.get(i).getGlMatrixArray(presentationTimeUs);
+    }
+
+    if (!updateMatrixCache(transformationMatrixCache, matricesAtPresentationTime)) {
       return;
     }
 
     // Compute the compositeTransformationMatrix and transform and clip the visiblePolygon for each
     // MatrixTransformation's matrix.
-    Matrix.setIdentityM(compositeTransformationMatrix, /* smOffset= */ 0);
+    Matrix.setIdentityM(compositeTransformationMatrixArray, /* smOffset= */ 0);
     visiblePolygon = NDC_SQUARE;
     for (float[] transformationMatrix : transformationMatrixCache) {
       Matrix.multiplyMM(
@@ -431,12 +447,12 @@ import java.util.List;
           /* resultOffset= */ 0,
           /* lhs= */ transformationMatrix,
           /* lhsOffset= */ 0,
-          /* rhs= */ compositeTransformationMatrix,
+          /* rhs= */ compositeTransformationMatrixArray,
           /* rhsOffset= */ 0);
       System.arraycopy(
           /* src= */ tempResultMatrix,
           /* srcPos= */ 0,
-          /* dest= */ compositeTransformationMatrix,
+          /* dest= */ compositeTransformationMatrixArray,
           /* destPost= */ 0,
           /* length= */ tempResultMatrix.length);
       visiblePolygon =
@@ -449,41 +465,23 @@ import java.util.List;
     }
     // Calculate the input frame vertices corresponding to the output frame's visible polygon.
     Matrix.invertM(
-        tempResultMatrix, /* mInvOffset= */ 0, compositeTransformationMatrix, /* mOffset= */ 0);
+        tempResultMatrix,
+        /* mInvOffset= */ 0,
+        compositeTransformationMatrixArray,
+        /* mOffset= */ 0);
     visiblePolygon = MatrixUtils.transformPoints(tempResultMatrix, visiblePolygon);
   }
 
-  /**
-   * Updates {@link #transformationMatrixCache} with the transformation matrices provided by the
-   * {@link #matrixTransformations} for the given frame timestamp and returns whether any matrix in
-   * {@link #transformationMatrixCache} changed.
-   */
-  private boolean updateTransformationMatrixCache(long presentationTimeUs) {
-    boolean matrixChanged = false;
-    for (int i = 0; i < matrixTransformations.size(); i++) {
-      float[] cachedMatrix = transformationMatrixCache[i];
-      float[] matrix = matrixTransformations.get(i).getGlMatrixArray(presentationTimeUs);
-      if (!Arrays.equals(cachedMatrix, matrix)) {
-        checkState(matrix.length == 16, "A 4x4 transformation matrix must have 16 elements");
-        System.arraycopy(
-            /* src= */ matrix,
-            /* srcPos= */ 0,
-            /* dest= */ cachedMatrix,
-            /* destPost= */ 0,
-            /* length= */ matrix.length);
-        matrixChanged = true;
-      }
+  /** Updates {@link #compositeRgbMatrixArray} based on the given frame timestamp. */
+  private void updateCompositeRgbaMatrixArray(long presentationTimeUs) {
+    float[][] matricesCurrTimestamp = new float[rgbMatrices.size()][16];
+    for (int i = 0; i < rgbMatrices.size(); i++) {
+      matricesCurrTimestamp[i] = rgbMatrices.get(i).getMatrix(presentationTimeUs, useHdr);
     }
-    return matrixChanged;
-  }
 
-  // TODO(b/239757183): Add caching for RgbMatrix and refactor RgbMatrix and MatrixTransformation
-  // composing.
-  private static float[] createCompositeRgbaMatrixArray(
-      ImmutableList<RgbMatrix> rgbMatrices, boolean useHdr, long presentationTimeUs) {
-    float[] tempResultMatrix = new float[16];
-    float[] compositeRgbaMatrix = new float[16];
-    Matrix.setIdentityM(compositeRgbaMatrix, /* smOffset= */ 0);
+    if (!updateMatrixCache(rgbMatrixCache, matricesCurrTimestamp)) {
+      return;
+    }
 
     for (int i = 0; i < rgbMatrices.size(); i++) {
       Matrix.multiplyMM(
@@ -491,16 +489,40 @@ import java.util.List;
           /* resultOffset= */ 0,
           /* lhs= */ rgbMatrices.get(i).getMatrix(presentationTimeUs, useHdr),
           /* lhsOffset= */ 0,
-          /* rhs= */ compositeRgbaMatrix,
+          /* rhs= */ compositeRgbMatrixArray,
           /* rhsOffset= */ 0);
       System.arraycopy(
           /* src= */ tempResultMatrix,
           /* srcPos= */ 0,
-          /* dest= */ compositeRgbaMatrix,
+          /* dest= */ compositeRgbMatrixArray,
           /* destPost= */ 0,
           /* length= */ tempResultMatrix.length);
     }
+  }
 
-    return compositeRgbaMatrix;
+  /**
+   * Updates the {@code cachedMatrices} with the {@code newMatrices}. Returns whether a matrix has
+   * changed inside the cache.
+   *
+   * @param cachedMatrices The existing cached matrices. Gets updated if it is out of date.
+   * @param newMatrices The new matrices to compare the cached matrices against.
+   */
+  private static boolean updateMatrixCache(float[][] cachedMatrices, float[][] newMatrices) {
+    boolean matrixChanged = false;
+    for (int i = 0; i < cachedMatrices.length; i++) {
+      float[] cachedMatrix = cachedMatrices[i];
+      float[] newMatrix = newMatrices[i];
+      if (!Arrays.equals(cachedMatrix, newMatrix)) {
+        checkState(newMatrix.length == 16, "A 4x4 transformation matrix must have 16 elements");
+        System.arraycopy(
+            /* src= */ newMatrix,
+            /* srcPos= */ 0,
+            /* dest= */ cachedMatrix,
+            /* destPost= */ 0,
+            /* length= */ newMatrix.length);
+        matrixChanged = true;
+      }
+    }
+    return matrixChanged;
   }
 }
