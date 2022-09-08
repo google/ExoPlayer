@@ -109,6 +109,8 @@ public final class MappingTrackSelectorTest {
 
     trackSelector.assertMappedTrackGroups(0, videoGroup0, videoGroup1);
     trackSelector.assertMappedTrackGroups(1, audioGroup0, audioGroup1);
+    trackSelector.assertMappedTrackGroups(/* rendererIndex= */ 2);
+    trackSelector.assertMappedTrackGroups(/* rendererIndex= */ 3);
   }
 
   @Test
