@@ -1899,10 +1899,10 @@ public class MediaControllerListenerTest {
     controllerTestRule.createController(
         remoteSession.getToken(), /* connectionHints= */ null, listener);
 
-    // TODO(jaewan): Test with multiple controllers
+    // TODO(b/245724167): Test with multiple controllers
     remoteSession.broadcastCustomCommand(testCommand, testArgs);
 
-    // TODO(jaewan): Test receivers as well.
+    // TODO(b/245724167): Test receivers as well.
     remoteSession.sendCustomCommand(testCommand, testArgs);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
