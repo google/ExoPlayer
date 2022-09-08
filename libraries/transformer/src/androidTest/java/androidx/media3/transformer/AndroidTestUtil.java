@@ -84,6 +84,8 @@ public final class AndroidTestUtil {
           .setFrameRate(30.472f)
           .build();
 
+  public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
   public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
       "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
 
