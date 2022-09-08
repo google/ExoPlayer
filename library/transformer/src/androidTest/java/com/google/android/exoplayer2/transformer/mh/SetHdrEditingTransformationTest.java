@@ -16,30 +16,167 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.transformer.EncoderUtil;
+import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+// TODO(b/239172735): Add a SetToneMappingTransformationTest for when we request tone mapping.
+// TODO(b/239172735): Add HLG tests after finding a shareable HLG file.
 /** {@link Transformer} instrumentation test for applying an HDR frame edit. */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTransformationTest {
+  private static final ColorInfo HDR10_DEFAULT_COLOR_INFO =
+      new ColorInfo(
+          C.COLOR_SPACE_BT2020,
+          C.COLOR_RANGE_LIMITED,
+          C.COLOR_TRANSFER_ST2084,
+          /* hdrStaticInfo= */ null);
+
+  @Test
+  public void transform_noRequestedTranscode_hdr10File_transformsOrThrows() throws Exception {
+    String testId = "transform_noRequestedTranscode_hdr10File_transformsOrThrows";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
+            .build();
+
+    try {
+      new TransformerAndroidTestRunner.Builder(context, transformer)
+          .build()
+          .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+      return;
+    } catch (TransformationException exception) {
+      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      assertThat(exception.errorCode)
+          .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
+      assertThat(exception)
+          .hasCauseThat()
+          .hasMessageThat()
+          .isEqualTo("HDR editing and tone mapping not supported under API 31.");
+      return;
+    }
+  }
+
+  @Test
+  public void transformAndTranscode_hdr10File_whenHdrEditingIsSupported() throws Exception {
+    String testId = "transformAndTranscode_hdr10File_whenHdrEditingIsSupported";
+    Context context = ApplicationProvider.getApplicationContext();
+    if (!deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
+      recordTestSkipped(
+          context,
+          testId,
+          /* reason= */ "Skipping on this device due to lack of HDR10 editing support.");
+      return;
+    }
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .experimental_setEnableHdrEditing(true)
+                    .setRotationDegrees(180)
+                    .build())
+            .build();
+
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+  }
+
+  @Test
+  public void transformAndTranscode_hdr10File_toneMapsOrThrows_whenHdrEditingUnsupported()
+      throws Exception {
+    String testId = "transformAndTranscode_hdr10File_toneMapsOrThrows_whenHdrEditingUnsupported";
+    Context context = ApplicationProvider.getApplicationContext();
+    if (deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
+      recordTestSkipped(
+          context,
+          testId,
+          /* reason= */ "Skipping on this device due to presence of HDR10 editing support");
+      return;
+    }
+
+    AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .experimental_setEnableHdrEditing(true)
+                    .setRotationDegrees(180)
+                    .build())
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onFallbackApplied(
+                      MediaItem inputMediaItem,
+                      TransformationRequest originalTransformationRequest,
+                      TransformationRequest fallbackTransformationRequest) {
+                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping).isFalse();
+                    if (fallbackTransformationRequest.enableRequestSdrToneMapping) {
+                      isToneMappingFallbackApplied.set(true);
+                    }
+                  }
+                })
+            .build();
+
+    try {
+      new TransformerAndroidTestRunner.Builder(context, transformer)
+          .build()
+          .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+    } catch (TransformationException exception) {
+      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      // TODO(b/245364266): After fixing the bug, replace the API version check with a check that
+      // isToneMappingFallbackApplied.get() is true.
+      if (Util.SDK_INT < 31) {
+        assertThat(exception.errorCode)
+            .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
+        assertThat(exception)
+            .hasCauseThat()
+            .hasMessageThat()
+            .isEqualTo("HDR editing and tone mapping not supported under API 31.");
+      } else {
+        assertThat(exception.errorCode)
+            .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+        assertThat(exception)
+            .hasCauseThat()
+            .hasMessageThat()
+            .isEqualTo("Tone-mapping requested but not supported by the decoder");
+      }
+      return;
+    }
+
+    assertThat(isToneMappingFallbackApplied.get()).isTrue();
+  }
+
   @Test
   public void transformUnexpectedColorInfo() throws Exception {
+    String testId = "transformUnexpectedColorInfo";
     Context context = ApplicationProvider.getApplicationContext();
     if (Util.SDK_INT < 29) {
       recordTestSkipped(
           context,
-          "SetHdrEditingTransformationTest",
+          testId,
           /* reason= */ "Skipping on this API version due to lack of support for"
               + " MediaFormat#getInteger(String, int).");
       return;
@@ -53,7 +190,11 @@ public class SetHdrEditingTransformationTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(
-            /* testId= */ "transformUnexpectedColorInfo",
+            testId,
             MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER)));
+  }
+
+  private static boolean deviceSupportsHdrEditing(String mimeType, ColorInfo colorInfo) {
+    return !EncoderUtil.getSupportedEncoderNamesForHdrEditing(mimeType, colorInfo).isEmpty();
   }
 }
