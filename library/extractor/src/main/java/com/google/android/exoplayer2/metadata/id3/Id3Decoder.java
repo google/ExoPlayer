@@ -29,8 +29,10 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import org.w3c.dom.Text;
 
 /** Decodes ID3 tags. */
 public final class Id3Decoder extends SimpleMetadataDecoder {
@@ -458,11 +460,23 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int descriptionEndIndex = indexOfEos(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
+    // Text information frames can contain multiple values delimited by a null terminator.
+    // Thus, we after each "end of stream" marker we actually need to keep looking for more
+    // data, at least until the index is equal to the data length.
+    ArrayList<String> values = new ArrayList<>();
+
     int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
     int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
-    String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+    while (valueStartIndex < valueEndIndex) {
+      String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+      values.add(value);
 
-    return new TextInformationFrame("TXXX", description, value);
+      valueStartIndex = valueEndIndex + delimiterLength(encoding);
+      valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
+    }
+
+
+    return new TextInformationFrame("TXXX", description, values.toArray(new String[0]));
   }
 
   @Nullable
@@ -479,10 +493,22 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int valueEndIndex = indexOfEos(data, 0, encoding);
-    String value = new String(data, 0, valueEndIndex, charset);
+    // Text information frames can contain multiple values delimited by a null terminator.
+    // Thus, we after each "end of stream" marker we actually need to keep looking for more
+    // data, at least until the index is equal to the data length.
+    ArrayList<String> values = new ArrayList<>();
 
-    return new TextInformationFrame(id, null, value);
+    int valueStartIndex = 0;
+    int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
+    while (valueStartIndex < valueEndIndex) {
+      String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+      values.add(value);
+
+      valueStartIndex = valueEndIndex + delimiterLength(encoding);
+      valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
+    }
+
+    return new TextInformationFrame(id, null, values.toArray(new String[0]));
   }
 
   @Nullable
