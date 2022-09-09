@@ -52,15 +52,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Wrapper around a {@link GlTextureProcessor} that writes to the provided output surface and
  * optional debug surface view.
  *
- * <p>The wrapped {@link GlTextureProcessor} applies the {@link GlMatrixTransformation} instances
- * passed to the constructor, followed by any transformations needed to convert the frames to the
- * dimensions specified by the provided {@link SurfaceInfo}.
+ * <p>The wrapped {@link GlTextureProcessor} applies the {@link GlMatrixTransformation} and {@link
+ * RgbMatrix} instances passed to the constructor, followed by any transformations needed to convert
+ * the frames to the dimensions specified by the provided {@link SurfaceInfo}.
  *
  * <p>This wrapper is used for the final {@link GlTextureProcessor} instance in the chain of {@link
  * GlTextureProcessor} instances used by {@link FrameProcessor}.
  */
-/* package */ final class FinalMatrixTransformationProcessorWrapper
-    implements ExternalTextureProcessor {
+/* package */ final class FinalMatrixTextureProcessorWrapper implements ExternalTextureProcessor {
 
   private static final String TAG = "FinalProcessorWrapper";
 
@@ -80,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private int inputWidth;
   private int inputHeight;
-  @Nullable private MatrixTransformationProcessor matrixTransformationProcessor;
+  @Nullable private MatrixTextureProcessor matrixTextureProcessor;
   @Nullable private SurfaceViewWrapper debugSurfaceViewWrapper;
   private InputListener inputListener;
   private @MonotonicNonNull Pair<Integer, Integer> outputSizeBeforeSurfaceTransformation;
@@ -96,7 +95,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private EGLSurface outputEglSurface;
 
-  public FinalMatrixTransformationProcessorWrapper(
+  public FinalMatrixTextureProcessorWrapper(
       Context context,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
@@ -192,8 +191,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   @WorkerThread
   public void release() throws FrameProcessingException {
-    if (matrixTransformationProcessor != null) {
-      matrixTransformationProcessor.release();
+    if (matrixTextureProcessor != null) {
+      matrixTextureProcessor.release();
     }
   }
 
@@ -206,8 +205,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* destPost= */ 0,
         /* length= */ textureTransformMatrix.length);
 
-    if (matrixTransformationProcessor != null) {
-      matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    if (matrixTextureProcessor != null) {
+      matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
     }
   }
 
@@ -271,8 +270,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     EGLSurface outputEglSurface = this.outputEglSurface;
     SurfaceInfo outputSurfaceInfo = this.outputSurfaceInfo;
-    MatrixTransformationProcessor matrixTransformationProcessor =
-        this.matrixTransformationProcessor;
+    MatrixTextureProcessor matrixTextureProcessor = this.matrixTextureProcessor;
 
     GlUtil.focusEglSurface(
         eglDisplay,
@@ -281,7 +279,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputSurfaceInfo.width,
         outputSurfaceInfo.height);
     GlUtil.clearOutputFrame();
-    matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+    matrixTextureProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
 
     if (dropLateFrame && System.nanoTime() > releaseTimeNs) {
       return;
@@ -291,7 +289,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @EnsuresNonNullIf(
-      expression = {"outputSurfaceInfo", "outputEglSurface", "matrixTransformationProcessor"},
+      expression = {"outputSurfaceInfo", "outputEglSurface", "matrixTextureProcessor"},
       result = true)
   private synchronized boolean ensureConfigured(int inputWidth, int inputHeight)
       throws FrameProcessingException, GlUtil.GlException {
@@ -313,9 +311,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (outputSurfaceInfo == null) {
-      if (matrixTransformationProcessor != null) {
-        matrixTransformationProcessor.release();
-        matrixTransformationProcessor = null;
+      if (matrixTextureProcessor != null) {
+        matrixTextureProcessor.release();
+        matrixTextureProcessor = null;
       }
       outputEglSurface = null;
       return false;
@@ -342,14 +340,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.debugSurfaceView = debugSurfaceView;
     }
 
-    if (matrixTransformationProcessor != null && outputSizeOrRotationChanged) {
-      matrixTransformationProcessor.release();
-      matrixTransformationProcessor = null;
+    if (matrixTextureProcessor != null && outputSizeOrRotationChanged) {
+      matrixTextureProcessor.release();
+      matrixTextureProcessor = null;
       outputSizeOrRotationChanged = false;
     }
-    if (matrixTransformationProcessor == null) {
-      matrixTransformationProcessor =
-          createMatrixTransformationProcessorForOutputSurface(outputSurfaceInfo);
+    if (matrixTextureProcessor == null) {
+      matrixTextureProcessor = createMatrixTextureProcessorForOutputSurface(outputSurfaceInfo);
     }
 
     this.outputSurfaceInfo = outputSurfaceInfo;
@@ -357,7 +354,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return true;
   }
 
-  private MatrixTransformationProcessor createMatrixTransformationProcessorForOutputSurface(
+  private MatrixTextureProcessor createMatrixTextureProcessorForOutputSurface(
       SurfaceInfo outputSurfaceInfo) throws FrameProcessingException {
     ImmutableList.Builder<GlMatrixTransformation> matrixTransformationListBuilder =
         new ImmutableList.Builder<GlMatrixTransformation>().addAll(matrixTransformations);
@@ -371,39 +368,37 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Presentation.createForWidthAndHeight(
             outputSurfaceInfo.width, outputSurfaceInfo.height, Presentation.LAYOUT_SCALE_TO_FIT));
 
-    MatrixTransformationProcessor matrixTransformationProcessor;
+    MatrixTextureProcessor matrixTextureProcessor;
     ImmutableList<GlMatrixTransformation> expandedMatrixTransformations =
         matrixTransformationListBuilder.build();
     if (sampleFromExternalTexture) {
-      matrixTransformationProcessor =
-          MatrixTransformationProcessor.createWithExternalSamplerApplyingEotfThenOetf(
+      matrixTextureProcessor =
+          MatrixTextureProcessor.createWithExternalSamplerApplyingEotfThenOetf(
               context, expandedMatrixTransformations, rgbMatrices, colorInfo);
     } else {
-      matrixTransformationProcessor =
-          MatrixTransformationProcessor.createApplyingOetf(
+      matrixTextureProcessor =
+          MatrixTextureProcessor.createApplyingOetf(
               context, expandedMatrixTransformations, rgbMatrices, colorInfo);
     }
 
-    matrixTransformationProcessor.setTextureTransformMatrix(textureTransformMatrix);
-    Pair<Integer, Integer> outputSize =
-        matrixTransformationProcessor.configure(inputWidth, inputHeight);
+    matrixTextureProcessor.setTextureTransformMatrix(textureTransformMatrix);
+    Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
     checkState(outputSize.first == outputSurfaceInfo.width);
     checkState(outputSize.second == outputSurfaceInfo.height);
-    return matrixTransformationProcessor;
+    return matrixTextureProcessor;
   }
 
   private void maybeRenderFrameToDebugSurface(TextureInfo inputTexture, long presentationTimeUs) {
-    if (debugSurfaceViewWrapper == null || matrixTransformationProcessor == null) {
+    if (debugSurfaceViewWrapper == null || this.matrixTextureProcessor == null) {
       return;
     }
 
-    MatrixTransformationProcessor matrixTransformationProcessor =
-        this.matrixTransformationProcessor;
+    MatrixTextureProcessor matrixTextureProcessor = this.matrixTextureProcessor;
     try {
       debugSurfaceViewWrapper.maybeRenderToSurfaceView(
           () -> {
             GlUtil.clearOutputFrame();
-            matrixTransformationProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
+            matrixTextureProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
           });
     } catch (FrameProcessingException | GlUtil.GlException e) {
       Log.d(TAG, "Error rendering to debug preview", e);

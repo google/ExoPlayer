@@ -55,7 +55,7 @@ public interface GlMatrixTransformation extends GlEffect {
   @Override
   default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
-    return MatrixTransformationProcessor.create(
+    return MatrixTextureProcessor.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(this),
         /* rgbMatrices= */ ImmutableList.of(),
