@@ -157,15 +157,15 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   }
 
   /**
-   * Combines consecutive {@link GlMatrixTransformation} instances into a single {@link
-   * MatrixTransformationProcessor} and converts all other {@link GlEffect} instances to separate
-   * {@link GlTextureProcessor} instances.
+   * Combines consecutive {@link GlMatrixTransformation} and {@link RgbMatrix} instances into a
+   * single {@link MatrixTextureProcessor} and converts all other {@link GlEffect} instances to
+   * separate {@link GlTextureProcessor} instances.
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
    * @return A non-empty list of {@link GlTextureProcessor} instances to apply in the given order.
    *     The first is an {@link ExternalTextureProcessor} and the last is a {@link
-   *     FinalMatrixTransformationProcessorWrapper}.
+   *     FinalMatrixTextureProcessorWrapper}.
    */
   // TODO(b/239757183): Squash GlMatrixTransformation and RgbMatrix together.
   private static ImmutableList<GlTextureProcessor> getGlTextureProcessorsForGlEffects(
@@ -204,17 +204,17 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
           matrixTransformationListBuilder.build();
       ImmutableList<RgbMatrix> rgbMatrices = rgbMatrixListBuilder.build();
       if (!matrixTransformations.isEmpty() || !rgbMatrices.isEmpty() || sampleFromExternalTexture) {
-        MatrixTransformationProcessor matrixTransformationProcessor;
+        MatrixTextureProcessor matrixTextureProcessor;
         if (sampleFromExternalTexture) {
-          matrixTransformationProcessor =
-              MatrixTransformationProcessor.createWithExternalSamplerApplyingEotf(
+          matrixTextureProcessor =
+              MatrixTextureProcessor.createWithExternalSamplerApplyingEotf(
                   context, matrixTransformations, rgbMatrices, colorInfo);
         } else {
-          matrixTransformationProcessor =
-              MatrixTransformationProcessor.create(
+          matrixTextureProcessor =
+              MatrixTextureProcessor.create(
                   context, matrixTransformations, rgbMatrices, ColorInfo.isTransferHdr(colorInfo));
         }
-        textureProcessorListBuilder.add(matrixTransformationProcessor);
+        textureProcessorListBuilder.add(matrixTextureProcessor);
         matrixTransformationListBuilder = new ImmutableList.Builder<>();
         rgbMatrixListBuilder = new ImmutableList.Builder<>();
         sampleFromExternalTexture = false;
@@ -224,7 +224,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     }
 
     textureProcessorListBuilder.add(
-        new FinalMatrixTransformationProcessorWrapper(
+        new FinalMatrixTextureProcessorWrapper(
             context,
             eglDisplay,
             eglContext,
@@ -269,7 +269,7 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
   private final ExternalTextureManager inputExternalTextureManager;
   private final Surface inputSurface;
   private final boolean releaseFramesAutomatically;
-  private final FinalMatrixTransformationProcessorWrapper finalTextureProcessorWrapper;
+  private final FinalMatrixTextureProcessorWrapper finalTextureProcessorWrapper;
   private final ImmutableList<GlTextureProcessor> allTextureProcessors;
 
   private @MonotonicNonNull FrameInfo nextInputFrameInfo;
@@ -295,15 +295,14 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
 
     checkState(!textureProcessors.isEmpty());
     checkState(textureProcessors.get(0) instanceof ExternalTextureProcessor);
-    checkState(getLast(textureProcessors) instanceof FinalMatrixTransformationProcessorWrapper);
+    checkState(getLast(textureProcessors) instanceof FinalMatrixTextureProcessorWrapper);
     ExternalTextureProcessor inputExternalTextureProcessor =
         (ExternalTextureProcessor) textureProcessors.get(0);
     inputExternalTextureManager =
         new ExternalTextureManager(inputExternalTextureProcessor, frameProcessingTaskExecutor);
     inputExternalTextureProcessor.setInputListener(inputExternalTextureManager);
     inputSurface = new Surface(inputExternalTextureManager.getSurfaceTexture());
-    finalTextureProcessorWrapper =
-        (FinalMatrixTransformationProcessorWrapper) getLast(textureProcessors);
+    finalTextureProcessorWrapper = (FinalMatrixTextureProcessorWrapper) getLast(textureProcessors);
     allTextureProcessors = textureProcessors;
     previousStreamOffsetUs = C.TIME_UNSET;
   }

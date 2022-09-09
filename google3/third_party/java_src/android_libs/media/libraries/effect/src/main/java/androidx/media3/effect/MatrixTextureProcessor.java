@@ -49,9 +49,8 @@ import java.util.List;
  *
  * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
  */
-// TODO(b/239757183): Rename Matrix to a more generic name.
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
-/* package */ final class MatrixTransformationProcessor extends SingleFrameGlTextureProcessor
+/* package */ final class MatrixTextureProcessor extends SingleFrameGlTextureProcessor
     implements ExternalTextureProcessor {
 
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
@@ -140,7 +139,7 @@ import java.util.List;
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
-  public static MatrixTransformationProcessor create(
+  public static MatrixTextureProcessor create(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -151,7 +150,7 @@ import java.util.List;
             context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
 
     // No transfer functions needed, because input and output are both optical colors.
-    return new MatrixTransformationProcessor(
+    return new MatrixTextureProcessor(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -181,7 +180,7 @@ import java.util.List;
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
-  public static MatrixTransformationProcessor createWithExternalSamplerApplyingEotf(
+  public static MatrixTextureProcessor createWithExternalSamplerApplyingEotf(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -215,7 +214,7 @@ import java.util.List;
       glProgram.setIntUniform("uEotfColorTransfer", colorTransfer);
     }
 
-    return new MatrixTransformationProcessor(
+    return new MatrixTextureProcessor(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -241,7 +240,7 @@ import java.util.List;
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
-  public static MatrixTransformationProcessor createApplyingOetf(
+  public static MatrixTextureProcessor createApplyingOetf(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -262,7 +261,7 @@ import java.util.List;
       glProgram.setIntUniform("uOetfColorTransfer", colorTransfer);
     }
 
-    return new MatrixTransformationProcessor(
+    return new MatrixTextureProcessor(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -288,7 +287,7 @@ import java.util.List;
    * @throws FrameProcessingException If a problem occurs while reading shader files or an OpenGL
    *     operation fails or is unsupported.
    */
-  public static MatrixTransformationProcessor createWithExternalSamplerApplyingEotfThenOetf(
+  public static MatrixTextureProcessor createWithExternalSamplerApplyingEotfThenOetf(
       Context context,
       List<GlMatrixTransformation> matrixTransformations,
       List<RgbMatrix> rgbMatrices,
@@ -320,7 +319,7 @@ import java.util.List;
       glProgram.setIntUniform("uEotfColorTransfer", Format.NO_VALUE);
     }
 
-    return new MatrixTransformationProcessor(
+    return new MatrixTextureProcessor(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
         ImmutableList.copyOf(rgbMatrices),
@@ -338,7 +337,7 @@ import java.util.List;
    * @param useHdr Whether to process the input as an HDR signal. Using HDR requires the {@code
    *     EXT_YUV_target} OpenGL extension.
    */
-  private MatrixTransformationProcessor(
+  private MatrixTextureProcessor(
       GlProgram glProgram,
       ImmutableList<GlMatrixTransformation> matrixTransformations,
       ImmutableList<RgbMatrix> rgbMatrices,
