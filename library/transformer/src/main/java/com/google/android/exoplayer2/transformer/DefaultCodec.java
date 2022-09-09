@@ -157,9 +157,9 @@ public final class DefaultCodec implements Codec {
       // Some OMX decoders don't correctly track their number of output buffers available, and get
       // stuck if too many frames are rendered without being processed, so limit the number of
       // pending frames to avoid getting stuck. This value is experimentally determined. See also
-      // b/213455700, b/230097284, and b/229978305.
+      // b/213455700, b/230097284, b/229978305, and b/245491744.
       // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
-      return 10;
+      return 5;
     }
     // Otherwise don't limit the number of frames that can be pending at a time, to maximize
     // throughput.
