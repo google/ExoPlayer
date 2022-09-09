@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for texture processing via {@link MatrixTransformationProcessor}.
+ * Pixel test for texture processing via {@link MatrixTextureProcessor}.
  *
  * <p>Expected images are taken from an emulator, so tests on different emulators or physical
  * devices may fail. To test on other devices, please increase the {@link
@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
  * as recommended in {@link GlEffectsFrameProcessorPixelTest}.
  */
 @RunWith(AndroidJUnit4.class)
-public final class MatrixTransformationProcessorPixelTest {
+public final class MatrixTextureProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/original.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
@@ -58,7 +58,7 @@ public final class MatrixTransformationProcessorPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTransformationFrameProcessor;
+  private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTextureProcessor;
   private int inputTexId;
   private int outputTexId;
   private int width;
@@ -82,8 +82,8 @@ public final class MatrixTransformationProcessorPixelTest {
 
   @After
   public void release() throws GlUtil.GlException, FrameProcessingException {
-    if (matrixTransformationFrameProcessor != null) {
-      matrixTransformationFrameProcessor.release();
+    if (matrixTextureProcessor != null) {
+      matrixTextureProcessor.release();
     }
     if (eglContext != null && eglDisplay != null) {
       GlUtil.destroyEglContext(eglDisplay, eglContext);
@@ -95,12 +95,12 @@ public final class MatrixTransformationProcessorPixelTest {
     String testId = "drawFrame_noEdits";
     Matrix identityMatrix = new Matrix();
     MatrixTransformation noEditsTransformation = (long presentationTimeUs) -> identityMatrix;
-    matrixTransformationFrameProcessor =
+    matrixTextureProcessor =
         noEditsTransformation.toGlTextureProcessor(context, /* useHdr= */ false);
-    matrixTransformationFrameProcessor.configure(width, height);
+    matrixTextureProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    matrixTransformationFrameProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -120,12 +120,12 @@ public final class MatrixTransformationProcessorPixelTest {
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     MatrixTransformation translateRightTransformation =
         (long presentationTimeUs) -> translateRightMatrix;
-    matrixTransformationFrameProcessor =
+    matrixTextureProcessor =
         translateRightTransformation.toGlTextureProcessor(context, /* useHdr= */ false);
-    matrixTransformationFrameProcessor.configure(width, height);
+    matrixTextureProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
-    matrixTransformationFrameProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -144,12 +144,12 @@ public final class MatrixTransformationProcessorPixelTest {
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
     MatrixTransformation scaleNarrowTransformation = (long presentationTimeUs) -> scaleNarrowMatrix;
-    matrixTransformationFrameProcessor =
+    matrixTextureProcessor =
         scaleNarrowTransformation.toGlTextureProcessor(context, /* useHdr= */ false);
-    matrixTransformationFrameProcessor.configure(width, height);
+    matrixTextureProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
-    matrixTransformationFrameProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
@@ -168,12 +168,12 @@ public final class MatrixTransformationProcessorPixelTest {
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
     MatrixTransformation rotate90Transformation = (long presentationTimeUs) -> rotate90Matrix;
-    matrixTransformationFrameProcessor =
+    matrixTextureProcessor =
         rotate90Transformation.toGlTextureProcessor(context, /* useHdr= */ false);
-    matrixTransformationFrameProcessor.configure(width, height);
+    matrixTextureProcessor.configure(width, height);
     Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
-    matrixTransformationFrameProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
