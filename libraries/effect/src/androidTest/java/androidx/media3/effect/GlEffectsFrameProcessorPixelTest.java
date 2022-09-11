@@ -18,33 +18,28 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.effect.FrameProcessorTestUtil.decodeOneFrame;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.util.Pair;
-import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.SurfaceInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -87,8 +82,6 @@ public final class GlEffectsFrameProcessorPixelTest {
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
-  /** Timeout for dequeueing buffers from the codec, in microseconds. */
-  private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
   /**
    * Time to wait for the decoded frame to populate the {@link GlEffectsFrameProcessor} instance's
    * input surface and the {@link GlEffectsFrameProcessor} to finish processing the frame, in
@@ -101,7 +94,6 @@ public final class GlEffectsFrameProcessorPixelTest {
   private final AtomicReference<FrameProcessingException> frameProcessingException =
       new AtomicReference<>();
 
-  private @MonotonicNonNull MediaFormat mediaFormat;
   private @MonotonicNonNull GlEffectsFrameProcessor glEffectsFrameProcessor;
   private volatile @MonotonicNonNull ImageReader outputImageReader;
   private volatile boolean frameProcessingEnded;
@@ -422,9 +414,11 @@ public final class GlEffectsFrameProcessorPixelTest {
   //  GlEffectWrapper to ensure usage of intermediate textures.
 
   /**
-   * Set up and prepare the first frame from an input video, as well as relevant test
-   * infrastructure. The frame will be sent towards the {@link GlEffectsFrameProcessor}, and output
-   * may be accessed on the {@code outputImageReader}.
+   * Sets up and prepares the first frame from an input video, as well as the relevant test
+   * infrastructure.
+   *
+   * <p>The frame will be sent towards {@link #glEffectsFrameProcessor}, and output may be accessed
+   * on the {@code outputImageReader}.
    *
    * @param pixelWidthHeightRatio The ratio of width over height for each pixel.
    * @param effects The {@link GlEffect GlEffects} to apply to the input frame.
@@ -436,106 +430,61 @@ public final class GlEffectsFrameProcessorPixelTest {
 
   private void setUpAndPrepareFirstFrame(float pixelWidthHeightRatio, List<Effect> effects)
       throws Exception {
-    // Set up the extractor to read the first video frame and get its format.
-    MediaExtractor mediaExtractor = new MediaExtractor();
-    @Nullable MediaCodec mediaCodec = null;
-    Context context = getApplicationContext();
-    try (AssetFileDescriptor afd = context.getAssets().openFd(INPUT_MP4_ASSET_STRING)) {
-      mediaExtractor.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-      for (int i = 0; i < mediaExtractor.getTrackCount(); i++) {
-        if (MimeTypes.isVideo(mediaExtractor.getTrackFormat(i).getString(MediaFormat.KEY_MIME))) {
-          mediaFormat = mediaExtractor.getTrackFormat(i);
-          mediaExtractor.selectTrack(i);
-          break;
-        }
-      }
+    glEffectsFrameProcessor =
+        checkNotNull(
+            new GlEffectsFrameProcessor.Factory()
+                .create(
+                    getApplicationContext(),
+                    new FrameProcessor.Listener() {
+                      @Override
+                      public void onOutputSizeChanged(int width, int height) {
+                        outputImageReader =
+                            ImageReader.newInstance(
+                                width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+                        checkNotNull(glEffectsFrameProcessor)
+                            .setOutputSurfaceInfo(
+                                new SurfaceInfo(outputImageReader.getSurface(), width, height));
+                      }
 
-      int inputWidth = checkNotNull(mediaFormat).getInteger(MediaFormat.KEY_WIDTH);
-      int inputHeight = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-      glEffectsFrameProcessor =
-          checkNotNull(
-              new GlEffectsFrameProcessor.Factory()
-                  .create(
-                      context,
-                      new FrameProcessor.Listener() {
-                        @Override
-                        public void onOutputSizeChanged(int width, int height) {
-                          outputImageReader =
-                              ImageReader.newInstance(
-                                  width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-                          checkNotNull(glEffectsFrameProcessor)
-                              .setOutputSurfaceInfo(
-                                  new SurfaceInfo(outputImageReader.getSurface(), width, height));
-                        }
+                      @Override
+                      public void onOutputFrameAvailable(long presentationTimeUs) {
+                        // Do nothing as frames are released automatically.
+                      }
 
-                        @Override
-                        public void onOutputFrameAvailable(long presentationTimeUs) {
-                          // Do nothing as frames are released automatically.
-                        }
+                      @Override
+                      public void onFrameProcessingError(FrameProcessingException exception) {
+                        frameProcessingException.set(exception);
+                      }
 
-                        @Override
-                        public void onFrameProcessingError(FrameProcessingException exception) {
-                          frameProcessingException.set(exception);
-                        }
+                      @Override
+                      public void onFrameProcessingEnded() {
+                        frameProcessingEnded = true;
+                      }
+                    },
+                    effects,
+                    DebugViewProvider.NONE,
+                    ColorInfo.SDR_BT709_LIMITED,
+                    /* releaseFramesAutomatically= */ true));
+    decodeOneFrame(
+        INPUT_MP4_ASSET_STRING,
+        new FrameProcessorTestUtil.Listener() {
+          @Override
+          public void onVideoMediaFormatExtracted(MediaFormat mediaFormat) {
+            glEffectsFrameProcessor.setInputFrameInfo(
+                new FrameInfo(
+                    mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
+                    mediaFormat.getInteger(MediaFormat.KEY_HEIGHT),
+                    pixelWidthHeightRatio,
+                    /* streamOffsetUs= */ 0));
+            glEffectsFrameProcessor.registerInputFrame();
+          }
 
-                        @Override
-                        public void onFrameProcessingEnded() {
-                          frameProcessingEnded = true;
-                        }
-                      },
-                      effects,
-                      DebugViewProvider.NONE,
-                      ColorInfo.SDR_BT709_LIMITED,
-                      /* releaseFramesAutomatically= */ true));
-      glEffectsFrameProcessor.setInputFrameInfo(
-          new FrameInfo(inputWidth, inputHeight, pixelWidthHeightRatio, /* streamOffsetUs= */ 0));
-      glEffectsFrameProcessor.registerInputFrame();
-
-      // Queue the first video frame from the extractor.
-      String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
-      mediaCodec = MediaCodec.createDecoderByType(mimeType);
-      mediaCodec.configure(
-          mediaFormat,
-          glEffectsFrameProcessor.getInputSurface(),
-          /* crypto= */ null,
-          /* flags= */ 0);
-      mediaCodec.start();
-      int inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
-      assertThat(inputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
-      ByteBuffer inputBuffer = checkNotNull(mediaCodec.getInputBuffers()[inputBufferIndex]);
-      int sampleSize = mediaExtractor.readSampleData(inputBuffer, /* offset= */ 0);
-      mediaCodec.queueInputBuffer(
-          inputBufferIndex,
-          /* offset= */ 0,
-          sampleSize,
-          mediaExtractor.getSampleTime(),
-          mediaExtractor.getSampleFlags());
-
-      // Queue an end-of-stream buffer to force the codec to produce output.
-      inputBufferIndex = mediaCodec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US);
-      assertThat(inputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
-      mediaCodec.queueInputBuffer(
-          inputBufferIndex,
-          /* offset= */ 0,
-          /* size= */ 0,
-          /* presentationTimeUs= */ 0,
-          MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-
-      // Dequeue and render the output video frame.
-      MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-      int outputBufferIndex;
-      do {
-        outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, DEQUEUE_TIMEOUT_US);
-        assertThat(outputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
-      } while (outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED
-          || outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
-      mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ true);
-    } finally {
-      mediaExtractor.release();
-      if (mediaCodec != null) {
-        mediaCodec.release();
-      }
-    }
+          @Override
+          public void onVideoMediaFormatRead(MediaFormat mediaFormat) {
+            // Do nothing.
+          }
+        },
+        glEffectsFrameProcessor.getInputSurface());
   }
 
   private Bitmap processFirstFrameAndEnd() throws InterruptedException {
