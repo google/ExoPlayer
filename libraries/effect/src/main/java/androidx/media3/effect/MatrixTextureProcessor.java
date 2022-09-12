@@ -168,7 +168,7 @@ import java.util.List;
    *
    * <p>Applies the {@code electricalColorInfo} EOTF to convert from electrical color input, to
    * intermediate optical {@link GlTextureProcessor} color output, before {@code
-   * matrixTransformations} are applied.
+   * matrixTransformations} and {@code rgbMatrices} are applied.
    *
    * <p>Intermediate optical colors are linear RGB BT.2020 if {@code electricalColorInfo} is
    * {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and gamma RGB BT.709 if not.
@@ -228,7 +228,7 @@ import java.util.List;
    *
    * <p>Applies the {@code electricalColorInfo} OETF to convert from intermediate optical {@link
    * GlTextureProcessor} color input, to electrical color output, after {@code
-   * matrixTransformations} are applied.
+   * matrixTransformations} and {@code rgbMatrices} are applied.
    *
    * <p>Intermediate optical colors are linear RGB BT.2020 if {@code electricalColorInfo} is
    * {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and gamma RGB BT.709 if not.
@@ -277,8 +277,8 @@ import java.util.List;
    * #setTextureTransformMatrix(float[])} to provide the transformation matrix associated with the
    * external texture.
    *
-   * <p>Applies the OETF, {@code matrixTransformations}, then the EOTF, to convert from and to input
-   * and output electrical colors.
+   * <p>Applies the OETF, {@code matrixTransformations}, {@code rgbMatrices}, then the EOTF, to
+   * convert from and to input and output electrical colors.
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
