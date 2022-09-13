@@ -1154,6 +1154,24 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return outputIndex >= 0;
   }
 
+  /**
+   * Check if the renderer has one or more output frames queued to render.  For non-tunneled
+   * mode MediaCodecRenderer's this is true if the codec has returned a frame ready to render
+   * (that is {@see #hasOutputBuffer() is true}.
+   *
+   * This factors into the ready {@link com.google.android.exoplayer2.Renderer#isReady()} decision
+   *
+   * @return
+   */
+  protected boolean hasOutputReady() {
+    return hasOutputBuffer();
+  }
+
+  /** Returns the largest queued input presentation time, in microseconds */
+  protected final long getLargestQueuedPresentationTimeUs() {
+    return largestQueuedPresentationTimeUs;
+  }
+
   private void resetInputBuffer() {
     inputIndex = C.INDEX_UNSET;
     buffer.data = null;
@@ -1645,7 +1663,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   public boolean isReady() {
     return inputFormat != null
         && (isSourceReady()
-            || hasOutputBuffer()
+            || hasOutputReady()
             || (codecHotswapDeadlineMs != C.TIME_UNSET
                 && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }
