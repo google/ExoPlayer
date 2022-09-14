@@ -1122,12 +1122,17 @@ import java.util.Map;
   }
 
   private void ensureSentContentCompleteIfAtEndOfStream() {
-    if (!sentContentComplete
-        && contentDurationMs != C.TIME_UNSET
-        && pendingContentPositionMs == C.TIME_UNSET
-        && getContentPeriodPositionMs(checkNotNull(player), timeline, period)
-                + THRESHOLD_END_OF_CONTENT_MS
-            >= contentDurationMs) {
+
+    if (sentContentComplete
+        || contentDurationMs == C.TIME_UNSET
+        || pendingContentPositionMs != C.TIME_UNSET) {
+      return;
+    }
+
+    long contentPeriodPositionMs = getContentPeriodPositionMs(checkNotNull(player), timeline, period);
+    int pendingAdGroupIndex = adPlaybackState.getAdGroupIndexAfterPositionUs(contentPeriodPositionMs, contentDurationMs);
+    if (!adPlaybackState.getAdGroup(pendingAdGroupIndex).shouldPlayAdGroup()
+        && contentPeriodPositionMs + THRESHOLD_END_OF_CONTENT_MS >= contentDurationMs) {
       sendContentComplete();
     }
   }
