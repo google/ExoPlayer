@@ -45,22 +45,46 @@ import static java.lang.Math.pow;
   private MssimCalculator() {}
 
   /**
+   * Calculates the Mean Structural Similarity (MSSIM) between two images with window skipping.
+   *
+   * @see #calculate(byte[], byte[], int, int, boolean).
+   */
+  public static double calculate(
+      byte[] referenceBuffer, byte[] distortedBuffer, int width, int height) {
+    return calculate(
+        referenceBuffer, distortedBuffer, width, height, /* enableWindowSkipping= */ true);
+  }
+
+  /**
    * Calculates the Mean Structural Similarity (MSSIM) between two images.
+   *
+   * <p>The images are split into a grid of windows. For each window, the structural similarity
+   * (SSIM) is calculated. The MSSIM returned from this method is the mean of these SSIM values. If
+   * window skipping is enabled, only every other row and column are considered, thereby only one in
+   * four windows are evaluated.
    *
    * @param referenceBuffer The luma channel (Y) buffer of the reference image.
    * @param distortedBuffer The luma channel (Y) buffer of the distorted image.
    * @param width The image width in pixels.
    * @param height The image height in pixels.
+   * @param enableWindowSkipping Whether to skip every other row and column when evaluating windows
+   *     for SSIM calculation.
    * @return The MSSIM score between the input images.
    */
   public static double calculate(
-      byte[] referenceBuffer, byte[] distortedBuffer, int width, int height) {
+      byte[] referenceBuffer,
+      byte[] distortedBuffer,
+      int width,
+      int height,
+      boolean enableWindowSkipping) {
     double totalSsim = 0;
     int windowsCount = 0;
 
-    for (int currentWindowY = 0; currentWindowY < height; currentWindowY += WINDOW_SIZE) {
+    int dimensionIncrement = WINDOW_SIZE * (enableWindowSkipping ? 2 : 1);
+
+    for (int currentWindowY = 0; currentWindowY < height; currentWindowY += dimensionIncrement) {
       int windowHeight = computeWindowSize(currentWindowY, height);
-      for (int currentWindowX = 0; currentWindowX < width; currentWindowX += WINDOW_SIZE) {
+      for (int currentWindowX = 0; currentWindowX < width; currentWindowX += dimensionIncrement) {
         windowsCount++;
         int windowWidth = computeWindowSize(currentWindowX, width);
         int bufferIndexOffset =
