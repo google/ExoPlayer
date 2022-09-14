@@ -391,7 +391,7 @@ public final class GlEffectsFrameProcessorPixelTest {
   // TODO(b/239757183): Consider moving RgbMatrix composition tests to a new file.
   public void drawFrame_grayscaleAndIncreaseRedChannel_producesGrayscaleAndRedImage()
       throws Exception {
-    String testId = "drawFrame_grayscale";
+    String testId = "drawFrame_grayscaleAndIncreaseRedChannel";
     ImmutableList<Effect> grayscaleThenIncreaseRed =
         ImmutableList.of(
             RgbFilter.createGrayscaleFilter(), new RgbAdjustment.Builder().setRedScale(3).build());
