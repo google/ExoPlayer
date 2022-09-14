@@ -101,13 +101,13 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
   }
 
   /**
-   * Replaces the current output buffer with a buffer of at least {@code count} bytes and returns
-   * it. Callers should write to the returned buffer then {@link ByteBuffer#flip()} it so it can be
-   * read via {@link #getOutput()}.
+   * Replaces the current output buffer with a buffer of at least {@code size} bytes and returns it.
+   * Callers should write to the returned buffer then {@link ByteBuffer#flip()} it so it can be read
+   * via {@link #getOutput()}.
    */
-  protected final ByteBuffer replaceOutputBuffer(int count) {
-    if (buffer.capacity() < count) {
-      buffer = ByteBuffer.allocateDirect(count).order(ByteOrder.nativeOrder());
+  protected final ByteBuffer replaceOutputBuffer(int size) {
+    if (buffer.capacity() < size) {
+      buffer = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
     } else {
       buffer.clear();
     }
