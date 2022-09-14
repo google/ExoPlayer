@@ -62,6 +62,34 @@ public class MssimCalculatorTest {
         .isEqualTo(63);
   }
 
+  @Test
+  public void calculateSsim_withWindowSkipping_similarToWithout() throws Exception {
+    Bitmap referenceBitmap = readBitmap("media/bitmap/sample_mp4_first_frame/original.png");
+    Bitmap distortedBitmap =
+        readBitmap("media/bitmap/sample_mp4_first_frame/increase_brightness.png");
+    byte[] referenceLuminosity = bitmapToLuminosityArray(referenceBitmap);
+    byte[] distortedLuminosity = bitmapToLuminosityArray(distortedBitmap);
+
+    assertThat(
+            (int)
+                (MssimCalculator.calculate(
+                        referenceLuminosity,
+                        distortedLuminosity,
+                        referenceBitmap.getWidth(),
+                        referenceBitmap.getHeight(),
+                        /* enableWindowSkipping= */ false)
+                    * 100))
+        .isEqualTo(
+            (int)
+                (MssimCalculator.calculate(
+                        referenceLuminosity,
+                        distortedLuminosity,
+                        referenceBitmap.getWidth(),
+                        referenceBitmap.getHeight(),
+                        /* enableWindowSkipping= */ true)
+                    * 100));
+  }
+
   private static Bitmap readBitmap(String assetString) throws IOException {
     try (InputStream inputStream = getApplicationContext().getAssets().open(assetString)) {
       return BitmapFactory.decodeStream(inputStream);
