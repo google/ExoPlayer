@@ -13,6 +13,7 @@
         ([#10458](https://github.com/google/ExoPlayer/issues/10458)).
     *   Discard back buffer before playback gets stuck due to insufficient
         available memory.
+    *   Close the Tracing "doSomeWork" block when offload is enabled.
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
