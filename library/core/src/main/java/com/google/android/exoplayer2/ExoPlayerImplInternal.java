@@ -1084,7 +1084,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     if (sleepingForOffload || playbackInfo.playbackState == Player.STATE_ENDED) {
       // No need to schedule next work.
-      return;
     } else if (isPlaying || playbackInfo.playbackState == Player.STATE_BUFFERING) {
       // We are actively playing or waiting for data to be ready. Schedule next work quickly.
       scheduleNextWork(operationStartTimeMs, ACTIVE_INTERVAL_MS);
