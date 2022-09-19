@@ -31,7 +31,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.ParserException;
 import androidx.media3.common.util.CodecSpecificDataUtil;
+import androidx.media3.common.util.ParsableBitArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.AacUtil;
@@ -208,6 +210,13 @@ import com.google.common.collect.ImmutableMap;
       case MimeTypes.AUDIO_AAC:
         checkArgument(channelCount != C.INDEX_UNSET);
         checkArgument(!fmtpParameters.isEmpty());
+        if(mediaEncoding.equals(RtpPayloadFormat.RTP_MEDIA_MPEG4_AUDIO)) {
+          Pair<Integer, Integer> cfgOpts = getSampleRateAndChannelCountFromAudioConfig(
+              fmtpParameters, channelCount, clockRate);
+          channelCount = cfgOpts.first;
+          clockRate = cfgOpts.second;
+          formatBuilder.setSampleRate(clockRate).setChannelCount(channelCount);
+        }
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
         break;
       case MimeTypes.AUDIO_AMR_NB:
@@ -299,6 +308,38 @@ import com.google.common.collect.ImmutableMap;
         ImmutableList.of(
             // Clock rate equals to sample rate in RTP.
             AacUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount)));
+  }
+
+  /**
+   * Parses an MPEG-4 Audio Stream Mux configuration, as defined in ISO/IEC14496-3. FMTP attribute
+   * contains config which is a byte array containing the MPEG-4 Audio Stream Mux configuration to
+   * parse.
+   */
+  private static Pair<Integer, Integer> getSampleRateAndChannelCountFromAudioConfig(
+      ImmutableMap<String, String> fmtpAttributes,
+      int channelCount,
+      int sampleRate) {
+    @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
+    if (configInput != null && configInput.length() % 2 == 0) {
+      byte[] configBuffer = Util.getBytesFromHexString(configInput);
+      ParsableBitArray scratchBits = new ParsableBitArray(configBuffer);
+      int audioMuxVersion = scratchBits.readBits(1);
+      if (audioMuxVersion == 0) {
+        checkArgument(scratchBits.readBits(1) == 1, "Invalid allStreamsSameTimeFraming.");
+        scratchBits.readBits(6);
+        checkArgument(scratchBits.readBits(4) == 0, "Invalid numProgram.");
+        checkArgument(scratchBits.readBits(3) == 0, "Invalid numLayer.");
+        AacUtil.Config aacConfig = null;
+        try {
+          aacConfig = AacUtil.parseAudioSpecificConfig(scratchBits, false);
+        } catch (ParserException e) {
+          throw new IllegalArgumentException(e);
+        }
+        sampleRate = aacConfig.sampleRateHz;
+        channelCount = aacConfig.channelCount;
+      }
+    }
+    return Pair.create(channelCount, sampleRate);
   }
 
   private static void processMPEG4FmtpAttribute(
