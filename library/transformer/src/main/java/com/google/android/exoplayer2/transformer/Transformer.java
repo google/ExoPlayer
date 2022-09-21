@@ -65,6 +65,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Documented;
@@ -591,6 +592,8 @@ public final class Transformer {
 
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;
+  @Nullable private String outputPath;
+  @Nullable private ParcelFileDescriptor outputParcelFileDescriptor;
   private @ProgressState int progressState;
   private boolean isCancelling;
 
@@ -703,6 +706,8 @@ public final class Transformer {
       throw new UnsupportedEncodingException(
           "Clipping is not supported when slow motion flattening is requested");
     }
+    this.outputPath = path;
+    this.outputParcelFileDescriptor = null;
     startTransformation(mediaItem, muxerFactory.create(path, containerMimeType));
   }
 
@@ -731,6 +736,8 @@ public final class Transformer {
   @RequiresApi(26)
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
       throws IOException {
+    this.outputParcelFileDescriptor = parcelFileDescriptor;
+    this.outputPath = null;
     startTransformation(mediaItem, muxerFactory.create(parcelFileDescriptor, containerMimeType));
   }
 
@@ -872,6 +879,26 @@ public final class Transformer {
     if (Looper.myLooper() != looper) {
       throw new IllegalStateException("Transformer is accessed on the wrong thread.");
     }
+  }
+
+  /**
+   * Returns the current size in bytes of the current/latest output file, or {@link C#LENGTH_UNSET}
+   * if unavailable.
+   */
+  private long getCurrentOutputFileCurrentSizeBytes() {
+    long fileSize = C.LENGTH_UNSET;
+
+    if (outputPath != null) {
+      fileSize = new File(outputPath).length();
+    } else if (outputParcelFileDescriptor != null) {
+      fileSize = outputParcelFileDescriptor.getStatSize();
+    }
+
+    if (fileSize <= 0) {
+      fileSize = C.LENGTH_UNSET;
+    }
+
+    return fileSize;
   }
 
   private static final class TransformerRenderersFactory implements RenderersFactory {
@@ -1062,6 +1089,7 @@ public final class Transformer {
                 .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
                 .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
                 .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
+                .setFileSizeBytes(getCurrentOutputFileCurrentSizeBytes())
                 .build();
 
         listeners.queueEvent(
