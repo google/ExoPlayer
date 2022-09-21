@@ -47,10 +47,14 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ContrastPixelTest {
-  private static final String EXOPLAYER_LOGO_PNG_ASSET_PATH =
-      "media/bitmap/exoplayer_logo/original.png";
-  private static final String MAXIMUM_CONTRAST_PNG_ASSET_PATH =
-      "media/bitmap/exoplayer_logo/maximum_contrast.png";
+  public static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/original.png";
+  public static final String INCREASE_CONTRAST_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/increase_contrast.png";
+  public static final String DECREASE_CONTRAST_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/decrease_contrast.png";
+  public static final String MAXIMUM_CONTRAST_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/maximum_contrast.png";
 
   // OpenGL uses floats in [0, 1] and maps 0.5f to 128 = 256 / 2.
   private static final int OPENGL_NEUTRAL_RGB_VALUE = 128;
@@ -71,7 +75,7 @@ public class ContrastPixelTest {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
 
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
+    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
 
@@ -95,14 +99,15 @@ public class ContrastPixelTest {
         new Contrast(/* contrast= */ 0.0f).toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.first, outputSize.second);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
@@ -128,7 +133,8 @@ public class ContrastPixelTest {
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
@@ -143,15 +149,19 @@ public class ContrastPixelTest {
         new Contrast(/* contrast= */ -0.75f).toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.first, outputSize.second);
-    Bitmap originalBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(DECREASE_CONTRAST_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
-    assertIncreasedOrDecreasedContrast(originalBitmap, actualBitmap, /* increased= */ false);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
@@ -162,15 +172,19 @@ public class ContrastPixelTest {
         new Contrast(/* contrast= */ 0.75f).toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = contrastProcessor.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.first, outputSize.second);
-    Bitmap originalBitmap = BitmapTestUtil.readBitmap(EXOPLAYER_LOGO_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INCREASE_CONTRAST_PNG_ASSET_PATH);
 
     contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
-    assertIncreasedOrDecreasedContrast(originalBitmap, actualBitmap, /* increased= */ true);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    float averagePixelAbsoluteDifference =
+        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
+            expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
   @Test
@@ -187,52 +201,12 @@ public class ContrastPixelTest {
         BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
             outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(testId, "actual", actualBitmap);
+    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
+        testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
         BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
             expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  private static void assertIncreasedOrDecreasedContrast(
-      Bitmap originalBitmap, Bitmap actualBitmap, boolean increased) {
-
-    for (int y = 0; y < actualBitmap.getHeight(); y++) {
-      for (int x = 0; x < actualBitmap.getWidth(); x++) {
-        int originalColor = originalBitmap.getPixel(x, y);
-        int actualColor = actualBitmap.getPixel(x, y);
-
-        int redDifference = Color.red(actualColor) - Color.red(originalColor);
-        int greenDifference = Color.green(actualColor) - Color.green(originalColor);
-        int blueDifference = Color.blue(actualColor) - Color.blue(originalColor);
-
-        // If the contrast increases, all pixels with a value greater or equal to
-        // OPENGL_NEUTRAL_RGB_VALUE must increase (diff is greater or equal to 0) and all pixels
-        // below OPENGL_NEUTRAL_RGB_VALUE must decrease (diff is smaller or equal to 0).
-        // If the contrast decreases, all pixels with a value greater or equal to
-        // OPENGL_NEUTRAL_RGB_VALUE must decrease (diff is smaller or equal to 0) and all pixels
-        // below OPENGL_NEUTRAL_RGB_VALUE must increase (diff is greater or equal to 0).
-        // The interval limits 0 and 255 stay unchanged for either contrast in- or decrease.
-
-        if (Color.red(originalColor) >= OPENGL_NEUTRAL_RGB_VALUE) {
-          assertThat(increased ? redDifference : -redDifference).isAtLeast(0);
-        } else {
-          assertThat(increased ? redDifference : -redDifference).isAtMost(0);
-        }
-
-        if (Color.green(originalColor) >= OPENGL_NEUTRAL_RGB_VALUE) {
-          assertThat(increased ? greenDifference : -greenDifference).isAtLeast(0);
-        } else {
-          assertThat(increased ? greenDifference : -greenDifference).isAtMost(0);
-        }
-
-        if (Color.blue(originalColor) >= OPENGL_NEUTRAL_RGB_VALUE) {
-          assertThat(increased ? blueDifference : -blueDifference).isAtLeast(0);
-        } else {
-          assertThat(increased ? blueDifference : -blueDifference).isAtMost(0);
-        }
-      }
-    }
   }
 
   private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
