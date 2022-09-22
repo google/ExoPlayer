@@ -46,13 +46,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class MatrixTextureProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/original.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/translate_right.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/translate_right.png";
   public static final String SCALE_NARROW_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/scale_narrow.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_narrow.png";
   public static final String ROTATE_90_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/rotate90.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate90.png";
 
   private final Context context = getApplicationContext();
 

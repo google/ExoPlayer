@@ -104,4 +104,5 @@ void main() {
   vec3 srcYuv = texture(uTexSampler, vTexSamplingCoord).xyz;
   vec3 rgb = yuvToRgb(srcYuv);
   outColor = uRgbMatrix * vec4(getOpticalColor(rgb), 1.0);
+  // TODO(b/241902517): Transform optical to electrical colors.
 }
