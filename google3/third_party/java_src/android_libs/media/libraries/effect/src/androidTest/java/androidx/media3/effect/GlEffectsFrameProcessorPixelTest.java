@@ -58,27 +58,27 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class GlEffectsFrameProcessorPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/original.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   public static final String SCALE_WIDE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/scale_wide.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_wide.png";
   public static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/translate_right.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/translate_right.png";
   public static final String ROTATE_THEN_TRANSLATE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/rotate_then_translate.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate_then_translate.png";
   public static final String ROTATE_THEN_SCALE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/rotate45_then_scale2w.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate45_then_scale2w.png";
   public static final String TRANSLATE_THEN_ROTATE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/translate_then_rotate.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/translate_then_rotate.png";
   public static final String REQUEST_OUTPUT_HEIGHT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/request_output_height.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/request_output_height.png";
   public static final String CROP_THEN_ASPECT_RATIO_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/crop_then_aspect_ratio.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/crop_then_aspect_ratio.png";
   public static final String ROTATE45_SCALE_TO_FIT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/rotate_45_scale_to_fit.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate_45_scale_to_fit.png";
   public static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/increase_brightness.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/increase_brightness.png";
   public static final String GRAYSCALE_THEN_INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/grayscale_then_increase_red_channel.png";
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/grayscale_then_increase_red_channel.png";
 
   /** Input video of which we only use the first frame. */
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";

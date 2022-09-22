@@ -34,7 +34,7 @@ public class MssimCalculatorTest {
 
   @Test
   public void calculateSsim_sameImage() throws Exception {
-    Bitmap bitmap = readBitmap("media/bitmap/sample_mp4_first_frame/original.png");
+    Bitmap bitmap = readBitmap("media/bitmap/sample_mp4_first_frame/linear_colors/original.png");
     byte[] imageLuminosities = bitmapToLuminosityArray(bitmap);
 
     // SSIM equals 1 if the two images match.
@@ -46,10 +46,11 @@ public class MssimCalculatorTest {
 
   @Test
   public void calculateSsim_increasedBrightness() throws Exception {
-    Bitmap refBitmap = readBitmap("media/bitmap/sample_mp4_first_frame/original.png");
-    Bitmap distBitmap = readBitmap("media/bitmap/sample_mp4_first_frame/increase_brightness.png");
+    Bitmap refBitmap = readBitmap("media/bitmap/sample_mp4_first_frame/linear_colors/original.png");
+    Bitmap distBitmap =
+        readBitmap("media/bitmap/sample_mp4_first_frame/linear_colors/increase_brightness.png");
 
-    // SSIM as calculated by ffmpeg: 0.634326 = 63%
+    // SSIM as calculated by ffmpeg: 0.526821 = 52%
 
     assertThat(
             (int)
@@ -59,14 +60,15 @@ public class MssimCalculatorTest {
                         refBitmap.getWidth(),
                         refBitmap.getHeight())
                     * 100))
-        .isEqualTo(63);
+        .isEqualTo(52);
   }
 
   @Test
   public void calculateSsim_withWindowSkipping_similarToWithout() throws Exception {
-    Bitmap referenceBitmap = readBitmap("media/bitmap/sample_mp4_first_frame/original.png");
+    Bitmap referenceBitmap =
+        readBitmap("media/bitmap/sample_mp4_first_frame/linear_colors/original.png");
     Bitmap distortedBitmap =
-        readBitmap("media/bitmap/sample_mp4_first_frame/increase_brightness.png");
+        readBitmap("media/bitmap/sample_mp4_first_frame/linear_colors/increase_brightness.png");
     byte[] referenceLuminosity = bitmapToLuminosityArray(referenceBitmap);
     byte[] distortedLuminosity = bitmapToLuminosityArray(distortedBitmap);
 

@@ -48,13 +48,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SingleColorLutPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/original.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   public static final String LUT_MAP_WHITE_TO_GREEN_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/lut_map_white_to_green.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/lut_map_white_to_green.png";
   public static final String GRAYSCALE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/grayscale.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/grayscale.png";
   public static final String INVERT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/invert.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/invert.png";
   public static final String VERTICAL_HALD_IDENTITY_LUT = "media/bitmap/lut/identity.png";
   public static final String VERTICAL_HALD_GRAYSCALE_LUT = "media/bitmap/lut/grayscale.png";
   public static final String VERTICAL_HALD_INVERTED_LUT = "media/bitmap/lut/inverted.png";
