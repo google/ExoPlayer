@@ -48,13 +48,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ContrastPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/original.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   public static final String INCREASE_CONTRAST_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/increase_contrast.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/increase_contrast.png";
   public static final String DECREASE_CONTRAST_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/decrease_contrast.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/decrease_contrast.png";
   public static final String MAXIMUM_CONTRAST_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/maximum_contrast.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/maximum_contrast.png";
 
   // OpenGL uses floats in [0, 1] and maps 0.5f to 128 = 256 / 2.
   private static final int OPENGL_NEUTRAL_RGB_VALUE = 128;
