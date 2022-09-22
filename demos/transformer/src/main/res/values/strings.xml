@@ -48,6 +48,10 @@
     <item>Sepia</item>
   </string-array>
   <string name="contrast_value" translatable="false">Contrast value</string>
+  <string name="rgb_adjustment_options" translatable="false">Scale RGB Channels individually</string>
+  <string name="rgb_adjustment_scale_red" translatable="false">Scale Red</string>
+  <string name="rgb_adjustment_scale_green" translatable="false">Scale Green</string>
+  <string name="rgb_adjustment_scale_blue" translatable="false">Scale Blue</string>
   <string name="center_x">Center X</string>
   <string name="center_y">Center Y</string>
   <string name="radius_range">Radius range</string>
