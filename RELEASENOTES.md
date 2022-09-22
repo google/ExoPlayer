@@ -29,6 +29,9 @@
         `MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory,
         boolean)` to specify whether the renderer will output metadata early or
         in sync with the player position.
+*   DRM:
+    *   Work around a bug in the Android 13 ClearKey implementation that returns
+        a non-empty but invalid license URL.
 *   DASH:
     *   Parse `EventStream.presentationTimeOffset` from manifests
         ([#10460](https://github.com/google/ExoPlayer/issues/10460)).
