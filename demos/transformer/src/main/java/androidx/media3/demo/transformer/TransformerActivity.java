@@ -44,6 +44,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlTextureProcessor;
+import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -335,9 +336,17 @@ public final class TransformerActivity extends AppCompatActivity {
           }
         }
         if (selectedEffects[3]) {
-          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+          effects.add(
+              new RgbAdjustment.Builder()
+                  .setRedScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_RED_SCALE))
+                  .setGreenScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_GREEN_SCALE))
+                  .setBlueScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_BLUE_SCALE))
+                  .build());
         }
         if (selectedEffects[4]) {
+          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+        }
+        if (selectedEffects[5]) {
           effects.add(
               (GlEffect)
                   (Context context, boolean useHdr) ->
@@ -352,13 +361,13 @@ public final class TransformerActivity extends AppCompatActivity {
                               ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                           bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedEffects[5]) {
+        if (selectedEffects[6]) {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
-        if (selectedEffects[6]) {
+        if (selectedEffects[7]) {
           effects.add((GlEffect) BitmapOverlayProcessor::new);
         }
-        if (selectedEffects[7]) {
+        if (selectedEffects[8]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
         transformerBuilder.setVideoEffects(effects.build());

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  tools:context=".ConfigurationActivity">
+
+  <TableLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:stretchColumns="1"
+    android:layout_marginTop="32dp"
+    android:measureWithLargestChild="true"
+    android:paddingLeft="24dp"
+    android:paddingRight="12dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent">
+    <TableRow
+      android:layout_weight="1"
+      android:gravity="center_vertical" >
+      <TextView
+        android:text="@string/rgb_adjustment_scale_red" />
+      <com.google.android.material.slider.Slider
+        android:id="@+id/rgb_adjustment_red_scale"
+        android:valueFrom="0"
+        android:value="1"
+        android:valueTo="2"
+        android:layout_gravity="right"
+        app:labelBehavior="gone"/>
+    </TableRow>
+    <TableRow
+      android:layout_weight="1"
+      android:gravity="center_vertical" >
+      <TextView
+        android:text="@string/rgb_adjustment_scale_green" />
+      <com.google.android.material.slider.Slider
+        android:id="@+id/rgb_adjustment_green_scale"
+        android:valueFrom="0"
+        android:value="1"
+        android:valueTo="2"
+        android:layout_gravity="right"
+        app:labelBehavior="gone"/>
+    </TableRow>
+    <TableRow
+      android:layout_weight="1"
+      android:gravity="center_vertical" >
+      <TextView
+        android:text="@string/rgb_adjustment_scale_blue" />
+      <com.google.android.material.slider.Slider
+        android:id="@+id/rgb_adjustment_blue_scale"
+        android:valueFrom="0"
+        android:value="1"
+        android:valueTo="2"
+        android:layout_gravity="right"
+        app:labelBehavior="gone"/>
+    </TableRow>
+  </TableLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

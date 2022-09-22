@@ -69,6 +69,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String PERIODIC_VIGNETTE_OUTER_RADIUS = "periodic_vignette_outer_radius";
   public static final String COLOR_FILTER_SELECTION = "color_filter_selection";
   public static final String CONTRAST_VALUE = "contrast_value";
+  public static final String RGB_ADJUSTMENT_RED_SCALE = "rgb_adjustment_red_scale";
+  public static final String RGB_ADJUSTMENT_GREEN_SCALE = "rgb_adjustment_green_scale";
+  public static final String RGB_ADJUSTMENT_BLUE_SCALE = "rgb_adjustment_blue_scale";
   public static final int COLOR_FILTER_GRAYSCALE = 0;
   public static final int COLOR_FILTER_INVERTED = 1;
   public static final int COLOR_FILTER_SEPIA = 2;
@@ -106,6 +109,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Dizzy crop",
     "Edge detector (Media Pipe)",
     "Color filters",
+    "RGB Adjustments",
     "Contrast",
     "Periodic vignette",
     "3D spin",
@@ -113,8 +117,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Zoom in start",
   };
   private static final int COLOR_FILTERS_INDEX = 2;
-  private static final int CONTRAST_INDEX = 3;
-  private static final int PERIODIC_VIGNETTE_INDEX = 4;
+  private static final int RGB_ADJUSTMENTS_INDEX = 3;
+  private static final int CONTRAST_INDEX = 4;
+  private static final int PERIODIC_VIGNETTE_INDEX = 5;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
@@ -139,6 +144,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private long trimStartMs;
   private long trimEndMs;
   private int colorFilterSelection;
+  private float rgbAdjustmentRedScale;
+  private float rgbAdjustmentGreenScale;
+  private float rgbAdjustmentBlueScale;
   private float contrastValue;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
@@ -297,6 +305,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
     bundle.putInt(COLOR_FILTER_SELECTION, colorFilterSelection);
     bundle.putFloat(CONTRAST_VALUE, contrastValue);
+    bundle.putFloat(RGB_ADJUSTMENT_RED_SCALE, rgbAdjustmentRedScale);
+    bundle.putFloat(RGB_ADJUSTMENT_GREEN_SCALE, rgbAdjustmentGreenScale);
+    bundle.putFloat(RGB_ADJUSTMENT_BLUE_SCALE, rgbAdjustmentBlueScale);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
@@ -367,6 +378,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
       case COLOR_FILTERS_INDEX:
         controlColorFiltersSettings();
         break;
+      case RGB_ADJUSTMENTS_INDEX:
+        controlRgbAdjustmentsScale();
+        break;
       case CONTRAST_INDEX:
         controlContrastSettings();
         break;
@@ -389,6 +403,27 @@ public final class ConfigurationActivity extends AppCompatActivity {
                       || i == COLOR_FILTER_SEPIA);
               colorFilterSelection = i;
               dialogInterface.dismiss();
+            })
+        .create()
+        .show();
+  }
+
+  private void controlRgbAdjustmentsScale() {
+    View dialogView =
+        getLayoutInflater().inflate(R.layout.rgb_adjustment_options, /* root= */ null);
+    Slider redScaleSlider = checkNotNull(dialogView.findViewById(R.id.rgb_adjustment_red_scale));
+    Slider greenScaleSlider =
+        checkNotNull(dialogView.findViewById(R.id.rgb_adjustment_green_scale));
+    Slider blueScaleSlider = checkNotNull(dialogView.findViewById(R.id.rgb_adjustment_blue_scale));
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.rgb_adjustment_options)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              rgbAdjustmentRedScale = redScaleSlider.getValue();
+              rgbAdjustmentGreenScale = greenScaleSlider.getValue();
+              rgbAdjustmentBlueScale = blueScaleSlider.getValue();
             })
         .create()
         .show();
