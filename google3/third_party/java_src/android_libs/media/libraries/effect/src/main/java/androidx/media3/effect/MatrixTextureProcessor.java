@@ -49,6 +49,7 @@ import java.util.List;
  *
  * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
  */
+// TODO(b/241902517): Fix Gamma references since intermediate color space is now linear.
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 /* package */ final class MatrixTextureProcessor extends SingleFrameGlTextureProcessor
     implements ExternalTextureProcessor {
@@ -61,10 +62,12 @@ import java.util.List;
       "shaders/fragment_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_OETF_ES3_PATH =
       "shaders/fragment_shader_oetf_es3.glsl";
-  private static final String FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_PATH =
-      "shaders/fragment_shader_transformation_external_es2.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_OETF_ES2_PATH =
+      "shaders/fragment_shader_transformation_sdr_oetf_es2.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH =
       "shaders/fragment_shader_transformation_external_yuv_es3.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH =
+      "shaders/fragment_shader_transformation_sdr_external_es2.glsl";
   private static final ImmutableList<float[]> NDC_SQUARE =
       ImmutableList.of(
           new float[] {-1, -1, 0, 1},
@@ -150,6 +153,7 @@ import java.util.List;
             context, VERTEX_SHADER_TRANSFORMATION_PATH, FRAGMENT_SHADER_TRANSFORMATION_PATH);
 
     // No transfer functions needed, because input and output are both optical colors.
+    // TODO(b/241902517): Add transfer functions since existing color filters may change the colors.
     return new MatrixTextureProcessor(
         glProgram,
         ImmutableList.copyOf(matrixTransformations),
@@ -192,10 +196,9 @@ import java.util.List;
     String fragmentShaderFilePath =
         useHdr
             ? FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH
-            : FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_PATH;
+            : FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
-    // TODO(b/241902517): Implement gamma transfer functions.
     if (useHdr) {
       // In HDR editing mode the decoder output is sampled in YUV.
       if (!GlUtil.isYuvTargetExtensionSupported()) {
@@ -212,6 +215,8 @@ import java.util.List;
       checkArgument(
           colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084);
       glProgram.setIntUniform("uEotfColorTransfer", colorTransfer);
+    } else {
+      glProgram.setIntUniform("uApplyOetf", 0);
     }
 
     return new MatrixTextureProcessor(
@@ -250,10 +255,9 @@ import java.util.List;
     String vertexShaderFilePath =
         useHdr ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH : VERTEX_SHADER_TRANSFORMATION_PATH;
     String fragmentShaderFilePath =
-        useHdr ? FRAGMENT_SHADER_OETF_ES3_PATH : FRAGMENT_SHADER_TRANSFORMATION_PATH;
+        useHdr ? FRAGMENT_SHADER_OETF_ES3_PATH : FRAGMENT_SHADER_TRANSFORMATION_SDR_OETF_ES2_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
-    // TODO(b/241902517): Implement gamma transfer functions.
     if (useHdr) {
       @C.ColorTransfer int colorTransfer = electricalColorInfo.colorTransfer;
       checkArgument(
@@ -275,7 +279,7 @@ import java.util.List;
    * #setTextureTransformMatrix(float[])} to provide the transformation matrix associated with the
    * external texture.
    *
-   * <p>Applies the OETF, {@code matrixTransformations}, {@code rgbMatrices}, then the EOTF, to
+   * <p>Applies the EOTF, {@code matrixTransformations}, {@code rgbMatrices}, then the OETF, to
    * convert from and to input and output electrical colors.
    *
    * @param context The {@link Context}.
@@ -299,10 +303,9 @@ import java.util.List;
     String fragmentShaderFilePath =
         useHdr
             ? FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_YUV_ES3_PATH
-            : FRAGMENT_SHADER_TRANSFORMATION_EXTERNAL_PATH;
+            : FRAGMENT_SHADER_TRANSFORMATION_SDR_EXTERNAL_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
-    // TODO(b/241902517): Implement gamma transfer functions.
     if (useHdr) {
       // In HDR editing mode the decoder output is sampled in YUV.
       if (!GlUtil.isYuvTargetExtensionSupported()) {
@@ -317,6 +320,8 @@ import java.util.List;
 
       // No transfer functions needed, because the EOTF and OETF cancel out.
       glProgram.setIntUniform("uEotfColorTransfer", Format.NO_VALUE);
+    } else {
+      glProgram.setIntUniform("uApplyOetf", 1);
     }
 
     return new MatrixTextureProcessor(

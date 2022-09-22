@@ -50,13 +50,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class RgbAdjustmentPixelTest {
   public static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/original.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   public static final String ONLY_RED_CHANNEL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/only_red_channel.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/only_red_channel.png";
   public static final String INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/increase_red_channel.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/increase_red_channel.png";
   public static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/increase_brightness.png";
+      "media/bitmap/sample_mp4_first_frame/linear_colors/increase_brightness.png";
 
   private final Context context = getApplicationContext();
 
