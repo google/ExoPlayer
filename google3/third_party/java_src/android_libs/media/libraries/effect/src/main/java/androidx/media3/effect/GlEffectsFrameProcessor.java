@@ -167,7 +167,6 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
    *     The first is an {@link ExternalTextureProcessor} and the last is a {@link
    *     FinalMatrixTextureProcessorWrapper}.
    */
-  // TODO(b/239757183): Squash GlMatrixTransformation and RgbMatrix together.
   private static ImmutableList<GlTextureProcessor> getGlTextureProcessorsForGlEffects(
       Context context,
       List<Effect> effects,
