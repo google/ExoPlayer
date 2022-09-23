@@ -14,6 +14,8 @@
     *   Discard back buffer before playback gets stuck due to insufficient
         available memory.
     *   Close the Tracing "doSomeWork" block when offload is enabled.
+    *   Try alternative decoder for Dolby Vision if display does not support it.
+        ([#9794](https://github.com/google/ExoPlayer/issues/9794)).
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
