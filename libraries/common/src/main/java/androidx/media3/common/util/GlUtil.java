@@ -356,12 +356,15 @@ public final class GlUtil {
     // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
     //  (ex. downscaling appropriately) in a texture processor instead of asserting incorrect
     //  values.
-
     // For valid GL sizes, see:
     // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
     int[] maxTextureSizeBuffer = new int[1];
     GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSizeBuffer, 0);
     int maxTextureSize = maxTextureSizeBuffer[0];
+    checkState(
+        maxTextureSize > 0,
+        "Create a OpenGL context first or run the GL methods on an OpenGL thread.");
+
     if (width < 0 || height < 0) {
       throw new GlException("width or height is less than 0");
     }
