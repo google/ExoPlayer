@@ -18,7 +18,6 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.effect.FrameProcessorTestUtil.decodeOneFrame;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
@@ -38,6 +37,7 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
+import androidx.media3.test.utils.DecodeOneFrameTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -465,11 +465,11 @@ public final class GlEffectsFrameProcessorPixelTest {
                     DebugViewProvider.NONE,
                     ColorInfo.SDR_BT709_LIMITED,
                     /* releaseFramesAutomatically= */ true));
-    decodeOneFrame(
+    DecodeOneFrameTestUtil.decodeOneAssetFileFrame(
         INPUT_MP4_ASSET_STRING,
-        new FrameProcessorTestUtil.Listener() {
+        new DecodeOneFrameTestUtil.Listener() {
           @Override
-          public void onVideoMediaFormatExtracted(MediaFormat mediaFormat) {
+          public void onContainerExtracted(MediaFormat mediaFormat) {
             glEffectsFrameProcessor.setInputFrameInfo(
                 new FrameInfo(
                     mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
@@ -480,7 +480,7 @@ public final class GlEffectsFrameProcessorPixelTest {
           }
 
           @Override
-          public void onVideoMediaFormatRead(MediaFormat mediaFormat) {
+          public void onFrameDecoded(MediaFormat mediaFormat) {
             // Do nothing.
           }
         },

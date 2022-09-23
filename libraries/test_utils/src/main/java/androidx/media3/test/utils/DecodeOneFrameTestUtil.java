@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media3.effect;
+package androidx.media3.test.utils;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -28,52 +28,98 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.view.Surface;
-import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.UnstableApi;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-/** Utilities for instrumentation tests for {@link FrameProcessor}. */
-public class FrameProcessorTestUtil {
+/** Utilities for decoding a frame for tests. */
+@UnstableApi
+public class DecodeOneFrameTestUtil {
 
   /** Listener for decoding events. */
-  interface Listener {
+  public interface Listener {
     /** Called when the video {@link MediaFormat} is extracted from the container. */
-    void onVideoMediaFormatExtracted(MediaFormat mediaFormat);
+    void onContainerExtracted(MediaFormat mediaFormat);
 
-    /** Called when the video {@link MediaFormat} is read by the decoder from the byte stream. */
-    void onVideoMediaFormatRead(MediaFormat mediaFormat);
+    /**
+     * Called when the video {@link MediaFormat} is read by the decoder from the byte stream, after
+     * a frame is decoded.
+     */
+    void onFrameDecoded(MediaFormat mediaFormat);
   }
 
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
 
   /**
-   * Decodes one frame from the {@code assetFilePath} and renders it to the {@code surface}.
+   * Reads and decodes one frame from the {@code cacheFilePath} and renders it to the {@code
+   * surface}.
+   *
+   * @param cacheFilePath The path to the file in the cache directory.
+   * @param listener A {@link Listener} implementation.
+   * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
+   *     frame is not needed.
+   */
+  public static void decodeOneCacheFileFrame(
+      String cacheFilePath, Listener listener, @Nullable Surface surface) throws Exception {
+    MediaExtractor mediaExtractor = new MediaExtractor();
+    try {
+      mediaExtractor.setDataSource(cacheFilePath);
+      decodeOneFrame(mediaExtractor, listener, surface);
+    } finally {
+      mediaExtractor.release();
+    }
+  }
+
+  /**
+   * Reads and decodes one frame from the {@code assetFilePath} and renders it to the {@code
+   * surface}.
    *
    * @param assetFilePath The path to the file in the asset directory.
    * @param listener A {@link Listener} implementation.
    * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
    *     frame is not needed.
    */
-  public static void decodeOneFrame(
+  public static void decodeOneAssetFileFrame(
       String assetFilePath, Listener listener, @Nullable Surface surface) throws Exception {
+    MediaExtractor mediaExtractor = new MediaExtractor();
+    Context context = getApplicationContext();
+    try (AssetFileDescriptor afd = context.getAssets().openFd(assetFilePath)) {
+      mediaExtractor.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+      decodeOneFrame(mediaExtractor, listener, surface);
+    } finally {
+      mediaExtractor.release();
+    }
+  }
+
+  /**
+   * Reads and decodes one frame from the {@code mediaExtractor} and renders it to the {@code
+   * surface}.
+   *
+   * @param mediaExtractor The {@link MediaExtractor} with a {@link
+   *     MediaExtractor#setDataSource(String) data source set}.
+   * @param listener A {@link Listener} implementation.
+   * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
+   *     frame is not needed.
+   */
+  private static void decodeOneFrame(
+      MediaExtractor mediaExtractor, Listener listener, @Nullable Surface surface)
+      throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     if (surface == null) {
       // Creates a placeholder surface.
       surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     }
 
-    MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
     @Nullable MediaFormat mediaFormat = null;
-    Context context = getApplicationContext();
-    try (AssetFileDescriptor afd = context.getAssets().openFd(assetFilePath)) {
-      mediaExtractor.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+
+    try {
       for (int i = 0; i < mediaExtractor.getTrackCount(); i++) {
         if (MimeTypes.isVideo(mediaExtractor.getTrackFormat(i).getString(MediaFormat.KEY_MIME))) {
           mediaFormat = mediaExtractor.getTrackFormat(i);
-          listener.onVideoMediaFormatExtracted(checkNotNull(mediaFormat));
+          listener.onContainerExtracted(checkNotNull(mediaFormat));
           mediaExtractor.selectTrack(i);
           break;
         }
@@ -113,7 +159,7 @@ public class FrameProcessorTestUtil {
       do {
         outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, DEQUEUE_TIMEOUT_US);
         if (!decoderFormatRead && outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-          listener.onVideoMediaFormatRead(mediaCodec.getOutputFormat());
+          listener.onFrameDecoded(mediaCodec.getOutputFormat());
           decoderFormatRead = true;
         }
         assertThat(outputBufferIndex).isNotEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
@@ -121,12 +167,11 @@ public class FrameProcessorTestUtil {
           || outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
       mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ true);
     } finally {
-      mediaExtractor.release();
       if (mediaCodec != null) {
         mediaCodec.release();
       }
     }
   }
 
-  private FrameProcessorTestUtil() {}
+  private DecodeOneFrameTestUtil() {}
 }
