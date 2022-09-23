@@ -18,20 +18,26 @@ package com.google.android.exoplayer2.transformer.mh;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.media.MediaFormat;
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.testutil.DecodeOneFrameTestUtil;
 import com.google.android.exoplayer2.transformer.EncoderUtil;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
+import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,9 +68,11 @@ public class SetHdrEditingTransformationTest {
             .build();
 
     try {
-      new TransformerAndroidTestRunner.Builder(context, transformer)
-          .build()
-          .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+      checkHasColorTransfer(transformationTestResult, C.COLOR_TRANSFER_ST2084);
       return;
     } catch (TransformationException exception) {
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
@@ -74,7 +82,6 @@ public class SetHdrEditingTransformationTest {
           .hasCauseThat()
           .hasMessageThat()
           .isEqualTo("HDR editing and tone mapping not supported under API 31.");
-      return;
     }
   }
 
@@ -99,9 +106,11 @@ public class SetHdrEditingTransformationTest {
                     .build())
             .build();
 
-    new TransformerAndroidTestRunner.Builder(context, transformer)
-        .build()
-        .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+    TransformationTestResult transformationTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+    checkHasColorTransfer(transformationTestResult, C.COLOR_TRANSFER_ST2084);
   }
 
   @Test
@@ -141,9 +150,11 @@ public class SetHdrEditingTransformationTest {
             .build();
 
     try {
-      new TransformerAndroidTestRunner.Builder(context, transformer)
-          .build()
-          .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+      checkHasColorTransfer(transformationTestResult, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       // TODO(b/245364266): After fixing the bug, replace the API version check with a check that
@@ -196,5 +207,31 @@ public class SetHdrEditingTransformationTest {
 
   private static boolean deviceSupportsHdrEditing(String mimeType, ColorInfo colorInfo) {
     return !EncoderUtil.getSupportedEncoderNamesForHdrEditing(mimeType, colorInfo).isEmpty();
+  }
+
+  private static void checkHasColorTransfer(
+      TransformationTestResult transformationTestResult, @C.ColorTransfer int expectedColorTransfer)
+      throws Exception {
+    if (Util.SDK_INT < 29) {
+      // Skipping on this API version due to lack of support for MediaFormat#getInteger, which is
+      // required for MediaFormatUtil#getColorInfo.
+      return;
+    }
+    DecodeOneFrameTestUtil.decodeOneCacheFileFrame(
+        checkNotNull(transformationTestResult.filePath),
+        new DecodeOneFrameTestUtil.Listener() {
+          @Override
+          public void onContainerExtracted(MediaFormat mediaFormat) {
+            @Nullable ColorInfo extractedColor = MediaFormatUtil.getColorInfo(mediaFormat);
+            assertThat(checkNotNull(extractedColor).colorTransfer).isEqualTo(expectedColorTransfer);
+          }
+
+          @Override
+          public void onFrameDecoded(MediaFormat mediaFormat) {
+            @Nullable ColorInfo decodedColor = MediaFormatUtil.getColorInfo(mediaFormat);
+            assertThat(checkNotNull(decodedColor).colorTransfer).isEqualTo(expectedColorTransfer);
+          }
+        },
+        /* surface= */ null);
   }
 }
