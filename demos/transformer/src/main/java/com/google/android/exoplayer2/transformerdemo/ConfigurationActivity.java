@@ -72,6 +72,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String RGB_ADJUSTMENT_RED_SCALE = "rgb_adjustment_red_scale";
   public static final String RGB_ADJUSTMENT_GREEN_SCALE = "rgb_adjustment_green_scale";
   public static final String RGB_ADJUSTMENT_BLUE_SCALE = "rgb_adjustment_blue_scale";
+  public static final String HSL_ADJUSTMENTS_HUE = "hsl_adjustments_hue";
+  public static final String HSL_ADJUSTMENTS_SATURATION = "hsl_adjustments_saturation";
+  public static final String HSL_ADJUSTMENTS_LIGHTNESS = "hsl_adjustments_lightness";
   public static final int COLOR_FILTER_GRAYSCALE = 0;
   public static final int COLOR_FILTER_INVERTED = 1;
   public static final int COLOR_FILTER_SEPIA = 2;
@@ -110,6 +113,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Edge detector (Media Pipe)",
     "Color filters",
     "RGB Adjustments",
+    "HSL Adjustments",
     "Contrast",
     "Periodic vignette",
     "3D spin",
@@ -118,8 +122,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   };
   private static final int COLOR_FILTERS_INDEX = 2;
   private static final int RGB_ADJUSTMENTS_INDEX = 3;
-  private static final int CONTRAST_INDEX = 4;
-  private static final int PERIODIC_VIGNETTE_INDEX = 5;
+  private static final int HSL_ADJUSTMENT_INDEX = 4;
+  private static final int CONTRAST_INDEX = 5;
+  private static final int PERIODIC_VIGNETTE_INDEX = 6;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
@@ -148,6 +153,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private float rgbAdjustmentGreenScale;
   private float rgbAdjustmentBlueScale;
   private float contrastValue;
+  private float hueAdjustment;
+  private float saturationAdjustment;
+  private float lightnessAdjustment;
   private float periodicVignetteCenterX;
   private float periodicVignetteCenterY;
   private float periodicVignetteInnerRadius;
@@ -308,6 +316,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putFloat(RGB_ADJUSTMENT_RED_SCALE, rgbAdjustmentRedScale);
     bundle.putFloat(RGB_ADJUSTMENT_GREEN_SCALE, rgbAdjustmentGreenScale);
     bundle.putFloat(RGB_ADJUSTMENT_BLUE_SCALE, rgbAdjustmentBlueScale);
+    bundle.putFloat(HSL_ADJUSTMENTS_HUE, hueAdjustment);
+    bundle.putFloat(HSL_ADJUSTMENTS_SATURATION, saturationAdjustment);
+    bundle.putFloat(HSL_ADJUSTMENTS_LIGHTNESS, lightnessAdjustment);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_X, periodicVignetteCenterX);
     bundle.putFloat(PERIODIC_VIGNETTE_CENTER_Y, periodicVignetteCenterY);
     bundle.putFloat(PERIODIC_VIGNETTE_INNER_RADIUS, periodicVignetteInnerRadius);
@@ -384,6 +395,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
       case CONTRAST_INDEX:
         controlContrastSettings();
         break;
+      case HSL_ADJUSTMENT_INDEX:
+        controlHslAdjustmentSettings();
+        break;
       case PERIODIC_VIGNETTE_INDEX:
         controlPeriodicVignetteSettings();
         break;
@@ -437,6 +451,28 @@ public final class ConfigurationActivity extends AppCompatActivity {
         .setPositiveButton(
             android.R.string.ok,
             (DialogInterface dialogInterface, int i) -> contrastValue = contrastSlider.getValue())
+        .create()
+        .show();
+  }
+
+  private void controlHslAdjustmentSettings() {
+    View dialogView =
+        getLayoutInflater().inflate(R.layout.hsl_adjustment_options, /* root= */ null);
+    Slider hueAdjustmentSlider = checkNotNull(dialogView.findViewById(R.id.hsl_adjustments_hue));
+    Slider saturationAdjustmentSlider =
+        checkNotNull(dialogView.findViewById(R.id.hsl_adjustments_saturation));
+    Slider lightnessAdjustmentSlider =
+        checkNotNull(dialogView.findViewById(R.id.hsl_adjustment_lightness));
+    new AlertDialog.Builder(/* context= */ this)
+        .setTitle(R.string.hsl_adjustment_options)
+        .setView(dialogView)
+        .setPositiveButton(
+            android.R.string.ok,
+            (DialogInterface dialogInterface, int i) -> {
+              hueAdjustment = hueAdjustmentSlider.getValue();
+              saturationAdjustment = saturationAdjustmentSlider.getValue();
+              lightnessAdjustment = lightnessAdjustmentSlider.getValue();
+            })
         .create()
         .show();
   }

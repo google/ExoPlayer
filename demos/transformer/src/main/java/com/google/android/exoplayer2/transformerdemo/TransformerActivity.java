@@ -40,6 +40,7 @@ import androidx.media3.common.Effect;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlTextureProcessor;
+import androidx.media3.effect.HslAdjustment;
 import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
@@ -345,9 +346,18 @@ public final class TransformerActivity extends AppCompatActivity {
                   .build());
         }
         if (selectedEffects[4]) {
-          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+          effects.add(
+              new HslAdjustment.Builder()
+                  .adjustHue(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_HUE))
+                  .adjustSaturation(
+                      bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_SATURATION))
+                  .adjustLightness(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_LIGHTNESS))
+                  .build());
         }
         if (selectedEffects[5]) {
+          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+        }
+        if (selectedEffects[6]) {
           effects.add(
               (GlEffect)
                   (Context context, boolean useHdr) ->

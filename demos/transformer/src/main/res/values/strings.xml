@@ -55,4 +55,8 @@
   <string name="center_x">Center X</string>
   <string name="center_y">Center Y</string>
   <string name="radius_range">Radius range</string>
+  <string name="hsl_adjustment_options" translatable="false">HSL Adjustment Options</string>
+  <string name="hue_adjustment">Hue Adjustment</string>
+  <string name="saturation_adjustment">Saturation Adjustment</string>
+  <string name="lightness_adjustment">Lightness Adjustment</string>
 </resources>
