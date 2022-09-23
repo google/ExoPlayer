@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +45,7 @@ import androidx.media3.effect.HslAdjustment;
 import androidx.media3.effect.RgbAdjustment;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.RgbMatrix;
+import androidx.media3.effect.SingleColorLut;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -338,6 +340,21 @@ public final class TransformerActivity extends AppCompatActivity {
           }
         }
         if (selectedEffects[3]) {
+          int length = 3;
+          int[][][] mapWhiteToGreenLut = new int[length][length][length];
+          int scale = 255 / (length - 1);
+          for (int r = 0; r < length; r++) {
+            for (int g = 0; g < length; g++) {
+              for (int b = 0; b < length; b++) {
+                mapWhiteToGreenLut[r][g][b] =
+                    Color.rgb(/* red= */ r * scale, /* green= */ g * scale, /* blue= */ b * scale);
+              }
+            }
+          }
+          mapWhiteToGreenLut[length - 1][length - 1][length - 1] = Color.GREEN;
+          effects.add(SingleColorLut.createFromCube(mapWhiteToGreenLut));
+        }
+        if (selectedEffects[4]) {
           effects.add(
               new RgbAdjustment.Builder()
                   .setRedScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_RED_SCALE))
@@ -345,7 +362,7 @@ public final class TransformerActivity extends AppCompatActivity {
                   .setBlueScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_BLUE_SCALE))
                   .build());
         }
-        if (selectedEffects[4]) {
+        if (selectedEffects[5]) {
           effects.add(
               new HslAdjustment.Builder()
                   .adjustHue(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_HUE))
@@ -354,10 +371,10 @@ public final class TransformerActivity extends AppCompatActivity {
                   .adjustLightness(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_LIGHTNESS))
                   .build());
         }
-        if (selectedEffects[5]) {
+        if (selectedEffects[6]) {
           effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
         }
-        if (selectedEffects[6]) {
+        if (selectedEffects[7]) {
           effects.add(
               (GlEffect)
                   (Context context, boolean useHdr) ->
@@ -372,13 +389,13 @@ public final class TransformerActivity extends AppCompatActivity {
                               ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
                           bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
         }
-        if (selectedEffects[6]) {
+        if (selectedEffects[8]) {
           effects.add(MatrixTransformationFactory.createSpin3dEffect());
         }
-        if (selectedEffects[7]) {
+        if (selectedEffects[9]) {
           effects.add((GlEffect) BitmapOverlayProcessor::new);
         }
-        if (selectedEffects[8]) {
+        if (selectedEffects[10]) {
           effects.add(MatrixTransformationFactory.createZoomInTransition());
         }
         transformerBuilder.setVideoEffects(effects.build());

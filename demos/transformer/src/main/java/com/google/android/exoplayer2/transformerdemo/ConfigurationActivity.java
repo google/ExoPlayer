@@ -112,6 +112,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Dizzy crop",
     "Edge detector (Media Pipe)",
     "Color filters",
+    "Map White to Green Color Lookup Table",
     "RGB Adjustments",
     "HSL Adjustments",
     "Contrast",
@@ -121,10 +122,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Zoom in start",
   };
   private static final int COLOR_FILTERS_INDEX = 2;
-  private static final int RGB_ADJUSTMENTS_INDEX = 3;
-  private static final int HSL_ADJUSTMENT_INDEX = 4;
-  private static final int CONTRAST_INDEX = 5;
-  private static final int PERIODIC_VIGNETTE_INDEX = 6;
+  private static final int RGB_ADJUSTMENTS_INDEX = 4;
+  private static final int HSL_ADJUSTMENT_INDEX = 5;
+  private static final int CONTRAST_INDEX = 6;
+  private static final int PERIODIC_VIGNETTE_INDEX = 7;
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
