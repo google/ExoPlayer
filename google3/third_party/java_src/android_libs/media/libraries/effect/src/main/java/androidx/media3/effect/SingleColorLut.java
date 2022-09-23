@@ -24,13 +24,14 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.media3.common.FrameProcessingException;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 
 /** Transforms the colors of a frame by applying the same color lookup table to each frame. */
 public class SingleColorLut implements ColorLut {
-  private final int lutTextureId;
-  private final int length;
+  private final Bitmap lut;
+  private int lutTextureId;
 
   /**
    * Creates a new instance.
@@ -38,7 +39,7 @@ public class SingleColorLut implements ColorLut {
    * <p>{@code lutCube} needs to be a {@code N x N x N} cube and each element is an integer
    * representing a color using the {@link Bitmap.Config#ARGB_8888} format.
    */
-  public static SingleColorLut createFromCube(int[][][] lutCube) throws GlUtil.GlException {
+  public static SingleColorLut createFromCube(int[][][] lutCube) {
     checkArgument(
         lutCube.length > 0 && lutCube[0].length > 0 && lutCube[0][0].length > 0,
         "LUT must have three dimensions.");
@@ -58,7 +59,7 @@ public class SingleColorLut implements ColorLut {
    * N^2}. Each element must be an integer representing a color using the {@link
    * Bitmap.Config#ARGB_8888} format.
    */
-  public static SingleColorLut createFromBitmap(Bitmap lut) throws GlUtil.GlException {
+  public static SingleColorLut createFromBitmap(Bitmap lut) {
     checkArgument(
         lut.getWidth() * lut.getWidth() == lut.getHeight(),
         Util.formatInvariant(
@@ -70,18 +71,9 @@ public class SingleColorLut implements ColorLut {
     return new SingleColorLut(lut);
   }
 
-  private SingleColorLut(Bitmap lut) throws GlUtil.GlException {
-    length = lut.getWidth();
-    lutTextureId = storeLutAsTexture(lut);
-  }
-
-  private static int storeLutAsTexture(Bitmap bitmap) throws GlUtil.GlException {
-    int lutTextureId =
-        GlUtil.createTexture(
-            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-    GlUtil.checkGlError();
-    return lutTextureId;
+  private SingleColorLut(Bitmap lut) {
+    this.lut = lut;
+    lutTextureId = Format.NO_VALUE;
   }
 
   /**
@@ -134,14 +126,19 @@ public class SingleColorLut implements ColorLut {
         Bitmap.Config.ARGB_8888);
   }
 
+  /** Must be called after {@link #toGlTextureProcessor(Context, boolean)}. */
   @Override
   public int getLutTextureId(long presentationTimeUs) {
+    checkState(
+        lutTextureId != Format.NO_VALUE,
+        "The LUT has not been stored as a texture in OpenGL yet. You must to call"
+            + " #toGlTextureProcessor() first.");
     return lutTextureId;
   }
 
   @Override
   public int getLength(long presentationTimeUs) {
-    return length;
+    return lut.getWidth();
   }
 
   @Override
@@ -153,6 +150,22 @@ public class SingleColorLut implements ColorLut {
   public ColorLutProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     checkState(!useHdr, "HDR is currently not supported.");
+
+    try {
+      lutTextureId = storeLutAsTexture(lut);
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException("Could not store the LUT as a texture.", e);
+    }
+
     return new ColorLutProcessor(context, /* colorLut= */ this, useHdr);
+  }
+
+  private static int storeLutAsTexture(Bitmap bitmap) throws GlUtil.GlException {
+    int lutTextureId =
+        GlUtil.createTexture(
+            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+    GlUtil.checkGlError();
+    return lutTextureId;
   }
 }

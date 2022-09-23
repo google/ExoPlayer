@@ -17,6 +17,7 @@
 package androidx.media3.effect;
 
 import android.content.Context;
+import androidx.annotation.WorkerThread;
 import androidx.media3.common.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 
@@ -38,7 +39,9 @@ public interface ColorLut extends GlEffect {
   /** Releases the OpenGL texture of the LUT. */
   void release() throws GlUtil.GlException;
 
+  /** This method must be executed on the same thread as other GL commands. */
   @Override
+  @WorkerThread
   default ColorLutProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     return new ColorLutProcessor(context, /* colorLut= */ this, useHdr);
