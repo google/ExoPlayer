@@ -24,6 +24,7 @@ import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -556,6 +557,7 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean externalAudioSessionIdProvided;
   private int audioSessionId;
   private AuxEffectInfo auxEffectInfo;
+  @Nullable private AudioDeviceInfoApi23 preferredDevice;
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
   private boolean offloadDisabledUntilNextConfiguration;
@@ -903,6 +905,9 @@ public final class DefaultAudioSink implements AudioSink {
     if (auxEffectInfo.effectId != AuxEffectInfo.NO_AUX_EFFECT_ID) {
       audioTrack.attachAuxEffect(auxEffectInfo.effectId);
       audioTrack.setAuxEffectSendLevel(auxEffectInfo.sendLevel);
+    }
+    if (preferredDevice != null && Util.SDK_INT >= 23) {
+      Api23.setPreferredDeviceOnAudioTrack(audioTrack, preferredDevice);
     }
 
     startMediaTimeUsNeedsInit = true;
@@ -1402,6 +1407,16 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
     this.auxEffectInfo = auxEffectInfo;
+  }
+
+  @RequiresApi(23)
+  @Override
+  public void setPreferredDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    this.preferredDevice =
+        audioDeviceInfo == null ? null : new AudioDeviceInfoApi23(audioDeviceInfo);
+    if (audioTrack != null) {
+      Api23.setPreferredDeviceOnAudioTrack(audioTrack, this.preferredDevice);
+    }
   }
 
   @Override
@@ -2297,6 +2312,28 @@ public final class DefaultAudioSink implements AudioSink {
 
     public void clear() {
       pendingException = null;
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class AudioDeviceInfoApi23 {
+
+    public final AudioDeviceInfo audioDeviceInfo;
+
+    public AudioDeviceInfoApi23(AudioDeviceInfo audioDeviceInfo) {
+      this.audioDeviceInfo = audioDeviceInfo;
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    @DoNotInline
+    public static void setPreferredDeviceOnAudioTrack(
+        AudioTrack audioTrack, @Nullable AudioDeviceInfoApi23 audioDeviceInfo) {
+      audioTrack.setPreferredDevice(
+          audioDeviceInfo == null ? null : audioDeviceInfo.audioDeviceInfo);
     }
   }
 
