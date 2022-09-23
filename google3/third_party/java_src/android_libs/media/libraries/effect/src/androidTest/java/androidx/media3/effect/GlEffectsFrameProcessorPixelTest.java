@@ -388,7 +388,6 @@ public final class GlEffectsFrameProcessorPixelTest {
   }
 
   @Test
-  // TODO(b/239757183): Consider moving RgbMatrix composition tests to a new file.
   public void drawFrame_grayscaleAndIncreaseRedChannel_producesGrayscaleAndRedImage()
       throws Exception {
     String testId = "drawFrame_grayscaleAndIncreaseRedChannel";
