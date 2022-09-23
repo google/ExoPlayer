@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.video;
 
+import static android.view.Display.DEFAULT_DISPLAY;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
@@ -25,6 +26,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
@@ -35,6 +37,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
+import android.view.Display;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -356,6 +359,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     boolean requiresSecureDecryption = drmInitData != null;
     List<MediaCodecInfo> decoderInfos =
         getDecoderInfos(
+            context,
             mediaCodecSelector,
             format,
             requiresSecureDecryption,
@@ -364,6 +368,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // No secure decoders are available. Fall back to non-secure decoders.
       decoderInfos =
           getDecoderInfos(
+              context,
               mediaCodecSelector,
               format,
               /* requiresSecureDecoder= */ false,
@@ -411,6 +416,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (isFormatSupported) {
       List<MediaCodecInfo> tunnelingDecoderInfos =
           getDecoderInfos(
+              context,
               mediaCodecSelector,
               format,
               requiresSecureDecryption,
@@ -439,7 +445,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
     return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
-        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, tunneling), format);
+        getDecoderInfos(context, mediaCodecSelector, format, requiresSecureDecoder, tunneling),
+        format);
   }
 
   /**
@@ -459,6 +466,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   private static List<MediaCodecInfo> getDecoderInfos(
+      Context context,
       MediaCodecSelector mediaCodecSelector,
       Format format,
       boolean requiresSecureDecoder,
@@ -478,6 +486,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     List<MediaCodecInfo> alternativeDecoderInfos =
         mediaCodecSelector.getDecoderInfos(
             alternativeMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+    if (Util.SDK_INT >= 26
+        && MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)
+        && !alternativeDecoderInfos.isEmpty()) {
+      // If sample type is Dolby Vision, check if Display supports Dolby Vision
+      boolean supportsDolbyVision = false;
+      DisplayManager displayManager =
+          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+      Display display =
+          (displayManager != null) ? displayManager.getDisplay(DEFAULT_DISPLAY) : null;
+      if (display != null && display.isHdr()) {
+        int[] supportedHdrTypes = display.getHdrCapabilities().getSupportedHdrTypes();
+        for (int hdrType : supportedHdrTypes) {
+          if (hdrType == Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION) {
+            supportsDolbyVision = true;
+            break;
+          }
+        }
+      }
+      if (!supportsDolbyVision) {
+        return ImmutableList.copyOf(alternativeDecoderInfos);
+      }
+    }
     return ImmutableList.<MediaCodecInfo>builder()
         .addAll(decoderInfos)
         .addAll(alternativeDecoderInfos)
