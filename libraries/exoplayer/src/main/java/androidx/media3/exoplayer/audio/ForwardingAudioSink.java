@@ -15,7 +15,9 @@
  */
 package androidx.media3.exoplayer.audio;
 
+import android.media.AudioDeviceInfo;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.Format;
@@ -136,6 +138,12 @@ public class ForwardingAudioSink implements AudioSink {
   @Override
   public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
     sink.setAuxEffectInfo(auxEffectInfo);
+  }
+
+  @RequiresApi(23)
+  @Override
+  public void setPreferredDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    sink.setPreferredDevice(audioDeviceInfo);
   }
 
   @Override

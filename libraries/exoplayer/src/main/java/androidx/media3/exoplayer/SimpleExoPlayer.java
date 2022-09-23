@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -23,6 +24,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
@@ -626,6 +628,13 @@ public class SimpleExoPlayer extends BasePlayer
   public void clearAuxEffectInfo() {
     blockUntilConstructorFinished();
     player.clearAuxEffectInfo();
+  }
+
+  @RequiresApi(23)
+  @Override
+  public void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    blockUntilConstructorFinished();
+    player.setPreferredAudioDevice(audioDeviceInfo);
   }
 
   @Override

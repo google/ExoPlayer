@@ -23,11 +23,14 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.AudioDeviceInfo;
 import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.C;
@@ -623,6 +626,11 @@ public abstract class DecoderAudioRenderer<
       case MSG_SET_AUDIO_SESSION_ID:
         audioSink.setAudioSessionId((Integer) message);
         break;
+      case MSG_SET_PREFERRED_AUDIO_DEVICE:
+        if (Util.SDK_INT >= 23) {
+          Api23.setAudioSinkPreferredDevice(audioSink, message);
+        }
+        break;
       case MSG_SET_CAMERA_MOTION_LISTENER:
       case MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
       case MSG_SET_SCALING_MODE:
@@ -793,6 +801,18 @@ public abstract class DecoderAudioRenderer<
     public void onAudioSinkError(Exception audioSinkError) {
       Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    @DoNotInline
+    public static void setAudioSinkPreferredDevice(
+        AudioSink audioSink, @Nullable Object messagePayload) {
+      @Nullable AudioDeviceInfo audioDeviceInfo = (AudioDeviceInfo) messagePayload;
+      audioSink.setPreferredDevice(audioDeviceInfo);
     }
   }
 }

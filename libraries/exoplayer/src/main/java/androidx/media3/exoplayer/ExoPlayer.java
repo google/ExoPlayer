@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.os.Looper;
@@ -29,6 +30,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
@@ -1472,6 +1474,16 @@ public interface ExoPlayer extends Player {
   /** Detaches any previously attached auxiliary audio effect from the underlying audio track. */
   @UnstableApi
   void clearAuxEffectInfo();
+
+  /**
+   * Sets the preferred audio device.
+   *
+   * @param audioDeviceInfo The preferred {@linkplain AudioDeviceInfo audio device}, or null to
+   *     restore the default.
+   */
+  @UnstableApi
+  @RequiresApi(23)
+  void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo);
 
   /**
    * Sets whether skipping silences in the audio stream is enabled.

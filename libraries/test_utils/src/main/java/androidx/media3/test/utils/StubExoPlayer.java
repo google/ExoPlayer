@@ -15,6 +15,7 @@
  */
 package androidx.media3.test.utils;
 
+import android.media.AudioDeviceInfo;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
@@ -233,6 +234,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public void clearAuxEffectInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
     throw new UnsupportedOperationException();
   }
 

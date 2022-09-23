@@ -23,13 +23,16 @@ import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.C;
@@ -749,6 +752,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
         audioSink.setAuxEffectInfo(auxEffectInfo);
         break;
+      case MSG_SET_PREFERRED_AUDIO_DEVICE:
+        if (Util.SDK_INT >= 23) {
+          Api23.setAudioSinkPreferredDevice(audioSink, message);
+        }
+        break;
       case MSG_SET_SKIP_SILENCE_ENABLED:
         audioSink.setSkipSilenceEnabled((Boolean) message);
         break;
@@ -940,6 +948,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     public void onAudioSinkError(Exception audioSinkError) {
       Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    @DoNotInline
+    public static void setAudioSinkPreferredDevice(
+        AudioSink audioSink, @Nullable Object messagePayload) {
+      @Nullable AudioDeviceInfo audioDeviceInfo = (AudioDeviceInfo) messagePayload;
+      audioSink.setPreferredDevice(audioDeviceInfo);
     }
   }
 }
