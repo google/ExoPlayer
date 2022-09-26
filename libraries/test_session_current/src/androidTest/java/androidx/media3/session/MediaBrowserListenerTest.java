@@ -45,7 +45,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
@@ -142,30 +141,6 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
             .get(TIMEOUT_MS, MILLISECONDS);
     assertThat(result.resultCode).isEqualTo(RESULT_ERROR_BAD_VALUE);
     assertThat(result.value).isNull();
-  }
-
-  @Test
-  public void getItem_nullResult() throws Exception {
-    String mediaId = MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
-
-    // Exception will be thrown in the service side, and the process will be crashed.
-    // In that case one of following will happen
-    //   Case 1) Process is crashed. Pending ListenableFuture will get error
-    //   Case 2) Due to the frequent crashes with other tests, process may not crash immediately
-    //           because the Android shows dialog 'xxx keeps stopping' and defer sending
-    //           SIG_KILL until the user's explicit action.
-    try {
-      MediaBrowser browser = createBrowser();
-      LibraryResult<MediaItem> result =
-          threadTestRule
-              .getHandler()
-              .postAndSync(() -> browser.getItem(mediaId))
-              .get(TIMEOUT_MS, MILLISECONDS);
-      // Case 1.
-      assertThat(result.resultCode).isNotEqualTo(RESULT_SUCCESS);
-    } catch (TimeoutException e) {
-      // Case 2.
-    }
   }
 
   @Test
