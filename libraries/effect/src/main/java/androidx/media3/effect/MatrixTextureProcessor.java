@@ -50,7 +50,6 @@ import java.util.List;
  *
  * <p>Can copy frames from an external texture and apply color transformations for HDR if needed.
  */
-// TODO(b/241902517): Fix Gamma references since intermediate color space is now linear.
 @UnstableApi
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 /* package */ final class MatrixTextureProcessor extends SingleFrameGlTextureProcessor
@@ -132,8 +131,8 @@ import java.util.List;
   /**
    * Creates a new instance.
    *
-   * <p>Input and output are both intermediate optical colors, which are linear RGB BT.2020 if
-   * {@code useHdr} is {@code true} and gamma RGB BT.709 if not.
+   * <p>Input and output are both intermediate optical/linear colors, and RGB BT.2020 if {@code
+   * useHdr} is {@code true} and RGB BT.709 if not.
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
@@ -174,8 +173,8 @@ import java.util.List;
    * intermediate optical {@link GlTextureProcessor} color output, before {@code
    * matrixTransformations} and {@code rgbMatrices} are applied.
    *
-   * <p>Intermediate optical colors are linear RGB BT.2020 if {@code electricalColorInfo} is
-   * {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and gamma RGB BT.709 if not.
+   * <p>Intermediate optical/linear colors are RGB BT.2020 if {@code electricalColorInfo} is
+   * {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
@@ -235,8 +234,8 @@ import java.util.List;
    * GlTextureProcessor} color input, to electrical color output, after {@code
    * matrixTransformations} and {@code rgbMatrices} are applied.
    *
-   * <p>Intermediate optical colors are linear RGB BT.2020 if {@code electricalColorInfo} is
-   * {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and gamma RGB BT.709 if not.
+   * <p>Intermediate optical/linear colors are RGB BT.2020 if {@code electricalColorInfo} is
+   * {@linkplain ColorInfo#isTransferHdr(ColorInfo) HDR}, and RGB BT.709 if not.
    *
    * @param context The {@link Context}.
    * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to

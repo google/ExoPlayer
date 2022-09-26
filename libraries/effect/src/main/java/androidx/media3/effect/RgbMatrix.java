@@ -33,7 +33,7 @@ public interface RgbMatrix extends GlEffect {
    *
    * @param presentationTimeUs The timestamp of the frame to apply the matrix on.
    * @param useHdr If {@code true}, colors will be in linear RGB BT.2020. If {@code false}, colors
-   *     will be in gamma RGB BT.709. Must be consistent with {@code useHdr} in {@link
+   *     will be in linear RGB BT.709. Must be consistent with {@code useHdr} in {@link
    *     #toGlTextureProcessor(Context, boolean)}.
    * @return The {@code RgbMatrix} to apply to the frame.
    */
