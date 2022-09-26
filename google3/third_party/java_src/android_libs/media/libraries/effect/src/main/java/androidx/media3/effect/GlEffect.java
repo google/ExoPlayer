@@ -33,7 +33,7 @@ public interface GlEffect extends Effect {
    *
    * @param context A {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    */
   GlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException;

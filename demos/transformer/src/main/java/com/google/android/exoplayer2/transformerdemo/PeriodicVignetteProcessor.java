@@ -53,7 +53,7 @@ import java.io.IOException;
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param centerX The x-coordinate of the center of the effect.
    * @param centerY The y-coordinate of the center of the effect.
    * @param minInnerRadius The lower bound of the radius that is unaffected by the effect.
