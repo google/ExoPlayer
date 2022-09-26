@@ -134,8 +134,8 @@ public interface AudioProcessor {
   ByteBuffer getOutput();
 
   /**
-   * Returns whether this processor will return no more output from {@link #getOutput()} until it
-   * has been {@link #flush()}ed and more input has been queued.
+   * Returns whether this processor will return no more output from {@link #getOutput()} until
+   * {@link #flush()} has been called and more input has been queued.
    */
   boolean isEnded();
 
