@@ -41,7 +41,7 @@ import java.io.IOException;
    * @param context The {@link Context}.
    * @param colorLut The {@link ColorLut} to apply to each frame in order.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @throws FrameProcessingException If a problem occurs while reading shader files.
    */
   public ColorLutProcessor(Context context, ColorLut colorLut, boolean useHdr)
