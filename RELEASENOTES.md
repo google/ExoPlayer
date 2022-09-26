@@ -67,6 +67,8 @@
         service is stopped from the foreground and a notification with a play
         button is shown to restart playback of the last media item
         ([#112](https://github.com/androidx/media/issues/112)).
+    *   Don't start a foreground service with a pending intent for pause
+        ([#167](https://github.com/androidx/media/issues/167)).
 *   RTSP:
     *   Add H263 fragmented packet handling
         ([#119](https://github.com/androidx/media/pull/119)).
