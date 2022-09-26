@@ -85,7 +85,7 @@ import java.util.concurrent.Future;
    *
    * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in gamma RGB BT.709.
+   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param graphName Name of a MediaPipe graph asset to load.
    * @param isSingleFrameGraph Whether the MediaPipe graph will eventually produce one output frame
    *     each time an input frame (and no other input) has been queued.
