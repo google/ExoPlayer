@@ -27,7 +27,6 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.GET_CHIL
 import static androidx.media3.test.session.common.MediaBrowserConstants.LONG_LIST_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_BROWSABLE_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_ITEM_WITH_METADATA;
-import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_PLAYABLE_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
@@ -208,11 +207,6 @@ public class MockMediaLibraryService extends MediaLibraryService {
         case MEDIA_ID_GET_ITEM_WITH_METADATA:
           return Futures.immediateFuture(
               LibraryResult.ofItem(createMediaItemWithMetadata(mediaId), /* params= */ null));
-        case MEDIA_ID_GET_NULL_ITEM:
-          // Passing item=null here is expected to throw NPE, this is testing a misbehaving app
-          // that ignores the nullness annotations.
-          return Futures.immediateFuture(
-              LibraryResult.ofItem(/* item= */ null, /* params= */ null));
         default: // fall out
       }
       return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));

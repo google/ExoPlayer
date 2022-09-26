@@ -30,7 +30,6 @@ public class MediaBrowserConstants {
   public static final String MEDIA_ID_GET_BROWSABLE_ITEM = "media_id_get_browsable_item";
   public static final String MEDIA_ID_GET_PLAYABLE_ITEM = "media_id_get_playable_item";
   public static final String MEDIA_ID_GET_ITEM_WITH_METADATA = "media_id_get_item_with_metadata";
-  public static final String MEDIA_ID_GET_NULL_ITEM = "media_id_get_null_item";
 
   public static final String PARENT_ID = "parent_id";
   public static final String PARENT_ID_LONG_LIST = "parent_id_long_list";
