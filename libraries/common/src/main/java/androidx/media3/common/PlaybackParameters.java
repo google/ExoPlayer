@@ -50,7 +50,7 @@ public final class PlaybackParameters implements Bundleable {
    *
    * @param speed The factor by which playback will be sped up. Must be greater than zero.
    */
-  public PlaybackParameters(float speed) {
+  public PlaybackParameters(@FloatRange(from = 0, fromInclusive = false) float speed) {
     this(speed, /* pitch= */ 1f);
   }
 

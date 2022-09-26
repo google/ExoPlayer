@@ -602,7 +602,7 @@ package androidx.media3.common {
   }
 
   public final class PlaybackParameters {
-    ctor public PlaybackParameters(float);
+    ctor public PlaybackParameters(@FloatRange(from=0, fromInclusive=false) float);
     ctor public PlaybackParameters(@FloatRange(from=0, fromInclusive=false) float, @FloatRange(from=0, fromInclusive=false) float);
     method @CheckResult public androidx.media3.common.PlaybackParameters withSpeed(@FloatRange(from=0, fromInclusive=false) float);
     field public static final androidx.media3.common.PlaybackParameters DEFAULT;
