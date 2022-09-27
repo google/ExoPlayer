@@ -142,11 +142,9 @@ public class MediaControllerCompatCallbackWithMediaSessionCompatTest {
   }
 
   /**
-   * Setting the session extras is used for instance by <a
-   * href="http://android-doc.github.io/reference/android/support/wearable/media/MediaControlConstants.html">
-   * Wear OS</a> and System UI (starting with T) to receive extras for UI customization. An app
-   * needs a way to set the session extras that are stored in the legacy session and broadcast to
-   * the connected controllers.
+   * Setting the session extras is used for instance by Wear OS and System UI (starting with T) to
+   * receive extras for UI customization. An app needs a way to set the session extras that are
+   * stored in the legacy session and broadcast to the connected controllers.
    */
   @Test
   public void setExtras_onExtrasChangedCalled() throws Exception {
