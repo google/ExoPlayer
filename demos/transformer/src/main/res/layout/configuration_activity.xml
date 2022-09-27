@@ -59,50 +59,48 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/select_file_button" />
   <androidx.core.widget.NestedScrollView
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="0dp"
+    android:padding="4dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/selected_file_text_view"
     app:layout_constraintBottom_toTopOf="@+id/select_demo_effects_button">
     <TableLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:stretchColumns="1"
+      android:stretchColumns="0"
       android:layout_marginTop="32dp"
       android:measureWithLargestChild="true"
-      android:paddingLeft="24dp"
-      android:paddingRight="12dp"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintBottom_toBottomOf="parent">
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:text="@string/remove_audio" />
         <CheckBox
-          android:id="@+id/remove_audio_checkbox"
-          android:layout_gravity="right"/>
+          android:layout_gravity="end"
+          android:id="@+id/remove_audio_checkbox"/>
       </TableRow>
-      <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+      <TableRow android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:text="@string/remove_video"/>
         <CheckBox
           android:id="@+id/remove_video_checkbox"
-          android:layout_gravity="right" />
+          android:layout_gravity="end" />
       </TableRow>
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:text="@string/flatten_for_slow_motion"/>
         <CheckBox
           android:id="@+id/flatten_for_slow_motion_checkbox"
-          android:layout_gravity="right" />
+          android:layout_gravity="end" />
       </TableRow>
       <TableRow
         android:layout_weight="1"
@@ -160,54 +158,54 @@
           android:gravity="right" />
       </TableRow>
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:id="@+id/trim"
           android:text="@string/trim" />
         <CheckBox
           android:id="@+id/trim_checkbox"
-          android:layout_gravity="right" />
+          android:layout_gravity="end" />
       </TableRow>
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:text="@string/enable_fallback" />
         <CheckBox
           android:id="@+id/enable_fallback_checkbox"
-          android:layout_gravity="right"
+          android:layout_gravity="end"
           android:checked="true"/>
       </TableRow>
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:text="@string/enable_debug_preview" />
         <CheckBox
           android:id="@+id/enable_debug_preview_checkbox"
-          android:layout_gravity="right"
+          android:layout_gravity="end"
           android:checked="true"/>
       </TableRow>
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:id="@+id/request_sdr_tone_mapping"
           android:text="@string/request_sdr_tone_mapping" />
         <CheckBox
           android:id="@+id/request_sdr_tone_mapping_checkbox"
-          android:layout_gravity="right" />
+          android:layout_gravity="end" />
       </TableRow>
       <TableRow
-        android:layout_weight="1"
-        android:gravity="center_vertical" >
+        android:layout_weight="1">
         <TextView
+          android:layout_gravity="center_vertical"
           android:id="@+id/hdr_editing"
           android:text="@string/hdr_editing" />
         <CheckBox
           android:id="@+id/hdr_editing_checkbox"
-          android:layout_gravity="right" />
+          android:layout_gravity="end" />
       </TableRow>
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
