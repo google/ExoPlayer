@@ -114,7 +114,7 @@ public final class DefaultCodec implements Codec {
         // https://developer.android.com/reference/android/media/MediaFormat#KEY_COLOR_TRANSFER_REQUEST.
         checkArgument(
             Api29.isSdrToneMappingEnabled(mediaCodec.getInputFormat()),
-            "Tone-mapping requested but not supported by the decoder");
+            "Tone-mapping requested but not supported by the decoder.");
       }
       if (isVideo && !isDecoder) {
         inputSurface = mediaCodec.createInputSurface();
