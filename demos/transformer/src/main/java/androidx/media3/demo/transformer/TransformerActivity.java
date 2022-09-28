@@ -272,133 +272,7 @@ public final class TransformerActivity extends AppCompatActivity {
                   .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
                   .build());
 
-      ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
-      @Nullable
-      boolean[] selectedEffects =
-          bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
-      if (selectedEffects != null) {
-        if (selectedEffects[0]) {
-          effects.add(MatrixTransformationFactory.createDizzyCropEffect());
-        }
-        if (selectedEffects[1]) {
-          try {
-            Class<?> clazz = Class.forName("androidx.media3.demo.transformer.MediaPipeProcessor");
-            Constructor<?> constructor =
-                clazz.getConstructor(
-                    Context.class,
-                    boolean.class,
-                    String.class,
-                    boolean.class,
-                    String.class,
-                    String.class);
-            effects.add(
-                (GlEffect)
-                    (Context context, boolean useHdr) -> {
-                      try {
-                        return (GlTextureProcessor)
-                            constructor.newInstance(
-                                context,
-                                useHdr,
-                                /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
-                                /* isSingleFrameGraph= */ true,
-                                /* inputStreamName= */ "input_video",
-                                /* outputStreamName= */ "output_video");
-                      } catch (Exception e) {
-                        runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
-                        throw new RuntimeException("Failed to load MediaPipe processor", e);
-                      }
-                    });
-          } catch (Exception e) {
-            showToast(R.string.no_media_pipe_error);
-          }
-        }
-        if (selectedEffects[2]) {
-          switch (bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION)) {
-            case ConfigurationActivity.COLOR_FILTER_GRAYSCALE:
-              effects.add(RgbFilter.createGrayscaleFilter());
-              break;
-            case ConfigurationActivity.COLOR_FILTER_INVERTED:
-              effects.add(RgbFilter.createInvertedFilter());
-              break;
-            case ConfigurationActivity.COLOR_FILTER_SEPIA:
-              // W3C Sepia RGBA matrix with sRGB as a target color space:
-              // https://www.w3.org/TR/filter-effects-1/#sepiaEquivalent
-              // The matrix is defined for the sRGB color space and the Transformer library
-              // uses a linear RGB color space internally. Meaning this is only for demonstration
-              // purposes and it does not display a correct sepia frame.
-              float[] sepiaMatrix = {
-                0.393f, 0.349f, 0.272f, 0, 0.769f, 0.686f, 0.534f, 0, 0.189f, 0.168f, 0.131f, 0, 0,
-                0, 0, 1
-              };
-              effects.add((RgbMatrix) (presentationTimeUs, useHdr) -> sepiaMatrix);
-              break;
-            default:
-              throw new IllegalStateException(
-                  "Unexpected color filter "
-                      + bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION));
-          }
-        }
-        if (selectedEffects[3]) {
-          int length = 3;
-          int[][][] mapWhiteToGreenLut = new int[length][length][length];
-          int scale = 255 / (length - 1);
-          for (int r = 0; r < length; r++) {
-            for (int g = 0; g < length; g++) {
-              for (int b = 0; b < length; b++) {
-                mapWhiteToGreenLut[r][g][b] =
-                    Color.rgb(/* red= */ r * scale, /* green= */ g * scale, /* blue= */ b * scale);
-              }
-            }
-          }
-          mapWhiteToGreenLut[length - 1][length - 1][length - 1] = Color.GREEN;
-          effects.add(SingleColorLut.createFromCube(mapWhiteToGreenLut));
-        }
-        if (selectedEffects[4]) {
-          effects.add(
-              new RgbAdjustment.Builder()
-                  .setRedScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_RED_SCALE))
-                  .setGreenScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_GREEN_SCALE))
-                  .setBlueScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_BLUE_SCALE))
-                  .build());
-        }
-        if (selectedEffects[5]) {
-          effects.add(
-              new HslAdjustment.Builder()
-                  .adjustHue(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_HUE))
-                  .adjustSaturation(
-                      bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_SATURATION))
-                  .adjustLightness(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_LIGHTNESS))
-                  .build());
-        }
-        if (selectedEffects[6]) {
-          effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
-        }
-        if (selectedEffects[7]) {
-          effects.add(
-              (GlEffect)
-                  (Context context, boolean useHdr) ->
-                      new PeriodicVignetteProcessor(
-                          context,
-                          useHdr,
-                          bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
-                          bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
-                          /* minInnerRadius= */ bundle.getFloat(
-                              ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
-                          /* maxInnerRadius= */ bundle.getFloat(
-                              ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
-                          bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
-        }
-        if (selectedEffects[8]) {
-          effects.add(MatrixTransformationFactory.createSpin3dEffect());
-        }
-        if (selectedEffects[9]) {
-          effects.add((GlEffect) BitmapOverlayProcessor::new);
-        }
-        if (selectedEffects[10]) {
-          effects.add(MatrixTransformationFactory.createZoomInTransition());
-        }
-        transformerBuilder.setVideoEffects(effects.build());
-      }
+      transformerBuilder.setVideoEffects(createVideoEffectsListFromBundle(bundle));
 
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
@@ -420,6 +294,136 @@ public final class TransformerActivity extends AppCompatActivity {
               }
             })
         .build();
+  }
+
+  private ImmutableList<Effect> createVideoEffectsListFromBundle(Bundle bundle) {
+    @Nullable
+    boolean[] selectedEffects =
+        bundle.getBooleanArray(ConfigurationActivity.DEMO_EFFECTS_SELECTIONS);
+    if (selectedEffects == null) {
+      return ImmutableList.of();
+    }
+    ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
+    if (selectedEffects[0]) {
+      effects.add(MatrixTransformationFactory.createDizzyCropEffect());
+    }
+    if (selectedEffects[1]) {
+      try {
+        Class<?> clazz = Class.forName("androidx.media3.demo.transformer.MediaPipeProcessor");
+        Constructor<?> constructor =
+            clazz.getConstructor(
+                Context.class,
+                boolean.class,
+                String.class,
+                boolean.class,
+                String.class,
+                String.class);
+        effects.add(
+            (GlEffect)
+                (Context context, boolean useHdr) -> {
+                  try {
+                    return (GlTextureProcessor)
+                        constructor.newInstance(
+                            context,
+                            useHdr,
+                            /* graphName= */ "edge_detector_mediapipe_graph.binarypb",
+                            /* isSingleFrameGraph= */ true,
+                            /* inputStreamName= */ "input_video",
+                            /* outputStreamName= */ "output_video");
+                  } catch (Exception e) {
+                    runOnUiThread(() -> showToast(R.string.no_media_pipe_error));
+                    throw new RuntimeException("Failed to load MediaPipe processor", e);
+                  }
+                });
+      } catch (Exception e) {
+        showToast(R.string.no_media_pipe_error);
+      }
+    }
+    if (selectedEffects[2]) {
+      switch (bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION)) {
+        case ConfigurationActivity.COLOR_FILTER_GRAYSCALE:
+          effects.add(RgbFilter.createGrayscaleFilter());
+          break;
+        case ConfigurationActivity.COLOR_FILTER_INVERTED:
+          effects.add(RgbFilter.createInvertedFilter());
+          break;
+        case ConfigurationActivity.COLOR_FILTER_SEPIA:
+          // W3C Sepia RGBA matrix with sRGB as a target color space:
+          // https://www.w3.org/TR/filter-effects-1/#sepiaEquivalent
+          // The matrix is defined for the sRGB color space and the Transformer library
+          // uses a linear RGB color space internally. Meaning this is only for demonstration
+          // purposes and it does not display a correct sepia frame.
+          float[] sepiaMatrix = {
+            0.393f, 0.349f, 0.272f, 0, 0.769f, 0.686f, 0.534f, 0, 0.189f, 0.168f, 0.131f, 0, 0, 0,
+            0, 1
+          };
+          effects.add((RgbMatrix) (presentationTimeUs, useHdr) -> sepiaMatrix);
+          break;
+        default:
+          throw new IllegalStateException(
+              "Unexpected color filter "
+                  + bundle.getInt(ConfigurationActivity.COLOR_FILTER_SELECTION));
+      }
+    }
+    if (selectedEffects[3]) {
+      int length = 3;
+      int[][][] mapWhiteToGreenLut = new int[length][length][length];
+      int scale = 255 / (length - 1);
+      for (int r = 0; r < length; r++) {
+        for (int g = 0; g < length; g++) {
+          for (int b = 0; b < length; b++) {
+            mapWhiteToGreenLut[r][g][b] =
+                Color.rgb(/* red= */ r * scale, /* green= */ g * scale, /* blue= */ b * scale);
+          }
+        }
+      }
+      mapWhiteToGreenLut[length - 1][length - 1][length - 1] = Color.GREEN;
+      effects.add(SingleColorLut.createFromCube(mapWhiteToGreenLut));
+    }
+    if (selectedEffects[4]) {
+      effects.add(
+          new RgbAdjustment.Builder()
+              .setRedScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_RED_SCALE))
+              .setGreenScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_GREEN_SCALE))
+              .setBlueScale(bundle.getFloat(ConfigurationActivity.RGB_ADJUSTMENT_BLUE_SCALE))
+              .build());
+    }
+    if (selectedEffects[5]) {
+      effects.add(
+          new HslAdjustment.Builder()
+              .adjustHue(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_HUE))
+              .adjustSaturation(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_SATURATION))
+              .adjustLightness(bundle.getFloat(ConfigurationActivity.HSL_ADJUSTMENTS_LIGHTNESS))
+              .build());
+    }
+    if (selectedEffects[6]) {
+      effects.add(new Contrast(bundle.getFloat(ConfigurationActivity.CONTRAST_VALUE)));
+    }
+    if (selectedEffects[7]) {
+      effects.add(
+          (GlEffect)
+              (Context context, boolean useHdr) ->
+                  new PeriodicVignetteProcessor(
+                      context,
+                      useHdr,
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_X),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_CENTER_Y),
+                      /* minInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_INNER_RADIUS),
+                      /* maxInnerRadius= */ bundle.getFloat(
+                          ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS),
+                      bundle.getFloat(ConfigurationActivity.PERIODIC_VIGNETTE_OUTER_RADIUS)));
+    }
+    if (selectedEffects[8]) {
+      effects.add(MatrixTransformationFactory.createSpin3dEffect());
+    }
+    if (selectedEffects[9]) {
+      effects.add((GlEffect) BitmapOverlayProcessor::new);
+    }
+    if (selectedEffects[10]) {
+      effects.add(MatrixTransformationFactory.createZoomInTransition());
+    }
+    return effects.build();
   }
 
   @RequiresNonNull({
