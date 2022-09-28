@@ -90,7 +90,7 @@ public class SetHdrToSdrToneMapTransformationTest {
         assertThat(exception)
             .hasCauseThat()
             .hasMessageThat()
-            .isEqualTo("Tone-mapping requested but not supported by the decoder");
+            .isEqualTo("Tone-mapping requested but not supported by the decoder.");
       }
       return;
     }
@@ -147,7 +147,7 @@ public class SetHdrToSdrToneMapTransformationTest {
         assertThat(exception)
             .hasCauseThat()
             .hasMessageThat()
-            .isEqualTo("Tone-mapping requested but not supported by the decoder");
+            .isEqualTo("Tone-mapping requested but not supported by the decoder.");
       }
       return;
     }
