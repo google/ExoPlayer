@@ -174,7 +174,7 @@ public class SetHdrEditingTransformationTest {
         assertThat(exception)
             .hasCauseThat()
             .hasMessageThat()
-            .isEqualTo("Tone-mapping requested but not supported by the decoder");
+            .isEqualTo("Tone-mapping requested but not supported by the decoder.");
       }
       return;
     }
