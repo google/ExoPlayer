@@ -20,18 +20,16 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static androidx.media3.transformer.mh.analysis.FileTestUtil.assertFileHasColorTransfer;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.media.MediaFormat;
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.MediaFormatUtil;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
-import androidx.media3.test.utils.DecodeOneFrameTestUtil;
 import androidx.media3.transformer.EncoderUtil;
 import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.TransformationRequest;
@@ -44,11 +42,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-// TODO(b/239172735): Add a SetToneMappingTransformationTest for when we request tone mapping.
 // TODO(b/239172735): Add HLG tests after finding a shareable HLG file.
 /** {@link Transformer} instrumentation test for applying an HDR frame edit. */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTransformationTest {
+  public static final String TAG = "SetHdrEditingTransformationTest";
   private static final ColorInfo HDR10_DEFAULT_COLOR_INFO =
       new ColorInfo(
           C.COLOR_SPACE_BT2020,
@@ -72,9 +70,11 @@ public class SetHdrEditingTransformationTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
-      checkHasColorTransfer(transformationTestResult, C.COLOR_TRANSFER_ST2084);
+      Log.i(TAG, "Transformed.");
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
       return;
     } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
           .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
@@ -110,7 +110,7 @@ public class SetHdrEditingTransformationTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
-    checkHasColorTransfer(transformationTestResult, C.COLOR_TRANSFER_ST2084);
+    assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
   }
 
   @Test
@@ -122,7 +122,7 @@ public class SetHdrEditingTransformationTest {
       recordTestSkipped(
           context,
           testId,
-          /* reason= */ "Skipping on this device due to presence of HDR10 editing support");
+          /* reason= */ "Skipping on this device due to presence of HDR10 editing support.");
       return;
     }
 
@@ -154,8 +154,10 @@ public class SetHdrEditingTransformationTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
-      checkHasColorTransfer(transformationTestResult, C.COLOR_TRANSFER_SDR);
+      Log.i(TAG, "Tone mapped.");
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       // TODO(b/245364266): After fixing the bug, replace the API version check with a check that
       // isToneMappingFallbackApplied.get() is true.
@@ -176,8 +178,6 @@ public class SetHdrEditingTransformationTest {
       }
       return;
     }
-
-    assertThat(isToneMappingFallbackApplied.get()).isTrue();
   }
 
   @Test
@@ -207,31 +207,5 @@ public class SetHdrEditingTransformationTest {
 
   private static boolean deviceSupportsHdrEditing(String mimeType, ColorInfo colorInfo) {
     return !EncoderUtil.getSupportedEncoderNamesForHdrEditing(mimeType, colorInfo).isEmpty();
-  }
-
-  private static void checkHasColorTransfer(
-      TransformationTestResult transformationTestResult, @C.ColorTransfer int expectedColorTransfer)
-      throws Exception {
-    if (Util.SDK_INT < 29) {
-      // Skipping on this API version due to lack of support for MediaFormat#getInteger, which is
-      // required for MediaFormatUtil#getColorInfo.
-      return;
-    }
-    DecodeOneFrameTestUtil.decodeOneCacheFileFrame(
-        checkNotNull(transformationTestResult.filePath),
-        new DecodeOneFrameTestUtil.Listener() {
-          @Override
-          public void onContainerExtracted(MediaFormat mediaFormat) {
-            @Nullable ColorInfo extractedColor = MediaFormatUtil.getColorInfo(mediaFormat);
-            assertThat(checkNotNull(extractedColor).colorTransfer).isEqualTo(expectedColorTransfer);
-          }
-
-          @Override
-          public void onFrameDecoded(MediaFormat mediaFormat) {
-            @Nullable ColorInfo decodedColor = MediaFormatUtil.getColorInfo(mediaFormat);
-            assertThat(checkNotNull(decodedColor).colorTransfer).isEqualTo(expectedColorTransfer);
-          }
-        },
-        /* surface= */ null);
   }
 }
