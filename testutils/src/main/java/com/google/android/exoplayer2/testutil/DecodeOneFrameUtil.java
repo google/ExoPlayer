@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Utilities for decoding a frame for tests. */
-public class DecodeOneFrameTestUtil {
+public class DecodeOneFrameUtil {
 
   /** Listener for decoding events. */
   public interface Listener {
@@ -171,5 +171,5 @@ public class DecodeOneFrameTestUtil {
     }
   }
 
-  private DecodeOneFrameTestUtil() {}
+  private DecodeOneFrameUtil() {}
 }
