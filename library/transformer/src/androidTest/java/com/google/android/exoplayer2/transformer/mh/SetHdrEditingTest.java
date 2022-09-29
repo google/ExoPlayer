@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.transformer.mh;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.mh.analysis.FileTestUtil.assertFileHasColorTransfer;
+import static com.google.android.exoplayer2.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
@@ -45,8 +45,8 @@ import org.junit.runner.RunWith;
 // TODO(b/239172735): Add HLG tests after finding a shareable HLG file.
 /** {@link Transformer} instrumentation test for applying an HDR frame edit. */
 @RunWith(AndroidJUnit4.class)
-public class SetHdrEditingTransformationTest {
-  public static final String TAG = "SetHdrEditingTransformationTest";
+public class SetHdrEditingTest {
+  public static final String TAG = "SetHdrEditingTest";
   private static final ColorInfo HDR10_DEFAULT_COLOR_INFO =
       new ColorInfo(
           C.COLOR_SPACE_BT2020,

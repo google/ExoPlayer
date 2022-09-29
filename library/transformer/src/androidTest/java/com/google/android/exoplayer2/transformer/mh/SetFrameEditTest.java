@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 
 /** {@link Transformer} instrumentation test for applying a frame edit. */
 @RunWith(AndroidJUnit4.class)
-public class SetFrameEditTransformationTest {
+public class SetFrameEditTest {
   @Test
   public void setFrameEditTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
