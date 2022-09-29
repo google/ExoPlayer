@@ -17,7 +17,7 @@ package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
-import static androidx.media3.transformer.mh.analysis.FileTestUtil.assertFileHasColorTransfer;
+import static androidx.media3.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -39,8 +39,8 @@ import org.junit.runner.RunWith;
 // TODO(b/239172735): Add HLG tests after finding a shareable HLG file.
 /** {@link Transformer} instrumentation test for applying an HDR to SDR tone mapping edit. */
 @RunWith(AndroidJUnit4.class)
-public class SetHdrToSdrToneMapTransformationTest {
-  public static final String TAG = "SetHdrToSdrToneMapTransformationTest";
+public class SetHdrToSdrToneMapTest {
+  public static final String TAG = "SetHdrToSdrToneMapTest";
 
   @Test
   public void transform_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {

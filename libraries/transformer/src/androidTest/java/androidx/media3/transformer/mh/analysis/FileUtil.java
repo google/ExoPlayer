@@ -25,10 +25,10 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Util;
-import androidx.media3.test.utils.DecodeOneFrameTestUtil;
+import androidx.media3.test.utils.DecodeOneFrameUtil;
 
 /** Utilities for reading color info from a file. */
-public class FileTestUtil {
+public class FileUtil {
   public static void assertFileHasColorTransfer(
       @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) throws Exception {
     if (Util.SDK_INT < 29) {
@@ -36,9 +36,9 @@ public class FileTestUtil {
       // required for MediaFormatUtil#getColorInfo.
       return;
     }
-    DecodeOneFrameTestUtil.decodeOneCacheFileFrame(
+    DecodeOneFrameUtil.decodeOneCacheFileFrame(
         checkNotNull(filePath),
-        new DecodeOneFrameTestUtil.Listener() {
+        new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
             @Nullable ColorInfo extractedColor = MediaFormatUtil.getColorInfo(mediaFormat);
@@ -54,5 +54,5 @@ public class FileTestUtil {
         /* surface= */ null);
   }
 
-  private FileTestUtil() {}
+  private FileUtil() {}
 }

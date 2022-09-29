@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 
 /** Tests repeated transcoding operations (as a stress test and to help reproduce flakiness). */
 @RunWith(AndroidJUnit4.class)
-public final class RepeatedTranscodeTransformationTest {
+public final class RepeatedTranscodeTest {
   private static final int TRANSCODE_COUNT = 10;
 
   @Test
