@@ -37,7 +37,7 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
-import androidx.media3.test.utils.DecodeOneFrameTestUtil;
+import androidx.media3.test.utils.DecodeOneFrameUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -464,9 +464,9 @@ public final class GlEffectsFrameProcessorPixelTest {
                     DebugViewProvider.NONE,
                     ColorInfo.SDR_BT709_LIMITED,
                     /* releaseFramesAutomatically= */ true));
-    DecodeOneFrameTestUtil.decodeOneAssetFileFrame(
+    DecodeOneFrameUtil.decodeOneAssetFileFrame(
         INPUT_MP4_ASSET_STRING,
-        new DecodeOneFrameTestUtil.Listener() {
+        new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
             glEffectsFrameProcessor.setInputFrameInfo(
