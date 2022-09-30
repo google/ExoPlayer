@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-// TODO(b/239172735): Add HLG tests after finding a shareable HLG file.
 /** {@link Transformer} instrumentation test for applying an HDR to SDR tone mapping edit. */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrToSdrToneMapTest {
