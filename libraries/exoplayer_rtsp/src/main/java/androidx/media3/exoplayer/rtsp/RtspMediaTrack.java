@@ -55,6 +55,7 @@ import com.google.common.collect.ImmutableMap;
   private static final String PARAMETER_H265_SPROP_VPS = "sprop-vps";
   private static final String PARAMETER_H265_SPROP_MAX_DON_DIFF = "sprop-max-don-diff";
   private static final String PARAMETER_MP4V_CONFIG = "config";
+  private static final String PARAMETER_MP4A_CPRESENT = "cpresent";
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
@@ -211,11 +212,18 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(channelCount != C.INDEX_UNSET);
         checkArgument(!fmtpParameters.isEmpty());
         if(mediaEncoding.equals(RtpPayloadFormat.RTP_MEDIA_MPEG4_AUDIO)) {
-          Pair<Integer, Integer> cfgOpts = getSampleRateAndChannelCountFromAudioConfig(
-              fmtpParameters, channelCount, clockRate);
-          channelCount = cfgOpts.first;
-          clockRate = cfgOpts.second;
-          formatBuilder.setSampleRate(clockRate).setChannelCount(channelCount);
+          boolean isCPresent = true;
+          if (fmtpParameters.get(PARAMETER_MP4A_CPRESENT) != null && fmtpParameters.get(
+              PARAMETER_MP4A_CPRESENT).equals("0")) {
+            isCPresent = false;
+          }
+          @Nullable String configInput = fmtpParameters.get(PARAMETER_MP4V_CONFIG);
+          if (!isCPresent && configInput != null && configInput.length() % 2 == 0) {
+            Pair<Integer, Integer> configParameters = getSampleRateAndChannelCount(configInput);
+            channelCount = configParameters.first;
+            clockRate = configParameters.second;
+            formatBuilder.setSampleRate(clockRate).setChannelCount(channelCount);
+          }
         }
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
         break;
@@ -311,33 +319,30 @@ import com.google.common.collect.ImmutableMap;
   }
 
   /**
-   * Parses an MPEG-4 Audio Stream Mux configuration, as defined in ISO/IEC14496-3. FMTP attribute
-   * contains config which is a byte array containing the MPEG-4 Audio Stream Mux configuration to
-   * parse.
+   * Returns a {@link Pair} of sample rate and channel count, by parsing the
+   *  MPEG4 Audio Stream Mux configuration.
+   *
+   * <p>fmtp attribute {@code config} includes the MPEG4 Audio Stream Mux
+   * configuration (ISO/IEC14496-3, Chapter 1.7.3).
    */
-  private static Pair<Integer, Integer> getSampleRateAndChannelCountFromAudioConfig(
-      ImmutableMap<String, String> fmtpAttributes,
-      int channelCount,
-      int sampleRate) {
-    @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
-    if (configInput != null && configInput.length() % 2 == 0) {
-      byte[] configBuffer = Util.getBytesFromHexString(configInput);
-      ParsableBitArray scratchBits = new ParsableBitArray(configBuffer);
-      int audioMuxVersion = scratchBits.readBits(1);
-      if (audioMuxVersion == 0) {
-        checkArgument(scratchBits.readBits(1) == 1, "Invalid allStreamsSameTimeFraming.");
-        scratchBits.readBits(6);
-        checkArgument(scratchBits.readBits(4) == 0, "Invalid numProgram.");
-        checkArgument(scratchBits.readBits(3) == 0, "Invalid numLayer.");
-        AacUtil.Config aacConfig = null;
-        try {
-          aacConfig = AacUtil.parseAudioSpecificConfig(scratchBits, false);
-        } catch (ParserException e) {
-          throw new IllegalArgumentException(e);
-        }
-        sampleRate = aacConfig.sampleRateHz;
-        channelCount = aacConfig.channelCount;
+  private static Pair<Integer, Integer> getSampleRateAndChannelCount(String configInput) {
+    int channelCount = 0, sampleRate = 0;
+    byte[] configBuffer = Util.getBytesFromHexString(configInput);
+    ParsableBitArray scratchBits = new ParsableBitArray(configBuffer);
+    int audioMuxVersion = scratchBits.readBits(1);
+    if (audioMuxVersion == 0) {
+      checkArgument(scratchBits.readBits(1) == 1, "Invalid allStreamsSameTimeFraming.");
+      scratchBits.readBits(6);
+      checkArgument(scratchBits.readBits(4) == 0, "Invalid numProgram.");
+      checkArgument(scratchBits.readBits(3) == 0, "Invalid numLayer.");
+      @Nullable AacUtil.Config aacConfig = null;
+      try {
+        aacConfig = AacUtil.parseAudioSpecificConfig(scratchBits, false);
+      } catch (ParserException e) {
+        throw new IllegalArgumentException(e);
       }
+      sampleRate = aacConfig.sampleRateHz;
+      channelCount = aacConfig.channelCount;
     }
     return Pair.create(channelCount, sampleRate);
   }
