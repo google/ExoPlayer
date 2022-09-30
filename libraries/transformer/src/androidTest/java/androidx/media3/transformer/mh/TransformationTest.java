@@ -174,10 +174,7 @@ public class TransformationTest {
 
     if (Util.SDK_INT < 25) {
       // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
-      recordTestSkipped(
-          context,
-          testId,
-          /* reason= */ "Skipping on this API version due to lack of muxing support");
+      recordTestSkipped(context, testId, /* reason= */ "API version lacks muxing support");
       return;
     }
 

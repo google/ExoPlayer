@@ -113,8 +113,7 @@ public class EncoderPerformanceAnalysisTest {
       recordTestSkipped(
           context,
           testId,
-          /* reason= */ "Skipping on this API version due to lack of support for setting operating"
-              + " rate and priority.");
+          /* reason= */ "API version lacks support for setting operating rate and priority.");
       return;
     }
 
