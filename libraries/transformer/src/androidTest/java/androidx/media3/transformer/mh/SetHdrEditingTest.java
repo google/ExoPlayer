@@ -42,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-// TODO(b/239172735): Add HLG tests after finding a shareable HLG file.
 /** {@link Transformer} instrumentation test for applying an HDR frame edit. */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTest {
@@ -90,10 +89,7 @@ public class SetHdrEditingTest {
     String testId = "transformAndTranscode_hdr10File_whenHdrEditingIsSupported";
     Context context = ApplicationProvider.getApplicationContext();
     if (!deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
-      recordTestSkipped(
-          context,
-          testId,
-          /* reason= */ "Skipping on this device due to lack of HDR10 editing support.");
+      recordTestSkipped(context, testId, /* reason= */ "Device lacks HDR10 editing support.");
       return;
     }
 
@@ -119,10 +115,7 @@ public class SetHdrEditingTest {
     String testId = "transformAndTranscode_hdr10File_toneMapsOrThrows_whenHdrEditingUnsupported";
     Context context = ApplicationProvider.getApplicationContext();
     if (deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
-      recordTestSkipped(
-          context,
-          testId,
-          /* reason= */ "Skipping on this device due to presence of HDR10 editing support.");
+      recordTestSkipped(context, testId, /* reason= */ "Device supports HDR10 editing.");
       return;
     }
 
@@ -188,8 +181,7 @@ public class SetHdrEditingTest {
       recordTestSkipped(
           context,
           testId,
-          /* reason= */ "Skipping on this API version due to lack of support for"
-              + " MediaFormat#getInteger(String, int).");
+          /* reason= */ "API version lacks support for MediaFormat#getInteger(String, int).");
       return;
     }
 
