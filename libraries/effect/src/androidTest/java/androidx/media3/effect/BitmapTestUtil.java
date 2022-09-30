@@ -129,7 +129,7 @@ public class BitmapTestUtil {
    * @return The average of the maximum absolute pixel-wise differences between the expected and
    *     actual bitmaps.
    */
-  public static float getAveragePixelAbsoluteDifferenceArgb8888(
+  public static float getBitmapAveragePixelAbsoluteDifferenceArgb8888(
       Bitmap expected, Bitmap actual, @Nullable String testId) {
     int width = actual.getWidth();
     int height = actual.getHeight();
