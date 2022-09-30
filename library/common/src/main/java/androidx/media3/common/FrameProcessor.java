@@ -72,10 +72,13 @@ public interface FrameProcessor {
   interface Listener {
 
     /**
-     * Called when the output size after applying the final effect changes.
+     * Called when the output size changes.
      *
-     * <p>The output size after applying the final effect can differ from the size specified using
-     * {@link #setOutputSurfaceInfo(SurfaceInfo)}.
+     * <p>The output size is the frame size in pixels after applying all {@linkplain Effect
+     * effects}.
+     *
+     * <p>The output size may differ from the size specified using {@link
+     * #setOutputSurfaceInfo(SurfaceInfo)}.
      */
     void onOutputSizeChanged(int width, int height);
 
