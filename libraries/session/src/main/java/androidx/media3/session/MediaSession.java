@@ -995,6 +995,11 @@ public class MediaSession {
      * playlist via one of the {@code Player.addMediaItem(s)} or {@code Player.setMediaItem(s)}
      * methods.
      *
+     * <p>This callback is also called when an app is using a legacy {@link
+     * MediaControllerCompat.TransportControls} to prepare or play media (for instance when browsing
+     * the catalogue and then selecting an item for preparation from Android Auto that is using the
+     * legacy Media1 library).
+     *
      * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
      * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
      * playable by the underlying {@link Player}. Typically, this implementation should be able to
