@@ -17,6 +17,12 @@
 package androidx.media3.effect;
 
 import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.effect.BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer;
+import static androidx.media3.effect.BitmapTestUtil.createArgb8888BitmapWithSolidColor;
+import static androidx.media3.effect.BitmapTestUtil.createGlTextureFromBitmap;
+import static androidx.media3.effect.BitmapTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static androidx.media3.effect.BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.effect.BitmapTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -79,12 +85,12 @@ public final class HslAdjustmentPixelTest {
   public void createGlObjects() throws IOException, GlUtil.GlException {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
     placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
     GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, inputWidth, inputHeight);
-    inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
+    inputTexId = createGlTextureFromBitmap(inputBitmap);
 
     outputTexId =
         GlUtil.createTexture(inputWidth, inputHeight, /* useHighPrecisionColorComponents= */ false);
@@ -107,18 +113,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment noOpAdjustment = new HslAdjustment.Builder().build();
     hslProcessor = noOpAdjustment.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -128,18 +131,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment minimumSaturation = new HslAdjustment.Builder().adjustSaturation(-100).build();
     hslProcessor = minimumSaturation.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(MINIMUM_SATURATION_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(MINIMUM_SATURATION_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -149,18 +149,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment maximumSaturation = new HslAdjustment.Builder().adjustSaturation(100).build();
     hslProcessor = maximumSaturation.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(MAXIMUM_SATURATION_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(MAXIMUM_SATURATION_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -170,19 +167,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment negativeHueRotation90Degrees = new HslAdjustment.Builder().adjustHue(-90).build();
     hslProcessor = negativeHueRotation90Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap =
-        BitmapTestUtil.readBitmap(ROTATE_HUE_BY_NEGATIVE_90_DEGREES_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ROTATE_HUE_BY_NEGATIVE_90_DEGREES_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -192,18 +185,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment hueRotation60Degrees = new HslAdjustment.Builder().adjustHue(60).build();
     hslProcessor = hueRotation60Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -214,18 +204,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment hueRotation420Degrees = new HslAdjustment.Builder().adjustHue(-300).build();
     hslProcessor = hueRotation420Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -235,18 +222,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment hueRotation360Degrees = new HslAdjustment.Builder().adjustHue(360).build();
     hslProcessor = hueRotation360Degrees.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -257,18 +241,15 @@ public final class HslAdjustmentPixelTest {
     hslProcessor = minimumLightness.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
-        BitmapTestUtil.createArgb8888BitmapWithSolidColor(inputWidth, inputHeight, Color.BLACK);
+        createArgb8888BitmapWithSolidColor(inputWidth, inputHeight, Color.BLACK);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -278,18 +259,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment decreasedLightness = new HslAdjustment.Builder().adjustLightness(-50).build();
     hslProcessor = decreasedLightness.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(DECREASE_LIGHTNESS_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(DECREASE_LIGHTNESS_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -299,18 +277,15 @@ public final class HslAdjustmentPixelTest {
     HslAdjustment increasedLightness = new HslAdjustment.Builder().adjustLightness(50).build();
     hslProcessor = increasedLightness.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INCREASE_LIGHTNESS_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(INCREASE_LIGHTNESS_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -321,18 +296,15 @@ public final class HslAdjustmentPixelTest {
     hslProcessor = maximumLightness.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
     Bitmap expectedBitmap =
-        BitmapTestUtil.createArgb8888BitmapWithSolidColor(inputWidth, inputHeight, Color.WHITE);
+        createArgb8888BitmapWithSolidColor(inputWidth, inputHeight, Color.WHITE);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -343,18 +315,15 @@ public final class HslAdjustmentPixelTest {
         new HslAdjustment.Builder().adjustHue(60).adjustSaturation(30).adjustLightness(50).build();
     hslProcessor = allHslSettingsAdjusted.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = hslProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ADJUST_ALL_HSL_SETTINGS_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ADJUST_ALL_HSL_SETTINGS_PNG_ASSET_PATH);
 
     hslProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 }

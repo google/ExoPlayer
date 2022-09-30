@@ -16,6 +16,11 @@
 package androidx.media3.effect;
 
 import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.effect.BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer;
+import static androidx.media3.effect.BitmapTestUtil.createGlTextureFromBitmap;
+import static androidx.media3.effect.BitmapTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static androidx.media3.effect.BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.effect.BitmapTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -68,12 +73,12 @@ public final class MatrixTextureProcessorPixelTest {
   public void createGlObjects() throws IOException, GlUtil.GlException {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     width = inputBitmap.getWidth();
     height = inputBitmap.getHeight();
     EGLSurface placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
     GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, width, height);
-    inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
+    inputTexId = createGlTextureFromBitmap(inputBitmap);
     outputTexId = GlUtil.createTexture(width, height, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
@@ -98,18 +103,15 @@ public final class MatrixTextureProcessorPixelTest {
     matrixTextureProcessor =
         noEditsTransformation.toGlTextureProcessor(context, /* useHdr= */ false);
     matrixTextureProcessor.configure(width, height);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
+    Bitmap actualBitmap = createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -123,18 +125,15 @@ public final class MatrixTextureProcessorPixelTest {
     matrixTextureProcessor =
         translateRightTransformation.toGlTextureProcessor(context, /* useHdr= */ false);
     matrixTextureProcessor.configure(width, height);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(TRANSLATE_RIGHT_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
+    Bitmap actualBitmap = createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -147,18 +146,15 @@ public final class MatrixTextureProcessorPixelTest {
     matrixTextureProcessor =
         scaleNarrowTransformation.toGlTextureProcessor(context, /* useHdr= */ false);
     matrixTextureProcessor.configure(width, height);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(SCALE_NARROW_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
+    Bitmap actualBitmap = createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -171,18 +167,15 @@ public final class MatrixTextureProcessorPixelTest {
     matrixTextureProcessor =
         rotate90Transformation.toGlTextureProcessor(context, /* useHdr= */ false);
     matrixTextureProcessor.configure(width, height);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(ROTATE_90_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(ROTATE_90_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
-    Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
+    Bitmap actualBitmap = createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
