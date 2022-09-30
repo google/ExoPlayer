@@ -17,12 +17,10 @@ package androidx.media3.exoplayer.source;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.AbstractConcatenatedTimeline;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.ShuffleOrder.UnshuffledShuffleOrder;
@@ -43,9 +41,8 @@ import java.util.Map;
  */
 @Deprecated
 @UnstableApi
-public final class LoopingMediaSource extends CompositeMediaSource<Void> {
+public final class LoopingMediaSource extends WrappingMediaSource {
 
-  private final MaskingMediaSource maskingMediaSource;
   private final int loopCount;
   private final Map<MediaPeriodId, MediaPeriodId> childMediaPeriodIdToMediaPeriodId;
   private final Map<MediaPeriod, MediaPeriodId> mediaPeriodToChildMediaPeriodId;
@@ -67,21 +64,17 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
    * @param loopCount The desired number of loops. Must be strictly positive.
    */
   public LoopingMediaSource(MediaSource childSource, int loopCount) {
+    super(new MaskingMediaSource(childSource, /* useLazyPreparation= */ false));
     Assertions.checkArgument(loopCount > 0);
-    this.maskingMediaSource = new MaskingMediaSource(childSource, /* useLazyPreparation= */ false);
     this.loopCount = loopCount;
     childMediaPeriodIdToMediaPeriodId = new HashMap<>();
     mediaPeriodToChildMediaPeriodId = new HashMap<>();
   }
 
   @Override
-  public MediaItem getMediaItem() {
-    return maskingMediaSource.getMediaItem();
-  }
-
-  @Override
   @Nullable
   public Timeline getInitialTimeline() {
+    MaskingMediaSource maskingMediaSource = (MaskingMediaSource) mediaSource;
     return loopCount != Integer.MAX_VALUE
         ? new LoopingTimeline(maskingMediaSource.getTimeline(), loopCount)
         : new InfinitelyLoopingTimeline(maskingMediaSource.getTimeline());
@@ -93,28 +86,22 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
-    super.prepareSourceInternal(mediaTransferListener);
-    prepareChildSource(/* id= */ null, maskingMediaSource);
-  }
-
-  @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     if (loopCount == Integer.MAX_VALUE) {
-      return maskingMediaSource.createPeriod(id, allocator, startPositionUs);
+      return mediaSource.createPeriod(id, allocator, startPositionUs);
     }
     Object childPeriodUid = LoopingTimeline.getChildPeriodUidFromConcatenatedUid(id.periodUid);
     MediaPeriodId childMediaPeriodId = id.copyWithPeriodUid(childPeriodUid);
     childMediaPeriodIdToMediaPeriodId.put(childMediaPeriodId, id);
     MediaPeriod mediaPeriod =
-        maskingMediaSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
+        mediaSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
     mediaPeriodToChildMediaPeriodId.put(mediaPeriod, childMediaPeriodId);
     return mediaPeriod;
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    maskingMediaSource.releasePeriod(mediaPeriod);
+    mediaSource.releasePeriod(mediaPeriod);
     @Nullable
     MediaPeriodId childMediaPeriodId = mediaPeriodToChildMediaPeriodId.remove(mediaPeriod);
     if (childMediaPeriodId != null) {
@@ -123,7 +110,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(Void id, MediaSource mediaSource, Timeline timeline) {
+  protected void onChildSourceInfoRefreshed(Timeline timeline) {
     Timeline loopingTimeline =
         loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount)
@@ -133,8 +120,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
 
   @Override
   @Nullable
-  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
-      Void id, MediaPeriodId mediaPeriodId) {
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(MediaPeriodId mediaPeriodId) {
     return loopCount != Integer.MAX_VALUE
         ? childMediaPeriodIdToMediaPeriodId.get(mediaPeriodId)
         : mediaPeriodId;
