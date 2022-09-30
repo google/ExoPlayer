@@ -17,6 +17,11 @@
 package androidx.media3.effect;
 
 import static androidx.media3.effect.BitmapTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.effect.BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer;
+import static androidx.media3.effect.BitmapTestUtil.createGlTextureFromBitmap;
+import static androidx.media3.effect.BitmapTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static androidx.media3.effect.BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory;
+import static androidx.media3.effect.BitmapTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -69,12 +74,12 @@ public final class RgbFilterPixelTest {
   public void createGlObjects() throws IOException, GlUtil.GlException {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
-    Bitmap inputBitmap = BitmapTestUtil.readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
     placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
     GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, inputWidth, inputHeight);
-    inputTexId = BitmapTestUtil.createGlTextureFromBitmap(inputBitmap);
+    inputTexId = createGlTextureFromBitmap(inputBitmap);
 
     outputTexId =
         GlUtil.createTexture(inputWidth, inputHeight, /* useHighPrecisionColorComponents= */ false);
@@ -102,18 +107,15 @@ public final class RgbFilterPixelTest {
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
     matrixTextureProcessor = grayscaleMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(GRAYSCALE_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(GRAYSCALE_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -123,18 +125,15 @@ public final class RgbFilterPixelTest {
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
     matrixTextureProcessor = invertedMatrix.toGlTextureProcessor(context, /* useHdr= */ false);
     Pair<Integer, Integer> outputSize = matrixTextureProcessor.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = BitmapTestUtil.readBitmap(INVERT_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmap(INVERT_PNG_ASSET_PATH);
 
     matrixTextureProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        BitmapTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-            outputSize.first, outputSize.second);
+        createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
-    BitmapTestUtil.maybeSaveTestBitmapToCacheDirectory(
-        testId, /* bitmapLabel= */ "actual", actualBitmap);
+    maybeSaveTestBitmapToCacheDirectory(testId, /* bitmapLabel= */ "actual", actualBitmap);
     float averagePixelAbsoluteDifference =
-        BitmapTestUtil.getAveragePixelAbsoluteDifferenceArgb8888(
-            expectedBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 }
