@@ -11,6 +11,10 @@
         ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
     *   Limit parallel download removals to 1 to avoid excessive thread creation
         ([#10458](https://github.com/google/ExoPlayer/issues/10458)).
+*   Downloads:
+    *   Fix potential infinite loop in `ProgressiveDownloader` caused by
+        simultaneous download and playback with the same `PriorityTaskManager`
+        ([#10570](https://github.com/google/ExoPlayer/pull/10570)).
 *   Audio:
     *   Adds `AudioOffloadListener.onExperimentalOffloadedPlayback` for the
         AudioTrack offload state.
