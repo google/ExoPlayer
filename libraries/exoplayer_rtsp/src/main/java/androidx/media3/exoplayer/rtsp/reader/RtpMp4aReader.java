@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int fragmentedSampleSizeBytes;
   private long startTimeOffsetUs;
   private long sampleTimeUsOfFragmentedSample;
-  private int numSubFrames;
+  private int numberOfSubframes;
 
   /** Creates an instance. */
   public RtpMp4aReader(RtpPayloadFormat payloadFormat) {
@@ -78,9 +78,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkState(firstReceivedTimestamp == C.TIME_UNSET);
     firstReceivedTimestamp = timestamp;
     try {
-      numSubFrames = getNumOfSubframesFromMpeg4AudioConfig(payloadFormat.fmtpParameters);
+      numberOfSubframes = getNumOfSubframesFromMpeg4AudioConfig(payloadFormat.fmtpParameters);
     } catch (ParserException e) {
-      e.printStackTrace();
+      throw new IllegalArgumentException(e);
     }
 }
 
@@ -94,23 +94,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if(fragmentedSampleSizeBytes > 0 && expectedSequenceNumber < sequenceNumber) {
       outputSampleMetadataForFragmentedPackets();
     }
-    int sampleOffset = 0;
-    for (int subFrame = 0; subFrame <= numSubFrames; subFrame++) {
+    int audioPayloadOffset = 0;
+    for (int subFrame = 0; subFrame < numberOfSubframes; subFrame++) {
       int sampleLength = 0;
 
-      /* Each subframe starts with a variable length encoding */
-      for (; sampleOffset < data.bytesLeft(); sampleOffset++) {
-        sampleLength += data.getData()[sampleOffset] & 0xff;
-        if ((data.getData()[sampleOffset] & 0xff) != 0xff) {
+      /**
+       * This implements PayloadLengthInfo() in Chapter 1.7.3.1, it's only support one program and
+       * one layer.
+       * Each subframe starts with a variable length encoding.
+       */
+      for (; audioPayloadOffset < data.bytesLeft(); audioPayloadOffset++) {
+        int payloadMuxLength = data.peekUnsignedByte();
+        sampleLength += payloadMuxLength;
+        if (payloadMuxLength != 0xff) {
           break;
+        } else {
+          data.setPosition(audioPayloadOffset + 1);
         }
       }
-      sampleOffset++;
-      data.setPosition(sampleOffset);
+      audioPayloadOffset++;
+      data.setPosition(audioPayloadOffset);
 
-      // Write the audio sample
+      /* Write the audio sample */
       trackOutput.sampleData(data, sampleLength);
-      sampleOffset += sampleLength;
+      audioPayloadOffset+= sampleLength;
       fragmentedSampleSizeBytes += sampleLength;
     }
     sampleTimeUsOfFragmentedSample = toSampleTimeUs(startTimeOffsetUs, timestamp,
@@ -140,17 +147,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws ParserException If the MPEG-4 Audio Stream Mux configuration cannot be parsed due to
    *     unsupported audioMuxVersion.
    */
-  private static Integer getNumOfSubframesFromMpeg4AudioConfig(
+  private static int getNumOfSubframesFromMpeg4AudioConfig(
       ImmutableMap<String, String> fmtpAttributes) throws ParserException {
     @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4A_CONFIG);
-    int numSubFrames = 0;
+    int numberOfSubframes = 0;
     if (configInput != null && configInput.length() % 2 == 0) {
       byte[] configBuffer = Util.getBytesFromHexString(configInput);
       ParsableBitArray scratchBits = new ParsableBitArray(configBuffer);
       int audioMuxVersion = scratchBits.readBits(1);
       if (audioMuxVersion == 0) {
         checkArgument(scratchBits.readBits(1) == 1, "Invalid allStreamsSameTimeFraming.");
-        numSubFrames = scratchBits.readBits(6);
+        numberOfSubframes = scratchBits.readBits(6);
         checkArgument(scratchBits.readBits(4) == 0, "Invalid numProgram.");
         checkArgument(scratchBits.readBits(3) == 0, "Invalid numLayer.");
       } else {
@@ -158,7 +165,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             "unsupported audio mux version: " + audioMuxVersion, null);
       }
     }
-    return numSubFrames;
+    return numberOfSubframes + 1;
   }
 
   /**
