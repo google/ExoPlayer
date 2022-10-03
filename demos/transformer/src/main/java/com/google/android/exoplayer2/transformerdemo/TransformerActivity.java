@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
@@ -76,7 +77,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public final class TransformerActivity extends AppCompatActivity {
   private static final String TAG = "TransformerActivity";
 
-  private @MonotonicNonNull StyledPlayerView playerView;
+  private @MonotonicNonNull MaterialCardView inputCardView;
+  private @MonotonicNonNull StyledPlayerView inputPlayerView;
+  private @MonotonicNonNull StyledPlayerView outputPlayerView;
   private @MonotonicNonNull TextView debugTextView;
   private @MonotonicNonNull TextView informationTextView;
   private @MonotonicNonNull ViewGroup progressViewGroup;
@@ -85,7 +88,8 @@ public final class TransformerActivity extends AppCompatActivity {
   private @MonotonicNonNull AspectRatioFrameLayout debugFrame;
 
   @Nullable private DebugTextViewHelper debugTextViewHelper;
-  @Nullable private ExoPlayer player;
+  @Nullable private ExoPlayer inputPlayer;
+  @Nullable private ExoPlayer outputPlayer;
   @Nullable private Transformer transformer;
   @Nullable private File externalCacheFile;
 
@@ -94,7 +98,9 @@ public final class TransformerActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.transformer_activity);
 
-    playerView = findViewById(R.id.player_view);
+    inputCardView = findViewById(R.id.input_card_view);
+    inputPlayerView = findViewById(R.id.input_player_view);
+    outputPlayerView = findViewById(R.id.output_player_view);
     debugTextView = findViewById(R.id.debug_text_view);
     informationTextView = findViewById(R.id.information_text_view);
     progressViewGroup = findViewById(R.id.progress_view_group);
@@ -104,6 +110,7 @@ public final class TransformerActivity extends AppCompatActivity {
     transformationStopwatch =
         Stopwatch.createUnstarted(
             new Ticker() {
+              @Override
               public long read() {
                 return android.os.SystemClock.elapsedRealtimeNanos();
               }
@@ -117,13 +124,16 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(progressIndicator);
     checkNotNull(informationTextView);
     checkNotNull(transformationStopwatch);
-    checkNotNull(playerView);
+    checkNotNull(inputCardView);
+    checkNotNull(inputPlayerView);
+    checkNotNull(outputPlayerView);
     checkNotNull(debugTextView);
     checkNotNull(progressViewGroup);
     checkNotNull(debugFrame);
     startTransformation();
 
-    playerView.onResume();
+    inputPlayerView.onResume();
+    outputPlayerView.onResume();
   }
 
   @Override
@@ -137,7 +147,8 @@ public final class TransformerActivity extends AppCompatActivity {
     // stop watch to be stopped in a transformer callback.
     checkNotNull(transformationStopwatch).reset();
 
-    checkNotNull(playerView).onPause();
+    checkNotNull(inputPlayerView).onPause();
+    checkNotNull(outputPlayerView).onPause();
     releasePlayer();
 
     checkNotNull(externalCacheFile).delete();
@@ -145,7 +156,9 @@ public final class TransformerActivity extends AppCompatActivity {
   }
 
   @RequiresNonNull({
-    "playerView",
+    "inputCardView",
+    "inputPlayerView",
+    "outputPlayerView",
     "debugTextView",
     "informationTextView",
     "progressIndicator",
@@ -171,7 +184,8 @@ public final class TransformerActivity extends AppCompatActivity {
       throw new IllegalStateException(e);
     }
     informationTextView.setText(R.string.transformation_started);
-    playerView.setVisibility(View.GONE);
+    inputCardView.setVisibility(View.GONE);
+    outputPlayerView.setVisibility(View.GONE);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
     mainHandler.post(
@@ -210,20 +224,10 @@ public final class TransformerActivity extends AppCompatActivity {
     return mediaItemBuilder.build();
   }
 
-  // Create a cache file, resetting it if it already exists.
-  private File createExternalCacheFile(String fileName) throws IOException {
-    File file = new File(getExternalCacheDir(), fileName);
-    if (file.exists() && !file.delete()) {
-      throw new IllegalStateException("Could not delete the previous transformer output file");
-    }
-    if (!file.createNewFile()) {
-      throw new IllegalStateException("Could not create the transformer output file");
-    }
-    return file;
-  }
-
   @RequiresNonNull({
-    "playerView",
+    "inputCardView",
+    "inputPlayerView",
+    "outputPlayerView",
     "debugTextView",
     "informationTextView",
     "transformationStopwatch",
@@ -284,7 +288,7 @@ public final class TransformerActivity extends AppCompatActivity {
               @Override
               public void onTransformationCompleted(
                   MediaItem mediaItem, TransformationResult transformationResult) {
-                TransformerActivity.this.onTransformationCompleted(filePath);
+                TransformerActivity.this.onTransformationCompleted(filePath, mediaItem);
               }
 
               @Override
@@ -294,6 +298,18 @@ public final class TransformerActivity extends AppCompatActivity {
               }
             })
         .build();
+  }
+
+  // Create a cache file, resetting it if it already exists.
+  private File createExternalCacheFile(String fileName) throws IOException {
+    File file = new File(getExternalCacheDir(), fileName);
+    if (file.exists() && !file.delete()) {
+      throw new IllegalStateException("Could not delete the previous transformer output file");
+    }
+    if (!file.createNewFile()) {
+      throw new IllegalStateException("Could not create the transformer output file");
+    }
+    return file;
   }
 
   private ImmutableList<Effect> createVideoEffectsListFromBundle(Bundle bundle) {
@@ -445,37 +461,55 @@ public final class TransformerActivity extends AppCompatActivity {
   }
 
   @RequiresNonNull({
-    "playerView",
+    "inputCardView",
+    "inputPlayerView",
+    "outputPlayerView",
     "debugTextView",
     "informationTextView",
     "progressViewGroup",
     "debugFrame",
     "transformationStopwatch",
   })
-  private void onTransformationCompleted(String filePath) {
+  private void onTransformationCompleted(String filePath, MediaItem inputMediaItem) {
     transformationStopwatch.stop();
     informationTextView.setText(
         getString(
             R.string.transformation_completed, transformationStopwatch.elapsed(TimeUnit.SECONDS)));
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
-    playerView.setVisibility(View.VISIBLE);
-    playMediaItem(MediaItem.fromUri("file://" + filePath));
+    inputCardView.setVisibility(View.VISIBLE);
+    outputPlayerView.setVisibility(View.VISIBLE);
+    playMediaItems(inputMediaItem, MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
   }
 
-  @RequiresNonNull({"playerView", "debugTextView"})
-  private void playMediaItem(MediaItem mediaItem) {
-    playerView.setPlayer(null);
+  @RequiresNonNull({
+    "inputCardView",
+    "inputPlayerView",
+    "outputPlayerView",
+    "debugTextView",
+  })
+  private void playMediaItems(MediaItem inputMediaItem, MediaItem outputMediaItem) {
+    inputPlayerView.setPlayer(null);
+    outputPlayerView.setPlayer(null);
     releasePlayer();
 
-    ExoPlayer player = new ExoPlayer.Builder(/* context= */ this).build();
-    playerView.setPlayer(player);
-    player.setMediaItem(mediaItem);
-    player.play();
-    player.prepare();
-    this.player = player;
-    debugTextViewHelper = new DebugTextViewHelper(player, debugTextView);
+    ExoPlayer inputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
+    inputPlayerView.setPlayer(inputPlayer);
+    inputPlayer.setMediaItem(inputMediaItem);
+    inputPlayer.prepare();
+    this.inputPlayer = inputPlayer;
+
+    ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
+    outputPlayerView.setPlayer(outputPlayer);
+    outputPlayer.setMediaItem(outputMediaItem);
+    outputPlayer.prepare();
+    this.outputPlayer = outputPlayer;
+
+    inputPlayer.play();
+    outputPlayer.play();
+
+    debugTextViewHelper = new DebugTextViewHelper(outputPlayer, debugTextView);
     debugTextViewHelper.start();
   }
 
@@ -484,9 +518,13 @@ public final class TransformerActivity extends AppCompatActivity {
       debugTextViewHelper.stop();
       debugTextViewHelper = null;
     }
-    if (player != null) {
-      player.release();
-      player = null;
+    if (inputPlayer != null) {
+      inputPlayer.release();
+      inputPlayer = null;
+    }
+    if (outputPlayer != null) {
+      outputPlayer.release();
+      outputPlayer = null;
     }
   }
 
