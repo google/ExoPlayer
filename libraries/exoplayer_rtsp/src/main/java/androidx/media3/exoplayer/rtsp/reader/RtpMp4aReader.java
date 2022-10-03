@@ -104,18 +104,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
        * Each subframe starts with a variable length encoding.
        */
       for (; audioPayloadOffset < data.bytesLeft(); audioPayloadOffset++) {
-        int payloadMuxLength = data.peekUnsignedByte();
+        int payloadMuxLength = data.readUnsignedByte();
         sampleLength += payloadMuxLength;
         if (payloadMuxLength != 0xff) {
           break;
-        } else {
-          data.setPosition(audioPayloadOffset + 1);
         }
       }
-      audioPayloadOffset++;
-      data.setPosition(audioPayloadOffset);
 
-      /* Write the audio sample */
+      // Write the audio sample
       trackOutput.sampleData(data, sampleLength);
       audioPayloadOffset+= sampleLength;
       fragmentedSampleSizeBytes += sampleLength;
