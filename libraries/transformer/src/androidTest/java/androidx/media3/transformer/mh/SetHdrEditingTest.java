@@ -85,8 +85,9 @@ public class SetHdrEditingTest {
   }
 
   @Test
-  public void transformAndTranscode_hdr10File_whenHdrEditingIsSupported() throws Exception {
-    String testId = "transformAndTranscode_hdr10File_whenHdrEditingIsSupported";
+  public void transformAndTranscode_hdr10File_whenHdrEditingIsSupported_transforms()
+      throws Exception {
+    String testId = "transformAndTranscode_hdr10File_whenHdrEditingIsSupported_transforms";
     Context context = ApplicationProvider.getApplicationContext();
     if (!deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
       recordTestSkipped(context, testId, /* reason= */ "Device lacks HDR10 editing support.");
@@ -110,15 +111,16 @@ public class SetHdrEditingTest {
   }
 
   @Test
-  public void transformAndTranscode_hdr10File_toneMapsOrThrows_whenHdrEditingUnsupported()
+  public void transformAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows()
       throws Exception {
-    String testId = "transformAndTranscode_hdr10File_toneMapsOrThrows_whenHdrEditingUnsupported";
+    String testId = "transformAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
     if (deviceSupportsHdrEditing(VIDEO_H265, HDR10_DEFAULT_COLOR_INFO)) {
       recordTestSkipped(context, testId, /* reason= */ "Device supports HDR10 editing.");
       return;
     }
 
+    AtomicBoolean isFallbackListenerInvoked = new AtomicBoolean();
     AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -134,10 +136,10 @@ public class SetHdrEditingTest {
                       MediaItem inputMediaItem,
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
+                    isFallbackListenerInvoked.set(true);
                     assertThat(originalTransformationRequest.enableRequestSdrToneMapping).isFalse();
-                    if (fallbackTransformationRequest.enableRequestSdrToneMapping) {
-                      isToneMappingFallbackApplied.set(true);
-                    }
+                    isToneMappingFallbackApplied.set(
+                        fallbackTransformationRequest.enableRequestSdrToneMapping);
                   }
                 })
             .build();
@@ -148,12 +150,11 @@ public class SetHdrEditingTest {
               .build()
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Tone mapped.");
+      assertThat(isToneMappingFallbackApplied.get()).isTrue();
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      // TODO(b/245364266): After fixing the bug, replace the API version check with a check that
-      // isToneMappingFallbackApplied.get() is true.
       if (Util.SDK_INT < 31) {
         assertThat(exception.errorCode)
             .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
@@ -168,6 +169,7 @@ public class SetHdrEditingTest {
             .hasCauseThat()
             .hasMessageThat()
             .isEqualTo("Tone-mapping requested but not supported by the decoder.");
+        assertThat(isFallbackListenerInvoked.get()).isFalse();
       }
       return;
     }
