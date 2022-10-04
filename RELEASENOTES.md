@@ -16,6 +16,9 @@
     *   Close the Tracing "doSomeWork" block when offload is enabled.
     *   Try alternative decoder for Dolby Vision if display does not support it.
         ([#9794](https://github.com/google/ExoPlayer/issues/9794)).
+    *   Add suppression reason for unsuitable audio route and play when ready
+        change reason for suppressed too long.
+        ([#15](https://github.com/androidx/media/issues/15)).
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
