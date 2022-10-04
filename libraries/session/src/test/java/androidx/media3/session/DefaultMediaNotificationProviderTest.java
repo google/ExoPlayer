@@ -15,6 +15,9 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_CHANNEL_ID;
+import static androidx.media3.session.DefaultMediaNotificationProvider.DEFAULT_NOTIFICATION_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -450,6 +453,33 @@ public class DefaultMediaNotificationProviderTest {
   }
 
   @Test
+  public void provider_idsNotSpecified_usesDefaultIds() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(context).build();
+    MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            ImmutableList.of(),
+            defaultActionFactory,
+            mock(MediaNotification.Provider.Callback.class));
+
+    assertThat(notification.notificationId).isEqualTo(DEFAULT_NOTIFICATION_ID);
+    assertThat(notification.notification.getChannelId()).isEqualTo(DEFAULT_CHANNEL_ID);
+    ShadowNotificationManager shadowNotificationManager =
+        Shadows.shadowOf(
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
+    assertHasNotificationChannel(
+        shadowNotificationManager.getNotificationChannels(),
+        /* channelId= */ DEFAULT_CHANNEL_ID,
+        /* channelName= */ context.getString(R.string.default_notification_channel_name));
+  }
+
+  @Test
   public void provider_withCustomIds_notificationsUseCustomIds() {
     Context context = ApplicationProvider.getApplicationContext();
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
@@ -478,6 +508,32 @@ public class DefaultMediaNotificationProviderTest {
         shadowNotificationManager.getNotificationChannels(),
         /* channelId= */ "customChannelId",
         /* channelName= */ context.getString(R.string.media3_controls_play_description));
+  }
+
+  @Test
+  public void provider_withCustomNotificationIdProvider_notificationsUseCustomId() {
+    Context context = ApplicationProvider.getApplicationContext();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider.Builder(context)
+            .setNotificationIdProvider(
+                session -> {
+                  checkNotNull(session);
+                  return 3;
+                })
+            .setChannelName(/* channelNameResourceId= */ R.string.media3_controls_play_description)
+            .build();
+    MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+
+    MediaNotification notification =
+        defaultMediaNotificationProvider.createNotification(
+            mockMediaSession,
+            ImmutableList.of(),
+            defaultActionFactory,
+            mock(MediaNotification.Provider.Callback.class));
+
+    assertThat(notification.notificationId).isEqualTo(3);
   }
 
   @Test
