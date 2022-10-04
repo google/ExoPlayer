@@ -119,7 +119,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   /** A builder for {@link DefaultMediaNotificationProvider} instances. */
   public static final class Builder {
     private final Context context;
-    private int notificationId;
+    private NotificationIdProvider notificationIdProvider;
     private String channelId;
     @StringRes private int channelNameResourceId;
     private BitmapLoader bitmapLoader;
@@ -132,7 +132,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
      */
     public Builder(Context context) {
       this.context = context;
-      notificationId = DEFAULT_NOTIFICATION_ID;
+      notificationIdProvider = session -> DEFAULT_NOTIFICATION_ID;
       channelId = DEFAULT_CHANNEL_ID;
       channelNameResourceId = DEFAULT_CHANNEL_NAME_RESOURCE_ID;
       bitmapLoader = new SimpleBitmapLoader();
@@ -142,12 +142,30 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
      * Sets the {@link MediaNotification#notificationId} used for the created notifications. By
      * default, this is set to {@link #DEFAULT_NOTIFICATION_ID}.
      *
+     * <p>Overwrites anything set in {@link #setNotificationIdProvider(NotificationIdProvider)}.
+     *
      * @param notificationId The notification ID.
      * @return This builder.
      */
     @CanIgnoreReturnValue
     public Builder setNotificationId(int notificationId) {
-      this.notificationId = notificationId;
+      this.notificationIdProvider = session -> notificationId;
+      return this;
+    }
+
+    /**
+     * Sets the provider for the {@link MediaNotification#notificationId} used for the created
+     * notifications. By default, this is set to a provider that always returns {@link
+     * #DEFAULT_NOTIFICATION_ID}.
+     *
+     * <p>Overwrites anything set in {@link #setNotificationId(int)}.
+     *
+     * @param notificationIdProvider The notification ID provider.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setNotificationIdProvider(NotificationIdProvider notificationIdProvider) {
+      this.notificationIdProvider = notificationIdProvider;
       return this;
     }
 
@@ -202,6 +220,16 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   }
 
   /**
+   * Provides notification IDs for posting media notifications for given media sessions.
+   *
+   * @see Builder#setNotificationIdProvider(NotificationIdProvider)
+   */
+  public interface NotificationIdProvider {
+    /** Returns the notification ID for the media notification of the given session. */
+    int getNotificationId(MediaSession mediaSession);
+  }
+
+  /**
    * An extras key that can be used to define the index of a {@link CommandButton} in {@linkplain
    * Notification.MediaStyle#setShowActionsInCompactView(int...) compact view}.
    */
@@ -226,7 +254,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private static final String TAG = "NotificationProvider";
 
   private final Context context;
-  private final int notificationId;
+  private final NotificationIdProvider notificationIdProvider;
   private final String channelId;
   @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
@@ -241,7 +269,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
   private DefaultMediaNotificationProvider(Builder builder) {
     this.context = builder.context;
-    this.notificationId = builder.notificationId;
+    this.notificationIdProvider = builder.notificationIdProvider;
     this.channelId = builder.channelId;
     this.channelNameResourceId = builder.channelNameResourceId;
     this.bitmapLoader = builder.bitmapLoader;
@@ -265,6 +293,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
     Player player = mediaSession.getPlayer();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
+    int notificationId = notificationIdProvider.getNotificationId(mediaSession);
 
     MediaStyle mediaStyle = new MediaStyle();
     int[] compactViewIndices =
