@@ -217,8 +217,9 @@ import com.google.common.collect.ImmutableMap;
               PARAMETER_MP4A_C_PRESENT).equals("0")) {
             isConfigPresent  = false;
           }
+          checkArgument(!isConfigPresent, "cpresent == 0 means we need to parse config");
           @Nullable String configInput = fmtpParameters.get(PARAMETER_MP4V_CONFIG);
-          if (!isConfigPresent  && configInput != null && configInput.length() % 2 == 0) {
+          if (configInput != null && configInput.length() % 2 == 0) {
             Pair<Integer, Integer> configParameters = getSampleRateAndChannelCount(configInput);
             channelCount = configParameters.first;
             clockRate = configParameters.second;
