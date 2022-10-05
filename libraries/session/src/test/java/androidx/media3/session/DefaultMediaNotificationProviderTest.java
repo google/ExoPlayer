@@ -69,10 +69,10 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtonsWhenPlaying =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, /* customLayout= */ ImmutableList.of(), /* playWhenReady= */ true);
+            commands, /* customLayout= */ ImmutableList.of(), /* showPauseButton= */ true);
     List<CommandButton> mediaButtonWhenPaused =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, /* customLayout= */ ImmutableList.of(), /* playWhenReady= */ false);
+            commands, /* customLayout= */ ImmutableList.of(), /* showPauseButton= */ false);
 
     assertThat(mediaButtonsWhenPlaying).hasSize(3);
     assertThat(mediaButtonsWhenPlaying.get(1).playerCommand).isEqualTo(Player.COMMAND_PLAY_PAUSE);
@@ -102,7 +102,7 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtons =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, ImmutableList.of(customCommandButton), /* playWhenReady= */ true);
+            commands, ImmutableList.of(customCommandButton), /* showPauseButton= */ true);
 
     assertThat(mediaButtons).hasSize(4);
     assertThat(mediaButtons.get(0).playerCommand)
@@ -128,7 +128,7 @@ public class DefaultMediaNotificationProviderTest {
 
     List<CommandButton> mediaButtons =
         defaultMediaNotificationProvider.getMediaButtons(
-            commands, ImmutableList.of(customCommandButton), /* playWhenReady= */ true);
+            commands, ImmutableList.of(customCommandButton), /* showPauseButton= */ true);
 
     assertThat(mediaButtons).containsExactly(customCommandButton);
   }
