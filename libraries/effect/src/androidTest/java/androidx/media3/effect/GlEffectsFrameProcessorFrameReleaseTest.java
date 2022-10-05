@@ -136,6 +136,29 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   }
 
   @Test
+  public void controlledFrameRelease_withOneFrameRequestImmediateRelease_releasesFrame()
+      throws Exception {
+    long originalPresentationTimeUs = 1234;
+    long releaseTimesNs = FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY;
+    AtomicLong actualPresentationTimeUs = new AtomicLong();
+    setupGlEffectsFrameProcessorWithBlankFrameProducer(
+        /* inputPresentationTimesUs= */ new long[] {originalPresentationTimeUs},
+        /* onFrameAvailableListener= */ presentationTimeUs -> {
+          actualPresentationTimeUs.set(presentationTimeUs);
+          checkNotNull(glEffectsFrameProcessor).releaseOutputFrame(releaseTimesNs);
+        },
+        /* releaseFramesAutomatically= */ false);
+
+    checkNotNull(produceBlankFramesTask).run();
+    Thread.sleep(FRAME_PROCESSING_WAIT_MS);
+
+    assertThat(frameProcessingException.get()).isNull();
+    assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
+    // The actual release time is determined by the FrameProcessor when releasing the frame.
+    assertThat(outputReleaseTimesNs).hasSize(1);
+  }
+
+  @Test
   public void controlledFrameRelease_withLateFrame_dropsFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
     long releaseTimeBeforeCurrentTimeNs = System.nanoTime() - 345678;
