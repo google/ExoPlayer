@@ -1776,7 +1776,7 @@ public final class MediaItem implements Bundleable {
    * MediaItem}.
    *
    * <p>This metadata is most useful for cases where playback requests are forwarded to other player
-   * instances (e.g. from a {@link android.media.session.MediaController}) and the player creating
+   * instances (e.g. from a {@code androidx.media3.session.MediaController}) and the player creating
    * the request doesn't know the required {@link LocalConfiguration} for playback.
    */
   public static final class RequestMetadata implements Bundleable {
