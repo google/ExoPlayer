@@ -31,6 +31,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -77,6 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public final class TransformerActivity extends AppCompatActivity {
   private static final String TAG = "TransformerActivity";
 
+  private @MonotonicNonNull Button displayInputButton;
   private @MonotonicNonNull MaterialCardView inputCardView;
   private @MonotonicNonNull PlayerView inputPlayerView;
   private @MonotonicNonNull PlayerView outputPlayerView;
@@ -106,6 +108,8 @@ public final class TransformerActivity extends AppCompatActivity {
     progressViewGroup = findViewById(R.id.progress_view_group);
     progressIndicator = findViewById(R.id.progress_indicator);
     debugFrame = findViewById(R.id.debug_aspect_ratio_frame_layout);
+    displayInputButton = findViewById(R.id.display_input_button);
+    displayInputButton.setOnClickListener(this::toggleInputVideoDisplay);
 
     transformationStopwatch =
         Stopwatch.createUnstarted(
@@ -130,6 +134,7 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(debugTextView);
     checkNotNull(progressViewGroup);
     checkNotNull(debugFrame);
+    checkNotNull(displayInputButton);
     startTransformation();
 
     inputPlayerView.onResume();
@@ -159,6 +164,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "inputCardView",
     "inputPlayerView",
     "outputPlayerView",
+    "displayInputButton",
     "debugTextView",
     "informationTextView",
     "progressIndicator",
@@ -228,6 +234,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "inputCardView",
     "inputPlayerView",
     "outputPlayerView",
+    "displayInputButton",
     "debugTextView",
     "informationTextView",
     "transformationStopwatch",
@@ -463,6 +470,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "inputCardView",
     "inputPlayerView",
     "outputPlayerView",
+    "displayInputButton",
     "debugTextView",
     "informationTextView",
     "progressViewGroup",
@@ -478,6 +486,7 @@ public final class TransformerActivity extends AppCompatActivity {
     debugFrame.removeAllViews();
     inputCardView.setVisibility(View.VISIBLE);
     outputPlayerView.setVisibility(View.VISIBLE);
+    displayInputButton.setVisibility(View.VISIBLE);
     playMediaItems(inputMediaItem, MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
   }
@@ -538,6 +547,21 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private void showToast(@StringRes int messageResource) {
     Toast.makeText(getApplicationContext(), getString(messageResource), Toast.LENGTH_LONG).show();
+  }
+
+  @RequiresNonNull({
+    "inputCardView",
+    "displayInputButton",
+  })
+  private void toggleInputVideoDisplay(View view) {
+    if (inputCardView.getVisibility() == View.GONE) {
+      inputCardView.setVisibility(View.VISIBLE);
+      displayInputButton.setText(getString(R.string.hide_input_video));
+    } else if (inputCardView.getVisibility() == View.VISIBLE) {
+      checkNotNull(inputPlayer).pause();
+      inputCardView.setVisibility(View.GONE);
+      displayInputButton.setText(getString(R.string.show_input_video));
+    }
   }
 
   private final class DemoDebugViewProvider implements DebugViewProvider {

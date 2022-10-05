@@ -61,4 +61,6 @@
   <string name="lightness_adjustment">Lightness adjustment</string>
   <string name="input_video">Input video:</string>
   <string name="output_video">Output video:</string>
+  <string name="hide_input_video">Hide input video</string>
+  <string name="show_input_video">Show input video</string>
 </resources>
