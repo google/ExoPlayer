@@ -170,12 +170,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void releaseOutputFrame(long releaseTimeNs) {
     checkState(!releaseFramesAutomatically);
 
+    boolean dropLateFrame = true;
+    if (releaseTimeNs == FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY) {
+      dropLateFrame = false;
+      releaseTimeNs = System.nanoTime();
+    }
+
     Pair<TextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
     renderFrameToSurfaces(
         /* inputTexture= */ oldestAvailableFrame.first,
         /* presentationTimeUs= */ oldestAvailableFrame.second,
         releaseTimeNs,
-        /* dropLateFrame= */ true);
+        dropLateFrame);
   }
 
   @Override
