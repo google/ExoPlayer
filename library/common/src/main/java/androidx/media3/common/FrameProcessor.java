@@ -101,6 +101,12 @@ public interface FrameProcessor {
     void onFrameProcessingEnded();
   }
 
+  /**
+   * Indicates the frame should be released immediately after {@link #releaseOutputFrame(long)} is
+   * invoked.
+   */
+  long RELEASE_OUTPUT_FRAME_IMMEDIATELY = -1;
+
   /** Returns the input {@link Surface}, where {@link FrameProcessor} consumes input frames from. */
   Surface getInputSurface();
 
@@ -164,8 +170,9 @@ public interface FrameProcessor {
    * {@linkplain Listener#onOutputFrameAvailable(long) available}.
    *
    * @param releaseTimeNs The release time to use for the frame, in nanoseconds. Use {@link
-   *     C#TIME_UNSET} to drop the frame. If {@code releaseTimeNs} is after {@link
-   *     System#nanoTime()} at the time of the release, the frame is also dropped.
+   *     C#TIME_UNSET} to drop the frame, or {@link #RELEASE_OUTPUT_FRAME_IMMEDIATELY} to release
+   *     the frame immediately. If {@code releaseTimeNs} is after {@link System#nanoTime()} at the
+   *     time of the release, the frame is also dropped.
    */
   void releaseOutputFrame(long releaseTimeNs);
 
