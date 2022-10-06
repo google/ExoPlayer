@@ -28,7 +28,6 @@ import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -180,7 +179,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   }
 
   @Test
-  public void controlledFrameRelease_withUnsetReleaseTime_dropsFrame() throws Exception {
+  public void controlledFrameRelease_requestsFrameDropping_dropsFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
@@ -188,7 +187,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         /* onFrameAvailableListener= */ presentationTimeNs -> {
           actualPresentationTimeUs.set(presentationTimeNs);
           checkNotNull(glEffectsFrameProcessor)
-              .releaseOutputFrame(/* releaseTimeNs= */ C.TIME_UNSET);
+              .releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
         },
         /* releaseFramesAutomatically= */ false);
 
