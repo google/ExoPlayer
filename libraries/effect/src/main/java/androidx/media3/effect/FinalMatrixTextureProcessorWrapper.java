@@ -174,6 +174,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (releaseTimeNs == FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY) {
       dropLateFrame = false;
       releaseTimeNs = System.nanoTime();
+    } else if (releaseTimeNs == FrameProcessor.DROP_OUTPUT_FRAME) {
+      releaseTimeNs = C.TIME_UNSET;
     }
 
     Pair<TextureInfo, Long> oldestAvailableFrame = availableFrames.remove();

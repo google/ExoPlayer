@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
-import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.FrameInfo;
@@ -180,7 +179,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   }
 
   @Test
-  public void controlledFrameRelease_withUnsetReleaseTime_dropsFrame() throws Exception {
+  public void controlledFrameRelease_requestsFrameDropping_dropsFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
     setupGlEffectsFrameProcessorWithBlankFrameProducer(
@@ -188,7 +187,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
         /* onFrameAvailableListener= */ presentationTimeNs -> {
           actualPresentationTimeUs.set(presentationTimeNs);
           checkNotNull(glEffectsFrameProcessor)
-              .releaseOutputFrame(/* releaseTimeNs= */ C.TIME_UNSET);
+              .releaseOutputFrame(FrameProcessor.DROP_OUTPUT_FRAME);
         },
         /* releaseFramesAutomatically= */ false);
 
