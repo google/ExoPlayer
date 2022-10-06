@@ -118,6 +118,11 @@ public abstract class DecoderAudioRenderer<
    * end of stream signal to indicate that it has output any remaining buffers before we release it.
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
+  /**
+   * Generally there is zero or one pending output stream offset. We track more offsets to allow for
+   * pending output streams that have fewer frames than the codec latency.
+   */
+  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
 
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
@@ -147,6 +152,9 @@ public abstract class DecoderAudioRenderer<
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
+  private long outputStreamOffsetUs;
+  private final long[] pendingOutputStreamOffsetsUs;
+  private int pendingOutputStreamOffsetCount;
 
   public DecoderAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -206,6 +214,8 @@ public abstract class DecoderAudioRenderer<
     flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
+    setOutputStreamOffsetUs(C.TIME_UNSET);
+    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
   }
 
   /**
@@ -390,7 +400,7 @@ public abstract class DecoderAudioRenderer<
         audioSink.handleDiscontinuity();
       }
       if (outputBuffer.isFirstSample()) {
-        audioSink.handleDiscontinuity();
+        processFirstSampleOfStream();
       }
     }
 
@@ -434,6 +444,27 @@ public abstract class DecoderAudioRenderer<
     }
 
     return false;
+  }
+
+  private void processFirstSampleOfStream() {
+    audioSink.handleDiscontinuity();
+    if (pendingOutputStreamOffsetCount != 0) {
+      setOutputStreamOffsetUs(pendingOutputStreamOffsetsUs[0]);
+      pendingOutputStreamOffsetCount--;
+      System.arraycopy(
+          pendingOutputStreamOffsetsUs,
+          /* srcPos= */ 1,
+          pendingOutputStreamOffsetsUs,
+          /* destPos= */ 0,
+          pendingOutputStreamOffsetCount);
+    }
+  }
+
+  private void setOutputStreamOffsetUs(long outputStreamOffsetUs) {
+    this.outputStreamOffsetUs = outputStreamOffsetUs;
+    if (outputStreamOffsetUs != C.TIME_UNSET) {
+      audioSink.setOutputStreamOffsetUs(outputStreamOffsetUs);
+    }
   }
 
   private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
@@ -585,6 +616,7 @@ public abstract class DecoderAudioRenderer<
   protected void onDisabled() {
     inputFormat = null;
     audioTrackNeedsConfigure = true;
+    setOutputStreamOffsetUs(C.TIME_UNSET);
     try {
       setSourceDrmSession(null);
       releaseDecoder();
@@ -599,6 +631,19 @@ public abstract class DecoderAudioRenderer<
       throws ExoPlaybackException {
     super.onStreamChanged(formats, startPositionUs, offsetUs);
     firstStreamSampleRead = false;
+    if (outputStreamOffsetUs == C.TIME_UNSET) {
+      setOutputStreamOffsetUs(offsetUs);
+    } else {
+      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
+        Log.w(
+            TAG,
+            "Too many stream changes, so dropping offset: "
+                + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
+      } else {
+        pendingOutputStreamOffsetCount++;
+      }
+      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
+    }
   }
 
   @Override

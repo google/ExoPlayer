@@ -143,6 +143,11 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
+  public void setOutputStreamOffsetUs(long outputStreamOffsetUs) {
+    sink.setOutputStreamOffsetUs(outputStreamOffsetUs);
+  }
+
+  @Override
   public void enableTunnelingV21() {
     sink.enableTunnelingV21();
   }
