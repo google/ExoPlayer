@@ -428,6 +428,14 @@ public interface AudioSink {
   default void setPreferredDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {}
 
   /**
+   * Sets the offset that is added to the media timestamp before it is passed as {@code
+   * presentationTimeUs} in {@link #handleBuffer(ByteBuffer, long, int)}.
+   *
+   * @param outputStreamOffsetUs The output stream offset in microseconds.
+   */
+  default void setOutputStreamOffsetUs(long outputStreamOffsetUs) {}
+
+  /**
    * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled.
    * Enabling tunneling is only possible if the sink is based on a platform {@link AudioTrack}, and
    * requires platform API version 21 onwards.
