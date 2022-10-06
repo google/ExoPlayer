@@ -89,7 +89,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
  * session token type is {@link SessionToken#TYPE_SESSION}), the controller will connect to the
- * specific session.F
+ * specific session.
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSessionService}
  * (i.e. session token type is {@link SessionToken#TYPE_SESSION_SERVICE} or {@link
