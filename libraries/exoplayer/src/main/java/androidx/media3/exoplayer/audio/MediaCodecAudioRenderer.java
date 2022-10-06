@@ -738,6 +738,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  protected void onOutputStreamOffsetUsChanged(long outputStreamOffsetUs) {
+    audioSink.setOutputStreamOffsetUs(outputStreamOffsetUs);
+  }
+
+  @Override
   public void handleMessage(@MessageType int messageType, @Nullable Object message)
       throws ExoPlaybackException {
     switch (messageType) {
