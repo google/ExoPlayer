@@ -158,7 +158,7 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
   }
 
   @Test
-  public void controlledFrameRelease_withLateFrame_dropsFrame() throws Exception {
+  public void controlledFrameRelease_withLateFrame_releasesFrame() throws Exception {
     long originalPresentationTimeUs = 1234;
     long releaseTimeBeforeCurrentTimeNs = System.nanoTime() - 345678;
     AtomicLong actualPresentationTimeUs = new AtomicLong();
@@ -175,7 +175,9 @@ public final class GlEffectsFrameProcessorFrameReleaseTest {
 
     assertThat(frameProcessingException.get()).isNull();
     assertThat(actualPresentationTimeUs.get()).isEqualTo(originalPresentationTimeUs);
-    assertThat(outputReleaseTimesNs).isEmpty();
+    assertThat(outputReleaseTimesNs).hasSize(1);
+    // The actual release time is determined by the FrameProcessor when releasing the frame.
+    assertThat(outputReleaseTimesNs.remove()).isAtLeast(releaseTimeBeforeCurrentTimeNs);
   }
 
   @Test
