@@ -150,10 +150,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     frameProcessorListener.onOutputFrameAvailable(offsetPresentationTimeUs);
     if (releaseFramesAutomatically) {
       renderFrameToSurfaces(
-          inputTexture,
-          presentationTimeUs,
-          /* releaseTimeNs= */ offsetPresentationTimeUs * 1000,
-          /* dropLateFrame= */ false);
+          inputTexture, presentationTimeUs, /* releaseTimeNs= */ offsetPresentationTimeUs * 1000);
     } else {
       availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
     }
@@ -169,21 +166,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @WorkerThread
   public void releaseOutputFrame(long releaseTimeNs) {
     checkState(!releaseFramesAutomatically);
-
-    boolean dropLateFrame = true;
-    if (releaseTimeNs == FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY) {
-      dropLateFrame = false;
-      releaseTimeNs = System.nanoTime();
-    } else if (releaseTimeNs == FrameProcessor.DROP_OUTPUT_FRAME) {
-      releaseTimeNs = C.TIME_UNSET;
-    }
-
     Pair<TextureInfo, Long> oldestAvailableFrame = availableFrames.remove();
     renderFrameToSurfaces(
         /* inputTexture= */ oldestAvailableFrame.first,
         /* presentationTimeUs= */ oldestAvailableFrame.second,
-        releaseTimeNs,
-        dropLateFrame);
+        releaseTimeNs);
   }
 
   @Override
@@ -254,13 +241,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void renderFrameToSurfaces(
-      TextureInfo inputTexture,
-      long presentationTimeUs,
-      long releaseTimeNs,
-      boolean dropLateFrame) {
+      TextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs) {
     try {
-      maybeRenderFrameToOutputSurface(
-          inputTexture, presentationTimeUs, releaseTimeNs, dropLateFrame);
+      maybeRenderFrameToOutputSurface(inputTexture, presentationTimeUs, releaseTimeNs);
     } catch (FrameProcessingException | GlUtil.GlException e) {
       frameProcessorListener.onFrameProcessingError(
           FrameProcessingException.from(e, presentationTimeUs));
@@ -270,10 +253,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private synchronized void maybeRenderFrameToOutputSurface(
-      TextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs, boolean dropLateFrame)
+      TextureInfo inputTexture, long presentationTimeUs, long releaseTimeNs)
       throws FrameProcessingException, GlUtil.GlException {
-    if (!ensureConfigured(inputTexture.width, inputTexture.height)) {
-      return; // Drop frames when there is no output surface.
+    if (releaseTimeNs == FrameProcessor.DROP_OUTPUT_FRAME
+        || !ensureConfigured(inputTexture.width, inputTexture.height)) {
+      return; // Drop frames when requested, or there is no output surface.
     }
 
     EGLSurface outputEglSurface = this.outputEglSurface;
@@ -289,10 +273,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GlUtil.clearOutputFrame();
     matrixTextureProcessor.drawFrame(inputTexture.texId, presentationTimeUs);
 
-    if (dropLateFrame && System.nanoTime() > releaseTimeNs) {
-      return;
-    }
-    EGLExt.eglPresentationTimeANDROID(eglDisplay, outputEglSurface, releaseTimeNs);
+    EGLExt.eglPresentationTimeANDROID(
+        eglDisplay,
+        outputEglSurface,
+        releaseTimeNs == FrameProcessor.RELEASE_OUTPUT_FRAME_IMMEDIATELY
+            ? System.nanoTime()
+            : releaseTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
   }
 
