@@ -22,6 +22,7 @@ import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.content.Context;
 import android.media.MediaCodec;
+import android.os.Build;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -76,9 +77,10 @@ import org.checkerframework.dataflow.qual.Pure;
       Transformer.AsyncErrorListener asyncErrorListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
-    if (SDK_INT < 31 && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
+    if (ColorInfo.isTransferHdr(inputFormat.colorInfo)
+        && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
       throw TransformationException.createForCodec(
-          new IllegalArgumentException("HDR editing and tone mapping not supported under API 31."),
+          new IllegalArgumentException("HDR editing and tone mapping not supported."),
           /* isVideo= */ true,
           /* isDecoder= */ false,
           inputFormat,
@@ -288,6 +290,11 @@ import org.checkerframework.dataflow.qual.Pure;
         .setVideoMimeType(supportedFormat.sampleMimeType)
         .setResolution(hasOutputFormatRotation ? requestedFormat.width : requestedFormat.height)
         .build();
+  }
+
+  private static boolean deviceNeedsNoToneMappingWorkaround() {
+    // Pixel build ID does not support tone mapping. See http://b/249297370#comment8.
+    return Build.ID.startsWith("TP1A.220905.004");
   }
 
   /**
