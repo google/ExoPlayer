@@ -16,6 +16,7 @@
 package androidx.media3.common;
 
 import android.content.Context;
+import android.opengl.EGLExt;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
@@ -174,10 +175,12 @@ public interface FrameProcessor {
    * false} using the {@link Factory} and should be called exactly once for each frame that becomes
    * {@linkplain Listener#onOutputFrameAvailable(long) available}.
    *
-   * @param releaseTimeNs The release time to use for the frame, in nanoseconds. Use {@link
-   *     #DROP_OUTPUT_FRAME} to drop the frame, or {@link #RELEASE_OUTPUT_FRAME_IMMEDIATELY} to
-   *     release the frame immediately. If {@code releaseTimeNs} is after {@link System#nanoTime()}
-   *     at the time of the release, the frame is also dropped.
+   * <p>The {@code releaseTimeNs} may be passed to {@link EGLExt#eglPresentationTimeANDROID}
+   * depending on the implementation.
+   *
+   * @param releaseTimeNs The release time to use for the frame, in nanoseconds. The release time
+   *     can be before of after the current system time. Use {@link #DROP_OUTPUT_FRAME} to drop the
+   *     frame, or {@link #RELEASE_OUTPUT_FRAME_IMMEDIATELY} to release the frame immediately.
    */
   void releaseOutputFrame(long releaseTimeNs);
 
