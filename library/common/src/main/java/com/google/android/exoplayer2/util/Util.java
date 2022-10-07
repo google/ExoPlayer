@@ -124,8 +124,8 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
 public final class Util {
 
   /**
-   * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
-   * overridden for local testing.
+   * Like {@link Build.VERSION#SDK_INT}, but in a place where it can be conveniently overridden for
+   * local testing.
    */
   public static final int SDK_INT = Build.VERSION.SDK_INT;
 

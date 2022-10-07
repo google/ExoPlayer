@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,21 +75,10 @@ public class SetHdrToSdrToneMapTest {
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      if (Util.SDK_INT < 31) {
-        assertThat(exception.errorCode)
-            .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
-        assertThat(exception)
-            .hasCauseThat()
-            .hasMessageThat()
-            .isEqualTo("HDR editing and tone mapping not supported under API 31.");
-      } else {
-        assertThat(exception.errorCode)
-            .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-        assertThat(exception)
-            .hasCauseThat()
-            .hasMessageThat()
-            .isEqualTo("Tone-mapping requested but not supported by the decoder.");
-      }
+      assertThat(exception.errorCode)
+          .isAnyOf(
+              TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       return;
     }
   }
@@ -133,21 +121,10 @@ public class SetHdrToSdrToneMapTest {
     } catch (TransformationException exception) {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
-      if (Util.SDK_INT < 31) {
-        assertThat(exception.errorCode)
-            .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
-        assertThat(exception)
-            .hasCauseThat()
-            .hasMessageThat()
-            .isEqualTo("HDR editing and tone mapping not supported under API 31.");
-      } else {
-        assertThat(exception.errorCode)
-            .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
-        assertThat(exception)
-            .hasCauseThat()
-            .hasMessageThat()
-            .isEqualTo("Tone-mapping requested but not supported by the decoder.");
-      }
+      assertThat(exception.errorCode)
+          .isAnyOf(
+              TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       return;
     }
   }
