@@ -237,6 +237,7 @@ public final class DownloadNotificationHelper {
     notificationBuilder.setProgress(maxProgress, currentProgress, indeterminateProgress);
     notificationBuilder.setOngoing(ongoing);
     notificationBuilder.setShowWhen(showWhen);
+    notificationBuilder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);
     return notificationBuilder.build();
   }
 }
