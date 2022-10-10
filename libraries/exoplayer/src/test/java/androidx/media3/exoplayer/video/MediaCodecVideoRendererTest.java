@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.video;
 
+import static android.view.Display.DEFAULT_DISPLAY;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.format;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
@@ -26,13 +27,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.hardware.display.DisplayManager;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.Display;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -64,6 +68,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowDisplay;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link MediaCodecVideoRenderer}. */
@@ -609,6 +615,100 @@ public class MediaCodecVideoRendererTest {
         .isEqualTo(C.FORMAT_HANDLED);
     assertThat(RendererCapabilities.getFormatSupport(capabilitiesNoFallbackPossible))
         .isEqualTo(C.FORMAT_UNSUPPORTED_SUBTYPE);
+  }
+
+  @Test
+  public void supportsFormat_withDolbyVision_setsDecoderSupportFlagsByDisplayDolbyVisionSupport()
+      throws Exception {
+    Format formatDvheDtr =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION)
+            .setCodecs("dvhe.04.01")
+            .build();
+    // Provide supporting Dolby Vision and fallback HEVC decoders
+    MediaCodecSelector mediaCodecSelector =
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
+          switch (mimeType) {
+            case MimeTypes.VIDEO_DOLBY_VISION:
+              {
+                CodecCapabilities capabilitiesDolby = new CodecCapabilities();
+                capabilitiesDolby.profileLevels = new CodecProfileLevel[] {new CodecProfileLevel()};
+                capabilitiesDolby.profileLevels[0].profile =
+                    CodecProfileLevel.DolbyVisionProfileDvheDtr;
+                capabilitiesDolby.profileLevels[0].level = CodecProfileLevel.DolbyVisionLevelFhd30;
+                return ImmutableList.of(
+                    MediaCodecInfo.newInstance(
+                        /* name= */ "dvhe-codec",
+                        /* mimeType= */ mimeType,
+                        /* codecMimeType= */ mimeType,
+                        /* capabilities= */ capabilitiesDolby,
+                        /* hardwareAccelerated= */ true,
+                        /* softwareOnly= */ false,
+                        /* vendor= */ false,
+                        /* forceDisableAdaptive= */ false,
+                        /* forceSecure= */ false));
+              }
+            case MimeTypes.VIDEO_H265:
+              {
+                CodecCapabilities capabilitiesH265 = new CodecCapabilities();
+                capabilitiesH265.profileLevels =
+                    new CodecProfileLevel[] {new CodecProfileLevel(), new CodecProfileLevel()};
+                capabilitiesH265.profileLevels[0].profile = CodecProfileLevel.HEVCProfileMain;
+                capabilitiesH265.profileLevels[0].level = CodecProfileLevel.HEVCMainTierLevel41;
+                capabilitiesH265.profileLevels[1].profile = CodecProfileLevel.HEVCProfileMain10;
+                capabilitiesH265.profileLevels[1].level = CodecProfileLevel.HEVCHighTierLevel51;
+                return ImmutableList.of(
+                    MediaCodecInfo.newInstance(
+                        /* name= */ "h265-codec",
+                        /* mimeType= */ mimeType,
+                        /* codecMimeType= */ mimeType,
+                        /* capabilities= */ capabilitiesH265,
+                        /* hardwareAccelerated= */ true,
+                        /* softwareOnly= */ false,
+                        /* vendor= */ false,
+                        /* forceDisableAdaptive= */ false,
+                        /* forceSecure= */ false));
+              }
+            default:
+              return ImmutableList.of();
+          }
+        };
+    MediaCodecVideoRenderer renderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1);
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    @Capabilities int capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
+
+    assertThat(RendererCapabilities.getDecoderSupport(capabilitiesDvheDtr))
+        .isEqualTo(RendererCapabilities.DECODER_SUPPORT_FALLBACK_MIMETYPE);
+
+    // Set Display to have Dolby Vision support
+    Context context = ApplicationProvider.getApplicationContext();
+    DisplayManager displayManager =
+        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    Display display = (displayManager != null) ? displayManager.getDisplay(DEFAULT_DISPLAY) : null;
+    ShadowDisplay shadowDisplay = Shadows.shadowOf(display);
+    int[] hdrCapabilities =
+        new int[] {
+          Display.HdrCapabilities.HDR_TYPE_HDR10, Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION
+        };
+    shadowDisplay.setDisplayHdrCapabilities(
+        display.getDisplayId(),
+        /* maxLuminance= */ 100f,
+        /* maxAverageLuminance= */ 100f,
+        /* minLuminance= */ 100f,
+        hdrCapabilities);
+
+    capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
+
+    assertThat(RendererCapabilities.getDecoderSupport(capabilitiesDvheDtr))
+        .isEqualTo(RendererCapabilities.DECODER_SUPPORT_PRIMARY);
   }
 
   @Test
