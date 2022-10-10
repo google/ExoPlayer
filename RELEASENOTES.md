@@ -19,6 +19,8 @@
     *   Add suppression reason for unsuitable audio route and play when ready
         change reason for suppressed too long.
         ([#15](https://github.com/androidx/media/issues/15)).
+    *   Prefer other tracks to Dolby Vision if display does not support it.
+        ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
