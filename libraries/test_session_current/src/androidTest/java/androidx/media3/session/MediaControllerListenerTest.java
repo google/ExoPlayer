@@ -123,7 +123,6 @@ public class MediaControllerListenerTest {
   Context context;
   private RemoteMediaSession remoteSession;
   private List<RemoteMediaSession> sessions;
-  private MediaController controller;
 
   @Before
   public void setUp() throws Exception {
@@ -200,15 +199,16 @@ public class MediaControllerListenerTest {
   @Test
   public void connection_sessionReleased() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    controllerTestRule.createController(
-        remoteSession.getToken(),
-        /* connectionHints= */ null,
-        new MediaController.Listener() {
-          @Override
-          public void onDisconnected(MediaController controller) {
-            latch.countDown();
-          }
-        });
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(),
+            /* connectionHints= */ null,
+            new MediaController.Listener() {
+              @Override
+              public void onDisconnected(MediaController controller) {
+                latch.countDown();
+              }
+            });
     remoteSession.release();
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
@@ -246,7 +246,7 @@ public class MediaControllerListenerTest {
   @LargeTest
   public void noInteractionAfterSessionClose_session() throws Exception {
     SessionToken token = remoteSession.getToken();
-    controller = controllerTestRule.createController(token);
+    MediaController controller = controllerTestRule.createController(token);
     testControllerAfterSessionIsClosed(DEFAULT_TEST_NAME);
   }
 
@@ -254,11 +254,11 @@ public class MediaControllerListenerTest {
   @LargeTest
   public void noInteractionAfterControllerClose_session() throws Exception {
     SessionToken token = remoteSession.getToken();
-    controller = controllerTestRule.createController(token);
+    MediaController controller = controllerTestRule.createController(token);
 
     threadTestRule.getHandler().postAndSync(controller::release);
     // release is done immediately for session.
-    testNoInteraction();
+    testNoInteraction(controller);
 
     // Test whether the controller is notified about later release of the session or
     // re-creation.
@@ -337,7 +337,7 @@ public class MediaControllerListenerTest {
     AtomicBoolean shuffleModeEnabledRef = new AtomicBoolean();
     AtomicInteger repeatModeRef = new AtomicInteger();
     CountDownLatch latch = new CountDownLatch(7);
-    controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     threadTestRule
         .getHandler()
         .postAndSync(
@@ -435,7 +435,7 @@ public class MediaControllerListenerTest {
     int testMediaItemIndex = 1;
     int testPeriodIndex = 2;
 
-    controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
 
     CountDownLatch latch = new CountDownLatch(1);
     AtomicLong currentPositionMsRef = new AtomicLong();
@@ -642,7 +642,7 @@ public class MediaControllerListenerTest {
     long testCurrentLiveOffsetMs = 10;
     long testContentBufferedPositionMs = 240;
 
-    controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
 
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<PlaybackParameters> playbackParametersRef = new AtomicReference<>();
@@ -1189,7 +1189,7 @@ public class MediaControllerListenerTest {
     long testCurrentLiveOffsetMs = 10;
     long testContentBufferedPositionMs = 240;
 
-    controller = controllerTestRule.createController(remoteSession.getToken());
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
 
     CountDownLatch latch = new CountDownLatch(1);
     AtomicBoolean playWhenReadyRef = new AtomicBoolean();
@@ -1693,8 +1693,9 @@ public class MediaControllerListenerTest {
             latch.countDown();
           }
         };
-    controllerTestRule.createController(
-        remoteSession.getToken(), /* connectionHints= */ null, listener);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(), /* connectionHints= */ null, listener);
 
     SessionCommands commands =
         new SessionCommands.Builder()
@@ -1896,8 +1897,9 @@ public class MediaControllerListenerTest {
             return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
           }
         };
-    controllerTestRule.createController(
-        remoteSession.getToken(), /* connectionHints= */ null, listener);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(), /* connectionHints= */ null, listener);
 
     // TODO(b/245724167): Test with multiple controllers
     remoteSession.broadcastCustomCommand(testCommand, testArgs);
@@ -1951,7 +1953,9 @@ public class MediaControllerListenerTest {
           }
         };
     RemoteMediaSession session = createRemoteMediaSession(TEST_WITH_CUSTOM_COMMANDS);
-    controllerTestRule.createController(session.getToken(), /* connectionHints= */ null, listener);
+    MediaController controller =
+        controllerTestRule.createController(
+            session.getToken(), /* connectionHints= */ null, listener);
 
     session.setCustomLayout(buttons);
 
@@ -1979,8 +1983,9 @@ public class MediaControllerListenerTest {
             latch.countDown();
           }
         };
-    controllerTestRule.createController(
-        remoteSession.getToken(), /* connectionHints= */ null, listener);
+    MediaController controller =
+        controllerTestRule.createController(
+            remoteSession.getToken(), /* connectionHints= */ null, listener);
 
     remoteSession.setSessionExtras(sessionExtras);
 
@@ -2005,7 +2010,8 @@ public class MediaControllerListenerTest {
         };
     Bundle connectionHints = new Bundle();
     connectionHints.putString(KEY_CONTROLLER, "controller_key_1");
-    controllerTestRule.createController(remoteSession.getToken(), connectionHints, listener);
+    MediaController controller =
+        controllerTestRule.createController(remoteSession.getToken(), connectionHints, listener);
 
     remoteSession.setSessionExtras("controller_key_1", sessionExtras);
 
@@ -2593,22 +2599,23 @@ public class MediaControllerListenerTest {
   }
 
   private void testControllerAfterSessionIsClosed(String id) throws Exception {
-    // This cause session service to be died.
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    // This causes the session service to die.
     remoteSession.release();
     // controllerTestRule.waitForDisconnect(controller, true);
-    testNoInteraction();
+    testNoInteraction(controller);
 
     // Ensure that the controller cannot use newly create session with the same ID.
     // Recreated session has different session stub, so previously created controller
     // shouldn't be available.
     remoteSession = createRemoteMediaSession(id);
-    testNoInteraction();
+    testNoInteraction(controller);
   }
 
   // Test that session and controller doesn't interact.
   // Note that this method can be called after the session is died, so session may not have
   // valid player.
-  private void testNoInteraction() throws Exception {
+  private void testNoInteraction(MediaController controller) throws Exception {
     // TODO: check that calls from the controller to session shouldn't be delivered.
 
     // Calls from the session to controller shouldn't be delivered.
