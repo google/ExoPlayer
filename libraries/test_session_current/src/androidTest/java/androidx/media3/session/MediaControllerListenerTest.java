@@ -258,7 +258,7 @@ public class MediaControllerListenerTest {
 
     threadTestRule.getHandler().postAndSync(controller::release);
     // release is done immediately for session.
-    testNoInteraction(controller);
+    assertNoInteraction(controller);
 
     // Test whether the controller is notified about later release of the session or
     // re-creation.
@@ -2603,31 +2603,28 @@ public class MediaControllerListenerTest {
     // This causes the session service to die.
     remoteSession.release();
     // controllerTestRule.waitForDisconnect(controller, true);
-    testNoInteraction(controller);
+    assertNoInteraction(controller);
 
     // Ensure that the controller cannot use newly create session with the same ID.
     // Recreated session has different session stub, so previously created controller
     // shouldn't be available.
     remoteSession = createRemoteMediaSession(id);
-    testNoInteraction(controller);
+    assertNoInteraction(controller);
   }
 
-  // Test that session and controller doesn't interact.
-  // Note that this method can be called after the session is died, so session may not have
-  // valid player.
-  private void testNoInteraction(MediaController controller) throws Exception {
+  /**
+   * Asserts that {@link #remoteSession} and {@code controller} don't interact.
+   *
+   * <p>Note that this method can be called after the session is died, so {@link #remoteSession} may
+   * not have valid player.
+   */
+  private void assertNoInteraction(MediaController controller) throws Exception {
     // TODO: check that calls from the controller to session shouldn't be delivered.
 
     // Calls from the session to controller shouldn't be delivered.
     CountDownLatch latch = new CountDownLatch(1);
     controllerTestRule.setRunnableForOnCustomCommand(
-        controller,
-        new Runnable() {
-          @Override
-          public void run() {
-            latch.countDown();
-          }
-        });
+        controller, /* runnable= */ () -> latch.countDown());
     SessionCommand customCommand =
         new SessionCommand("testNoInteraction", /* extras= */ Bundle.EMPTY);
 
