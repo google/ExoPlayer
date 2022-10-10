@@ -40,6 +40,7 @@ import android.util.Pair;
 import android.view.Display;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -409,6 +410,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     @DecoderSupport
     int decoderSupport = isPreferredDecoder ? DECODER_SUPPORT_PRIMARY : DECODER_SUPPORT_FALLBACK;
 
+    if (Util.SDK_INT >= 26
+        && MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)
+        && !Api26.doesDisplaySupportDolbyVision(context)) {
+      decoderSupport = DECODER_SUPPORT_FALLBACK_MIMETYPE;
+    }
+
     @TunnelingSupport int tunnelingSupport = TUNNELING_NOT_SUPPORTED;
     if (isFormatSupported) {
       List<MediaCodecInfo> tunnelingDecoderInfos =
@@ -485,8 +492,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             alternativeMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     if (Util.SDK_INT >= 26
         && MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)
-        && !alternativeDecoderInfos.isEmpty()) {
-      // If sample type is Dolby Vision, check if Display supports Dolby Vision
+        && !alternativeDecoderInfos.isEmpty()
+        && !Api26.doesDisplaySupportDolbyVision(context)) {
+      return ImmutableList.copyOf(alternativeDecoderInfos);
+    }
+    return ImmutableList.<MediaCodecInfo>builder()
+        .addAll(decoderInfos)
+        .addAll(alternativeDecoderInfos)
+        .build();
+  }
+
+  @RequiresApi(26)
+  private static final class Api26 {
+    @DoNotInline
+    public static boolean doesDisplaySupportDolbyVision(Context context) {
       boolean supportsDolbyVision = false;
       DisplayManager displayManager =
           (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -501,14 +520,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           }
         }
       }
-      if (!supportsDolbyVision) {
-        return ImmutableList.copyOf(alternativeDecoderInfos);
-      }
+      return supportsDolbyVision;
     }
-    return ImmutableList.<MediaCodecInfo>builder()
-        .addAll(decoderInfos)
-        .addAll(alternativeDecoderInfos)
-        .build();
   }
 
   @Override

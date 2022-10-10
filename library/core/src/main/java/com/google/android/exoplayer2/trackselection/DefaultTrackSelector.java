@@ -3100,6 +3100,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return 0;
     }
     switch (mimeType) {
+      case MimeTypes.VIDEO_DOLBY_VISION:
+        return 5;
       case MimeTypes.VIDEO_AV1:
         return 4;
       case MimeTypes.VIDEO_H265:
