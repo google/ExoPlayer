@@ -753,7 +753,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       }
       trackBitrates[i] = new long[definition.tracks.length];
       for (int j = 0; j < definition.tracks.length; j++) {
-        trackBitrates[i][j] = definition.group.getFormat(definition.tracks[j]).bitrate;
+        long bitrate = definition.group.getFormat(definition.tracks[j]).bitrate;
+        trackBitrates[i][j] = bitrate == Format.NO_VALUE ? 0 : bitrate;
       }
       Arrays.sort(trackBitrates[i]);
     }
