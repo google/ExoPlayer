@@ -168,6 +168,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   @Test
   public void disconnected_byControllerReleaseRightAfterCreated() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<Exception> exception = new AtomicReference<>();
     MediaController controller =
         controllerTestRule.createController(
             session.getSessionToken(),
@@ -177,8 +178,16 @@ public class MediaControllerWithMediaSessionCompatTest {
                 latch.countDown();
               }
             },
-            /* controllerCreationListener= */ MediaController::release);
+            /* controllerCreationListener= */ mediaController -> {
+              // We must release the controller on the app thread.
+              try {
+                threadTestRule.getHandler().postAndSync(() -> mediaController.release());
+              } catch (Exception e) {
+                exception.set(e);
+              }
+            });
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(exception.get()).isNull();
     assertThat(controller.isConnected()).isFalse();
   }
 
