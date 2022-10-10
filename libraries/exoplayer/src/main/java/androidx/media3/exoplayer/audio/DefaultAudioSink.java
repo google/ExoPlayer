@@ -18,7 +18,6 @@ package androidx.media3.exoplayer.audio;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.constrainValue;
 import static androidx.media3.exoplayer.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -60,8 +59,6 @@ import androidx.media3.extractor.Ac4Util;
 import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.MpegAudioUtil;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.InlineMe;
-import com.google.errorprone.annotations.InlineMeValidationDisabled;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -571,80 +568,6 @@ public final class DefaultAudioSink implements AudioSink {
   private long lastFeedElapsedRealtimeMs;
   private boolean offloadDisabledUntilNextConfiguration;
   private boolean isWaitingForOffloadEndOfStreamHandled;
-
-  /**
-   * @deprecated Use {@link Builder}.
-   */
-  @Deprecated
-  @InlineMeValidationDisabled("Migrate constructor to Builder")
-  @InlineMe(
-      replacement =
-          "new DefaultAudioSink.Builder()"
-              + ".setAudioCapabilities(audioCapabilities)"
-              + ".setAudioProcessors(audioProcessors)"
-              + ".build()",
-      imports = "androidx.media3.exoplayer.audio.DefaultAudioSink")
-  public DefaultAudioSink(
-      @Nullable AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors) {
-    this(
-        new Builder()
-            .setAudioCapabilities(firstNonNull(audioCapabilities, DEFAULT_AUDIO_CAPABILITIES))
-            .setAudioProcessors(audioProcessors));
-  }
-
-  /**
-   * @deprecated Use {@link Builder}.
-   */
-  @Deprecated
-  @InlineMeValidationDisabled("Migrate constructor to Builder")
-  @InlineMe(
-      replacement =
-          "new DefaultAudioSink.Builder()"
-              + ".setAudioCapabilities(audioCapabilities)"
-              + ".setAudioProcessors(audioProcessors)"
-              + ".setEnableFloatOutput(enableFloatOutput)"
-              + ".build()",
-      imports = "androidx.media3.exoplayer.audio.DefaultAudioSink")
-  public DefaultAudioSink(
-      @Nullable AudioCapabilities audioCapabilities,
-      AudioProcessor[] audioProcessors,
-      boolean enableFloatOutput) {
-    this(
-        new Builder()
-            .setAudioCapabilities(firstNonNull(audioCapabilities, DEFAULT_AUDIO_CAPABILITIES))
-            .setAudioProcessors(audioProcessors)
-            .setEnableFloatOutput(enableFloatOutput));
-  }
-
-  /**
-   * @deprecated Use {@link Builder}.
-   */
-  @Deprecated
-  @InlineMeValidationDisabled("Migrate constructor to Builder")
-  @InlineMe(
-      replacement =
-          "new DefaultAudioSink.Builder()"
-              + ".setAudioCapabilities(audioCapabilities)"
-              + ".setAudioProcessorChain(audioProcessorChain)"
-              + ".setEnableFloatOutput(enableFloatOutput)"
-              + ".setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)"
-              + ".setOffloadMode(offloadMode)"
-              + ".build()",
-      imports = "androidx.media3.exoplayer.audio.DefaultAudioSink")
-  public DefaultAudioSink(
-      @Nullable AudioCapabilities audioCapabilities,
-      AudioProcessorChain audioProcessorChain,
-      boolean enableFloatOutput,
-      boolean enableAudioTrackPlaybackParams,
-      @OffloadMode int offloadMode) {
-    this(
-        new Builder()
-            .setAudioCapabilities(firstNonNull(audioCapabilities, DEFAULT_AUDIO_CAPABILITIES))
-            .setAudioProcessorChain(audioProcessorChain)
-            .setEnableFloatOutput(enableFloatOutput)
-            .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
-            .setOffloadMode(offloadMode));
-  }
 
   @RequiresNonNull("#1.audioProcessorChain")
   private DefaultAudioSink(Builder builder) {
