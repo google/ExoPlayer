@@ -17,7 +17,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name" translatable="false">Transformer Demo</string>
   <string name="configuration" translatable="false">Configuration</string>
-  <string name="select_file_title" translatable="false">Choose file</string>
+  <string name="select_preset_file_title" translatable="false">Choose preset file</string>
+  <string name="select_local_file_title">Choose local file</string>
   <string name="remove_audio" translatable="false">Remove audio</string>
   <string name="remove_video" translatable="false">Remove video</string>
   <string name="flatten_for_slow_motion" translatable="false">Flatten for slow motion</string>
@@ -61,6 +62,7 @@
   <string name="lightness_adjustment">Lightness adjustment</string>
   <string name="input_video">Input video:</string>
   <string name="output_video">Output video:</string>
+  <string name="permission_denied">Permission Denied</string>
   <string name="hide_input_video">Hide input video</string>
   <string name="show_input_video">Show input video</string>
 </resources>
