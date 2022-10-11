@@ -435,17 +435,17 @@ public final class ConfigurationActivity extends AppCompatActivity {
       return;
     }
     View dialogView = getLayoutInflater().inflate(R.layout.trim_options, /* root= */ null);
-    RangeSlider radiusRangeSlider =
+    RangeSlider trimRangeSlider =
         checkNotNull(dialogView.findViewById(R.id.trim_bounds_range_slider));
-    radiusRangeSlider.setValues(0f, 60f); // seconds
+    trimRangeSlider.setValues(0f, 60f); // seconds
     new AlertDialog.Builder(/* context= */ this)
         .setView(dialogView)
         .setPositiveButton(
             android.R.string.ok,
             (DialogInterface dialogInterface, int i) -> {
-              List<Float> radiusRange = radiusRangeSlider.getValues();
-              trimStartMs = 1000 * radiusRange.get(0).longValue();
-              trimEndMs = 1000 * radiusRange.get(1).longValue();
+              List<Float> trimRange = trimRangeSlider.getValues();
+              trimStartMs = Math.round(1000 * trimRange.get(0));
+              trimEndMs = Math.round(1000 * trimRange.get(1));
             })
         .create()
         .show();
