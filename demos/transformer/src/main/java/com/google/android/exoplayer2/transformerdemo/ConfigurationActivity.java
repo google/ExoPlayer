@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.transformerdemo;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -29,9 +31,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -78,7 +85,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final int COLOR_FILTER_GRAYSCALE = 0;
   public static final int COLOR_FILTER_INVERTED = 1;
   public static final int COLOR_FILTER_SEPIA = 2;
-  private static final String[] INPUT_URIS = {
+  public static final int FILE_PERMISSION_REQUEST_CODE = 1;
+  private static final String[] PRESET_FILE_URIS = {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
     "https://html5demos.com/assets/dizzy.mp4",
@@ -93,7 +101,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4",
   };
-  private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
+  private static final String[] PRESET_FILE_URI_DESCRIPTIONS = { // same order as PRESET_FILE_URIS
     "720p H264 video and AAC audio",
     "1080p H265 video and AAC audio",
     "360p H264 video and AAC audio",
@@ -129,7 +137,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
-  private @MonotonicNonNull Button selectFileButton;
+  private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
+  private @MonotonicNonNull Button selectPresetFileButton;
+  private @MonotonicNonNull Button selectLocalFileButton;
   private @MonotonicNonNull TextView selectedFileTextView;
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
@@ -146,6 +156,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private @MonotonicNonNull Button selectDemoEffectsButton;
   private boolean @MonotonicNonNull [] demoEffectsSelections;
+  private @Nullable Uri localFileUri;
   private int inputUriPosition;
   private long trimStartMs;
   private long trimEndMs;
@@ -169,11 +180,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     findViewById(R.id.transform_button).setOnClickListener(this::startTransformation);
 
-    selectFileButton = findViewById(R.id.select_file_button);
-    selectFileButton.setOnClickListener(this::selectFile);
+    flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
 
     selectedFileTextView = findViewById(R.id.selected_file_text_view);
-    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
+    selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
 
     removeAudioCheckbox = findViewById(R.id.remove_audio_checkbox);
     removeAudioCheckbox.setOnClickListener(this::onRemoveAudio);
@@ -181,7 +191,11 @@ public final class ConfigurationActivity extends AppCompatActivity {
     removeVideoCheckbox = findViewById(R.id.remove_video_checkbox);
     removeVideoCheckbox.setOnClickListener(this::onRemoveVideo);
 
-    flattenForSlowMotionCheckbox = findViewById(R.id.flatten_for_slow_motion_checkbox);
+    selectPresetFileButton = findViewById(R.id.select_preset_file_button);
+    selectPresetFileButton.setOnClickListener(this::selectPresetFile);
+
+    selectLocalFileButton = findViewById(R.id.select_local_file_button);
+    selectLocalFileButton.setOnClickListener(this::selectLocalFile);
 
     ArrayAdapter<String> audioMimeAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
@@ -239,6 +253,27 @@ public final class ConfigurationActivity extends AppCompatActivity {
     demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
     selectDemoEffectsButton = findViewById(R.id.select_demo_effects_button);
     selectDemoEffectsButton.setOnClickListener(this::selectDemoEffects);
+
+    localFilePickerLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::localFilePickerLauncherResult);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode, String[] permissions, int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    if (requestCode == FILE_PERMISSION_REQUEST_CODE
+        && grantResults.length == 1
+        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      launchLocalFilePicker();
+    } else {
+      Toast.makeText(
+              getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_LONG)
+          .show();
+    }
   }
 
   @Override
@@ -246,7 +281,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     super.onResume();
     @Nullable Uri intentUri = getIntent().getData();
     if (intentUri != null) {
-      checkNotNull(selectFileButton).setEnabled(false);
+      checkNotNull(selectPresetFileButton).setEnabled(false);
+      checkNotNull(selectLocalFileButton).setEnabled(false);
       checkNotNull(selectedFileTextView).setText(intentUri.toString());
     }
   }
@@ -326,20 +362,62 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putFloat(PERIODIC_VIGNETTE_OUTER_RADIUS, periodicVignetteOuterRadius);
     transformerIntent.putExtras(bundle);
 
-    @Nullable Uri intentUri = getIntent().getData();
-    transformerIntent.setData(
-        intentUri != null ? intentUri : Uri.parse(INPUT_URIS[inputUriPosition]));
+    @Nullable Uri intentUri;
+    if (getIntent().getData() != null) {
+      intentUri = getIntent().getData();
+    } else if (localFileUri != null) {
+      intentUri = localFileUri;
+    } else {
+      intentUri = Uri.parse(PRESET_FILE_URIS[inputUriPosition]);
+    }
+    transformerIntent.setData(intentUri);
 
     startActivity(transformerIntent);
   }
 
-  private void selectFile(View view) {
+  private void selectPresetFile(View view) {
     new AlertDialog.Builder(/* context= */ this)
-        .setTitle(R.string.select_file_title)
-        .setSingleChoiceItems(URI_DESCRIPTIONS, inputUriPosition, this::selectFileInDialog)
+        .setTitle(R.string.select_preset_file_title)
+        .setSingleChoiceItems(
+            PRESET_FILE_URI_DESCRIPTIONS, inputUriPosition, this::selectPresetFileInDialog)
         .setPositiveButton(android.R.string.ok, /* listener= */ null)
         .create()
         .show();
+  }
+
+  @RequiresNonNull("selectedFileTextView")
+  private void selectPresetFileInDialog(DialogInterface dialog, int which) {
+    inputUriPosition = which;
+    localFileUri = null;
+    selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
+  }
+
+  private void selectLocalFile(View view) {
+    int permissionStatus =
+        ActivityCompat.checkSelfPermission(
+            ConfigurationActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+      String[] neededPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+      ActivityCompat.requestPermissions(
+          ConfigurationActivity.this, neededPermissions, FILE_PERMISSION_REQUEST_CODE);
+    } else {
+      launchLocalFilePicker();
+    }
+  }
+
+  private void launchLocalFilePicker() {
+    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    intent.setType("video/*");
+    checkNotNull(localFilePickerLauncher).launch(intent);
+  }
+
+  @RequiresNonNull("selectedFileTextView")
+  private void localFilePickerLauncherResult(ActivityResult result) {
+    Intent data = result.getData();
+    if (data != null) {
+      localFileUri = checkNotNull(data.getData());
+      selectedFileTextView.setText(localFileUri.toString());
+    }
   }
 
   private void selectDemoEffects(View view) {
@@ -371,12 +449,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
             })
         .create()
         .show();
-  }
-
-  @RequiresNonNull("selectedFileTextView")
-  private void selectFileInDialog(DialogInterface dialog, int which) {
-    inputUriPosition = which;
-    selectedFileTextView.setText(URI_DESCRIPTIONS[inputUriPosition]);
   }
 
   @RequiresNonNull("demoEffectsSelections")
