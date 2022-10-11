@@ -34,16 +34,26 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
   <Button
-    android:id="@+id/select_file_button"
+    android:id="@+id/select_preset_file_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="32dp"
-    android:layout_marginStart="32dp"
-    android:layout_marginEnd="32dp"
-    android:text="@string/select_file_title"
-    app:layout_constraintTop_toBottomOf="@+id/configuration_text_view"
+    android:layout_marginStart="8dp"
+    android:text="@string/select_preset_file_title"
+    android:textSize="12sp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/configuration_text_view" />
+
+  <Button
+    android:id="@+id/select_local_file_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    android:layout_marginEnd="8dp"
+    android:text="@string/select_local_file_title"
+    android:textSize="12sp"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent" />
+    app:layout_constraintTop_toBottomOf="@+id/configuration_text_view" />
   <TextView
     android:id="@+id/selected_file_text_view"
     android:layout_width="0dp"
@@ -57,7 +67,7 @@
     android:gravity="center"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/select_file_button" />
+    app:layout_constraintTop_toBottomOf="@+id/select_preset_file_button" />
   <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="0dp"
