@@ -307,7 +307,7 @@ public final class TransformerActivity extends AppCompatActivity {
         .build();
   }
 
-  // Create a cache file, resetting it if it already exists.
+  /** Creates a cache file, resetting it if it already exists. */
   private File createExternalCacheFile(String fileName) throws IOException {
     File file = new File(getExternalCacheDir(), fileName);
     if (file.exists() && !file.delete()) {
@@ -505,12 +505,14 @@ public final class TransformerActivity extends AppCompatActivity {
 
     ExoPlayer inputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     inputPlayerView.setPlayer(inputPlayer);
+    inputPlayerView.setControllerAutoShow(false);
     inputPlayer.setMediaItem(inputMediaItem);
     inputPlayer.prepare();
     this.inputPlayer = inputPlayer;
 
     ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     outputPlayerView.setPlayer(outputPlayer);
+    outputPlayerView.setControllerAutoShow(false);
     outputPlayer.setMediaItem(outputMediaItem);
     outputPlayer.prepare();
     this.outputPlayer = outputPlayer;
