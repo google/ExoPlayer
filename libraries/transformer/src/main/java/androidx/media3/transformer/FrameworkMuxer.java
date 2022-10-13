@@ -26,7 +26,6 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.ParcelFileDescriptor;
 import android.util.SparseLongArray;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -95,13 +94,6 @@ import java.nio.ByteBuffer;
         return false;
       }
       return true;
-    }
-
-    @Override
-    public boolean supportsSampleMimeType(
-        @Nullable String sampleMimeType, String containerMimeType) {
-      return getSupportedSampleMimeTypes(MimeTypes.getTrackType(sampleMimeType), containerMimeType)
-          .contains(sampleMimeType);
     }
 
     @Override
