@@ -16,7 +16,6 @@
 package androidx.media3.transformer;
 
 import android.os.ParcelFileDescriptor;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -28,11 +27,12 @@ import java.nio.ByteBuffer;
  * Abstracts media muxing operations.
  *
  * <p>Query whether {@linkplain Factory#supportsOutputMimeType(String) container MIME type} and
- * {@linkplain Factory#supportsSampleMimeType(String, String) sample MIME types} are supported and
- * {@linkplain #addTrack(Format) add all tracks}, then {@linkplain #writeSampleData(int, ByteBuffer,
- * boolean, long) write sample data} to mux samples. Once any sample data has been written, it is
- * not possible to add tracks. After writing all sample data, {@linkplain #release(boolean) release}
- * the instance to finish writing to the output and return any resources to the system.
+ * {@linkplain Factory#getSupportedSampleMimeTypes(int, String)} sample MIME types} are supported
+ * and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain #writeSampleData(int,
+ * ByteBuffer, boolean, long) write sample data} to mux samples. Once any sample data has been
+ * written, it is not possible to add tracks. After writing all sample data, {@linkplain
+ * #release(boolean) release} the instance to finish writing to the output and return any resources
+ * to the system.
  */
 /* package */ interface Muxer {
 
@@ -80,12 +80,6 @@ import java.nio.ByteBuffer;
      * Returns whether the {@linkplain MimeTypes MIME type} provided is a supported output format.
      */
     boolean supportsOutputMimeType(String mimeType);
-
-    /**
-     * Returns whether the sample {@linkplain MimeTypes MIME type} is supported with the given
-     * container {@linkplain MimeTypes MIME type}.
-     */
-    boolean supportsSampleMimeType(@Nullable String sampleMimeType, String containerMimeType);
 
     /**
      * Returns the supported sample {@linkplain MimeTypes MIME types} for the given {@link

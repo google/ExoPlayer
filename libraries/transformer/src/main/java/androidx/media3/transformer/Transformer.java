@@ -485,7 +485,10 @@ public final class Transformer {
 
     private void checkSampleMimeType(String sampleMimeType) {
       checkState(
-          muxerFactory.supportsSampleMimeType(sampleMimeType, containerMimeType),
+          muxerFactory
+              .getSupportedSampleMimeTypes(
+                  MimeTypes.getTrackType(sampleMimeType), containerMimeType)
+              .contains(sampleMimeType),
           "Unsupported sample MIME type "
               + sampleMimeType
               + " for container MIME type "
