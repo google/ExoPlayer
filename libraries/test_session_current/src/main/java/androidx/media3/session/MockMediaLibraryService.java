@@ -16,8 +16,10 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.session.MediaTestUtils.assertLibraryParamsEquals;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION;
@@ -63,7 +65,6 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.TestHandler;
@@ -425,10 +426,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
   }
 
   private static MediaItem createPlayableMediaItem(String mediaId) {
+    Bundle extras = new Bundle();
+    extras.putInt(EXTRAS_KEY_COMPLETION_STATUS, EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
             .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
             .setIsPlayable(true)
+            .setExtras(extras)
             .build();
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
   }

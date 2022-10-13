@@ -40,7 +40,7 @@ project.ext {
     androidxConstraintLayoutVersion = '2.0.4'
     androidxCoreVersion = '1.7.0'
     androidxFuturesVersion = '1.1.0'
-    androidxMediaVersion = '1.4.3'
+    androidxMediaVersion = '1.6.0'
     androidxMedia2Version = '1.2.0'
     androidxMultidexVersion = '2.0.1'
     androidxRecyclerViewVersion = '1.2.1'
