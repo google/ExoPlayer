@@ -380,14 +380,14 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
     }
 
     public boolean isFinishedAtEventTime(EventTime eventTime) {
-      if (windowSequenceNumber == C.INDEX_UNSET) {
-        // Sessions with unspecified window sequence number are kept until we know more.
-        return false;
-      }
       if (eventTime.mediaPeriodId == null) {
         // For event times without media period id (e.g. after seek to new window), we only keep
         // sessions of this window.
         return windowIndex != eventTime.windowIndex;
+      }
+      if (windowSequenceNumber == C.INDEX_UNSET) {
+        // Sessions with unspecified window sequence number are kept until we know more.
+        return false;
       }
       if (eventTime.mediaPeriodId.windowSequenceNumber > windowSequenceNumber) {
         // All past window sequence numbers are finished.
