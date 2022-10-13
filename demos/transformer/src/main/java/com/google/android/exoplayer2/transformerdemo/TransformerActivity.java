@@ -461,8 +461,7 @@ public final class TransformerActivity extends AppCompatActivity {
     informationTextView.setText(R.string.transformation_error);
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
-    Toast.makeText(
-            TransformerActivity.this, "Transformation error: " + exception, Toast.LENGTH_LONG)
+    Toast.makeText(getApplicationContext(), "Transformation error: " + exception, Toast.LENGTH_LONG)
         .show();
     Log.e(TAG, "Transformation error", exception);
   }
