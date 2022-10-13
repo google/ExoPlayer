@@ -883,11 +883,6 @@ public final class TransformerEndToEndTest {
     }
 
     @Override
-    public boolean supportsSampleMimeType(String sampleMimeType, String outputMimeType) {
-      return frameworkMuxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType);
-    }
-
-    @Override
     public ImmutableList<String> getSupportedSampleMimeTypes(
         @C.TrackType int trackType, String containerMimeType) {
       return frameworkMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
