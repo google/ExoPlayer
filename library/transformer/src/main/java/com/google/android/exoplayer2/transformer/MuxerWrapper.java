@@ -88,7 +88,8 @@ import java.nio.ByteBuffer;
 
   /** Returns whether the sample {@linkplain MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
-    return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
+    @C.TrackType int trackType = MimeTypes.getTrackType(mimeType);
+    return getSupportedSampleMimeTypes(trackType).contains(mimeType);
   }
 
   /**
