@@ -15,6 +15,8 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_ARTWORK_URI;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_DESCRIPTION;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_EXTRA_KEY;
@@ -38,6 +40,8 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_I
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_NO_CHILDREN;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_EMPTY_RESULT;
@@ -67,6 +71,7 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.ext.truth.os.BundleSubject;
 import androidx.test.filters.LargeTest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -96,6 +101,11 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
         });
     connectAndWait();
     assertThat(browserCompat.getRoot()).isEqualTo(ROOT_ID);
+    assertThat(
+            browserCompat
+                .getExtras()
+                .getInt(ROOT_EXTRAS_KEY, /* defaultValue= */ ROOT_EXTRAS_VALUE + 1))
+        .isEqualTo(ROOT_EXTRAS_VALUE);
 
     // Note: Cannot use equals() here because browser compat's extra contains server version,
     // extra binder, and extra messenger.
@@ -202,22 +212,18 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren() throws InterruptedException {
     String testParentId = PARENT_ID;
-
     connectAndWait();
     CountDownLatch latch = new CountDownLatch(1);
+    List<MediaItem> receivedChildren = new ArrayList<>();
+    final String[] receivedParentId = new String[1];
+
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            assertThat(parentId).isEqualTo(testParentId);
-            assertThat(children).isNotNull();
-            assertThat(children.size()).isEqualTo(GET_CHILDREN_RESULT.size());
-
-            // Compare the given results with originals.
-            for (int i = 0; i < children.size(); i++) {
-              assertThat(children.get(i).getMediaId()).isEqualTo(GET_CHILDREN_RESULT.get(i));
-            }
+            receivedParentId[0] = parentId;
+            receivedChildren.addAll(children);
             latch.countDown();
           }
 
@@ -226,7 +232,23 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
             assertWithMessage("").fail();
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedParentId[0]).isEqualTo(testParentId);
+    assertThat(receivedChildren).hasSize(GET_CHILDREN_RESULT.size());
+    // Compare the given results with originals.
+    for (int i = 0; i < receivedChildren.size(); i++) {
+      MediaItem mediaItem = receivedChildren.get(i);
+      assertThat(mediaItem.getMediaId()).isEqualTo(GET_CHILDREN_RESULT.get(i));
+      assertThat(
+              mediaItem
+                  .getDescription()
+                  .getExtras()
+                  .getInt(
+                      EXTRAS_KEY_COMPLETION_STATUS,
+                      /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1))
+          .isEqualTo(EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
+    }
   }
 
   @Test
