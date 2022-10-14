@@ -37,7 +37,7 @@ import java.util.List;
   private final List<SubtitlePainter> painters;
 
   private List<Cue> cues;
-  @Cue.TextSizeType private int textSizeType;
+  private @Cue.TextSizeType int textSizeType;
   private float textSize;
   private CaptionStyleCompat style;
   private float bottomPaddingFraction;
