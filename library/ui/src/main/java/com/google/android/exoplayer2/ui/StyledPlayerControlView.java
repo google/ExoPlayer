@@ -254,10 +254,22 @@ public class StyledPlayerControlView extends FrameLayout {
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
 
+  private final StyledPlayerControlViewLayoutManager controlViewLayoutManager;
+  private final Resources resources;
   private final ComponentListener componentListener;
 
   @SuppressWarnings("deprecation") // Using the deprecated type for now.
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
+
+  private final RecyclerView settingsView;
+  private final SettingsAdapter settingsAdapter;
+  private final PlaybackSpeedAdapter playbackSpeedAdapter;
+  private final TextTrackSelectionAdapter textTrackSelectionAdapter;
+  private final AudioTrackSelectionAdapter audioTrackSelectionAdapter;
+  // TODO(insun): Add setTrackNameProvider to use customized track name provider.
+  private final TrackNameProvider trackNameProvider;
+  private final PopupWindow settingsWindow;
+  private final int settingsWindowMargin;
 
   @Nullable private final View previousButton;
   @Nullable private final View nextButton;
@@ -269,6 +281,12 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private final ImageView repeatToggleButton;
   @Nullable private final ImageView shuffleButton;
   @Nullable private final View vrButton;
+  @Nullable private final ImageView subtitleButton;
+  @Nullable private final ImageView fullScreenButton;
+  @Nullable private final ImageView minimalFullScreenButton;
+  @Nullable private final View settingsButton;
+  @Nullable private final View playbackSpeedButton;
+  @Nullable private final View audioTrackButton;
   @Nullable private final TextView durationView;
   @Nullable private final TextView positionView;
   @Nullable private final TimeBar timeBar;
@@ -317,27 +335,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
 
-  private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
-  private Resources resources;
-
-  private RecyclerView settingsView;
-  private SettingsAdapter settingsAdapter;
-  private PlaybackSpeedAdapter playbackSpeedAdapter;
-  private PopupWindow settingsWindow;
   private boolean needToHideBars;
-  private int settingsWindowMargin;
-
-  private TextTrackSelectionAdapter textTrackSelectionAdapter;
-  private AudioTrackSelectionAdapter audioTrackSelectionAdapter;
-  // TODO(insun): Add setTrackNameProvider to use customized track name provider.
-  private TrackNameProvider trackNameProvider;
-
-  @Nullable private ImageView subtitleButton;
-  @Nullable private ImageView fullScreenButton;
-  @Nullable private ImageView minimalFullScreenButton;
-  @Nullable private View settingsButton;
-  @Nullable private View playbackSpeedButton;
-  @Nullable private View audioTrackButton;
 
   public StyledPlayerControlView(Context context) {
     this(context, /* attrs= */ null);
