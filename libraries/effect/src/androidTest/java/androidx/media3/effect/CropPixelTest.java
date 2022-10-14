@@ -65,7 +65,6 @@ public final class CropPixelTest {
   private @MonotonicNonNull SingleFrameGlTextureProcessor cropTextureProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
-  private int outputTexId;
   private int inputWidth;
   private int inputHeight;
 
@@ -155,7 +154,7 @@ public final class CropPixelTest {
   }
 
   private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
-    outputTexId =
+    int outputTexId =
         GlUtil.createTexture(
             outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
