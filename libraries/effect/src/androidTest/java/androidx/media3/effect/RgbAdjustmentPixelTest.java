@@ -71,7 +71,6 @@ public final class RgbAdjustmentPixelTest {
   private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTextureProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
-  private int outputTexId;
   private int inputWidth;
   private int inputHeight;
 
@@ -86,7 +85,7 @@ public final class RgbAdjustmentPixelTest {
     GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, inputWidth, inputHeight);
     inputTexId = createGlTextureFromBitmap(inputBitmap);
 
-    outputTexId =
+    int outputTexId =
         GlUtil.createTexture(inputWidth, inputHeight, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
