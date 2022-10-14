@@ -118,7 +118,7 @@ public final class SubtitleView extends FrameLayout {
 
   private List<Cue> cues;
   private CaptionStyleCompat style;
-  @Cue.TextSizeType private int defaultTextSizeType;
+  private @Cue.TextSizeType int defaultTextSizeType;
   private float defaultTextSize;
   private float bottomPaddingFraction;
   private boolean applyEmbeddedStyles;

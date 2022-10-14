@@ -705,7 +705,7 @@ public class PlayerNotificationManager {
   private int color;
   @DrawableRes private int smallIconResourceId;
   private int visibility;
-  @Priority private int priority;
+  private @Priority int priority;
   private boolean useChronometer;
   @Nullable private String groupKey;
 
