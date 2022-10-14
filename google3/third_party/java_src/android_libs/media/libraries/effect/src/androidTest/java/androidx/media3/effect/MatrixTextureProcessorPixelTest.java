@@ -65,7 +65,6 @@ public final class MatrixTextureProcessorPixelTest {
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlTextureProcessor matrixTextureProcessor;
   private int inputTexId;
-  private int outputTexId;
   private int width;
   private int height;
 
@@ -79,7 +78,8 @@ public final class MatrixTextureProcessorPixelTest {
     EGLSurface placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
     GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, width, height);
     inputTexId = createGlTextureFromBitmap(inputBitmap);
-    outputTexId = GlUtil.createTexture(width, height, /* useHighPrecisionColorComponents= */ false);
+    int outputTexId =
+        GlUtil.createTexture(width, height, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
     GlUtil.focusFramebuffer(
         eglDisplay, eglContext, placeholderEglSurface, frameBuffer, width, height);
