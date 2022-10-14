@@ -1292,7 +1292,7 @@ public class PlayerControlView extends FrameLayout {
     settingsWindow.setHeight(height);
   }
 
-  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter) {
+  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter, View anchorView) {
     settingsView.setAdapter(adapter);
 
     updateSettingsWindowSize();
@@ -1304,7 +1304,7 @@ public class PlayerControlView extends FrameLayout {
     int xoff = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
     int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
 
-    settingsWindow.showAsDropDown(this, xoff, yoff);
+    settingsWindow.showAsDropDown(anchorView, xoff, yoff);
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1386,9 +1386,9 @@ public class PlayerControlView extends FrameLayout {
 
   private void onSettingViewClicked(int position) {
     if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
-      displaySettingsWindow(playbackSpeedAdapter);
+      displaySettingsWindow(playbackSpeedAdapter, checkNotNull(settingsButton));
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
-      displaySettingsWindow(audioTrackSelectionAdapter);
+      displaySettingsWindow(audioTrackSelectionAdapter, checkNotNull(settingsButton));
     } else {
       settingsWindow.dismiss();
     }
@@ -1682,16 +1682,16 @@ public class PlayerControlView extends FrameLayout {
         player.setShuffleModeEnabled(!player.getShuffleModeEnabled());
       } else if (settingsButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(settingsAdapter);
+        displaySettingsWindow(settingsAdapter, settingsButton);
       } else if (playbackSpeedButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(playbackSpeedAdapter);
+        displaySettingsWindow(playbackSpeedAdapter, playbackSpeedButton);
       } else if (audioTrackButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(audioTrackSelectionAdapter);
+        displaySettingsWindow(audioTrackSelectionAdapter, audioTrackButton);
       } else if (subtitleButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(textTrackSelectionAdapter);
+        displaySettingsWindow(textTrackSelectionAdapter, subtitleButton);
       }
     }
   }
