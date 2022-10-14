@@ -71,7 +71,6 @@ public class SingleColorLutPixelTest {
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private @MonotonicNonNull SingleFrameGlTextureProcessor colorLutProcessor;
   private int inputTexId;
-  private int outputTexId;
   private int inputWidth;
   private int inputHeight;
 
@@ -268,7 +267,7 @@ public class SingleColorLutPixelTest {
   }
 
   private void setupOutputTexture(int outputWidth, int outputHeight) throws GlUtil.GlException {
-    outputTexId =
+    int outputTexId =
         GlUtil.createTexture(
             outputWidth, outputHeight, /* useHighPrecisionColorComponents= */ false);
     int frameBuffer = GlUtil.createFboForTexture(outputTexId);
