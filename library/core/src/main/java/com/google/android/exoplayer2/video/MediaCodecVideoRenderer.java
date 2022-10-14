@@ -19,6 +19,8 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -62,7 +64,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -529,7 +530,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
     boolean tunneling = getConfiguration().tunneling;
-    Assertions.checkState(!tunneling || tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET);
+    checkState(!tunneling || tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET);
     if (this.tunneling != tunneling) {
       this.tunneling = tunneling;
       releaseCodec();
@@ -891,10 +892,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
     codecNeedsSetOutputSurfaceWorkaround = codecNeedsSetOutputSurfaceWorkaround(name);
     codecHandlesHdr10PlusOutOfBandMetadata =
-        Assertions.checkNotNull(getCodecInfo()).isHdr10PlusOutOfBandMetadataSupported();
+        checkNotNull(getCodecInfo()).isHdr10PlusOutOfBandMetadataSupported();
     if (Util.SDK_INT >= 23 && tunneling) {
-      tunnelingOnFrameRenderedListener =
-          new OnFrameRenderedListenerV23(Assertions.checkNotNull(getCodec()));
+      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(checkNotNull(getCodec()));
     }
   }
 
@@ -952,7 +952,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       currentWidth = format.width;
       currentHeight = format.height;
     } else {
-      Assertions.checkNotNull(mediaFormat);
+      checkNotNull(mediaFormat);
       boolean hasCrop =
           mediaFormat.containsKey(KEY_CROP_RIGHT)
               && mediaFormat.containsKey(KEY_CROP_LEFT)
@@ -992,7 +992,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!codecHandlesHdr10PlusOutOfBandMetadata) {
       return;
     }
-    ByteBuffer data = Assertions.checkNotNull(buffer.supplementalData);
+    ByteBuffer data = checkNotNull(buffer.supplementalData);
     if (data.remaining() >= 7) {
       // Check for HDR10+ out-of-band metadata. See User_data_registered_itu_t_t35 in ST 2094-40.
       byte ituTT35CountryCode = data.get();
@@ -1030,7 +1030,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException {
-    Assertions.checkNotNull(codec); // Can not render video without codec
+    checkNotNull(codec); // Can not render video without codec
 
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
