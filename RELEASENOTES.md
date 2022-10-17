@@ -45,6 +45,8 @@
 *   DRM:
     *   Work around a bug in the Android 13 ClearKey implementation that returns
         a non-empty but invalid license URL.
+    *   Fix `setMediaDrmSession failed: session not opened` error when switching
+        between DRM schemes in a playlist (e.g. Widevine to ClearKey).
 *   DASH:
     *   Parse `EventStream.presentationTimeOffset` from manifests
         ([#10460](https://github.com/google/ExoPlayer/issues/10460)).
