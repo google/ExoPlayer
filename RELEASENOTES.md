@@ -23,6 +23,9 @@
         ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
     *   Fix session tracking problem with fast seeks in `PlaybackStatsListener`
         ([#180](https://github.com/androidx/media/issues/180)).
+    *   Send missing `onMediaItemTransition` callback when calling `seekToNext`
+        or `seekToPrevious` in a single-item playlist
+        ([#10667](https://github.com/google/ExoPlayer/issues/10667)).
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
