@@ -51,6 +51,7 @@ interface IRemoteMediaSession {
   void setIsPlayingAd(String sessionId, boolean isPlayingAd);
   void setCurrentAdGroupIndex(String sessionId, int currentAdGroupIndex);
   void setCurrentAdIndexInAdGroup(String sessionId, int currentAdIndexInAdGroup);
+  void setVolume(String sessionId, float volume);
   void notifyPlayerError(String sessionId, in Bundle playerErrorBundle);
   void notifyPlayWhenReadyChanged(String sessionId, boolean playWhenReady, int reason);
   void notifyPlaybackStateChanged(String sessionId, int state);
@@ -79,6 +80,8 @@ interface IRemoteMediaSession {
   void notifySeekBackIncrementChanged(String sessionId, long seekBackIncrementMs);
   void notifySeekForwardIncrementChanged(String sessionId, long seekForwardIncrementMs);
   void notifyDeviceVolumeChanged(String sessionId, int volume, boolean muted);
+  void decreaseDeviceVolume(String sessionId);
+  void increaseDeviceVolume(String sessionId);
   void notifyCuesChanged(String sessionId, in Bundle cueGroup);
   void notifyDeviceInfoChanged(String sessionId, in Bundle deviceInfo);
   void notifyMediaMetadataChanged(String sessionId, in Bundle mediaMetadata);

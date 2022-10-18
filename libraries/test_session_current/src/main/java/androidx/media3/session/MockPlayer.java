@@ -655,11 +655,13 @@ public class MockPlayer implements Player {
 
   @Override
   public void increaseDeviceVolume() {
+    deviceVolume += 1;
     checkNotNull(conditionVariables.get(METHOD_INCREASE_DEVICE_VOLUME)).open();
   }
 
   @Override
   public void decreaseDeviceVolume() {
+    deviceVolume -= 1;
     checkNotNull(conditionVariables.get(METHOD_DECREASE_DEVICE_VOLUME)).open();
   }
 
@@ -1201,6 +1203,12 @@ public class MockPlayer implements Player {
   public void notifyDeviceVolumeChanged() {
     for (Listener listener : listeners) {
       listener.onDeviceVolumeChanged(deviceVolume, deviceMuted);
+    }
+  }
+
+  public void notifyVolumeChanged() {
+    for (Listener listener : listeners) {
+      listener.onVolumeChanged(volume);
     }
   }
 
