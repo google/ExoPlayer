@@ -53,8 +53,8 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.Tracks;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -313,8 +313,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
   private boolean isTouching;
-  private static final int PICTURE_TYPE_FRONT_COVER = 3;
-  private static final int PICTURE_TYPE_NOT_SET = -1;
 
   public PlayerView(Context context) {
     this(context, /* attrs= */ null);
@@ -516,11 +514,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     this.controllerAutoShow = controllerAutoShow;
     this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
-    hideController();
-    updateContentDescription();
     if (controller != null) {
+      controller.hide();
       controller.addVisibilityListener(/* listener= */ componentListener);
     }
+    if (useController) {
+      setClickable(true);
+    }
+    updateContentDescription();
   }
 
   /**
@@ -604,7 +605,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         updateAspectRatio();
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
-        subtitleView.setCues(player.getCurrentCues());
+        subtitleView.setCues(player.getCurrentCues().cues);
       }
       player.addListener(componentListener);
       maybeShowController(false);
@@ -684,10 +685,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * Sets whether the playback controls can be shown. If set to {@code false} the playback controls
    * are never visible and are disconnected from the player.
    *
+   * <p>This call will update whether the view is clickable. After the call, the view will be
+   * clickable if playback controls can be shown or if the view has a registered click listener.
+   *
    * @param useController Whether the playback controls can be shown.
    */
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
+    setClickable(useController || hasOnClickListeners());
     if (this.useController == useController) {
       return;
     }
@@ -1075,30 +1080,9 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   @Override
-  public boolean onTouchEvent(MotionEvent event) {
-    if (!useController() || player == null) {
-      return false;
-    }
-    switch (event.getAction()) {
-      case MotionEvent.ACTION_DOWN:
-        isTouching = true;
-        return true;
-      case MotionEvent.ACTION_UP:
-        if (isTouching) {
-          isTouching = false;
-          performClick();
-          return true;
-        }
-        return false;
-      default:
-        return false;
-    }
-  }
-
-  @Override
   public boolean performClick() {
-    super.performClick();
-    return toggleControllerVisibility();
+    toggleControllerVisibility();
+    return super.performClick();
   }
 
   @Override
@@ -1194,16 +1178,15 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     return false;
   }
 
-  private boolean toggleControllerVisibility() {
+  private void toggleControllerVisibility() {
     if (!useController() || player == null) {
-      return false;
+      return;
     }
     if (!controller.isVisible()) {
       maybeShowController(true);
     } else if (controllerHideOnTouch) {
       controller.hide();
     }
-    return true;
   }
 
   /** Shows the playback controls, but only if forced or shown indefinitely. */
@@ -1246,8 +1229,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
     @Nullable Player player = this.player;
     if (player == null
-        || !player.isCommandAvailable(Player.COMMAND_GET_TRACK_INFOS)
-        || player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
+        || !player.isCommandAvailable(Player.COMMAND_GET_TRACKS)
+        || player.getCurrentTracks().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
         closeShutter();
@@ -1259,7 +1242,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       // Hide any video from the previous player.
       closeShutter();
     }
-    if (player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+    if (player.getCurrentTracks().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
       // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
       // in onRenderedFirstFrame().
       hideArtwork();
@@ -1472,9 +1455,9 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     // Player.Listener implementation
 
     @Override
-    public void onCues(List<Cue> cues) {
+    public void onCues(CueGroup cueGroup) {
       if (subtitleView != null) {
-        subtitleView.setCues(cues);
+        subtitleView.setCues(cueGroup.cues);
       }
     }
 
@@ -1491,7 +1474,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     @Override
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    public void onTracksChanged(Tracks tracks) {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
@@ -1499,7 +1482,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
-      } else if (!player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
+      } else if (!player.getCurrentTracks().isEmpty()) {
         lastPeriodUidWithTracks =
             timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
       } else if (lastPeriodUidWithTracks != null) {

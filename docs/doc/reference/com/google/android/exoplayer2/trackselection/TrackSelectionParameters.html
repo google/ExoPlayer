@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":10,"i5":9,"i6":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -140,10 +140,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public class <span class="typeNameLabel">TrackSelectionParameters</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
-<div class="block">Constraint parameters for track selection.
+<div class="block">Parameters for controlling track selection.
 
- <p>For example the following code modifies the parameters to restrict video track selections to
- SD, and to select a German audio track if there is one:
+ <p>Parameters can be queried and set on a <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>. For example the following code modifies
+ the parameters to restrict video track selections to SD, and to select a German audio track if
+ there is one:
 
  <pre><code>
  // Build on the current parameters.
@@ -213,7 +214,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
-<div class="block">Object that can restore <code>TrackSelectionParameters</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#fromBundle(android.os.Bundle)"><code>fromBundle(Bundle)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -240,6 +243,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FIELD_CUSTOM_ID_BASE">FIELD_CUSTOM_ID_BASE</a></span></code></th>
+<td class="colLast">
+<div class="block">Defines a minimum field ID value for subclasses to use when implementing <a href="#toBundle()"><code>toBundle()</code></a>
+ and <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceHighestSupportedBitrate">forceHighestSupportedBitrate</a></span></code></th>
 <td class="colLast">
@@ -247,12 +258,19 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  other constraints.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceLowestBitrate">forceLowestBitrate</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to force selection of the single lowest bitrate audio and video tracks that comply with
  all other constraints.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionFlags int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ignoredTextSelectionFlags">ignoredTextSelectionFlags</a></span></code></th>
+<td class="colLast">
+<div class="block">Bitmask of selection flags that are ignored for text track selections.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -326,6 +344,13 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#overrides">overrides</a></span></code></th>
+<td class="colLast">
+<div class="block">Overrides to force selection of specific tracks.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioLanguages">preferredAudioLanguages</a></span></code></th>
 <td class="colLast">
@@ -333,7 +358,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  order of preference.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioMimeTypes">preferredAudioMimeTypes</a></span></code></th>
 <td class="colLast">
@@ -341,28 +366,28 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  no preference.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioRoleFlags">preferredAudioRoleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for audio tracks.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredTextLanguages">preferredTextLanguages</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred languages for text tracks as IETF BCP 47 conformant tags in order of preference.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredTextRoleFlags">preferredTextRoleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for text tracks.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredVideoMimeTypes">preferredVideoMimeTypes</a></span></code></th>
 <td class="colLast">
@@ -370,25 +395,18 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  no preference.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredVideoRoleFlags">preferredVideoRoleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for video tracks.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether a text track with undetermined language should be selected if no track with <a href="#preferredTextLanguages"><code>preferredTextLanguages</code></a> is available, or if <a href="#preferredTextLanguages"><code>preferredTextLanguages</code></a> is unset.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code><a href="TrackSelectionOverrides.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverrides</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionOverrides">trackSelectionOverrides</a></span></code></th>
-<td class="colLast">
-<div class="block">Overrides to force tracks to be selected.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -467,17 +485,32 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromBundle(android.os.Bundle)">fromBundle</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</code></th>
+<td class="colLast">
+<div class="block">Construct an instance from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> produced by <a href="#toBundle()" target="_top"><code>toBundle()</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaults(android.content.Context)">getDefaults</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
 <div class="block">Returns an instance configured with default values.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyForField(int)">keyForField</a></span>&#8203;(int&nbsp;field)</code></th>
+<td class="colLast">
+<div class="block">Converts the given field number to a string which can be used as a field key when implementing
+ <a href="#toBundle()"><code>toBundle()</code></a> and <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -773,6 +806,17 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredTextRo
  is enabled.</div>
 </li>
 </ul>
+<a id="ignoredTextSelectionFlags">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ignoredTextSelectionFlags</h4>
+<pre><a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+public final&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int ignoredTextSelectionFlags</pre>
+<div class="block">Bitmask of selection flags that are ignored for text track selections. See <a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.SelectionFlags</code></a>. The default value is <code>0</code> (i.e., no flags are ignored).</div>
+</li>
+</ul>
 <a id="selectUndeterminedTextLanguage">
 <!--   -->
 </a>
@@ -806,14 +850,14 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredTextRo
  other constraints. The default value is <code>false</code>.</div>
 </li>
 </ul>
-<a id="trackSelectionOverrides">
+<a id="overrides">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>trackSelectionOverrides</h4>
-<pre>public final&nbsp;<a href="TrackSelectionOverrides.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverrides</a> trackSelectionOverrides</pre>
-<div class="block">Overrides to force tracks to be selected.</div>
+<h4>overrides</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&gt; overrides</pre>
+<div class="block">Overrides to force selection of specific tracks.</div>
 </li>
 </ul>
 <a id="disabledTrackTypes">
@@ -828,14 +872,35 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredTextRo
  (empty set).</div>
 </li>
 </ul>
+<a id="FIELD_CUSTOM_ID_BASE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FIELD_CUSTOM_ID_BASE</h4>
+<pre>protected static final&nbsp;int FIELD_CUSTOM_ID_BASE</pre>
+<div class="block">Defines a minimum field ID value for subclasses to use when implementing <a href="#toBundle()"><code>toBundle()</code></a>
+ and <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.
+
+ <p>Subclasses should obtain keys for their <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representation by applying a
+ non-negative offset on this constant and passing the result to <a href="#keyForField(int)"><code>keyForField(int)</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.TrackSelectionParameters.FIELD_CUSTOM_ID_BASE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="CREATOR">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>CREATOR</h4>
-<pre>public static final&nbsp;<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&gt; CREATOR</pre>
-<div class="block">Object that can restore <code>TrackSelectionParameters</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#fromBundle(android.os.Bundle)"><code>fromBundle(Bundle)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>
@@ -917,7 +982,7 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredTextRo
 <a id="toBundle()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
@@ -927,6 +992,29 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredTextRo
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
+</li>
+</ul>
+<a id="fromBundle(android.os.Bundle)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fromBundle</h4>
+<pre class="methodSignature">public static&nbsp;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;fromBundle&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</pre>
+<div class="block">Construct an instance from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> produced by <a href="#toBundle()" target="_top"><code>toBundle()</code></a>.</div>
+</li>
+</ul>
+<a id="keyForField(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>keyForField</h4>
+<pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;keyForField&#8203;(int&nbsp;field)</pre>
+<div class="block">Converts the given field number to a string which can be used as a field key when implementing
+ <a href="#toBundle()"><code>toBundle()</code></a> and <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2"><code>Bundleable.Creator</code></a>.
+
+ <p>Subclasses should use <code>field</code> values greater than or equal to <a href="#FIELD_CUSTOM_ID_BASE"><code>FIELD_CUSTOM_ID_BASE</code></a>.</div>
 </li>
 </ul>
 </li>

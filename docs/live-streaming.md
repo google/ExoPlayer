@@ -16,13 +16,6 @@ and can only be played at one position. The documentation on this page is only
 relevant to adaptive live streams.
 {:.info}
 
-ExoPlayer adjusts the live offset by slightly changing the playback speed.
-The player will try to match user and media preferences, but will also try to
-react to changing network conditions. For example, if rebuffers occur during
-playback, the player will move further away from the live edge. If there is
-enough available buffer over a longer period of time, the player will move
-closer to the live edge again.
-
 ## Detecting and monitoring live playbacks ##
 
 Every time a live window is updated, registered `Player.Listener` instances
@@ -87,12 +80,16 @@ components to support additional modes when playing live streams.
 
 ## Configuring live playback parameters ##
 
-By default, ExoPlayer uses live playback parameters defined by the media. If you
-want to configure the live playback parameters yourself, you can set them on a
-per `MediaItem` basis by calling `MediaItem.Builder.setLiveConfiguration`. If
-you'd like to set these values globally for all items, you can set them on the
-`DefaultMediaSourceFactory` provided to the player. In both cases, the provided
-values will override parameters defined by the media.
+ExoPlayer uses some parameters to control the offset of the playback position
+from the live edge, and the range of playback speeds that can be used to
+adjust this offset.
+
+ExoPlayer gets values for these parameters from three places, in descending
+order of priority (the first value found is used):
+
+* Per `MediaItem` values passed to `MediaItem.Builder.setLiveConfiguration`.
+* Global default values set on `DefaultMediaSourceFactory`.
+* Values read directly from the media. 
 
 ~~~
 // Global settings.
@@ -130,40 +127,31 @@ Available configuration values are:
 * `maxPlaybackSpeed`: The maximum playback speed the player can use to catch up
   when trying to reach the target live offset.
 
+## Playback speed adjustment ##
+
+When playing a low-latency live stream ExoPlayer adjusts the live offset by
+slightly changing the playback speed. The player will try to match the target
+live offset provided by the media or the app, but will also try to react to
+changing network conditions. For example, if rebuffers occur during playback,
+the player will slow down playback slightly to move further away from the live
+edge. If the network then becomes stable enough to support playing closer to the
+live edge again, the player will speed up playback to move back toward the
+target live offset.
+
 If automatic playback speed adjustment is not desired, it can be disabled by
-setting `minPlaybackSpeed` and `maxPlaybackSpeed` to `1.0f`.
+setting `minPlaybackSpeed` and `maxPlaybackSpeed` properties to `1.0f`.
+Similarly, it can be enabled for non-low-latency live streams by setting these
+explicitly to values other than `1.0f`. See
+[the configuration section above](#configuring-live-playback-parameters) for
+more details on how these properties can be set.
 
-## BehindLiveWindowException and ERROR_CODE_BEHIND_LIVE_WINDOW ##
+### Customizing the playback speed adjustment algorithm ###
 
-The playback position may fall behind the live window, for example if the player
-is paused or buffering for a long enough period of time. If this happens then
-playback will fail and an exception with error code
-`ERROR_CODE_BEHIND_LIVE_WINDOW` will be reported via
-`Player.Listener.onPlayerError`. Application code may wish to handle such
-errors by resuming playback at the default position. The [PlayerActivity][] of
-the demo app exemplifies this approach.
-
-~~~
-@Override
-public void onPlayerError(PlaybackException error) {
-  if (eror.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
-    // Re-initialize player at the current live window default position.
-    player.seekToDefaultPosition();
-    player.prepare();
-  } else {
-    // Handle other errors.
-  }
-}
-~~~
-{: .language-java}
-
-## Customizing the playback speed adjustment algorithm ##
-
-To stay close to the target live offset, a `LivePlaybackSpeedControl` is used to
-make adjustments to the playback speed during live playbacks. It's possible to
-implement a custom `LivePlaybackSpeedControl`, or to customize the default
-implementation, which is `DefaultLivePlaybackSpeedControl`. In both cases an
-instance can be set when building the player:
+If speed adjustment is enabled, a `LivePlaybackSpeedControl` defines what
+adjustments are made. It's possible to implement a custom
+`LivePlaybackSpeedControl`, or to customize the default implementation, which is
+`DefaultLivePlaybackSpeedControl`. In both cases an instance can be set when
+building the player:
 
 ~~~
 ExoPlayer player =
@@ -194,6 +182,30 @@ Relevant customization parameters of `DefaultLivePlaybackSpeedControl` are:
   cautious and may take longer to adjust to improved network conditions, whereas
   a lower value means the estimation will adjust faster at a higher risk of
   running into rebuffers.
+
+## BehindLiveWindowException and ERROR_CODE_BEHIND_LIVE_WINDOW ##
+
+The playback position may fall behind the live window, for example if the player
+is paused or buffering for a long enough period of time. If this happens then
+playback will fail and an exception with error code
+`ERROR_CODE_BEHIND_LIVE_WINDOW` will be reported via
+`Player.Listener.onPlayerError`. Application code may wish to handle such
+errors by resuming playback at the default position. The [PlayerActivity][] of
+the demo app exemplifies this approach.
+
+~~~
+@Override
+public void onPlayerError(PlaybackException error) {
+  if (eror.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
+    // Re-initialize player at the current live window default position.
+    player.seekToDefaultPosition();
+    player.prepare();
+  } else {
+    // Handle other errors.
+  }
+}
+~~~
+{: .language-java}
 
 [Supported Formats page]: {{ site.baseurl }}/supported-formats.html
 [default UI components]: {{ site.baseurl }}/ui-components.html

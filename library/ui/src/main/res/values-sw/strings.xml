@@ -37,11 +37,11 @@
     <item quantity="one">Sogeza mbele haraka kwa sekunde %d</item>
     <item quantity="other">Sogeza mbele haraka kwa sekunde %d</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Usirudie yoyote</string>
-  <string name="exo_controls_repeat_one_description">Rudia moja</string>
-  <string name="exo_controls_repeat_all_description">Rudia zote</string>
-  <string name="exo_controls_shuffle_on_description">Hali ya kuchanganya imewashwa</string>
-  <string name="exo_controls_shuffle_off_description">Hali ya kuchanganya imezimwa</string>
+  <string name="exo_controls_repeat_off_description">Hali ya sasa: Usirudie yoyote Geuza hali ya kurudia.</string>
+  <string name="exo_controls_repeat_one_description">Hali ya sasa: Rudia moja. Geuza hali ya kurudia.</string>
+  <string name="exo_controls_repeat_all_description">Hali ya sasa: Rudia zote. Geuza hali ya kurudia.</string>
+  <string name="exo_controls_shuffle_on_description">Zima hali ya kuchanganya</string>
+  <string name="exo_controls_shuffle_off_description">Washa hali ya kuchanganya</string>
   <string name="exo_controls_vr_description">Hali ya Uhalisia Pepe</string>
   <string name="exo_controls_cc_enabled_description">Zima manukuu</string>
   <string name="exo_controls_cc_disabled_description">Washa manukuu</string>

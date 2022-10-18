@@ -48,7 +48,8 @@ public final class SsaDecoderTest {
   private static final String INVALID_TIMECODES = "media/ssa/invalid_timecodes";
   private static final String INVALID_POSITIONS = "media/ssa/invalid_positioning";
   private static final String POSITIONS_WITHOUT_PLAYRES = "media/ssa/positioning_without_playres";
-  private static final String STYLE_COLORS = "media/ssa/style_colors";
+  private static final String STYLE_PRIMARY_COLOR = "media/ssa/style_primary_color";
+  private static final String STYLE_OUTLINE_COLOR = "media/ssa/style_outline_color";
   private static final String STYLE_FONT_SIZE = "media/ssa/style_font_size";
   private static final String STYLE_BOLD_ITALIC = "media/ssa/style_bold_italic";
   private static final String STYLE_UNDERLINE = "media/ssa/style_underline";
@@ -297,9 +298,10 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void decodeColors() throws IOException {
+  public void decodePrimaryColor() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_COLORS);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_PRIMARY_COLOR);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     assertThat(subtitle.getEventTimeCount()).isEqualTo(14);
     // &H000000FF (AABBGGRR) -> #FFFF0000 (AARRGGBB)
@@ -342,6 +344,26 @@ public final class SsaDecoderTest {
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12))).text;
     SpannedSubject.assertThat(seventhCueText)
         .hasNoForegroundColorSpanBetween(0, seventhCueText.length());
+  }
+
+  @Test
+  public void decodeOutlineColor() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_OUTLINE_COLOR);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    Spanned firstCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
+    SpannedSubject.assertThat(firstCueText)
+        .hasBackgroundColorSpanBetween(0, firstCueText.length())
+        .withColor(Color.BLUE);
+
+    // OutlineColour should be treated as background only when BorderStyle=3
+    Spanned secondCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
+    SpannedSubject.assertThat(secondCueText)
+        .hasNoBackgroundColorSpanBetween(0, secondCueText.length());
   }
 
   @Test

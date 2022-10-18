@@ -17,22 +17,31 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name" translatable="false">Transformer Demo</string>
   <string name="configuration" translatable="false">Configuration</string>
-  <string name="choose_file_title" translatable="false">Choose file</string>
+  <string name="select_file_title" translatable="false">Choose file</string>
   <string name="remove_audio" translatable="false">Remove audio</string>
   <string name="remove_video" translatable="false">Remove video</string>
   <string name="flatten_for_slow_motion" translatable="false">Flatten for slow motion</string>
   <string name="audio_mime" translatable="false">Output audio MIME type</string>
   <string name="video_mime" translatable="false">Output video MIME type</string>
   <string name="resolution_height" translatable="false">Output video resolution</string>
-  <string name="translate" translatable="false">Translate video</string>
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
-  <string name="transform" translatable="false">Transform</string>
+  <string name="enable_fallback" translatable="false">Enable fallback</string>
+  <string name="trim" translatable="false">Trim</string>
+  <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
+  <string name="select_demo_effects" translatable="false">Add demo effects</string>
+  <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
+  <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
+  <string name="transform" translatable="false">Transform</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
   <string name="transformation_started" translatable="false">Transformation started</string>
   <string name="transformation_timer" translatable="false">Transformation started %d seconds ago.</string>
   <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
   <string name="transformation_error" translatable="false">Transformation error</string>
+  <string name="center_x">Center X</string>
+  <string name="center_y">Center Y</string>
+  <string name="radius_range">Radius range</string>
+  <string name="trim_range">Bounds in seconds</string>
 </resources>

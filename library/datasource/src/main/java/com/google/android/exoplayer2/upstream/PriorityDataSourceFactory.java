@@ -18,7 +18,9 @@ package com.google.android.exoplayer2.upstream;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 
-/** @deprecated Use {@link PriorityDataSource.Factory}. */
+/**
+ * @deprecated Use {@link PriorityDataSource.Factory}.
+ */
 @Deprecated
 public final class PriorityDataSourceFactory implements Factory {
 

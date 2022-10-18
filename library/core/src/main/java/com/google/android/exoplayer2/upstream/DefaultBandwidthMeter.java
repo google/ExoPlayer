@@ -42,27 +42,27 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   /** Default initial Wifi bitrate estimate in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI =
-      ImmutableList.of(5_400_000L, 3_300_000L, 2_000_000L, 1_300_000L, 760_000L);
+      ImmutableList.of(4_800_000L, 3_100_000L, 2_100_000L, 1_500_000L, 800_000L);
 
   /** Default initial 2G bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_2G =
-      ImmutableList.of(1_700_000L, 820_000L, 450_000L, 180_000L, 130_000L);
+      ImmutableList.of(1_500_000L, 1_000_000L, 730_000L, 440_000L, 170_000L);
 
   /** Default initial 3G bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_3G =
-      ImmutableList.of(2_300_000L, 1_300_000L, 1_000_000L, 820_000L, 570_000L);
+      ImmutableList.of(2_200_000L, 1_400_000L, 1_100_000L, 910_000L, 620_000L);
 
   /** Default initial 4G bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_4G =
-      ImmutableList.of(3_400_000L, 2_000_000L, 1_400_000L, 1_000_000L, 620_000L);
+      ImmutableList.of(3_000_000L, 1_900_000L, 1_400_000L, 1_000_000L, 660_000L);
 
   /** Default initial 5G-NSA bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA =
-      ImmutableList.of(7_500_000L, 5_200_000L, 3_700_000L, 1_800_000L, 1_100_000L);
+      ImmutableList.of(6_000_000L, 4_100_000L, 3_200_000L, 1_800_000L, 1_000_000L);
 
   /** Default initial 5G-SA bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA =
-      ImmutableList.of(3_300_000L, 1_900_000L, 1_700_000L, 1_500_000L, 1_200_000L);
+      ImmutableList.of(2_800_000L, 2_400_000L, 1_600_000L, 1_100_000L, 950_000L);
 
   /**
    * Default initial bitrate estimate used when the device is offline or the network type cannot be
@@ -285,7 +285,9 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private boolean networkTypeOverrideSet;
   private @C.NetworkType int networkTypeOverride;
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public DefaultBandwidthMeter() {
     this(
@@ -470,402 +472,393 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private static int[] getInitialBitrateCountryGroupAssignment(String country) {
     switch (country) {
       case "AE":
-        return new int[] {1, 4, 4, 4, 3, 2};
+        return new int[] {1, 4, 4, 4, 4, 0};
       case "AG":
-        return new int[] {2, 3, 1, 2, 2, 2};
+        return new int[] {2, 4, 1, 2, 2, 2};
+      case "AI":
+        return new int[] {0, 2, 0, 3, 2, 2};
       case "AM":
-        return new int[] {2, 3, 2, 4, 2, 2};
-      case "AR":
-        return new int[] {2, 4, 1, 1, 2, 2};
+        return new int[] {2, 3, 2, 3, 2, 2};
+      case "AO":
+        return new int[] {4, 4, 3, 2, 2, 2};
       case "AS":
-        return new int[] {2, 2, 2, 3, 2, 2};
+        return new int[] {2, 2, 3, 3, 2, 2};
+      case "AT":
+        return new int[] {1, 0, 1, 1, 0, 0};
       case "AU":
-        return new int[] {0, 1, 0, 1, 2, 2};
+        return new int[] {0, 1, 1, 1, 2, 0};
+      case "AW":
+        return new int[] {1, 3, 4, 4, 2, 2};
+      case "BA":
+        return new int[] {1, 2, 1, 1, 2, 2};
+      case "BD":
+        return new int[] {2, 1, 3, 3, 2, 2};
       case "BE":
-        return new int[] {0, 0, 3, 3, 2, 2};
+        return new int[] {0, 1, 4, 4, 3, 2};
       case "BF":
         return new int[] {4, 3, 4, 3, 2, 2};
       case "BH":
-        return new int[] {1, 2, 2, 4, 4, 2};
+        return new int[] {1, 2, 1, 3, 4, 2};
       case "BJ":
-        return new int[] {4, 4, 3, 4, 2, 2};
-      case "BN":
-        return new int[] {3, 2, 1, 1, 2, 2};
+        return new int[] {4, 4, 3, 3, 2, 2};
       case "BO":
-        return new int[] {1, 3, 3, 2, 2, 2};
-      case "BQ":
-        return new int[] {1, 2, 2, 0, 2, 2};
+        return new int[] {1, 2, 3, 2, 2, 2};
       case "BS":
-        return new int[] {4, 2, 2, 3, 2, 2};
+        return new int[] {4, 4, 2, 2, 2, 2};
       case "BT":
         return new int[] {3, 1, 3, 2, 2, 2};
+      case "BW":
+        return new int[] {3, 2, 1, 0, 2, 2};
       case "BY":
-        return new int[] {0, 1, 1, 3, 2, 2};
+        return new int[] {0, 1, 2, 3, 2, 2};
       case "BZ":
-        return new int[] {2, 4, 2, 2, 2, 2};
+        return new int[] {2, 4, 2, 1, 2, 2};
       case "CA":
-        return new int[] {0, 2, 1, 2, 4, 1};
+        return new int[] {0, 2, 2, 2, 3, 2};
       case "CD":
-        return new int[] {4, 2, 3, 1, 2, 2};
-      case "CF":
         return new int[] {4, 2, 3, 2, 2, 2};
-      case "CI":
-        return new int[] {3, 3, 3, 4, 2, 2};
-      case "CK":
-        return new int[] {2, 2, 2, 1, 2, 2};
-      case "AO":
+      case "CH":
+        return new int[] {0, 0, 0, 1, 0, 2};
       case "CM":
-        return new int[] {3, 4, 3, 2, 2, 2};
+        return new int[] {3, 3, 3, 3, 2, 2};
       case "CN":
-        return new int[] {2, 0, 2, 2, 3, 1};
+        return new int[] {2, 0, 1, 1, 3, 2};
       case "CO":
-        return new int[] {2, 2, 4, 2, 2, 2};
+        return new int[] {2, 3, 4, 3, 2, 2};
       case "CR":
-        return new int[] {2, 2, 4, 4, 2, 2};
+        return new int[] {2, 3, 4, 4, 2, 2};
       case "CV":
-        return new int[] {2, 3, 1, 0, 2, 2};
+        return new int[] {2, 1, 0, 0, 2, 2};
+      case "BN":
       case "CW":
         return new int[] {2, 2, 0, 0, 2, 2};
-      case "CY":
-        return new int[] {1, 0, 0, 0, 1, 2};
       case "DE":
-        return new int[] {0, 0, 2, 2, 1, 2};
-      case "DJ":
-        return new int[] {4, 1, 4, 4, 2, 2};
+        return new int[] {0, 1, 2, 2, 2, 3};
       case "DK":
-        return new int[] {0, 0, 1, 0, 0, 2};
+        return new int[] {0, 0, 3, 2, 0, 2};
+      case "DO":
+        return new int[] {3, 4, 4, 4, 4, 2};
       case "EC":
-        return new int[] {2, 4, 2, 1, 2, 2};
-      case "EG":
-        return new int[] {3, 4, 2, 3, 2, 2};
+        return new int[] {2, 3, 2, 1, 2, 2};
       case "ET":
-        return new int[] {4, 4, 3, 1, 2, 2};
+        return new int[] {4, 3, 3, 1, 2, 2};
       case "FI":
-        return new int[] {0, 0, 0, 1, 0, 2};
+        return new int[] {0, 0, 0, 3, 0, 2};
       case "FJ":
-        return new int[] {3, 1, 3, 3, 2, 2};
+        return new int[] {3, 1, 2, 2, 2, 2};
       case "FM":
-        return new int[] {3, 2, 4, 2, 2, 2};
+        return new int[] {4, 2, 4, 1, 2, 2};
       case "FR":
-        return new int[] {1, 1, 2, 1, 1, 1};
-      case "GA":
-        return new int[] {2, 3, 1, 1, 2, 2};
+        return new int[] {1, 2, 3, 1, 0, 2};
       case "GB":
-        return new int[] {0, 0, 1, 1, 2, 3};
+        return new int[] {0, 0, 1, 1, 1, 1};
       case "GE":
-        return new int[] {1, 1, 1, 3, 2, 2};
+        return new int[] {1, 1, 1, 2, 2, 2};
       case "BB":
+      case "DM":
       case "FO":
-      case "GG":
+      case "GI":
         return new int[] {0, 2, 0, 0, 2, 2};
-      case "GH":
-        return new int[] {3, 2, 3, 2, 2, 2};
+      case "AF":
+      case "GM":
+        return new int[] {4, 3, 3, 4, 2, 2};
       case "GN":
         return new int[] {4, 3, 4, 2, 2, 2};
       case "GQ":
-        return new int[] {4, 2, 3, 4, 2, 2};
+        return new int[] {4, 2, 1, 4, 2, 2};
       case "GT":
-        return new int[] {2, 3, 2, 1, 2, 2};
-      case "AW":
-      case "GU":
-        return new int[] {1, 2, 4, 4, 2, 2};
-      case "BW":
+        return new int[] {2, 3, 2, 2, 2, 2};
+      case "CG":
+      case "EG":
+      case "GW":
+        return new int[] {3, 4, 3, 3, 2, 2};
       case "GY":
-        return new int[] {3, 4, 1, 0, 2, 2};
+        return new int[] {3, 2, 2, 1, 2, 2};
       case "HK":
         return new int[] {0, 1, 2, 3, 2, 0};
       case "HU":
         return new int[] {0, 0, 0, 1, 3, 2};
       case "ID":
-        return new int[] {3, 2, 3, 3, 3, 2};
+        return new int[] {3, 1, 2, 2, 3, 2};
       case "ES":
       case "IE":
         return new int[] {0, 1, 1, 1, 2, 2};
+      case "CL":
       case "IL":
-        return new int[] {1, 1, 2, 3, 4, 2};
-      case "IM":
-        return new int[] {0, 2, 0, 1, 2, 2};
+        return new int[] {1, 2, 2, 2, 3, 2};
       case "IN":
-        return new int[] {1, 1, 3, 2, 4, 3};
+        return new int[] {1, 1, 3, 2, 3, 3};
+      case "IQ":
+        return new int[] {3, 2, 2, 3, 2, 2};
       case "IR":
-        return new int[] {3, 0, 1, 1, 3, 0};
+        return new int[] {3, 0, 1, 1, 4, 1};
       case "IT":
-        return new int[] {0, 1, 0, 1, 1, 2};
-      case "JE":
-        return new int[] {3, 2, 1, 2, 2, 2};
-      case "DO":
+        return new int[] {0, 0, 0, 1, 1, 2};
       case "JM":
-        return new int[] {3, 4, 4, 4, 2, 2};
+        return new int[] {2, 4, 3, 2, 2, 2};
+      case "JO":
+        return new int[] {2, 1, 1, 2, 2, 2};
       case "JP":
-        return new int[] {0, 1, 0, 1, 1, 1};
-      case "KE":
-        return new int[] {3, 3, 2, 2, 2, 2};
-      case "KG":
-        return new int[] {2, 1, 1, 1, 2, 2};
+        return new int[] {0, 1, 1, 2, 2, 4};
       case "KH":
-        return new int[] {1, 1, 4, 2, 2, 2};
+        return new int[] {2, 1, 4, 2, 2, 2};
+      case "CF":
+      case "KI":
+        return new int[] {4, 2, 4, 2, 2, 2};
+      case "FK":
+      case "KE":
+      case "KP":
+        return new int[] {3, 2, 2, 2, 2, 2};
       case "KR":
-        return new int[] {0, 0, 1, 3, 4, 4};
+        return new int[] {0, 1, 1, 3, 4, 4};
+      case "CY":
       case "KW":
-        return new int[] {1, 1, 0, 0, 0, 2};
-      case "AL":
-      case "BA":
-      case "KY":
-        return new int[] {1, 2, 0, 1, 2, 2};
+        return new int[] {1, 0, 0, 0, 0, 2};
       case "KZ":
-        return new int[] {1, 1, 2, 2, 2, 2};
+        return new int[] {2, 1, 2, 2, 2, 2};
+      case "LA":
+        return new int[] {1, 2, 1, 3, 2, 2};
       case "LB":
-        return new int[] {3, 2, 1, 4, 2, 2};
-      case "AD":
-      case "BM":
-      case "GL":
-      case "LC":
-        return new int[] {1, 2, 0, 0, 2, 2};
+        return new int[] {3, 3, 2, 4, 2, 2};
       case "LK":
-        return new int[] {3, 1, 3, 4, 4, 2};
+        return new int[] {3, 1, 3, 3, 4, 2};
+      case "CI":
+      case "DZ":
       case "LR":
-        return new int[] {3, 4, 4, 3, 2, 2};
+        return new int[] {3, 4, 4, 4, 2, 2};
       case "LS":
-        return new int[] {3, 3, 4, 3, 2, 2};
+        return new int[] {3, 3, 2, 2, 2, 2};
+      case "LT":
+        return new int[] {0, 0, 0, 0, 2, 2};
       case "LU":
-        return new int[] {1, 0, 2, 2, 2, 2};
+        return new int[] {1, 0, 3, 2, 1, 4};
+      case "MA":
+        return new int[] {3, 3, 1, 1, 2, 2};
       case "MC":
         return new int[] {0, 2, 2, 0, 2, 2};
-      case "JO":
       case "ME":
-        return new int[] {1, 0, 0, 1, 2, 2};
-      case "MF":
-        return new int[] {1, 2, 1, 0, 2, 2};
-      case "MG":
-        return new int[] {3, 4, 2, 2, 2, 2};
-      case "MH":
-        return new int[] {3, 2, 2, 4, 2, 2};
-      case "ML":
-        return new int[] {4, 3, 3, 1, 2, 2};
+        return new int[] {2, 0, 0, 1, 2, 2};
+      case "MK":
+        return new int[] {1, 0, 0, 1, 3, 2};
       case "MM":
-        return new int[] {2, 4, 3, 3, 2, 2};
+        return new int[] {2, 4, 2, 3, 2, 2};
       case "MN":
         return new int[] {2, 0, 1, 2, 2, 2};
       case "MO":
+      case "MP":
         return new int[] {0, 2, 4, 4, 2, 2};
-      case "GF":
       case "GP":
       case "MQ":
         return new int[] {2, 1, 2, 3, 2, 2};
-      case "MR":
-        return new int[] {4, 1, 3, 4, 2, 2};
-      case "EE":
-      case "LT":
-      case "LV":
-      case "MT":
-        return new int[] {0, 0, 0, 0, 2, 2};
       case "MU":
         return new int[] {3, 1, 1, 2, 2, 2};
       case "MV":
         return new int[] {3, 4, 1, 4, 2, 2};
       case "MW":
-        return new int[] {4, 2, 1, 0, 2, 2};
-      case "CG":
+        return new int[] {4, 2, 3, 3, 2, 2};
       case "MX":
         return new int[] {2, 4, 3, 4, 2, 2};
-      case "BD":
       case "MY":
-        return new int[] {2, 1, 3, 3, 2, 2};
-      case "NA":
-        return new int[] {4, 3, 2, 2, 2, 2};
-      case "AZ":
+        return new int[] {1, 0, 3, 1, 3, 2};
+      case "MZ":
+        return new int[] {3, 1, 2, 1, 2, 2};
       case "NC":
-        return new int[] {3, 2, 4, 4, 2, 2};
+        return new int[] {3, 3, 4, 4, 2, 2};
       case "NG":
-        return new int[] {3, 4, 1, 1, 2, 2};
-      case "NI":
-        return new int[] {2, 3, 4, 3, 2, 2};
+        return new int[] {3, 4, 2, 1, 2, 2};
       case "NL":
-        return new int[] {0, 0, 3, 2, 0, 4};
+        return new int[] {0, 2, 2, 3, 0, 3};
+      case "CZ":
       case "NO":
-        return new int[] {0, 0, 2, 0, 0, 2};
+        return new int[] {0, 0, 2, 0, 1, 2};
       case "NP":
-        return new int[] {2, 1, 4, 3, 2, 2};
+        return new int[] {2, 2, 4, 3, 2, 2};
       case "NR":
-        return new int[] {3, 2, 2, 0, 2, 2};
-      case "NZ":
-        return new int[] {1, 0, 1, 2, 4, 2};
+      case "NU":
+        return new int[] {4, 2, 2, 1, 2, 2};
       case "OM":
         return new int[] {2, 3, 1, 3, 4, 2};
-      case "PA":
-        return new int[] {1, 3, 3, 3, 2, 2};
+      case "GU":
       case "PE":
-        return new int[] {2, 3, 4, 4, 4, 2};
+        return new int[] {1, 2, 4, 4, 4, 2};
+      case "CK":
       case "PF":
-        return new int[] {2, 3, 3, 1, 2, 2};
-      case "CU":
+        return new int[] {2, 2, 2, 1, 2, 2};
+      case "ML":
       case "PG":
-        return new int[] {4, 4, 3, 2, 2, 2};
+        return new int[] {4, 3, 3, 2, 2, 2};
       case "PH":
-        return new int[] {2, 2, 3, 3, 3, 2};
+        return new int[] {2, 1, 3, 3, 3, 0};
+      case "NZ":
+      case "PL":
+        return new int[] {1, 1, 2, 2, 4, 2};
       case "PR":
-        return new int[] {2, 3, 2, 2, 3, 3};
+        return new int[] {2, 0, 2, 1, 2, 1};
       case "PS":
         return new int[] {3, 4, 1, 2, 2, 2};
-      case "PT":
-        return new int[] {0, 1, 0, 0, 2, 2};
       case "PW":
         return new int[] {2, 2, 4, 1, 2, 2};
-      case "PY":
-        return new int[] {2, 2, 3, 2, 2, 2};
       case "QA":
-        return new int[] {2, 4, 2, 4, 4, 2};
+        return new int[] {2, 4, 4, 4, 4, 2};
+      case "MF":
       case "RE":
-        return new int[] {1, 1, 1, 2, 2, 2};
+        return new int[] {1, 2, 1, 2, 2, 2};
       case "RO":
-        return new int[] {0, 0, 1, 1, 1, 2};
-      case "GR":
-      case "HR":
+        return new int[] {0, 0, 1, 2, 1, 2};
       case "MD":
-      case "MK":
       case "RS":
         return new int[] {1, 0, 0, 0, 2, 2};
       case "RU":
-        return new int[] {0, 0, 0, 1, 2, 2};
+        return new int[] {1, 0, 0, 0, 4, 3};
       case "RW":
-        return new int[] {3, 4, 3, 0, 2, 2};
-      case "KI":
-      case "KM":
-      case "LY":
+        return new int[] {3, 4, 2, 0, 2, 2};
+      case "SA":
+        return new int[] {3, 1, 1, 1, 2, 2};
       case "SB":
         return new int[] {4, 2, 4, 3, 2, 2};
-      case "SC":
-        return new int[] {4, 3, 0, 2, 2, 2};
       case "SG":
-        return new int[] {1, 1, 2, 3, 1, 4};
-      case "BG":
-      case "CZ":
-      case "SI":
-        return new int[] {0, 0, 0, 0, 1, 2};
-      case "AT":
-      case "CH":
-      case "IS":
-      case "SE":
-      case "SK":
-        return new int[] {0, 0, 0, 0, 0, 2};
-      case "SL":
-        return new int[] {4, 3, 4, 1, 2, 2};
-      case "AX":
-      case "GI":
-      case "LI":
-      case "MP":
-      case "PM":
-      case "SJ":
-      case "SM":
-        return new int[] {0, 2, 2, 2, 2, 2};
-      case "HN":
-      case "PK":
-      case "SO":
-        return new int[] {3, 2, 3, 3, 2, 2};
-      case "BR":
-      case "SR":
-        return new int[] {2, 3, 2, 2, 2, 2};
-      case "FK":
-      case "KP":
-      case "MA":
-      case "MZ":
-      case "ST":
-        return new int[] {3, 2, 2, 2, 2, 2};
-      case "SV":
-        return new int[] {2, 2, 3, 3, 2, 2};
-      case "SZ":
-        return new int[] {4, 3, 2, 4, 2, 2};
-      case "SX":
-      case "TC":
-        return new int[] {2, 2, 1, 0, 2, 2};
-      case "TG":
-        return new int[] {3, 3, 2, 0, 2, 2};
-      case "TH":
-        return new int[] {0, 3, 2, 3, 3, 0};
-      case "TJ":
-        return new int[] {4, 2, 4, 4, 2, 2};
-      case "BI":
-      case "DZ":
-      case "SY":
-      case "TL":
-        return new int[] {4, 3, 4, 4, 2, 2};
-      case "TM":
-        return new int[] {4, 2, 4, 2, 2, 2};
-      case "TO":
-        return new int[] {4, 2, 3, 3, 2, 2};
-      case "TR":
-        return new int[] {1, 1, 0, 1, 2, 2};
-      case "TT":
-        return new int[] {1, 4, 1, 1, 2, 2};
+        return new int[] {1, 1, 2, 2, 2, 1};
       case "AQ":
       case "ER":
-      case "IO":
-      case "NU":
       case "SH":
-      case "SS":
-      case "TV":
         return new int[] {4, 2, 2, 2, 2, 2};
-      case "TW":
-        return new int[] {0, 0, 0, 0, 0, 0};
-      case "GW":
-      case "TZ":
-        return new int[] {3, 4, 3, 3, 2, 2};
-      case "UA":
-        return new int[] {0, 3, 1, 1, 2, 2};
-      case "IQ":
-      case "UG":
-        return new int[] {3, 3, 3, 3, 2, 2};
-      case "CL":
-      case "PL":
-      case "US":
-        return new int[] {1, 1, 2, 2, 3, 2};
-      case "LA":
-      case "UY":
+      case "GR":
+      case "HR":
+      case "SI":
+        return new int[] {1, 0, 0, 0, 1, 2};
+      case "BG":
+      case "MT":
+      case "SK":
+        return new int[] {0, 0, 0, 0, 1, 2};
+      case "AX":
+      case "LI":
+      case "MS":
+      case "PM":
+      case "SM":
+        return new int[] {0, 2, 2, 2, 2, 2};
+      case "SN":
+        return new int[] {4, 4, 4, 3, 2, 2};
+      case "SR":
+        return new int[] {2, 4, 3, 0, 2, 2};
+      case "SS":
+        return new int[] {4, 3, 2, 3, 2, 2};
+      case "ST":
         return new int[] {2, 2, 1, 2, 2, 2};
+      case "NI":
+      case "PA":
+      case "SV":
+        return new int[] {2, 3, 3, 3, 2, 2};
+      case "SZ":
+        return new int[] {3, 3, 3, 4, 2, 2};
+      case "SX":
+      case "TC":
+        return new int[] {1, 2, 1, 0, 2, 2};
+      case "GA":
+      case "TG":
+        return new int[] {3, 4, 1, 0, 2, 2};
+      case "TH":
+        return new int[] {0, 2, 2, 3, 3, 4};
+      case "TK":
+        return new int[] {2, 2, 2, 4, 2, 2};
+      case "CU":
+      case "DJ":
+      case "SY":
+      case "TJ":
+      case "TL":
+        return new int[] {4, 3, 4, 4, 2, 2};
+      case "SC":
+      case "TM":
+        return new int[] {4, 2, 1, 1, 2, 2};
+      case "AZ":
+      case "GF":
+      case "LY":
+      case "PK":
+      case "SO":
+      case "TO":
+        return new int[] {3, 2, 3, 3, 2, 2};
+      case "TR":
+        return new int[] {1, 1, 0, 0, 2, 2};
+      case "TT":
+        return new int[] {1, 4, 1, 3, 2, 2};
+      case "EE":
+      case "IS":
+      case "LV":
+      case "PT":
+      case "SE":
+      case "TW":
+        return new int[] {0, 0, 0, 0, 0, 2};
+      case "TZ":
+        return new int[] {3, 4, 3, 2, 2, 2};
+      case "IM":
+      case "UA":
+        return new int[] {0, 2, 1, 1, 2, 2};
+      case "SL":
+      case "UG":
+        return new int[] {3, 3, 4, 3, 2, 2};
+      case "US":
+        return new int[] {1, 0, 2, 2, 3, 1};
+      case "AR":
+      case "KG":
+      case "TN":
+      case "UY":
+        return new int[] {2, 1, 1, 1, 2, 2};
       case "UZ":
         return new int[] {2, 2, 3, 4, 2, 2};
-      case "AI":
       case "BL":
       case "CX":
-      case "DM":
-      case "GD":
-      case "MS":
-      case "VC":
+      case "VA":
         return new int[] {1, 2, 2, 2, 2, 2};
-      case "SA":
-      case "TN":
+      case "AD":
+      case "BM":
+      case "BQ":
+      case "GD":
+      case "GL":
+      case "KN":
+      case "KY":
+      case "LC":
+      case "VC":
+        return new int[] {1, 2, 0, 0, 2, 2};
       case "VG":
         return new int[] {2, 2, 1, 1, 2, 2};
+      case "GG":
       case "VI":
-        return new int[] {1, 2, 1, 3, 2, 2};
+        return new int[] {0, 2, 0, 1, 2, 2};
       case "VN":
         return new int[] {0, 3, 3, 4, 2, 2};
+      case "GH":
+      case "NA":
       case "VU":
-        return new int[] {4, 2, 2, 1, 2, 2};
-      case "GM":
+        return new int[] {3, 3, 3, 2, 2, 2};
+      case "IO":
+      case "MH":
+      case "TV":
       case "WF":
         return new int[] {4, 2, 2, 4, 2, 2};
       case "WS":
-        return new int[] {3, 1, 2, 1, 2, 2};
+        return new int[] {3, 1, 3, 1, 2, 2};
+      case "AL":
       case "XK":
         return new int[] {1, 1, 1, 1, 2, 2};
-      case "AF":
+      case "BI":
       case "HT":
+      case "KM":
+      case "MG":
       case "NE":
       case "SD":
-      case "SN":
       case "TD":
       case "VE":
       case "YE":
         return new int[] {4, 4, 4, 4, 2, 2};
+      case "JE":
       case "YT":
-        return new int[] {4, 1, 1, 1, 2, 2};
+        return new int[] {4, 2, 2, 3, 2, 2};
       case "ZA":
-        return new int[] {3, 3, 1, 1, 1, 2};
+        return new int[] {3, 2, 2, 1, 1, 2};
       case "ZM":
         return new int[] {3, 3, 4, 2, 2, 2};
+      case "MR":
       case "ZW":
-        return new int[] {3, 2, 4, 3, 2, 2};
+        return new int[] {4, 2, 4, 4, 2, 2};
       default:
         return new int[] {2, 2, 2, 2, 2, 2};
     }

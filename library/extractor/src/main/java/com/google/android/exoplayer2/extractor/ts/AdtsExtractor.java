@@ -363,6 +363,7 @@ public final class AdtsExtractor implements Extractor {
    * @return The stream bitrate.
    */
   private static int getBitrateFromFrameSize(int frameSize, long durationUsPerFrame) {
-    return (int) ((frameSize * C.BITS_PER_BYTE * C.MICROS_PER_SECOND) / durationUsPerFrame);
+    return (int)
+        ((frameSize * ((long) C.BITS_PER_BYTE) * C.MICROS_PER_SECOND) / durationUsPerFrame);
   }
 }

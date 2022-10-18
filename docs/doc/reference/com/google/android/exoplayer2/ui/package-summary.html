@@ -147,8 +147,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="StyledPlayerControlView.OnFullScreenModeChangedListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerControlView.OnFullScreenModeChangedListener</a></th>
-<td class="colLast">
-<div class="block">Listener to be invoked to inform the fullscreen mode is changed.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Register a <a href="StyledPlayerView.FullscreenButtonClickListener.html" title="interface in com.google.android.exoplayer2.ui"><code>StyledPlayerView.FullscreenButtonClickListener</code></a> via <a href="StyledPlayerView.html#setFullscreenButtonClickListener(com.google.android.exoplayer2.ui.StyledPlayerView.FullscreenButtonClickListener)"><code>StyledPlayerView.setFullscreenButtonClickListener(StyledPlayerView.FullscreenButtonClickListener)</code></a>
+     instead.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -159,8 +160,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="StyledPlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerControlView.VisibilityListener</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Register a <a href="StyledPlayerView.ControllerVisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>StyledPlayerView.ControllerVisibilityListener</code></a> via <a href="StyledPlayerView.html#setControllerVisibilityListener(com.google.android.exoplayer2.ui.StyledPlayerView.ControllerVisibilityListener)"><code>StyledPlayerView.setControllerVisibilityListener(StyledPlayerView.ControllerVisibilityListener)</code></a>
+     instead.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="StyledPlayerView.ControllerVisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerView.ControllerVisibilityListener</a></th>
 <td class="colLast">
-<div class="block">Listener to be notified about changes of the visibility of the UI control.</div>
+<div class="block">Listener to be notified about changes of the visibility of the UI controls.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="StyledPlayerView.FullscreenButtonClickListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerView.FullscreenButtonClickListener</a></th>
+<td class="colLast">
+<div class="block">Listener invoked when the fullscreen button is clicked.</div>
 </td>
 </tr>
 <tr class="altColor">

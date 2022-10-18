@@ -1106,7 +1106,6 @@ public final class MediaPeriodQueueTest {
             /* bufferedPositionUs= */ 0,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ 0,
-            /* offloadSchedulingEnabled= */ false,
             /* sleepingForOffload= */ false);
   }
 
@@ -1135,7 +1134,7 @@ public final class MediaPeriodQueueTest {
         new TrackSelectorResult(
             new RendererConfiguration[0],
             new ExoTrackSelection[0],
-            TracksInfo.EMPTY,
+            Tracks.EMPTY,
             /* info= */ null));
   }
 
@@ -1280,7 +1279,7 @@ public final class MediaPeriodQueueTest {
           countDownLatch.countDown();
         },
         /* mediaTransferListener= */ null,
-        new PlayerId());
+        PlayerId.UNSET);
     if (!countDownLatch.await(/* timeout= */ 2, SECONDS)) {
       fail();
     }

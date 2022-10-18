@@ -29,7 +29,9 @@ public final class LongArray {
     this(DEFAULT_INITIAL_CAPACITY);
   }
 
-  /** @param initialCapacity The initial capacity of the array. */
+  /**
+   * @param initialCapacity The initial capacity of the array.
+   */
   public LongArray(int initialCapacity) {
     values = new long[initialCapacity];
   }

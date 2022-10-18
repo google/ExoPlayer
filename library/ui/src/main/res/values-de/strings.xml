@@ -37,11 +37,11 @@
     <item quantity="one">%d Sekunde vorspulen</item>
     <item quantity="other">%d Sekunden vorspulen</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Keinen wiederholen</string>
-  <string name="exo_controls_repeat_one_description">Einen wiederholen</string>
-  <string name="exo_controls_repeat_all_description">Alle wiederholen</string>
-  <string name="exo_controls_shuffle_on_description">Zufallsmix an</string>
-  <string name="exo_controls_shuffle_off_description">Zufallsmix aus</string>
+  <string name="exo_controls_repeat_off_description">Aktueller Modus: nichts wiederholen. Wiederholungsmodus ändern.</string>
+  <string name="exo_controls_repeat_one_description">Aktueller Modus: einen Titel wiederholen. Wiederholungsmodus ändern.</string>
+  <string name="exo_controls_repeat_all_description">Aktueller Modus: alles wiederholen. Wiederholungsmodus ändern.</string>
+  <string name="exo_controls_shuffle_on_description">Zufallsmix deaktivieren</string>
+  <string name="exo_controls_shuffle_off_description">Zufallsmix aktivieren</string>
   <string name="exo_controls_vr_description">VR-Modus</string>
   <string name="exo_controls_cc_enabled_description">Untertitel deaktivieren</string>
   <string name="exo_controls_cc_disabled_description">Untertitel aktivieren</string>

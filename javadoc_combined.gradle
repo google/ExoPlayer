@@ -48,9 +48,21 @@ class CombinedJavadocPlugin implements Plugin<Project> {
               libraryModule.android.libraryVariants.all { variant ->
                 def name = variant.buildType.name
                 if (name == "release") {
+                  // Works around b/234569640 that causes different versions of the androidx.media
+                  // jar to be on the classpath.
+                  def allJarFiles = []
+                  allJarFiles.addAll(variant.javaCompileProvider.get().classpath.files)
+                  def filteredJarFiles = allJarFiles.findAll { file ->
+                    if (file ==~ /.*media-.\..\..-api.jar$/
+                        && !file.path.endsWith(
+                            "media-" + project.ext.androidxMediaVersion + "-api.jar")) {
+                      return false;
+                    }
+                    return true;
+                  }
                   classpath +=
                       libraryModule.project.files(
-                          variant.javaCompileProvider.get().classpath.files,
+                          filteredJarFiles,
                           libraryModule.project.android.getBootClasspath())
                 }
               }

@@ -61,7 +61,9 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     /** The reason the merge failed. */
     public final @Reason int reason;
 
-    /** @param reason The reason the merge failed. */
+    /**
+     * @param reason The reason the merge failed.
+     */
     public IllegalMergeException(@Reason int reason) {
       this.reason = reason;
     }

@@ -57,7 +57,9 @@ public interface AudioRendererEventListener {
   default void onAudioDecoderInitialized(
       String decoderName, long initializedTimestampMs, long initializationDurationMs) {}
 
-  /** @deprecated Use {@link #onAudioInputFormatChanged(Format, DecoderReuseEvaluation)}. */
+  /**
+   * @deprecated Use {@link #onAudioInputFormatChanged(Format, DecoderReuseEvaluation)}.
+   */
   @Deprecated
   default void onAudioInputFormatChanged(Format format) {}
 

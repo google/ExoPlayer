@@ -37,11 +37,11 @@
     <item quantity="one">快进 %d 秒</item>
     <item quantity="other">快进 %d 秒</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">不重复播放</string>
-  <string name="exo_controls_repeat_one_description">重复播放一项</string>
-  <string name="exo_controls_repeat_all_description">全部重复播放</string>
-  <string name="exo_controls_shuffle_on_description">随机播放功能已开启</string>
-  <string name="exo_controls_shuffle_off_description">随机播放功能已关闭</string>
+  <string name="exo_controls_repeat_off_description">当前模式：不重复。切换重复播放模式。</string>
+  <string name="exo_controls_repeat_one_description">当前模式：重复播放当前项目。切换重复播放模式。</string>
+  <string name="exo_controls_repeat_all_description">当前模式：重复播放所有项目。切换重复播放模式。</string>
+  <string name="exo_controls_shuffle_on_description">停用随机播放模式</string>
+  <string name="exo_controls_shuffle_off_description">启用随机播放模式</string>
   <string name="exo_controls_vr_description">VR 模式</string>
   <string name="exo_controls_cc_enabled_description">停用字幕</string>
   <string name="exo_controls_cc_disabled_description">启用字幕</string>

@@ -135,7 +135,9 @@ public final class DownloadRequest implements Parcelable {
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
     @C.ContentType int contentType = Util.inferContentTypeForUriAndMimeType(uri, mimeType);
-    if (contentType == C.TYPE_DASH || contentType == C.TYPE_HLS || contentType == C.TYPE_SS) {
+    if (contentType == C.CONTENT_TYPE_DASH
+        || contentType == C.CONTENT_TYPE_HLS
+        || contentType == C.CONTENT_TYPE_SS) {
       Assertions.checkArgument(
           customCacheKey == null, "customCacheKey must be null for type: " + contentType);
     }

@@ -387,6 +387,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private void invokeUpdateOutputInternal(List<Cue> cues) {
     output.onCues(cues);
+    output.onCues(new CueGroup(cues));
   }
 
   /**

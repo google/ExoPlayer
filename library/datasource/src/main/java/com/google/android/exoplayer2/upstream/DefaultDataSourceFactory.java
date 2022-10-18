@@ -19,7 +19,9 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 
-/** @deprecated Use {@link DefaultDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link DefaultDataSource.Factory} instead.
+ */
 @Deprecated
 public final class DefaultDataSourceFactory implements Factory {
 

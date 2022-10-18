@@ -1,3 +1,4 @@
+discontinuity:
 config:
   pcmEncoding = 536870912
   channelCount = 2

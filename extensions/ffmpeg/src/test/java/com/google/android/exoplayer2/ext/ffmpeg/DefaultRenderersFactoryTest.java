@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.testutil.DefaultRenderersFactoryAsserts;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer}.
- */
+/** Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer}. */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultRenderersFactoryTest {
 

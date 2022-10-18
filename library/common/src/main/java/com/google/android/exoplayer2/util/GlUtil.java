@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -33,13 +32,10 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import javax.microedition.khronos.egl.EGL10;
 
 /** OpenGL ES utilities. */
@@ -54,157 +50,16 @@ public final class GlUtil {
     }
   }
 
-  /**
-   * Represents a GLSL shader program.
-   *
-   * <p>After constructing a program, keep a reference for its lifetime and call {@link #delete()}
-   * (or release the current GL context) when it's no longer needed.
-   */
-  public static final class Program {
-    /** The identifier of a compiled and linked GLSL shader program. */
-    private final int programId;
-
-    private final Attribute[] attributes;
-    private final Uniform[] uniforms;
-    private final Map<String, Attribute> attributeByName;
-    private final Map<String, Uniform> uniformByName;
-
-    /**
-     * Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.
-     *
-     * @param context The {@link Context}.
-     * @param vertexShaderFilePath The path to a vertex shader program.
-     * @param fragmentShaderFilePath The path to a fragment shader program.
-     * @throws IOException When failing to read shader files.
-     */
-    public Program(Context context, String vertexShaderFilePath, String fragmentShaderFilePath)
-        throws IOException {
-      this(loadAsset(context, vertexShaderFilePath), loadAsset(context, fragmentShaderFilePath));
-    }
-
-    /**
-     * Creates a GL shader program from vertex and fragment shader GLSL GLES20 code.
-     *
-     * <p>This involves slow steps, like compiling, linking, and switching the GL program, so do not
-     * call this in fast rendering loops.
-     *
-     * @param vertexShaderGlsl The vertex shader program.
-     * @param fragmentShaderGlsl The fragment shader program.
-     */
-    public Program(String vertexShaderGlsl, String fragmentShaderGlsl) {
-      programId = GLES20.glCreateProgram();
-      checkGlError();
-
-      // Add the vertex and fragment shaders.
-      addShader(programId, GLES20.GL_VERTEX_SHADER, vertexShaderGlsl);
-      addShader(programId, GLES20.GL_FRAGMENT_SHADER, fragmentShaderGlsl);
-
-      // Link and use the program, and enumerate attributes/uniforms.
-      GLES20.glLinkProgram(programId);
-      int[] linkStatus = new int[] {GLES20.GL_FALSE};
-      GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, /* offset= */ 0);
-      if (linkStatus[0] != GLES20.GL_TRUE) {
-        throwGlException(
-            "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
-      }
-      GLES20.glUseProgram(programId);
-      attributeByName = new HashMap<>();
-      int[] attributeCount = new int[1];
-      GLES20.glGetProgramiv(
-          programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, /* offset= */ 0);
-      attributes = new Attribute[attributeCount[0]];
-      for (int i = 0; i < attributeCount[0]; i++) {
-        Attribute attribute = Attribute.create(programId, i);
-        attributes[i] = attribute;
-        attributeByName.put(attribute.name, attribute);
-      }
-      uniformByName = new HashMap<>();
-      int[] uniformCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, /* offset= */ 0);
-      uniforms = new Uniform[uniformCount[0]];
-      for (int i = 0; i < uniformCount[0]; i++) {
-        Uniform uniform = Uniform.create(programId, i);
-        uniforms[i] = uniform;
-        uniformByName.put(uniform.name, uniform);
-      }
-      checkGlError();
-    }
-
-    /**
-     * Uses the program.
-     *
-     * <p>Call this in the rendering loop to switch between different programs.
-     */
-    public void use() {
-      // TODO(http://b/205002913): When multiple GL programs are supported by Transformer, make sure
-      // to call use() to switch between programs.
-      GLES20.glUseProgram(programId);
-      checkGlError();
-    }
-
-    /** Deletes the program. Deleted programs cannot be used again. */
-    public void delete() {
-      GLES20.glDeleteProgram(programId);
-      checkGlError();
-    }
-
-    /**
-     * Returns the location of an {@link Attribute}, which has been enabled as a vertex attribute
-     * array.
-     */
-    public int getAttributeArrayLocationAndEnable(String attributeName) {
-      int location = getAttributeLocation(attributeName);
-      GLES20.glEnableVertexAttribArray(location);
-      checkGlError();
-      return location;
-    }
-
-    /** Returns the location of an {@link Attribute}. */
-    private int getAttributeLocation(String attributeName) {
-      return GlUtil.getAttributeLocation(programId, attributeName);
-    }
-
-    /** Returns the location of a {@link Uniform}. */
-    public int getUniformLocation(String uniformName) {
-      return GlUtil.getUniformLocation(programId, uniformName);
-    }
-
-    /** Sets a float buffer type attribute. */
-    public void setBufferAttribute(String name, float[] values, int size) {
-      checkNotNull(attributeByName.get(name)).setBuffer(values, size);
-    }
-
-    /** Sets a texture sampler type uniform. */
-    public void setSamplerTexIdUniform(String name, int texId, int unit) {
-      checkNotNull(uniformByName.get(name)).setSamplerTexId(texId, unit);
-    }
-
-    /** Sets a float type uniform. */
-    public void setFloatUniform(String name, float value) {
-      checkNotNull(uniformByName.get(name)).setFloat(value);
-    }
-
-    /** Sets a float array type uniform. */
-    public void setFloatsUniform(String name, float[] value) {
-      checkNotNull(uniformByName.get(name)).setFloats(value);
-    }
-
-    /** Binds all attributes and uniforms in the program. */
-    public void bindAttributesAndUniforms() {
-      for (Attribute attribute : attributes) {
-        attribute.bind();
-      }
-      for (Uniform uniform : uniforms) {
-        uniform.bind();
-      }
-    }
-  }
-
+  // TODO(b/231937416): Consider removing this flag, enabling assertions by default, and making
+  //  GlException checked.
   /** Whether to throw a {@link GlException} in case of an OpenGL error. */
   public static boolean glAssertionsEnabled = false;
 
-  /** Number of vertices in a rectangle. */
-  public static final int RECTANGLE_VERTICES_COUNT = 4;
+  /** Number of elements in a 3d homogeneous coordinate vector describing a vertex. */
+  public static final int HOMOGENEOUS_COORDINATE_VECTOR_SIZE = 4;
+
+  /** Length of the normalized device coordinate (NDC) space, which spans from -1 to 1. */
+  public static final float LENGTH_NDC = 2f;
 
   private static final String TAG = "GlUtil";
 
@@ -213,8 +68,6 @@ public final class GlUtil {
   // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
   private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
 
-  // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
-  private static final int GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT = 0x8BE7;
   // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
   private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
   // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
@@ -269,9 +122,24 @@ public final class GlUtil {
     };
   }
 
+  /** Flattens the list of 4 element NDC coordinate vectors into a buffer. */
+  public static float[] createVertexBuffer(List<float[]> vertexList) {
+    float[] vertexBuffer = new float[HOMOGENEOUS_COORDINATE_VECTOR_SIZE * vertexList.size()];
+    for (int i = 0; i < vertexList.size(); i++) {
+      System.arraycopy(
+          /* src= */ vertexList.get(i),
+          /* srcPos= */ 0,
+          /* dest= */ vertexBuffer,
+          /* destPos= */ HOMOGENEOUS_COORDINATE_VECTOR_SIZE * i,
+          /* length= */ HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
+    }
+    return vertexBuffer;
+  }
+
   /**
    * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.
-   * If {@code true}, the device supports a protected output path for DRM content when using GL.
+   *
+   * <p>If {@code true}, the device supports a protected output path for DRM content when using GL.
    */
   public static boolean isProtectedContentExtensionSupported(Context context) {
     if (Util.SDK_INT < 24) {
@@ -298,7 +166,11 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether creating a GL context with {@value #EXTENSION_SURFACELESS_CONTEXT} is possible.
+   * Returns whether the {@value #EXTENSION_SURFACELESS_CONTEXT} extension is supported.
+   *
+   * <p>This extension allows passing {@link EGL14#EGL_NO_SURFACE} for both the write and read
+   * surfaces in a call to {@link EGL14#eglMakeCurrent(EGLDisplay, EGLSurface, EGLSurface,
+   * EGLContext)}.
    */
   public static boolean isSurfacelessContextExtensionSupported() {
     if (Util.SDK_INT < 17) {
@@ -359,6 +231,77 @@ public final class GlUtil {
   }
 
   /**
+   * Creates a new {@link EGLSurface} wrapping a pixel buffer.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @param width The width of the pixel buffer.
+   * @param height The height of the pixel buffer.
+   */
+  @RequiresApi(17)
+  private static EGLSurface createPbufferSurface(EGLDisplay eglDisplay, int width, int height) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH, width,
+          EGL14.EGL_HEIGHT, height,
+          EGL14.EGL_NONE
+        };
+    return Api17.createEglPbufferSurface(
+        eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888, pbufferAttributes);
+  }
+
+  /**
+   * Returns a placeholder {@link EGLSurface} to use when reading and writing to the surface is not
+   * required.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @return {@link EGL14#EGL_NO_SURFACE} if supported and a 1x1 pixel buffer surface otherwise.
+   */
+  @RequiresApi(17)
+  public static EGLSurface createPlaceholderEglSurface(EGLDisplay eglDisplay) {
+    return isSurfacelessContextExtensionSupported()
+        ? EGL14.EGL_NO_SURFACE
+        : createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
+   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   */
+  @RequiresApi(17)
+  public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay) {
+    EGLSurface eglSurface = createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1);
+    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
+   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer, for HDR rendering
+   * with Rec. 2020 color primaries and using the PQ transfer function.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   */
+  @RequiresApi(17)
+  public static void focusPlaceholderEglSurfaceBt2020Pq(
+      EGLContext eglContext, EGLDisplay eglDisplay) {
+    int[] pbufferAttributes =
+        new int[] {
+          EGL14.EGL_WIDTH,
+          /* width= */ 1,
+          EGL14.EGL_HEIGHT,
+          /* height= */ 1,
+          EGL_GL_COLORSPACE_KHR,
+          EGL_GL_COLORSPACE_BT2020_PQ_EXT,
+          EGL14.EGL_NONE
+        };
+    EGLSurface eglSurface =
+        Api17.createEglPbufferSurface(
+            eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_1010102, pbufferAttributes);
+    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+  }
+
+  /**
    * If there is an OpenGl error, logs the error and if {@link #glAssertionsEnabled} is true throws
    * a {@link GlException}.
    */
@@ -375,13 +318,54 @@ public final class GlUtil {
   }
 
   /**
-   * Makes the specified {@code surface} the render target, using a viewport of {@code width} by
+   * Asserts the texture size is valid.
+   *
+   * @param width The width for a texture.
+   * @param height The height for a texture.
+   * @throws GlException If the texture width or height is invalid.
+   */
+  public static void assertValidTextureSize(int width, int height) {
+    // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
+    //  (ex. downscaling appropriately) in a texture processor instead of asserting incorrect
+    //  values.
+
+    // For valid GL sizes, see:
+    // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
+    int[] maxTextureSizeBuffer = new int[1];
+    GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSizeBuffer, 0);
+    int maxTextureSize = maxTextureSizeBuffer[0];
+    if (width < 0 || height < 0) {
+      throwGlException("width or height is less than 0");
+    }
+    if (width > maxTextureSize || height > maxTextureSize) {
+      throwGlException("width or height is greater than GL_MAX_TEXTURE_SIZE " + maxTextureSize);
+    }
+  }
+
+  /**
+   * Makes the specified {@code eglSurface} the render target, using a viewport of {@code width} by
    * {@code height} pixels.
    */
   @RequiresApi(17)
-  public static void focusSurface(
-      EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface surface, int width, int height) {
-    Api17.focusSurface(eglDisplay, eglContext, surface, width, height);
+  public static void focusEglSurface(
+      EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface eglSurface, int width, int height) {
+    Api17.focusRenderTarget(
+        eglDisplay, eglContext, eglSurface, /* framebuffer= */ 0, width, height);
+  }
+
+  /**
+   * Makes the specified {@code framebuffer} the render target, using a viewport of {@code width} by
+   * {@code height} pixels.
+   */
+  @RequiresApi(17)
+  public static void focusFramebuffer(
+      EGLDisplay eglDisplay,
+      EGLContext eglContext,
+      EGLSurface eglSurface,
+      int framebuffer,
+      int width,
+      int height) {
+    Api17.focusRenderTarget(eglDisplay, eglContext, eglSurface, framebuffer, width, height);
   }
 
   /**
@@ -446,49 +430,94 @@ public final class GlUtil {
    * GL_CLAMP_TO_EDGE wrapping.
    */
   public static int createExternalTexture() {
+    int texId = generateTexture();
+    bindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
+    return texId;
+  }
+
+  /**
+   * Returns the texture identifier for a newly-allocated texture with the specified dimensions.
+   *
+   * @param width of the new texture in pixels
+   * @param height of the new texture in pixels
+   */
+  public static int createTexture(int width, int height) {
+    assertValidTextureSize(width, height);
+    int texId = generateTexture();
+    bindTexture(GLES20.GL_TEXTURE_2D, texId);
+    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * 4);
+    GLES20.glTexImage2D(
+        GLES20.GL_TEXTURE_2D,
+        /* level= */ 0,
+        GLES20.GL_RGBA,
+        width,
+        height,
+        /* border= */ 0,
+        GLES20.GL_RGBA,
+        GLES20.GL_UNSIGNED_BYTE,
+        byteBuffer);
+    checkGlError();
+    return texId;
+  }
+
+  /** Returns a new GL texture identifier. */
+  private static int generateTexture() {
+    checkEglException(
+        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
     int[] texId = new int[1];
-    GLES20.glGenTextures(/* n= */ 1, IntBuffer.wrap(texId));
-    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId[0]);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+    GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
     checkGlError();
     return texId[0];
   }
 
-  private static void addShader(int programId, int type, String glsl) {
-    int shader = GLES20.glCreateShader(type);
-    GLES20.glShaderSource(shader, glsl);
-    GLES20.glCompileShader(shader);
-
-    int[] result = new int[] {GLES20.GL_FALSE};
-    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, /* offset= */ 0);
-    if (result[0] != GLES20.GL_TRUE) {
-      throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
-    }
-
-    GLES20.glAttachShader(programId, shader);
-    GLES20.glDeleteShader(shader);
+  /**
+   * Binds the texture of the given type with default configuration of GL_LINEAR filtering and
+   * GL_CLAMP_TO_EDGE wrapping.
+   *
+   * @param texId The texture identifier.
+   * @param textureTarget The target to which the texture is bound, e.g. {@link
+   *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
+   *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
+   */
+  public static void bindTexture(int textureTarget, int texId) {
+    GLES20.glBindTexture(textureTarget, texId);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     checkGlError();
   }
 
-  private static int getAttributeLocation(int programId, String attributeName) {
-    return GLES20.glGetAttribLocation(programId, attributeName);
+  /**
+   * Returns a new framebuffer for the texture.
+   *
+   * @param texId The identifier of the texture to attach to the framebuffer.
+   */
+  public static int createFboForTexture(int texId) {
+    checkEglException(
+        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
+
+    int[] fboId = new int[1];
+    GLES20.glGenFramebuffers(/* n= */ 1, fboId, /* offset= */ 0);
+    checkGlError();
+    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId[0]);
+    checkGlError();
+    GLES20.glFramebufferTexture2D(
+        GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, texId, 0);
+    checkGlError();
+    return fboId[0];
   }
 
-  private static int getUniformLocation(int programId, String uniformName) {
-    return GLES20.glGetUniformLocation(programId, uniformName);
-  }
-
-  private static void throwGlException(String errorMsg) {
-    Log.e(TAG, errorMsg);
+  /* package */ static void throwGlException(String errorMsg) {
     if (glAssertionsEnabled) {
       throw new GlException(errorMsg);
+    } else {
+      Log.e(TAG, errorMsg);
     }
   }
 
@@ -498,205 +527,9 @@ public final class GlUtil {
     }
   }
 
-  /** Returns the length of the null-terminated string in {@code strVal}. */
-  private static int strlen(byte[] strVal) {
-    for (int i = 0; i < strVal.length; ++i) {
-      if (strVal[i] == '\0') {
-        return i;
-      }
-    }
-    return strVal.length;
-  }
-
-  /**
-   * GL attribute, which can be attached to a buffer with {@link Attribute#setBuffer(float[], int)}.
-   */
-  private static final class Attribute {
-
-    /* Returns the attribute at the given index in the program. */
-    public static Attribute create(int programId, int index) {
-      int[] length = new int[1];
-      GLES20.glGetProgramiv(
-          programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, /* offset= */ 0);
-      byte[] nameBytes = new byte[length[0]];
-
-      GLES20.glGetActiveAttrib(
-          programId,
-          index,
-          length[0],
-          /* unusedLength */ new int[1],
-          /* lengthOffset= */ 0,
-          /* unusedSize */ new int[1],
-          /* sizeOffset= */ 0,
-          /* unusedType */ new int[1],
-          /* typeOffset= */ 0,
-          nameBytes,
-          /* nameOffset= */ 0);
-      String name = new String(nameBytes, /* offset= */ 0, strlen(nameBytes));
-      int location = getAttributeLocation(programId, name);
-
-      return new Attribute(name, index, location);
-    }
-
-    /** The name of the attribute in the GLSL sources. */
-    public final String name;
-
-    private final int index;
-    private final int location;
-
-    @Nullable private Buffer buffer;
-    private int size;
-
-    private Attribute(String name, int index, int location) {
-      this.name = name;
-      this.index = index;
-      this.location = location;
-    }
-
-    /**
-     * Configures {@link #bind()} to attach vertices in {@code buffer} (each of size {@code size}
-     * elements) to this {@link Attribute}.
-     *
-     * @param buffer Buffer to bind to this attribute.
-     * @param size Number of elements per vertex.
-     */
-    public void setBuffer(float[] buffer, int size) {
-      this.buffer = createBuffer(buffer);
-      this.size = size;
-    }
-
-    /**
-     * Sets the vertex attribute to whatever was attached via {@link #setBuffer(float[], int)}.
-     *
-     * <p>Should be called before each drawing call.
-     */
-    public void bind() {
-      Buffer buffer = checkNotNull(this.buffer, "call setBuffer before bind");
-      GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, /* buffer= */ 0);
-      GLES20.glVertexAttribPointer(
-          location, size, GLES20.GL_FLOAT, /* normalized= */ false, /* stride= */ 0, buffer);
-      GLES20.glEnableVertexAttribArray(index);
-      checkGlError();
-    }
-  }
-
-  /**
-   * GL uniform, which can be attached to a sampler using {@link Uniform#setSamplerTexId(int, int)}.
-   */
-  private static final class Uniform {
-
-    /** Returns the uniform at the given index in the program. */
-    public static Uniform create(int programId, int index) {
-      int[] length = new int[1];
-      GLES20.glGetProgramiv(
-          programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, /* offset= */ 0);
-
-      int[] type = new int[1];
-      byte[] nameBytes = new byte[length[0]];
-
-      GLES20.glGetActiveUniform(
-          programId,
-          index,
-          length[0],
-          /* unusedLength */ new int[1],
-          /* lengthOffset= */ 0,
-          /* unusedSize */ new int[1],
-          /*sizeOffset= */ 0,
-          type,
-          /* typeOffset= */ 0,
-          nameBytes,
-          /* nameOffset= */ 0);
-      String name = new String(nameBytes, /* offset= */ 0, strlen(nameBytes));
-      int location = getUniformLocation(programId, name);
-
-      return new Uniform(name, location, type[0]);
-    }
-
-    /** The name of the uniform in the GLSL sources. */
-    public final String name;
-
-    private final int location;
-    private final int type;
-    private final float[] value;
-
-    private int texId;
-    private int unit;
-
-    private Uniform(String name, int location, int type) {
-      this.name = name;
-      this.location = location;
-      this.type = type;
-      this.value = new float[16];
-    }
-
-    /**
-     * Configures {@link #bind()} to use the specified {@code texId} for this sampler uniform.
-     *
-     * @param texId The GL texture identifier from which to sample.
-     * @param unit The GL texture unit index.
-     */
-    public void setSamplerTexId(int texId, int unit) {
-      this.texId = texId;
-      this.unit = unit;
-    }
-
-    /** Configures {@link #bind()} to use the specified float {@code value} for this uniform. */
-    public void setFloat(float value) {
-      this.value[0] = value;
-    }
-
-    /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
-    public void setFloats(float[] value) {
-      System.arraycopy(value, /* srcPos= */ 0, this.value, /* destPos= */ 0, value.length);
-    }
-
-    /**
-     * Sets the uniform to whatever value was passed via {@link #setSamplerTexId(int, int)}, {@link
-     * #setFloat(float)} or {@link #setFloats(float[])}.
-     *
-     * <p>Should be called before each drawing call.
-     */
-    public void bind() {
-      if (type == GLES20.GL_FLOAT) {
-        GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);
-        checkGlError();
-        return;
-      }
-
-      if (type == GLES20.GL_FLOAT_MAT3) {
-        GLES20.glUniformMatrix3fv(
-            location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
-        checkGlError();
-        return;
-      }
-
-      if (type == GLES20.GL_FLOAT_MAT4) {
-        GLES20.glUniformMatrix4fv(
-            location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
-        checkGlError();
-        return;
-      }
-
-      if (texId == 0) {
-        throw new IllegalStateException("No call to setSamplerTexId() before bind.");
-      }
-      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
-      if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES || type == GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT) {
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
-      } else if (type == GLES20.GL_SAMPLER_2D) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
-      } else {
-        throw new IllegalStateException("Unexpected uniform type: " + type);
-      }
-      GLES20.glUniform1i(location, unit);
-      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-      GLES20.glTexParameteri(
-          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-      GLES20.glTexParameteri(
-          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-      checkGlError();
-    }
+  private static void checkEglException(String errorMessage) {
+    int error = EGL14.eglGetError();
+    checkEglException(error == EGL14.EGL_SUCCESS, errorMessage + ", error code: " + error);
   }
 
   @RequiresApi(17)
@@ -747,25 +580,48 @@ public final class GlUtil {
         Object surface,
         int[] configAttributes,
         int[] windowSurfaceAttributes) {
-      return EGL14.eglCreateWindowSurface(
-          eglDisplay,
-          getEglConfig(eglDisplay, configAttributes),
-          surface,
-          windowSurfaceAttributes,
-          /* offset= */ 0);
+      EGLSurface eglSurface =
+          EGL14.eglCreateWindowSurface(
+              eglDisplay,
+              getEglConfig(eglDisplay, configAttributes),
+              surface,
+              windowSurfaceAttributes,
+              /* offset= */ 0);
+      checkEglException("Error creating surface");
+      return eglSurface;
     }
 
     @DoNotInline
-    public static void focusSurface(
-        EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface surface, int width, int height) {
-      int[] boundFrameBuffer = new int[1];
-      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFrameBuffer, /* offset= */ 0);
-      int defaultFrameBuffer = 0;
-      if (boundFrameBuffer[0] != defaultFrameBuffer) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, defaultFrameBuffer);
+    public static EGLSurface createEglPbufferSurface(
+        EGLDisplay eglDisplay, int[] configAttributes, int[] pbufferAttributes) {
+      EGLSurface eglSurface =
+          EGL14.eglCreatePbufferSurface(
+              eglDisplay,
+              getEglConfig(eglDisplay, configAttributes),
+              pbufferAttributes,
+              /* offset= */ 0);
+      checkEglException("Error creating surface");
+      return eglSurface;
+    }
+
+    @DoNotInline
+    public static void focusRenderTarget(
+        EGLDisplay eglDisplay,
+        EGLContext eglContext,
+        EGLSurface eglSurface,
+        int framebuffer,
+        int width,
+        int height) {
+      int[] boundFramebuffer = new int[1];
+      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFramebuffer, /* offset= */ 0);
+      if (boundFramebuffer[0] != framebuffer) {
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
       }
-      EGL14.eglMakeCurrent(eglDisplay, surface, surface, eglContext);
+      checkGlError();
+      EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+      checkEglException("Error making context current");
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
+      checkGlError();
     }
 
     @DoNotInline
@@ -776,19 +632,15 @@ public final class GlUtil {
       }
       EGL14.eglMakeCurrent(
           eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
-      int error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error releasing context: " + error);
+      checkEglException("Error releasing context");
       if (eglContext != null) {
         EGL14.eglDestroyContext(eglDisplay, eglContext);
-        error = EGL14.eglGetError();
-        checkEglException(error == EGL14.EGL_SUCCESS, "Error destroying context: " + error);
+        checkEglException("Error destroying context");
       }
       EGL14.eglReleaseThread();
-      error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error releasing thread: " + error);
+      checkEglException("Error releasing thread");
       EGL14.eglTerminate(eglDisplay);
-      error = EGL14.eglGetError();
-      checkEglException(error == EGL14.EGL_SUCCESS, "Error terminating display: " + error);
+      checkEglException("Error terminating display");
     }
 
     @DoNotInline

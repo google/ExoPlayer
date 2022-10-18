@@ -315,7 +315,9 @@ public final class MediaCodecInfo {
     }
 
     for (CodecProfileLevel profileLevel : profileLevels) {
-      if (profileLevel.profile == profile && profileLevel.level >= level) {
+      if (profileLevel.profile == profile
+          && profileLevel.level >= level
+          && !needsProfileExcludedWorkaround(mimeType, profile)) {
         return true;
       }
     }
@@ -828,5 +830,16 @@ public final class MediaCodecInfo {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Whether a profile is excluded from the list of supported profiles. This may happen when a
+   * device declares support for a profile it doesn't actually support.
+   */
+  private static boolean needsProfileExcludedWorkaround(String mimeType, int profile) {
+    // See https://github.com/google/ExoPlayer/issues/3537
+    return MimeTypes.VIDEO_H265.equals(mimeType)
+        && CodecProfileLevel.HEVCProfileMain10 == profile
+        && ("sailfish".equals(Util.DEVICE) || "marlin".equals(Util.DEVICE));
   }
 }

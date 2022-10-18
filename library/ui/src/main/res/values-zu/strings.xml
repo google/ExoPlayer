@@ -37,11 +37,11 @@
     <item quantity="one">Dlulisela phambili ngamasekhondi angu-%d</item>
     <item quantity="other">Dlulisela phambili ngamasekhondi angu-%d</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Phinda okungekho</string>
-  <string name="exo_controls_repeat_one_description">Phinda okukodwa</string>
-  <string name="exo_controls_repeat_all_description">Phinda konke</string>
-  <string name="exo_controls_shuffle_on_description">Ukushova kuvuliwe</string>
-  <string name="exo_controls_shuffle_off_description">Ukushova kuvaliwe</string>
+  <string name="exo_controls_repeat_off_description">Imodeli yamanje: Ungaphindi lutho. Guqula imodi yokuphinda.</string>
+  <string name="exo_controls_repeat_one_description">Imodi yamanje: Phinda kanye. Guqula imodi yokuphinda.</string>
+  <string name="exo_controls_repeat_all_description">Imodi yamanje: Phinda konke. Guqula imodi yokuphinda.</string>
+  <string name="exo_controls_shuffle_on_description">Khubaza imodi yokushova</string>
+  <string name="exo_controls_shuffle_off_description">Nika amandla imodi yokushova</string>
   <string name="exo_controls_vr_description">Inqubo ye-VR</string>
   <string name="exo_controls_cc_enabled_description">Khubaza imibhalo engezansi</string>
   <string name="exo_controls_cc_disabled_description">Nika amandla imibhalo engezansi</string>

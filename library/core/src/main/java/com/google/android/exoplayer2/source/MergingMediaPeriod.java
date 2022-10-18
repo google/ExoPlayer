@@ -607,5 +607,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public boolean isBlacklisted(int index, long nowMs) {
       return trackSelection.isBlacklisted(index, nowMs);
     }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof ForwardingTrackSelection)) {
+        return false;
+      }
+      ForwardingTrackSelection that = (ForwardingTrackSelection) o;
+      return trackSelection.equals(that.trackSelection) && trackGroup.equals(that.trackGroup);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 17;
+      result = 31 * result + trackGroup.hashCode();
+      result = 31 * result + trackSelection.hashCode();
+      return result;
+    }
   }
 }

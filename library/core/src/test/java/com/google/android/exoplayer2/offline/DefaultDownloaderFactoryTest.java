@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
+import com.google.android.exoplayer2.upstream.PlaceholderDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public final class DefaultDownloaderFactoryTest {
     CacheDataSource.Factory cacheDataSourceFactory =
         new CacheDataSource.Factory()
             .setCache(Mockito.mock(Cache.class))
-            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+            .setUpstreamDataSourceFactory(PlaceholderDataSource.FACTORY);
     DownloaderFactory factory =
         new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 

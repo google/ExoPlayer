@@ -39,7 +39,7 @@ injected from application code.
 
 `DefaultDataSource` will automatically use the RTMP extension whenever it's
 available. Hence if your application is using `DefaultDataSource` or
-`DefaultDataSourceFactory`, adding support for RTMP streams is as simple as
+`DefaultDataSource.Factory`, adding support for RTMP streams is as simple as
 adding a dependency to the RTMP extension as described above. No changes to your
 application code are required. Alternatively, if you know that your application
 doesn't need to handle any other protocols, you can update any

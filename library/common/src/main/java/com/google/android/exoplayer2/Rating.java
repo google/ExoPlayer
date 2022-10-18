@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 public abstract class Rating implements Bundleable {
 
   /** A float value that denotes the rating is unset. */
-  public static final float RATING_UNSET = -1.0f;
+  /* package */ static final float RATING_UNSET = -1.0f;
 
   // Default package-private constructor to prevent extending Rating class outside this package.
   /* package */ Rating() {}

@@ -23,6 +23,9 @@ import java.util.Random;
  * Shuffled order of indices.
  *
  * <p>The shuffle order must be immutable to ensure thread safety.
+ *
+ * <p>The order must be consistent when traversed both {@linkplain #getNextIndex(int) forwards} and
+ * {@linkplain #getPreviousIndex(int) backwards}.
  */
 public interface ShuffleOrder {
 

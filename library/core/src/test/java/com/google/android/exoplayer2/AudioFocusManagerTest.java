@@ -395,7 +395,7 @@ public class AudioFocusManagerTest {
     AudioAttributes speechAudioAttributes =
         new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_SPEECH)
+            .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
             .build();
     audioFocusManager.setAudioAttributes(speechAudioAttributes);
 

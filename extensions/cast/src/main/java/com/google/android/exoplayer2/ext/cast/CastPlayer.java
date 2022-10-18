@@ -37,19 +37,15 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -67,7 +63,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
@@ -104,8 +99,9 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_GET_TIMELINE,
               COMMAND_GET_MEDIA_ITEMS_METADATA,
               COMMAND_SET_MEDIA_ITEMS_METADATA,
+              COMMAND_SET_MEDIA_ITEM,
               COMMAND_CHANGE_MEDIA_ITEMS,
-              COMMAND_GET_TRACK_INFOS)
+              COMMAND_GET_TRACKS)
           .build();
 
   public static final float MIN_SPEED_SUPPORTED = 0.5f;
@@ -113,13 +109,7 @@ public final class CastPlayer extends BasePlayer {
 
   private static final String TAG = "CastPlayer";
 
-  private static final int RENDERER_COUNT = 3;
-  private static final int RENDERER_INDEX_VIDEO = 0;
-  private static final int RENDERER_INDEX_AUDIO = 1;
-  private static final int RENDERER_INDEX_TEXT = 2;
   private static final long PROGRESS_REPORT_PERIOD_MS = 1000;
-  private static final TrackSelectionArray EMPTY_TRACK_SELECTION_ARRAY =
-      new TrackSelectionArray(null, null, null);
   private static final long[] EMPTY_TRACK_ID_ARRAY = new long[0];
 
   private final CastContext castContext;
@@ -144,9 +134,7 @@ public final class CastPlayer extends BasePlayer {
   private final StateHolder<PlaybackParameters> playbackParameters;
   @Nullable private RemoteMediaClient remoteMediaClient;
   private CastTimeline currentTimeline;
-  private TrackGroupArray currentTrackGroups;
-  private TrackSelectionArray currentTrackSelection;
-  private TracksInfo currentTracksInfo;
+  private Tracks currentTracks;
   private Commands availableCommands;
   private @Player.State int playbackState;
   private int currentWindowIndex;
@@ -155,6 +143,7 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
+  private MediaMetadata mediaMetadata;
 
   /**
    * Creates a new cast player.
@@ -208,7 +197,7 @@ public final class CastPlayer extends BasePlayer {
     this.mediaItemConverter = mediaItemConverter;
     this.seekBackIncrementMs = seekBackIncrementMs;
     this.seekForwardIncrementMs = seekForwardIncrementMs;
-    timelineTracker = new CastTimelineTracker();
+    timelineTracker = new CastTimelineTracker(mediaItemConverter);
     period = new Timeline.Period();
     statusListener = new StatusListener();
     seekResultCallback = new SeekResultCallback();
@@ -222,9 +211,8 @@ public final class CastPlayer extends BasePlayer {
     playbackParameters = new StateHolder<>(PlaybackParameters.DEFAULT);
     playbackState = STATE_IDLE;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
-    currentTrackGroups = TrackGroupArray.EMPTY;
-    currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
-    currentTracksInfo = TracksInfo.EMPTY;
+    mediaMetadata = MediaMetadata.EMPTY;
+    currentTracks = Tracks.EMPTY;
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
@@ -295,8 +283,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    setMediaItemsInternal(
-        toMediaQueueItems(mediaItems), startIndex, startPositionMs, repeatMode.value);
+    setMediaItemsInternal(mediaItems, startIndex, startPositionMs, repeatMode.value);
   }
 
   @Override
@@ -306,7 +293,7 @@ public final class CastPlayer extends BasePlayer {
     if (index < currentTimeline.getWindowCount()) {
       uid = (int) currentTimeline.getWindow(/* windowIndex= */ index, window).uid;
     }
-    addMediaItemsInternal(toMediaQueueItems(mediaItems), uid);
+    addMediaItemsInternal(mediaItems, uid);
   }
 
   @Override
@@ -438,6 +425,13 @@ public final class CastPlayer extends BasePlayer {
             Player.EVENT_MEDIA_ITEM_TRANSITION,
             listener ->
                 listener.onMediaItemTransition(mediaItem, MEDIA_ITEM_TRANSITION_REASON_SEEK));
+        MediaMetadata oldMediaMetadata = mediaMetadata;
+        mediaMetadata = getMediaMetadataInternal();
+        if (!oldMediaMetadata.equals(mediaMetadata)) {
+          listeners.queueEvent(
+              Player.EVENT_MEDIA_METADATA_CHANGED,
+              listener -> listener.onMediaMetadataChanged(mediaMetadata));
+        }
       }
       updateAvailableCommandsAndNotifyIfChanged();
     } else if (pendingSeekCount == 0) {
@@ -471,6 +465,11 @@ public final class CastPlayer extends BasePlayer {
     stop(/* reset= */ false);
   }
 
+  /**
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
+   */
   @Deprecated
   @Override
   public void stop(boolean reset) {
@@ -556,18 +555,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return currentTrackGroups;
-  }
-
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return currentTrackSelection;
-  }
-
-  @Override
-  public TracksInfo getCurrentTracksInfo() {
-    return currentTracksInfo;
+  public Tracks getCurrentTracks() {
+    return currentTracks;
   }
 
   @Override
@@ -580,8 +569,12 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public MediaMetadata getMediaMetadata() {
-    // CastPlayer does not currently support metadata.
-    return MediaMetadata.EMPTY;
+    return mediaMetadata;
+  }
+
+  public MediaMetadata getMediaMetadataInternal() {
+    MediaItem currentMediaItem = getCurrentMediaItem();
+    return currentMediaItem != null ? currentMediaItem.mediaMetadata : MediaMetadata.EMPTY;
   }
 
   @Override
@@ -728,10 +721,10 @@ public final class CastPlayer extends BasePlayer {
     return VideoSize.UNKNOWN;
   }
 
-  /** This method is not supported and returns an empty list. */
+  /** This method is not supported and returns an empty {@link CueGroup}. */
   @Override
-  public ImmutableList<Cue> getCurrentCues() {
-    return ImmutableList.of();
+  public CueGroup getCurrentCues() {
+    return CueGroup.EMPTY;
   }
 
   /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */
@@ -778,6 +771,7 @@ public final class CastPlayer extends BasePlayer {
       return;
     }
     int oldWindowIndex = this.currentWindowIndex;
+    MediaMetadata oldMediaMetadata = mediaMetadata;
     @Nullable
     Object oldPeriodUid =
         !getCurrentTimeline().isEmpty()
@@ -789,6 +783,7 @@ public final class CastPlayer extends BasePlayer {
     boolean playingPeriodChangedByTimelineChange = updateTimelineAndNotifyIfChanged();
     Timeline currentTimeline = getCurrentTimeline();
     currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
+    mediaMetadata = getMediaMetadataInternal();
     @Nullable
     Object currentPeriodUid =
         !currentTimeline.isEmpty()
@@ -840,10 +835,12 @@ public final class CastPlayer extends BasePlayer {
     }
     if (updateTracksAndSelectionsAndNotifyIfChanged()) {
       listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksChanged(currentTrackGroups, currentTrackSelection));
+          Player.EVENT_TRACKS_CHANGED, listener -> listener.onTracksChanged(currentTracks));
+    }
+    if (!oldMediaMetadata.equals(mediaMetadata)) {
       listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED, listener -> listener.onTracksInfoChanged(currentTracksInfo));
+          Player.EVENT_MEDIA_METADATA_CHANGED,
+          listener -> listener.onMediaMetadataChanged(mediaMetadata));
     }
     updateAvailableCommandsAndNotifyIfChanged();
     listeners.flushEvents();
@@ -998,55 +995,33 @@ public final class CastPlayer extends BasePlayer {
       return false;
     }
 
-    MediaStatus mediaStatus = getMediaStatus();
-    MediaInfo mediaInfo = mediaStatus != null ? mediaStatus.getMediaInfo() : null;
+    @Nullable MediaStatus mediaStatus = getMediaStatus();
+    @Nullable MediaInfo mediaInfo = mediaStatus != null ? mediaStatus.getMediaInfo() : null;
+    @Nullable
     List<MediaTrack> castMediaTracks = mediaInfo != null ? mediaInfo.getMediaTracks() : null;
     if (castMediaTracks == null || castMediaTracks.isEmpty()) {
-      boolean hasChanged = !currentTrackGroups.isEmpty();
-      currentTrackGroups = TrackGroupArray.EMPTY;
-      currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
-      currentTracksInfo = TracksInfo.EMPTY;
+      boolean hasChanged = !Tracks.EMPTY.equals(currentTracks);
+      currentTracks = Tracks.EMPTY;
       return hasChanged;
     }
-    long[] activeTrackIds = mediaStatus.getActiveTrackIds();
+    @Nullable long[] activeTrackIds = mediaStatus.getActiveTrackIds();
     if (activeTrackIds == null) {
       activeTrackIds = EMPTY_TRACK_ID_ARRAY;
     }
 
-    TrackGroup[] trackGroups = new TrackGroup[castMediaTracks.size()];
-    @NullableType TrackSelection[] trackSelections = new TrackSelection[RENDERER_COUNT];
-    TracksInfo.TrackGroupInfo[] trackGroupInfos =
-        new TracksInfo.TrackGroupInfo[castMediaTracks.size()];
+    Tracks.Group[] trackGroups = new Tracks.Group[castMediaTracks.size()];
     for (int i = 0; i < castMediaTracks.size(); i++) {
       MediaTrack mediaTrack = castMediaTracks.get(i);
-      trackGroups[i] =
+      TrackGroup trackGroup =
           new TrackGroup(/* id= */ Integer.toString(i), CastUtils.mediaTrackToFormat(mediaTrack));
-
-      long id = mediaTrack.getId();
-      @C.TrackType int trackType = MimeTypes.getTrackType(mediaTrack.getContentType());
-      int rendererIndex = getRendererIndexForTrackType(trackType);
-      boolean supported = rendererIndex != C.INDEX_UNSET;
-      boolean selected =
-          isTrackActive(id, activeTrackIds) && supported && trackSelections[rendererIndex] == null;
-      if (selected) {
-        trackSelections[rendererIndex] = new CastTrackSelection(trackGroups[i]);
-      }
-      @C.FormatSupport
-      int[] trackSupport = new int[] {supported ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_TYPE};
-      final boolean[] trackSelected = new boolean[] {selected};
-      trackGroupInfos[i] =
-          new TracksInfo.TrackGroupInfo(trackGroups[i], trackSupport, trackType, trackSelected);
+      @C.FormatSupport int[] trackSupport = new int[] {C.FORMAT_HANDLED};
+      boolean[] trackSelected = new boolean[] {isTrackActive(mediaTrack.getId(), activeTrackIds)};
+      trackGroups[i] =
+          new Tracks.Group(trackGroup, /* adaptiveSupported= */ false, trackSupport, trackSelected);
     }
-    TrackGroupArray newTrackGroups = new TrackGroupArray(trackGroups);
-    TrackSelectionArray newTrackSelections = new TrackSelectionArray(trackSelections);
-    TracksInfo newTracksInfo = new TracksInfo(ImmutableList.copyOf(trackGroupInfos));
-
-    if (!newTrackGroups.equals(currentTrackGroups)
-        || !newTrackSelections.equals(currentTrackSelection)
-        || !newTracksInfo.equals(currentTracksInfo)) {
-      currentTrackSelection = newTrackSelections;
-      currentTrackGroups = newTrackGroups;
-      currentTracksInfo = newTracksInfo;
+    Tracks newTracks = new Tracks(ImmutableList.copyOf(trackGroups));
+    if (!newTracks.equals(currentTracks)) {
+      currentTracks = newTracks;
       return true;
     }
     return false;
@@ -1062,14 +1037,13 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
-  @Nullable
-  private PendingResult<MediaChannelResult> setMediaItemsInternal(
-      MediaQueueItem[] mediaQueueItems,
+  private void setMediaItemsInternal(
+      List<MediaItem> mediaItems,
       int startIndex,
       long startPositionMs,
       @RepeatMode int repeatMode) {
-    if (remoteMediaClient == null || mediaQueueItems.length == 0) {
-      return null;
+    if (remoteMediaClient == null || mediaItems.isEmpty()) {
+      return;
     }
     startPositionMs = startPositionMs == C.TIME_UNSET ? 0 : startPositionMs;
     if (startIndex == C.INDEX_UNSET) {
@@ -1080,34 +1054,35 @@ public final class CastPlayer extends BasePlayer {
     if (!currentTimeline.isEmpty()) {
       pendingMediaItemRemovalPosition = getCurrentPositionInfo();
     }
-    return remoteMediaClient.queueLoad(
+    MediaQueueItem[] mediaQueueItems = toMediaQueueItems(mediaItems);
+    timelineTracker.onMediaItemsSet(mediaItems, mediaQueueItems);
+    remoteMediaClient.queueLoad(
         mediaQueueItems,
-        min(startIndex, mediaQueueItems.length - 1),
+        min(startIndex, mediaItems.size() - 1),
         getCastRepeatMode(repeatMode),
         startPositionMs,
         /* customData= */ null);
   }
 
-  @Nullable
-  private PendingResult<MediaChannelResult> addMediaItemsInternal(MediaQueueItem[] items, int uid) {
+  private void addMediaItemsInternal(List<MediaItem> mediaItems, int uid) {
     if (remoteMediaClient == null || getMediaStatus() == null) {
-      return null;
+      return;
     }
-    return remoteMediaClient.queueInsertItems(items, uid, /* customData= */ null);
+    MediaQueueItem[] itemsToInsert = toMediaQueueItems(mediaItems);
+    timelineTracker.onMediaItemsAdded(mediaItems, itemsToInsert);
+    remoteMediaClient.queueInsertItems(itemsToInsert, uid, /* customData= */ null);
   }
 
-  @Nullable
-  private PendingResult<MediaChannelResult> moveMediaItemsInternal(
-      int[] uids, int fromIndex, int newIndex) {
+  private void moveMediaItemsInternal(int[] uids, int fromIndex, int newIndex) {
     if (remoteMediaClient == null || getMediaStatus() == null) {
-      return null;
+      return;
     }
     int insertBeforeIndex = fromIndex < newIndex ? newIndex + uids.length : newIndex;
     int insertBeforeItemId = MediaQueueItem.INVALID_ITEM_ID;
     if (insertBeforeIndex < currentTimeline.getWindowCount()) {
       insertBeforeItemId = (int) currentTimeline.getWindow(insertBeforeIndex, window).uid;
     }
-    return remoteMediaClient.queueReorderItems(uids, insertBeforeItemId, /* customData= */ null);
+    remoteMediaClient.queueReorderItems(uids, insertBeforeItemId, /* customData= */ null);
   }
 
   @Nullable
@@ -1302,14 +1277,6 @@ public final class CastPlayer extends BasePlayer {
       }
     }
     return false;
-  }
-
-  private static int getRendererIndexForTrackType(@C.TrackType int trackType) {
-    return trackType == C.TRACK_TYPE_VIDEO
-        ? RENDERER_INDEX_VIDEO
-        : trackType == C.TRACK_TYPE_AUDIO
-            ? RENDERER_INDEX_AUDIO
-            : trackType == C.TRACK_TYPE_TEXT ? RENDERER_INDEX_TEXT : C.INDEX_UNSET;
   }
 
   private static int getCastRepeatMode(@RepeatMode int repeatMode) {

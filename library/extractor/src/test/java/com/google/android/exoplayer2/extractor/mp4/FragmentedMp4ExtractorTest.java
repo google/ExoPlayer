@@ -122,6 +122,15 @@ public final class FragmentedMp4ExtractorTest {
         simulationConfig);
   }
 
+  /** https://github.com/google/ExoPlayer/issues/10381 */
+  @Test
+  public void sampleWithLargeBitrates() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_fragmented_large_bitrates.mp4",
+        simulationConfig);
+  }
+
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {
     return () ->
         new FragmentedMp4Extractor(

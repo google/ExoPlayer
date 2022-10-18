@@ -33,7 +33,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 
   protected final TrackOutput output;
 
-  /** @param output A {@link TrackOutput} to which samples should be written. */
+  /**
+   * @param output A {@link TrackOutput} to which samples should be written.
+   */
   protected TagPayloadReader(TrackOutput output) {
     this.output = output;
   }

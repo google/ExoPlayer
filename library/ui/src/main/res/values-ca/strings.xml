@@ -37,11 +37,11 @@
     <item quantity="one">Avança ràpidament %d segon</item>
     <item quantity="other">Avança ràpidament %d segons</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">No en repeteixis cap</string>
-  <string name="exo_controls_repeat_one_description">Repeteix una</string>
-  <string name="exo_controls_repeat_all_description">Repeteix tot</string>
-  <string name="exo_controls_shuffle_on_description">Activa reproducció aleatòria</string>
-  <string name="exo_controls_shuffle_off_description">Desactiva reproducció aleatòria</string>
+  <string name="exo_controls_repeat_off_description">Actual: no repeteixis. Commuta mode repetició.</string>
+  <string name="exo_controls_repeat_one_description">Actual: repeteix un. Commuta mode repetició.</string>
+  <string name="exo_controls_repeat_all_description">Actual: repeteix tot. Commuta mode repetició.</string>
+  <string name="exo_controls_shuffle_on_description">Desactiva el mode aleatori</string>
+  <string name="exo_controls_shuffle_off_description">Activa el mode aleatori</string>
   <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_controls_cc_enabled_description">Desactiva els subtítols</string>
   <string name="exo_controls_cc_disabled_description">Activa els subtítols</string>

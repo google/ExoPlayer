@@ -112,7 +112,9 @@ public final class ActionSchedule {
     private long currentDelayMs;
     private ActionNode previousNode;
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public Builder(String tag) {
       this.tag = tag;
       rootNode = new ActionNode(new RootAction(tag), 0);

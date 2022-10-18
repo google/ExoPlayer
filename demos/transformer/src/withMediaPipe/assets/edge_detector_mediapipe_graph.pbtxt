@@ -1,0 +1,13 @@
+# Demo MediaPipe graph that shows edges using a SobelEdgesCalculator.
+input_stream: "input_video"
+output_stream: "output_video"
+node: {
+  calculator: "LuminanceCalculator"
+  input_stream: "input_video"
+  output_stream: "luma_video"
+}
+node: {
+  calculator: "SobelEdgesCalculator"
+  input_stream: "luma_video"
+  output_stream: "output_video"
+}

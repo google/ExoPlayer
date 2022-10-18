@@ -169,7 +169,9 @@ public abstract class Timeline implements Bundleable {
      */
     public Object uid;
 
-    /** @deprecated Use {@link #mediaItem} instead. */
+    /**
+     * @deprecated Use {@link #mediaItem} instead.
+     */
     @Deprecated @Nullable public Object tag;
 
     /** The {@link MediaItem} associated to the window. Not necessarily unique. */
@@ -212,7 +214,9 @@ public abstract class Timeline implements Bundleable {
     /** Whether this window may change when the timeline is updated. */
     public boolean isDynamic;
 
-    /** @deprecated Use {@link #isLive()} instead. */
+    /**
+     * @deprecated Use {@link #isLive()} instead.
+     */
     @Deprecated public boolean isLive;
 
     /**
@@ -1169,14 +1173,18 @@ public abstract class Timeline implements Bundleable {
         == C.INDEX_UNSET;
   }
 
-  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead. */
+  /**
+   * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead.
+   */
   @Deprecated
   @InlineMe(replacement = "this.getPeriodPositionUs(window, period, windowIndex, windowPositionUs)")
   public final Pair<Object, Long> getPeriodPosition(
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return getPeriodPositionUs(window, period, windowIndex, windowPositionUs);
   }
-  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead. */
+  /**
+   * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead.
+   */
   @Deprecated
   @Nullable
   @InlineMe(
@@ -1332,6 +1340,27 @@ public abstract class Timeline implements Bundleable {
         return false;
       }
     }
+
+    // Check shuffled order
+    int windowIndex = getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+    if (windowIndex != other.getFirstWindowIndex(/* shuffleModeEnabled= */ true)) {
+      return false;
+    }
+    int lastWindowIndex = getLastWindowIndex(/* shuffleModeEnabled= */ true);
+    if (lastWindowIndex != other.getLastWindowIndex(/* shuffleModeEnabled= */ true)) {
+      return false;
+    }
+    while (windowIndex != lastWindowIndex) {
+      int nextWindowIndex =
+          getNextWindowIndex(windowIndex, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true);
+      if (nextWindowIndex
+          != other.getNextWindowIndex(
+              windowIndex, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true)) {
+        return false;
+      }
+      windowIndex = nextWindowIndex;
+    }
+
     return true;
   }
 
@@ -1348,6 +1377,13 @@ public abstract class Timeline implements Bundleable {
     for (int i = 0; i < getPeriodCount(); i++) {
       result = 31 * result + getPeriod(i, period, /* setIds= */ true).hashCode();
     }
+
+    for (int windowIndex = getFirstWindowIndex(true);
+        windowIndex != C.INDEX_UNSET;
+        windowIndex = getNextWindowIndex(windowIndex, Player.REPEAT_MODE_OFF, true)) {
+      result = 31 * result + windowIndex;
+    }
+
     return result;
   }
 

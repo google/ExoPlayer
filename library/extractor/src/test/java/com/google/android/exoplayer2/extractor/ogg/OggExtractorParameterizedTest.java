@@ -43,6 +43,13 @@ public final class OggExtractorParameterizedTest {
     ExtractorAsserts.assertBehavior(OggExtractor::new, "media/ogg/bear.opus", simulationConfig);
   }
 
+  // https://github.com/google/ExoPlayer/issues/10038
+  @Test
+  public void opus_duplicateHeader() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        OggExtractor::new, "media/ogg/bear_duplicate_header.opus", simulationConfig);
+  }
+
   @Test
   public void flac() throws Exception {
     ExtractorAsserts.assertBehavior(OggExtractor::new, "media/ogg/bear_flac.ogg", simulationConfig);

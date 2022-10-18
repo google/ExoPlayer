@@ -142,7 +142,8 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
     for (int i = 0; i < trackGroup.length; i++) {
       String uri = getUri(i);
       Format format = trackGroup.getFormat(i);
-      double avgChunkLength = format.bitrate * chunkDurationUs / (8 * C.MICROS_PER_SECOND);
+      double avgChunkLength =
+          format.bitrate * chunkDurationUs / ((double) (8 * C.MICROS_PER_SECOND));
       FakeData newData = this.newData(uri);
       for (int j = 0; j < fullChunks; j++) {
         newData.appendReadData((int) (avgChunkLength * bitrateFactors[j]));

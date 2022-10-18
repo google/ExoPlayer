@@ -63,7 +63,7 @@ import org.mockito.Mockito;
  *
  * <p>Most implementations should pass all these tests. If necessary, subclasses can disable tests
  * by overriding the {@link Test @Test} method with a no-op implementation. It's recommended (but
- * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correclty reports the
+ * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correctly reports the
  * test as skipped/ignored instead of passing.
  */
 @RequiresApi(19)

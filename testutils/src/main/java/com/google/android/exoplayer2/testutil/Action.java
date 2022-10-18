@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.timelinesAreSame;
+
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -321,7 +323,9 @@ public abstract class Action {
   /** Calls {@link ExoPlayer#clearMediaItems()}}. */
   public static class ClearMediaItems extends Action {
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public ClearMediaItems(String tag) {
       super(tag, "ClearMediaItems");
     }
@@ -424,7 +428,9 @@ public abstract class Action {
   /** Calls {@link ExoPlayer#clearVideoSurface()}. */
   public static final class ClearVideoSurface extends Action {
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public ClearVideoSurface(String tag) {
       super(tag, "ClearVideoSurface");
     }
@@ -439,7 +445,9 @@ public abstract class Action {
   /** Calls {@link ExoPlayer#setVideoSurface(Surface)}. */
   public static final class SetVideoSurface extends Action {
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public SetVideoSurface(String tag) {
       super(tag, "SetVideoSurface");
     }
@@ -478,7 +486,9 @@ public abstract class Action {
 
   /** Calls {@link ExoPlayer#prepare()}. */
   public static final class Prepare extends Action {
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public Prepare(String tag) {
       super(tag, "Prepare");
     }
@@ -755,7 +765,7 @@ public abstract class Action {
         @Nullable Timeline expectedTimeline,
         @Player.TimelineChangeReason int expectedReason) {
       super(tag, "WaitForTimelineChanged");
-      this.expectedTimeline = expectedTimeline != null ? new NoUidTimeline(expectedTimeline) : null;
+      this.expectedTimeline = expectedTimeline;
       this.ignoreExpectedReason = false;
       this.expectedReason = expectedReason;
     }
@@ -787,7 +797,7 @@ public abstract class Action {
             @Override
             public void onTimelineChanged(
                 Timeline timeline, @Player.TimelineChangeReason int reason) {
-              if ((expectedTimeline == null || new NoUidTimeline(timeline).equals(expectedTimeline))
+              if ((expectedTimeline == null || timelinesAreSame(timeline, expectedTimeline))
                   && (ignoreExpectedReason || expectedReason == reason)) {
                 player.removeListener(this);
                 nextAction.schedule(player, trackSelector, surface, handler);
@@ -795,8 +805,8 @@ public abstract class Action {
             }
           };
       player.addListener(listener);
-      Timeline currentTimeline = new NoUidTimeline(player.getCurrentTimeline());
-      if (currentTimeline.equals(expectedTimeline)) {
+      if (expectedTimeline != null
+          && timelinesAreSame(player.getCurrentTimeline(), expectedTimeline)) {
         player.removeListener(listener);
         nextAction.schedule(player, trackSelector, surface, handler);
       }
@@ -815,7 +825,9 @@ public abstract class Action {
    */
   public static final class WaitForPositionDiscontinuity extends Action {
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public WaitForPositionDiscontinuity(String tag) {
       super(tag, "WaitForPositionDiscontinuity");
     }
@@ -1044,7 +1056,9 @@ public abstract class Action {
   /** Waits until the player acknowledged all pending player commands. */
   public static final class WaitForPendingPlayerCommands extends Action {
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public WaitForPendingPlayerCommands(String tag) {
       super(tag, "WaitForPendingPlayerCommands");
     }
@@ -1081,7 +1095,9 @@ public abstract class Action {
 
     private final Runnable runnable;
 
-    /** @param tag A tag to use for logging. */
+    /**
+     * @param tag A tag to use for logging.
+     */
     public ExecuteRunnable(@Size(max = 23) String tag, Runnable runnable) {
       super(tag, "ExecuteRunnable");
       this.runnable = runnable;

@@ -37,11 +37,11 @@
     <item quantity="one">Превъртане с %d секунда напред</item>
     <item quantity="other">Превъртане с(ъс) %d секунди напред</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Без повтаряне</string>
-  <string name="exo_controls_repeat_one_description">Повтаряне на един елемент</string>
-  <string name="exo_controls_repeat_all_description">Повтаряне на всички</string>
-  <string name="exo_controls_shuffle_on_description">Разбъркването е включено</string>
-  <string name="exo_controls_shuffle_off_description">Разбъркването е изключено</string>
+  <string name="exo_controls_repeat_off_description">Текущ режим: Без повтаряне. Превкл. режима за повтаряне.</string>
+  <string name="exo_controls_repeat_one_description">Текущ режим: Повтар. на 1 елемент. Превкл. режима за повтаряне.</string>
+  <string name="exo_controls_repeat_all_description">Текущ режим: Повтар. на всички. Превкл. режима за повтаряне.</string>
+  <string name="exo_controls_shuffle_on_description">Деактивиране на режима за разбъркване</string>
+  <string name="exo_controls_shuffle_off_description">Активиране на режима за разбъркване</string>
   <string name="exo_controls_vr_description">режим за VR</string>
   <string name="exo_controls_cc_enabled_description">Деактивиране на субтитрите</string>
   <string name="exo_controls_cc_disabled_description">Активиране на субтитрите</string>

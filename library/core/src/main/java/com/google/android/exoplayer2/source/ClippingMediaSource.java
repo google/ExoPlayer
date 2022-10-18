@@ -63,7 +63,9 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     /** The reason clipping failed. */
     public final @Reason int reason;
 
-    /** @param reason The reason clipping failed. */
+    /**
+     * @param reason The reason clipping failed.
+     */
     public IllegalClippingException(@Reason int reason) {
       super("Illegal clipping: " + getReasonDescription(reason));
       this.reason = reason;

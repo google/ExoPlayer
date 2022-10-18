@@ -113,7 +113,7 @@ import java.lang.annotation.Target;
 
       for (int i = 0; i < longitudes + 1; ++i) { // For each vertical edge in the band.
         for (int k = 0; k < 2; ++k) { // For low and high points on an edge.
-          // For each point, determine it's position in polar coordinates.
+          // For each point, determine its position in polar coordinates.
           float phi = k == 0 ? phiLow : phiHigh;
           float theta = quadWidthRads * i + (float) Math.PI - horizontalFovRads / 2;
 

@@ -79,6 +79,12 @@
         <data android:scheme="ssai"/>
       </intent-filter>
       <intent-filter>
+        <action android:name="com.google.android.exoplayer.demo.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="content"/>
+        <data android:mimeType="*/*"/>
+      </intent-filter>
+      <intent-filter>
         <action android:name="com.google.android.exoplayer.demo.action.VIEW_LIST"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>

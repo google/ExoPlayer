@@ -124,6 +124,7 @@ public final class NalUnitUtilTest {
   public void parseSpsNalUnit() {
     NalUnitUtil.SpsData data =
         NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET, SPS_TEST_DATA.length);
+    assertThat(data.maxNumRefFrames).isEqualTo(4);
     assertThat(data.width).isEqualTo(640);
     assertThat(data.height).isEqualTo(360);
     assertThat(data.deltaPicOrderAlwaysZeroFlag).isFalse();
@@ -165,6 +166,32 @@ public final class NalUnitUtilTest {
     assertDiscardToSpsMatchesExpected("000000000167FF", "0000000167FF");
     assertDiscardToSpsMatchesExpected("0001670000000167FF", "0000000167FF");
     assertDiscardToSpsMatchesExpected("FF00000001660000000167FF", "0000000167FF");
+  }
+
+  /** Regression test for https://github.com/google/ExoPlayer/issues/10316. */
+  @Test
+  public void parseH265SpsNalUnitPayload_exoghi_10316() {
+    byte[] spsNalUnitPayload =
+        new byte[] {
+          1, 2, 32, 0, 0, 3, 0, -112, 0, 0, 3, 0, 0, 3, 0, -106, -96, 1, -32, 32, 2, 28, 77, -98,
+          87, -110, 66, -111, -123, 22, 74, -86, -53, -101, -98, -68, -28, 9, 119, -21, -103, 120,
+          -16, 22, -95, 34, 1, 54, -62, 0, 0, 7, -46, 0, 0, -69, -127, -12, 85, -17, 126, 0, -29,
+          -128, 28, 120, 1, -57, 0, 56, -15
+        };
+
+    NalUnitUtil.H265SpsData spsData =
+        NalUnitUtil.parseH265SpsNalUnitPayload(spsNalUnitPayload, 0, spsNalUnitPayload.length);
+
+    assertThat(spsData.constraintBytes).isEqualTo(new int[] {144, 0, 0, 0, 0, 0});
+    assertThat(spsData.generalLevelIdc).isEqualTo(150);
+    assertThat(spsData.generalProfileCompatibilityFlags).isEqualTo(4);
+    assertThat(spsData.generalProfileIdc).isEqualTo(2);
+    assertThat(spsData.generalProfileSpace).isEqualTo(0);
+    assertThat(spsData.generalTierFlag).isFalse();
+    assertThat(spsData.height).isEqualTo(2160);
+    assertThat(spsData.pixelWidthHeightRatio).isEqualTo(1);
+    assertThat(spsData.seqParameterSetId).isEqualTo(0);
+    assertThat(spsData.width).isEqualTo(3840);
   }
 
   private static byte[] buildTestData() {

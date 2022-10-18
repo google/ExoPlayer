@@ -37,11 +37,11 @@
     <item quantity="one">%d సెకండ్ వేగంగా ఫార్వర్డ్ చేయండి</item>
     <item quantity="other">%d సెకన్లు వేగంగా ఫార్వర్డ్ చేయండి</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">దేన్నీ పునరావృతం చేయకండి</string>
-  <string name="exo_controls_repeat_one_description">ఒకదాన్ని పునరావృతం చేయండి</string>
-  <string name="exo_controls_repeat_all_description">అన్నింటినీ పునరావృతం చేయండి</string>
-  <string name="exo_controls_shuffle_on_description">షఫుల్‌ను ఆన్ చేస్తుంది</string>
-  <string name="exo_controls_shuffle_off_description">షఫుల్‌ను ఆఫ్ చేస్తుంది</string>
+  <string name="exo_controls_repeat_off_description">ప్రస్తుత మోడ్: ఏదీ పునరావృతం చేయవద్దు. పునరావృతం మోడ్‌ను టోగుల్ చేయండి.</string>
+  <string name="exo_controls_repeat_one_description">ప్రస్తుత మోడ్: ఒకదానిని పునరావృతం చేయండి. పునరావృతం మోడ్‌ను టోగుల్ చేయండి.</string>
+  <string name="exo_controls_repeat_all_description">ప్రస్తుత మోడ్: అన్నింటిని పునరావృతం చేయండి. పునరావృతం మోడ్‌ను టోగుల్ చేయండి.</string>
+  <string name="exo_controls_shuffle_on_description">షఫుల్ మోడ్‌ను డిజేబుల్ చేయండి</string>
+  <string name="exo_controls_shuffle_off_description">షఫుల్ మోడ్‌ను ఎనేబుల్ చేయండి</string>
   <string name="exo_controls_vr_description">వర్చువల్ రియాలిటీ మోడ్</string>
   <string name="exo_controls_cc_enabled_description">ఉప శీర్షికలను డిజేబుల్ చేయి</string>
   <string name="exo_controls_cc_disabled_description">ఉప శీర్షికలను ఎనేబుల్ చేయి</string>

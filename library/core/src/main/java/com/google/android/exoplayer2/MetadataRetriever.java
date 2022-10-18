@@ -152,7 +152,7 @@ public final class MetadataRetriever {
                 mediaPeriod.maybeThrowPrepareError();
               }
               mediaSourceHandler.sendEmptyMessageDelayed(
-                  MESSAGE_CHECK_FOR_FAILURE, /* delayMillis= */ ERROR_POLL_INTERVAL_MS);
+                  MESSAGE_CHECK_FOR_FAILURE, /* delayMs= */ ERROR_POLL_INTERVAL_MS);
             } catch (Exception e) {
               trackGroupsFuture.setException(e);
               mediaSourceHandler.obtainMessage(MESSAGE_RELEASE).sendToTarget();

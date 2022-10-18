@@ -41,11 +41,11 @@
     <item quantity="many">Posunout vpřed o %d sekundy</item>
     <item quantity="other">Posunout vpřed o %d sekund</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Neopakovat</string>
-  <string name="exo_controls_repeat_one_description">Opakovat jednu</string>
-  <string name="exo_controls_repeat_all_description">Opakovat vše</string>
-  <string name="exo_controls_shuffle_on_description">Náhodné přehrávání zapnuto</string>
-  <string name="exo_controls_shuffle_off_description">Náhodné přehrávání vypnuto</string>
+  <string name="exo_controls_repeat_off_description">Aktuálně: Nic neopakovat. Zapněte režim opakování.</string>
+  <string name="exo_controls_repeat_one_description">Aktuálně: Opakovat jednu položku. Zapněte režim opakování.</string>
+  <string name="exo_controls_repeat_all_description">Aktuálně: Opakovat vše. Zapněte režim opakování.</string>
+  <string name="exo_controls_shuffle_on_description">Deaktivovat náhodné přehrávání</string>
+  <string name="exo_controls_shuffle_off_description">Aktivovat náhodné přehrávání</string>
   <string name="exo_controls_vr_description">Režim VR</string>
   <string name="exo_controls_cc_enabled_description">Vypnout titulky</string>
   <string name="exo_controls_cc_disabled_description">Zapnout titulky</string>

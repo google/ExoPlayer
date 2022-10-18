@@ -37,11 +37,11 @@
     <item quantity="one">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</item>
     <item quantity="other">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">કોઈ રિપીટ કરતા નહીં</string>
-  <string name="exo_controls_repeat_one_description">એક રિપીટ કરો</string>
-  <string name="exo_controls_repeat_all_description">બધાને રિપીટ કરો</string>
-  <string name="exo_controls_shuffle_on_description">શફલ ચાલુ છે</string>
-  <string name="exo_controls_shuffle_off_description">શફલ બંધ છે</string>
+  <string name="exo_controls_repeat_off_description">વર્તમાન મોડ: કંઈ રિપીટ ન કરો. રિપીટ મોડ ટૉગલ કરો.</string>
+  <string name="exo_controls_repeat_one_description">વર્તમાન મોડ: એક રિપીટ કરો. રિપીટ મોડ ટૉગલ કરો.</string>
+  <string name="exo_controls_repeat_all_description">વર્તમાન મોડ: બધું રિપીટ કરો. રિપીટ મોડ ટૉગલ કરો.</string>
+  <string name="exo_controls_shuffle_on_description">શફલ મોડ બંધ કરો</string>
+  <string name="exo_controls_shuffle_off_description">શફલ મોડ ચાલુ કરો</string>
   <string name="exo_controls_vr_description">VR મોડ</string>
   <string name="exo_controls_cc_enabled_description">સબટાઇટલ બંધ કરો</string>
   <string name="exo_controls_cc_disabled_description">સબટાઇટલ ચાલુ કરો</string>

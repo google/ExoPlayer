@@ -21,6 +21,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.nio.FloatBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -87,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int stereoMode;
   @Nullable private MeshData leftMeshData;
   @Nullable private MeshData rightMeshData;
-  private GlUtil.@MonotonicNonNull Program program;
+  private @MonotonicNonNull GlProgram program;
 
   // Program related GL items. These are only valid if Program is valid.
   private int mvpMatrixHandle;
@@ -114,7 +115,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** Initializes of the GL components. */
   public void init() {
-    program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
+    program = new GlProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     mvpMatrixHandle = program.getUniformLocation("uMvpMatrix");
     uTexMatrixHandle = program.getUniformLocation("uTexMatrix");
     positionHandle = program.getAttributeArrayLocationAndEnable("aPosition");
@@ -148,7 +149,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     GLES20.glUniformMatrix3fv(uTexMatrixHandle, 1, false, texMatrix, 0);
 
-    // TODO(b/205002913): Update to use GlUtil.Uniform.bind().
+    // TODO(b/205002913): Update to use GlProgram.Uniform.bind().
     GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
     GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
     GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);

@@ -37,11 +37,11 @@
     <item quantity="one">%d सेकंद फास्ट फॉरवर्ड करा</item>
     <item quantity="other">%d सेकंद फास्ट फॉरवर्ड करा</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">रीपीट करू नका</string>
-  <string name="exo_controls_repeat_one_description">एक रीपीट करा</string>
-  <string name="exo_controls_repeat_all_description">सर्व रीपीट करा</string>
-  <string name="exo_controls_shuffle_on_description">शफल करा सुरू करा</string>
-  <string name="exo_controls_shuffle_off_description">शफल करा बंद करा</string>
+  <string name="exo_controls_repeat_off_description">सध्याचा मोड: काहीही रिपीट करू नका. रिपीट मोड टॉगल करा.</string>
+  <string name="exo_controls_repeat_one_description">सध्याचा मोड: एक रिपीट करा. रिपीट मोड टॉगल करा.</string>
+  <string name="exo_controls_repeat_all_description">सध्याचा मोड: सर्व रिपीट करा. रिपीट मोड टॉगल करा.</string>
+  <string name="exo_controls_shuffle_on_description">शफल मोड बंद करा</string>
+  <string name="exo_controls_shuffle_off_description">शफल मोड सुरू करा</string>
   <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_controls_cc_enabled_description">सबटायटल बंद करा</string>
   <string name="exo_controls_cc_disabled_description">सबटायटल सुरू करा</string>

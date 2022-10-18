@@ -148,7 +148,9 @@ public final class PlayerMessage {
     return payload;
   }
 
-  /** @deprecated Use {@link #setLooper(Looper)} instead. */
+  /**
+   * @deprecated Use {@link #setLooper(Looper)} instead.
+   */
   @Deprecated
   public PlayerMessage setHandler(Handler handler) {
     return setLooper(handler.getLooper());

@@ -116,11 +116,17 @@ import java.lang.reflect.Method;
   @Target(TYPE_USE)
   @IntDef({PLAYSTATE_STOPPED, PLAYSTATE_PAUSED, PLAYSTATE_PLAYING})
   private @interface PlayState {}
-  /** @see AudioTrack#PLAYSTATE_STOPPED */
+  /**
+   * @see AudioTrack#PLAYSTATE_STOPPED
+   */
   private static final int PLAYSTATE_STOPPED = AudioTrack.PLAYSTATE_STOPPED;
-  /** @see AudioTrack#PLAYSTATE_PAUSED */
+  /**
+   * @see AudioTrack#PLAYSTATE_PAUSED
+   */
   private static final int PLAYSTATE_PAUSED = AudioTrack.PLAYSTATE_PAUSED;
-  /** @see AudioTrack#PLAYSTATE_PLAYING */
+  /**
+   * @see AudioTrack#PLAYSTATE_PLAYING
+   */
   private static final int PLAYSTATE_PLAYING = AudioTrack.PLAYSTATE_PLAYING;
 
   /**
@@ -378,11 +384,6 @@ import java.lang.reflect.Method;
   public int getAvailableBufferSize(long writtenBytes) {
     int bytesPending = (int) (writtenBytes - (getPlaybackHeadPosition() * outputPcmFrameSize));
     return bufferSize - bytesPending;
-  }
-
-  /** Returns the duration of audio that is buffered but unplayed. */
-  public long getPendingBufferDurationMs(long writtenFrames) {
-    return Util.usToMs(framesToDurationUs(writtenFrames - getPlaybackHeadPosition()));
   }
 
   /** Returns whether the track is in an invalid state and must be recreated. */

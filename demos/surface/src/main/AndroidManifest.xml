@@ -43,6 +43,12 @@
         <data android:scheme="asset"/>
         <data android:scheme="file"/>
       </intent-filter>
+      <intent-filter>
+        <action android:name="com.google.android.exoplayer.surfacedemo.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="content"/>
+        <data android:mimeType="*/*"/>
+      </intent-filter>
     </activity>
 
   </application>

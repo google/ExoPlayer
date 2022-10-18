@@ -48,7 +48,9 @@ import com.google.android.exoplayer2.video.AvcConfig;
   private boolean hasOutputKeyframe;
   private int frameType;
 
-  /** @param output A {@link TrackOutput} to which samples should be written. */
+  /**
+   * @param output A {@link TrackOutput} to which samples should be written.
+   */
   public VideoTagPayloadReader(TrackOutput output) {
     super(output);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);

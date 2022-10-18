@@ -25,7 +25,9 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import java.util.concurrent.Executor;
 import org.chromium.net.CronetEngine;
 
-/** @deprecated Use {@link CronetDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link CronetDataSource.Factory} instead.
+ */
 @Deprecated
 public final class CronetDataSourceFactory extends BaseFactory {
 

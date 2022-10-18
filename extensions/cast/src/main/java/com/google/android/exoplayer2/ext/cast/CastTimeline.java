@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
-import android.net.Uri;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.gms.cast.MediaInfo;
 import java.util.Arrays;
 
 /** A {@link Timeline} for Cast media queues. */
@@ -30,12 +30,16 @@ import java.util.Arrays;
   /** Holds {@link Timeline} related data for a Cast media item. */
   public static final class ItemData {
 
+    /* package */ static final String UNKNOWN_CONTENT_ID = "UNKNOWN_CONTENT_ID";
+
     /** Holds no media information. */
     public static final ItemData EMPTY =
         new ItemData(
             /* durationUs= */ C.TIME_UNSET,
             /* defaultPositionUs= */ C.TIME_UNSET,
-            /* isLive= */ false);
+            /* isLive= */ false,
+            MediaItem.EMPTY,
+            UNKNOWN_CONTENT_ID);
 
     /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public final long durationUs;
@@ -45,6 +49,10 @@ import java.util.Arrays;
     public final long defaultPositionUs;
     /** Whether the item is live content, or {@code false} if unknown. */
     public final boolean isLive;
+    /** The original media item that has been set or added to the playlist. */
+    public final MediaItem mediaItem;
+    /** The {@linkplain MediaInfo#getContentId() content ID} of the cast media queue item. */
+    public final String contentId;
 
     /**
      * Creates an instance.
@@ -52,11 +60,20 @@ import java.util.Arrays;
      * @param durationUs See {@link #durationsUs}.
      * @param defaultPositionUs See {@link #defaultPositionUs}.
      * @param isLive See {@link #isLive}.
+     * @param mediaItem See {@link #mediaItem}.
+     * @param contentId See {@link #contentId}.
      */
-    public ItemData(long durationUs, long defaultPositionUs, boolean isLive) {
+    public ItemData(
+        long durationUs,
+        long defaultPositionUs,
+        boolean isLive,
+        MediaItem mediaItem,
+        String contentId) {
       this.durationUs = durationUs;
       this.defaultPositionUs = defaultPositionUs;
       this.isLive = isLive;
+      this.mediaItem = mediaItem;
+      this.contentId = contentId;
     }
 
     /**
@@ -66,14 +83,23 @@ import java.util.Arrays;
      * @param defaultPositionUs The default start position in microseconds, or {@link C#TIME_UNSET}
      *     if unknown.
      * @param isLive Whether the item is live, or {@code false} if unknown.
+     * @param mediaItem The media item.
+     * @param contentId The content ID.
      */
-    public ItemData copyWithNewValues(long durationUs, long defaultPositionUs, boolean isLive) {
+    public ItemData copyWithNewValues(
+        long durationUs,
+        long defaultPositionUs,
+        boolean isLive,
+        MediaItem mediaItem,
+        String contentId) {
       if (durationUs == this.durationUs
           && defaultPositionUs == this.defaultPositionUs
-          && isLive == this.isLive) {
+          && isLive == this.isLive
+          && contentId.equals(this.contentId)
+          && mediaItem.equals(this.mediaItem)) {
         return this;
       }
-      return new ItemData(durationUs, defaultPositionUs, isLive);
+      return new ItemData(durationUs, defaultPositionUs, isLive, mediaItem, contentId);
     }
   }
 
@@ -82,6 +108,7 @@ import java.util.Arrays;
       new CastTimeline(new int[0], new SparseArray<>());
 
   private final SparseIntArray idsToIndex;
+  private final MediaItem[] mediaItems;
   private final int[] ids;
   private final long[] durationsUs;
   private final long[] defaultPositionsUs;
@@ -100,10 +127,12 @@ import java.util.Arrays;
     durationsUs = new long[itemCount];
     defaultPositionsUs = new long[itemCount];
     isLive = new boolean[itemCount];
+    mediaItems = new MediaItem[itemCount];
     for (int i = 0; i < ids.length; i++) {
       int id = ids[i];
       idsToIndex.put(id, i);
       ItemData data = itemIdToData.get(id, ItemData.EMPTY);
+      mediaItems[i] = data.mediaItem;
       durationsUs[i] = data.durationUs;
       defaultPositionsUs[i] = data.defaultPositionUs == C.TIME_UNSET ? 0 : data.defaultPositionUs;
       isLive[i] = data.isLive;
@@ -121,18 +150,16 @@ import java.util.Arrays;
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     long durationUs = durationsUs[windowIndex];
     boolean isDynamic = durationUs == C.TIME_UNSET;
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri(Uri.EMPTY).setTag(ids[windowIndex]).build();
     return window.set(
         /* uid= */ ids[windowIndex],
-        /* mediaItem= */ mediaItem,
+        /* mediaItem= */ mediaItems[windowIndex],
         /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,
         isDynamic,
-        isLive[windowIndex] ? mediaItem.liveConfiguration : null,
+        isLive[windowIndex] ? mediaItems[windowIndex].liveConfiguration : null,
         defaultPositionsUs[windowIndex],
         durationUs,
         /* firstPeriodIndex= */ windowIndex,

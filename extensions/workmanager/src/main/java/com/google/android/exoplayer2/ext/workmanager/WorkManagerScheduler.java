@@ -54,7 +54,9 @@ public final class WorkManagerScheduler implements Scheduler {
   private final WorkManager workManager;
   private final String workName;
 
-  /** @deprecated Call {@link #WorkManagerScheduler(Context, String)} instead. */
+  /**
+   * @deprecated Call {@link #WorkManagerScheduler(Context, String)} instead.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public WorkManagerScheduler(String workName) {

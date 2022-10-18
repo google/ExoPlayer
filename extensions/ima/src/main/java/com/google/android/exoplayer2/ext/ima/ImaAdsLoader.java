@@ -503,11 +503,11 @@ public final class ImaAdsLoader implements AdsLoader {
     List<String> supportedMimeTypes = new ArrayList<>();
     for (@C.ContentType int contentType : contentTypes) {
       // IMA does not support Smooth Streaming ad media.
-      if (contentType == C.TYPE_DASH) {
+      if (contentType == C.CONTENT_TYPE_DASH) {
         supportedMimeTypes.add(MimeTypes.APPLICATION_MPD);
-      } else if (contentType == C.TYPE_HLS) {
+      } else if (contentType == C.CONTENT_TYPE_HLS) {
         supportedMimeTypes.add(MimeTypes.APPLICATION_M3U8);
-      } else if (contentType == C.TYPE_OTHER) {
+      } else if (contentType == C.CONTENT_TYPE_OTHER) {
         supportedMimeTypes.addAll(
             Arrays.asList(
                 MimeTypes.VIDEO_MP4,

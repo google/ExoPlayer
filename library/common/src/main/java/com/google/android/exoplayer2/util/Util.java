@@ -55,6 +55,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -156,8 +157,9 @@ public final class Util {
               + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
-  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
-  private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
+  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs
+  private static final Pattern ISM_PATH_PATTERN =
+      Pattern.compile("(?:.*\\.)?isml?(?:/(manifest(.*))?)?", Pattern.CASE_INSENSITIVE);
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
   private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
@@ -194,7 +196,7 @@ public final class Util {
    */
   @Nullable
   public static ComponentName startForegroundService(Context context, Intent intent) {
-    if (Util.SDK_INT >= 26) {
+    if (SDK_INT >= 26) {
       return context.startForegroundService(intent);
     } else {
       return context.startService(intent);
@@ -210,12 +212,12 @@ public final class Util {
    * @return Whether a permission request was made.
    */
   public static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri... uris) {
-    if (Util.SDK_INT < 23) {
+    if (SDK_INT < 23) {
       return false;
     }
     for (Uri uri : uris) {
-      if (isLocalFileUri(uri)) {
-        return requestExternalStoragePermission(activity);
+      if (maybeRequestReadExternalStoragePermission(activity, uri)) {
+        return true;
       }
     }
     return false;
@@ -233,23 +235,44 @@ public final class Util {
    */
   public static boolean maybeRequestReadExternalStoragePermission(
       Activity activity, MediaItem... mediaItems) {
-    if (Util.SDK_INT < 23) {
+    if (SDK_INT < 23) {
       return false;
     }
     for (MediaItem mediaItem : mediaItems) {
       if (mediaItem.localConfiguration == null) {
         continue;
       }
-      if (isLocalFileUri(mediaItem.localConfiguration.uri)) {
-        return requestExternalStoragePermission(activity);
+      if (maybeRequestReadExternalStoragePermission(activity, mediaItem.localConfiguration.uri)) {
+        return true;
       }
-      for (int i = 0; i < mediaItem.localConfiguration.subtitleConfigurations.size(); i++) {
-        if (isLocalFileUri(mediaItem.localConfiguration.subtitleConfigurations.get(i).uri)) {
-          return requestExternalStoragePermission(activity);
+      List<MediaItem.SubtitleConfiguration> subtitleConfigs =
+          mediaItem.localConfiguration.subtitleConfigurations;
+      for (int i = 0; i < subtitleConfigs.size(); i++) {
+        if (maybeRequestReadExternalStoragePermission(activity, subtitleConfigs.get(i).uri)) {
+          return true;
         }
       }
     }
     return false;
+  }
+
+  private static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri uri) {
+    return SDK_INT >= 23
+        && (isLocalFileUri(uri) || isMediaStoreExternalContentUri(uri))
+        && requestExternalStoragePermission(activity);
+  }
+
+  private static boolean isMediaStoreExternalContentUri(Uri uri) {
+    if (!"content".equals(uri.getScheme()) || !MediaStore.AUTHORITY.equals(uri.getAuthority())) {
+      return false;
+    }
+    List<String> pathSegments = uri.getPathSegments();
+    if (pathSegments.isEmpty()) {
+      return false;
+    }
+    String firstPathSegment = pathSegments.get(0);
+    return MediaStore.VOLUME_EXTERNAL.equals(firstPathSegment)
+        || MediaStore.VOLUME_EXTERNAL_PRIMARY.equals(firstPathSegment);
   }
 
   /**
@@ -260,7 +283,7 @@ public final class Util {
    * @return Whether it may be possible to load the URIs of the given media items.
    */
   public static boolean checkCleartextTrafficPermitted(MediaItem... mediaItems) {
-    if (Util.SDK_INT < 24) {
+    if (SDK_INT < 24) {
       // We assume cleartext traffic is permitted.
       return true;
     }
@@ -621,7 +644,7 @@ public final class Util {
       normalizedTag = language;
     }
     normalizedTag = Ascii.toLowerCase(normalizedTag);
-    String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
+    String mainLanguage = splitAtFirst(normalizedTag, "-")[0];
     if (languageTagReplacementMap == null) {
       languageTagReplacementMap = createIsoLanguageReplacementMap();
     }
@@ -1120,6 +1143,25 @@ public final class Util {
   }
 
   /**
+   * Returns the maximum value in the given {@link SparseLongArray}.
+   *
+   * @param sparseLongArray The {@link SparseLongArray}.
+   * @return The maximum value.
+   * @throws NoSuchElementException If the array is empty.
+   */
+  @RequiresApi(18)
+  public static long maxValue(SparseLongArray sparseLongArray) {
+    if (sparseLongArray.size() == 0) {
+      throw new NoSuchElementException();
+    }
+    long max = Long.MIN_VALUE;
+    for (int i = 0; i < sparseLongArray.size(); i++) {
+      max = max(max, sparseLongArray.valueAt(i));
+    }
+    return max;
+  }
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
    * C#TIME_UNSET} and {@link C#TIME_END_OF_SOURCE} values.
    *
@@ -1139,18 +1181,6 @@ public final class Util {
    */
   public static long msToUs(long timeMs) {
     return (timeMs == C.TIME_UNSET || timeMs == C.TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
-  }
-
-  /**
-   * Converts a time in seconds to the corresponding time in microseconds.
-   *
-   * @param timeSec The time in seconds.
-   * @return The corresponding time in microseconds.
-   */
-  public static long secToUs(double timeSec) {
-    return BigDecimal.valueOf(timeSec)
-        .multiply(BigDecimal.valueOf(C.MICROS_PER_SECOND))
-        .longValue();
   }
 
   /**
@@ -1235,7 +1265,7 @@ public final class Util {
 
     long time = dateTime.getTimeInMillis();
     if (timezoneShift != 0) {
-      time -= timezoneShift * 60000;
+      time -= timezoneShift * 60000L;
     }
 
     return time;
@@ -1625,9 +1655,9 @@ public final class Util {
       case 7:
         return AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
       case 8:
-        if (Util.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
           return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
-        } else if (Util.SDK_INT >= 21) {
+        } else if (SDK_INT >= 21) {
           // Equal to AudioFormat.CHANNEL_OUT_7POINT1_SURROUND, which is hidden before Android M.
           return AudioFormat.CHANNEL_OUT_5POINT1
               | AudioFormat.CHANNEL_OUT_SIDE_LEFT
@@ -1636,6 +1666,10 @@ public final class Util {
           // 8 ch output is not supported before Android L.
           return AudioFormat.CHANNEL_INVALID;
         }
+      case 12:
+        return Util.SDK_INT >= 32
+            ? AudioFormat.CHANNEL_OUT_7POINT1POINT4
+            : AudioFormat.CHANNEL_INVALID;
       default:
         return AudioFormat.CHANNEL_INVALID;
     }
@@ -1697,12 +1731,12 @@ public final class Util {
       case C.STREAM_TYPE_NOTIFICATION:
       case C.STREAM_TYPE_RING:
       case C.STREAM_TYPE_SYSTEM:
-        return C.CONTENT_TYPE_SONIFICATION;
+        return C.AUDIO_CONTENT_TYPE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
-        return C.CONTENT_TYPE_SPEECH;
+        return C.AUDIO_CONTENT_TYPE_SPEECH;
       case C.STREAM_TYPE_MUSIC:
       default:
-        return C.CONTENT_TYPE_MUSIC;
+        return C.AUDIO_CONTENT_TYPE_MUSIC;
     }
   }
 
@@ -1811,16 +1845,14 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
-   *
-   * @param uri The {@link Uri}.
-   * @param overrideExtension If not null, used to infer the type.
-   * @return The content type.
+   * @deprecated Use {@link #inferContentTypeForExtension(String)} when {@code overrideExtension} is
+   *     non-empty, and {@link #inferContentType(Uri)} otherwise.
    */
+  @Deprecated
   public static @ContentType int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
-        : inferContentType("." + overrideExtension);
+        : inferContentTypeForExtension(overrideExtension);
   }
 
   /**
@@ -1832,39 +1864,70 @@ public final class Util {
   public static @ContentType int inferContentType(Uri uri) {
     @Nullable String scheme = uri.getScheme();
     if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
-      return C.TYPE_RTSP;
+      return C.CONTENT_TYPE_RTSP;
     }
 
-    @Nullable String path = uri.getPath();
-    return path == null ? C.TYPE_OTHER : inferContentType(path);
-  }
-
-  /**
-   * Makes a best guess to infer the {@link ContentType} from a file name.
-   *
-   * @param fileName Name of the file. It can include the path of the file.
-   * @return The content type.
-   */
-  public static @ContentType int inferContentType(String fileName) {
-    fileName = Ascii.toLowerCase(fileName);
-    if (fileName.endsWith(".mpd")) {
-      return C.TYPE_DASH;
-    } else if (fileName.endsWith(".m3u8")) {
-      return C.TYPE_HLS;
+    @Nullable String lastPathSegment = uri.getLastPathSegment();
+    if (lastPathSegment == null) {
+      return C.CONTENT_TYPE_OTHER;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(fileName);
+    int lastDotIndex = lastPathSegment.lastIndexOf('.');
+    if (lastDotIndex >= 0) {
+      @C.ContentType
+      int contentType = inferContentTypeForExtension(lastPathSegment.substring(lastDotIndex + 1));
+      if (contentType != C.CONTENT_TYPE_OTHER) {
+        // If contentType is TYPE_SS that indicates the extension is .ism or .isml and shows the ISM
+        // URI is missing the "/manifest" suffix, which contains the information used to
+        // disambiguate between Smooth Streaming, HLS and DASH below - so we can just return TYPE_SS
+        // here without further checks.
+        return contentType;
+      }
+    }
+
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(checkNotNull(uri.getPath()));
     if (ismMatcher.matches()) {
       @Nullable String extensions = ismMatcher.group(2);
       if (extensions != null) {
         if (extensions.contains(ISM_DASH_FORMAT_EXTENSION)) {
-          return C.TYPE_DASH;
+          return C.CONTENT_TYPE_DASH;
         } else if (extensions.contains(ISM_HLS_FORMAT_EXTENSION)) {
-          return C.TYPE_HLS;
+          return C.CONTENT_TYPE_HLS;
         }
       }
-      return C.TYPE_SS;
+      return C.CONTENT_TYPE_SS;
     }
-    return C.TYPE_OTHER;
+
+    return C.CONTENT_TYPE_OTHER;
+  }
+
+  /**
+   * @deprecated Use {@link Uri#parse(String)} and {@link #inferContentType(Uri)} for full file
+   *     paths or {@link #inferContentTypeForExtension(String)} for extensions.
+   */
+  @Deprecated
+  public static @ContentType int inferContentType(String fileName) {
+    return inferContentType(Uri.parse("file:///" + fileName));
+  }
+
+  /**
+   * Makes a best guess to infer the {@link ContentType} from a file extension.
+   *
+   * @param fileExtension The extension of the file (excluding the '.').
+   * @return The content type.
+   */
+  public static @ContentType int inferContentTypeForExtension(String fileExtension) {
+    fileExtension = Ascii.toLowerCase(fileExtension);
+    switch (fileExtension) {
+      case "mpd":
+        return C.CONTENT_TYPE_DASH;
+      case "m3u8":
+        return C.CONTENT_TYPE_HLS;
+      case "ism":
+      case "isml":
+        return C.TYPE_SS;
+      default:
+        return C.CONTENT_TYPE_OTHER;
+    }
   }
 
   /**
@@ -1877,36 +1940,37 @@ public final class Util {
   public static @ContentType int inferContentTypeForUriAndMimeType(
       Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
-      return Util.inferContentType(uri);
+      return inferContentType(uri);
     }
     switch (mimeType) {
       case MimeTypes.APPLICATION_MPD:
-        return C.TYPE_DASH;
+        return C.CONTENT_TYPE_DASH;
       case MimeTypes.APPLICATION_M3U8:
-        return C.TYPE_HLS;
+        return C.CONTENT_TYPE_HLS;
       case MimeTypes.APPLICATION_SS:
-        return C.TYPE_SS;
+        return C.CONTENT_TYPE_SS;
       case MimeTypes.APPLICATION_RTSP:
-        return C.TYPE_RTSP;
+        return C.CONTENT_TYPE_RTSP;
       default:
-        return C.TYPE_OTHER;
+        return C.CONTENT_TYPE_OTHER;
     }
   }
 
   /**
    * Returns the MIME type corresponding to the given adaptive {@link ContentType}, or {@code null}
-   * if the content type is {@link C#TYPE_OTHER}.
+   * if the content type is not adaptive.
    */
   @Nullable
-  public static String getAdaptiveMimeTypeForContentType(int contentType) {
+  public static String getAdaptiveMimeTypeForContentType(@ContentType int contentType) {
     switch (contentType) {
-      case C.TYPE_DASH:
+      case C.CONTENT_TYPE_DASH:
         return MimeTypes.APPLICATION_MPD;
-      case C.TYPE_HLS:
+      case C.CONTENT_TYPE_HLS:
         return MimeTypes.APPLICATION_M3U8;
-      case C.TYPE_SS:
+      case C.CONTENT_TYPE_SS:
         return MimeTypes.APPLICATION_SS;
-      case C.TYPE_OTHER:
+      case C.CONTENT_TYPE_RTSP:
+      case C.CONTENT_TYPE_OTHER:
       default:
         return null;
     }
@@ -1925,7 +1989,7 @@ public final class Util {
     if (path == null) {
       return uri;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(Ascii.toLowerCase(path));
+    Matcher ismMatcher = ISM_PATH_PATTERN.matcher(path);
     if (ismMatcher.matches() && ismMatcher.group(1) == null) {
       // Add missing "Manifest" suffix.
       return Uri.withAppendedPath(uri, "Manifest");
@@ -2200,7 +2264,7 @@ public final class Util {
 
   /** Returns the default {@link Locale.Category#DISPLAY DISPLAY} {@link Locale}. */
   public static Locale getDefaultDisplayLocale() {
-    return Util.SDK_INT >= 24 ? Locale.getDefault(Locale.Category.DISPLAY) : Locale.getDefault();
+    return SDK_INT >= 24 ? Locale.getDefault(Locale.Category.DISPLAY) : Locale.getDefault();
   }
 
   /**
@@ -2272,7 +2336,7 @@ public final class Util {
    * @return Whether the app is running on an automotive device.
    */
   public static boolean isAutomotive(Context context) {
-    return Util.SDK_INT >= 23
+    return SDK_INT >= 23
         && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
   }
 
@@ -2290,7 +2354,7 @@ public final class Util {
    */
   public static Point getCurrentDisplayModeSize(Context context) {
     @Nullable Display defaultDisplay = null;
-    if (Util.SDK_INT >= 17) {
+    if (SDK_INT >= 17) {
       @Nullable
       DisplayManager displayManager =
           (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -2338,7 +2402,7 @@ public final class Util {
       // vendor.display-size instead.
       @Nullable
       String displaySize =
-          Util.SDK_INT < 28
+          SDK_INT < 28
               ? getSystemProperty("sys.display-size")
               : getSystemProperty("vendor.display-size");
       // If we managed to read the display size, attempt to parse it.
@@ -2359,17 +2423,17 @@ public final class Util {
       }
 
       // Sony Android TVs advertise support for 4k output via a system feature.
-      if ("Sony".equals(Util.MANUFACTURER)
-          && Util.MODEL.startsWith("BRAVIA")
+      if ("Sony".equals(MANUFACTURER)
+          && MODEL.startsWith("BRAVIA")
           && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
         return new Point(3840, 2160);
       }
     }
 
     Point displaySize = new Point();
-    if (Util.SDK_INT >= 23) {
+    if (SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
-    } else if (Util.SDK_INT >= 17) {
+    } else if (SDK_INT >= 17) {
       getDisplaySizeV17(display, displaySize);
     } else {
       getDisplaySizeV16(display, displaySize);
@@ -2587,7 +2651,7 @@ public final class Util {
 
   @RequiresApi(24)
   private static String[] getSystemLocalesV24(Configuration config) {
-    return Util.split(config.getLocales().toLanguageTags(), ",");
+    return split(config.getLocales().toLanguageTags(), ",");
   }
 
   @RequiresApi(21)
@@ -2681,6 +2745,7 @@ public final class Util {
         "ji", "yi",
         // Individual macrolanguage codes mapped back to full macrolanguage code.
         // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+        "arb", "ar-arb",
         "in", "ms-ind",
         "ind", "ms-ind",
         "nb", "no-nob",

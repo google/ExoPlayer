@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.2.1" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.1)" variant="all" version="7.2.1">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.AudioManager#getSpatializer`"
+        errorLine1="      return audioManager == null ? null : new SpatializerWrapperV32(audioManager.getSpatializer());"
+        errorLine2="                                                                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3639"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.Spatializer#getImmersiveAudioLevel`"
+        errorLine1="          spatializer.getImmersiveAudioLevel() != Spatializer.SPATIALIZER_IMMERSIVE_LEVEL_NONE;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3645"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `OnSpatializerStateChangedListener` requires API level 33 (current min is 32)"
+        errorLine1="          new Spatializer.OnSpatializerStateChangedListener() {"
+        errorLine2="          ^">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3653"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 33 (current min is 32): `android.media.Spatializer.OnSpatializerStateChangedListener`"
+        errorLine1="          new Spatializer.OnSpatializerStateChangedListener() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3653"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.Spatializer#addOnSpatializerStateChangedListener`"
+        errorLine1="      spatializer.addOnSpatializerStateChangedListener(handler::post, listener);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3665"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.Spatializer#isAvailable`"
+        errorLine1="      return spatializer.isAvailable();"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3673"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.Spatializer#isEnabled`"
+        errorLine1="      return spatializer.isEnabled();"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3677"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.Spatializer#canBeSpatialized`"
+        errorLine1="      return spatializer.canBeSpatialized("
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3695"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 32): `android.media.Spatializer#removeOnSpatializerStateChangedListener`"
+        errorLine1="      spatializer.removeOnSpatializerStateChangedListener(listener);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3703"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="Override"
+        message="This method is not overriding anything with the current build target, but will in API level 33 (current target is 32): `null#onSpatializerEnabledChanged`"
+        errorLine1="            public void onSpatializerEnabledChanged(Spatializer spatializer, boolean enabled) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3655"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="Override"
+        message="This method is not overriding anything with the current build target, but will in API level 33 (current target is 32): `null#onSpatializerAvailableChanged`"
+        errorLine1="            public void onSpatializerAvailableChanged(Spatializer spatializer, boolean available) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java"
+            line="3660"
+            column="25"/>
+    </issue>
+
+</issues>

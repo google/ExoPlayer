@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -22,9 +23,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,26 +91,60 @@ public class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withNull_usesNonNullDefaults() {
-    DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.ism").build();
-
-    MediaSource mediaSource =
-        defaultMediaSourceFactory
-            .setDrmSessionManagerProvider(null)
-            .setLoadErrorHandlingPolicy(null)
-            .createMediaSource(mediaItem);
-
-    assertThat(mediaSource).isNotNull();
-  }
-
-  @Test
   public void getSupportedTypes_smoothstreamingModule_containsTypeSS() {
     int[] supportedTypes =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .getSupportedTypes();
 
-    assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER, C.TYPE_SS);
+    assertThat(supportedTypes).asList().containsExactly(C.CONTENT_TYPE_OTHER, C.CONTENT_TYPE_SS);
+  }
+
+  @Test
+  public void createMediaSource_withSetDataSourceFactory_usesDataSourceFactory() throws Exception {
+    FakeDataSource fakeDataSource = new FakeDataSource();
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
+            .setDataSourceFactory(() -> fakeDataSource);
+
+    prepareSsUrlAndWaitForPrepareError(defaultMediaSourceFactory);
+
+    assertThat(fakeDataSource.getAndClearOpenedDataSpecs()).asList().isNotEmpty();
+  }
+
+  @Test
+  public void
+      createMediaSource_usingDefaultDataSourceFactoryAndSetDataSourceFactory_usesUpdatesDataSourceFactory()
+          throws Exception {
+    FakeDataSource fakeDataSource = new FakeDataSource();
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
+
+    // Use default DataSource.Factory first.
+    prepareSsUrlAndWaitForPrepareError(defaultMediaSourceFactory);
+    defaultMediaSourceFactory.setDataSourceFactory(() -> fakeDataSource);
+    prepareSsUrlAndWaitForPrepareError(defaultMediaSourceFactory);
+
+    assertThat(fakeDataSource.getAndClearOpenedDataSpecs()).asList().isNotEmpty();
+  }
+
+  private static void prepareSsUrlAndWaitForPrepareError(
+      DefaultMediaSourceFactory defaultMediaSourceFactory) throws Exception {
+    MediaSource mediaSource =
+        defaultMediaSourceFactory.createMediaSource(MediaItem.fromUri(URI_MEDIA + "/file.ism"));
+    getInstrumentation()
+        .runOnMainSync(
+            () ->
+                mediaSource.prepareSource(
+                    (source, timeline) -> {}, /* mediaTransferListener= */ null, PlayerId.UNSET));
+    // We don't expect this to prepare successfully.
+    RobolectricUtil.runMainLooperUntil(
+        () -> {
+          try {
+            mediaSource.maybeThrowSourceInfoRefreshError();
+            return false;
+          } catch (IOException e) {
+            return true;
+          }
+        });
   }
 }

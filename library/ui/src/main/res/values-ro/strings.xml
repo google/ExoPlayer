@@ -39,11 +39,11 @@
     <item quantity="few">Derulează rapid înainte cu %d secunde</item>
     <item quantity="other">Derulează rapid înainte cu %d de secunde</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Nu repetați niciunul</string>
-  <string name="exo_controls_repeat_one_description">Repetați unul</string>
-  <string name="exo_controls_repeat_all_description">Repetați-le pe toate</string>
-  <string name="exo_controls_shuffle_on_description">Redare aleatorie activată</string>
-  <string name="exo_controls_shuffle_off_description">Redare aleatorie dezactivată</string>
+  <string name="exo_controls_repeat_off_description">Mod actual: nu se repetă. Comutați modul repetare.</string>
+  <string name="exo_controls_repeat_one_description">Mod actual: se repetă una. Comutați modul repetare.</string>
+  <string name="exo_controls_repeat_all_description">Mod curent: se repetă tot. Comutați modul repetare.</string>
+  <string name="exo_controls_shuffle_on_description">Dezactivați modul sortare aleatorie</string>
+  <string name="exo_controls_shuffle_off_description">Activați modul sortare aleatorie</string>
   <string name="exo_controls_vr_description">Mod RV</string>
   <string name="exo_controls_cc_enabled_description">Dezactivați subtitrările</string>
   <string name="exo_controls_cc_disabled_description">Activați subtitrările</string>

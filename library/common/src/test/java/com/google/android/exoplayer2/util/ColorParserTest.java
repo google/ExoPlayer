@@ -22,6 +22,7 @@ import static android.graphics.Color.argb;
 import static android.graphics.Color.parseColor;
 import static com.google.android.exoplayer2.util.ColorParser.parseTtmlColor;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,24 +35,26 @@ public final class ColorParserTest {
 
   // Negative tests.
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void parseUnknownColor() {
-    ColorParser.parseTtmlColor("colorOfAnElectron");
+    assertThrows(
+        IllegalArgumentException.class, () -> ColorParser.parseTtmlColor("colorOfAnElectron"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void parseNull() {
-    ColorParser.parseTtmlColor(null);
+    assertThrows(IllegalArgumentException.class, () -> ColorParser.parseTtmlColor(null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void parseEmpty() {
-    ColorParser.parseTtmlColor("");
+    assertThrows(IllegalArgumentException.class, () -> ColorParser.parseTtmlColor(""));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void rgbColorParsingRgbValuesNegative() {
-    ColorParser.parseTtmlColor("rgb(-4, 55, 209)");
+    assertThrows(
+        IllegalArgumentException.class, () -> ColorParser.parseTtmlColor("rgb(-4, 55, 209)"));
   }
 
   // Positive tests.

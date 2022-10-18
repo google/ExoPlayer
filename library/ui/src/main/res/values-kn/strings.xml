@@ -37,11 +37,11 @@
     <item quantity="one">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ</item>
     <item quantity="other">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">ಯಾವುದನ್ನೂ ಪುನರಾವರ್ತಿಸಬೇಡಿ</string>
-  <string name="exo_controls_repeat_one_description">ಒಂದನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
-  <string name="exo_controls_repeat_all_description">ಎಲ್ಲವನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
-  <string name="exo_controls_shuffle_on_description">ಶಫಲ್ ಆನ್ ಆಗಿದೆ</string>
-  <string name="exo_controls_shuffle_off_description">ಶಫಲ್ ಆಫ್ ಆಗಿದೆ</string>
+  <string name="exo_controls_repeat_off_description">ಈಗಿನ ಮೋಡ್: ಯಾವುದನ್ನು ರಿಪೀಟ್ ಮಾಡಬೇಡಿ. ರಿಪೀಟ್ ಮೋಡ್ ಟಾಗಲ್ ಮಾಡಿ.</string>
+  <string name="exo_controls_repeat_one_description">ಈಗಿನ ಮೋಡ್: ಒಂದನ್ನು ರಿಪೀಟ್ ಮಾಡಿ. ರಿಪೀಟ್ ಮೋಡ್ ಟಾಗಲ್ ಮಾಡಿ.</string>
+  <string name="exo_controls_repeat_all_description">ಈಗಿನ ಮೋಡ್: ಎಲ್ಲವನ್ನು ರಿಪೀಟ್ ಮಾಡಿ. ರಿಪೀಟ್ ಮೋಡ್ ಟಾಗಲ್ ಮಾಡಿ.</string>
+  <string name="exo_controls_shuffle_on_description">ಶಫಲ್ ಮೋಡ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ</string>
+  <string name="exo_controls_shuffle_off_description">ಶಫಲ್ ಮೋಡ್ ಅನ್ನುಸಕ್ರಿಯಗೊಳಿಸಿ</string>
   <string name="exo_controls_vr_description">VR ಮೋಡ್</string>
   <string name="exo_controls_cc_enabled_description">ಸಬ್‌ಟೈಟಲ್‌ಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ</string>
   <string name="exo_controls_cc_disabled_description">ಸಬ್‌ಟೈಟಲ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
@@ -56,7 +56,7 @@
     <item>2 ಪಟ್ಟು</item>
   </string-array>
   <string name="exo_track_selection_title_video">ವೀಡಿಯೊ</string>
-  <string name="exo_track_selection_title_audio">ಆಡಿಯೊ</string>
+  <string name="exo_track_selection_title_audio">ಆಡಿಯೋ</string>
   <string name="exo_track_selection_title_text">ಪಠ್ಯ</string>
   <string name="exo_track_selection_none">ಯಾವುದೂ ಅಲ್ಲ</string>
   <string name="exo_track_selection_auto">ಸ್ವಯಂ</string>

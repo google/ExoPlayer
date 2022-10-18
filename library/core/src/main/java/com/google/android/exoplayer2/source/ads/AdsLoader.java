@@ -121,7 +121,8 @@ public interface AdsLoader {
    * be ignored. Called on the main thread by {@link AdsMediaSource}.
    *
    * @param contentTypes The supported content types for ad media. Each element must be one of
-   *     {@link C#TYPE_DASH}, {@link C#TYPE_HLS}, {@link C#TYPE_SS} and {@link C#TYPE_OTHER}.
+   *     {@link C#CONTENT_TYPE_DASH}, {@link C#CONTENT_TYPE_HLS}, {@link C#CONTENT_TYPE_SS} and
+   *     {@link C#CONTENT_TYPE_OTHER}.
    */
   void setSupportedContentTypes(@C.ContentType int... contentTypes);
 

@@ -37,11 +37,11 @@
     <item quantity="one">%d секунд алдыга түрдүрүү</item>
     <item quantity="other">%d секунд алдыга түрдүрүү</item>
   </plurals>
-  <string name="exo_controls_repeat_off_description">Кайталанбасын</string>
-  <string name="exo_controls_repeat_one_description">Бирөөнү кайталоо</string>
-  <string name="exo_controls_repeat_all_description">Баарын кайталоо</string>
-  <string name="exo_controls_shuffle_on_description">Аралаштыруу күйүк</string>
-  <string name="exo_controls_shuffle_off_description">Аралаштыруу өчүк</string>
+  <string name="exo_controls_repeat_off_description">Учурдагы режим: Кайталанбасын. Кайталоо режимин өчүрүү/күйгүзүү.</string>
+  <string name="exo_controls_repeat_one_description">Учурдагы режим: Бир медианы кайталоо. Кайталоо режимин өчүрүү/күйгүзүү.</string>
+  <string name="exo_controls_repeat_all_description">Учурдагы режим: Баарын кайталоо. Кайталоо режимин өчүрүү/күйгүзүү.</string>
+  <string name="exo_controls_shuffle_on_description">Аралаштыруу режимин өчүрүү</string>
+  <string name="exo_controls_shuffle_off_description">Аралаштыруу режимин күйгүзүү</string>
   <string name="exo_controls_vr_description">VR режими</string>
   <string name="exo_controls_cc_enabled_description">Коштомо жазууларды өчүрүү</string>
   <string name="exo_controls_cc_disabled_description">Коштомо жазууларды иштетүү</string>

@@ -235,11 +235,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     // Player.Listener implementation.
 
     @Override
-    public void onPlaybackStateChanged(@Player.State int playbackState) {
-      notifyStateChanged();
-    }
-
-    @Override
     public void onPlayerError(PlaybackException error) {
       Callback callback = getCallback();
       if (errorMessageProvider != null) {
@@ -282,6 +277,14 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
       // aspect ratio when playing content with non-square pixels.
       int scaledWidth = Math.round(videoSize.width * videoSize.pixelWidthHeightRatio);
       getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, scaledWidth, videoSize.height);
+    }
+
+    @Override
+    public void onEvents(Player player, Player.Events events) {
+      if (events.containsAny(
+          Player.EVENT_PLAY_WHEN_READY_CHANGED, Player.EVENT_PLAYBACK_STATE_CHANGED)) {
+        notifyStateChanged();
+      }
     }
   }
 }
