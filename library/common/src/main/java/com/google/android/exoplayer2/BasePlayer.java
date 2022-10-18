@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.ForOverride;
 import java.util.List;
 
 /** Abstract base {@link Player} which implements common implementation independent methods. */
@@ -185,7 +186,12 @@ public abstract class BasePlayer implements Player {
   @Override
   public final void seekToPreviousMediaItem() {
     int previousMediaItemIndex = getPreviousMediaItemIndex();
-    if (previousMediaItemIndex != C.INDEX_UNSET) {
+    if (previousMediaItemIndex == C.INDEX_UNSET) {
+      return;
+    }
+    if (previousMediaItemIndex == getCurrentMediaItemIndex()) {
+      repeatCurrentMediaItem();
+    } else {
       seekToDefaultPosition(previousMediaItemIndex);
     }
   }
@@ -252,7 +258,12 @@ public abstract class BasePlayer implements Player {
   @Override
   public final void seekToNextMediaItem() {
     int nextMediaItemIndex = getNextMediaItemIndex();
-    if (nextMediaItemIndex != C.INDEX_UNSET) {
+    if (nextMediaItemIndex == C.INDEX_UNSET) {
+      return;
+    }
+    if (nextMediaItemIndex == getCurrentMediaItemIndex()) {
+      repeatCurrentMediaItem();
+    } else {
       seekToDefaultPosition(nextMediaItemIndex);
     }
   }
@@ -422,6 +433,17 @@ public abstract class BasePlayer implements Player {
     return timeline.isEmpty()
         ? C.TIME_UNSET
         : timeline.getWindow(getCurrentMediaItemIndex(), window).getDurationMs();
+  }
+
+  /**
+   * Repeat the current media item.
+   *
+   * <p>The default implementation seeks to the default position in the current item, which can be
+   * overridden for additional handling.
+   */
+  @ForOverride
+  protected void repeatCurrentMediaItem() {
+    seekToDefaultPosition();
   }
 
   private @RepeatMode int getRepeatModeForNavigation() {
