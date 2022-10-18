@@ -105,7 +105,7 @@ import java.nio.ByteBuffer;
         endOfStreamQueuedToSonic = true;
       }
     } else {
-      ByteBuffer buffer = replaceOutputBuffer(/* count= */ inputBuffer.remaining());
+      ByteBuffer buffer = replaceOutputBuffer(/* size= */ inputBuffer.remaining());
       buffer.put(inputBuffer);
       buffer.flip();
     }
