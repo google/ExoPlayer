@@ -108,7 +108,6 @@ public final class Transformer {
     private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
-    private String containerMimeType;
     private TransformationRequest transformationRequest;
     private ImmutableList<Effect> videoEffects;
     private FrameProcessor.Factory frameProcessorFactory;
@@ -133,7 +132,6 @@ public final class Transformer {
       encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       decoderFactory = new DefaultDecoderFactory(this.context);
       debugViewProvider = DebugViewProvider.NONE;
-      containerMimeType = MimeTypes.VIDEO_MP4;
       transformationRequest = new TransformationRequest.Builder().build();
       videoEffects = ImmutableList.of();
       frameProcessorFactory = new GlEffectsFrameProcessor.Factory();
@@ -146,7 +144,6 @@ public final class Transformer {
       this.muxerFactory = transformer.muxerFactory;
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
-      this.containerMimeType = transformer.containerMimeType;
       this.transformationRequest = transformer.transformationRequest;
       this.videoEffects = transformer.videoEffects;
       this.frameProcessorFactory = transformer.frameProcessorFactory;
@@ -275,17 +272,6 @@ public final class Transformer {
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       transformationRequest =
           transformationRequest.buildUpon().setFlattenForSlowMotion(flattenForSlowMotion).build();
-      return this;
-    }
-
-    /**
-     * @deprecated This feature will be removed in a following release and the MIME type of the
-     *     output will always be MP4.
-     */
-    @CanIgnoreReturnValue
-    @Deprecated
-    public Builder setOutputMimeType(String outputMimeType) {
-      this.containerMimeType = outputMimeType;
       return this;
     }
 
@@ -456,9 +442,6 @@ public final class Transformer {
         }
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
-      checkState(
-          muxerFactory.supportsOutputMimeType(containerMimeType),
-          "Unsupported container MIME type: " + containerMimeType);
       if (transformationRequest.audioMimeType != null) {
         checkSampleMimeType(transformationRequest.audioMimeType);
       }
@@ -471,7 +454,6 @@ public final class Transformer {
           muxerFactory,
           removeAudio,
           removeVideo,
-          containerMimeType,
           transformationRequest,
           videoEffects,
           frameProcessorFactory,
@@ -486,13 +468,9 @@ public final class Transformer {
     private void checkSampleMimeType(String sampleMimeType) {
       checkState(
           muxerFactory
-              .getSupportedSampleMimeTypes(
-                  MimeTypes.getTrackType(sampleMimeType), containerMimeType)
+              .getSupportedSampleMimeTypes(MimeTypes.getTrackType(sampleMimeType))
               .contains(sampleMimeType),
-          "Unsupported sample MIME type "
-              + sampleMimeType
-              + " for container MIME type "
-              + containerMimeType);
+          "Unsupported sample MIME type " + sampleMimeType);
     }
   }
 
@@ -584,7 +562,6 @@ public final class Transformer {
   private final Muxer.Factory muxerFactory;
   private final boolean removeAudio;
   private final boolean removeVideo;
-  private final String containerMimeType;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<Effect> videoEffects;
   private final FrameProcessor.Factory frameProcessorFactory;
@@ -608,7 +585,6 @@ public final class Transformer {
       Muxer.Factory muxerFactory,
       boolean removeAudio,
       boolean removeVideo,
-      String containerMimeType,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> videoEffects,
       FrameProcessor.Factory frameProcessorFactory,
@@ -624,7 +600,6 @@ public final class Transformer {
     this.muxerFactory = muxerFactory;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
-    this.containerMimeType = containerMimeType;
     this.transformationRequest = transformationRequest;
     this.videoEffects = videoEffects;
     this.frameProcessorFactory = frameProcessorFactory;
@@ -713,7 +688,7 @@ public final class Transformer {
     }
     this.outputPath = path;
     this.outputParcelFileDescriptor = null;
-    startTransformation(mediaItem, muxerFactory.create(path, containerMimeType));
+    startTransformation(mediaItem, muxerFactory.create(path));
   }
 
   /**
@@ -743,7 +718,7 @@ public final class Transformer {
       throws IOException {
     this.outputParcelFileDescriptor = parcelFileDescriptor;
     this.outputPath = null;
-    startTransformation(mediaItem, muxerFactory.create(parcelFileDescriptor, containerMimeType));
+    startTransformation(mediaItem, muxerFactory.create(parcelFileDescriptor));
   }
 
   private void startTransformation(MediaItem mediaItem, Muxer muxer) {
@@ -751,7 +726,7 @@ public final class Transformer {
     if (player != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer, muxerFactory, containerMimeType);
+    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer, muxerFactory);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(

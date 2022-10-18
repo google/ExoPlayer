@@ -35,11 +35,9 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   private final List<Dumper.Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  public TestMuxer(String path, String outputMimeType, Muxer.Factory muxerFactory)
-      throws IOException {
-    muxer = muxerFactory.create(path, outputMimeType);
+  public TestMuxer(String path, Muxer.Factory muxerFactory) throws IOException {
+    muxer = muxerFactory.create(path);
     dumpables = new ArrayList<>();
-    dumpables.add(dumper -> dumper.add("containerMimeType", outputMimeType));
   }
 
   // Muxer implementation.

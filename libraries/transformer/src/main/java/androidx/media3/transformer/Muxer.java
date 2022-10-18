@@ -26,13 +26,12 @@ import java.nio.ByteBuffer;
 /**
  * Abstracts media muxing operations.
  *
- * <p>Query whether {@linkplain Factory#supportsOutputMimeType(String) container MIME type} and
- * {@linkplain Factory#getSupportedSampleMimeTypes(int, String)} sample MIME types} are supported
- * and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain #writeSampleData(int,
- * ByteBuffer, boolean, long) write sample data} to mux samples. Once any sample data has been
- * written, it is not possible to add tracks. After writing all sample data, {@linkplain
- * #release(boolean) release} the instance to finish writing to the output and return any resources
- * to the system.
+ * <p>Query whether {@linkplain Factory#getSupportedSampleMimeTypes(int)} sample MIME types} are
+ * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain
+ * #writeSampleData(int, ByteBuffer, boolean, long) write sample data} to mux samples. Once any
+ * sample data has been written, it is not possible to add tracks. After writing all sample data,
+ * {@linkplain #release(boolean) release} the instance to finish writing to the output and return
+ * any resources to the system.
  */
 /* package */ interface Muxer {
 
@@ -55,11 +54,10 @@ import java.nio.ByteBuffer;
      * Returns a new muxer writing to a file.
      *
      * @param path The path to the output file.
-     * @param outputMimeType The container {@linkplain MimeTypes MIME type} of the output file.
-     * @throws IllegalArgumentException If the path is invalid or the MIME type is not supported.
+     * @throws IllegalArgumentException If the path is invalid.
      * @throws IOException If an error occurs opening the output file for writing.
      */
-    Muxer create(String path, String outputMimeType) throws IOException;
+    Muxer create(String path) throws IOException;
 
     /**
      * Returns a new muxer writing to a file descriptor.
@@ -68,25 +66,16 @@ import java.nio.ByteBuffer;
      *     output. The file referenced by this ParcelFileDescriptor should not be used before the
      *     muxer is released. It is the responsibility of the caller to close the
      *     ParcelFileDescriptor. This can be done after this method returns.
-     * @param outputMimeType The {@linkplain MimeTypes MIME type} of the output.
-     * @throws IllegalArgumentException If the file descriptor is invalid or the MIME type is not
-     *     supported.
+     * @throws IllegalArgumentException If the file descriptor is invalid.
      * @throws IOException If an error occurs opening the output file descriptor for writing.
      */
-    Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-        throws IOException;
-
-    /**
-     * Returns whether the {@linkplain MimeTypes MIME type} provided is a supported output format.
-     */
-    boolean supportsOutputMimeType(String mimeType);
+    Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws IOException;
 
     /**
      * Returns the supported sample {@linkplain MimeTypes MIME types} for the given {@link
-     * C.TrackType} and container {@linkplain MimeTypes MIME type}.
+     * C.TrackType}.
      */
-    ImmutableList<String> getSupportedSampleMimeTypes(
-        @C.TrackType int trackType, String containerMimeType);
+    ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType);
   }
 
   /**
