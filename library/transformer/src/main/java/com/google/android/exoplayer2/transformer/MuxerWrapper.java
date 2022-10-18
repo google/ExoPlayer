@@ -51,7 +51,6 @@ import java.nio.ByteBuffer;
   private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
   private final SparseLongArray trackTypeToBytesWritten;
-  private final String containerMimeType;
 
   private int trackCount;
   private int trackFormatCount;
@@ -59,10 +58,9 @@ import java.nio.ByteBuffer;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
 
-  public MuxerWrapper(Muxer muxer, Muxer.Factory muxerFactory, String containerMimeType) {
+  public MuxerWrapper(Muxer muxer, Muxer.Factory muxerFactory) {
     this.muxer = muxer;
     this.muxerFactory = muxerFactory;
-    this.containerMimeType = containerMimeType;
 
     trackTypeToIndex = new SparseIntArray();
     trackTypeToSampleCount = new SparseIntArray();
@@ -97,7 +95,7 @@ import java.nio.ByteBuffer;
    * track type}.
    */
   public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
-    return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+    return muxerFactory.getSupportedSampleMimeTypes(trackType);
   }
 
   /**

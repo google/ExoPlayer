@@ -863,28 +863,20 @@ public final class TransformerEndToEndTest {
     }
 
     @Override
-    public Muxer create(String path, String outputMimeType) throws IOException {
-      testMuxer = new TestMuxer(path, outputMimeType, defaultMuxerFactory);
+    public Muxer create(String path) throws IOException {
+      testMuxer = new TestMuxer(path, defaultMuxerFactory);
       return testMuxer;
     }
 
     @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-        throws IOException {
-      testMuxer =
-          new TestMuxer("FD:" + parcelFileDescriptor.getFd(), outputMimeType, defaultMuxerFactory);
+    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws IOException {
+      testMuxer = new TestMuxer("FD:" + parcelFileDescriptor.getFd(), defaultMuxerFactory);
       return testMuxer;
     }
 
     @Override
-    public boolean supportsOutputMimeType(String mimeType) {
-      return true;
-    }
-
-    @Override
-    public ImmutableList<String> getSupportedSampleMimeTypes(
-        @C.TrackType int trackType, String containerMimeType) {
-      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
     }
   }
 }
