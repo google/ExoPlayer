@@ -8812,6 +8812,39 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void seekToNextPrevious_singleItemRepeat_notifiesMediaItemTransition() throws Exception {
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSource(mediaSource);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.setRepeatMode(Player.REPEAT_MODE_ALL);
+    player.seekToNextMediaItem();
+    player.seekToPreviousMediaItem();
+    player.release();
+
+    MediaItem expectedMediaItem = mediaSource.getMediaItem();
+    assertThat(reportedMediaItems)
+        .containsExactly(expectedMediaItem, expectedMediaItem, expectedMediaItem);
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_SEEK,
+            Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+  }
+
+  @Test
   public void repeat_notifiesMediaItemTransition() throws Exception {
     List<MediaItem> reportedMediaItems = new ArrayList<>();
     List<Integer> reportedTransitionReasons = new ArrayList<>();
