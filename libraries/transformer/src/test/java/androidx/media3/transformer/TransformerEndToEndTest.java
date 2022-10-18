@@ -856,15 +856,15 @@ public final class TransformerEndToEndTest {
 
   private final class TestMuxerFactory implements Muxer.Factory {
 
-    private final Muxer.Factory frameworkMuxerFactory;
+    private final Muxer.Factory defaultMuxerFactory;
 
     public TestMuxerFactory() {
-      frameworkMuxerFactory = new FrameworkMuxer.Factory();
+      defaultMuxerFactory = new DefaultMuxer.Factory();
     }
 
     @Override
     public Muxer create(String path, String outputMimeType) throws IOException {
-      testMuxer = new TestMuxer(path, outputMimeType, frameworkMuxerFactory);
+      testMuxer = new TestMuxer(path, outputMimeType, defaultMuxerFactory);
       return testMuxer;
     }
 
@@ -872,8 +872,7 @@ public final class TransformerEndToEndTest {
     public Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
         throws IOException {
       testMuxer =
-          new TestMuxer(
-              "FD:" + parcelFileDescriptor.getFd(), outputMimeType, frameworkMuxerFactory);
+          new TestMuxer("FD:" + parcelFileDescriptor.getFd(), outputMimeType, defaultMuxerFactory);
       return testMuxer;
     }
 
@@ -885,7 +884,7 @@ public final class TransformerEndToEndTest {
     @Override
     public ImmutableList<String> getSupportedSampleMimeTypes(
         @C.TrackType int trackType, String containerMimeType) {
-      return frameworkMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
     }
   }
 }

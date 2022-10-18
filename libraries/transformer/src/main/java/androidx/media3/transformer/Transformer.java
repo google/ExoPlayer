@@ -126,7 +126,7 @@ public final class Transformer {
      */
     public Builder(Context context) {
       this.context = context.getApplicationContext();
-      muxerFactory = new FrameworkMuxer.Factory();
+      muxerFactory = new DefaultMuxer.Factory();
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
       listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
@@ -424,7 +424,7 @@ public final class Transformer {
     /**
      * Sets the factory for muxers that write the media container.
      *
-     * <p>The default value is a {@link FrameworkMuxer.Factory}.
+     * <p>The default value is a {@link DefaultMuxer.Factory}.
      *
      * @param muxerFactory A {@link Muxer.Factory}.
      * @return This builder.
