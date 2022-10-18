@@ -858,6 +858,17 @@ public class MediaSessionProviderService extends Service {
     }
 
     @Override
+    public void setVolume(String sessionId, float volume) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.setVolume(volume);
+            player.notifyVolumeChanged();
+          });
+    }
+
+    @Override
     public void notifyAvailableCommandsChanged(String sessionId, Bundle commandsBundle)
         throws RemoteException {
       runOnHandler(
@@ -966,6 +977,28 @@ public class MediaSessionProviderService extends Service {
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.deviceVolume = volume;
             player.deviceMuted = muted;
+            player.notifyDeviceVolumeChanged();
+          });
+    }
+
+    @Override
+    public void decreaseDeviceVolume(String sessionId) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.decreaseDeviceVolume();
+            player.notifyDeviceVolumeChanged();
+          });
+    }
+
+    @Override
+    public void increaseDeviceVolume(String sessionId) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.increaseDeviceVolume();
             player.notifyDeviceVolumeChanged();
           });
     }

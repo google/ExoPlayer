@@ -35,6 +35,7 @@ import androidx.media3.common.Player;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.PollingCheck;
 import androidx.media3.test.session.common.SurfaceActivity;
+import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -42,6 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -140,6 +142,7 @@ public class MediaControllerSurfaceSizeChangeTest {
   private final CountDownLatch countDownLatch;
   private final AtomicInteger newSurfaceWidthRef;
   private final AtomicInteger newSurfaceHeightRef;
+  private final AtomicReference<Player.Events> eventsRef;
 
   @Rule
   public ActivityTestRule<SurfaceActivity> activityRule =
@@ -178,9 +181,10 @@ public class MediaControllerSurfaceSizeChangeTest {
     this.sizeCondition = sizeCondition;
     this.surfaceSizeChangedShouldBeCalled = surfaceSizeChangedShouldBeCalled;
 
-    countDownLatch = new CountDownLatch(1);
+    countDownLatch = new CountDownLatch(2);
     newSurfaceWidthRef = new AtomicInteger(C.LENGTH_UNSET);
     newSurfaceHeightRef = new AtomicInteger(C.LENGTH_UNSET);
+    eventsRef = new AtomicReference<>();
   }
 
   @Test
@@ -250,6 +254,12 @@ public class MediaControllerSurfaceSizeChangeTest {
                         }
                         newSurfaceWidthRef.set(width);
                         newSurfaceHeightRef.set(height);
+                        countDownLatch.countDown();
+                      }
+
+                      @Override
+                      public void onEvents(Player player, Player.Events events) {
+                        eventsRef.set(events);
                         countDownLatch.countDown();
                       }
                     }));
@@ -360,6 +370,8 @@ public class MediaControllerSurfaceSizeChangeTest {
       assertThat(countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
       assertThat(newSurfaceWidthRef.get()).isEqualTo(expectedWidthFromCallback);
       assertThat(newSurfaceHeightRef.get()).isEqualTo(expectedHeightFromCallback);
+      assertThat(TestUtils.getEventsAsList(eventsRef.get()))
+          .containsExactly(Player.EVENT_SURFACE_SIZE_CHANGED);
     } else {
       assertThat(countDownLatch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
     }

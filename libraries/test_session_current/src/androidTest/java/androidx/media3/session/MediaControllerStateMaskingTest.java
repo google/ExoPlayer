@@ -15,16 +15,12 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.DeviceInfo.PLAYBACK_TYPE_LOCAL;
-import static androidx.media3.common.Player.REPEAT_MODE_ALL;
-import static androidx.media3.common.Player.REPEAT_MODE_ONE;
-import static androidx.media3.common.Player.STATE_ENDED;
-import static androidx.media3.common.Player.STATE_READY;
 import static androidx.media3.session.MediaTestUtils.createMediaItems;
 import static androidx.media3.session.MediaTestUtils.createTimeline;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
+import static androidx.media3.test.session.common.TestUtils.getEventsAsList;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -43,8 +39,10 @@ import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.Window;
+import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
+import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -161,10 +159,11 @@ public class MediaControllerStateMaskingTest {
     assertThat(playWhenReadyFromCallbackRef.get()).isEqualTo(testPlayWhenReady);
     assertThat(playbackSuppressionReasonFromCallbackRef.get()).isEqualTo(testReason);
     assertThat(isPlayingFromCallbackRef.get()).isEqualTo(testIsPlaying);
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED))
-        .isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_IS_PLAYING_CHANGED)).isTrue();
+    assertThat(TestUtils.getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_PLAY_WHEN_READY_CHANGED,
+            Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+            Player.EVENT_IS_PLAYING_CHANGED);
     assertThat(playWhenReadyFromGetterRef.get()).isEqualTo(testPlayWhenReady);
     assertThat(playbackSuppressionReasonFromGetterRef.get()).isEqualTo(testReason);
     assertThat(isPlayingFromGetterRef.get()).isEqualTo(testIsPlaying);
@@ -208,15 +207,18 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(shuffleModeEnabledFromCallbackRef.get()).isEqualTo(testShuffleModeEnabled);
-    assertThat(onEventsRef.get().contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED);
     assertThat(shuffleModeEnabledFromGetterRef.get()).isEqualTo(testShuffleModeEnabled);
   }
 
   @Test
   public void setRepeatMode() throws Exception {
-    int testRepeatMode = REPEAT_MODE_ALL;
+    int testRepeatMode = Player.REPEAT_MODE_ALL;
     Bundle playerConfig =
-        new RemoteMediaSession.MockPlayerConfigBuilder().setRepeatMode(REPEAT_MODE_ONE).build();
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setRepeatMode(Player.REPEAT_MODE_ONE)
+            .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
@@ -250,7 +252,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(repeatModeFromCallbackRef.get()).isEqualTo(testRepeatMode);
-    assertThat(onEventsRef.get().contains(Player.EVENT_REPEAT_MODE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_REPEAT_MODE_CHANGED);
     assertThat(repeatModeFromGetterRef.get()).isEqualTo(testRepeatMode);
   }
 
@@ -294,7 +297,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackParametersFromCallbackRef.get()).isEqualTo(testPlaybackParameters);
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAYBACK_PARAMETERS_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_PLAYBACK_PARAMETERS_CHANGED);
     assertThat(playbackParametersFromGetterRef.get()).isEqualTo(testPlaybackParameters);
   }
 
@@ -338,7 +342,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackParametersFromCallbackRef.get().speed).isEqualTo(testPlaybackSpeed);
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAYBACK_PARAMETERS_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_PLAYBACK_PARAMETERS_CHANGED);
     assertThat(playbackParametersFromGetterRef.get().speed).isEqualTo(testPlaybackSpeed);
   }
 
@@ -354,6 +359,7 @@ public class MediaControllerStateMaskingTest {
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<MediaMetadata> playlistMetadataFromCallbackRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -364,6 +370,7 @@ public class MediaControllerStateMaskingTest {
 
           @Override
           public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -381,6 +388,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playlistMetadataFromCallbackRef.get()).isEqualTo(testPlaylistMetadata);
     assertThat(playlistMetadataFromGetterRef.get()).isEqualTo(testPlaylistMetadata);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_PLAYLIST_METADATA_CHANGED);
   }
 
   @Test
@@ -392,6 +401,7 @@ public class MediaControllerStateMaskingTest {
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Float> volumeFromCallbackRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -402,6 +412,7 @@ public class MediaControllerStateMaskingTest {
 
           @Override
           public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -419,6 +430,7 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(volumeFromCallbackRef.get()).isEqualTo(testVolume);
     assertThat(volumeFromGetterRef.get()).isEqualTo(testVolume);
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_VOLUME_CHANGED);
   }
 
   @Test
@@ -431,6 +443,7 @@ public class MediaControllerStateMaskingTest {
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicInteger deviceVolumeFromCallbackRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -441,6 +454,7 @@ public class MediaControllerStateMaskingTest {
 
           @Override
           public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -458,6 +472,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeFromCallbackRef.get()).isEqualTo(testDeviceVolume);
     assertThat(deviceVolumeFromGetterRef.get()).isEqualTo(testDeviceVolume);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_DEVICE_VOLUME_CHANGED);
   }
 
   @Test
@@ -467,13 +483,15 @@ public class MediaControllerStateMaskingTest {
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setDeviceVolume(1)
             .setDeviceInfo(
-                new DeviceInfo(PLAYBACK_TYPE_LOCAL, /* minVolume= */ 0, /* maxVolume= */ 2))
+                new DeviceInfo(
+                    DeviceInfo.PLAYBACK_TYPE_LOCAL, /* minVolume= */ 0, /* maxVolume= */ 2))
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicInteger deviceVolumeFromCallbackRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -484,6 +502,7 @@ public class MediaControllerStateMaskingTest {
 
           @Override
           public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -501,6 +520,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeFromCallbackRef.get()).isEqualTo(testDeviceVolume);
     assertThat(deviceVolumeFromGetterRef.get()).isEqualTo(testDeviceVolume);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_DEVICE_VOLUME_CHANGED);
   }
 
   @Test
@@ -513,6 +534,7 @@ public class MediaControllerStateMaskingTest {
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicInteger deviceVolumeFromCallbackRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -523,6 +545,7 @@ public class MediaControllerStateMaskingTest {
 
           @Override
           public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -540,6 +563,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceVolumeFromCallbackRef.get()).isEqualTo(testDeviceVolume);
     assertThat(deviceVolumeFromGetterRef.get()).isEqualTo(testDeviceVolume);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_DEVICE_VOLUME_CHANGED);
   }
 
   @Test
@@ -552,6 +577,7 @@ public class MediaControllerStateMaskingTest {
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicBoolean deviceMutedFromCallbackRef = new AtomicBoolean();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -562,6 +588,7 @@ public class MediaControllerStateMaskingTest {
 
           @Override
           public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -579,6 +606,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(deviceMutedFromCallbackRef.get()).isEqualTo(testDeviceMuted);
     assertThat(deviceMutedFromGetterRef.get()).isEqualTo(testDeviceMuted);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_DEVICE_VOLUME_CHANGED);
   }
 
   @Test
@@ -628,9 +657,55 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackStateFromCallbackRef.get()).isEqualTo(testPlaybackState);
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAYBACK_STATE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_PLAYBACK_STATE_CHANGED);
     assertThat(playbackStateFromGetterRef.get()).isEqualTo(testPlaybackState);
     assertThat(playerErrorRef.get()).isNull();
+  }
+
+  @Test
+  public void setTrackSelectionParameters() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    remoteSession.setPlayer(new RemoteMediaSession.MockPlayerConfigBuilder().build());
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<TrackSelectionParameters> trackSelectionParametersCallbackRef =
+        new AtomicReference<>();
+    AtomicReference<TrackSelectionParameters> trackSelectionParametersGetterRef =
+        new AtomicReference<>();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {
+            trackSelectionParametersCallbackRef.set(parameters);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setTrackSelectionParameters(
+                  new TrackSelectionParameters.Builder(context).setMaxVideoBitrate(1234).build());
+              trackSelectionParametersGetterRef.set(controller.getTrackSelectionParameters());
+            });
+
+    TrackSelectionParameters expectedParameters =
+        new TrackSelectionParameters.Builder(context).setMaxVideoBitrate(1234).build();
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(trackSelectionParametersCallbackRef.get()).isEqualTo(expectedParameters);
+    assertThat(trackSelectionParametersGetterRef.get()).isEqualTo(expectedParameters);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED);
   }
 
   @Test
@@ -694,8 +769,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(newMediaItemRef.get().mediaId).isEqualTo(testCurrentMediaId);
     assertThat(oldPositionInfoRef.get().mediaItemIndex).isEqualTo(initialMediaItemIndex);
     assertThat(newPositionInfoRef.get().mediaItemIndex).isEqualTo(testMediaItemIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_MEDIA_ITEM_TRANSITION, Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
   }
 
@@ -760,8 +835,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(newMediaItemRef.get().mediaId).isEqualTo(testCurrentMediaId);
     assertThat(oldPositionInfoRef.get().mediaItemIndex).isEqualTo(initialMediaItemIndex);
     assertThat(newPositionInfoRef.get().mediaItemIndex).isEqualTo(testMediaItemIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_MEDIA_ITEM_TRANSITION, Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
   }
 
@@ -827,7 +902,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testPosition);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
     assertThat(bufferedPositionRef.get()).isEqualTo(testBufferedPosition);
     assertThat(totalBufferedDurationRef.get()).isEqualTo(testTotalBufferedDuration);
@@ -896,7 +972,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testPosition);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
     assertThat(bufferedPositionRef.get()).isEqualTo(testBufferedPosition);
     assertThat(totalBufferedDurationRef.get()).isEqualTo(testTotalBufferedDuration);
@@ -965,7 +1042,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testPosition);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
     assertThat(bufferedPositionRef.get()).isEqualTo(testBufferedPosition);
     assertThat(totalBufferedDurationRef.get()).isEqualTo(testTotalBufferedDuration);
@@ -1035,7 +1113,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testPosition);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
     assertThat(bufferedPositionRef.get()).isEqualTo(testBufferedPosition);
@@ -1145,7 +1224,7 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testPosition);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).contains(Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
@@ -1282,7 +1361,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testSeekPositionMs);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
@@ -1326,9 +1406,10 @@ public class MediaControllerStateMaskingTest {
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
     AtomicLong oldPositionRef = new AtomicLong();
     AtomicLong newPositionRef = new AtomicLong();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -1336,6 +1417,12 @@ public class MediaControllerStateMaskingTest {
               PositionInfo oldPosition, PositionInfo newPosition, int reason) {
             oldPositionRef.set(oldPosition.positionMs);
             newPositionRef.set(newPosition.positionMs);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -1346,6 +1433,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(oldPositionRef.get()).isEqualTo(testCurrentPosition);
     assertThat(newPositionRef.get()).isEqualTo(testCurrentPosition - testSeekBackIncrement);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
   }
 
   @Test
@@ -1361,9 +1450,10 @@ public class MediaControllerStateMaskingTest {
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
     AtomicLong oldPositionRef = new AtomicLong();
     AtomicLong newPositionRef = new AtomicLong();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -1371,6 +1461,12 @@ public class MediaControllerStateMaskingTest {
               PositionInfo oldPosition, PositionInfo newPosition, int reason) {
             oldPositionRef.set(oldPosition.positionMs);
             newPositionRef.set(newPosition.positionMs);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -1381,6 +1477,8 @@ public class MediaControllerStateMaskingTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(oldPositionRef.get()).isEqualTo(testCurrentPosition);
     assertThat(newPositionRef.get()).isEqualTo(testCurrentPosition + testSeekForwardIncrement);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_POSITION_DISCONTINUITY);
   }
 
   @Test
@@ -1462,7 +1560,11 @@ public class MediaControllerStateMaskingTest {
         testMediaItemIndex,
         /* testFirstPeriodIndex= */ testPeriodIndex,
         /* testLastPeriodIndex= */ testPeriodIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_TIMELINE_CHANGED,
+            Player.EVENT_MEDIA_ITEM_TRANSITION,
+            Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
@@ -1561,9 +1663,11 @@ public class MediaControllerStateMaskingTest {
         /* testFirstPeriodIndex= */ testPeriodIndex,
         /* testLastPeriodIndex= */ testPeriodIndex);
     assertThat(newMediaItemRef.get().mediaId).isEqualTo(testMediaItemIndexMediaId);
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_POSITION_DISCONTINUITY,
+            Player.EVENT_TIMELINE_CHANGED,
+            Player.EVENT_MEDIA_ITEM_TRANSITION);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
@@ -1655,9 +1759,11 @@ public class MediaControllerStateMaskingTest {
     assertThat(newPositionInfoRef.get().positionMs).isEqualTo(testPosition);
     assertThat(newTimelineRef.get().isEmpty()).isTrue();
     assertThat(newMediaItemRef.get()).isNull();
-    assertThat(onEventsRef.get().contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_POSITION_DISCONTINUITY,
+            Player.EVENT_TIMELINE_CHANGED,
+            Player.EVENT_MEDIA_ITEM_TRANSITION);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
     assertThat(currentPositionRef.get()).isEqualTo(testPosition);
@@ -1751,7 +1857,8 @@ public class MediaControllerStateMaskingTest {
         testCurrentMediaItemIndex,
         /* testFirstPeriodIndex= */ testCurrentPeriodIndex,
         /* testLastPeriodIndex= */ testCurrentPeriodIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
@@ -1819,7 +1926,7 @@ public class MediaControllerStateMaskingTest {
         testCurrentMediaItemIndex,
         /* testFirstPeriodIndex= */ testCurrentPeriodIndex,
         /* testLastPeriodIndex= */ testCurrentPeriodIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_TIMELINE_CHANGED);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
@@ -1937,7 +2044,7 @@ public class MediaControllerStateMaskingTest {
         testCurrentMediaItemIndex,
         /* testFirstPeriodIndex= */ testCurrentWindowFirstPeriodIndex,
         /* testLastPeriodIndex= */ testCurrentWindowLastPeriodIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_TIMELINE_CHANGED);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
@@ -2026,8 +2133,11 @@ public class MediaControllerStateMaskingTest {
         /* testLastPeriodIndex= */ testCurrentMediaItemIndex);
     assertThat(newMediaItemRef.get().mediaId).isEqualTo(testCurrentMediaId);
     assertThat(newPositionInfoRef.get().mediaItemIndex).isEqualTo(testCurrentMediaItemIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_TIMELINE_CHANGED,
+            Player.EVENT_MEDIA_ITEM_TRANSITION,
+            Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
@@ -2101,7 +2211,7 @@ public class MediaControllerStateMaskingTest {
     Window window = new Window();
     assertThat(newTimelineRef.get().getWindow(testCurrentMediaItemIndex, window).mediaItem.mediaId)
         .isEqualTo(testCurrentMediaId);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_TIMELINE_CHANGED);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
@@ -2171,7 +2281,7 @@ public class MediaControllerStateMaskingTest {
         testCurrentMediaItemIndex,
         /* testFirstPeriodIndex= */ testCurrentWindowFirstPeriodIndex,
         /* testLastPeriodIndex= */ testCurrentWindowLastPeriodIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_TIMELINE_CHANGED);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testCurrentPeriodIndex);
   }
@@ -2179,7 +2289,7 @@ public class MediaControllerStateMaskingTest {
   @Test
   public void removeMediaItems_removeAllItems() throws Exception {
     int initialMediaItemIndex = 1;
-    int initialPlaybackState = STATE_READY;
+    int initialPlaybackState = Player.STATE_READY;
     long initialCurrentPosition = 3_000;
     String firstMediaId = "firstMediaId";
     String secondMediaId = "secondMediaId";
@@ -2190,7 +2300,7 @@ public class MediaControllerStateMaskingTest {
     int testCurrentMediaItemIndex = 0;
     int testNextMediaItemIndex = C.INDEX_UNSET;
     int testPreviousMediaItemIndex = C.INDEX_UNSET;
-    int testPlaybackState = STATE_ENDED;
+    int testPlaybackState = Player.STATE_ENDED;
     long testCurrentPosition = 0;
 
     Bundle playerConfig =
@@ -2264,9 +2374,12 @@ public class MediaControllerStateMaskingTest {
         /* ignored= */ C.INDEX_UNSET);
     assertThat(newMediaItemRef.get()).isNull();
     assertThat(newPlaybackStateRef.get()).isEqualTo(testPlaybackState);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAYBACK_STATE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(
+            Player.EVENT_TIMELINE_CHANGED,
+            Player.EVENT_MEDIA_ITEM_TRANSITION,
+            Player.EVENT_PLAYBACK_STATE_CHANGED,
+            Player.EVENT_POSITION_DISCONTINUITY);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(nextMediaItemIndexRef.get()).isEqualTo(testNextMediaItemIndex);
     assertThat(previousMediaItemIndexRef.get()).isEqualTo(testPreviousMediaItemIndex);
@@ -2277,10 +2390,10 @@ public class MediaControllerStateMaskingTest {
   public void removeMediaItems_removedTailIncludesCurrentItem_callsOnPlaybackStateChanged()
       throws Exception {
     int initialMediaItemIndex = 1;
-    int initialPlaybackState = STATE_READY;
+    int initialPlaybackState = Player.STATE_READY;
     int testFromIndex = 1;
     int testToIndex = 3;
-    int testPlaybackState = STATE_ENDED;
+    int testPlaybackState = Player.STATE_ENDED;
     Timeline testTimeline = createTimeline(createMediaItems(/* size= */ 3));
 
     Bundle playerConfig =
@@ -2293,13 +2406,20 @@ public class MediaControllerStateMaskingTest {
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
     AtomicInteger newPlaybackStateRef = new AtomicInteger();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
           public void onPlaybackStateChanged(int playbackState) {
             newPlaybackStateRef.set(playbackState);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
             latch.countDown();
           }
         };
@@ -2314,6 +2434,7 @@ public class MediaControllerStateMaskingTest {
             });
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(newPlaybackStateRef.get()).isEqualTo(testPlaybackState);
+    assertThat(getEventsAsList(onEventsRef.get())).contains(Player.EVENT_PLAYBACK_STATE_CHANGED);
   }
 
   @Test
@@ -2586,7 +2707,7 @@ public class MediaControllerStateMaskingTest {
     assertThat(
             newTimelineRef.get().getWindow(testNextMediaItemIndex, new Window()).mediaItem.mediaId)
         .isEqualTo(testNextMediaId);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_TIMELINE_CHANGED);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
   }
 
@@ -2700,7 +2821,7 @@ public class MediaControllerStateMaskingTest {
         testCurrentMediaItemIndex,
         /* testFirstPeriodIndex= */ testCurrentWindowFirstPeriodIndex,
         /* testLastPeriodIndex= */ testCurrentWindowLastPeriodIndex);
-    assertThat(onEventsRef.get().contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get())).containsExactly(Player.EVENT_TIMELINE_CHANGED);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testCurrentPeriodIndex);
   }
@@ -2867,7 +2988,8 @@ public class MediaControllerStateMaskingTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playbackStateFromCallbackRef.get()).isEqualTo(testPlaybackState);
-    assertThat(onEventsRef.get().contains(Player.EVENT_PLAYBACK_STATE_CHANGED)).isTrue();
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_PLAYBACK_STATE_CHANGED);
     assertThat(playbackStateFromGetterRef.get()).isEqualTo(testPlaybackState);
     assertThat(playerErrorFromGetterRef.get().errorInfoEquals(testPlaybackException)).isTrue();
     assertThat(timelineFromGetterRef.get().getWindowCount())

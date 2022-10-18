@@ -240,7 +240,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           playerInfo.copyWithPlaybackState(
               Player.STATE_IDLE, /* playerError= */ playerInfo.playerError);
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_STATE_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(Player.STATE_IDLE));
       listeners.flushEvents();
     }
@@ -698,7 +698,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithPlaybackParameters(playbackParameters);
 
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(playbackParameters));
       listeners.flushEvents();
     }
@@ -724,7 +724,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithPlaybackParameters(newPlaybackParameters);
 
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(newPlaybackParameters));
       listeners.flushEvents();
     }
@@ -902,10 +902,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     if (!playerInfo.playlistMetadata.equals(playlistMetadata)) {
       playerInfo = playerInfo.copyWithPlaylistMetadata(playlistMetadata);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_PLAYLIST_METADATA_CHANGED,
           listener -> listener.onPlaylistMetadataChanged(playlistMetadata));
       listeners.flushEvents();
     }
@@ -1404,7 +1402,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithRepeatMode(repeatMode);
 
       listeners.queueEvent(
-          Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
+          /* eventFlag= */ Player.EVENT_REPEAT_MODE_CHANGED,
+          listener -> listener.onRepeatModeChanged(repeatMode));
       listeners.flushEvents();
     }
   }
@@ -1433,7 +1432,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithShuffleModeEnabled(shuffleModeEnabled);
 
       listeners.queueEvent(
-          Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
       listeners.flushEvents();
     }
@@ -1461,10 +1460,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     if (playerInfo.volume != volume) {
       playerInfo = playerInfo.copyWithVolume(volume);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onVolumeChanged(volume));
+          /* eventFlag= */ Player.EVENT_VOLUME_CHANGED,
+          listener -> listener.onVolumeChanged(volume));
       listeners.flushEvents();
     }
   }
@@ -1497,9 +1495,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (playerInfo.deviceVolume != volume) {
       playerInfo = playerInfo.copyWithDeviceVolume(volume, playerInfo.deviceMuted);
 
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(volume, playerInfo.deviceMuted));
       listeners.flushEvents();
     }
@@ -1518,10 +1515,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     int newDeviceVolume = playerInfo.deviceVolume + 1;
     if (newDeviceVolume <= getDeviceInfo().maxVolume) {
       playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(newDeviceVolume, playerInfo.deviceMuted));
       listeners.flushEvents();
     }
@@ -1540,10 +1535,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     int newDeviceVolume = playerInfo.deviceVolume - 1;
     if (newDeviceVolume >= getDeviceInfo().minVolume) {
       playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(newDeviceVolume, playerInfo.deviceMuted));
       listeners.flushEvents();
     }
@@ -1561,10 +1554,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     if (playerInfo.deviceMuted != muted) {
       playerInfo = playerInfo.copyWithDeviceVolume(playerInfo.deviceVolume, muted);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(playerInfo.deviceVolume, muted));
       listeners.flushEvents();
     }
@@ -1751,7 +1742,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithTrackSelectionParameters(parameters);
 
       listeners.queueEvent(
-          Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
           listener -> listener.onTrackSelectionParametersChanged(parameters));
       listeners.flushEvents();
     }
@@ -2074,14 +2065,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     if (mediaItemTransition) {
       listeners.queueEvent(
-          Player.EVENT_MEDIA_ITEM_TRANSITION,
+          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->
               listener.onMediaItemTransition(
                   newPlayerInfo.getCurrentMediaItem(), mediaItemTransitionReason));
     }
     if (positionDiscontinuity) {
       listeners.queueEvent(
-          Player.EVENT_POSITION_DISCONTINUITY,
+          /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
           listener ->
               listener.onPositionDiscontinuity(
                   newPlayerInfo.oldPositionInfo,
@@ -2090,30 +2081,30 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     if (!oldPlayerInfo.timeline.equals(newPlayerInfo.timeline)) {
       listeners.queueEvent(
-          Player.EVENT_TIMELINE_CHANGED,
+          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newPlayerInfo.timeline, timelineChangeReason));
     }
     if (oldPlayerInfo.playbackState != newPlayerInfo.playbackState) {
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_STATE_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(newPlayerInfo.playbackState));
     }
     if (oldPlayerInfo.playWhenReady != newPlayerInfo.playWhenReady) {
       listeners.queueEvent(
-          Player.EVENT_PLAY_WHEN_READY_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
                   newPlayerInfo.playWhenReady, playWhenReadyChangeReason));
     }
     if (oldPlayerInfo.playbackSuppressionReason != newPlayerInfo.playbackSuppressionReason) {
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
               listener.onPlaybackSuppressionReasonChanged(newPlayerInfo.playbackSuppressionReason));
     }
     if (oldPlayerInfo.isPlaying != newPlayerInfo.isPlaying) {
       listeners.queueEvent(
-          Player.EVENT_IS_PLAYING_CHANGED,
+          /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
           listener -> listener.onIsPlayingChanged(newPlayerInfo.isPlaying));
     }
     listeners.flushEvents();
@@ -2201,10 +2192,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (surfaceWidth != width || surfaceHeight != height) {
       surfaceWidth = width;
       surfaceHeight = height;
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.sendEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onSurfaceSizeChanged(width, height));
+          /* eventFlag= */ Player.EVENT_SURFACE_SIZE_CHANGED,
+          listener -> listener.onSurfaceSizeChanged(width, height));
     }
   }
 
@@ -2341,123 +2331,119 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             || (oldPlayerError != null && oldPlayerError.errorInfoEquals(playerError));
     if (!errorsMatch) {
       listeners.queueEvent(
-          Player.EVENT_PLAYER_ERROR,
+          /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
           listener -> listener.onPlayerErrorChanged(playerInfo.playerError));
       if (playerInfo.playerError != null) {
         listeners.queueEvent(
-            Player.EVENT_PLAYER_ERROR, listener -> listener.onPlayerError(playerInfo.playerError));
+            /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
+            listener -> listener.onPlayerError(playerInfo.playerError));
       }
     }
     MediaItem oldCurrentMediaItem = oldPlayerInfo.getCurrentMediaItem();
     MediaItem currentMediaItem = playerInfo.getCurrentMediaItem();
     if (!Util.areEqual(oldCurrentMediaItem, currentMediaItem)) {
       listeners.queueEvent(
-          Player.EVENT_MEDIA_ITEM_TRANSITION,
+          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->
               listener.onMediaItemTransition(
                   currentMediaItem, playerInfo.mediaItemTransitionReason));
     }
     if (!Util.areEqual(oldPlayerInfo.currentTracks, playerInfo.currentTracks)) {
       listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED,
+          /* eventFlag= */ Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(playerInfo.currentTracks));
     }
     if (!Util.areEqual(oldPlayerInfo.playbackParameters, playerInfo.playbackParameters)) {
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(playerInfo.playbackParameters));
     }
     if (oldPlayerInfo.repeatMode != playerInfo.repeatMode) {
       listeners.queueEvent(
-          Player.EVENT_REPEAT_MODE_CHANGED,
+          /* eventFlag= */ Player.EVENT_REPEAT_MODE_CHANGED,
           listener -> listener.onRepeatModeChanged(playerInfo.repeatMode));
     }
     if (oldPlayerInfo.shuffleModeEnabled != playerInfo.shuffleModeEnabled) {
       listeners.queueEvent(
-          Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(playerInfo.shuffleModeEnabled));
     }
     if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, playerInfo.timeline)) {
       listeners.queueEvent(
-          Player.EVENT_TIMELINE_CHANGED,
+          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(playerInfo.timeline, timelineChangedReason));
     }
     if (!Util.areEqual(oldPlayerInfo.playlistMetadata, playerInfo.playlistMetadata)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_PLAYLIST_METADATA_CHANGED,
           listener -> listener.onPlaylistMetadataChanged(playerInfo.playlistMetadata));
     }
     if (oldPlayerInfo.volume != playerInfo.volume) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onVolumeChanged(playerInfo.volume));
+          /* eventFlag= */ Player.EVENT_VOLUME_CHANGED,
+          listener -> listener.onVolumeChanged(playerInfo.volume));
     }
     if (!Util.areEqual(oldPlayerInfo.audioAttributes, playerInfo.audioAttributes)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_AUDIO_ATTRIBUTES_CHANGED,
           listener -> listener.onAudioAttributesChanged(playerInfo.audioAttributes));
     }
     if (!oldPlayerInfo.cueGroup.cues.equals(playerInfo.cueGroup.cues)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup.cues));
+          /* eventFlag= */ Player.EVENT_CUES,
+          listener -> listener.onCues(playerInfo.cueGroup.cues));
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup));
+          /* eventFlag= */ Player.EVENT_CUES, listener -> listener.onCues(playerInfo.cueGroup));
     }
     if (!Util.areEqual(oldPlayerInfo.deviceInfo, playerInfo.deviceInfo)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_INFO_CHANGED,
           listener -> listener.onDeviceInfoChanged(playerInfo.deviceInfo));
     }
     if (oldPlayerInfo.deviceVolume != playerInfo.deviceVolume
         || oldPlayerInfo.deviceMuted != playerInfo.deviceMuted) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener ->
               listener.onDeviceVolumeChanged(playerInfo.deviceVolume, playerInfo.deviceMuted));
     }
     if (oldPlayerInfo.playWhenReady != playerInfo.playWhenReady) {
       listeners.queueEvent(
-          Player.EVENT_PLAY_WHEN_READY_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
                   playerInfo.playWhenReady, playerInfo.playWhenReadyChangedReason));
     }
     if (oldPlayerInfo.playbackSuppressionReason != playerInfo.playbackSuppressionReason) {
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
               listener.onPlaybackSuppressionReasonChanged(playerInfo.playbackSuppressionReason));
     }
     if (oldPlayerInfo.playbackState != playerInfo.playbackState) {
       listeners.queueEvent(
-          Player.EVENT_PLAYBACK_STATE_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(playerInfo.playbackState));
     }
     if (oldPlayerInfo.isPlaying != playerInfo.isPlaying) {
       listeners.queueEvent(
-          Player.EVENT_IS_PLAYING_CHANGED,
+          /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
           listener -> listener.onIsPlayingChanged(playerInfo.isPlaying));
     }
     if (oldPlayerInfo.isLoading != playerInfo.isLoading) {
       listeners.queueEvent(
-          Player.EVENT_IS_LOADING_CHANGED,
+          /* eventFlag= */ Player.EVENT_IS_LOADING_CHANGED,
           listener -> listener.onIsLoadingChanged(playerInfo.isLoading));
     }
     if (!Util.areEqual(oldPlayerInfo.videoSize, playerInfo.videoSize)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_VIDEO_SIZE_CHANGED,
           listener -> listener.onVideoSizeChanged(playerInfo.videoSize));
     }
     if (!Util.areEqual(oldPlayerInfo.oldPositionInfo, playerInfo.oldPositionInfo)
         || !Util.areEqual(oldPlayerInfo.newPositionInfo, playerInfo.newPositionInfo)) {
       listeners.queueEvent(
-          Player.EVENT_POSITION_DISCONTINUITY,
+          /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
           listener ->
               listener.onPositionDiscontinuity(
                   playerInfo.oldPositionInfo,
@@ -2466,22 +2452,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     if (!Util.areEqual(oldPlayerInfo.mediaMetadata, playerInfo.mediaMetadata)) {
       listeners.queueEvent(
-          Player.EVENT_MEDIA_METADATA_CHANGED,
+          /* eventFlag= */ Player.EVENT_MEDIA_METADATA_CHANGED,
           listener -> listener.onMediaMetadataChanged(playerInfo.mediaMetadata));
     }
     if (oldPlayerInfo.seekBackIncrementMs != playerInfo.seekBackIncrementMs) {
       listeners.queueEvent(
-          Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
+          /* eventFlag= */ Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
           listener -> listener.onSeekBackIncrementChanged(playerInfo.seekBackIncrementMs));
     }
     if (oldPlayerInfo.seekForwardIncrementMs != playerInfo.seekForwardIncrementMs) {
       listeners.queueEvent(
-          Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+          /* eventFlag= */ Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
           listener -> listener.onSeekForwardIncrementChanged(playerInfo.seekForwardIncrementMs));
     }
     if (oldPlayerInfo.maxSeekToPreviousPositionMs != newPlayerInfo.maxSeekToPreviousPositionMs) {
       listeners.queueEvent(
-          Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
+          /* eventFlag= */ Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
           listener ->
               listener.onMaxSeekToPreviousPositionChanged(
                   newPlayerInfo.maxSeekToPreviousPositionMs));
@@ -2489,7 +2475,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!Util.areEqual(
         oldPlayerInfo.trackSelectionParameters, newPlayerInfo.trackSelectionParameters)) {
       listeners.queueEvent(
-          Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
           listener ->
               listener.onTrackSelectionParametersChanged(newPlayerInfo.trackSelectionParameters));
     }
@@ -2519,7 +2505,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     if (intersectedPlayerCommandsChanged) {
       listeners.sendEvent(
-          Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
+          /* eventFlag= */ Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
           listener -> listener.onAvailableCommandsChanged(intersectedPlayerCommands));
     }
     if (sessionCommandsChanged) {
@@ -2544,7 +2530,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     if (intersectedPlayerCommandsChanged) {
       listeners.sendEvent(
-          Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
+          /* eventFlag= */ Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
           listener -> listener.onAvailableCommandsChanged(intersectedPlayerCommands));
     }
   }
@@ -2583,7 +2569,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   public void onRenderedFirstFrame() {
-    listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onRenderedFirstFrame);
+    listeners.sendEvent(
+        /* eventFlag= */ Player.EVENT_RENDERED_FIRST_FRAME, Listener::onRenderedFirstFrame);
   }
 
   private void updateSessionPositionInfoIfNeeded(SessionPositionInfo sessionPositionInfo) {

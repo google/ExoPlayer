@@ -24,8 +24,10 @@ import android.text.TextUtils;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 
 /** Provides utility methods for testing purpose. */
@@ -125,6 +127,20 @@ public class TestUtils {
                   | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                   | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
+  }
+
+  /**
+   * Returns an {@link ImmutableList} with the {@linkplain Player.Event Events} contained in {@code
+   * events}. The contents of the list are in matching order with the {@linkplain Player.Event
+   * Events} returned by {@link Player.Events#get(int)}.
+   */
+  // TODO(b/254265256): Move this method off test-session-common.
+  public static ImmutableList<@Player.Event Integer> getEventsAsList(Player.Events events) {
+    ImmutableList.Builder<@Player.Event Integer> list = new ImmutableList.Builder<>();
+    for (int i = 0; i < events.size(); i++) {
+      list.add(events.get(i));
+    }
+    return list.build();
   }
 
   private TestUtils() {}

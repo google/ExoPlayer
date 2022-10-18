@@ -282,6 +282,10 @@ public class RemoteMediaSession {
       binder.setCurrentAdIndexInAdGroup(sessionId, currentAdIndexInAdGroup);
     }
 
+    public void setVolume(float volume) throws RemoteException {
+      binder.setVolume(sessionId, volume);
+    }
+
     public void notifyPlayWhenReadyChanged(
         boolean playWhenReady, @Player.PlaybackSuppressionReason int reason)
         throws RemoteException {
@@ -397,6 +401,14 @@ public class RemoteMediaSession {
 
     public void notifyDeviceVolumeChanged(int volume, boolean muted) throws RemoteException {
       binder.notifyDeviceVolumeChanged(sessionId, volume, muted);
+    }
+
+    public void decreaseDeviceVolume() throws RemoteException {
+      binder.decreaseDeviceVolume(sessionId);
+    }
+
+    public void increaseDeviceVolume() throws RemoteException {
+      binder.increaseDeviceVolume(sessionId);
     }
 
     public void notifyCuesChanged(CueGroup cueGroup) throws RemoteException {
