@@ -36,25 +36,18 @@ public final class DefaultMuxer implements Muxer {
     }
 
     @Override
-    public Muxer create(String path, String outputMimeType) throws IOException {
-      return new DefaultMuxer(muxerFactory.create(path, outputMimeType));
+    public Muxer create(String path) throws IOException {
+      return new DefaultMuxer(muxerFactory.create(path));
     }
 
     @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-        throws IOException {
-      return new DefaultMuxer(muxerFactory.create(parcelFileDescriptor, outputMimeType));
+    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws IOException {
+      return new DefaultMuxer(muxerFactory.create(parcelFileDescriptor));
     }
 
     @Override
-    public boolean supportsOutputMimeType(String mimeType) {
-      return muxerFactory.supportsOutputMimeType(mimeType);
-    }
-
-    @Override
-    public ImmutableList<String> getSupportedSampleMimeTypes(
-        @C.TrackType int trackType, String containerMimeType) {
-      return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+      return muxerFactory.getSupportedSampleMimeTypes(trackType);
     }
   }
 
