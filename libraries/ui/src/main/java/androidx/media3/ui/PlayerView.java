@@ -159,15 +159,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       </ul>
  *   <li>All attributes that can be set on {@link PlayerControlView} and {@link DefaultTimeBar} can
  *       also be set on a PlayerView, and will be propagated to the inflated {@link
- *       PlayerControlView} unless the layout is overridden to specify a custom {@code
- *       exo_controller}.
+ *       PlayerControlView}.
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by {@link PlayerControlView} (with its default layout file) can be overridden
- * by drawables with the same names defined in your application. See the {@link PlayerControlView}
- * documentation for a list of drawables that can be overridden.
+ * The drawables used by {@link PlayerControlView} can be overridden by drawables with the same
+ * names defined in your application. See the {@link PlayerControlView} documentation for a list of
+ * drawables that can be overridden.
  */
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
