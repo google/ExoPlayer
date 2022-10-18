@@ -84,12 +84,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A view for controlling {@link Player} instances.
  *
- * <p>A StyledPlayerControlView can be customized by setting attributes (or calling corresponding
- * methods), or overriding drawables.
+ * <p>A {@code StyledPlayerControlView} can be customized by setting attributes (or calling
+ * corresponding methods), or overriding drawables.
  *
  * <h2>Attributes</h2>
  *
- * The following attributes can be set on a StyledPlayerControlView when used in a layout XML file:
+ * The following attributes can be set on a {@code StyledPlayerControlView} when used in a layout
+ * XML file:
  *
  * <ul>
  *   <li><b>{@code show_timeout}</b> - The time between the last user interaction and the controls
@@ -148,22 +149,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setTimeBarMinUpdateInterval(int)}
  *         <li>Default: {@link #DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS}
  *       </ul>
- *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
- *       below for more details.
- *       <ul>
- *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_styled_player_control_view}
- *       </ul>
- *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a
- *       StyledPlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar}
- *       unless the layout is overridden to specify a custom {@code exo_progress} (see below).
+ *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a {@code
+ *       StyledPlayerControlView}, and will be propagated to the inflated {@link DefaultTimeBar}.
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by StyledPlayerControlView (with its default layout file) can be overridden by
- * drawables with the same names defined in your application. The drawables that can be overridden
- * are:
+ * The drawables used by {@code StyledPlayerControlView} can be overridden by drawables with the
+ * same names defined in your application. The drawables that can be overridden are:
  *
  * <ul>
  *   <li><b>{@code exo_styled_controls_play}</b> - The play icon.
