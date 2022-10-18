@@ -32,8 +32,6 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -57,8 +55,6 @@ public final class GlUtil {
 
   /** Length of the normalized device coordinate (NDC) space, which spans from -1 to 1. */
   public static final float LENGTH_NDC = 2f;
-
-  private static final String TAG = "GlUtil";
 
   // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt
   private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
@@ -351,7 +347,7 @@ public final class GlUtil {
    * @param height The height for a texture.
    * @throws GlException If the texture width or height is invalid.
    */
-  public static void assertValidTextureSize(int width, int height) throws GlException {
+  private static void assertValidTextureSize(int width, int height) throws GlException {
     // TODO(b/201293185): Consider handling adjustments for sizes > GL_MAX_TEXTURE_SIZE
     //  (ex. downscaling appropriately) in a texture processor instead of asserting incorrect
     //  values.
@@ -459,27 +455,9 @@ public final class GlUtil {
    *
    * @param capacity The new buffer's capacity, in floats.
    */
-  public static FloatBuffer createBuffer(int capacity) {
+  private static FloatBuffer createBuffer(int capacity) {
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(capacity * C.BYTES_PER_FLOAT);
     return byteBuffer.order(ByteOrder.nativeOrder()).asFloatBuffer();
-  }
-
-  /**
-   * Loads a file from the assets folder.
-   *
-   * @param context The {@link Context}.
-   * @param assetPath The path to the file to load, from the assets folder.
-   * @return The content of the file to load.
-   * @throws IOException If the file couldn't be read.
-   */
-  public static String loadAsset(Context context, String assetPath) throws IOException {
-    @Nullable InputStream inputStream = null;
-    try {
-      inputStream = context.getAssets().open(assetPath);
-      return Util.fromUtf8Bytes(Util.toByteArray(inputStream));
-    } finally {
-      Util.closeQuietly(inputStream);
-    }
   }
 
   /**
