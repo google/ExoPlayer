@@ -106,7 +106,6 @@ import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
-import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -117,6 +116,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.WrappingMediaSource;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource;
 import com.google.android.exoplayer2.testutil.Action;
@@ -3932,43 +3932,20 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     final ConcatenatingMediaSource underlyingSource = new ConcatenatingMediaSource();
-    CompositeMediaSource<Void> delegatingMediaSource =
-        new CompositeMediaSource<Void>() {
+    WrappingMediaSource delegatingMediaSource =
+        new WrappingMediaSource(underlyingSource) {
           @Override
-          public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
-            super.prepareSourceInternal(mediaTransferListener);
+          public void prepareSourceInternal() {
             underlyingSource.addMediaSource(
                 new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT));
             underlyingSource.addMediaSource(
                 new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT));
-            prepareChildSource(null, underlyingSource);
-          }
-
-          @Override
-          public MediaPeriod createPeriod(
-              MediaPeriodId id, Allocator allocator, long startPositionUs) {
-            return underlyingSource.createPeriod(id, allocator, startPositionUs);
-          }
-
-          @Override
-          public void releasePeriod(MediaPeriod mediaPeriod) {
-            underlyingSource.releasePeriod(mediaPeriod);
-          }
-
-          @Override
-          protected void onChildSourceInfoRefreshed(
-              Void id, MediaSource mediaSource, Timeline timeline) {
-            refreshSourceInfo(timeline);
+            super.prepareSourceInternal();
           }
 
           @Override
           public boolean isSingleWindow() {
             return false;
-          }
-
-          @Override
-          public MediaItem getMediaItem() {
-            return underlyingSource.getMediaItem();
           }
 
           @Override
