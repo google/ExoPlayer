@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.collect.Iterables.getLast;
 
 import android.content.Context;
-import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.view.Surface;
@@ -120,19 +119,10 @@ public final class GlEffectsFrameProcessor implements FrameProcessor {
     //  configure based on the color info from the decoder output media format instead.
     boolean useHdr = ColorInfo.isTransferHdr(colorInfo);
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-    EGLContext eglContext =
-        useHdr
-            ? GlUtil.createEglContextEs3Rgba1010102(eglDisplay)
-            : GlUtil.createEglContext(eglDisplay);
-
-    if (GlUtil.isSurfacelessContextExtensionSupported()) {
-      GlUtil.focusEglSurface(
-          eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
-    } else if (useHdr) {
-      GlUtil.focusPlaceholderEglSurfaceRgba1010102(eglContext, eglDisplay);
-    } else {
-      GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
-    }
+    int[] configAttributes =
+        useHdr ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102 : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
+    EGLContext eglContext = GlUtil.createEglContext(eglDisplay, configAttributes);
+    GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay, configAttributes);
 
     ImmutableList<GlTextureProcessor> textureProcessors =
         getGlTextureProcessorsForGlEffects(

@@ -317,11 +317,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable EGLSurface outputEglSurface = this.outputEglSurface;
     if (outputEglSurface == null) {
       boolean colorInfoIsHdr = ColorInfo.isTransferHdr(colorInfo);
-      if (colorInfoIsHdr) {
-        outputEglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, outputSurfaceInfo.surface);
-      } else {
-        outputEglSurface = GlUtil.getEglSurface(eglDisplay, outputSurfaceInfo.surface);
-      }
+
+      outputEglSurface =
+          GlUtil.getEglSurface(
+              eglDisplay,
+              outputSurfaceInfo.surface,
+              colorInfoIsHdr
+                  ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
+                  : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
 
       @Nullable
       SurfaceView debugSurfaceView =
@@ -443,11 +446,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       if (eglSurface == null) {
-        if (useHdr) {
-          eglSurface = GlUtil.getEglSurfaceRgba1010102(eglDisplay, surface);
-        } else {
-          eglSurface = GlUtil.getEglSurface(eglDisplay, surface);
-        }
+        eglSurface =
+            GlUtil.getEglSurface(
+                eglDisplay,
+                surface,
+                useHdr
+                    ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
+                    : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
       }
       EGLSurface eglSurface = this.eglSurface;
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);

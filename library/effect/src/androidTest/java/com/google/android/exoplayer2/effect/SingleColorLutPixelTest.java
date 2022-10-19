@@ -78,13 +78,11 @@ public class SingleColorLutPixelTest {
   public void createGlObjects() throws Exception {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
+    placeholderEglSurface = GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
 
     Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
-
-    placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
-    GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, inputWidth, inputHeight);
     inputTexId = createGlTextureFromBitmap(inputBitmap);
   }
 
