@@ -63,12 +63,13 @@
     *   Ensure commands are always executed in the correct order even if some
         require asynchronous resolution
         ([#85](https://github.com/androidx/media/issues/85)).
-    *   Add `DefaultNotificationProvider.Builder` to build
-        `DefaultNotificationProvider` instances. The builder can configure the
-        notification ID, the notification channel ID and the notification
+    *   Add `DefaultMediaNotificationProvider.Builder` to build
+        `DefaultMediaNotificationProvider` instances. The builder can configure
+        the notification ID, the notification channel ID and the notification
         channel name used by the provider. Also, add method
-        `DefaultNotificationProvider.setSmallIcon(int)` to set the notifications
-        small icon ([#104](https://github.com/androidx/media/issues/104)).
+        `DefaultMediaNotificationProvider.setSmallIcon(int)` to set the
+        notifications small icon
+        ([#104](https://github.com/androidx/media/issues/104)).
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
     *   `SimpleBitmapLoader` can load bitmap from `file://` URIs
@@ -104,10 +105,9 @@
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.
-*   Remove deprecated symbols:
-    *   Remove `Transformer.Builder.setOutputMimeType(String)`. This feature
-        has been removed. The MIME type will always be MP4 when the default
-        muxer is used.
+    *   Remove `Transformer.Builder.setOutputMimeType(String)`. This feature has
+        been removed. The MIME type will always be MP4 when the default muxer is
+        used.
 
 ### 1.0.0-beta02 (2022-07-21)
 
