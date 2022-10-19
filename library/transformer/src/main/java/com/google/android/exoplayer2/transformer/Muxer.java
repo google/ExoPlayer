@@ -26,17 +26,17 @@ import java.nio.ByteBuffer;
 /**
  * Abstracts media muxing operations.
  *
- * <p>Query whether {@linkplain Factory#getSupportedSampleMimeTypes(int)} sample MIME types} are
+ * <p>Query whether {@linkplain Factory#getSupportedSampleMimeTypes(int) sample MIME types} are
  * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain
  * #writeSampleData(int, ByteBuffer, boolean, long) write sample data} to mux samples. Once any
  * sample data has been written, it is not possible to add tracks. After writing all sample data,
  * {@linkplain #release(boolean) release} the instance to finish writing to the output and return
  * any resources to the system.
  */
-/* package */ interface Muxer {
+public interface Muxer {
 
   /** Thrown when a muxing failure occurs. */
-  /* package */ final class MuxerException extends Exception {
+  final class MuxerException extends Exception {
     /**
      * Creates an instance.
      *
@@ -91,7 +91,7 @@ import java.nio.ByteBuffer;
    * Writes the specified sample.
    *
    * @param trackIndex The index of the track, previously returned by {@link #addTrack(Format)}.
-   * @param data Buffer containing the sample data to write to the container.
+   * @param data A buffer containing the sample data to write to the container.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @throws MuxerException If the muxer fails to write the sample.
@@ -100,11 +100,13 @@ import java.nio.ByteBuffer;
       throws MuxerException;
 
   /**
-   * Releases any resources associated with muxing.
+   * Finishes writing the output and releases any resources associated with muxing.
+   *
+   * <p>The muxer cannot be used anymore once this method has been called.
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
-   * @throws MuxerException If the muxer fails to stop or release resources and {@code
+   * @throws MuxerException If the muxer fails to finish writing the output and {@code
    *     forCancellation} is false.
    */
   void release(boolean forCancellation) throws MuxerException;

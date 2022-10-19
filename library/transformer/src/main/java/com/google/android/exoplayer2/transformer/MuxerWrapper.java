@@ -184,13 +184,13 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Releases any resources associated with muxing.
+   * Finishes writing the output and releases any resources associated with muxing.
    *
    * <p>The muxer cannot be used anymore once this method has been called.
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
-   * @throws Muxer.MuxerException If the underlying muxer fails to stop and to release resources and
+   * @throws Muxer.MuxerException If the underlying muxer fails to finish writing the output and
    *     {@code forCancellation} is false.
    */
   public void release(boolean forCancellation) throws Muxer.MuxerException {
