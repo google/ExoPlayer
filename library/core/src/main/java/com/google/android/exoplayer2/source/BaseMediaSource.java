@@ -198,6 +198,13 @@ public abstract class BaseMediaSource implements MediaSource {
     drmEventDispatcher.removeEventListener(eventListener);
   }
 
+  @SuppressWarnings("deprecation") // Overriding deprecated method to make it final.
+  @Override
+  public final void prepareSource(
+      MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
+    prepareSource(caller, mediaTransferListener, PlayerId.UNSET);
+  }
+
   @Override
   public final void prepareSource(
       MediaSourceCaller caller,
