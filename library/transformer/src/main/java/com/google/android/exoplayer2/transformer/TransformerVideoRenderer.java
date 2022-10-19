@@ -20,14 +20,14 @@ import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FOR
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
-import androidx.media3.common.DebugViewProvider;
-import androidx.media3.common.Effect;
-import androidx.media3.common.FrameProcessor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
+import com.google.android.exoplayer2.util.DebugViewProvider;
+import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
