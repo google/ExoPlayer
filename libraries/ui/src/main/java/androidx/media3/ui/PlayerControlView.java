@@ -57,7 +57,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.Events;
@@ -632,9 +631,6 @@ public class PlayerControlView extends FrameLayout {
     this.player = player;
     if (player != null) {
       player.addListener(componentListener);
-    }
-    if (player instanceof ForwardingPlayer) {
-      player = ((ForwardingPlayer) player).getWrappedPlayer();
     }
     updateAll();
   }
