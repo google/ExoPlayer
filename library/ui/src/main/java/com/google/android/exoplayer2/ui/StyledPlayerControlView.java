@@ -60,7 +60,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
@@ -638,9 +637,6 @@ public class StyledPlayerControlView extends FrameLayout {
     this.player = player;
     if (player != null) {
       player.addListener(componentListener);
-    }
-    if (player instanceof ForwardingPlayer) {
-      player = ((ForwardingPlayer) player).getWrappedPlayer();
     }
     updateAll();
   }
