@@ -99,9 +99,9 @@ public final class ScaleToFitTransformation implements MatrixTransformation {
    * @param rotationDegrees How much to rotate the frame counterclockwise, in degrees.
    */
   private ScaleToFitTransformation(float scaleX, float scaleY, float rotationDegrees) {
-    this.transformationMatrix = new Matrix();
-    this.transformationMatrix.postScale(scaleX, scaleY);
-    this.transformationMatrix.postRotate(rotationDegrees);
+    transformationMatrix = new Matrix();
+    transformationMatrix.postScale(scaleX, scaleY);
+    transformationMatrix.postRotate(rotationDegrees);
   }
 
   @Override
