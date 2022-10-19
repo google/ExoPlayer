@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.testutil.FailOnCloseDataSink;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -124,6 +126,51 @@ public class ProgressiveDownloaderTest {
     // Retry should succeed.
     downloader.download(progressListener);
     assertThat(progressListener.bytesDownloaded).isEqualTo(1024);
+  }
+
+  @Test
+  public void download_afterPriorityTooLow_succeeds() throws Exception {
+    PriorityTaskManager priorityTaskManager = new PriorityTaskManager();
+    AtomicBoolean hasSetPlaybackPriority = new AtomicBoolean(/* initialValue= */ false);
+    Uri uri = Uri.parse("test:///test.mp4");
+    // Fake data which briefly sets the playback priority while downloading for the first time.
+    FakeDataSet data = new FakeDataSet();
+    data.newData(uri)
+        .appendReadAction(
+            () -> {
+              if (!hasSetPlaybackPriority.getAndSet(true)) {
+                // This only interrupts the download the next time the DataSource checks for the
+                // priority, so delay the removal of the playback priority slightly. As we can't
+                // check when the DataSource throws the PriorityTooLowException exactly, we need to
+                // use an arbitrary delay.
+                priorityTaskManager.add(C.PRIORITY_PLAYBACK);
+                new Thread(
+                        () -> {
+                          try {
+                            Thread.sleep(200);
+                          } catch (InterruptedException e) {
+                            // Ignore.
+                          }
+                          priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
+                        })
+                    .start();
+              }
+            })
+        .appendReadData(2_000_000);
+    DataSource.Factory upstreamDataSource = new FakeDataSource.Factory().setFakeDataSet(data);
+    MediaItem mediaItem = MediaItem.fromUri(uri);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(downloadCache)
+            .setUpstreamDataSourceFactory(upstreamDataSource)
+            .setUpstreamPriorityTaskManager(priorityTaskManager);
+    ProgressiveDownloader downloader = new ProgressiveDownloader(mediaItem, cacheDataSourceFactory);
+    TestProgressListener progressListener = new TestProgressListener();
+
+    // Download expected to finish (despite the interruption by the higher playback priority).
+    downloader.download(progressListener);
+
+    assertThat(progressListener.bytesDownloaded).isEqualTo(2_000_000);
   }
 
   private static final class TestProgressListener implements Downloader.ProgressListener {
