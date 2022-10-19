@@ -550,10 +550,10 @@ public final class GlUtil {
    * Binds the texture of the given type with default configuration of GL_LINEAR filtering and
    * GL_CLAMP_TO_EDGE wrapping.
    *
-   * @param texId The texture identifier.
    * @param textureTarget The target to which the texture is bound, e.g. {@link
    *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
    *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
+   * @param texId The texture identifier.
    */
   public static void bindTexture(int textureTarget, int texId) throws GlException {
     GLES20.glBindTexture(textureTarget, texId);
