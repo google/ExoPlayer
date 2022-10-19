@@ -72,11 +72,11 @@ public final class MatrixTextureProcessorPixelTest {
   public void createGlObjects() throws IOException, GlUtil.GlException {
     eglDisplay = GlUtil.createEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
+    EGLSurface placeholderEglSurface = GlUtil.focusPlaceholderEglSurface(eglContext, eglDisplay);
+
     Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
-    EGLSurface placeholderEglSurface = GlUtil.createPlaceholderEglSurface(eglDisplay);
-    GlUtil.focusEglSurface(eglDisplay, eglContext, placeholderEglSurface, inputWidth, inputHeight);
     inputTexId = createGlTextureFromBitmap(inputBitmap);
     int outputTexId =
         GlUtil.createTexture(inputWidth, inputHeight, /* useHighPrecisionColorComponents= */ false);
