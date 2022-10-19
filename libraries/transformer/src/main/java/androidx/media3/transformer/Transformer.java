@@ -374,6 +374,20 @@ public final class Transformer {
     }
 
     /**
+     * Sets the factory for muxers that write the media container.
+     *
+     * <p>The default value is a {@link DefaultMuxer.Factory}.
+     *
+     * @param muxerFactory A {@link Muxer.Factory}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setMuxerFactory(Muxer.Factory muxerFactory) {
+      this.muxerFactory = muxerFactory;
+      return this;
+    }
+
+    /**
      * Sets a provider for views to show diagnostic information (if available) during
      * transformation.
      *
@@ -404,21 +418,6 @@ public final class Transformer {
     /* package */ Builder setClock(Clock clock) {
       this.clock = clock;
       this.listeners = listeners.copy(looper, clock, (listener, flags) -> {});
-      return this;
-    }
-
-    /**
-     * Sets the factory for muxers that write the media container.
-     *
-     * <p>The default value is a {@link DefaultMuxer.Factory}.
-     *
-     * @param muxerFactory A {@link Muxer.Factory}.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    @VisibleForTesting
-    /* package */ Builder setMuxerFactory(Muxer.Factory muxerFactory) {
-      this.muxerFactory = muxerFactory;
       return this;
     }
 
