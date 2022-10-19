@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.List;
 import javax.microedition.khronos.egl.EGL10;
 
@@ -56,15 +58,7 @@ public final class GlUtil {
   /** Length of the normalized device coordinate (NDC) space, which spans from -1 to 1. */
   public static final float LENGTH_NDC = 2f;
 
-  // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt
-  private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
-  // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
-  private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
-  // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
-  private static final String EXTENSION_YUV_TARGET = "GL_EXT_YUV_target";
-
-  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
-  private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_8888 =
+  public static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_8888 =
       new int[] {
         EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
         EGL14.EGL_RED_SIZE, /* redSize= */ 8,
@@ -75,7 +69,7 @@ public final class GlUtil {
         EGL14.EGL_STENCIL_SIZE, /* stencilSize= */ 0,
         EGL14.EGL_NONE
       };
-  private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_1010102 =
+  public static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_1010102 =
       new int[] {
         EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
         EGL14.EGL_RED_SIZE, /* redSize= */ 10,
@@ -86,6 +80,15 @@ public final class GlUtil {
         EGL14.EGL_STENCIL_SIZE, /* stencilSize= */ 0,
         EGL14.EGL_NONE
       };
+
+  // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt
+  private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
+  // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
+  private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
+  // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
+  private static final String EXTENSION_YUV_TARGET = "GL_EXT_YUV_target";
+
+  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
 
   /** Class only contains static methods. */
   private GlUtil() {}
@@ -186,12 +189,7 @@ public final class GlUtil {
       try {
         EGLDisplay eglDisplay = createEglDisplay();
         EGLContext eglContext = createEglContext(eglDisplay);
-        if (GlUtil.isSurfacelessContextExtensionSupported()) {
-          focusEglSurface(
-              eglDisplay, eglContext, EGL14.EGL_NO_SURFACE, /* width= */ 1, /* height= */ 1);
-        } else {
-          focusPlaceholderEglSurface(eglContext, eglDisplay);
-        }
+        focusPlaceholderEglSurface(eglContext, eglDisplay);
         glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
         destroyEglContext(eglDisplay, eglContext);
       } catch (GlException e) {
@@ -210,24 +208,44 @@ public final class GlUtil {
     return Api17.createEglDisplay();
   }
 
-  /** Returns a new {@link EGLContext} for the specified {@link EGLDisplay}. */
+  /**
+   * Creates a new {@link EGLContext} for the specified {@link EGLDisplay}.
+   *
+   * <p>Configures the {@link EGLContext} with {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888} and OpenGL
+   * ES 2.0.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to create an {@link EGLContext} for.
+   */
   @RequiresApi(17)
   public static EGLContext createEglContext(EGLDisplay eglDisplay) throws GlException {
-    return Api17.createEglContext(eglDisplay, /* version= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+    return createEglContext(eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
-   * Returns a new {@link EGLContext} for the specified {@link EGLDisplay}, requesting ES 3 and an
-   * RGBA 1010102 config.
+   * Creates a new {@link EGLContext} for the specified {@link EGLDisplay}.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to create an {@link EGLContext} for.
+   * @param configAttributes The attributes to configure EGL with. Accepts either {@link
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}, which will request OpenGL ES 3.0, or {@link
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_8888}, which will request OpenGL ES 2.0.
    */
   @RequiresApi(17)
-  public static EGLContext createEglContextEs3Rgba1010102(EGLDisplay eglDisplay)
+  public static EGLContext createEglContext(EGLDisplay eglDisplay, int[] configAttributes)
       throws GlException {
-    return Api17.createEglContext(eglDisplay, /* version= */ 3, EGL_CONFIG_ATTRIBUTES_RGBA_1010102);
+    checkArgument(
+        Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_8888)
+            || Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102));
+    return Api17.createEglContext(
+        eglDisplay,
+        /* version= */ Arrays.equals(configAttributes, EGL_CONFIG_ATTRIBUTES_RGBA_1010102) ? 3 : 2,
+        configAttributes);
   }
 
   /**
    * Returns a new {@link EGLSurface} wrapping the specified {@code surface}.
+   *
+   * <p>The {@link EGLSurface} will configure with {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888} and
+   * OpenGL ES 2.0.
    *
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
@@ -239,19 +257,18 @@ public final class GlUtil {
   }
 
   /**
-   * Returns a new RGBA 1010102 {@link EGLSurface} wrapping the specified {@code surface}.
+   * Returns a new {@link EGLSurface} wrapping the specified {@code surface}.
    *
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
+   * @param configAttributes The attributes to configure EGL with. Accepts {@link
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurfaceRgba1010102(EGLDisplay eglDisplay, Object surface)
-      throws GlException {
+  public static EGLSurface getEglSurface(
+      EGLDisplay eglDisplay, Object surface, int[] configAttributes) throws GlException {
     return Api17.getEglSurface(
-        eglDisplay,
-        surface,
-        EGL_CONFIG_ATTRIBUTES_RGBA_1010102,
-        EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
+        eglDisplay, surface, configAttributes, EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
   }
 
   /**
@@ -276,48 +293,46 @@ public final class GlUtil {
   }
 
   /**
-   * Returns a placeholder {@link EGLSurface} to use when reading and writing to the surface is not
-   * required.
+   * Creates and focuses a placeholder {@link EGLSurface}.
    *
+   * <p>This makes a {@link EGLContext} current when reading and writing to a surface is not
+   * required, configured with {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
+   *
+   * @param eglContext The {@link EGLContext} to make current.
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @return {@link EGL14#EGL_NO_SURFACE} if supported and a 1x1 pixel buffer surface otherwise.
    */
   @RequiresApi(17)
-  public static EGLSurface createPlaceholderEglSurface(EGLDisplay eglDisplay) throws GlException {
-    return isSurfacelessContextExtensionSupported()
-        ? EGL14.EGL_NO_SURFACE
-        : createPbufferSurface(
-            eglDisplay, /* width= */ 1, /* height= */ 1, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
-  }
-
-  /**
-   * Creates and focuses a new {@link EGLSurface} wrapping a 1x1 pixel buffer.
-   *
-   * @param eglContext The {@link EGLContext} to make current.
-   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
-   */
-  @RequiresApi(17)
-  public static void focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
+  public static EGLSurface focusPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
       throws GlException {
-    EGLSurface eglSurface =
-        createPbufferSurface(
-            eglDisplay, /* width= */ 1, /* height= */ 1, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
-    focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+    return createFocusedPlaceholderEglSurface(
+        eglContext, eglDisplay, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
-   * Creates and focuses a new RGBA 1010102 {@link EGLSurface} wrapping a 1x1 pixel buffer.
+   * Creates and focuses a placeholder {@link EGLSurface}.
+   *
+   * <p>This makes a {@link EGLContext} current when reading and writing to a surface is not
+   * required.
    *
    * @param eglContext The {@link EGLContext} to make current.
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @param configAttributes The attributes to configure EGL with. Accepts {@link
+   *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
+   * @return A placeholder {@link EGLSurface} that has been focused to allow rendering to take
+   *     place, or {@link EGL14#EGL_NO_SURFACE} if the current context supports rendering without a
+   *     surface.
    */
   @RequiresApi(17)
-  public static void focusPlaceholderEglSurfaceRgba1010102(
-      EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
+  public static EGLSurface createFocusedPlaceholderEglSurface(
+      EGLContext eglContext, EGLDisplay eglDisplay, int[] configAttributes) throws GlException {
     EGLSurface eglSurface =
-        createPbufferSurface(
-            eglDisplay, /* width= */ 1, /* height= */ 1, EGL_CONFIG_ATTRIBUTES_RGBA_1010102);
+        isSurfacelessContextExtensionSupported()
+            ? EGL14.EGL_NO_SURFACE
+            : createPbufferSurface(eglDisplay, /* width= */ 1, /* height= */ 1, configAttributes);
+
     focusEglSurface(eglDisplay, eglContext, eglSurface, /* width= */ 1, /* height= */ 1);
+    return eglSurface;
   }
 
   /**
