@@ -15,6 +15,8 @@
  */
 package androidx.media3.session;
 
+import static android.app.Service.STOP_FOREGROUND_DETACH;
+import static android.app.Service.STOP_FOREGROUND_REMOVE;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.app.Notification;
@@ -229,10 +231,14 @@ import java.util.concurrent.TimeoutException;
       }
     }
     // To hide the notification on all API levels, we need to call both Service.stopForeground(true)
-    // and notificationManagerCompat.cancel(notificationId). For pre-L devices, we must also call
-    // Service.stopForeground(true) anyway as a workaround that prevents the media notification from
-    // being undismissable.
-    mediaSessionService.stopForeground(removeNotifications || Util.SDK_INT < 21);
+    // and notificationManagerCompat.cancel(notificationId).
+    if (Util.SDK_INT >= 24) {
+      Api24.stopForeground(mediaSessionService, removeNotifications);
+    } else {
+      // For pre-L devices, we must call Service.stopForeground(true) anyway as a workaround
+      // that prevents the media notification from being undismissable.
+      mediaSessionService.stopForeground(removeNotifications || Util.SDK_INT < 21);
+    }
     if (removeNotifications && mediaNotification != null) {
       notificationManagerCompat.cancel(mediaNotification.notificationId);
       // Update the notification count so that if a pending notification callback arrives (e.g., a
@@ -299,6 +305,17 @@ import java.util.concurrent.TimeoutException;
       // We may need to hide the notification.
       mediaSessionService.onUpdateNotification(session);
     }
+  }
+
+  @RequiresApi(24)
+  private static class Api24 {
+
+    @DoNotInline
+    public static void stopForeground(MediaSessionService service, boolean removeNotification) {
+      service.stopForeground(removeNotification ? STOP_FOREGROUND_REMOVE : STOP_FOREGROUND_DETACH);
+    }
+
+    private Api24() {}
   }
 
   @RequiresApi(29)
