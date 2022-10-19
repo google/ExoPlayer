@@ -283,14 +283,14 @@ public class DownloadManagerTest {
     postRemoveAllRequest();
     // Both downloads should be removed.
     FakeDownloader downloader2 = getDownloaderAt(2);
-    FakeDownloader downloader3 = getDownloaderAt(3);
     downloader2.assertId(ID1);
-    downloader3.assertId(ID2);
     downloader2.assertRemoveStarted();
-    downloader3.assertRemoveStarted();
     downloader2.finish();
-    downloader3.finish();
     assertRemoved(ID1);
+    FakeDownloader downloader3 = getDownloaderAt(3);
+    downloader3.assertId(ID2);
+    downloader3.assertRemoveStarted();
+    downloader3.finish();
     assertRemoved(ID2);
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
@@ -710,6 +710,36 @@ public class DownloadManagerTest {
     Download expectedDownload =
         downloadBuilder.setStartTimeMs(NOW_MS).setState(Download.STATE_STOPPED).build();
     assertEqualIgnoringUpdateTime(mergedDownload, expectedDownload);
+  }
+
+  @Test
+  public void removeRequests_runSequentially() throws Throwable {
+    // Trigger two remove requests.
+    postDownloadRequest(ID1);
+    getDownloaderAt(0).finish();
+    postDownloadRequest(ID2);
+    getDownloaderAt(1).finish();
+    postRemoveRequest(ID1);
+    postRemoveRequest(ID2);
+
+    // Assert first remove request is executing, second one is queued.
+    assertRemoving(ID1);
+    assertQueued(ID2);
+    FakeDownloader downloader2 = getDownloaderAt(2);
+    downloader2.assertId(ID1);
+    downloader2.assertRemoveStarted();
+    downloader2.finish();
+    assertRemoved(ID1);
+
+    // Assert second one is running after first one finished
+    assertRemoving(ID2);
+    FakeDownloader downloader3 = getDownloaderAt(3);
+    downloader3.assertId(ID2);
+    downloader3.assertRemoveStarted();
+    downloader3.finish();
+    assertRemoved(ID2);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   private void setupDownloadManager(int maxParallelDownloads) throws Exception {
