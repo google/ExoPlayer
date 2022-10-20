@@ -53,3 +53,6 @@
 -keepclasseswithmembers class com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory {
   <init>();
 }
+
+-keepattributes SourceFile,LineNumberTable
+-keep class com.google.android.exoplayer2.trackselection.DefaultTrackSelector$SpatializerWrapperV32$* { *;}

@@ -20,3 +20,6 @@
 # Workaround for https://issuetracker.google.com/issues/112297269
 # This is needed for ProGuard but not R8.
 -keepclassmembernames class com.google.common.base.Function { *; }
+
+-keepattributes LineNumberTable
+-keep class com.google.android.exoplayer2.util.NetworkTypeObserver$Api31$DisplayInfoCallback { *; }
