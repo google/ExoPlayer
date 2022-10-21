@@ -32,7 +32,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -196,15 +195,15 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     }
 
     /**
-     * Sets the {@link BitmapLoader} used load artwork. By default, a {@link SimpleBitmapLoader}
-     * will be used.
+     * Sets the {@link BitmapLoader} used load artwork. By default, a {@link CacheBitmapLoader} with
+     * a {@link SimpleBitmapLoader} inside will be used.
      *
      * @param bitmapLoader The bitmap loader.
      * @return This builder.
      */
     @CanIgnoreReturnValue
     public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
-      this.bitmapLoader = bitmapLoader;
+      this.bitmapLoader = new CacheBitmapLoader(bitmapLoader);
       return this;
     }
 
@@ -261,7 +260,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private final BitmapLoader bitmapLoader;
   // Cache the last bitmap load request to avoid reloading the bitmap again, particularly useful
   // when showing a notification for the same item (e.g. when switching from playing to paused).
-  private final BitmapLoadRequest lastBitmapLoadRequest;
   private final Handler mainHandler;
 
   private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
@@ -272,11 +270,10 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     this.notificationIdProvider = builder.notificationIdProvider;
     this.channelId = builder.channelId;
     this.channelNameResourceId = builder.channelNameResourceId;
-    this.bitmapLoader = builder.bitmapLoader;
+    this.bitmapLoader = new CacheBitmapLoader(builder.bitmapLoader);
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
-    lastBitmapLoadRequest = new BitmapLoadRequest();
     mainHandler = new Handler(Looper.getMainLooper());
     smallIconResourceId = R.drawable.media3_notification_small_icon;
   }
@@ -590,15 +587,10 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   @Nullable
   private ListenableFuture<Bitmap> loadArtworkBitmap(MediaMetadata metadata) {
     @Nullable ListenableFuture<Bitmap> future;
-    if (lastBitmapLoadRequest.matches(metadata.artworkData)
-        || lastBitmapLoadRequest.matches(metadata.artworkUri)) {
-      future = lastBitmapLoadRequest.getFuture();
-    } else if (metadata.artworkData != null) {
+    if (metadata.artworkData != null) {
       future = bitmapLoader.decodeBitmap(metadata.artworkData);
-      lastBitmapLoadRequest.setBitmapFuture(metadata.artworkData, future);
     } else if (metadata.artworkUri != null) {
       future = bitmapLoader.loadBitmap(metadata.artworkUri);
-      lastBitmapLoadRequest.setBitmapFuture(metadata.artworkUri, future);
     } else {
       future = null;
     }
@@ -652,56 +644,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       if (!discarded) {
         Log.d(TAG, "Failed to load bitmap", t);
       }
-    }
-  }
-
-  /**
-   * Stores the result of a bitmap load request. Requests are identified either by a byte array, if
-   * the bitmap is loaded from compressed data, or a URI, if the bitmap was loaded from a URI.
-   */
-  private static class BitmapLoadRequest {
-    @Nullable private byte[] data;
-    @Nullable private Uri uri;
-    @Nullable private ListenableFuture<Bitmap> bitmapFuture;
-
-    /** Whether the bitmap load request was performed for {@code data}. */
-    public boolean matches(@Nullable byte[] data) {
-      return this.data != null && data != null && Arrays.equals(this.data, data);
-    }
-
-    /** Whether the bitmap load request was performed for {@code uri}. */
-    public boolean matches(@Nullable Uri uri) {
-      return this.uri != null && this.uri.equals(uri);
-    }
-
-    /**
-     * Returns the future that set for the bitmap load request.
-     *
-     * @see #setBitmapFuture(Uri, ListenableFuture)
-     * @see #setBitmapFuture(byte[], ListenableFuture)
-     */
-    public ListenableFuture<Bitmap> getFuture() {
-      return checkStateNotNull(bitmapFuture);
-    }
-
-    /**
-     * Sets the future result of requesting to {@linkplain BitmapLoader#decodeBitmap(byte[]) decode}
-     * a bitmap from {@code data}.
-     */
-    public void setBitmapFuture(byte[] data, ListenableFuture<Bitmap> bitmapFuture) {
-      this.data = data;
-      this.bitmapFuture = bitmapFuture;
-      this.uri = null;
-    }
-
-    /**
-     * Sets the future result of requesting {@linkplain BitmapLoader#loadBitmap(Uri) load} a bitmap
-     * from {@code uri}.
-     */
-    public void setBitmapFuture(Uri uri, ListenableFuture<Bitmap> bitmapFuture) {
-      this.uri = uri;
-      this.bitmapFuture = bitmapFuture;
-      this.data = null;
     }
   }
 }
