@@ -313,6 +313,51 @@ public class AdPlaybackStateTest {
   }
 
   @Test
+  public void withOriginalAdCount() {
+    AdPlaybackState state =
+        new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 5_000_000)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2);
+
+    state = state.withOriginalAdCount(/* adGroupIndex= */ 0, /* originalAdCount= */ 3);
+
+    assertThat(state.getAdGroup(0).count).isEqualTo(2);
+    assertThat(state.getAdGroup(0).originalCount).isEqualTo(3);
+  }
+
+  @Test
+  public void withOriginalAdCount_unsetValue_defaultsToIndexUnset() {
+    AdPlaybackState state =
+        new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 5_000_000)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2);
+
+    assertThat(state.getAdGroup(0).count).isEqualTo(2);
+    assertThat(state.getAdGroup(0).originalCount).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
+  public void withLastAdGroupRemoved() {
+    AdPlaybackState state = new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 5_000_000);
+    state =
+        state
+            .withAdCount(/* adGroupIndex= */ 0, 3)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, 10_000L, 20_000L, 30_000L)
+            .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+
+    state = state.withLastAdRemoved(0);
+
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 0).states).asList().hasSize(2);
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 0).durationsUs)
+        .asList()
+        .containsExactly(10_000L, 20_000L)
+        .inOrder();
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 0).states)
+        .asList()
+        .containsExactly(AD_STATE_PLAYED, AD_STATE_PLAYED);
+  }
+
+  @Test
   public void withResetAdGroup_resetsAdsInFinalStates() {
     AdPlaybackState state = new AdPlaybackState(TEST_ADS_ID, TEST_AD_GROUP_TIMES_US);
     state = state.withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 5);
