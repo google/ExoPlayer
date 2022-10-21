@@ -399,11 +399,12 @@ public class DefaultMediaNotificationProviderTest {
   }
 
   /**
-   * Tests that the {@link DefaultMediaNotificationProvider} will not request to load the same
-   * artwork bitmap again, if the same bitmap has been requested already.
+   * Tests that the {@link DefaultMediaNotificationProvider} will discard the pending {@link
+   * MediaNotification.Provider.Callback#onNotificationChanged(MediaNotification)}, if there is a
+   * new request.
    */
   @Test
-  public void requestsSameBitmap_withPendingRequest_oneRequestOnly() {
+  public void createNotification_withNewRequest_discardPendingCallback() {
     // We will advance the main looper manually in the test.
     shadowOf(Looper.getMainLooper()).pause();
     // Create a MediaSession whose player returns non-null media metadata so that the
@@ -434,7 +435,6 @@ public class DefaultMediaNotificationProviderTest {
         defaultActionFactory,
         mockOnNotificationChangedCallback1);
     ShadowLooper.idleMainLooper();
-    verify(mockBitmapLoader).loadBitmap(Uri.parse("http://example.test/image.jpg"));
     verifyNoInteractions(mockOnNotificationChangedCallback1);
     MediaNotification.Provider.Callback mockOnNotificationChangedCallback2 =
         mock(MediaNotification.Provider.Callback.class);
@@ -446,8 +446,6 @@ public class DefaultMediaNotificationProviderTest {
     // The bitmap has arrived.
     bitmapFuture.set(Bitmap.createBitmap(/* width= */ 8, /* height= */ 8, Bitmap.Config.RGB_565));
     ShadowLooper.idleMainLooper();
-
-    verifyNoMoreInteractions(mockBitmapLoader);
     verify(mockOnNotificationChangedCallback2).onNotificationChanged(any());
     verifyNoInteractions(mockOnNotificationChangedCallback1);
   }
