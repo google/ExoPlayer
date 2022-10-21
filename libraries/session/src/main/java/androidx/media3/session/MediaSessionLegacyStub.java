@@ -1110,12 +1110,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       currentMediaItemForMetadataUpdate = currentMediaItem;
       durationMsForMetadataUpdate = durationMs;
 
-      if (currentMediaItem == null) {
-        setMetadata(sessionCompat, /* metadataCompat= */ null);
-      } else {
-        sessionCompat.setMetadata(
-            MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs));
-      }
+      setMetadata(
+          sessionCompat,
+          currentMediaItem != null
+              ? MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs)
+              : null);
     }
   }
 
