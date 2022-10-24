@@ -75,7 +75,8 @@ public final class RtpAc3ReaderTest {
               .build(),
           /* rtpPayloadType= */ 97,
           /* clockRate= */ 48_000,
-          /* fmtpParameters= */ ImmutableMap.of());
+          /* fmtpParameters= */ ImmutableMap.of(),
+          RtpPayloadFormat.RTP_MEDIA_AC3);
 
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 

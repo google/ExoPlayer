@@ -185,7 +185,8 @@ public final class RtpVp9ReaderTest {
             new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_VP9).build(),
             /* rtpPayloadType= */ 96,
             /* clockRate= */ (int) MEDIA_CLOCK_FREQUENCY,
-            /* fmtpParameters= */ ImmutableMap.of()));
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_VP9));
   }
 
   private static void consume(RtpVp9Reader vp9Reader, RtpPacket rtpPacket) {
