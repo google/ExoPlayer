@@ -215,6 +215,9 @@ public final class RtpAmrReaderTest {
             .build(),
         /* rtpPayloadType= */ 97,
         /* clockRate= */ sampleRate,
-        /* fmtpParameters= */ ImmutableMap.of());
+        /* fmtpParameters= */ ImmutableMap.of(),
+        MimeTypes.AUDIO_AMR.equals(mimeType)
+            ? RtpPayloadFormat.RTP_MEDIA_AMR
+            : RtpPayloadFormat.RTP_MEDIA_AMR_WB);
   }
 }

@@ -109,7 +109,8 @@ public final class RtpH263ReaderTest {
               .build(),
           /* rtpPayloadType= */ 96,
           /* clockRate= */ (int) MEDIA_CLOCK_FREQUENCY,
-          /* fmtpParameters= */ ImmutableMap.of());
+          /* fmtpParameters= */ ImmutableMap.of(),
+          RtpPayloadFormat.RTP_MEDIA_H263_1998);
 
   private FakeExtractorOutput extractorOutput;
 
