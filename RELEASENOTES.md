@@ -87,6 +87,8 @@ Release notes
 *   RTSP:
     *   Add H263 fragmented packet handling
         ([#119](https://github.com/androidx/media/pull/119)).
+    *   Add support for MP4A-LATM
+        ([#162](https://github.com/androidx/media/pull/162)).
 *   IMA:
     *   Add timeout for loading ad information to handle cases where the IMA SDK
         gets stuck loading an ad

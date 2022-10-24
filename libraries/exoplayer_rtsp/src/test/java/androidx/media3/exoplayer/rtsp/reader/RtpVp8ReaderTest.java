@@ -190,7 +190,8 @@ public final class RtpVp8ReaderTest {
             new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_VP8).build(),
             /* rtpPayloadType= */ 96,
             /* clockRate= */ (int) MEDIA_CLOCK_FREQUENCY,
-            /* fmtpParameters= */ ImmutableMap.of()));
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_VP8));
   }
 
   private static void consume(RtpVp8Reader vp8Reader, RtpPacket rtpPacket) {

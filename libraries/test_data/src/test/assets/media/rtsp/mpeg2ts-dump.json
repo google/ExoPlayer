@@ -1,0 +1,9 @@
+{
+  "trackName": "track3",
+  "firstSequenceNumber": 0,
+  "firstTimestamp": 0,
+  "transmitIntervalMs": 30,
+  "mediaDescription": "m=video 30000 RTP/AVP 32\r\nc=IN IP4 0.0.0.0\r\na=rtpmap:98 MP4/90000\r\na=control:track3\r\n",
+  "packets": [
+  ]
+}

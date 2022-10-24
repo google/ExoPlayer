@@ -31,7 +31,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.ParserException;
 import androidx.media3.common.util.CodecSpecificDataUtil;
+import androidx.media3.common.util.ParsableBitArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.AacUtil;
@@ -52,7 +54,8 @@ import com.google.common.collect.ImmutableMap;
   private static final String PARAMETER_H265_SPROP_PPS = "sprop-pps";
   private static final String PARAMETER_H265_SPROP_VPS = "sprop-vps";
   private static final String PARAMETER_H265_SPROP_MAX_DON_DIFF = "sprop-max-don-diff";
-  private static final String PARAMETER_MP4V_CONFIG = "config";
+  private static final String PARAMETER_MP4A_CONFIG = "config";
+  private static final String PARAMETER_MP4A_C_PRESENT = "cpresent";
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
@@ -208,6 +211,23 @@ import com.google.common.collect.ImmutableMap;
       case MimeTypes.AUDIO_AAC:
         checkArgument(channelCount != C.INDEX_UNSET);
         checkArgument(!fmtpParameters.isEmpty());
+        if (mediaEncoding.equals(RtpPayloadFormat.RTP_MEDIA_MPEG4_LATM_AUDIO)) {
+          // cpresent is defined in RFC3016 Section 5.3. cpresent=0 means the config fmtp parameter
+          // must exist.
+          checkArgument(
+              fmtpParameters.containsKey(PARAMETER_MP4A_C_PRESENT)
+                  && fmtpParameters.get(PARAMETER_MP4A_C_PRESENT).equals("0"),
+              "Only supports cpresent=0 in AAC audio.");
+          @Nullable String config = fmtpParameters.get(PARAMETER_MP4A_CONFIG);
+          checkNotNull(config, "AAC audio stream must include config fmtp parameter");
+          // config is a hex string.
+          checkArgument(config.length() % 2 == 0, "Malformat MPEG4 config: " + config);
+          AacUtil.Config aacConfig = parseAacStreamMuxConfig(config);
+          formatBuilder
+              .setSampleRate(aacConfig.sampleRateHz)
+              .setChannelCount(aacConfig.channelCount)
+              .setCodecs(aacConfig.codecs);
+        }
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
         break;
       case MimeTypes.AUDIO_AMR_NB:
@@ -267,7 +287,8 @@ import com.google.common.collect.ImmutableMap;
     }
 
     checkArgument(clockRate > 0);
-    return new RtpPayloadFormat(formatBuilder.build(), rtpPayloadType, clockRate, fmtpParameters);
+    return new RtpPayloadFormat(
+        formatBuilder.build(), rtpPayloadType, clockRate, fmtpParameters, mediaEncoding);
   }
 
   private static int inferChannelCount(int encodingParameter, String mimeType) {
@@ -300,9 +321,29 @@ import com.google.common.collect.ImmutableMap;
             AacUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount)));
   }
 
+  /**
+   * Returns the {@link AacUtil.Config} by parsing the MPEG4 Audio Stream Mux configuration.
+   *
+   * <p>fmtp attribute {@code config} includes the MPEG4 Audio Stream Mux configuration
+   * (ISO/IEC14496-3, Chapter 1.7.3).
+   */
+  private static AacUtil.Config parseAacStreamMuxConfig(String streamMuxConfig) {
+    ParsableBitArray config = new ParsableBitArray(Util.getBytesFromHexString(streamMuxConfig));
+    checkArgument(config.readBits(1) == 0, "Only supports audio mux version 0.");
+    checkArgument(config.readBits(1) == 1, "Only supports allStreamsSameTimeFraming.");
+    config.skipBits(6);
+    checkArgument(config.readBits(4) == 0, "Only supports one program.");
+    checkArgument(config.readBits(3) == 0, "Only supports one numLayer.");
+    try {
+      return AacUtil.parseAudioSpecificConfig(config, false);
+    } catch (ParserException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
   private static void processMPEG4FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
-    @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
+    @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4A_CONFIG);
     if (configInput != null) {
       byte[] configBuffer = Util.getBytesFromHexString(configInput);
       formatBuilder.setInitializationData(ImmutableList.of(configBuffer));
