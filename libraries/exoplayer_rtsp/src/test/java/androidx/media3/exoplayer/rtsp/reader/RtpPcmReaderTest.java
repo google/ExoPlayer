@@ -69,7 +69,8 @@ public final class RtpPcmReaderTest {
                     .build(),
                 /* rtpPayloadType= */ RTP_PAYLOAD_TYPE,
                 /* clockRate= */ 48_000,
-                /* fmtpParameters= */ ImmutableMap.of()));
+                /* fmtpParameters= */ ImmutableMap.of(),
+                RtpPayloadFormat.RTP_MEDIA_PCM_L8));
 
     pcmReader.createTracks(extractorOutput, /* trackId= */ 0);
     pcmReader.onReceivingFirstPacket(PACKET_1.timestamp, PACKET_1.sequenceNumber);
@@ -97,7 +98,8 @@ public final class RtpPcmReaderTest {
                     .build(),
                 /* rtpPayloadType= */ RTP_PAYLOAD_TYPE,
                 /* clockRate= */ 60_000,
-                /* fmtpParameters= */ ImmutableMap.of()));
+                /* fmtpParameters= */ ImmutableMap.of(),
+                RtpPayloadFormat.RTP_MEDIA_PCM_L16));
 
     pcmReader.createTracks(extractorOutput, /* trackId= */ 0);
     pcmReader.onReceivingFirstPacket(PACKET_1.timestamp, PACKET_1.sequenceNumber);
@@ -124,7 +126,8 @@ public final class RtpPcmReaderTest {
                     .build(),
                 /* rtpPayloadType= */ RTP_PAYLOAD_TYPE,
                 /* clockRate= */ 16_000,
-                /* fmtpParameters= */ ImmutableMap.of()));
+                /* fmtpParameters= */ ImmutableMap.of(),
+                RtpPayloadFormat.RTP_MEDIA_PCMA));
 
     pcmReader.createTracks(extractorOutput, /* trackId= */ 0);
     pcmReader.onReceivingFirstPacket(PACKET_1.timestamp, PACKET_1.sequenceNumber);
@@ -151,7 +154,8 @@ public final class RtpPcmReaderTest {
                     .build(),
                 /* rtpPayloadType= */ RTP_PAYLOAD_TYPE,
                 /* clockRate= */ 24_000,
-                /* fmtpParameters= */ ImmutableMap.of()));
+                /* fmtpParameters= */ ImmutableMap.of(),
+                RtpPayloadFormat.RTP_MEDIA_PCMU));
 
     pcmReader.createTracks(extractorOutput, /* trackId= */ 0);
     pcmReader.onReceivingFirstPacket(PACKET_1.timestamp, PACKET_1.sequenceNumber);
