@@ -91,6 +91,8 @@ Release notes
     *   Add timeout for loading ad information to handle cases where the IMA SDK
         gets stuck loading an ad
         ([#10510](https://github.com/google/ExoPlayer/issues/10510)).
+    *   Prevent skipping mid-roll ads when seeking to the end of the content
+        ([#10685](https://github.com/google/ExoPlayer/issues/10685)).
 *   FFmpeg extension:
     *   Add newly required flags to link FFmpeg libraries with NDK 23.1.7779620
         and above ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
