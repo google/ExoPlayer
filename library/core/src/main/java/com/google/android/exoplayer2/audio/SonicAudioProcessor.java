@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
@@ -140,6 +141,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
+  @CanIgnoreReturnValue
   public AudioFormat configure(AudioFormat inputAudioFormat) throws UnhandledAudioFormatException {
     if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
       throw new UnhandledAudioFormatException(inputAudioFormat);
