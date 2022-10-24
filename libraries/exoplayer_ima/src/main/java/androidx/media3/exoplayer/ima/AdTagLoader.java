@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.ima;
 import static androidx.media3.common.Player.COMMAND_GET_VOLUME;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.exoplayer.ima.ImaUtil.BITRATE_UNSET;
 import static androidx.media3.exoplayer.ima.ImaUtil.TIMEOUT_UNSET;
 import static androidx.media3.exoplayer.ima.ImaUtil.getAdGroupTimesUsForCuePoints;
@@ -63,6 +64,7 @@ import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
+import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -355,7 +357,7 @@ import java.util.Map;
       long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
       int adGroupForPositionIndex =
           adPlaybackState.getAdGroupIndexForPositionUs(
-              Util.msToUs(contentPositionMs), Util.msToUs(contentDurationMs));
+              msToUs(contentPositionMs), msToUs(contentDurationMs));
       if (adGroupForPositionIndex != C.INDEX_UNSET
           && imaAdInfo != null
           && imaAdInfo.adGroupIndex != adGroupForPositionIndex) {
@@ -379,7 +381,7 @@ import java.util.Map;
       }
       adPlaybackState =
           adPlaybackState.withAdResumePositionUs(
-              playingAd ? Util.msToUs(player.getCurrentPosition()) : 0);
+              playingAd ? msToUs(player.getCurrentPosition()) : 0);
     }
     lastVolumePercent = getPlayerVolumePercent();
     lastAdProgress = getAdVideoProgressUpdate();
@@ -609,11 +611,10 @@ import java.util.Map;
     // Skip ads based on the start position as required.
     int adGroupForPositionIndex =
         adPlaybackState.getAdGroupIndexForPositionUs(
-            Util.msToUs(contentPositionMs), Util.msToUs(contentDurationMs));
+            msToUs(contentPositionMs), msToUs(contentDurationMs));
     if (adGroupForPositionIndex != C.INDEX_UNSET) {
       boolean playAdWhenStartingPlayback =
-          adPlaybackState.getAdGroup(adGroupForPositionIndex).timeUs
-                  == Util.msToUs(contentPositionMs)
+          adPlaybackState.getAdGroup(adGroupForPositionIndex).timeUs == msToUs(contentPositionMs)
               || configuration.playAdBeforeStartPosition;
       if (!playAdWhenStartingPlayback) {
         adGroupForPositionIndex++;
@@ -865,7 +866,7 @@ import java.util.Map;
       if (!sentContentComplete && !timeline.isEmpty()) {
         long positionMs = getContentPeriodPositionMs(player, timeline, period);
         timeline.getPeriod(player.getCurrentPeriodIndex(), period);
-        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(Util.msToUs(positionMs));
+        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(msToUs(positionMs));
         if (newAdGroupIndex != C.INDEX_UNSET) {
           sentPendingContentPositionMs = false;
           pendingContentPositionMs = positionMs;
@@ -1157,14 +1158,26 @@ import java.util.Map;
   }
 
   private void ensureSentContentCompleteIfAtEndOfStream() {
-    if (!sentContentComplete
-        && contentDurationMs != C.TIME_UNSET
-        && pendingContentPositionMs == C.TIME_UNSET
-        && getContentPeriodPositionMs(checkNotNull(player), timeline, period)
-                + THRESHOLD_END_OF_CONTENT_MS
-            >= contentDurationMs) {
-      sendContentComplete();
+    if (sentContentComplete
+        || contentDurationMs == C.TIME_UNSET
+        || pendingContentPositionMs != C.TIME_UNSET) {
+      return;
     }
+    long contentPeriodPositionMs =
+        getContentPeriodPositionMs(checkNotNull(player), timeline, period);
+    if (contentPeriodPositionMs + THRESHOLD_END_OF_CONTENT_MS < contentDurationMs) {
+      return;
+    }
+    int pendingAdGroupIndex =
+        adPlaybackState.getAdGroupIndexForPositionUs(
+            msToUs(contentPeriodPositionMs), msToUs(contentDurationMs));
+    if (pendingAdGroupIndex != C.INDEX_UNSET
+        && adPlaybackState.getAdGroup(pendingAdGroupIndex).timeUs != C.TIME_END_OF_SOURCE
+        && adPlaybackState.getAdGroup(pendingAdGroupIndex).shouldPlayAdGroup()) {
+      // Pending mid-roll ad that needs to be played before marking the content complete.
+      return;
+    }
+    sendContentComplete();
   }
 
   private void sendContentComplete() {
@@ -1233,14 +1246,13 @@ import java.util.Map;
     if (player == null) {
       return C.INDEX_UNSET;
     }
-    long playerPositionUs = Util.msToUs(getContentPeriodPositionMs(player, timeline, period));
+    long playerPositionUs = msToUs(getContentPeriodPositionMs(player, timeline, period));
     int adGroupIndex =
-        adPlaybackState.getAdGroupIndexForPositionUs(
-            playerPositionUs, Util.msToUs(contentDurationMs));
+        adPlaybackState.getAdGroupIndexForPositionUs(playerPositionUs, msToUs(contentDurationMs));
     if (adGroupIndex == C.INDEX_UNSET) {
       adGroupIndex =
           adPlaybackState.getAdGroupIndexAfterPositionUs(
-              playerPositionUs, Util.msToUs(contentDurationMs));
+              playerPositionUs, msToUs(contentDurationMs));
     }
     return adGroupIndex;
   }
