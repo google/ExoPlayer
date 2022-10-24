@@ -23,6 +23,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.media3.exoplayer.audio.BaseAudioProcessor;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 
 /**
@@ -52,6 +53,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  @CanIgnoreReturnValue
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     return sonicAudioProcessor.configure(inputAudioFormat);
