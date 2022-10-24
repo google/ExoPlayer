@@ -30,6 +30,8 @@
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
         ([#10570](https://github.com/google/ExoPlayer/pull/10570)).
+    *   Make download notification appear immediately
+        ([#183](https://github.com/androidx/media/pull/183))
 *   Audio:
     *   Adds `AudioOffloadListener.onExperimentalOffloadedPlayback` for the
         AudioTrack offload state.

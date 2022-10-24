@@ -15,15 +15,21 @@
  */
 package androidx.media3.exoplayer.offline;
 
+import static androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE;
+
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.R;
 import androidx.media3.exoplayer.scheduler.Requirements;
 import java.util.List;
@@ -237,6 +243,19 @@ public final class DownloadNotificationHelper {
     notificationBuilder.setProgress(maxProgress, currentProgress, indeterminateProgress);
     notificationBuilder.setOngoing(ongoing);
     notificationBuilder.setShowWhen(showWhen);
+    if (Util.SDK_INT >= 31) {
+      Api31.setForegroundServiceBehavior(notificationBuilder);
+    }
     return notificationBuilder.build();
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    @SuppressLint("WrongConstant") // TODO(b/254277605): remove lint suppression
+    @DoNotInline
+    public static void setForegroundServiceBehavior(
+        NotificationCompat.Builder notificationBuilder) {
+      notificationBuilder.setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE);
+    }
   }
 }
