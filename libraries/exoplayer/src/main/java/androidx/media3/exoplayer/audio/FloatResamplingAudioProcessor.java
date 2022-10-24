@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.audio;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,6 +37,7 @@ import java.nio.ByteBuffer;
   private static final double PCM_32_BIT_INT_TO_PCM_32_BIT_FLOAT_FACTOR = 1.0 / 0x7FFFFFFF;
 
   @Override
+  @CanIgnoreReturnValue
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     @C.PcmEncoding int encoding = inputAudioFormat.encoding;
