@@ -136,8 +136,8 @@ public class Cea608DecoderTest {
             MimeTypes.APPLICATION_CEA608,
             /* accessibilityChannel= */ 1, // field 1, channel 1
             Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
-    // field 1 (0xfC header): 'test subtitle'
-    // field 2 (0xfC header): 'wrong field!'
+    // field 1 (0xFC header): 'test subtitle'
+    // field 2 (0xFD header): 'wrong field!'
     byte[] sample1 =
         Bytes.concat(
             // 'paint on' control character
@@ -174,9 +174,9 @@ public class Cea608DecoderTest {
             MimeTypes.APPLICATION_CEA608,
             /* accessibilityChannel= */ 2, // field 1, channel 2
             Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
-    // field 1 (0xfC header), channel 1: 'wrong channel'
-    // field 1 (0xfC header), channel 2: 'test subtitle'
-    // field 2 (0xfC header), channel 1: 'wrong field!'
+    // field 1 (0xFC header), channel 1: 'wrong channel'
+    // field 1 (0xFC header), channel 2: 'test subtitle'
+    // field 2 (0xFD header), channel 1: 'wrong field!'
     byte[] sample1 =
         Bytes.concat(
             // 'paint on' control character
