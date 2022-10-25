@@ -35,8 +35,10 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -572,18 +574,8 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     if (Util.SDK_INT < 26 || notificationManager.getNotificationChannel(channelId) != null) {
       return;
     }
-    NotificationChannel channel =
-        new NotificationChannel(
-            channelId,
-            context.getString(channelNameResourceId),
-            NotificationManager.IMPORTANCE_LOW);
-    if (Util.SDK_INT <= 27) {
-      // API 28+ will automatically hide the app icon 'badge' for notifications using
-      // Notification.MediaStyle, but we have to manually hide it for APIs 26 (when badges were
-      // added) and 27.
-      channel.setShowBadge(false);
-    }
-    notificationManager.createNotificationChannel(channel);
+    Api26.createNotificationChannel(
+        notificationManager, channelId, context.getString(channelNameResourceId));
   }
 
   /**
@@ -650,6 +642,23 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       if (!discarded) {
         Log.d(TAG, "Failed to load bitmap", t);
       }
+    }
+  }
+
+  @RequiresApi(26)
+  private static class Api26 {
+    @DoNotInline
+    public static void createNotificationChannel(
+        NotificationManager notificationManager, String channelId, String channelName) {
+      NotificationChannel channel =
+          new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+      if (Util.SDK_INT <= 27) {
+        // API 28+ will automatically hide the app icon 'badge' for notifications using
+        // Notification.MediaStyle, but we have to manually hide it for APIs 26 (when badges were
+        // added) and 27.
+        channel.setShowBadge(false);
+      }
+      notificationManager.createNotificationChannel(channel);
     }
   }
 }
