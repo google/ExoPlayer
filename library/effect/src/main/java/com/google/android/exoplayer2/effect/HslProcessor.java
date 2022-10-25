@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Pair;
 import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlProgram;
@@ -61,8 +60,7 @@ import java.io.IOException;
         GlUtil.getNormalizedCoordinateBounds(),
         GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
 
-    float[] identityMatrix = new float[16];
-    Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
+    float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
     glProgram.setFloatsUniform("uTransformationMatrix", identityMatrix);
     glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
 

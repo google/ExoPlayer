@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.opengl.Matrix;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Scales the red, green, and blue color channels of a frame. */
@@ -78,8 +79,7 @@ public final class RgbAdjustment implements RgbMatrix {
 
     /** Creates a new {@link RgbAdjustment} instance. */
     public RgbAdjustment build() {
-      float[] rgbMatrix = new float[16];
-      Matrix.setIdentityM(rgbMatrix, /* smOffset= */ 0);
+      float[] rgbMatrix = GlUtil.create4x4IdentityMatrix();
       Matrix.scaleM(
           rgbMatrix, /* smOffset= */ 0, /* x= */ redScale, /* y= */ greenScale, /* z= */ blueScale);
 

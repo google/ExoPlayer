@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.opengl.Matrix;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -162,8 +163,7 @@ public class MatrixUtilsTest {
     ImmutableList<float[]> points =
         ImmutableList.of(
             new float[] {-1, 0, 1, 1}, new float[] {1, 0, 1, 1}, new float[] {0, 1, 1, 1});
-    float[] scaleMatrix = new float[16];
-    Matrix.setIdentityM(scaleMatrix, /* smOffset= */ 0);
+    float[] scaleMatrix = GlUtil.create4x4IdentityMatrix();
     Matrix.scaleM(scaleMatrix, /* mOffset= */ 0, /* x= */ 2, /* y= */ 3, /* z= */ 4);
 
     ImmutableList<float[]> actualTransformedPoints =

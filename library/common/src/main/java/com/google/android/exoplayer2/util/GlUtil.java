@@ -29,6 +29,7 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.Matrix;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -111,6 +112,18 @@ public final class GlUtil {
       0, 1, 0, 1,
       1, 1, 0, 1
     };
+  }
+
+  /** Creates a 4x4 identity matrix. */
+  public static float[] create4x4IdentityMatrix() {
+    float[] matrix = new float[16];
+    setToIdentity(matrix);
+    return matrix;
+  }
+
+  /** Sets the input {@code matrix} to an identity matrix. */
+  public static void setToIdentity(float[] matrix) {
+    Matrix.setIdentityM(matrix, /* smOffset= */ 0);
   }
 
   /** Flattens the list of 4 element NDC coordinate vectors into a buffer. */
