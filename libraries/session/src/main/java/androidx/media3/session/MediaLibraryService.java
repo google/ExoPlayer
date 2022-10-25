@@ -24,6 +24,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.IntDef;
@@ -421,6 +422,28 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
+       * Sets a {@link BitmapLoader} for the {@link MediaLibrarySession} to decode bitmaps from
+       * compressed binary data or load bitmaps from {@link Uri}. If not set, a {@link
+       * CacheBitmapLoader} with a {@link SimpleBitmapLoader} inside will be used.
+       *
+       * <p>The provided instance will likely be called repeatedly with the same request, so it
+       * would be best if any provided instance does some caching. Simple caching can be added to
+       * any {@link BitmapLoader} implementation by wrapping it in {@link CacheBitmapLoader} before
+       * passing it to this method.
+       *
+       * <p>If no instance is set, a {@link CacheBitmapLoader} with a {@link SimpleBitmapLoader}
+       * inside will be used.
+       *
+       * @param bitmapLoader The bitmap loader {@link BitmapLoader}.
+       * @return The builder to allow chaining.
+       */
+      @UnstableApi
+      @Override
+      public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
+        return super.setBitmapLoader(bitmapLoader);
+      }
+
+      /**
        * Builds a {@link MediaLibrarySession}.
        *
        * @return A new session.
@@ -429,7 +452,11 @@ public abstract class MediaLibraryService extends MediaSessionService {
        */
       @Override
       public MediaLibrarySession build() {
-        return new MediaLibrarySession(context, id, player, sessionActivity, callback, extras);
+        if (bitmapLoader == null) {
+          bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+        }
+        return new MediaLibrarySession(
+            context, id, player, sessionActivity, callback, extras, checkNotNull(bitmapLoader));
       }
     }
 
@@ -439,8 +466,9 @@ public abstract class MediaLibraryService extends MediaSessionService {
         Player player,
         @Nullable PendingIntent sessionActivity,
         MediaSession.Callback callback,
-        Bundle tokenExtras) {
-      super(context, id, player, sessionActivity, callback, tokenExtras);
+        Bundle tokenExtras,
+        BitmapLoader bitmapLoader) {
+      super(context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
     }
 
     @Override
@@ -450,9 +478,17 @@ public abstract class MediaLibraryService extends MediaSessionService {
         Player player,
         @Nullable PendingIntent sessionActivity,
         MediaSession.Callback callback,
-        Bundle tokenExtras) {
+        Bundle tokenExtras,
+        BitmapLoader bitmapLoader) {
       return new MediaLibrarySessionImpl(
-          this, context, id, player, sessionActivity, (Callback) callback, tokenExtras);
+          this,
+          context,
+          id,
+          player,
+          sessionActivity,
+          (Callback) callback,
+          tokenExtras,
+          bitmapLoader);
     }
 
     @Override

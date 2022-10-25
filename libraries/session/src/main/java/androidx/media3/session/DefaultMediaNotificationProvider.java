@@ -123,7 +123,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     private NotificationIdProvider notificationIdProvider;
     private String channelId;
     @StringRes private int channelNameResourceId;
-    private BitmapLoader bitmapLoader;
     private boolean built;
 
     /**
@@ -136,7 +135,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       notificationIdProvider = session -> DEFAULT_NOTIFICATION_ID;
       channelId = DEFAULT_CHANNEL_ID;
       channelNameResourceId = DEFAULT_CHANNEL_NAME_RESOURCE_ID;
-      bitmapLoader = new SimpleBitmapLoader();
     }
 
     /**
@@ -197,19 +195,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     }
 
     /**
-     * Sets the {@link BitmapLoader} used load artwork. By default, a {@link CacheBitmapLoader} with
-     * a {@link SimpleBitmapLoader} inside will be used.
-     *
-     * @param bitmapLoader The bitmap loader.
-     * @return This builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
-      this.bitmapLoader = new CacheBitmapLoader(bitmapLoader);
-      return this;
-    }
-
-    /**
      * Builds the {@link DefaultMediaNotificationProvider}. The method can be called at most once.
      */
     public DefaultMediaNotificationProvider build() {
@@ -259,7 +244,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private final String channelId;
   @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
-  private final BitmapLoader bitmapLoader;
   // Cache the last bitmap load request to avoid reloading the bitmap again, particularly useful
   // when showing a notification for the same item (e.g. when switching from playing to paused).
   private final Handler mainHandler;
@@ -272,7 +256,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     this.notificationIdProvider = builder.notificationIdProvider;
     this.channelId = builder.channelId;
     this.channelNameResourceId = builder.channelNameResourceId;
-    this.bitmapLoader = new CacheBitmapLoader(builder.bitmapLoader);
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
@@ -312,7 +295,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     builder
         .setContentTitle(getNotificationContentTitle(metadata))
         .setContentText(getNotificationContentText(metadata));
-    @Nullable ListenableFuture<Bitmap> bitmapFuture = loadArtworkBitmap(metadata);
+    @Nullable
+    ListenableFuture<Bitmap> bitmapFuture =
+        mediaSession.getBitmapLoader().loadBitmapFromMetadata(metadata);
     if (bitmapFuture != null) {
       if (pendingOnBitmapLoadedFutureCallback != null) {
         pendingOnBitmapLoadedFutureCallback.discardIfPending();
@@ -576,23 +561,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     }
     Api26.createNotificationChannel(
         notificationManager, channelId, context.getString(channelNameResourceId));
-  }
-
-  /**
-   * Requests from the bitmapLoader to load artwork or returns null if the metadata don't include
-   * artwork.
-   */
-  @Nullable
-  private ListenableFuture<Bitmap> loadArtworkBitmap(MediaMetadata metadata) {
-    @Nullable ListenableFuture<Bitmap> future;
-    if (metadata.artworkData != null) {
-      future = bitmapLoader.decodeBitmap(metadata.artworkData);
-    } else if (metadata.artworkUri != null) {
-      future = bitmapLoader.loadBitmap(metadata.artworkUri);
-    } else {
-      future = null;
-    }
-    return future;
   }
 
   private static long getPlaybackStartTimeEpochMs(Player player) {

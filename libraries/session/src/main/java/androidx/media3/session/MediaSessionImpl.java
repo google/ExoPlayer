@@ -116,6 +116,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final PendingIntent mediaButtonIntent;
   @Nullable private final BroadcastReceiver broadcastReceiver;
   private final Handler applicationHandler;
+  private final BitmapLoader bitmapLoader;
 
   @Nullable private PlayerListener playerListener;
 
@@ -139,7 +140,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       Player player,
       @Nullable PendingIntent sessionActivity,
       MediaSession.Callback callback,
-      Bundle tokenExtras) {
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
     this.context = context;
     this.instance = instance;
 
@@ -152,6 +154,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     applicationHandler = new Handler(player.getApplicationLooper());
     this.callback = callback;
+    this.bitmapLoader = bitmapLoader;
 
     playerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
@@ -355,6 +358,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       dispatchRemoteControllerTaskWithoutReturn(
           controller, (callback, seq) -> callback.onSessionExtrasChanged(seq, sessionExtras));
     }
+  }
+
+  public BitmapLoader getBitmapLoader() {
+    return bitmapLoader;
   }
 
   public void setAvailableCommands(

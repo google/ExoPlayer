@@ -61,6 +61,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A session that allows a media app to expose its transport controls and playback information in a
@@ -308,6 +309,28 @@ public class MediaSession {
     }
 
     /**
+     * Sets a {@link BitmapLoader} for the {@link MediaSession} to decode bitmaps from compressed
+     * binary data or load bitmaps from {@link Uri}. If not set, a {@link CacheBitmapLoader} with a
+     * {@link SimpleBitmapLoader} inside will be used.
+     *
+     * <p>The provided instance will likely be called repeatedly with the same request, so it would
+     * be best if any provided instance does some caching. Simple caching can be added to any {@link
+     * BitmapLoader} implementation by wrapping it in {@link CacheBitmapLoader} before passing it to
+     * this method.
+     *
+     * <p>If no instance is set, a {@link CacheBitmapLoader} with a {@link SimpleBitmapLoader}
+     * inside will be used.
+     *
+     * @param bitmapLoader The bitmap loader {@link BitmapLoader}.
+     * @return The builder to allow chaining.
+     */
+    @UnstableApi
+    @Override
+    public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
+      return super.setBitmapLoader(bitmapLoader);
+    }
+
+    /**
      * Builds a {@link MediaSession}.
      *
      * @return A new session.
@@ -316,7 +339,11 @@ public class MediaSession {
      */
     @Override
     public MediaSession build() {
-      return new MediaSession(context, id, player, sessionActivity, callback, extras);
+      if (bitmapLoader == null) {
+        bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+      }
+      return new MediaSession(
+          context, id, player, sessionActivity, callback, extras, checkNotNull(bitmapLoader));
     }
   }
 
@@ -487,14 +514,15 @@ public class MediaSession {
       Player player,
       @Nullable PendingIntent sessionActivity,
       Callback callback,
-      Bundle tokenExtras) {
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
     synchronized (STATIC_LOCK) {
       if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
         throw new IllegalStateException("Session ID must be unique. ID=" + id);
       }
       SESSION_ID_TO_SESSION_MAP.put(id, this);
     }
-    impl = createImpl(context, id, player, sessionActivity, callback, tokenExtras);
+    impl = createImpl(context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
   }
 
   /* package */ MediaSessionImpl createImpl(
@@ -503,8 +531,10 @@ public class MediaSession {
       Player player,
       @Nullable PendingIntent sessionActivity,
       Callback callback,
-      Bundle tokenExtras) {
-    return new MediaSessionImpl(this, context, id, player, sessionActivity, callback, tokenExtras);
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
+    return new MediaSessionImpl(
+        this, context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
   }
 
   /* package */ MediaSessionImpl getImpl() {
@@ -739,6 +769,12 @@ public class MediaSession {
     checkNotNull(controller, "controller must not be null");
     checkNotNull(sessionExtras);
     impl.setSessionExtras(controller, sessionExtras);
+  }
+
+  /** Returns the {@link BitmapLoader}. */
+  @UnstableApi
+  public BitmapLoader getBitmapLoader() {
+    return impl.getBitmapLoader();
   }
 
   /**
@@ -1218,6 +1254,7 @@ public class MediaSession {
     /* package */ C callback;
     /* package */ @Nullable PendingIntent sessionActivity;
     /* package */ Bundle extras;
+    /* package */ @MonotonicNonNull BitmapLoader bitmapLoader;
 
     public BuilderBase(Context context, Player player, C callback) {
       this.context = checkNotNull(context);
@@ -1249,6 +1286,12 @@ public class MediaSession {
     @SuppressWarnings("unchecked")
     public U setExtras(Bundle extras) {
       this.extras = new Bundle(checkNotNull(extras));
+      return (U) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public U setBitmapLoader(BitmapLoader bitmapLoader) {
+      this.bitmapLoader = bitmapLoader;
       return (U) this;
     }
 
