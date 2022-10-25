@@ -418,10 +418,10 @@ public class DefaultMediaNotificationProviderTest {
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
     BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
     SettableFuture<Bitmap> bitmapFuture = SettableFuture.create();
-    when(mockBitmapLoader.loadBitmap(any())).thenReturn(bitmapFuture);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(bitmapFuture);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
         new DefaultMediaNotificationProvider.Builder(ApplicationProvider.getApplicationContext())
-            .setBitmapLoader(mockBitmapLoader)
             .build();
 
     // Ask the notification provider to create a notification twice. Use separate callback instances
@@ -456,6 +456,9 @@ public class DefaultMediaNotificationProviderTest {
     DefaultMediaNotificationProvider defaultMediaNotificationProvider =
         new DefaultMediaNotificationProvider.Builder(context).build();
     MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
@@ -487,6 +490,9 @@ public class DefaultMediaNotificationProviderTest {
             .setChannelName(/* channelNameResourceId= */ R.string.media3_controls_play_description)
             .build();
     MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
@@ -521,6 +527,9 @@ public class DefaultMediaNotificationProviderTest {
             .setChannelName(/* channelNameResourceId= */ R.string.media3_controls_play_description)
             .build();
     MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
@@ -542,6 +551,9 @@ public class DefaultMediaNotificationProviderTest {
     DefaultActionFactory defaultActionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
     MediaSession mockMediaSession = createMockMediaSessionForNotification(MediaMetadata.EMPTY);
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
 
     MediaNotification notification =
         defaultMediaNotificationProvider.createNotification(
@@ -574,6 +586,9 @@ public class DefaultMediaNotificationProviderTest {
     MediaSession mockMediaSession =
         createMockMediaSessionForNotification(
             new MediaMetadata.Builder().setTitle("title").build());
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
 
     MediaNotification notification =
         defaultMediaNotificationProvider.createNotification(
@@ -597,6 +612,9 @@ public class DefaultMediaNotificationProviderTest {
     MediaSession mockMediaSession =
         createMockMediaSessionForNotification(
             new MediaMetadata.Builder().setArtist("artist").build());
+    BitmapLoader mockBitmapLoader = mock(BitmapLoader.class);
+    when(mockBitmapLoader.loadBitmapFromMetadata(any())).thenReturn(null);
+    when(mockMediaSession.getBitmapLoader()).thenReturn(mockBitmapLoader);
 
     MediaNotification notification =
         defaultMediaNotificationProvider.createNotification(

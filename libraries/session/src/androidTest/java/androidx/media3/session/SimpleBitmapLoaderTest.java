@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -164,6 +165,64 @@ public class SimpleBitmapLoaderTest {
         () -> bitmapLoader.loadBitmap(Uri.parse("data://data")).get(),
         MalformedURLException.class,
         /* messagePart= */ "unknown protocol");
+  }
+
+  @Test
+  public void loadBitmapFromMetadata_decodeFromArtworkData() throws Exception {
+    byte[] imageData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    MockWebServer mockWebServer = new MockWebServer();
+    Uri uri = Uri.parse(mockWebServer.url("test_path").toString());
+    // Set both artworkData and artworkUri
+    MediaMetadata metadata =
+        new MediaMetadata.Builder()
+            .setArtworkData(imageData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+            .setArtworkUri(uri)
+            .build();
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    Bitmap bitmap = bitmapLoader.loadBitmapFromMetadata(metadata).get();
+
+    assertThat(
+            bitmap.sameAs(
+                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
+        .isTrue();
+    assertThat(mockWebServer.getRequestCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void loadBitmapFromMetadata_loadFromArtworkUri() throws Exception {
+    byte[] imageData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    MockWebServer mockWebServer = new MockWebServer();
+    Buffer responseBody = new Buffer().write(imageData);
+    mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(responseBody));
+    Uri uri = Uri.parse(mockWebServer.url("test_path").toString());
+    // Just set artworkUri
+    MediaMetadata metadata = new MediaMetadata.Builder().setArtworkUri(uri).build();
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    Bitmap bitmap = bitmapLoader.loadBitmapFromMetadata(metadata).get();
+
+    assertThat(
+            bitmap.sameAs(
+                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
+        .isTrue();
+    assertThat(mockWebServer.getRequestCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void loadBitmapFromMetadata_returnNull() throws Exception {
+    // Neither artworkData nor artworkUri is set
+    MediaMetadata metadata = new MediaMetadata.Builder().build();
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.loadBitmapFromMetadata(metadata);
+
+    assertThat(bitmapFuture).isNull();
   }
 
   private static void assertException(
