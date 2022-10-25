@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Log.e(TAG, "Failed to draw a frame", e);
       }
       if (resetRotationAtNextFrame.compareAndSet(true, false)) {
-        Matrix.setIdentityM(rotationMatrix, 0);
+        GlUtil.setToIdentity(rotationMatrix);
       }
       long lastFrameTimestampNs = surfaceTexture.getTimestamp();
       Long sampleTimestampUs = sampleTimestampQueue.poll(lastFrameTimestampNs);

@@ -19,6 +19,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.opengl.Matrix;
+import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -80,8 +81,7 @@ public final class RgbAdjustment implements RgbMatrix {
 
     /** Creates a new {@link RgbAdjustment} instance. */
     public RgbAdjustment build() {
-      float[] rgbMatrix = new float[16];
-      Matrix.setIdentityM(rgbMatrix, /* smOffset= */ 0);
+      float[] rgbMatrix = GlUtil.create4x4IdentityMatrix();
       Matrix.scaleM(
           rgbMatrix, /* smOffset= */ 0, /* x= */ redScale, /* y= */ greenScale, /* z= */ blueScale);
 
