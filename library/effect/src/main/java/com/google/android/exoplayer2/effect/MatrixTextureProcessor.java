@@ -354,10 +354,8 @@ import java.util.List;
 
     transformationMatrixCache = new float[matrixTransformations.size()][16];
     rgbMatrixCache = new float[rgbMatrices.size()][16];
-    compositeTransformationMatrixArray = new float[16];
-    Matrix.setIdentityM(compositeTransformationMatrixArray, /* smOffset= */ 0);
-    compositeRgbMatrixArray = new float[16];
-    Matrix.setIdentityM(compositeRgbMatrixArray, /* smOffset= */ 0);
+    compositeTransformationMatrixArray = GlUtil.create4x4IdentityMatrix();
+    compositeRgbMatrixArray = GlUtil.create4x4IdentityMatrix();
     tempResultMatrix = new float[16];
     visiblePolygon = NDC_SQUARE;
   }
@@ -373,8 +371,7 @@ import java.util.List;
       throw new FrameProcessingException(e);
     }
 
-    float[] identityMatrix = new float[16];
-    Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
+    float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
     glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
     return glProgram;
   }
@@ -442,7 +439,7 @@ import java.util.List;
 
     // Compute the compositeTransformationMatrix and transform and clip the visiblePolygon for each
     // MatrixTransformation's matrix.
-    Matrix.setIdentityM(compositeTransformationMatrixArray, /* smOffset= */ 0);
+    GlUtil.setToIdentity(compositeTransformationMatrixArray);
     visiblePolygon = NDC_SQUARE;
     for (float[] transformationMatrix : transformationMatrixCache) {
       Matrix.multiplyMM(

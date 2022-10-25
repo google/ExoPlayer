@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.video.spherical;
 
 import android.opengl.Matrix;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 
 /**
@@ -96,7 +97,7 @@ import com.google.android.exoplayer2.util.TimedValueQueue;
     //             | 0         1    0          0|
     // recenter =  | temp[8]   0    temp[10]   0|
     //             | 0         0    0          1|
-    Matrix.setIdentityM(recenterMatrix, 0);
+    GlUtil.setToIdentity(recenterMatrix);
     float normRowSqr =
         rotationMatrix[10] * rotationMatrix[10] + rotationMatrix[8] * rotationMatrix[8];
     float normRow = (float) Math.sqrt(normRowSqr);
@@ -118,7 +119,7 @@ import com.google.android.exoplayer2.util.TimedValueQueue;
       float angleDeg = (float) Math.toDegrees(angleRad);
       Matrix.setRotateM(matrix, 0, angleDeg, x / angleRad, y / angleRad, z / angleRad);
     } else {
-      Matrix.setIdentityM(matrix, 0);
+      GlUtil.setToIdentity(matrix);
     }
   }
 }
