@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import androidx.annotation.CallSuper;
+import androidx.media3.common.audio.AudioProcessor;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

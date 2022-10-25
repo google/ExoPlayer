@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.transformer;
 
 import static java.lang.Math.min;
 
+import androidx.media3.common.audio.AudioProcessor;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.BaseAudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.util.Util;
