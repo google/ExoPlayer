@@ -40,6 +40,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;

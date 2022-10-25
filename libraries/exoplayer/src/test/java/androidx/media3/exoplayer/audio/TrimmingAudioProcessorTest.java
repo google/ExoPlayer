@@ -18,7 +18,7 @@ package androidx.media3.exoplayer.audio;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
-import androidx.media3.exoplayer.audio.AudioProcessor.AudioFormat;
+import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import org.junit.After;
