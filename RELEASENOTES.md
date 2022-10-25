@@ -41,6 +41,8 @@ Release notes
         ([#7279](https://github.com/google/ExoPlayer/issues/7279)).
     *   Add `ExoPlayer.setPreferredAudioDevice` to set the preferred audio
         output device ([#135](https://github.com/androidx/media/issues/135)).
+    *   Rename `androidx.media3.exoplayer.audio.AudioProcessor` to
+        `androidx.media3.common.audio.AudioProcessor`.
 *   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with

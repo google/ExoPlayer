@@ -19,8 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import androidx.media3.common.C;
-import androidx.media3.exoplayer.audio.AudioProcessor.AudioFormat;
-import androidx.media3.exoplayer.audio.AudioProcessor.UnhandledAudioFormatException;
+import androidx.media3.common.audio.AudioProcessor.AudioFormat;
+import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;

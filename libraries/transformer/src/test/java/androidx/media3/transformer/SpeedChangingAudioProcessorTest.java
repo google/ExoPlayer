@@ -19,8 +19,8 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Util;
-import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

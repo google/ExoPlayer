@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.audio;
+package androidx.media3.common.audio;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
