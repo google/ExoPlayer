@@ -18,7 +18,6 @@ package androidx.media3.effect;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Pair;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.util.GlProgram;
@@ -59,8 +58,7 @@ import java.io.IOException;
         GlUtil.getNormalizedCoordinateBounds(),
         GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
 
-    float[] identityMatrix = new float[16];
-    Matrix.setIdentityM(identityMatrix, /* smOffset= */ 0);
+    float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
     glProgram.setFloatsUniform("uTransformationMatrix", identityMatrix);
     glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
     glProgram.setFloatUniform("uContrastFactor", contrastFactor);

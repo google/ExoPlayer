@@ -37,6 +37,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
@@ -286,9 +287,9 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
 
     public Renderer(SceneRenderer scene) {
       this.scene = scene;
-      Matrix.setIdentityM(deviceOrientationMatrix, 0);
-      Matrix.setIdentityM(touchPitchMatrix, 0);
-      Matrix.setIdentityM(touchYawMatrix, 0);
+      GlUtil.setToIdentity(deviceOrientationMatrix);
+      GlUtil.setToIdentity(touchPitchMatrix);
+      GlUtil.setToIdentity(touchYawMatrix);
       deviceRoll = UPRIGHT_ROLL;
     }
 

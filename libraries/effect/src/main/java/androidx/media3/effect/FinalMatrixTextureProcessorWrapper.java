@@ -25,7 +25,6 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -117,8 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.colorInfo = colorInfo;
     this.releaseFramesAutomatically = releaseFramesAutomatically;
 
-    textureTransformMatrix = new float[16];
-    Matrix.setIdentityM(textureTransformMatrix, /* smOffset= */ 0);
+    textureTransformMatrix = GlUtil.create4x4IdentityMatrix();
     streamOffsetUsQueue = new ConcurrentLinkedQueue<>();
     inputListener = new InputListener() {};
     availableFrames = new ConcurrentLinkedQueue<>();
