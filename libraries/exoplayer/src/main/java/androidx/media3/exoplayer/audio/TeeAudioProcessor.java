@@ -19,6 +19,7 @@ import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.audio.AudioProcessorChain;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
@@ -36,8 +37,8 @@ import java.nio.ByteOrder;
  * <p>This audio processor can be inserted into the audio processor chain to access audio data
  * before/after particular processing steps have been applied. For example, to get audio output
  * after playback speed adjustment and silence skipping have been applied it is necessary to pass a
- * custom {@link DefaultAudioSink.AudioProcessorChain} when creating the audio sink, and include
- * this audio processor after all other audio processors.
+ * custom {@link AudioProcessorChain} when creating the audio sink, and include this audio processor
+ * after all other audio processors.
  */
 @UnstableApi
 public final class TeeAudioProcessor extends BaseAudioProcessor {
