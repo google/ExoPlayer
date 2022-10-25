@@ -108,64 +108,16 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   /**
-   * Provides a chain of audio processors, which are used for any user-defined processing and
-   * applying playback parameters (if supported). Because applying playback parameters can skip and
-   * stretch/compress audio, the sink will query the chain for information on how to transform its
-   * output position to map it onto a media position, via {@link #getMediaDuration(long)} and {@link
-   * #getSkippedOutputFrameCount()}.
+   * @deprecated Use {@link androidx.media3.common.audio.AudioProcessorChain}.
    */
-  public interface AudioProcessorChain {
-
-    /**
-     * Returns the fixed chain of audio processors that will process audio. This method is called
-     * once during initialization, but audio processors may change state to become active/inactive
-     * during playback.
-     */
-    AudioProcessor[] getAudioProcessors();
-
-    /**
-     * Configures audio processors to apply the specified playback parameters immediately, returning
-     * the new playback parameters, which may differ from those passed in. Only called when
-     * processors have no input pending.
-     *
-     * @param playbackParameters The playback parameters to try to apply.
-     * @return The playback parameters that were actually applied.
-     */
-    PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters);
-
-    /**
-     * Configures audio processors to apply whether to skip silences immediately, returning the new
-     * value. Only called when processors have no input pending.
-     *
-     * @param skipSilenceEnabled Whether silences should be skipped in the audio stream.
-     * @return The new value.
-     */
-    boolean applySkipSilenceEnabled(boolean skipSilenceEnabled);
-
-    /**
-     * Returns the media duration corresponding to the specified playout duration, taking speed
-     * adjustment due to audio processing into account.
-     *
-     * <p>The scaling performed by this method will use the actual playback speed achieved by the
-     * audio processor chain, on average, since it was last flushed. This may differ very slightly
-     * from the target playback speed.
-     *
-     * @param playoutDuration The playout duration to scale.
-     * @return The corresponding media duration, in the same units as {@code duration}.
-     */
-    long getMediaDuration(long playoutDuration);
-
-    /**
-     * Returns the number of output audio frames skipped since the audio processors were last
-     * flushed.
-     */
-    long getSkippedOutputFrameCount();
-  }
+  @Deprecated
+  public interface AudioProcessorChain extends androidx.media3.common.audio.AudioProcessorChain {}
 
   /**
    * The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
    * processors followed by {@link SilenceSkippingAudioProcessor} and {@link SonicAudioProcessor}.
    */
+  @SuppressWarnings("deprecation")
   public static class DefaultAudioProcessorChain implements AudioProcessorChain {
 
     private final AudioProcessor[] audioProcessors;
@@ -269,7 +221,7 @@ public final class DefaultAudioSink implements AudioSink {
   public static final class Builder {
 
     private AudioCapabilities audioCapabilities;
-    @Nullable private AudioProcessorChain audioProcessorChain;
+    @Nullable private androidx.media3.common.audio.AudioProcessorChain audioProcessorChain;
     private boolean enableFloatOutput;
     private boolean enableAudioTrackPlaybackParams;
     private int offloadMode;
@@ -310,14 +262,15 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     /**
-     * Sets the {@link AudioProcessorChain} to process audio before playback. The instance passed in
-     * must not be reused in other sinks. Processing chains are only supported for PCM playback (not
-     * passthrough or offload).
+     * Sets the {@link androidx.media3.common.audio.AudioProcessorChain} to process audio before
+     * playback. The instance passed in must not be reused in other sinks. Processing chains are
+     * only supported for PCM playback (not passthrough or offload).
      *
      * <p>By default, no processing will be applied.
      */
     @CanIgnoreReturnValue
-    public Builder setAudioProcessorChain(AudioProcessorChain audioProcessorChain) {
+    public Builder setAudioProcessorChain(
+        androidx.media3.common.audio.AudioProcessorChain audioProcessorChain) {
       checkNotNull(audioProcessorChain);
       this.audioProcessorChain = audioProcessorChain;
       return this;
@@ -507,7 +460,7 @@ public final class DefaultAudioSink implements AudioSink {
   private static int pendingReleaseCount;
 
   private final AudioCapabilities audioCapabilities;
-  private final AudioProcessorChain audioProcessorChain;
+  private final androidx.media3.common.audio.AudioProcessorChain audioProcessorChain;
   private final boolean enableFloatOutput;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final TrimmingAudioProcessor trimmingAudioProcessor;
