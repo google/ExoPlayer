@@ -54,6 +54,9 @@ Release notes
         a non-empty but invalid license URL.
     *   Fix `setMediaDrmSession failed: session not opened` error when switching
         between DRM schemes in a playlist (e.g. Widevine to ClearKey).
+*   Text:
+    *   CEA-608: Ensure service switch commands on field 2 are handled correctly
+        ([#10666](https://github.com/google/ExoPlayer/issues/10666)).
 *   DASH:
     *   Parse `EventStream.presentationTimeOffset` from manifests
         ([#10460](https://github.com/google/ExoPlayer/issues/10460)).
