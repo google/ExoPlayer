@@ -255,6 +255,65 @@ public class Cea608DecoderTest {
     assertThat(getOnlyCue(fifthSubtitle).text.toString()).isEqualTo("test subtitle");
   }
 
+  @Test
+  public void serviceSwitchOnField1Handled() throws Exception {
+    Cea608Decoder decoder =
+        new Cea608Decoder(
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1, // field 1, channel 1
+            Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
+    // field 1 (0xFC header): 'test' then service switch
+    // field 2 (0xFD header): 'wrong!'
+    byte[] sample1 =
+        Bytes.concat(
+            // 'paint on' control character
+            createPacket(0xFC, 0x14, 0x29),
+            createPacket(0xFD, 0x15, 0x29),
+            createPacket(0xFC, 't', 'e'),
+            createPacket(0xFD, 'w', 'r'),
+            createPacket(0xFC, 's', 't'),
+            createPacket(0xFD, 'o', 'n'),
+            // Enter TEXT service
+            createPacket(0xFC, 0x14, 0x2A),
+            createPacket(0xFD, 'g', '!'),
+            createPacket(0xFC, 'X', 'X'),
+            createPacket(0xFD, 0x0, 0x0));
+
+    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
+
+    assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test");
+  }
+
+  // https://github.com/google/ExoPlayer/issues/10666
+  @Test
+  public void serviceSwitchOnField2Handled() throws Exception {
+    Cea608Decoder decoder =
+        new Cea608Decoder(
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 3, // field 2, channel 1
+            Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
+    // field 1 (0xFC header): 'wrong!'
+    // field 2 (0xFD header): 'test' then service switch
+    byte[] sample1 =
+        Bytes.concat(
+            // 'paint on' control character
+            createPacket(0xFC, 0x14, 0x29),
+            createPacket(0xFD, 0x15, 0x29),
+            createPacket(0xFC, 'w', 'r'),
+            createPacket(0xFD, 't', 'e'),
+            createPacket(0xFC, 'o', 'n'),
+            createPacket(0xFD, 's', 't'),
+            createPacket(0xFC, 'g', '!'),
+            // Enter TEXT service
+            createPacket(0xFD, 0x15, 0x2A),
+            createPacket(0xFC, 0x0, 0x0),
+            createPacket(0xFD, 'X', 'X'));
+
+    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
+
+    assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test");
+  }
+
   private static byte[] createPacket(int header, int cc1, int cc2) {
     return new byte[] {
       UnsignedBytes.checkedCast(header),

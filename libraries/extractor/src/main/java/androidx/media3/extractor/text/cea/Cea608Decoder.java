@@ -874,8 +874,8 @@ public final class Cea608Decoder extends CeaDecoder {
   }
 
   private static boolean isServiceSwitchCommand(byte cc1) {
-    // cc1 - 0|0|0|1|C|1|0|0
-    return (cc1 & 0xF7) == 0x14;
+    // cc1 - 0|0|0|1|C|1|0|F
+    return (cc1 & 0xF6) == 0x14;
   }
 
   private static final class CueBuilder {
