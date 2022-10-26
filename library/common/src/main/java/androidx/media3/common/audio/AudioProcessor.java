@@ -15,9 +15,11 @@
  */
 package androidx.media3.common.audio;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -68,6 +70,25 @@ public interface AudioProcessor {
           + ", encoding="
           + encoding
           + ']';
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof AudioFormat)) {
+        return false;
+      }
+      AudioFormat that = (AudioFormat) o;
+      return sampleRate == that.sampleRate
+          && channelCount == that.channelCount
+          && encoding == that.encoding;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(sampleRate, channelCount, encoding);
     }
   }
 
