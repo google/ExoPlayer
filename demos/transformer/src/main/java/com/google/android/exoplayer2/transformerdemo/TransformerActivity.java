@@ -508,6 +508,7 @@ public final class TransformerActivity extends AppCompatActivity {
     inputPlayer.setMediaItem(inputMediaItem);
     inputPlayer.prepare();
     this.inputPlayer = inputPlayer;
+    inputPlayer.setVolume(0f);
 
     ExoPlayer outputPlayer = new ExoPlayer.Builder(/* context= */ this).build();
     outputPlayerView.setPlayer(outputPlayer);
