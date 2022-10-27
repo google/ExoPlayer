@@ -82,6 +82,9 @@ public class MockMediaLibraryService extends MediaLibraryService {
   /** ID of the session that this service will create. */
   public static final String ID = "TestLibrary";
 
+  public static final String CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT =
+      "CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT";
+
   public static final MediaItem ROOT_ITEM =
       new MediaItem.Builder()
           .setMediaId(ROOT_ID)
@@ -192,7 +195,24 @@ public class MockMediaLibraryService extends MediaLibraryService {
     public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(
         MediaLibrarySession session, ControllerInfo browser, @Nullable LibraryParams params) {
       assertLibraryParams(params);
-      return Futures.immediateFuture(LibraryResult.ofItem(ROOT_ITEM, ROOT_PARAMS));
+      MediaItem rootItem = ROOT_ITEM;
+      // Use connection hints to select the library root.
+      String customLibraryRoot =
+          browser
+              .getConnectionHints()
+              .getString(CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT, /* defaultValue= */ null);
+      if (customLibraryRoot != null) {
+        rootItem =
+            new MediaItem.Builder()
+                .setMediaId(customLibraryRoot)
+                .setMediaMetadata(
+                    new MediaMetadata.Builder()
+                        .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)
+                        .setIsPlayable(false)
+                        .build())
+                .build();
+      }
+      return Futures.immediateFuture(LibraryResult.ofItem(rootItem, ROOT_PARAMS));
     }
 
     @Override

@@ -61,7 +61,8 @@ import java.util.concurrent.atomic.AtomicReference;
   public BrowserRoot onGetRoot(
       String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
     RemoteUserInfo info = getCurrentBrowserInfo();
-    MediaSession.ControllerInfo controller = createControllerInfo(info);
+    MediaSession.ControllerInfo controller =
+        createControllerInfo(info, rootHints != null ? rootHints : Bundle.EMPTY);
 
     AtomicReference<MediaSession.ConnectionResult> resultReference = new AtomicReference<>();
     ConditionVariable haveResult = new ConditionVariable();
@@ -92,14 +93,14 @@ import java.util.concurrent.atomic.AtomicReference;
     result.sendResult(/* result= */ null);
   }
 
-  public ControllerInfo createControllerInfo(RemoteUserInfo info) {
+  public ControllerInfo createControllerInfo(RemoteUserInfo info, Bundle rootHints) {
     return new ControllerInfo(
         info,
         ControllerInfo.LEGACY_CONTROLLER_VERSION,
         ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
         manager.isTrustedForMediaControl(info),
         /* cb= */ null,
-        /* connectionHints= */ Bundle.EMPTY);
+        /* connectionHints= */ rootHints);
   }
 
   public final MediaSessionManager getMediaSessionManager() {

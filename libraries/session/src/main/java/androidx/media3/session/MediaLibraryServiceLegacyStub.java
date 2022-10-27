@@ -317,14 +317,14 @@ import java.util.concurrent.atomic.AtomicReference;
   }
 
   @Override
-  public ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo) {
+  public ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo, Bundle rootHints) {
     return new ControllerInfo(
         remoteUserInfo,
         ControllerInfo.LEGACY_CONTROLLER_VERSION,
         ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
         getMediaSessionManager().isTrustedForMediaControl(remoteUserInfo),
         new BrowserLegacyCb(remoteUserInfo),
-        /* connectionHints= */ Bundle.EMPTY);
+        /* connectionHints= */ rootHints);
   }
 
   public ControllerCb getBrowserLegacyCbForBroadcast() {
