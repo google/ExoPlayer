@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -63,16 +64,10 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
   @Nullable PlaybackStateCompat lastReportedPlaybackStateCompat;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     context = ApplicationProvider.getApplicationContext();
     handler = threadTestRule.getHandler();
     connectionCallback = new TestConnectionCallback();
-    handler.postAndSync(
-        () -> {
-          // Make browser's internal handler to be initialized with test thread.
-          browserCompat =
-              new MediaBrowserCompat(context, getServiceComponent(), connectionCallback, null);
-        });
   }
 
   @After
@@ -87,15 +82,22 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
     return MOCK_MEDIA3_SESSION_SERVICE;
   }
 
-  void connectAndWait() throws InterruptedException {
+  void connectAndWait(Bundle connectionHints) throws Exception {
+    handler.postAndSync(
+        () -> {
+          // Make browser's internal handler to be initialized with test thread.
+          browserCompat =
+              new MediaBrowserCompat(
+                  context, getServiceComponent(), connectionCallback, connectionHints);
+        });
     browserCompat.connect();
     assertThat(connectionCallback.connectedLatch.await(SERVICE_CONNECTION_TIMEOUT_MS, MILLISECONDS))
         .isTrue();
   }
 
   @Test
-  public void connect() throws InterruptedException {
-    connectAndWait();
+  public void connect() throws Exception {
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     assertThat(connectionCallback.failedLatch.getCount()).isNotEqualTo(0);
   }
 
@@ -109,7 +111,7 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
 
   @Test
   public void getSessionToken() throws Exception {
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     MediaControllerCompat controller =
         new MediaControllerCompat(context, browserCompat.getSessionToken());
     assertThat(controller.getPackageName())
