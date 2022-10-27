@@ -110,4 +110,16 @@ public interface Muxer {
    *     forCancellation} is false.
    */
   void release(boolean forCancellation) throws MuxerException;
+
+  /**
+   * Returns the maximum delay allowed between output samples, in milliseconds, or {@link
+   * C#TIME_UNSET} if there is no maximum.
+   *
+   * <p>This is the maximum delay between samples of any track. They can be of the same or of
+   * different track types.
+   *
+   * <p>This value is used to abort the transformation when the maximum delay is reached. Note that
+   * there is no guarantee that the transformation will be aborted exactly at that time.
+   */
+  long getMaxDelayBetweenSamplesMs();
 }

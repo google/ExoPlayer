@@ -27,10 +27,27 @@ public final class DefaultMuxer implements Muxer {
 
   /** A {@link Muxer.Factory} for {@link DefaultMuxer}. */
   public static final class Factory implements Muxer.Factory {
+
+    /** The default value returned by {@link #getMaxDelayBetweenSamplesMs()}. */
+    public static final long DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS = 3000;
+
     private final Muxer.Factory muxerFactory;
 
+    /**
+     * Creates an instance with {@link Muxer#getMaxDelayBetweenSamplesMs() maxDelayBetweenSamplesMs}
+     * set to {@link #DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS}.
+     */
     public Factory() {
-      this.muxerFactory = new FrameworkMuxer.Factory();
+      this.muxerFactory = new FrameworkMuxer.Factory(DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
+     */
+    public Factory(long maxDelayBetweenSamplesMs) {
+      this.muxerFactory = new FrameworkMuxer.Factory(maxDelayBetweenSamplesMs);
     }
 
     @Override
@@ -70,5 +87,10 @@ public final class DefaultMuxer implements Muxer {
   @Override
   public void release(boolean forCancellation) throws MuxerException {
     muxer.release(forCancellation);
+  }
+
+  @Override
+  public long getMaxDelayBetweenSamplesMs() {
+    return muxer.getMaxDelayBetweenSamplesMs();
   }
 }

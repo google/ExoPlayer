@@ -63,6 +63,11 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
     muxer.release(forCancellation);
   }
 
+  @Override
+  public long getMaxDelayBetweenSamplesMs() {
+    return muxer.getMaxDelayBetweenSamplesMs();
+  }
+
   // Dumper.Dumpable implementation.
 
   @Override
