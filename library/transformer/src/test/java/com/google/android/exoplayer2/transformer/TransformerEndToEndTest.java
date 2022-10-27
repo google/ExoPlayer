@@ -478,6 +478,20 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
+  public void startTransformation_withUnsetMaxDelayBetweenSamples_completesSuccessfully()
+      throws Exception {
+    Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false).setMuxerFactory(muxerFactory).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
+  }
+
+  @Test
   public void startTransformation_afterCancellation_completesSuccessfully() throws Exception {
     Transformer transformer = createTransformerBuilder(/* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
@@ -860,6 +874,10 @@ public final class TransformerEndToEndTest {
 
     public TestMuxerFactory() {
       defaultMuxerFactory = new DefaultMuxer.Factory();
+    }
+
+    public TestMuxerFactory(long maxDelayBetweenSamplesMs) {
+      defaultMuxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
     }
 
     @Override

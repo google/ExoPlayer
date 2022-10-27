@@ -55,10 +55,17 @@ import java.nio.ByteBuffer;
 
   /** {@link Muxer.Factory} for {@link FrameworkMuxer}. */
   public static final class Factory implements Muxer.Factory {
+
+    private final long maxDelayBetweenSamplesMs;
+
+    public Factory(long maxDelayBetweenSamplesMs) {
+      this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
+    }
+
     @Override
     public FrameworkMuxer create(String path) throws IOException {
       MediaMuxer mediaMuxer = new MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-      return new FrameworkMuxer(mediaMuxer);
+      return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs);
     }
 
     @RequiresApi(26)
@@ -68,7 +75,7 @@ import java.nio.ByteBuffer;
           new MediaMuxer(
               parcelFileDescriptor.getFileDescriptor(),
               MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-      return new FrameworkMuxer(mediaMuxer);
+      return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs);
     }
 
     @Override
@@ -83,13 +90,15 @@ import java.nio.ByteBuffer;
   }
 
   private final MediaMuxer mediaMuxer;
+  private final long maxDelayBetweenSamplesMs;
   private final MediaCodec.BufferInfo bufferInfo;
   private final SparseLongArray trackIndexToLastPresentationTimeUs;
 
   private boolean isStarted;
 
-  private FrameworkMuxer(MediaMuxer mediaMuxer) {
+  private FrameworkMuxer(MediaMuxer mediaMuxer, long maxDelayBetweenSamplesMs) {
     this.mediaMuxer = mediaMuxer;
+    this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
     bufferInfo = new MediaCodec.BufferInfo();
     trackIndexToLastPresentationTimeUs = new SparseLongArray();
   }
@@ -181,6 +190,11 @@ import java.nio.ByteBuffer;
     } finally {
       mediaMuxer.release();
     }
+  }
+
+  @Override
+  public long getMaxDelayBetweenSamplesMs() {
+    return maxDelayBetweenSamplesMs;
   }
 
   // Accesses MediaMuxer state via reflection to ensure that muxer resources can be released even
