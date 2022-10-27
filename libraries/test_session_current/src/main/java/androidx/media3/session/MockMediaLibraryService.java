@@ -81,9 +81,16 @@ import java.util.concurrent.Executors;
 public class MockMediaLibraryService extends MediaLibraryService {
   /** ID of the session that this service will create. */
   public static final String ID = "TestLibrary";
-
+  /** Key used in connection hints to instruct the mock service to use a given library root. */
   public static final String CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT =
       "CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT";
+  /**
+   * Key used in connection hints to instruct the mock service to remove {@link
+   * SessionCommand#COMMAND_CODE_LIBRARY_SEARCH} from the available commands in {@link
+   * MediaSession.Callback#onConnect(MediaSession, ControllerInfo)}.
+   */
+  public static final String CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH =
+      "CONNECTION_HINTS_KEY_REMOVE_SEARCH_SESSION_COMMAND";
 
   public static final MediaItem ROOT_ITEM =
       new MediaItem.Builder()
@@ -186,6 +193,12 @@ public class MockMediaLibraryService extends MediaLibraryService {
       SessionCommands.Builder builder = connectionResult.availableSessionCommands.buildUpon();
       builder.add(new SessionCommand(CUSTOM_ACTION, /* extras= */ Bundle.EMPTY));
       builder.add(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, /* extras= */ Bundle.EMPTY));
+      if (controller
+          .getConnectionHints()
+          .getBoolean(
+              CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH, /* defaultValue= */ false)) {
+        builder.remove(SessionCommand.COMMAND_CODE_LIBRARY_SEARCH);
+      }
       return MediaSession.ConnectionResult.accept(
           /* availableSessionCommands= */ builder.build(),
           connectionResult.availablePlayerCommands);
@@ -196,7 +209,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
         MediaLibrarySession session, ControllerInfo browser, @Nullable LibraryParams params) {
       assertLibraryParams(params);
       MediaItem rootItem = ROOT_ITEM;
-      // Use connection hints to select the library root.
+      // Use connection hints to select the library root to test whether the legacy browser root
+      // hints are propagated as connection hints.
       String customLibraryRoot =
           browser
               .getConnectionHints()

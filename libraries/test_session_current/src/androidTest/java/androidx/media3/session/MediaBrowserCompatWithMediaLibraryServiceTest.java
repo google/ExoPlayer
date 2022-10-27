@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media.utils.MediaConstants.BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.session.MockMediaLibraryService.CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT;
@@ -582,5 +583,28 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String root = browserCompat.getRoot();
 
     assertThat(root).isEqualTo("myLibraryRoot");
+  }
+
+  @Test
+  public void rootBrowserHints_searchSupported_reportsSearchSupported() throws Exception {
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+
+    boolean isSearchSupported =
+        browserCompat.getExtras().getBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED);
+
+    assertThat(isSearchSupported).isTrue();
+  }
+
+  @Test
+  public void rootBrowserHints_searchNotSupported_reportsSearchNotSupported() throws Exception {
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(
+        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH, true);
+    connectAndWait(connectionHints);
+
+    boolean isSearchSupported =
+        browserCompat.getExtras().getBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED);
+
+    assertThat(isSearchSupported).isFalse();
   }
 }
