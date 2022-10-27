@@ -15,7 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.addLiveAdBreak;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.getAdGroupAndIndexInMultiPeriodWindow;
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.splitAdGroup;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_ERROR;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_PLAYED;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_SKIPPED;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
 import static com.google.common.truth.Truth.assertThat;
@@ -449,13 +456,13 @@ public class ImaUtilTest {
         ImaUtil.splitAdPlaybackStateForPeriods(adPlaybackState, timeline);
 
     assertThat(adPlaybackStates.get(new Pair<>(0L, 0)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+        .isEqualTo(AD_STATE_PLAYED);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 1)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_SKIPPED);
+        .isEqualTo(AD_STATE_SKIPPED);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 2)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_ERROR);
+        .isEqualTo(AD_STATE_ERROR);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 3)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+        .isEqualTo(AD_STATE_UNAVAILABLE);
   }
 
   @Test
@@ -489,19 +496,19 @@ public class ImaUtilTest {
 
     assertThat(adPlaybackStates).hasSize(periodCount);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 0)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+        .isEqualTo(AD_STATE_PLAYED);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 1)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+        .isEqualTo(AD_STATE_PLAYED);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 2)).adGroupCount).isEqualTo(0);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 3)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+        .isEqualTo(AD_STATE_PLAYED);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 4)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+        .isEqualTo(AD_STATE_PLAYED);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 5)).adGroupCount).isEqualTo(0);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 6)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+        .isEqualTo(AD_STATE_UNAVAILABLE);
     assertThat(adPlaybackStates.get(new Pair<>(0L, 7)).getAdGroup(/* adGroupIndex= */ 0).states[0])
-        .isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+        .isEqualTo(AD_STATE_UNAVAILABLE);
   }
 
   @Test
@@ -842,5 +849,531 @@ public class ImaUtilTest {
         getAdGroupAndIndexInMultiPeriodWindow(/* adPeriodIndex= */ 8, adPlaybackState, timeline);
     assertThat(adGroupIndexAndAdIndexInAdGroup.first).isEqualTo(2);
     assertThat(adGroupIndexAndAdIndexInAdGroup.second).isEqualTo(1);
+  }
+
+  @Test
+  public void addLiveAdBreak_threeAdsHappyPath_createsNewAdGroupAndPropagates() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+
+    // Initial LOADED event while playing in content, makes the player advancing to the first ad
+    // period: [/* adGroupIndex= */ 0, /* adIndexInAdGroup */ 0, /* nextAdGroupIndex= */ -1].
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L,
+            /* adDurationUs= */ 10_000_001L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 30_000_001L,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).isServerSideInserted).isTrue();
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 20_000_000L, 0L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(30_000_001);
+
+    // Second load event while first ad is playing.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_001L,
+            /* adDurationUs= */ 10_000_010L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 30_000_011L,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+    // Player advances to the second ad period:
+    // [/* adGroupIndex= */ 0, /* adIndexInAdGroup */ 1, /* nextAdGroupIndex= */ -1].
+    // The first ad period is marked as played.
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_PLAYED, AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 10_000_010L, 9_999_990L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(30_000_001L);
+
+    // Player advances to the third ad period:
+    // [/* adGroupIndex= */ 0, /* adIndexInAdGroup */ 2, /* nextAdGroupIndex= */ -1].
+    // The 2nd ad period is marked as played.
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1);
+    // Third LOADED event while already playing on the last ad period.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_001L + 10_000_010L,
+            /* adDurationUs= */ 10_000_100L,
+            /* adPositionInAdPod= */ 3,
+            /* totalAdDurationUs= */ 30_000_111L,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_PLAYED, AD_STATE_PLAYED, AD_STATE_AVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 10_000_010L, 10_000_100L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(30_000_111L);
+
+    // Additional pre-fetch LOADED event with no remaining unavailable ad slot increases ad count.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000
+                + 10_000_001L
+                + 10_000_010L
+                + 10_000_100L,
+            /* adDurationUs= */ 10_001_000L,
+            /* adPositionInAdPod= */ 4,
+            /* totalAdDurationUs= */ 29_001_111L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    // Player advances to the content period:
+    // [/* adGroupIndex= */ -1, /* adIndexInAdGroup */ -1, /* nextAdGroupIndex= */ 1].
+    // The 3rd ad period is marked as played.
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_PLAYED, AD_STATE_PLAYED, AD_STATE_PLAYED, AD_STATE_AVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 10_000_010L, 10_000_100L, 10_001_000L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(40_001_111L);
+  }
+
+  @Test
+  public void addLiveAdBreak_groupExpandsFromTwoAdsToFourAds_createsNewAdGroupAndExpands() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+
+    // Initial LOADED event while playing in content.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L,
+            /* adDurationUs= */ 10_000_001L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 19_000_011L,
+            /* totalAdsInAdPod= */ 2,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).isServerSideInserted).isTrue();
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 9_000_010L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(19_000_011);
+
+    // Second LOADED event: switch to a ad pod with 4 ads
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_001L,
+            /* adDurationUs= */ 10_000_010L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 40_000_011L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(
+            AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 10_000_010L, 30_000_001L, 0L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(50_000_012L);
+
+    // Third LOADED event
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_001L + 10_000_010L,
+            /* adDurationUs= */ 10_000_100L,
+            /* adPositionInAdPod= */ 3,
+            /* totalAdDurationUs= */ 40_000_111L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(
+            AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 10_000_010L, 10_000_100L, 19999901L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(50_000_012L);
+
+    // Last LOADED event
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L
+                + 10_000_001L
+                + 10_000_010L
+                + 10_000_100L,
+            /* adDurationUs= */ 10_001_000L,
+            /* adPositionInAdPod= */ 4,
+            /* totalAdDurationUs= */ 40_001_111L,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(
+            AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_AVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_001L, 10_000_010L, 10_000_100L, 10_001_000L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(40_001_111);
+  }
+
+  @Test
+  public void addLiveAdBreak_groupExpandsFromOneToTwoAdsAfterAdGroupCompletion_createsNewAdGroup() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+
+    // Initial LOADED event while playing in content.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L,
+            /* adDurationUs= */ 10_000_001L,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 10_000_001L,
+            /* totalAdsInAdPod= */ 1,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).states).asList().containsExactly(AD_STATE_AVAILABLE);
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs).asList().containsExactly(10_000_001L);
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(10_000_001L);
+
+    // Player advances to the content period:
+    // [/* adGroupIndex= */ -1, /* adIndexInAdGroup */ -1, /* nextAdGroupIndex= */ 1]
+    // The ad group is completely played.
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    // A 'late LOADED event' at the end of the completed ad group.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_001L,
+            /* adDurationUs= */ 10_000_010L,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 20_000_011L,
+            /* totalAdsInAdPod= */ 2,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(1).count).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(1).originalCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(1).timeUs).isEqualTo(123_000_000L + 10_000_001L);
+    assertThat(adPlaybackState.getAdGroup(1).states).asList().containsExactly(AD_STATE_AVAILABLE);
+    assertThat(adPlaybackState.getAdGroup(1).durationsUs).asList().containsExactly(10_000_010L);
+    assertThat(adPlaybackState.getAdGroup(1).contentResumeOffsetUs).isEqualTo(10_000_010L);
+  }
+
+  @Test
+  public void addLiveAdBreak_joinInSecondAd_createsNewAdGroupAndExpands() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+
+    // First LOADED event arrives with position 2 like when joining during an ad.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 30_000_000,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).isServerSideInserted).isTrue();
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_000L, 20_000_000L) // Placeholder duration.
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(30_000_000L);
+
+    // Second LOADED event overrides placeholder duration.
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_000L,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 3,
+            /* totalAdDurationUs= */ 30_000_000,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_AVAILABLE, AD_STATE_AVAILABLE);
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_000L, 10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(20_000_000L);
+
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1);
+    // Delayed pre-fetch LOADED event in content (creates new ad group).
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000L + 10_000_000L + 10_000_000L,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 4,
+            /* totalAdDurationUs= */ 30_000_000,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(1).count).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(1).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(1).states).asList().containsExactly(AD_STATE_AVAILABLE);
+    assertThat(adPlaybackState.getAdGroup(1).durationsUs).asList().containsExactly(10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(1).contentResumeOffsetUs).isEqualTo(10_000_000L);
+  }
+
+  @Test
+  public void splitAdGroup_singleTrailingAdInCompletedGroup_correctlySplit() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 10_000_000,
+            /* totalAdsInAdPod= */ 2,
+            adPlaybackState);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000 + 10_000_000,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 10_000_000,
+            /* totalAdsInAdPod= */ 2,
+            adPlaybackState);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000 + 10_000_000 + 10_000_000,
+            /* adDurationUs= */ 15_000_000,
+            /* adPositionInAdPod= */ 3,
+            /* totalAdDurationUs= */ 45_000_000,
+            /* totalAdsInAdPod= */ 3,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState
+            .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1);
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ 0);
+
+    // Split the current adGroup at ad index 2:
+    // [AD_STATE_PLAYED, AD_STATE_PLAYED, AD_STATE_AVAILABLE]
+    adPlaybackState =
+        splitAdGroup(adGroup, /* adGroupIndex= */ 0, /* splitIndexExclusive= */ 2, adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(2);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(20_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs)
+        .asList()
+        .containsExactly(10_000_000L, 10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).states)
+        .asList()
+        .containsExactly(AD_STATE_PLAYED, AD_STATE_PLAYED);
+    assertThat(adPlaybackState.getAdGroup(1).timeUs).isEqualTo(123_000_000 + 20_000_000);
+    assertThat(adPlaybackState.getAdGroup(1).count).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(1).originalCount).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(1).contentResumeOffsetUs).isEqualTo(15_000_000L);
+    assertThat(adPlaybackState.getAdGroup(1).durationsUs).asList().containsExactly(15_000_000L);
+    assertThat(adPlaybackState.getAdGroup(1).states).asList().containsExactly(AD_STATE_AVAILABLE);
+  }
+
+  @Test
+  public void splitAdGroup_multipleTrailingAds_correctlySplit() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 10_000_000,
+            /* totalAdsInAdPod= */ 1,
+            adPlaybackState);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000 + 10_000_000,
+            /* adDurationUs= */ 20_000_000,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 100_000_000,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000 + 10_000_000 + 10_000_000,
+            /* adDurationUs= */ 30_000_000,
+            /* adPositionInAdPod= */ 3,
+            /* totalAdDurationUs= */ 100_000_000,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ 0);
+
+    // Split the current adGroup at ad index 1:
+    // [AD_STATE_PLAYED, AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE]
+    adPlaybackState =
+        splitAdGroup(adGroup, /* adGroupIndex= */ 0, /* splitIndexExclusive= */ 1, adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs).asList().containsExactly(10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).states).asList().containsExactly(AD_STATE_PLAYED);
+    assertThat(adPlaybackState.getAdGroup(1).timeUs).isEqualTo(123_000_000 + 10_000_000);
+    assertThat(adPlaybackState.getAdGroup(1).count).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(1).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(1).contentResumeOffsetUs).isEqualTo(100_000_000L);
+    assertThat(adPlaybackState.getAdGroup(1).durationsUs)
+        .asList()
+        .containsExactly(20_000_000L, 30_000_000L, 50_000_000L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(1).states)
+        .asList()
+        .containsExactly(AD_STATE_AVAILABLE, AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
+  }
+
+  @Test
+  public void splitAdGroup_lastAdWithZeroDuration_correctlySplit() {
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId")
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000,
+            /* adDurationUs= */ 10_000_000,
+            /* adPositionInAdPod= */ 1,
+            /* totalAdDurationUs= */ 10_000_000,
+            /* totalAdsInAdPod= */ 1,
+            adPlaybackState);
+    adPlaybackState =
+        addLiveAdBreak(
+            /* currentContentPeriodPositionUs= */ 123_000_000 + 10_000_000,
+            /* adDurationUs= */ 20_000_000,
+            /* adPositionInAdPod= */ 2,
+            /* totalAdDurationUs= */ 100_000_000,
+            /* totalAdsInAdPod= */ 4,
+            adPlaybackState);
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ 0);
+
+    // Split the current adGroup at ad index 1:
+    // [AD_STATE_PLAYED, AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE]
+    adPlaybackState =
+        splitAdGroup(adGroup, /* adGroupIndex= */ 0, /* splitIndexExclusive= */ 1, adPlaybackState);
+
+    assertThat(adPlaybackState.adGroupCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(0).timeUs).isEqualTo(123_000_000);
+    assertThat(adPlaybackState.getAdGroup(0).count).isEqualTo(1);
+    assertThat(adPlaybackState.getAdGroup(0).originalCount).isEqualTo(4);
+    assertThat(adPlaybackState.getAdGroup(0).contentResumeOffsetUs).isEqualTo(10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).durationsUs).asList().containsExactly(10_000_000L);
+    assertThat(adPlaybackState.getAdGroup(0).states).asList().containsExactly(AD_STATE_PLAYED);
+    assertThat(adPlaybackState.getAdGroup(1).timeUs).isEqualTo(123_000_000 + 10_000_000);
+    assertThat(adPlaybackState.getAdGroup(1).count).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(1).originalCount).isEqualTo(3);
+    assertThat(adPlaybackState.getAdGroup(1).contentResumeOffsetUs).isEqualTo(100_000_000L);
+    assertThat(adPlaybackState.getAdGroup(1).durationsUs)
+        .asList()
+        .containsExactly(20_000_000L, 80_000_000L, 0L)
+        .inOrder();
+    assertThat(adPlaybackState.getAdGroup(1).states)
+        .asList()
+        .containsExactly(AD_STATE_AVAILABLE, AD_STATE_UNAVAILABLE, AD_STATE_UNAVAILABLE)
+        .inOrder();
   }
 }
