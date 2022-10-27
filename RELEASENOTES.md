@@ -115,6 +115,9 @@ Release notes
     *   Implement `getDeviceInfo()` to be able to identify `CastPlayer` when
         controlling playback with a `MediaController`
         ([#142](https://github.com/androidx/media/issues/142)).
+*   Transformer:
+    *   Add muxer watchdog timer to detect when generating an output sample is
+        too slow.
 *   Remove deprecated symbols:
     *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
         instead.

@@ -726,7 +726,9 @@ public final class Transformer {
     if (player != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer, muxerFactory);
+    TransformerPlayerListener playerListener = new TransformerPlayerListener(mediaItem, looper);
+    MuxerWrapper muxerWrapper =
+        new MuxerWrapper(muxer, muxerFactory, /* asyncErrorListener= */ playerListener);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
@@ -743,7 +745,6 @@ public final class Transformer {
                 DEFAULT_BUFFER_FOR_PLAYBACK_MS / 10,
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
-    TransformerPlayerListener playerListener = new TransformerPlayerListener(mediaItem, looper);
     ExoPlayer.Builder playerBuilder =
         new ExoPlayer.Builder(
                 context,

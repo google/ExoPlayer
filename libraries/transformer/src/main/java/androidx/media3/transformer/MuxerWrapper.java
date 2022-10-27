@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.maxValue;
 import static androidx.media3.common.util.Util.minValue;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
@@ -29,6 +30,10 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A wrapper around a media muxer.
@@ -47,26 +52,33 @@ import java.nio.ByteBuffer;
 
   private final Muxer muxer;
   private final Muxer.Factory muxerFactory;
+  private final Transformer.AsyncErrorListener asyncErrorListener;
   private final SparseIntArray trackTypeToIndex;
   private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
   private final SparseLongArray trackTypeToBytesWritten;
+  private final ScheduledExecutorService abortScheduledExecutorService;
 
   private int trackCount;
   private int trackFormatCount;
   private boolean isReady;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
+  private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
+  private boolean isAborted;
 
-  public MuxerWrapper(Muxer muxer, Muxer.Factory muxerFactory) {
+  public MuxerWrapper(
+      Muxer muxer, Muxer.Factory muxerFactory, Transformer.AsyncErrorListener asyncErrorListener) {
     this.muxer = muxer;
     this.muxerFactory = muxerFactory;
+    this.asyncErrorListener = asyncErrorListener;
 
     trackTypeToIndex = new SparseIntArray();
     trackTypeToSampleCount = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
     trackTypeToBytesWritten = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
+    abortScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
   }
 
   /**
@@ -131,6 +143,7 @@ import java.nio.ByteBuffer;
     trackFormatCount++;
     if (trackFormatCount == trackCount) {
       isReady = true;
+      resetAbortTimer();
     }
   }
 
@@ -168,6 +181,7 @@ import java.nio.ByteBuffer;
       trackTypeToTimeUs.put(trackType, presentationTimeUs);
     }
 
+    resetAbortTimer();
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
     return true;
@@ -195,6 +209,7 @@ import java.nio.ByteBuffer;
    */
   public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
+    abortScheduledExecutorService.shutdownNow();
     muxer.release(forCancellation);
   }
 
@@ -256,5 +271,32 @@ import java.nio.ByteBuffer;
       minTrackTimeUs = minValue(trackTypeToTimeUs);
     }
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
+  }
+
+  private void resetAbortTimer() {
+    long maxDelayBetweenSamplesMs = muxer.getMaxDelayBetweenSamplesMs();
+    if (maxDelayBetweenSamplesMs == C.TIME_UNSET) {
+      return;
+    }
+    if (abortScheduledFuture != null) {
+      abortScheduledFuture.cancel(/* mayInterruptIfRunning= */ false);
+    }
+    abortScheduledFuture =
+        abortScheduledExecutorService.schedule(
+            () -> {
+              if (isAborted) {
+                return;
+              }
+              isAborted = true;
+              asyncErrorListener.onTransformationException(
+                  TransformationException.createForMuxer(
+                      new IllegalStateException(
+                          "No output sample written in the last "
+                              + maxDelayBetweenSamplesMs
+                              + " milliseconds. Aborting transformation."),
+                      TransformationException.ERROR_CODE_MUXING_FAILED));
+            },
+            maxDelayBetweenSamplesMs,
+            MILLISECONDS);
   }
 }
