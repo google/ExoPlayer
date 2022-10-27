@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -42,6 +43,14 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.extractor.DefaultExtractorsFactory;
+import androidx.media3.extractor.Extractor;
+import androidx.media3.extractor.ExtractorInput;
+import androidx.media3.extractor.ExtractorOutput;
+import androidx.media3.extractor.ExtractorsFactory;
+import androidx.media3.extractor.PositionHolder;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
 import androidx.test.core.app.ApplicationProvider;
@@ -54,7 +63,9 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -478,6 +489,26 @@ public final class TransformerEndToEndTest {
   }
 
   @Test
+  public void startTransformation_withSlowOutputSampleRate_completesWithError() throws Exception {
+    MediaSource.Factory mediaSourceFactory =
+        new DefaultMediaSourceFactory(
+            context, new SlowExtractorsFactory(/* delayBetweenReadsMs= */ 10));
+    Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ 1);
+    Transformer transformer =
+        createTransformerBuilder(/* enableFallback= */ false)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setMuxerFactory(muxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
+    assertThat(exception.errorCode).isEqualTo(TransformationException.ERROR_CODE_MUXING_FAILED);
+  }
+
+  @Test
   public void startTransformation_withUnsetMaxDelayBetweenSamples_completesSuccessfully()
       throws Exception {
     Muxer.Factory muxerFactory = new TestMuxerFactory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
@@ -895,6 +926,75 @@ public final class TransformerEndToEndTest {
     @Override
     public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
       return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
+    }
+  }
+
+  private static final class SlowExtractorsFactory implements ExtractorsFactory {
+
+    private final long delayBetweenReadsMs;
+    private final ExtractorsFactory defaultExtractorsFactory;
+
+    public SlowExtractorsFactory(long delayBetweenReadsMs) {
+      this.delayBetweenReadsMs = delayBetweenReadsMs;
+      this.defaultExtractorsFactory = new DefaultExtractorsFactory();
+    }
+
+    @Override
+    public Extractor[] createExtractors() {
+      return slowDownExtractors(defaultExtractorsFactory.createExtractors());
+    }
+
+    @Override
+    public Extractor[] createExtractors(Uri uri, Map<String, List<String>> responseHeaders) {
+      return slowDownExtractors(defaultExtractorsFactory.createExtractors(uri, responseHeaders));
+    }
+
+    private Extractor[] slowDownExtractors(Extractor[] extractors) {
+      Extractor[] slowExtractors = new Extractor[extractors.length];
+      Arrays.setAll(slowExtractors, i -> new SlowExtractor(extractors[i], delayBetweenReadsMs));
+      return slowExtractors;
+    }
+
+    private static final class SlowExtractor implements Extractor {
+
+      private final Extractor extractor;
+      private final long delayBetweenReadsMs;
+
+      public SlowExtractor(Extractor extractor, long delayBetweenReadsMs) {
+        this.extractor = extractor;
+        this.delayBetweenReadsMs = delayBetweenReadsMs;
+      }
+
+      @Override
+      public boolean sniff(ExtractorInput input) throws IOException {
+        return extractor.sniff(input);
+      }
+
+      @Override
+      public void init(ExtractorOutput output) {
+        extractor.init(output);
+      }
+
+      @Override
+      public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
+          throws IOException {
+        try {
+          Thread.sleep(delayBetweenReadsMs);
+        } catch (InterruptedException e) {
+          throw new IllegalStateException(e);
+        }
+        return extractor.read(input, seekPosition);
+      }
+
+      @Override
+      public void seek(long position, long timeUs) {
+        extractor.seek(position, timeUs);
+      }
+
+      @Override
+      public void release() {
+        extractor.release();
+      }
     }
   }
 }
