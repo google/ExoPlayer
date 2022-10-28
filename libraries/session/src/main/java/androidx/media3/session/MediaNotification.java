@@ -128,7 +128,7 @@ public final class MediaNotification {
     /**
      * Creates a new {@link MediaNotification}.
      *
-     * @param session The media session.
+     * @param mediaSession The media session.
      * @param actionFactory The {@link ActionFactory} for creating notification {@link
      *     NotificationCompat.Action actions}.
      * @param customLayout The custom layout {@linkplain MediaSession#setCustomLayout(List) set by
@@ -138,7 +138,7 @@ public final class MediaNotification {
      *     been loaded asynchronously.
      */
     MediaNotification createNotification(
-        MediaSession session,
+        MediaSession mediaSession,
         ImmutableList<CommandButton> customLayout,
         ActionFactory actionFactory,
         Callback onNotificationChangedCallback);
