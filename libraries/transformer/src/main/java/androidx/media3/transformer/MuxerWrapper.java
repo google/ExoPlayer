@@ -195,6 +195,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void endTrack(@C.TrackType int trackType) {
     trackTypeToIndex.delete(trackType);
+    if (trackTypeToIndex.size() == 0) {
+      abortScheduledExecutorService.shutdownNow();
+    }
   }
 
   /**
