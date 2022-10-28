@@ -21,7 +21,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
 
   // Dackka snapshots are listed at https://androidx.dev/dackka/builds.
   static final String DACKKA_JAR_URL =
-      "https://androidx.dev/dackka/builds/8003564/artifacts/dackka-0.0.14.jar"
+      "https://androidx.dev/dackka/builds/9221390/artifacts/dackka-1.0.4-all.jar"
 
   @Override
   void apply(Project project) {

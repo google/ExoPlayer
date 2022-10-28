@@ -573,10 +573,10 @@ public class SampleQueue implements TrackOutput {
   // TrackOutput implementation. Called by the loading thread.
 
   @Override
-  public final void format(Format unadjustedUpstreamFormat) {
-    Format adjustedUpstreamFormat = getAdjustedUpstreamFormat(unadjustedUpstreamFormat);
+  public final void format(Format format) {
+    Format adjustedUpstreamFormat = getAdjustedUpstreamFormat(format);
     upstreamFormatAdjustmentRequired = false;
-    this.unadjustedUpstreamFormat = unadjustedUpstreamFormat;
+    unadjustedUpstreamFormat = format;
     boolean upstreamFormatChanged = setUpstreamFormat(adjustedUpstreamFormat);
     if (upstreamFormatChangeListener != null && upstreamFormatChanged) {
       upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedUpstreamFormat);
