@@ -22,6 +22,9 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        aarMetadata {
+            minCompileSdk = project.ext.compileSdkVersion
+        }
     }
 
     compileOptions {
