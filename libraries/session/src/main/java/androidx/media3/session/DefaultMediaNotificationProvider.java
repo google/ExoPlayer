@@ -577,6 +577,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
             channelId,
             context.getString(channelNameResourceId),
             NotificationManager.IMPORTANCE_LOW);
+    if (Util.SDK_INT <= 27) {
+      // API 28+ will automatically hide the app icon 'badge' for notifications using
+      // Notification.MediaStyle, but we have to manually hide it for APIs 26 (when badges were
+      // added) and 27.
+      channel.setShowBadge(false);
+    }
     notificationManager.createNotificationChannel(channel);
   }
 
