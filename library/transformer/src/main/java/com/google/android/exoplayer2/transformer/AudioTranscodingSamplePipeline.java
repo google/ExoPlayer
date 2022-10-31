@@ -21,10 +21,10 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
-import androidx.media3.common.audio.AudioProcessor;
-import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @NonNullApi
-package androidx.media3.common.audio;
+package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.util.NonNullApi;
