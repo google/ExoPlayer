@@ -39,13 +39,12 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.media3.common.audio.AudioProcessor;
-import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -102,10 +101,11 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   /**
-   * @deprecated Use {@link androidx.media3.common.audio.AudioProcessorChain}.
+   * @deprecated Use {@link com.google.android.exoplayer2.audio.AudioProcessorChain}.
    */
   @Deprecated
-  public interface AudioProcessorChain extends androidx.media3.common.audio.AudioProcessorChain {}
+  public interface AudioProcessorChain
+      extends com.google.android.exoplayer2.audio.AudioProcessorChain {}
 
   /**
    * The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
@@ -215,7 +215,7 @@ public final class DefaultAudioSink implements AudioSink {
   public static final class Builder {
 
     private AudioCapabilities audioCapabilities;
-    @Nullable private androidx.media3.common.audio.AudioProcessorChain audioProcessorChain;
+    @Nullable private com.google.android.exoplayer2.audio.AudioProcessorChain audioProcessorChain;
     private boolean enableFloatOutput;
     private boolean enableAudioTrackPlaybackParams;
     private int offloadMode;
@@ -256,15 +256,15 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     /**
-     * Sets the {@link androidx.media3.common.audio.AudioProcessorChain} to process audio before
-     * playback. The instance passed in must not be reused in other sinks. Processing chains are
-     * only supported for PCM playback (not passthrough or offload).
+     * Sets the {@link com.google.android.exoplayer2.audio.AudioProcessorChain} to process audio
+     * before playback. The instance passed in must not be reused in other sinks. Processing chains
+     * are only supported for PCM playback (not passthrough or offload).
      *
      * <p>By default, no processing will be applied.
      */
     @CanIgnoreReturnValue
     public Builder setAudioProcessorChain(
-        androidx.media3.common.audio.AudioProcessorChain audioProcessorChain) {
+        com.google.android.exoplayer2.audio.AudioProcessorChain audioProcessorChain) {
       checkNotNull(audioProcessorChain);
       this.audioProcessorChain = audioProcessorChain;
       return this;
@@ -454,7 +454,7 @@ public final class DefaultAudioSink implements AudioSink {
   private static int pendingReleaseCount;
 
   private final AudioCapabilities audioCapabilities;
-  private final androidx.media3.common.audio.AudioProcessorChain audioProcessorChain;
+  private final com.google.android.exoplayer2.audio.AudioProcessorChain audioProcessorChain;
   private final boolean enableFloatOutput;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final TrimmingAudioProcessor trimmingAudioProcessor;

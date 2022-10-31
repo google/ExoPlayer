@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.audio;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.min;
 
-import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

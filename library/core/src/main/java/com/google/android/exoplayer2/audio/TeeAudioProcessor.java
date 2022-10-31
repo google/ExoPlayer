@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.audio;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
-import androidx.media3.common.audio.AudioProcessorChain;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;

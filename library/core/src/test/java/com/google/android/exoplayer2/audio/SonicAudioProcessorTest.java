@@ -18,10 +18,10 @@ package com.google.android.exoplayer2.audio;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import androidx.media3.common.audio.AudioProcessor.AudioFormat;
-import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
+import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
