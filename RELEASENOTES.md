@@ -26,6 +26,8 @@ Release notes
     *   Send missing `onMediaItemTransition` callback when calling `seekToNext`
         or `seekToPrevious` in a single-item playlist
         ([#10667](https://github.com/google/ExoPlayer/issues/10667)).
+    *   Enforce minimum `compileSdkVersion` to avoid compilation errors
+        ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
