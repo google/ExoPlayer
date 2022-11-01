@@ -16,9 +16,13 @@
 package androidx.media3.test.session.common;
 
 import static android.content.Context.KEYGUARD_SERVICE;
+import static java.lang.Math.min;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.WindowManager;
@@ -28,6 +32,9 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 /** Provides utility methods for testing purpose. */
@@ -39,6 +46,9 @@ public class TestUtils {
   public static final long SERVICE_CONNECTION_TIMEOUT_MS = 3_000;
   public static final long VOLUME_CHANGE_TIMEOUT_MS = 5_000;
   public static final long LONG_TIMEOUT_MS = 20_000;
+
+  private static final int MAX_BITMAP_WIDTH = 500;
+  private static final int MAX_BITMAP_HEIGHT = 500;
 
   /**
    * Compares contents of two throwables for both message and class.
@@ -141,6 +151,33 @@ public class TestUtils {
       list.add(events.get(i));
     }
     return list.build();
+  }
+
+  /** Returns the bytes of a scaled asset file. */
+  public static byte[] getByteArrayForScaledBitmap(Context context, String fileName)
+      throws IOException {
+    Bitmap bitmap = getBitmap(context, fileName);
+    int width = min(bitmap.getWidth(), MAX_BITMAP_WIDTH);
+    int height = min(bitmap.getHeight(), MAX_BITMAP_HEIGHT);
+    return convertToByteArray(Bitmap.createScaledBitmap(bitmap, width, height, true));
+  }
+
+  /** Returns an {@link InputStream} for reading from an asset file. */
+  public static InputStream getInputStream(Context context, String fileName) throws IOException {
+    return context.getResources().getAssets().open(fileName);
+  }
+
+  /** Returns a {@link Bitmap} read from an asset file. */
+  public static Bitmap getBitmap(Context context, String fileName) throws IOException {
+    return BitmapFactory.decodeStream(getInputStream(context, fileName));
+  }
+
+  /** Converts the given {@link Bitmap} to an array of bytes. */
+  public static byte[] convertToByteArray(Bitmap bitmap) throws IOException {
+    try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+      bitmap.compress(Bitmap.CompressFormat.PNG, /* ignored */ 0, stream);
+      return stream.toByteArray();
+    }
   }
 
   private TestUtils() {}

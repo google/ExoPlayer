@@ -23,6 +23,7 @@ import static androidx.media3.test.session.common.CommonConstants.METADATA_TITLE
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.fail;
 
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
@@ -38,6 +39,8 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.TestUtils;
+import androidx.test.core.app.ApplicationProvider;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +49,8 @@ import java.util.List;
 public final class MediaTestUtils {
 
   private static final String TAG = "MediaTestUtils";
+
+  private static final String TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
 
   /** Create a media item with the mediaId for testing purpose. */
   public static MediaItem createMediaItem(String mediaId) {
@@ -57,10 +62,35 @@ public final class MediaTestUtils {
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
   }
 
+  public static MediaItem createMediaItemWithArtworkData(String mediaId) {
+    MediaMetadata.Builder mediaMetadataBuilder =
+        new MediaMetadata.Builder()
+            .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
+            .setIsPlayable(true);
+    try {
+      byte[] artworkData =
+          TestUtils.getByteArrayForScaledBitmap(
+              ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+      mediaMetadataBuilder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER);
+    } catch (IOException e) {
+      fail(e.getMessage());
+    }
+    MediaMetadata mediaMetadata = mediaMetadataBuilder.build();
+    return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
+  }
+
   public static ArrayList<MediaItem> createMediaItems(int size) {
     ArrayList<MediaItem> list = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       list.add(createMediaItem("mediaItem_" + (i + 1)));
+    }
+    return list;
+  }
+
+  public static ArrayList<MediaItem> createMediaItemsWithArtworkData(int size) {
+    ArrayList<MediaItem> list = new ArrayList<>();
+    for (int i = 0; i < size; i++) {
+      list.add(createMediaItemWithArtworkData("mediaItem_" + (i + 1)));
     }
     return list;
   }

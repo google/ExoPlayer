@@ -44,6 +44,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -114,8 +115,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
+  private final Handler mainHandler;
 
   private volatile long connectionTimeoutMs;
+  @Nullable private FutureCallback<Bitmap> pendingBitmapLoadCallback;
 
   public MediaSessionLegacyStub(
       MediaSessionImpl session,
@@ -156,6 +159,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     @Initialized
     MediaSessionLegacyStub thisRef = this;
     sessionCompat.setCallback(thisRef, handler);
+    mainHandler = new Handler(Looper.getMainLooper());
   }
 
   /** Starts to receive commands. */
@@ -1110,11 +1114,52 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       currentMediaItemForMetadataUpdate = currentMediaItem;
       durationMsForMetadataUpdate = durationMs;
 
+      if (currentMediaItem == null) {
+        setMetadata(sessionCompat, /* metadataCompat= */ null);
+        return;
+      }
+
+      @Nullable Bitmap artworkBitmap = null;
+      ListenableFuture<Bitmap> bitmapFuture =
+          sessionImpl.getBitmapLoader().loadBitmapFromMetadata(currentMediaItem.mediaMetadata);
+      if (bitmapFuture != null) {
+        pendingBitmapLoadCallback = null;
+        if (bitmapFuture.isDone()) {
+          try {
+            artworkBitmap = Futures.getDone(bitmapFuture);
+          } catch (ExecutionException e) {
+            Log.w(TAG, "Failed to load bitmap", e);
+          }
+        } else {
+          pendingBitmapLoadCallback =
+              new FutureCallback<Bitmap>() {
+                @Override
+                public void onSuccess(Bitmap result) {
+                  if (this != pendingBitmapLoadCallback) {
+                    return;
+                  }
+                  setMetadata(
+                      sessionCompat,
+                      MediaUtils.convertToMediaMetadataCompat(
+                          currentMediaItem, durationMs, result));
+                  sessionImpl.onNotificationRefreshRequired();
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                  if (this != pendingBitmapLoadCallback) {
+                    return;
+                  }
+                  Log.d(TAG, "Failed to load bitmap", t);
+                }
+              };
+          Futures.addCallback(
+              bitmapFuture, pendingBitmapLoadCallback, /* executor= */ mainHandler::post);
+        }
+      }
       setMetadata(
           sessionCompat,
-          currentMediaItem != null
-              ? MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs)
-              : null);
+          MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs, artworkBitmap));
     }
   }
 

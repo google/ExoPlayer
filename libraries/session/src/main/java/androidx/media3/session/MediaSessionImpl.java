@@ -119,6 +119,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final BitmapLoader bitmapLoader;
 
   @Nullable private PlayerListener playerListener;
+  @Nullable private MediaSession.Listener mediaSessionListener;
 
   private PlayerInfo playerInfo;
   private PlayerWrapper playerWrapper;
@@ -570,6 +571,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   protected MediaSessionServiceLegacyStub getLegacyBrowserService() {
     synchronized (lock) {
       return browserServiceLegacyStub;
+    }
+  }
+
+  /* package */ void setMediaSessionListener(@Nullable MediaSession.Listener listener) {
+    this.mediaSessionListener = listener;
+  }
+
+  /* package */ void onNotificationRefreshRequired() {
+    if (this.mediaSessionListener != null) {
+      this.mediaSessionListener.onNotificationRefreshRequired(instance);
     }
   }
 

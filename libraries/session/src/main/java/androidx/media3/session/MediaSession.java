@@ -859,6 +859,11 @@ public class MediaSession {
     impl.setSessionPositionUpdateDelayMsOnHandler(updateDelayMs);
   }
 
+  /** Sets the {@linkplain Listener listener}. */
+  /* package */ void setListener(@Nullable Listener listener) {
+    impl.setMediaSessionListener(listener);
+  }
+
   private Uri getUri() {
     return impl.getUri();
   }
@@ -1238,6 +1243,17 @@ public class MediaSession {
         throws RemoteException {}
 
     default void onRenderedFirstFrame(int seq) throws RemoteException {}
+  }
+
+  /** Listener for media session events */
+  /* package */ interface Listener {
+
+    /**
+     * Called when the notification requires to be refreshed.
+     *
+     * @param session The media session for which the notification requires to be refreshed.
+     */
+    void onNotificationRefreshRequired(MediaSession session);
   }
 
   /**

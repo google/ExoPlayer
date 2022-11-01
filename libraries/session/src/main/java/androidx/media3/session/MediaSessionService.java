@@ -239,6 +239,7 @@ public abstract class MediaSessionService extends Service {
       // TODO(b/191644474): Check whether the session is registered to multiple services.
       MediaNotificationManager notificationManager = getMediaNotificationManager();
       postOrRun(mainHandler, () -> notificationManager.addSession(session));
+      session.setListener(this::onUpdateNotification);
     }
   }
 
@@ -258,6 +259,7 @@ public abstract class MediaSessionService extends Service {
     }
     MediaNotificationManager notificationManager = getMediaNotificationManager();
     postOrRun(mainHandler, () -> notificationManager.removeSession(session));
+    session.setListener(null);
   }
 
   /**

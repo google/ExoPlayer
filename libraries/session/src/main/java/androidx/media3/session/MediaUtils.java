@@ -525,7 +525,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Converts a {@link MediaItem} to a {@link MediaMetadataCompat}. */
   public static MediaMetadataCompat convertToMediaMetadataCompat(
-      MediaItem mediaItem, long durationMs) {
+      MediaItem mediaItem, long durationMs, @Nullable Bitmap artworkBitmap) {
     MediaMetadataCompat.Builder builder =
         new MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaItem.mediaId);
@@ -574,11 +574,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, metadata.artworkUri.toString());
     }
 
-    if (metadata.artworkData != null) {
-      Bitmap artwork =
-          BitmapFactory.decodeByteArray(metadata.artworkData, 0, metadata.artworkData.length);
-      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, artwork);
-      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artwork);
+    if (artworkBitmap != null) {
+      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, artworkBitmap);
+      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artworkBitmap);
     }
 
     if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
