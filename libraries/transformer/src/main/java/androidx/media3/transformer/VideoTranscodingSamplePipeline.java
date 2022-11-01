@@ -293,8 +293,8 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   private static boolean deviceNeedsNoToneMappingWorkaround() {
-    // Pixel build ID does not support tone mapping. See http://b/249297370#comment8.
-    return Build.ID.startsWith("TP1A.220905.004");
+    // Pixel build ID prefix does not support tone mapping. See http://b/249297370#comment8.
+    return Util.MANUFACTURER.equals("Google") && Build.ID.startsWith("TP1A");
   }
 
   /**
