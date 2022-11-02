@@ -147,7 +147,7 @@ public class SingleColorLut implements ColorLut {
   }
 
   @Override
-  public ColorLutProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     checkState(!useHdr, "HDR is currently not supported.");
 

@@ -42,7 +42,7 @@ public interface ColorLut extends GlEffect {
   /** This method must be executed on the same thread as other GL commands. */
   @Override
   @WorkerThread
-  default ColorLutProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     return new ColorLutProcessor(context, /* colorLut= */ this, useHdr);
   }

@@ -38,7 +38,7 @@ public interface RgbMatrix extends GlEffect {
   float[] getMatrix(long presentationTimeUs, boolean useHdr);
 
   @Override
-  default MatrixTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     return MatrixTextureProcessor.create(
         context,

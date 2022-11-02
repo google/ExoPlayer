@@ -89,7 +89,7 @@ public class RgbFilter implements RgbMatrix {
   }
 
   @Override
-  public MatrixTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
+  public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
       throws FrameProcessingException {
     checkForConsistentHdrSetting(useHdr);
     return RgbMatrix.super.toGlTextureProcessor(context, useHdr);
