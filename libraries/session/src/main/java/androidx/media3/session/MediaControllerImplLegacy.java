@@ -15,29 +15,10 @@
  */
 package androidx.media3.session;
 
-import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
-import static androidx.media3.common.Player.DISCONTINUITY_REASON_SEEK;
-import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
-import static androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION;
-import static androidx.media3.common.Player.EVENT_MEDIA_METADATA_CHANGED;
-import static androidx.media3.common.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
-import static androidx.media3.common.Player.EVENT_PLAYBACK_STATE_CHANGED;
-import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
-import static androidx.media3.common.Player.EVENT_PLAY_WHEN_READY_CHANGED;
-import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
-import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_SEEK;
-import static androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE;
-import static androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
-import static androidx.media3.common.Player.STATE_IDLE;
-import static androidx.media3.common.Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.session.MediaConstants.ARGUMENT_CAPTIONING_ENABLED;
-import static androidx.media3.session.MediaConstants.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED;
-import static androidx.media3.session.MediaUtils.POSITION_DIFF_TOLERANCE_MS;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
-import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -73,13 +54,9 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.Commands;
-import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.Events;
 import androidx.media3.common.Player.Listener;
-import androidx.media3.common.Player.MediaItemTransitionReason;
 import androidx.media3.common.Player.PositionInfo;
-import androidx.media3.common.Player.RepeatMode;
-import androidx.media3.common.Player.State;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
@@ -171,7 +148,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void stop() {
-    if (controllerInfo.playerInfo.playbackState == STATE_IDLE) {
+    if (controllerInfo.playerInfo.playbackState == Player.STATE_IDLE) {
       return;
     }
     PlayerInfo maskedPlayerInfo =
@@ -189,10 +166,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                     controllerInfo.playerInfo.sessionPositionInfo.positionInfo.positionMs,
                     controllerInfo.playerInfo.sessionPositionInfo.durationMs),
                 /* totalBufferedDurationMs= */ 0));
-    if (controllerInfo.playerInfo.playbackState != STATE_IDLE) {
+    if (controllerInfo.playerInfo.playbackState != Player.STATE_IDLE) {
       maskedPlayerInfo =
           maskedPlayerInfo.copyWithPlaybackState(
-              STATE_IDLE, /* playerError= */ controllerInfo.playerInfo.playerError);
+              Player.STATE_IDLE, /* playerError= */ controllerInfo.playerInfo.playerError);
     }
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -248,8 +225,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         new ControllerInfo(
             controllerInfo.playerInfo.copyWithPlayWhenReady(
                 /* playWhenReady= */ true,
-                PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-                PLAYBACK_SUPPRESSION_REASON_NONE),
+                Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+                Player.PLAYBACK_SUPPRESSION_REASON_NONE),
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
             controllerInfo.customLayout);
@@ -272,8 +249,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         new ControllerInfo(
             controllerInfo.playerInfo.copyWithPlayWhenReady(
                 /* playWhenReady= */ false,
-                PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-                PLAYBACK_SUPPRESSION_REASON_NONE),
+                Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+                Player.PLAYBACK_SUPPRESSION_REASON_NONE),
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
             controllerInfo.customLayout);
@@ -289,7 +266,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void prepare() {
-    if (controllerInfo.playerInfo.playbackState != STATE_IDLE) {
+    if (controllerInfo.playerInfo.playbackState != Player.STATE_IDLE) {
       return;
     }
     ControllerInfo maskedControllerInfo =
@@ -344,7 +321,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     int newMediaItemIndex = currentMediaItemIndex;
     @Nullable
-    @MediaItemTransitionReason
+    @Player.MediaItemTransitionReason
     Integer mediaItemTransitionReason = null;
     if (mediaItemIndex != currentMediaItemIndex) {
       QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
@@ -352,7 +329,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       if (queueId != QueueItem.UNKNOWN_ID) {
         controllerCompat.getTransportControls().skipToQueueItem(queueId);
         newMediaItemIndex = mediaItemIndex;
-        mediaItemTransitionReason = MEDIA_ITEM_TRANSITION_REASON_SEEK;
+        mediaItemTransitionReason = Player.MEDIA_ITEM_TRANSITION_REASON_SEEK;
       } else {
         Log.w(
             TAG,
@@ -362,7 +339,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
     @Nullable
-    @DiscontinuityReason
+    @Player.DiscontinuityReason
     Integer discontinuityReason;
     long currentPositionMs = getCurrentPosition();
     long newPositionMs;
@@ -372,7 +349,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else {
       controllerCompat.getTransportControls().seekTo(positionMs);
       newPositionMs = positionMs;
-      discontinuityReason = DISCONTINUITY_REASON_SEEK;
+      discontinuityReason = Player.DISCONTINUITY_REASON_SEEK;
     }
 
     long newDurationMs;
@@ -540,17 +517,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public ListenableFuture<SessionResult> setRating(String mediaId, Rating rating) {
     @Nullable
     String currentMediaItemMediaId =
-        legacyPlayerInfo.mediaMetadataCompat.getString(METADATA_KEY_MEDIA_ID);
+        legacyPlayerInfo.mediaMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
     if (mediaId.equals(currentMediaItemMediaId)) {
       controllerCompat.getTransportControls().setRating(MediaUtils.convertToRatingCompat(rating));
     }
-    return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+    return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
   }
 
   @Override
   public ListenableFuture<SessionResult> setRating(Rating rating) {
     controllerCompat.getTransportControls().setRating(MediaUtils.convertToRatingCompat(rating));
-    return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+    return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
   }
 
   @Override
@@ -595,7 +572,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public ListenableFuture<SessionResult> sendCustomCommand(SessionCommand command, Bundle args) {
     if (controllerInfo.availableSessionCommands.contains(command)) {
       controllerCompat.getTransportControls().sendCustomAction(command.customAction, args);
-      return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+      return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
     }
     SettableFuture<SessionResult> result = SettableFuture.create();
     ResultReceiver cb =
@@ -926,14 +903,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
-  @RepeatMode
+  @Player.RepeatMode
   public int getRepeatMode() {
     return controllerInfo.playerInfo.repeatMode;
   }
 
   @Override
-  public void setRepeatMode(@RepeatMode int repeatMode) {
-    @RepeatMode int currentRepeatMode = getRepeatMode();
+  public void setRepeatMode(@Player.RepeatMode int repeatMode) {
+    @Player.RepeatMode int currentRepeatMode = getRepeatMode();
     if (repeatMode != currentRepeatMode) {
       ControllerInfo maskedControllerInfo =
           new ControllerInfo(
@@ -1168,11 +1145,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Player.PlaybackSuppressionReason
   public int getPlaybackSuppressionReason() {
     // Not supported.
-    return PLAYBACK_SUPPRESSION_REASON_NONE;
+    return Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   @Override
-  @State
+  @Player.State
   public int getPlaybackState() {
     return controllerInfo.playerInfo.playbackState;
   }
@@ -1286,7 +1263,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private boolean isPrepared() {
-    return controllerInfo.playerInfo.playbackState != STATE_IDLE;
+    return controllerInfo.playerInfo.playbackState != Player.STATE_IDLE;
   }
 
   private boolean hasMedia() {
@@ -1444,10 +1421,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     if (!oldControllerInfo.playerInfo.timeline.equals(newControllerInfo.playerInfo.timeline)) {
       listeners.queueEvent(
-          EVENT_TIMELINE_CHANGED,
+          Player.EVENT_TIMELINE_CHANGED,
           (listener) ->
               listener.onTimelineChanged(
-                  newControllerInfo.playerInfo.timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+                  newControllerInfo.playerInfo.timeline,
+                  Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
     }
     if (!Util.areEqual(oldLegacyPlayerInfo.queueTitle, newLegacyPlayerInfo.queueTitle)) {
       // TODO(b/187152483): Set proper event code when available.
@@ -1467,7 +1445,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     if (mediaItemTransitionReason != null) {
       listeners.queueEvent(
-          EVENT_MEDIA_ITEM_TRANSITION,
+          Player.EVENT_MEDIA_ITEM_TRANSITION,
           (listener) ->
               listener.onMediaItemTransition(
                   newControllerInfo.playerInfo.getCurrentMediaItem(), mediaItemTransitionReason));
@@ -1476,25 +1454,27 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         oldLegacyPlayerInfo.playbackStateCompat, newLegacyPlayerInfo.playbackStateCompat)) {
       PlaybackException error =
           MediaUtils.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
-      listeners.queueEvent(EVENT_PLAYER_ERROR, (listener) -> listener.onPlayerErrorChanged(error));
+      listeners.queueEvent(
+          Player.EVENT_PLAYER_ERROR, (listener) -> listener.onPlayerErrorChanged(error));
       if (error != null) {
-        listeners.queueEvent(EVENT_PLAYER_ERROR, (listener) -> listener.onPlayerError(error));
+        listeners.queueEvent(
+            Player.EVENT_PLAYER_ERROR, (listener) -> listener.onPlayerError(error));
       }
     }
     if (oldLegacyPlayerInfo.mediaMetadataCompat != newLegacyPlayerInfo.mediaMetadataCompat) {
       listeners.queueEvent(
-          EVENT_MEDIA_METADATA_CHANGED,
+          Player.EVENT_MEDIA_METADATA_CHANGED,
           (listener) -> listener.onMediaMetadataChanged(controllerInfo.playerInfo.mediaMetadata));
     }
     if (oldControllerInfo.playerInfo.playbackState != newControllerInfo.playerInfo.playbackState) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_STATE_CHANGED,
+          Player.EVENT_PLAYBACK_STATE_CHANGED,
           (listener) ->
               listener.onPlaybackStateChanged(newControllerInfo.playerInfo.playbackState));
     }
     if (oldControllerInfo.playerInfo.playWhenReady != newControllerInfo.playerInfo.playWhenReady) {
       listeners.queueEvent(
-          EVENT_PLAY_WHEN_READY_CHANGED,
+          Player.EVENT_PLAY_WHEN_READY_CHANGED,
           (listener) ->
               listener.onPlayWhenReadyChanged(
                   newControllerInfo.playerInfo.playWhenReady,
@@ -1502,13 +1482,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     if (oldControllerInfo.playerInfo.isPlaying != newControllerInfo.playerInfo.isPlaying) {
       listeners.queueEvent(
-          EVENT_IS_PLAYING_CHANGED,
+          Player.EVENT_IS_PLAYING_CHANGED,
           (listener) -> listener.onIsPlayingChanged(newControllerInfo.playerInfo.isPlaying));
     }
     if (!oldControllerInfo.playerInfo.playbackParameters.equals(
         newControllerInfo.playerInfo.playbackParameters)) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           (listener) ->
               listener.onPlaybackParametersChanged(
                   newControllerInfo.playerInfo.playbackParameters));
@@ -1705,12 +1685,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           .notifyControllerListener(
               listener -> {
                 Bundle args = new Bundle();
-                args.putBoolean(ARGUMENT_CAPTIONING_ENABLED, enabled);
+                args.putBoolean(MediaConstants.ARGUMENT_CAPTIONING_ENABLED, enabled);
                 ignoreFuture(
                     listener.onCustomCommand(
                         getInstance(),
                         new SessionCommand(
-                            SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED,
+                            MediaConstants.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED,
                             /* extras= */ Bundle.EMPTY),
                         args));
               });
@@ -1754,7 +1734,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     MediaMetadata mediaMetadata;
     int currentMediaItemIndex;
     MediaMetadata playlistMetadata;
-    @RepeatMode int repeatMode;
+    @Player.RepeatMode int repeatMode;
     boolean shuffleModeEnabled;
     SessionCommands availableSessionCommands;
     Commands availablePlayerCommands;
@@ -1883,7 +1863,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         MediaUtils.convertToAudioAttributes(newLegacyPlayerInfo.playbackInfoCompat);
     boolean playWhenReady =
         MediaUtils.convertToPlayWhenReady(newLegacyPlayerInfo.playbackStateCompat);
-    @State
+    @Player.State
     int playbackState =
         MediaUtils.convertToPlaybackState(
             newLegacyPlayerInfo.playbackStateCompat,
@@ -1982,7 +1962,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           // If the position is reset, then it's probably repeating the same media item.
           discontinuityReason = Player.DISCONTINUITY_REASON_AUTO_TRANSITION;
           mediaItemTransitionReason = Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT;
-        } else if (Math.abs(oldCurrentPosition - newCurrentPosition) > POSITION_DIFF_TOLERANCE_MS) {
+        } else if (Math.abs(oldCurrentPosition - newCurrentPosition)
+            > MediaUtils.POSITION_DIFF_TOLERANCE_MS) {
           // Unexpected position discontinuity within the same media item.
           discontinuityReason = Player.DISCONTINUITY_REASON_INTERNAL;
           mediaItemTransitionReason = null;
@@ -2069,7 +2050,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       MediaMetadata mediaMetadata,
       int currentMediaItemIndex,
       MediaMetadata playlistMetadata,
-      @RepeatMode int repeatMode,
+      @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
       SessionCommands availableSessionCommands,
       Commands availablePlayerCommands,
