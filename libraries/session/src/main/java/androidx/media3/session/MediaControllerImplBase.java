@@ -75,6 +75,7 @@ import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaController.MediaControllerImpl;
 import com.google.common.collect.ImmutableList;
@@ -122,8 +123,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Nullable private Surface videoSurface;
   @Nullable private SurfaceHolder videoSurfaceHolder;
   @Nullable private TextureView videoTextureView;
-  private int surfaceWidth;
-  private int surfaceHeight;
+  private Size surfaceSize;
   @Nullable private IMediaSession iSession;
   private long lastReturnedContentPositionMs;
   private long lastSetPlayWhenReadyCalledTimeMs;
@@ -136,6 +136,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       Looper applicationLooper) {
     // Initialize default values.
     playerInfo = PlayerInfo.DEFAULT;
+    surfaceSize = Size.UNKNOWN;
     sessionCommands = SessionCommands.EMPTY;
     playerCommandsFromSession = Commands.EMPTY;
     playerCommandsFromPlayer = Commands.EMPTY;
@@ -1567,6 +1568,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public Size getVideoSurfaceSize() {
+    return surfaceSize;
+  }
+
+  @Override
   public void clearVideoSurface() {
     if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
@@ -2189,9 +2195,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void maybeNotifySurfaceSizeChanged(int width, int height) {
-    if (surfaceWidth != width || surfaceHeight != height) {
-      surfaceWidth = width;
-      surfaceHeight = height;
+    if (surfaceSize.getWidth() != width || surfaceSize.getHeight() != height) {
+      surfaceSize = new Size(width, height);
       listeners.sendEvent(
           /* eventFlag= */ Player.EVENT_SURFACE_SIZE_CHANGED,
           listener -> listener.onSurfaceSizeChanged(width, height));

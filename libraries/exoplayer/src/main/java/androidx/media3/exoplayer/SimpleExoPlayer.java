@@ -44,6 +44,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
@@ -526,6 +527,12 @@ public class SimpleExoPlayer extends BasePlayer
   public VideoSize getVideoSize() {
     blockUntilConstructorFinished();
     return player.getVideoSize();
+  }
+
+  @Override
+  public Size getVideoSurfaceSize() {
+    blockUntilConstructorFinished();
+    return player.getVideoSurfaceSize();
   }
 
   @Override

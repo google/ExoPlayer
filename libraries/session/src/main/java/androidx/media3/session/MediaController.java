@@ -54,6 +54,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.util.concurrent.Futures;
@@ -1498,6 +1499,13 @@ public class MediaController implements Player {
     return isConnected() ? impl.getVideoSize() : VideoSize.UNKNOWN;
   }
 
+  @UnstableApi
+  @Override
+  public Size getVideoSurfaceSize() {
+    verifyApplicationThread();
+    return isConnected() ? impl.getVideoSurfaceSize() : Size.UNKNOWN;
+  }
+
   @Override
   public void clearVideoSurface() {
     verifyApplicationThread();
@@ -1967,6 +1975,8 @@ public class MediaController implements Player {
     void setShuffleModeEnabled(boolean shuffleModeEnabled);
 
     VideoSize getVideoSize();
+
+    Size getVideoSurfaceSize();
 
     void clearVideoSurface();
 
