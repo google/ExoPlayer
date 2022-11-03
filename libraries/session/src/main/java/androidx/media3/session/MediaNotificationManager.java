@@ -294,7 +294,8 @@ import java.util.concurrent.TimeoutException;
       if (events.containsAny(
           Player.EVENT_PLAYBACK_STATE_CHANGED,
           Player.EVENT_PLAY_WHEN_READY_CHANGED,
-          Player.EVENT_MEDIA_METADATA_CHANGED)) {
+          Player.EVENT_MEDIA_METADATA_CHANGED,
+          Player.EVENT_TIMELINE_CHANGED)) {
         mediaSessionService.onUpdateNotification(session);
       }
     }
