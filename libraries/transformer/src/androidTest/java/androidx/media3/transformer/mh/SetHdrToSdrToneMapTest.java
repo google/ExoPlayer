@@ -35,7 +35,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test for applying an HDR to SDR tone mapping edit. */
+/**
+ * {@link Transformer} instrumentation test for applying an {@linkplain
+ * TransformationRequest.Builder#setEnableRequestSdrToneMapping HDR to SDR tone mapping edit}.
+ */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrToSdrToneMapTest {
   public static final String TAG = "SetHdrToSdrToneMapTest";
