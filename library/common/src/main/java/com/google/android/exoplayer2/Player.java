@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
@@ -2470,6 +2471,13 @@ public interface Player {
    * @see Listener#onVideoSizeChanged(VideoSize)
    */
   VideoSize getVideoSize();
+
+  /**
+   * Gets the size of the surface on which the video is rendered.
+   *
+   * @see Listener#onSurfaceSizeChanged(int, int)
+   */
+  Size getVideoSurfaceSize();
 
   /** Returns the current {@link CueGroup}. */
   CueGroup getCurrentCues();

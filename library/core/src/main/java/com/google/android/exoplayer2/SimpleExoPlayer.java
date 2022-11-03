@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -515,6 +516,12 @@ public class SimpleExoPlayer extends BasePlayer
   public VideoSize getVideoSize() {
     blockUntilConstructorFinished();
     return player.getVideoSize();
+  }
+
+  @Override
+  public Size getVideoSurfaceSize() {
+    blockUntilConstructorFinished();
+    return player.getVideoSurfaceSize();
   }
 
   @Override

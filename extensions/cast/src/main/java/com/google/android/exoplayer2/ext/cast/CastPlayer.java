@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -723,6 +724,12 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public VideoSize getVideoSize() {
     return VideoSize.UNKNOWN;
+  }
+
+  /** This method is not supported and returns {@link Size#UNKNOWN}. */
+  @Override
+  public Size getVideoSurfaceSize() {
+    return Size.UNKNOWN;
   }
 
   /** This method is not supported and returns an empty {@link CueGroup}. */

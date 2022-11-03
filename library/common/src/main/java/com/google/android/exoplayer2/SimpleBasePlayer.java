@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Supplier;
@@ -586,6 +587,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final VideoSize getVideoSize() {
+    // TODO: implement.
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public final Size getVideoSurfaceSize() {
     // TODO: implement.
     throw new IllegalStateException();
   }
