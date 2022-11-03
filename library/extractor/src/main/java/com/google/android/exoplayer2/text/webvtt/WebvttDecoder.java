@@ -51,9 +51,9 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length, boolean reset)
+  protected Subtitle decode(byte[] data, int length, boolean reset)
       throws SubtitleDecoderException {
-    parsableWebvttData.reset(bytes, length);
+    parsableWebvttData.reset(data, length);
     List<WebvttCssStyle> definedStyles = new ArrayList<>();
 
     // Validate the first line of the header, and skip the remainder.
