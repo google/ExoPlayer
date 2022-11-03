@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.graphics.Rect;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -40,6 +41,7 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -230,6 +232,7 @@ public class MockPlayer implements Player {
   public @RepeatMode int repeatMode;
   public boolean shuffleModeEnabled;
   public VideoSize videoSize;
+  public Size surfaceSize;
   @Nullable public Surface surface;
   @Nullable public SurfaceHolder surfaceHolder;
   @Nullable public SurfaceView surfaceView;
@@ -277,6 +280,7 @@ public class MockPlayer implements Player {
     currentMediaItemIndex = 0;
     repeatMode = Player.REPEAT_MODE_OFF;
     videoSize = VideoSize.UNKNOWN;
+    surfaceSize = Size.UNKNOWN;
     volume = 1.0f;
     cueGroup = CueGroup.EMPTY_TIME_ZERO;
     deviceInfo = DeviceInfo.UNKNOWN;
@@ -1121,6 +1125,11 @@ public class MockPlayer implements Player {
     return videoSize;
   }
 
+  @Override
+  public Size getVideoSurfaceSize() {
+    return surfaceSize;
+  }
+
   public void notifyVideoSizeChanged(VideoSize videoSize) {
     for (Listener listener : listeners) {
       listener.onVideoSizeChanged(videoSize);
@@ -1136,47 +1145,70 @@ public class MockPlayer implements Player {
   public void clearVideoSurface(@Nullable Surface surface) {
     if (surface != null && surface == this.surface) {
       this.surface = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
   @Override
   public void setVideoSurface(@Nullable Surface surface) {
     this.surface = surface;
+    int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
+    maybeUpdateSurfaceSize(/* width= */ newSurfaceSize, /* height= */ newSurfaceSize);
   }
 
   @Override
   public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
     this.surfaceHolder = surfaceHolder;
+    if (surfaceHolder == null || surfaceHolder.getSurfaceFrame() == null) {
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
+    } else {
+      Rect rect = surfaceHolder.getSurfaceFrame();
+      maybeUpdateSurfaceSize(rect.width(), rect.height());
+    }
   }
 
   @Override
   public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
     if (surfaceHolder != null && surfaceHolder == this.surfaceHolder) {
       this.surfaceHolder = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
   @Override
   public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     this.surfaceView = surfaceView;
+    if (surfaceView == null
+        || surfaceView.getHolder() == null
+        || surfaceView.getHolder().getSurfaceFrame() == null) {
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
+    } else {
+      Rect rect = surfaceView.getHolder().getSurfaceFrame();
+      maybeUpdateSurfaceSize(rect.width(), rect.height());
+    }
   }
 
   @Override
   public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     if (surfaceView != null && surfaceView == this.surfaceView) {
       this.surfaceView = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
   @Override
   public void setVideoTextureView(@Nullable TextureView textureView) {
     this.textureView = textureView;
+    if (textureView != null) {
+      maybeUpdateSurfaceSize(textureView.getWidth(), textureView.getHeight());
+    }
   }
 
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {
     if (textureView != null && textureView == this.textureView) {
       this.textureView = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
@@ -1275,6 +1307,12 @@ public class MockPlayer implements Player {
     if (!checkNotNull(conditionVariables.get(method)).block(timeOutMs)) {
       throw new TimeoutException(
           Util.formatInvariant("Method %d not called after %d ms", method, timeOutMs));
+    }
+  }
+
+  private void maybeUpdateSurfaceSize(int width, int height) {
+    if (width != surfaceSize.getWidth() || height != surfaceSize.getHeight()) {
+      surfaceSize = new Size(width, height);
     }
   }
 

@@ -82,6 +82,7 @@ import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.PlayerMessage.Target;
 import androidx.media3.exoplayer.Renderer.MessageType;
@@ -192,8 +193,7 @@ import java.util.concurrent.TimeoutException;
   @Nullable private TextureView textureView;
   private @C.VideoScalingMode int videoScalingMode;
   private @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy;
-  private int surfaceWidth;
-  private int surfaceHeight;
+  private Size surfaceSize;
   @Nullable private DecoderCounters videoDecoderCounters;
   @Nullable private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
@@ -382,6 +382,7 @@ import java.util.concurrent.TimeoutException;
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
+      surfaceSize = Size.UNKNOWN;
 
       trackSelector.setAudioAttributes(audioAttributes);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
@@ -1227,6 +1228,12 @@ import java.util.concurrent.TimeoutException;
   public VideoSize getVideoSize() {
     verifyApplicationThread();
     return videoSize;
+  }
+
+  @Override
+  public Size getVideoSurfaceSize() {
+    verifyApplicationThread();
+    return surfaceSize;
   }
 
   @Override
@@ -2545,9 +2552,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   private void maybeNotifySurfaceSizeChanged(int width, int height) {
-    if (width != surfaceWidth || height != surfaceHeight) {
-      surfaceWidth = width;
-      surfaceHeight = height;
+    if (width != surfaceSize.getWidth() || height != surfaceSize.getHeight()) {
+      surfaceSize = new Size(width, height);
       listeners.sendEvent(
           EVENT_SURFACE_SIZE_CHANGED, listener -> listener.onSurfaceSizeChanged(width, height));
     }

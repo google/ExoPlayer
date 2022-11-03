@@ -33,6 +33,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.CueGroup;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
@@ -2511,6 +2512,14 @@ public interface Player {
    * @see Listener#onVideoSizeChanged(VideoSize)
    */
   VideoSize getVideoSize();
+
+  /**
+   * Gets the size of the surface on which the video is rendered.
+   *
+   * @see Listener#onSurfaceSizeChanged(int, int)
+   */
+  @UnstableApi
+  Size getVideoSurfaceSize();
 
   /** Returns the current {@link CueGroup}. */
   CueGroup getCurrentCues();

@@ -47,6 +47,7 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -725,6 +726,12 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public VideoSize getVideoSize() {
     return VideoSize.UNKNOWN;
+  }
+
+  /** This method is not supported and returns {@link Size#UNKNOWN}. */
+  @Override
+  public Size getVideoSurfaceSize() {
+    return Size.UNKNOWN;
   }
 
   /** This method is not supported and returns an empty {@link CueGroup}. */

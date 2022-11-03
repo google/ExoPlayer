@@ -28,6 +28,7 @@ import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Supplier;
@@ -585,6 +586,12 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @Override
   public final VideoSize getVideoSize() {
+    // TODO: implement.
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public final Size getVideoSurfaceSize() {
     // TODO: implement.
     throw new IllegalStateException();
   }

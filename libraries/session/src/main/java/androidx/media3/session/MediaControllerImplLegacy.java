@@ -67,6 +67,7 @@ import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -959,6 +960,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public VideoSize getVideoSize() {
     Log.w(TAG, "Session doesn't support getting VideoSize");
     return VideoSize.UNKNOWN;
+  }
+
+  @Override
+  public Size getVideoSurfaceSize() {
+    Log.w(TAG, "Session doesn't support getting VideoSurfaceSize");
+    return Size.UNKNOWN;
   }
 
   @Override
