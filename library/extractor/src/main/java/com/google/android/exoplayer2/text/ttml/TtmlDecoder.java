@@ -113,7 +113,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] bytes, int length, boolean reset)
+  protected Subtitle decode(byte[] data, int length, boolean reset)
       throws SubtitleDecoderException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
@@ -121,7 +121,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       Map<String, TtmlRegion> regionMap = new HashMap<>();
       Map<String, String> imageMap = new HashMap<>();
       regionMap.put(TtmlNode.ANONYMOUS_REGION_ID, new TtmlRegion(TtmlNode.ANONYMOUS_REGION_ID));
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, 0, length);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(data, 0, length);
       xmlParser.setInput(inputStream, null);
       @Nullable TtmlSubtitle ttmlSubtitle = null;
       ArrayDeque<TtmlNode> nodeStack = new ArrayDeque<>();
