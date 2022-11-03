@@ -42,7 +42,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test for applying an HDR frame edit. */
+/**
+ * {@link Transformer} instrumentation test for applying an {@linkplain
+ * TransformationRequest.Builder#experimental_setEnableHdrEditing HDR frame edit}.
+ */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTest {
   public static final String TAG = "SetHdrEditingTest";
