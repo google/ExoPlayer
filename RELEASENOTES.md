@@ -30,6 +30,8 @@ Release notes
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
     *   Add `Player.getVideoSurfaceSize` that returns the size of the surface on
         which the video is rendered.
+*   Build:
+    *   Avoid publishing block when included in another gradle build.
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
