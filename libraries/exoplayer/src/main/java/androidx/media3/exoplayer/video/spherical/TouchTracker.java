@@ -94,6 +94,8 @@ import androidx.annotation.BinderThread;
     return true;
   }
 
+  // Incompatible parameter type for e1.
+  @SuppressWarnings("nullness:override.param.invalid")
   @Override
   public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
     // Calculate the touch delta in screen space.
