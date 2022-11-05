@@ -40,6 +40,8 @@ public final class SubripDecoderTest {
   private static final String TYPICAL_NEGATIVE_TIMESTAMPS =
       "media/subrip/typical_negative_timestamps";
   private static final String TYPICAL_UNEXPECTED_END = "media/subrip/typical_unexpected_end";
+  private static final String TYPICAL_UTF16BE = "media/subrip/typical_utf16be";
+  private static final String TYPICAL_UTF16LE = "media/subrip/typical_utf16le";
   private static final String TYPICAL_WITH_TAGS = "media/subrip/typical_with_tags";
   private static final String TYPICAL_NO_HOURS_AND_MILLIS =
       "media/subrip/typical_no_hours_and_millis";
@@ -72,6 +74,34 @@ public final class SubripDecoderTest {
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_WITH_BYTE_ORDER_MARK);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+  }
+
+  @Test
+  public void decodeTypicalUtf16LE() throws IOException {
+    SubripDecoder decoder = new SubripDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_UTF16LE);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+  }
+
+  @Test
+  public void decodeTypicalUtf16BE() throws IOException {
+    SubripDecoder decoder = new SubripDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_UTF16BE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);

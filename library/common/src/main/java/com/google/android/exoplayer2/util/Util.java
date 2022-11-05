@@ -683,6 +683,30 @@ public final class Util {
   }
 
   /**
+   * Returns a new {@link String} constructed by decoding UTF-16 (LE) encoded bytes in a subarray.
+   *
+   * @param bytes  The UTF-16 encoded bytes to decode.
+   * @param offset The index of the first byte to decode.
+   * @param length The number of bytes to decode.
+   * @return The string.
+   */
+  public static String fromUtf16LEBytes(byte[] bytes, int offset, int length) {
+    return new String(bytes, offset, length, Charsets.UTF_16LE);
+  }
+
+  /**
+   * Returns a new {@link String} constructed by decoding UTF-16 (BE) encoded bytes in a subarray.
+   *
+   * @param bytes  The UTF-16 encoded bytes to decode.
+   * @param offset The index of the first byte to decode.
+   * @param length The number of bytes to decode.
+   * @return The string.
+   */
+  public static String fromUtf16BEBytes(byte[] bytes, int offset, int length) {
+    return new String(bytes, offset, length, Charsets.UTF_16BE);
+  }
+
+  /**
    * Returns a new byte array containing the code points of a {@link String} encoded using UTF-8.
    *
    * @param value The {@link String} whose bytes should be obtained.

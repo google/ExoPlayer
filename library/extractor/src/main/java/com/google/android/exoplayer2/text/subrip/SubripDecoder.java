@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.base.Charsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,8 +77,25 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
 
+    @Nullable Charset utf16Charset;
+    if (bytes.length >= 2) {
+      utf16Charset = getUtf16Charset(bytes[0], bytes[1]);
+    } else {
+      utf16Charset = null;
+    }
+
     @Nullable String currentLine;
-    while ((currentLine = subripData.readLine()) != null) {
+    while (true) {
+      if (utf16Charset != null) {
+        currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
+      } else {
+        currentLine = subripData.readLine();
+      }
+
+      if (currentLine == null) {
+        break;
+      }
+
       if (currentLine.length() == 0) {
         // Skip blank lines.
         continue;
@@ -91,7 +110,11 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       }
 
       // Read and parse the timing line.
-      currentLine = subripData.readLine();
+      if (utf16Charset != null) {
+        currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
+      } else {
+        currentLine = subripData.readLine();
+      }
       if (currentLine == null) {
         Log.w(TAG, "Unexpected end");
         break;
@@ -109,13 +132,21 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       // Read and parse the text and tags.
       textBuilder.setLength(0);
       tags.clear();
-      currentLine = subripData.readLine();
+      if (utf16Charset != null) {
+        currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
+      } else {
+        currentLine = subripData.readLine();
+      }
       while (!TextUtils.isEmpty(currentLine)) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
         textBuilder.append(processLine(currentLine, tags));
-        currentLine = subripData.readLine();
+        if (utf16Charset != null) {
+          currentLine = subripData.readLineUtf16(utf16Charset.equals(Charsets.UTF_16LE));
+        } else {
+          currentLine = subripData.readLine();
+        }
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
@@ -136,6 +167,21 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     Cue[] cuesArray = cues.toArray(new Cue[0]);
     long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
+  }
+
+  @Nullable
+  private Charset getUtf16Charset(byte first, byte second) {
+    if (first == (byte) 0xFE && second == (byte) 0xFF) {
+      // UTF-16 (BE)
+      return Charsets.UTF_16BE;
+    }
+
+    if (first == (byte) 0xFF && second == (byte) 0xFE) {
+      // UTF-16 (LE)
+      return Charsets.UTF_16LE;
+    }
+
+    return null;
   }
 
   /**
