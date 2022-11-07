@@ -21,7 +21,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -57,9 +56,9 @@ public interface Muxer {
      *
      * @param path The path to the output file.
      * @throws IllegalArgumentException If the path is invalid.
-     * @throws IOException If an error occurs opening the output file for writing.
+     * @throws MuxerException If an error occurs opening the output file for writing.
      */
-    Muxer create(String path) throws IOException;
+    Muxer create(String path) throws MuxerException;
 
     /**
      * Returns a new muxer writing to a file descriptor.
@@ -69,9 +68,9 @@ public interface Muxer {
      *     muxer is released. It is the responsibility of the caller to close the
      *     ParcelFileDescriptor. This can be done after this method returns.
      * @throws IllegalArgumentException If the file descriptor is invalid.
-     * @throws IOException If an error occurs opening the output file descriptor for writing.
+     * @throws MuxerException If an error occurs opening the output file descriptor for writing.
      */
-    Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws IOException;
+    Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException;
 
     /**
      * Returns the supported sample {@linkplain MimeTypes MIME types} for the given {@link

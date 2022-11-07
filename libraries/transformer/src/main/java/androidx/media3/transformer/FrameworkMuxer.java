@@ -63,18 +63,28 @@ import java.nio.ByteBuffer;
     }
 
     @Override
-    public FrameworkMuxer create(String path) throws IOException {
-      MediaMuxer mediaMuxer = new MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+    public FrameworkMuxer create(String path) throws MuxerException {
+      MediaMuxer mediaMuxer;
+      try {
+        mediaMuxer = new MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+      } catch (IOException e) {
+        throw new MuxerException("Error creating muxer", e);
+      }
       return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs);
     }
 
     @RequiresApi(26)
     @Override
-    public FrameworkMuxer create(ParcelFileDescriptor parcelFileDescriptor) throws IOException {
-      MediaMuxer mediaMuxer =
-          new MediaMuxer(
-              parcelFileDescriptor.getFileDescriptor(),
-              MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+    public FrameworkMuxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException {
+      MediaMuxer mediaMuxer;
+      try {
+        mediaMuxer =
+            new MediaMuxer(
+                parcelFileDescriptor.getFileDescriptor(),
+                MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+      } catch (IOException e) {
+        throw new MuxerException("Error creating muxer", e);
+      }
       return new FrameworkMuxer(mediaMuxer, maxDelayBetweenSamplesMs);
     }
 

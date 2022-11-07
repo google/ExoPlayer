@@ -912,13 +912,13 @@ public final class TransformerEndToEndTest {
     }
 
     @Override
-    public Muxer create(String path) throws IOException {
+    public Muxer create(String path) throws Muxer.MuxerException {
       testMuxer = new TestMuxer(path, defaultMuxerFactory);
       return testMuxer;
     }
 
     @Override
-    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws IOException {
+    public Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws Muxer.MuxerException {
       testMuxer = new TestMuxer("FD:" + parcelFileDescriptor.getFd(), defaultMuxerFactory);
       return testMuxer;
     }

@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 import androidx.media3.common.Format;
 import androidx.media3.test.utils.DumpableFormat;
 import androidx.media3.test.utils.Dumper;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   private final List<Dumper.Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  public TestMuxer(String path, Muxer.Factory muxerFactory) throws IOException {
+  public TestMuxer(String path, Muxer.Factory muxerFactory) throws MuxerException {
     muxer = muxerFactory.create(path);
     dumpables = new ArrayList<>();
   }
