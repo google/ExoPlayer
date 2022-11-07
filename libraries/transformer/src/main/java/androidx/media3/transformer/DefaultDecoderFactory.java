@@ -22,11 +22,13 @@ import static androidx.media3.common.util.Util.SDK_INT;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaFormat;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.MediaFormatUtil;
+import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.DecoderFactory}. */
@@ -88,6 +90,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (SDK_INT >= 31 && enableRequestSdrToneMapping) {
       mediaFormat.setInteger(
           MediaFormat.KEY_COLOR_TRANSFER_REQUEST, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
+    }
+
+    @Nullable
+    Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+    if (codecProfileAndLevel != null) {
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
 
     @Nullable
