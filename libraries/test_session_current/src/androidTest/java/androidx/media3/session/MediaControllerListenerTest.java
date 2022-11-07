@@ -723,7 +723,7 @@ public class MediaControllerListenerTest {
     PlaybackParameters testPlaybackParameters =
         new PlaybackParameters(/* speed= */ 3.2f, /* pitch= */ 2.1f);
     long testCurrentPositionMs = 11;
-    long testContentPositionMs = 33;
+    long testContentPositionMs = testCurrentPositionMs; // Not playing an ad
     long testBufferedPositionMs = 100;
     int testBufferedPercentage = 50;
     long testTotalBufferedDurationMs = 120;
@@ -1595,7 +1595,7 @@ public class MediaControllerListenerTest {
     @Player.PlaybackSuppressionReason
     int testReason = Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS;
     long testCurrentPositionMs = 11;
-    long testContentPositionMs = 33;
+    long testContentPositionMs = testCurrentPositionMs; // Not playing an ad
     long testBufferedPositionMs = 100;
     int testBufferedPercentage = 50;
     long testTotalBufferedDurationMs = 120;
@@ -1726,7 +1726,7 @@ public class MediaControllerListenerTest {
   public void onPlaybackStateChanged_updatesGetters() throws Exception {
     @Player.State int testPlaybackState = Player.EVENT_PLAYER_ERROR;
     long testCurrentPositionMs = 11;
-    long testContentPositionMs = 33;
+    long testContentPositionMs = testCurrentPositionMs; // Not playing an ad
     long testBufferedPositionMs = 100;
     int testBufferedPercentage = 50;
     long testTotalBufferedDurationMs = 120;
@@ -1857,7 +1857,7 @@ public class MediaControllerListenerTest {
   public void onIsPlayingChanged_updatesGetters() throws Exception {
     boolean testIsPlaying = true;
     long testCurrentPositionMs = 11;
-    long testContentPositionMs = 33;
+    long testContentPositionMs = testCurrentPositionMs; // Not playing an ad
     long testBufferedPositionMs = 100;
     int testBufferedPercentage = 50;
     long testTotalBufferedDurationMs = 120;
