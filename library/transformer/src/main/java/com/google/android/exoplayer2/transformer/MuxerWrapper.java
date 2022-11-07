@@ -16,11 +16,13 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.maxValue;
 import static com.google.android.exoplayer2.util.Util.minValue;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.os.ParcelFileDescriptor;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
@@ -33,7 +35,9 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A wrapper around a media muxer.
@@ -50,7 +54,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   private static final long MAX_TRACK_WRITE_AHEAD_US = Util.msToUs(500);
 
-  private final Muxer muxer;
+  @Nullable private final String outputPath;
+  @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final Muxer.Factory muxerFactory;
   private final Transformer.AsyncErrorListener asyncErrorListener;
   private final SparseIntArray trackTypeToIndex;
@@ -66,10 +71,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long minTrackTimeUs;
   private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
   private boolean isAborted;
+  private @MonotonicNonNull Muxer muxer;
 
   public MuxerWrapper(
-      Muxer muxer, Muxer.Factory muxerFactory, Transformer.AsyncErrorListener asyncErrorListener) {
-    this.muxer = muxer;
+      @Nullable String outputPath,
+      @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
+      Muxer.Factory muxerFactory,
+      Transformer.AsyncErrorListener asyncErrorListener) {
+    if (outputPath == null && outputParcelFileDescriptor == null) {
+      throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
+    }
+
+    this.outputPath = outputPath;
+    this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
     this.asyncErrorListener = asyncErrorListener;
 
@@ -135,6 +149,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET) == C.INDEX_UNSET,
         "There is already a track of type " + trackType);
 
+    ensureMuxerInitialized();
+
     int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
     trackTypeToSampleCount.put(trackType, 0);
@@ -181,6 +197,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       trackTypeToTimeUs.put(trackType, presentationTimeUs);
     }
 
+    checkNotNull(muxer);
     resetAbortTimer();
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
@@ -213,7 +230,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
     abortScheduledExecutorService.shutdownNow();
-    muxer.release(forCancellation);
+    if (muxer != null) {
+      muxer.release(forCancellation);
+    }
   }
 
   /** Returns the number of {@link #registerTrack() registered} tracks. */
@@ -276,6 +295,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
 
+  @RequiresNonNull("muxer")
   private void resetAbortTimer() {
     long maxDelayBetweenSamplesMs = muxer.getMaxDelayBetweenSamplesMs();
     if (maxDelayBetweenSamplesMs == C.TIME_UNSET) {
@@ -301,5 +321,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             },
             maxDelayBetweenSamplesMs,
             MILLISECONDS);
+  }
+
+  @EnsuresNonNull("muxer")
+  private void ensureMuxerInitialized() throws Muxer.MuxerException {
+    if (muxer == null) {
+      if (outputPath != null) {
+        muxer = muxerFactory.create(outputPath);
+      } else {
+        checkNotNull(outputParcelFileDescriptor);
+        muxer = muxerFactory.create(outputParcelFileDescriptor);
+      }
+    }
   }
 }
