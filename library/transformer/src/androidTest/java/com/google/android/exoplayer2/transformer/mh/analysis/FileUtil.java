@@ -41,17 +41,24 @@ public class FileUtil {
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
-            @Nullable ColorInfo extractedColor = MediaFormatUtil.getColorInfo(mediaFormat);
-            assertThat(checkNotNull(extractedColor).colorTransfer).isEqualTo(expectedColorTransfer);
+            @Nullable ColorInfo extractedColorInfo = MediaFormatUtil.getColorInfo(mediaFormat);
+            assertColorInfoHasTransfer(extractedColorInfo, expectedColorTransfer);
           }
 
           @Override
           public void onFrameDecoded(MediaFormat mediaFormat) {
-            @Nullable ColorInfo decodedColor = MediaFormatUtil.getColorInfo(mediaFormat);
-            assertThat(checkNotNull(decodedColor).colorTransfer).isEqualTo(expectedColorTransfer);
+            @Nullable ColorInfo decodedColorInfo = MediaFormatUtil.getColorInfo(mediaFormat);
+            assertColorInfoHasTransfer(decodedColorInfo, expectedColorTransfer);
           }
         },
         /* surface= */ null);
+  }
+
+  private static void assertColorInfoHasTransfer(
+      @Nullable ColorInfo colorInfo, @C.ColorTransfer int expectedColorTransfer) {
+    @C.ColorTransfer
+    int actualColorTransfer = colorInfo == null ? C.COLOR_TRANSFER_SDR : colorInfo.colorTransfer;
+    assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
   }
 
   private FileUtil() {}
