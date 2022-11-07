@@ -677,7 +677,7 @@ public final class Transformer {
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
-   * @throws IOException If an error occurs opening the output file for writing.
+   * @throws IOException If {@link MediaItem} is not supported.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
     if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
@@ -688,7 +688,7 @@ public final class Transformer {
     }
     this.outputPath = path;
     this.outputParcelFileDescriptor = null;
-    startTransformation(mediaItem, muxerFactory.create(path));
+    startTransformationInternal(mediaItem);
   }
 
   /**
@@ -711,24 +711,26 @@ public final class Transformer {
    * @throws IllegalArgumentException If the file descriptor is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
-   * @throws IOException If an error occurs opening the output file for writing.
    */
   @RequiresApi(26)
-  public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
-      throws IOException {
+  public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor) {
     this.outputParcelFileDescriptor = parcelFileDescriptor;
     this.outputPath = null;
-    startTransformation(mediaItem, muxerFactory.create(parcelFileDescriptor));
+    startTransformationInternal(mediaItem);
   }
 
-  private void startTransformation(MediaItem mediaItem, Muxer muxer) {
+  private void startTransformationInternal(MediaItem mediaItem) {
     verifyApplicationThread();
     if (player != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
     TransformerPlayerListener playerListener = new TransformerPlayerListener(mediaItem, looper);
     MuxerWrapper muxerWrapper =
-        new MuxerWrapper(muxer, muxerFactory, /* asyncErrorListener= */ playerListener);
+        new MuxerWrapper(
+            outputPath,
+            outputParcelFileDescriptor,
+            muxerFactory,
+            /* asyncErrorListener= */ playerListener);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
