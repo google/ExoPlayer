@@ -919,6 +919,70 @@ public class MediaControllerTest {
   }
 
   @Test
+  public void getContentPosition_whenPlayingMainContent_returnsCurrentPosition() throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentPosition(100L)
+            .setContentPosition(100L) // Same as current position b/c not playing an ad
+            .setDuration(10_000L)
+            .setIsPlaying(true)
+            .setIsPlayingAd(false)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    long currentPositionMs =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setTimeDiffMs(50L);
+                  return controller.getCurrentPosition();
+                });
+    long contentPositionMs =
+        threadTestRule.getHandler().postAndSync(controller::getContentPosition);
+
+    // expectedPositionMs = initCurrentPositionMs + deltaTime*playbackSpeed
+    // 200L = 100L + 50L*2.0f
+    assertThat(contentPositionMs).isEqualTo(200L);
+    assertThat(currentPositionMs).isEqualTo(200L);
+  }
+
+  @Test
+  public void getContentPosition_whenPlayingAd_returnsContentPosition() throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentPosition(10L)
+            .setContentPosition(50L)
+            .setDuration(10_000L)
+            .setIsPlaying(true)
+            .setIsPlayingAd(true)
+            .setCurrentAdGroupIndex(0)
+            .setCurrentAdIndexInAdGroup(0)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    long currentPositionMs =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setTimeDiffMs(50L);
+                  return controller.getCurrentPosition();
+                });
+    long contentPositionMs =
+        threadTestRule.getHandler().postAndSync(controller::getContentPosition);
+
+    // expectedCurrentPositionMs = initCurrentPositionMs + deltaTime*playbackSpeed
+    // 110L = 10L + 50L*2.0f
+    assertThat(currentPositionMs).isEqualTo(110L);
+    assertThat(contentPositionMs).isEqualTo(50L);
+  }
+
+  @Test
   public void getBufferedPosition_withPeriodicUpdate_updatedWithoutCallback() throws Exception {
     long testBufferedPosition = 999L;
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());

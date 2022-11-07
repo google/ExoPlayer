@@ -125,7 +125,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Nullable private TextureView videoTextureView;
   private Size surfaceSize;
   @Nullable private IMediaSession iSession;
-  private long lastReturnedContentPositionMs;
+  private long lastReturnedCurrentPositionMs;
   private long lastSetPlayWhenReadyCalledTimeMs;
 
   public MediaControllerImplBase(
@@ -168,7 +168,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             ? null
             : new SessionServiceConnection(connectionHints);
     flushCommandQueueHandler = new FlushCommandQueueHandler(applicationLooper);
-    lastReturnedContentPositionMs = C.TIME_UNSET;
+    lastReturnedCurrentPositionMs = C.TIME_UNSET;
     lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
@@ -592,9 +592,20 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getCurrentPosition() {
+    boolean receivedUpdatedPositionInfo =
+        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
     if (!playerInfo.isPlaying) {
-      return playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      if (receivedUpdatedPositionInfo || lastReturnedCurrentPositionMs == C.TIME_UNSET) {
+        lastReturnedCurrentPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      }
+      return lastReturnedCurrentPositionMs;
     }
+
+    if (!receivedUpdatedPositionInfo && lastReturnedCurrentPositionMs != C.TIME_UNSET) {
+      // Need an updated current position in order to make a new position estimation
+      return lastReturnedCurrentPositionMs;
+    }
+
     long elapsedTimeMs =
         (getInstance().getTimeDiffMs() != C.TIME_UNSET)
             ? getInstance().getTimeDiffMs()
@@ -602,9 +613,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.positionMs
             + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    return playerInfo.sessionPositionInfo.durationMs == C.TIME_UNSET
-        ? estimatedPositionMs
-        : Math.min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
+    if (playerInfo.sessionPositionInfo.durationMs != C.TIME_UNSET) {
+      estimatedPositionMs = min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
+    }
+    lastReturnedCurrentPositionMs = estimatedPositionMs;
+    return lastReturnedCurrentPositionMs;
   }
 
   @Override
@@ -634,34 +647,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getContentPosition() {
-    boolean receivedUpdatedPositionInfo =
-        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
-    if (!playerInfo.isPlaying || playerInfo.sessionPositionInfo.isPlayingAd) {
-      if (receivedUpdatedPositionInfo || lastReturnedContentPositionMs == C.TIME_UNSET) {
-        lastReturnedContentPositionMs =
-            playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
-      }
-      return lastReturnedContentPositionMs;
+    if (!playerInfo.sessionPositionInfo.isPlayingAd) {
+      return getCurrentPosition();
     }
-
-    if (!receivedUpdatedPositionInfo && lastReturnedContentPositionMs != C.TIME_UNSET) {
-      // We need an updated content position to make a new position estimation.
-      return lastReturnedContentPositionMs;
-    }
-
-    long elapsedTimeMs =
-        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
-            ? getInstance().getTimeDiffMs()
-            : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
-    long estimatedPositionMs =
-        playerInfo.sessionPositionInfo.positionInfo.contentPositionMs
-            + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    if (playerInfo.sessionPositionInfo.contentDurationMs != C.TIME_UNSET) {
-      estimatedPositionMs =
-          Math.min(estimatedPositionMs, playerInfo.sessionPositionInfo.contentDurationMs);
-    }
-    lastReturnedContentPositionMs = estimatedPositionMs;
-    return lastReturnedContentPositionMs;
+    return playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
   }
 
   @Override
