@@ -20,9 +20,11 @@ import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MediaMetadata.FOLDER_TYPE_ALBUMS
+import androidx.media3.common.MediaMetadata.FOLDER_TYPE_ARTISTS
+import androidx.media3.common.MediaMetadata.FOLDER_TYPE_GENRES
 import androidx.media3.common.MediaMetadata.FOLDER_TYPE_MIXED
 import androidx.media3.common.MediaMetadata.FOLDER_TYPE_NONE
-import androidx.media3.common.MediaMetadata.FOLDER_TYPE_PLAYLISTS
 import androidx.media3.common.util.Util
 import com.google.common.collect.ImmutableList
 import org.json.JSONObject
@@ -205,7 +207,7 @@ object MediaItemTree {
             title = album,
             mediaId = albumFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_PLAYLISTS,
+            folderType = FOLDER_TYPE_ALBUMS,
             subtitleConfigurations
           )
         )
@@ -221,7 +223,7 @@ object MediaItemTree {
             title = artist,
             mediaId = artistFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_PLAYLISTS,
+            folderType = FOLDER_TYPE_ARTISTS,
             subtitleConfigurations
           )
         )
@@ -237,7 +239,7 @@ object MediaItemTree {
             title = genre,
             mediaId = genreFolderIdInTree,
             isPlayable = true,
-            folderType = FOLDER_TYPE_PLAYLISTS,
+            folderType = FOLDER_TYPE_GENRES,
             subtitleConfigurations
           )
         )
