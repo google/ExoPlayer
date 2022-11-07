@@ -15,9 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
-import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
-import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -30,6 +27,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.FlagSet;
 import androidx.media3.common.Player;
+import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestUtils;
@@ -75,7 +73,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
-    session = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, context);
+    session = new RemoteMediaSessionCompat(CommonConstants.DEFAULT_TEST_NAME, context);
   }
 
   @After
@@ -87,7 +85,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
   public void onEvents_whenOnRepeatModeChanges_isCalledAfterOtherListenerMethods()
       throws Exception {
     Player.Events testEvents =
-        new Player.Events(new FlagSet.Builder().add(EVENT_REPEAT_MODE_CHANGED).build());
+        new Player.Events(new FlagSet.Builder().add(Player.EVENT_REPEAT_MODE_CHANGED).build());
     CopyOnWriteArrayList<Integer> listenerEventCodes = new CopyOnWriteArrayList<>();
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -97,7 +95,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
         new Player.Listener() {
           @Override
           public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-            listenerEventCodes.add(EVENT_REPEAT_MODE_CHANGED);
+            listenerEventCodes.add(Player.EVENT_REPEAT_MODE_CHANGED);
             latch.countDown();
           }
 
@@ -112,7 +110,8 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_GROUP);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
 
-    assertThat(listenerEventCodes).containsExactly(EVENT_REPEAT_MODE_CHANGED, EVENT_ON_EVENTS);
+    assertThat(listenerEventCodes)
+        .containsExactly(Player.EVENT_REPEAT_MODE_CHANGED, EVENT_ON_EVENTS);
     assertThat(eventsRef.get()).isEqualTo(testEvents);
   }
 
@@ -154,7 +153,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
               receivedIconResIds.add(button.iconResId);
             }
             countDownLatch.countDown();
-            return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+            return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
           }
         });
 
