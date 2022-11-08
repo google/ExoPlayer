@@ -17,6 +17,9 @@ project.ext {
     releaseVersionCode = 2_018_001
     minSdkVersion = 16
     appTargetSdkVersion = 33
+    // API version before restricting local file access.
+    // https://developer.android.com/training/data-storage/app-specific
+    mainDemoAppTargetSdkVersion = 29
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.
     targetSdkVersion = 30
