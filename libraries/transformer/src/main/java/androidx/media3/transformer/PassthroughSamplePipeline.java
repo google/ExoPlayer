@@ -18,10 +18,11 @@ package androidx.media3.transformer;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.decoder.DecoderInputBuffer;
 
 /** Pipeline that passes through the samples without any re-encoding or transformation. */
-/* package */ final class PassthroughSamplePipeline implements SamplePipeline {
+/* package */ final class PassthroughSamplePipeline extends BaseSamplePipeline {
 
   private final DecoderInputBuffer buffer;
   private final Format format;
@@ -30,8 +31,11 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   public PassthroughSamplePipeline(
       Format format,
+      long streamStartPositionUs,
       TransformationRequest transformationRequest,
+      MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener) {
+    super(MimeTypes.getTrackType(format.sampleMimeType), streamStartPositionUs, muxerWrapper);
     this.format = format;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     hasPendingBuffer = false;
@@ -46,36 +50,38 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   @Override
   public void queueInputBuffer() {
-    hasPendingBuffer = true;
+    if (buffer.data != null && buffer.data.hasRemaining()) {
+      hasPendingBuffer = true;
+    }
   }
 
   @Override
-  public boolean processData() {
+  public void release() {}
+
+  @Override
+  protected boolean processDataUpToMuxer() {
     return false;
   }
 
   @Override
-  public Format getOutputFormat() {
+  protected Format getMuxerInputFormat() {
     return format;
   }
 
   @Override
   @Nullable
-  public DecoderInputBuffer getOutputBuffer() {
+  protected DecoderInputBuffer getMuxerInputBuffer() {
     return hasPendingBuffer ? buffer : null;
   }
 
   @Override
-  public void releaseOutputBuffer() {
+  protected void releaseMuxerInputBuffer() {
     buffer.clear();
     hasPendingBuffer = false;
   }
 
   @Override
-  public boolean isEnded() {
+  protected boolean isMuxerInputEnded() {
     return buffer.isEndOfStream();
   }
-
-  @Override
-  public void release() {}
 }
