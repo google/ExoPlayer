@@ -283,7 +283,8 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
         break;
       }
       logError("avcodec_receive_frame", result);
-      return result;
+      return result == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
+                                           : AUDIO_DECODER_ERROR_OTHER;
     }
 
     // Resample output.
@@ -330,7 +331,8 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
     av_frame_free(&frame);
     if (result < 0) {
       logError("swr_convert", result);
-      return result;
+      return result == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
+                                           : AUDIO_DECODER_ERROR_OTHER;
     }
     int available = swr_get_out_samples(resampleContext, 0);
     if (available != 0) {
