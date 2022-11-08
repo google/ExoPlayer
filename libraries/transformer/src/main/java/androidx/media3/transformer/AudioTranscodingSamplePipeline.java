@@ -28,14 +28,13 @@ import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import java.nio.ByteBuffer;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Pipeline to decode audio samples, apply transformations on the raw samples, and re-encode them.
  */
-/* package */ final class AudioTranscodingSamplePipeline implements SamplePipeline {
+/* package */ final class AudioTranscodingSamplePipeline extends BaseSamplePipeline {
 
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
@@ -57,12 +56,15 @@ import org.checkerframework.dataflow.qual.Pure;
   public AudioTranscodingSamplePipeline(
       Format inputFormat,
       long streamOffsetUs,
+      long streamStartPositionUs,
       TransformationRequest transformationRequest,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
-      List<String> allowedOutputMimeTypes,
+      MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws TransformationException {
+    super(C.TRACK_TYPE_AUDIO, streamStartPositionUs, muxerWrapper);
+
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer =
@@ -104,7 +106,9 @@ import org.checkerframework.dataflow.qual.Pure;
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
             .build();
-    encoder = encoderFactory.createForAudioEncoding(requestedOutputFormat, allowedOutputMimeTypes);
+    encoder =
+        encoderFactory.createForAudioEncoding(
+            requestedOutputFormat, muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_AUDIO));
 
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
@@ -126,7 +130,16 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public boolean processData() throws TransformationException {
+  public void release() {
+    if (speedChangingAudioProcessor != null) {
+      speedChangingAudioProcessor.reset();
+    }
+    decoder.release();
+    encoder.release();
+  }
+
+  @Override
+  protected boolean processDataUpToMuxer() throws TransformationException {
     if (speedChangingAudioProcessor != null) {
       return feedEncoderFromProcessor() || feedProcessorFromDecoder();
     } else {
@@ -136,13 +149,13 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   @Nullable
-  public Format getOutputFormat() throws TransformationException {
+  protected Format getMuxerInputFormat() throws TransformationException {
     return encoder.getOutputFormat();
   }
 
   @Override
   @Nullable
-  public DecoderInputBuffer getOutputBuffer() throws TransformationException {
+  protected DecoderInputBuffer getMuxerInputBuffer() throws TransformationException {
     encoderOutputBuffer.data = encoder.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
@@ -153,22 +166,13 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void releaseOutputBuffer() throws TransformationException {
+  protected void releaseMuxerInputBuffer() throws TransformationException {
     encoder.releaseOutputBuffer(/* render= */ false);
   }
 
   @Override
-  public boolean isEnded() {
+  protected boolean isMuxerInputEnded() {
     return encoder.isEnded();
-  }
-
-  @Override
-  public void release() {
-    if (speedChangingAudioProcessor != null) {
-      speedChangingAudioProcessor.reset();
-    }
-    decoder.release();
-    encoder.release();
   }
 
   /**

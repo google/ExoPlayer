@@ -41,8 +41,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected final FallbackListener fallbackListener;
 
   private boolean isTransformationRunning;
-  private boolean muxerWrapperTrackAdded;
-  private boolean muxerWrapperTrackEnded;
   protected long streamOffsetUs;
   protected long streamStartPositionUs;
   protected @MonotonicNonNull SamplePipeline samplePipeline;
@@ -88,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public final boolean isEnded() {
-    return muxerWrapperTrackEnded;
+    return samplePipeline != null && samplePipeline.isEnded();
   }
 
   @Override
@@ -98,15 +96,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         return;
       }
 
-      while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+      while (samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
       isTransformationRunning = false;
       asyncErrorListener.onTransformationException(e);
-    } catch (Muxer.MuxerException e) {
-      isTransformationRunning = false;
-      asyncErrorListener.onTransformationException(
-          TransformationException.createForMuxer(
-              e, TransformationException.ERROR_CODE_MUXING_FAILED));
     }
   }
 
@@ -138,8 +131,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (samplePipeline != null) {
       samplePipeline.release();
     }
-    muxerWrapperTrackAdded = false;
-    muxerWrapperTrackEnded = false;
   }
 
   @ForOverride
@@ -150,49 +141,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
       throws TransformationException {
     samplePipeline.queueInputBuffer();
-  }
-
-  /**
-   * Attempts to write sample pipeline output data to the muxer.
-   *
-   * @return Whether it may be possible to write more data immediately by calling this method again.
-   * @throws Muxer.MuxerException If a muxing problem occurs.
-   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
-   */
-  @RequiresNonNull("samplePipeline")
-  private boolean feedMuxerFromPipeline() throws Muxer.MuxerException, TransformationException {
-    if (!muxerWrapperTrackAdded) {
-      @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
-      if (samplePipelineOutputFormat == null) {
-        return false;
-      }
-      muxerWrapperTrackAdded = true;
-      muxerWrapper.addTrackFormat(samplePipelineOutputFormat);
-    }
-
-    if (samplePipeline.isEnded()) {
-      muxerWrapper.endTrack(getTrackType());
-      muxerWrapperTrackEnded = true;
-      return false;
-    }
-
-    @Nullable DecoderInputBuffer samplePipelineOutputBuffer = samplePipeline.getOutputBuffer();
-    if (samplePipelineOutputBuffer == null) {
-      return false;
-    }
-
-    long samplePresentationTimeUs = samplePipelineOutputBuffer.timeUs - streamStartPositionUs;
-    // TODO(b/204892224): Consider subtracting the first sample timestamp from the sample pipeline
-    //  buffer from all samples so that they are guaranteed to start from zero in the output file.
-    if (!muxerWrapper.writeSample(
-        getTrackType(),
-        checkStateNotNull(samplePipelineOutputBuffer.data),
-        samplePipelineOutputBuffer.isKeyFrame(),
-        samplePresentationTimeUs)) {
-      return false;
-    }
-    samplePipeline.releaseOutputBuffer();
-    return true;
   }
 
   /**
