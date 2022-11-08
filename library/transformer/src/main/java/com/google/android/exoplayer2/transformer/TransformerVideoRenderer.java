@@ -103,18 +103,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               context,
               inputFormat,
               streamOffsetUs,
+              streamStartPositionUs,
               transformationRequest,
               effects,
               frameProcessorFactory,
               decoderFactory,
               encoderFactory,
-              muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
+              muxerWrapper,
               fallbackListener,
               asyncErrorListener,
               debugViewProvider);
     } else {
       samplePipeline =
-          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
+          new PassthroughSamplePipeline(
+              inputFormat,
+              streamStartPositionUs,
+              transformationRequest,
+              muxerWrapper,
+              fallbackListener);
     }
     if (transformationRequest.flattenForSlowMotion) {
       sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);

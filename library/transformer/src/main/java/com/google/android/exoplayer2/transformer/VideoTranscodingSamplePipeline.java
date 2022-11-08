@@ -50,7 +50,7 @@ import org.checkerframework.dataflow.qual.Pure;
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
-/* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
+/* package */ final class VideoTranscodingSamplePipeline extends BaseSamplePipeline {
 
   private final int maxPendingFrameCount;
 
@@ -67,16 +67,19 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format inputFormat,
       long streamOffsetUs,
+      long streamStartPositionUs,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
       FrameProcessor.Factory frameProcessorFactory,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
-      List<String> allowedOutputMimeTypes,
+      MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener,
       Transformer.AsyncErrorListener asyncErrorListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
+    super(C.TRACK_TYPE_VIDEO, streamStartPositionUs, muxerWrapper);
+
     if (ColorInfo.isTransferHdr(inputFormat.colorInfo)
         && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
       throw TransformationException.createForCodec(
@@ -119,7 +122,7 @@ import org.checkerframework.dataflow.qual.Pure;
         new EncoderWrapper(
             encoderFactory,
             inputFormat,
-            allowedOutputMimeTypes,
+            muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
             fallbackListener);
 
@@ -199,7 +202,14 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public boolean processData() throws TransformationException {
+  public void release() {
+    frameProcessor.release();
+    decoder.release();
+    encoderWrapper.release();
+  }
+
+  @Override
+  protected boolean processDataUpToMuxer() throws TransformationException {
     if (decoder.isEnded()) {
       return false;
     }
@@ -217,13 +227,13 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   @Nullable
-  public Format getOutputFormat() throws TransformationException {
+  protected Format getMuxerInputFormat() throws TransformationException {
     return encoderWrapper.getOutputFormat();
   }
 
   @Override
   @Nullable
-  public DecoderInputBuffer getOutputBuffer() throws TransformationException {
+  protected DecoderInputBuffer getMuxerInputBuffer() throws TransformationException {
     encoderOutputBuffer.data = encoderWrapper.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
@@ -235,20 +245,13 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void releaseOutputBuffer() throws TransformationException {
+  protected void releaseMuxerInputBuffer() throws TransformationException {
     encoderWrapper.releaseOutputBuffer(/* render= */ false);
   }
 
   @Override
-  public boolean isEnded() {
+  protected boolean isMuxerInputEnded() {
     return encoderWrapper.isEnded();
-  }
-
-  @Override
-  public void release() {
-    frameProcessor.release();
-    decoder.release();
-    encoderWrapper.release();
   }
 
   /**

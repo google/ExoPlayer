@@ -77,16 +77,22 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
-          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
+          new PassthroughSamplePipeline(
+              inputFormat,
+              streamStartPositionUs,
+              transformationRequest,
+              muxerWrapper,
+              fallbackListener);
     } else {
       samplePipeline =
           new AudioTranscodingSamplePipeline(
               inputFormat,
               streamOffsetUs,
+              streamStartPositionUs,
               transformationRequest,
               decoderFactory,
               encoderFactory,
-              muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
+              muxerWrapper,
               fallbackListener);
     }
     return true;
