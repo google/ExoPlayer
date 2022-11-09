@@ -1435,9 +1435,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
     }
     if (!Util.areEqual(oldLegacyPlayerInfo.queueTitle, newLegacyPlayerInfo.queueTitle)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          C.INDEX_UNSET,
+          Player.EVENT_PLAYLIST_METADATA_CHANGED,
           (listener) ->
               listener.onPlaylistMetadataChanged(newControllerInfo.playerInfo.playlistMetadata));
     }
@@ -1515,23 +1514,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     if (!oldControllerInfo.playerInfo.audioAttributes.equals(
         newControllerInfo.playerInfo.audioAttributes)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          C.INDEX_UNSET,
+          Player.EVENT_AUDIO_ATTRIBUTES_CHANGED,
           (listener) ->
               listener.onAudioAttributesChanged(newControllerInfo.playerInfo.audioAttributes));
     }
     if (!oldControllerInfo.playerInfo.deviceInfo.equals(newControllerInfo.playerInfo.deviceInfo)) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          C.INDEX_UNSET,
+          Player.EVENT_DEVICE_INFO_CHANGED,
           (listener) -> listener.onDeviceInfoChanged(newControllerInfo.playerInfo.deviceInfo));
     }
     if (oldControllerInfo.playerInfo.deviceVolume != newControllerInfo.playerInfo.deviceVolume
         || oldControllerInfo.playerInfo.deviceMuted != newControllerInfo.playerInfo.deviceMuted) {
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          C.INDEX_UNSET,
+          Player.EVENT_DEVICE_VOLUME_CHANGED,
           (listener) ->
               listener.onDeviceVolumeChanged(
                   newControllerInfo.playerInfo.deviceVolume,
