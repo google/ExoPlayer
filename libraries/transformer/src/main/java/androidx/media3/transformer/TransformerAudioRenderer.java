@@ -79,6 +79,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
       samplePipeline =
           new PassthroughSamplePipeline(
               inputFormat,
+              streamOffsetUs,
               streamStartPositionUs,
               transformationRequest,
               muxerWrapper,

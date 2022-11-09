@@ -16,8 +16,6 @@
 
 package androidx.media3.transformer;
 
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
-
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -137,12 +135,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
   protected abstract boolean ensureConfigured() throws TransformationException;
 
-  @RequiresNonNull({"samplePipeline", "#1.data"})
-  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
-      throws TransformationException {
-    samplePipeline.queueInputBuffer();
-  }
-
   /**
    * Attempts to read input data and pass the input data to the sample pipeline.
    *
@@ -166,8 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           return false;
         }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        checkStateNotNull(samplePipelineInputBuffer.data);
-        maybeQueueSampleToPipeline(samplePipelineInputBuffer);
+        samplePipeline.queueInputBuffer();
         return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");

@@ -63,7 +63,12 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws TransformationException {
-    super(C.TRACK_TYPE_AUDIO, streamStartPositionUs, muxerWrapper);
+    super(
+        inputFormat,
+        streamOffsetUs,
+        streamStartPositionUs,
+        transformationRequest.flattenForSlowMotion,
+        muxerWrapper);
 
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -119,23 +124,23 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
-    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
-  }
-
-  @Override
-  public void queueInputBuffer() throws TransformationException {
-    decoder.queueInputBuffer(decoderInputBuffer);
-  }
-
-  @Override
   public void release() {
     if (speedChangingAudioProcessor != null) {
       speedChangingAudioProcessor.reset();
     }
     decoder.release();
     encoder.release();
+  }
+
+  @Override
+  @Nullable
+  protected DecoderInputBuffer dequeueInputBufferInternal() throws TransformationException {
+    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
+  }
+
+  @Override
+  protected void queueInputBufferInternal() throws TransformationException {
+    decoder.queueInputBuffer(decoderInputBuffer);
   }
 
   @Override
