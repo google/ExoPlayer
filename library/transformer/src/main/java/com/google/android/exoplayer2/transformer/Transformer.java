@@ -49,8 +49,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -669,17 +667,11 @@ public final class Transformer {
    * @param mediaItem The {@link MediaItem} to transform.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
+   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
-   * @throws IOException If {@link MediaItem} is not supported.
    */
-  public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        && transformationRequest.flattenForSlowMotion) {
-      // TODO(b/233986762): Support clipping with SEF flattening.
-      throw new UnsupportedEncodingException(
-          "Clipping is not supported when slow motion flattening is requested");
-    }
+  public void startTransformation(MediaItem mediaItem, String path) {
     this.outputPath = path;
     this.outputParcelFileDescriptor = null;
     startTransformationInternal(mediaItem);
@@ -703,6 +695,7 @@ public final class Transformer {
    *     transformation is completed. It is the responsibility of the caller to close the
    *     ParcelFileDescriptor. This can be done after this method returns.
    * @throws IllegalArgumentException If the file descriptor is invalid.
+   * @throws IllegalArgumentException If the {@link MediaItem} is not supported.
    * @throws IllegalStateException If this method is called from the wrong thread.
    * @throws IllegalStateException If a transformation is already in progress.
    */
@@ -714,6 +707,12 @@ public final class Transformer {
   }
 
   private void startTransformationInternal(MediaItem mediaItem) {
+    if (!mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        && transformationRequest.flattenForSlowMotion) {
+      // TODO(b/233986762): Support clipping with SEF flattening.
+      throw new IllegalArgumentException(
+          "Clipping is not supported when slow motion flattening is requested");
+    }
     verifyApplicationThread();
     if (transformationInProgress) {
       throw new IllegalStateException("There is already a transformation in progress.");
