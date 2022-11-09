@@ -18,11 +18,6 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS;
-import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
-import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
-import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
-import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -41,9 +36,6 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.Player;
-import androidx.media3.common.Timeline;
-import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.UnstableApi;
@@ -51,17 +43,8 @@ import androidx.media3.common.util.Util;
 import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.GlEffectsFrameProcessor;
 import androidx.media3.effect.GlMatrixTransformation;
-import androidx.media3.exoplayer.DefaultLoadControl;
-import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.Renderer;
-import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.audio.AudioRendererEventListener;
-import androidx.media3.exoplayer.metadata.MetadataOutput;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
-import androidx.media3.exoplayer.text.TextOutput;
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
-import androidx.media3.exoplayer.video.VideoRendererEventListener;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import com.google.common.collect.ImmutableList;
@@ -571,12 +554,12 @@ public final class Transformer {
   private final Looper looper;
   private final DebugViewProvider debugViewProvider;
   private final Clock clock;
+  private final ExoPlayerAssetLoader exoPlayerAssetLoader;
 
   @Nullable private MuxerWrapper muxerWrapper;
-  @Nullable private ExoPlayer player;
   @Nullable private String outputPath;
   @Nullable private ParcelFileDescriptor outputParcelFileDescriptor;
-  private @ProgressState int progressState;
+  private boolean transformationInProgress;
   private boolean isCancelling;
 
   private Transformer(
@@ -609,7 +592,20 @@ public final class Transformer {
     this.looper = looper;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
+    exoPlayerAssetLoader =
+        new ExoPlayerAssetLoader(
+            context,
+            transformationRequest,
+            videoEffects,
+            removeAudio,
+            removeVideo,
+            mediaSourceFactory,
+            decoderFactory,
+            encoderFactory,
+            frameProcessorFactory,
+            looper,
+            debugViewProvider,
+            clock);
   }
 
   /** Returns a {@link Transformer.Builder} initialized with the values of this instance. */
@@ -721,66 +717,26 @@ public final class Transformer {
 
   private void startTransformationInternal(MediaItem mediaItem) {
     verifyApplicationThread();
-    if (player != null) {
+    if (transformationInProgress) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
-    TransformerPlayerListener playerListener = new TransformerPlayerListener(mediaItem, looper);
+    transformationInProgress = true;
+    ComponentListener componentListener = new ComponentListener(mediaItem, looper);
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
             outputPath,
             outputParcelFileDescriptor,
             muxerFactory,
-            /* asyncErrorListener= */ playerListener);
+            /* asyncErrorListener= */ componentListener);
     this.muxerWrapper = muxerWrapper;
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
-    trackSelector.setParameters(
-        new DefaultTrackSelector.ParametersBuilder(context)
-            .setForceHighestSupportedBitrate(true)
-            .build());
-    // Arbitrarily decrease buffers for playback so that samples start being sent earlier to the
-    // muxer (rebuffers are less problematic for the transformation use case).
-    DefaultLoadControl loadControl =
-        new DefaultLoadControl.Builder()
-            .setBufferDurationsMs(
-                DEFAULT_MIN_BUFFER_MS,
-                DEFAULT_MAX_BUFFER_MS,
-                DEFAULT_BUFFER_FOR_PLAYBACK_MS / 10,
-                DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
-            .build();
-    ExoPlayer.Builder playerBuilder =
-        new ExoPlayer.Builder(
-                context,
-                new TransformerRenderersFactory(
-                    context,
-                    muxerWrapper,
-                    removeAudio,
-                    removeVideo,
-                    transformationRequest,
-                    mediaItem.clippingConfiguration.startsAtKeyFrame,
-                    videoEffects,
-                    frameProcessorFactory,
-                    encoderFactory,
-                    decoderFactory,
-                    new FallbackListener(mediaItem, listeners, transformationRequest),
-                    /* asyncErrorListener= */ playerListener,
-                    debugViewProvider))
-            .setMediaSourceFactory(mediaSourceFactory)
-            .setTrackSelector(trackSelector)
-            .setLoadControl(loadControl)
-            .setLooper(looper);
-    if (clock != Clock.DEFAULT) {
-      // Transformer.Builder#setClock is also @VisibleForTesting, so if we're using a non-default
-      // clock we must be in a test context.
-      @SuppressWarnings("VisibleForTests")
-      ExoPlayer.Builder unusedForAnnotation = playerBuilder.setClock(clock);
-    }
-
-    player = playerBuilder.build();
-    player.setMediaItem(mediaItem);
-    player.addListener(playerListener);
-    player.prepare();
-
-    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+    FallbackListener fallbackListener =
+        new FallbackListener(mediaItem, listeners, transformationRequest);
+    exoPlayerAssetLoader.start(
+        mediaItem,
+        muxerWrapper,
+        /* listener= */ componentListener,
+        fallbackListener,
+        /* asyncErrorListener= */ componentListener);
   }
 
   /**
@@ -806,13 +762,7 @@ public final class Transformer {
    */
   public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
-    if (progressState == PROGRESS_STATE_AVAILABLE) {
-      Player player = checkNotNull(this.player);
-      long durationMs = player.getDuration();
-      long positionMs = player.getCurrentPosition();
-      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
-    }
-    return progressState;
+    return exoPlayerAssetLoader.getProgress(progressHolder);
   }
 
   /**
@@ -821,6 +771,7 @@ public final class Transformer {
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
   public void cancel() {
+    verifyApplicationThread();
     isCancelling = true;
     try {
       releaseResources(/* forCancellation= */ true);
@@ -840,12 +791,8 @@ public final class Transformer {
    *     is false.
    */
   private void releaseResources(boolean forCancellation) throws TransformationException {
-    verifyApplicationThread();
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
-    if (player != null) {
-      player.release();
-      player = null;
-    }
+    transformationInProgress = false;
+    exoPlayerAssetLoader.release();
     if (muxerWrapper != null) {
       try {
         muxerWrapper.release(forCancellation);
@@ -883,147 +830,48 @@ public final class Transformer {
     return fileSize;
   }
 
-  private static final class TransformerRenderersFactory implements RenderersFactory {
-
-    private final Context context;
-    private final MuxerWrapper muxerWrapper;
-    private final TransformerMediaClock mediaClock;
-    private final boolean removeAudio;
-    private final boolean removeVideo;
-    private final TransformationRequest transformationRequest;
-    private final boolean clippingStartsAtKeyFrame;
-    private final ImmutableList<Effect> videoEffects;
-    private final FrameProcessor.Factory frameProcessorFactory;
-    private final Codec.EncoderFactory encoderFactory;
-    private final Codec.DecoderFactory decoderFactory;
-    private final FallbackListener fallbackListener;
-    private final AsyncErrorListener asyncErrorListener;
-    private final DebugViewProvider debugViewProvider;
-
-    public TransformerRenderersFactory(
-        Context context,
-        MuxerWrapper muxerWrapper,
-        boolean removeAudio,
-        boolean removeVideo,
-        TransformationRequest transformationRequest,
-        boolean clippingStartsAtKeyFrame,
-        ImmutableList<Effect> videoEffects,
-        FrameProcessor.Factory frameProcessorFactory,
-        Codec.EncoderFactory encoderFactory,
-        Codec.DecoderFactory decoderFactory,
-        FallbackListener fallbackListener,
-        AsyncErrorListener asyncErrorListener,
-        DebugViewProvider debugViewProvider) {
-      this.context = context;
-      this.muxerWrapper = muxerWrapper;
-      this.removeAudio = removeAudio;
-      this.removeVideo = removeVideo;
-      this.transformationRequest = transformationRequest;
-      this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
-      this.videoEffects = videoEffects;
-      this.frameProcessorFactory = frameProcessorFactory;
-      this.encoderFactory = encoderFactory;
-      this.decoderFactory = decoderFactory;
-      this.fallbackListener = fallbackListener;
-      this.asyncErrorListener = asyncErrorListener;
-      this.debugViewProvider = debugViewProvider;
-      mediaClock = new TransformerMediaClock();
-    }
-
-    @Override
-    public Renderer[] createRenderers(
-        Handler eventHandler,
-        VideoRendererEventListener videoRendererEventListener,
-        AudioRendererEventListener audioRendererEventListener,
-        TextOutput textRendererOutput,
-        MetadataOutput metadataRendererOutput) {
-      int rendererCount = removeAudio || removeVideo ? 1 : 2;
-      Renderer[] renderers = new Renderer[rendererCount];
-      int index = 0;
-      if (!removeAudio) {
-        renderers[index] =
-            new TransformerAudioRenderer(
-                muxerWrapper,
-                mediaClock,
-                transformationRequest,
-                encoderFactory,
-                decoderFactory,
-                asyncErrorListener,
-                fallbackListener);
-        index++;
-      }
-      if (!removeVideo) {
-        renderers[index] =
-            new TransformerVideoRenderer(
-                context,
-                muxerWrapper,
-                mediaClock,
-                transformationRequest,
-                clippingStartsAtKeyFrame,
-                videoEffects,
-                frameProcessorFactory,
-                encoderFactory,
-                decoderFactory,
-                asyncErrorListener,
-                fallbackListener,
-                debugViewProvider);
-        index++;
-      }
-      return renderers;
-    }
+  /** Listener for exceptions that occur during a transformation. */
+  /* package */ interface AsyncErrorListener {
+    /**
+     * Called when a {@link TransformationException} occurs.
+     *
+     * <p>Can be called from any thread.
+     */
+    void onTransformationException(TransformationException exception);
   }
 
-  private final class TransformerPlayerListener implements Player.Listener, AsyncErrorListener {
+  private final class ComponentListener
+      implements ExoPlayerAssetLoader.Listener, AsyncErrorListener {
 
     private final MediaItem mediaItem;
     private final Handler handler;
 
-    public TransformerPlayerListener(MediaItem mediaItem, Looper looper) {
+    public ComponentListener(MediaItem mediaItem, Looper looper) {
       this.mediaItem = mediaItem;
       handler = new Handler(looper);
     }
 
     @Override
-    public void onPlaybackStateChanged(int state) {
-      if (state == Player.STATE_ENDED) {
-        handleTransformationEnded(/* exception= */ null);
-      }
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, int reason) {
-      if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
-        return;
-      }
-      Timeline.Window window = new Timeline.Window();
-      timeline.getWindow(/* windowIndex= */ 0, window);
-      if (!window.isPlaceholder) {
-        long durationUs = window.durationUs;
-        // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
-        // to a high value at the end of the transformation if the duration is set once the media is
-        // entirely loaded.
-        progressState =
-            durationUs <= 0 || durationUs == C.TIME_UNSET
-                ? PROGRESS_STATE_UNAVAILABLE
-                : PROGRESS_STATE_AVAILABLE;
-        checkNotNull(player).play();
-      }
-    }
-
-    @Override
-    public void onTracksChanged(Tracks tracks) {
-      if (checkNotNull(muxerWrapper).getTrackCount() == 0) {
-        handleTransformationEnded(
-            TransformationException.createForUnexpected(
-                new IllegalStateException("The output does not contain any tracks.")));
-      }
-    }
-
-    @Override
-    public void onPlayerError(PlaybackException error) {
+    public void onError(Exception e) {
       TransformationException transformationException =
-          TransformationException.createForPlaybackException(error);
+          e instanceof PlaybackException
+              ? TransformationException.createForPlaybackException((PlaybackException) e)
+              : TransformationException.createForUnexpected(e);
       handleTransformationException(transformationException);
+    }
+
+    @Override
+    public void onEnded() {
+      handleTransformationEnded(/* exception= */ null);
+    }
+
+    @Override
+    public void onTransformationException(TransformationException exception) {
+      if (Looper.myLooper() == looper) {
+        handleTransformationException(exception);
+      } else {
+        handler.post(() -> handleTransformationException(exception));
+      }
     }
 
     private void handleTransformationException(TransformationException transformationException) {
@@ -1078,24 +926,5 @@ public final class Transformer {
       }
       listeners.flushEvents();
     }
-
-    @Override
-    public void onTransformationException(TransformationException exception) {
-      if (Looper.myLooper() == looper) {
-        handleTransformationException(exception);
-      } else {
-        handler.post(() -> handleTransformationException(exception));
-      }
-    }
-  }
-
-  /** Listener for exceptions that occur during a transformation. */
-  /* package */ interface AsyncErrorListener {
-    /**
-     * Called when a {@link TransformationException} occurs.
-     *
-     * <p>Can be called from any thread.
-     */
-    void onTransformationException(TransformationException exception);
   }
 }
