@@ -69,7 +69,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
         ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
-        ERROR_CODE_HDR_EDITING_UNSUPPORTED,
+        ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
         ERROR_CODE_FRAME_PROCESSING_FAILED,
         ERROR_CODE_MUXING_FAILED,
       })
@@ -137,6 +137,8 @@ public final class TransformationException extends Exception {
   public static final int ERROR_CODE_DECODING_FAILED = 3002;
   /** Caused by trying to decode content whose format is not supported. */
   public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 3003;
+  /** Caused by the decoder not supporting HDR formats. */
+  public static final int ERROR_CODE_HDR_DECODING_UNSUPPORTED = 3004;
 
   // Encoding errors (4xxx).
 
@@ -152,7 +154,7 @@ public final class TransformationException extends Exception {
    */
   public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
   /** Caused by the encoder not supporting HDR formats. */
-  public static final int ERROR_CODE_HDR_EDITING_UNSUPPORTED = 4004;
+  public static final int ERROR_CODE_HDR_ENCODING_UNSUPPORTED = 4004;
 
   // Video editing errors (5xxx).
 
@@ -178,10 +180,11 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_DECODER_INIT_FAILED", ERROR_CODE_DECODER_INIT_FAILED)
           .put("ERROR_CODE_DECODING_FAILED", ERROR_CODE_DECODING_FAILED)
           .put("ERROR_CODE_DECODING_FORMAT_UNSUPPORTED", ERROR_CODE_DECODING_FORMAT_UNSUPPORTED)
+          .put("ERROR_CODE_HDR_DECODING_UNSUPPORTED", ERROR_CODE_HDR_DECODING_UNSUPPORTED)
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
           .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
-          .put("ERROR_CODE_HDR_EDITING_UNSUPPORTED", ERROR_CODE_HDR_EDITING_UNSUPPORTED)
+          .put("ERROR_CODE_HDR_ENCODING_UNSUPPORTED", ERROR_CODE_HDR_ENCODING_UNSUPPORTED)
           .put("ERROR_CODE_FRAME_PROCESSING_FAILED", ERROR_CODE_FRAME_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();

@@ -79,7 +79,7 @@ public class SetHdrEditingTest {
       Log.i(TAG, checkNotNull(exception.getCause()).toString());
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
-          .isEqualTo(TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
+          .isEqualTo(TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
     }
   }
 
@@ -156,7 +156,7 @@ public class SetHdrEditingTest {
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
           .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       assertThat(isFallbackListenerInvoked.get()).isFalse();
       return;

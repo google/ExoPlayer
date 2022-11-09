@@ -131,6 +131,9 @@ import com.google.common.collect.ImmutableList;
     if (transformationRequest.enableRequestSdrToneMapping) {
       return true;
     }
+    if (transformationRequest.forceInterpretHdrVideoAsSdr) {
+      return true;
+    }
     if (transformationRequest.videoMimeType != null
         && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
       return true;

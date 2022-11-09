@@ -80,7 +80,7 @@ public class SetHdrToSdrToneMapTest {
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
           .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       return;
     }
@@ -126,7 +126,7 @@ public class SetHdrToSdrToneMapTest {
       assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
       assertThat(exception.errorCode)
           .isAnyOf(
-              TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
               TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
       return;
     }
