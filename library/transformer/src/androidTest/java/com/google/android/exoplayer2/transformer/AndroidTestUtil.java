@@ -23,12 +23,14 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import android.content.Context;
 import android.os.Build;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
@@ -86,6 +88,19 @@ public final class AndroidTestUtil {
 
   public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
+  public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(23.517f)
+          .setColorInfo(
+              new ColorInfo(
+                  C.COLOR_SPACE_BT2020,
+                  C.COLOR_RANGE_LIMITED,
+                  C.COLOR_TRANSFER_ST2084,
+                  /* hdrStaticInfo= */ null))
+          .build();
   public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
       "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
 

@@ -85,15 +85,27 @@ import org.checkerframework.dataflow.qual.Pure;
         transformationRequest.flattenForSlowMotion,
         muxerWrapper);
 
-    if (ColorInfo.isTransferHdr(inputFormat.colorInfo)
-        && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
-      throw TransformationException.createForCodec(
-          new IllegalArgumentException("HDR editing and tone mapping not supported."),
-          /* isVideo= */ true,
-          /* isDecoder= */ false,
-          inputFormat,
-          /* mediaCodecName= */ null,
-          TransformationException.ERROR_CODE_HDR_EDITING_UNSUPPORTED);
+    if (ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
+      if (transformationRequest.forceInterpretHdrVideoAsSdr) {
+        if (SDK_INT < 29) {
+          throw TransformationException.createForCodec(
+              new IllegalArgumentException("Interpreting HDR video as SDR is not supported."),
+              /* isVideo= */ true,
+              /* isDecoder= */ true,
+              inputFormat,
+              /* mediaCodecName= */ null,
+              TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED);
+        }
+        inputFormat = inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+      } else if (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround()) {
+        throw TransformationException.createForCodec(
+            new IllegalArgumentException("HDR editing and tone mapping is not supported."),
+            /* isVideo= */ true,
+            /* isDecoder= */ false,
+            inputFormat,
+            /* mediaCodecName= */ null,
+            TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED);
+      }
     }
 
     decoderInputBuffer =
