@@ -124,6 +124,7 @@ import java.nio.ByteBuffer;
     } else {
       mediaFormat =
           MediaFormat.createVideoFormat(castNonNull(sampleMimeType), format.width, format.height);
+      MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
       try {
         mediaMuxer.setOrientationHint(format.rotationDegrees);
       } catch (RuntimeException e) {
