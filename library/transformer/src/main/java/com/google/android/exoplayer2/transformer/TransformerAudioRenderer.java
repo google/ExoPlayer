@@ -79,6 +79,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
       samplePipeline =
           new PassthroughSamplePipeline(
               inputFormat,
+              streamOffsetUs,
               streamStartPositionUs,
               transformationRequest,
               muxerWrapper,

@@ -78,7 +78,12 @@ import org.checkerframework.dataflow.qual.Pure;
       Transformer.AsyncErrorListener asyncErrorListener,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
-    super(C.TRACK_TYPE_VIDEO, streamStartPositionUs, muxerWrapper);
+    super(
+        inputFormat,
+        streamOffsetUs,
+        streamStartPositionUs,
+        transformationRequest.flattenForSlowMotion,
+        muxerWrapper);
 
     if (ColorInfo.isTransferHdr(inputFormat.colorInfo)
         && (SDK_INT < 31 || deviceNeedsNoToneMappingWorkaround())) {
@@ -188,24 +193,24 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
-    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
-  }
-
-  @Override
-  public void queueInputBuffer() throws TransformationException {
-    if (decoderInputBuffer.isDecodeOnly()) {
-      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
-    }
-    decoder.queueInputBuffer(decoderInputBuffer);
-  }
-
-  @Override
   public void release() {
     frameProcessor.release();
     decoder.release();
     encoderWrapper.release();
+  }
+
+  @Override
+  @Nullable
+  protected DecoderInputBuffer dequeueInputBufferInternal() throws TransformationException {
+    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
+  }
+
+  @Override
+  protected void queueInputBufferInternal() throws TransformationException {
+    if (decoderInputBuffer.isDecodeOnly()) {
+      decodeOnlyPresentationTimestamps.add(decoderInputBuffer.timeUs);
+    }
+    decoder.queueInputBuffer(decoderInputBuffer);
   }
 
   @Override

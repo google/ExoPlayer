@@ -16,25 +16,60 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.MimeTypes;
+import java.nio.ByteBuffer;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /* package */ abstract class BaseSamplePipeline implements SamplePipeline {
 
-  private final int trackType;
+  private final long streamOffsetUs;
   private final long streamStartPositionUs;
   private final MuxerWrapper muxerWrapper;
+  private final @C.TrackType int trackType;
+  private final @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
 
+  @Nullable private DecoderInputBuffer inputBuffer;
   private boolean muxerWrapperTrackAdded;
   private boolean isEnded;
 
-  public BaseSamplePipeline(int trackType, long streamStartPositionUs, MuxerWrapper muxerWrapper) {
-    this.trackType = trackType;
+  public BaseSamplePipeline(
+      Format inputFormat,
+      long streamOffsetUs,
+      long streamStartPositionUs,
+      boolean flattenForSlowMotion,
+      MuxerWrapper muxerWrapper) {
+    this.streamOffsetUs = streamOffsetUs;
     this.streamStartPositionUs = streamStartPositionUs;
     this.muxerWrapper = muxerWrapper;
+    trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
+    sefVideoSlowMotionFlattener =
+        flattenForSlowMotion && trackType == C.TRACK_TYPE_VIDEO
+            ? new SefSlowMotionFlattener(inputFormat)
+            : null;
+  }
+
+  @Nullable
+  @Override
+  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
+    inputBuffer = dequeueInputBufferInternal();
+    return inputBuffer;
+  }
+
+  @Override
+  public void queueInputBuffer() throws TransformationException {
+    checkNotNull(inputBuffer);
+    checkNotNull(inputBuffer.data);
+    if (!shouldDropInputBuffer()) {
+      queueInputBufferInternal();
+    }
   }
 
   @Override
@@ -47,6 +82,11 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
     return isEnded;
   }
 
+  @Nullable
+  protected abstract DecoderInputBuffer dequeueInputBufferInternal() throws TransformationException;
+
+  protected abstract void queueInputBufferInternal() throws TransformationException;
+
   protected abstract boolean processDataUpToMuxer() throws TransformationException;
 
   @Nullable
@@ -58,6 +98,31 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
   protected abstract void releaseMuxerInputBuffer() throws TransformationException;
 
   protected abstract boolean isMuxerInputEnded();
+
+  /**
+   * Preprocesses an {@linkplain DecoderInputBuffer input buffer} queued to the pipeline and returns
+   * whether it should be dropped.
+   */
+  @RequiresNonNull({"inputBuffer", "inputBuffer.data"})
+  private boolean shouldDropInputBuffer() {
+    ByteBuffer inputBytes = inputBuffer.data;
+
+    if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
+      return false;
+    }
+
+    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
+    DecoderInputBuffer inputBuffer = this.inputBuffer;
+    boolean shouldDropInputBuffer =
+        sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
+    if (shouldDropInputBuffer) {
+      inputBytes.clear();
+    } else {
+      inputBuffer.timeUs =
+          streamOffsetUs + sefVideoSlowMotionFlattener.getSamplePresentationTimeUs();
+    }
+    return shouldDropInputBuffer;
+  }
 
   /**
    * Attempts to pass encoded data to the muxer, and returns whether it may be possible to pass more
