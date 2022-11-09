@@ -29,9 +29,6 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import com.google.common.collect.ImmutableList;
-import java.nio.ByteBuffer;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /* package */ final class TransformerVideoRenderer extends TransformerBaseRenderer {
 
@@ -45,8 +42,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final Codec.DecoderFactory decoderFactory;
   private final DebugViewProvider debugViewProvider;
   private final DecoderInputBuffer decoderInputBuffer;
-
-  private @MonotonicNonNull SefSlowMotionFlattener sefSlowMotionFlattener;
 
   public TransformerVideoRenderer(
       Context context,
@@ -117,13 +112,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       samplePipeline =
           new PassthroughSamplePipeline(
               inputFormat,
+              streamOffsetUs,
               streamStartPositionUs,
               transformationRequest,
               muxerWrapper,
               fallbackListener);
-    }
-    if (transformationRequest.flattenForSlowMotion) {
-      sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
     return true;
   }
@@ -169,33 +162,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
     return false;
-  }
-
-  /**
-   * Queues the input buffer to the sample pipeline unless it should be dropped because of slow
-   * motion flattening.
-   *
-   * @param inputBuffer The {@link DecoderInputBuffer}.
-   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
-   */
-  @Override
-  @RequiresNonNull({"samplePipeline", "#1.data"})
-  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
-      throws TransformationException {
-    if (sefSlowMotionFlattener == null) {
-      samplePipeline.queueInputBuffer();
-      return;
-    }
-
-    ByteBuffer data = inputBuffer.data;
-    long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
-    boolean shouldDropSample =
-        sefSlowMotionFlattener.dropOrTransformSample(data, presentationTimeUs);
-    inputBuffer.timeUs = streamOffsetUs + sefSlowMotionFlattener.getSamplePresentationTimeUs();
-    if (shouldDropSample) {
-      data.clear();
-    } else {
-      samplePipeline.queueInputBuffer();
-    }
   }
 }

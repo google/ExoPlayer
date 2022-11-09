@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.decoder.DecoderInputBuffer;
 
 /** Pipeline that passes through the samples without any re-encoding or transformation. */
@@ -31,32 +30,37 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   public PassthroughSamplePipeline(
       Format format,
+      long streamOffsetUs,
       long streamStartPositionUs,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener) {
-    super(MimeTypes.getTrackType(format.sampleMimeType), streamStartPositionUs, muxerWrapper);
+    super(
+        format,
+        streamOffsetUs,
+        streamStartPositionUs,
+        transformationRequest.flattenForSlowMotion,
+        muxerWrapper);
     this.format = format;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
-    hasPendingBuffer = false;
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
   }
 
   @Override
+  public void release() {}
+
+  @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
+  protected DecoderInputBuffer dequeueInputBufferInternal() {
     return hasPendingBuffer ? null : buffer;
   }
 
   @Override
-  public void queueInputBuffer() {
+  protected void queueInputBufferInternal() {
     if (buffer.data != null && buffer.data.hasRemaining()) {
       hasPendingBuffer = true;
     }
   }
-
-  @Override
-  public void release() {}
 
   @Override
   protected boolean processDataUpToMuxer() {
