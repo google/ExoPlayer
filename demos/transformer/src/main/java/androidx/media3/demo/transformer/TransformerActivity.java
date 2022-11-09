@@ -272,6 +272,8 @@ public final class TransformerActivity extends AppCompatActivity {
 
       requestBuilder.setEnableRequestSdrToneMapping(
           bundle.getBoolean(ConfigurationActivity.ENABLE_REQUEST_SDR_TONE_MAPPING));
+      requestBuilder.experimental_setForceInterpretHdrVideoAsSdr(
+          bundle.getBoolean(ConfigurationActivity.FORCE_INTERPRET_HDR_VIDEO_AS_SDR));
       requestBuilder.experimental_setEnableHdrEditing(
           bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder

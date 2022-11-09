@@ -68,6 +68,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
   public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
+  public static final String FORCE_INTERPRET_HDR_VIDEO_AS_SDR = "force_interpret_hdr_video_as_sdr";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
@@ -153,6 +154,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
   private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
+  private @MonotonicNonNull CheckBox forceInterpretHdrVideoAsSdrCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private @MonotonicNonNull Button selectDemoEffectsButton;
   private boolean @MonotonicNonNull [] demoEffectsSelections;
@@ -248,6 +250,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
     enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
     findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
+    forceInterpretHdrVideoAsSdrCheckBox =
+        findViewById(R.id.force_interpret_hdr_video_as_sdr_checkbox);
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
 
     demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
@@ -306,6 +310,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "enableFallbackCheckBox",
     "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "demoEffectsSelections"
   })
@@ -346,6 +351,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     bundle.putBoolean(ENABLE_DEBUG_PREVIEW, enableDebugPreviewCheckBox.isChecked());
     bundle.putBoolean(
         ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
+    bundle.putBoolean(
+        FORCE_INTERPRET_HDR_VIDEO_AS_SDR, forceInterpretHdrVideoAsSdrCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
     bundle.putInt(COLOR_FILTER_SELECTION, colorFilterSelection);
@@ -585,6 +592,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
   })
@@ -606,6 +614,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
   })
@@ -626,6 +635,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
     "enableRequestSdrToneMappingCheckBox",
+    "forceInterpretHdrVideoAsSdrCheckBox",
     "enableHdrEditingCheckBox",
     "selectDemoEffectsButton"
   })
@@ -638,6 +648,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     enableDebugPreviewCheckBox.setEnabled(isVideoEnabled);
     enableRequestSdrToneMappingCheckBox.setEnabled(
         isRequestSdrToneMappingSupported() && isVideoEnabled);
+    forceInterpretHdrVideoAsSdrCheckBox.setEnabled(isVideoEnabled);
     enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
     selectDemoEffectsButton.setEnabled(isVideoEnabled);
 
@@ -648,6 +659,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
     findViewById(R.id.request_sdr_tone_mapping)
         .setEnabled(isRequestSdrToneMappingSupported() && isVideoEnabled);
+    findViewById(R.id.force_interpret_hdr_video_as_sdr).setEnabled(isVideoEnabled);
     findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
   }
 
