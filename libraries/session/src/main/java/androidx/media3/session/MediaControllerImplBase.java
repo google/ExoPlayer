@@ -47,6 +47,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.BundleListRetriever;
@@ -110,6 +111,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private final SurfaceCallback surfaceCallback;
   private final ListenerSet<Listener> listeners;
   private final FlushCommandQueueHandler flushCommandQueueHandler;
+  private final ArraySet<Integer> pendingMaskingSequencedFutureNumbers;
 
   @Nullable private SessionToken connectedToken;
   @Nullable private SessionServiceConnection serviceConnection;
@@ -127,6 +129,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Nullable private IMediaSession iSession;
   private long lastReturnedCurrentPositionMs;
   private long lastSetPlayWhenReadyCalledTimeMs;
+  @Nullable private Timeline pendingPlayerInfoUpdateTimeline;
 
   public MediaControllerImplBase(
       Context context,
@@ -154,6 +157,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     this.context = context;
     sequencedFutureManager = new SequencedFutureManager();
     controllerStub = new MediaControllerStub(this);
+    pendingMaskingSequencedFutureNumbers = new ArraySet<>();
     this.token = token;
     this.connectionHints = connectionHints;
     deathRecipient =
@@ -303,7 +307,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (command != Player.COMMAND_SET_VIDEO_SURFACE) {
       flushCommandQueueHandler.sendFlushCommandQueueMessage();
     }
-    return dispatchRemoteSessionTask(iSession, task);
+    return dispatchRemoteSessionTask(iSession, task, /* addToPendingMaskingOperations= */ true);
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithSessionCommand(
@@ -326,17 +330,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         sessionCommand != null
             ? getSessionInterfaceWithSessionCommandIfAble(sessionCommand)
             : getSessionInterfaceWithSessionCommandIfAble(commandCode),
-        task);
+        task,
+        /* addToPendingMaskingOperations= */ false);
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTask(
-      IMediaSession iSession, RemoteSessionTask task) {
+      IMediaSession iSession, RemoteSessionTask task, boolean addToPendingMaskingOperations) {
     if (iSession != null) {
       SequencedFutureManager.SequencedFuture<SessionResult> result =
           sequencedFutureManager.createSequencedFuture(
               new SessionResult(SessionResult.RESULT_INFO_SKIPPED));
       try {
-        task.run(iSession, result.getSequenceNumber());
+        int sequenceNumber = result.getSequenceNumber();
+        task.run(iSession, sequenceNumber);
+        if (addToPendingMaskingOperations) {
+          pendingMaskingSequencedFutureNumbers.add(sequenceNumber);
+        }
       } catch (RemoteException e) {
         Log.w(TAG, "Cannot connect to the service or the session is gone", e);
         result.set(new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
@@ -2223,7 +2232,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   <T extends @NonNull Object> void setFutureResult(int seq, T futureResult) {
+    // Don't set the future result on the application looper so that the result can be obtained by a
+    // blocking future.get() on the application looper. But post a message to remove the pending
+    // masking operation on the application looper to ensure it's executed in order with other
+    // updates sent to the application looper.
     sequencedFutureManager.setFutureResult(seq, futureResult);
+    getInstance().runOnApplicationLooper(() -> pendingMaskingSequencedFutureNumbers.remove(seq));
   }
 
   void onConnected(ConnectionState result) {
@@ -2313,11 +2327,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isConnected()) {
       return;
     }
+    if (!pendingMaskingSequencedFutureNumbers.isEmpty()) {
+      // We are still waiting for all pending masking operations to be handled.
+      if (!isTimelineExcluded) {
+        pendingPlayerInfoUpdateTimeline = newPlayerInfo.timeline;
+      }
+      return;
+    }
     PlayerInfo oldPlayerInfo = playerInfo;
     playerInfo = newPlayerInfo;
     if (isTimelineExcluded) {
-      playerInfo = playerInfo.copyWithTimeline(oldPlayerInfo.timeline);
+      playerInfo =
+          playerInfo.copyWithTimeline(
+              pendingPlayerInfoUpdateTimeline != null
+                  ? pendingPlayerInfoUpdateTimeline
+                  : oldPlayerInfo.timeline);
     }
+    pendingPlayerInfoUpdateTimeline = null;
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
     PlaybackException playerError = playerInfo.playerError;
     boolean errorsMatch =
@@ -2568,7 +2594,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void updateSessionPositionInfoIfNeeded(SessionPositionInfo sessionPositionInfo) {
-    if (playerInfo.sessionPositionInfo.eventTimeMs < sessionPositionInfo.eventTimeMs) {
+    if (pendingMaskingSequencedFutureNumbers.isEmpty()
+        && playerInfo.sessionPositionInfo.eventTimeMs < sessionPositionInfo.eventTimeMs) {
       playerInfo = playerInfo.copyWithSessionPositionInfo(sessionPositionInfo);
     }
   }

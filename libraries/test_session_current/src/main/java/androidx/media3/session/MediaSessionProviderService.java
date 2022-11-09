@@ -785,6 +785,13 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = sessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.timeline = Timeline.CREATOR.fromBundle(timelineBundle);
+            List<MediaItem> mediaItems = new ArrayList<>();
+            for (int i = 0; i < player.timeline.getWindowCount(); i++) {
+              mediaItems.add(
+                  player.timeline.getWindow(/* windowIndex= */ i, new Timeline.Window()).mediaItem);
+            }
+            player.mediaItems.clear();
+            player.mediaItems.addAll(mediaItems);
           });
     }
 
@@ -800,6 +807,8 @@ public class MediaSessionProviderService extends Service {
               mediaItems.add(
                   MediaTestUtils.createMediaItem(TestUtils.getMediaIdInFakeTimeline(windowIndex)));
             }
+            player.mediaItems.clear();
+            player.mediaItems.addAll(mediaItems);
             player.timeline = new PlaylistTimeline(mediaItems);
           });
     }

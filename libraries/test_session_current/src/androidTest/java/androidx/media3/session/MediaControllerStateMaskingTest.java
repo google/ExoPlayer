@@ -2878,6 +2878,85 @@ public class MediaControllerStateMaskingTest {
         /* testPreviousMediaItemIndex= */ C.INDEX_UNSET);
   }
 
+  @Test
+  public void incompatibleUpdatesDuringMasking_areOnlyReportedOnceAllPendingUpdatesAreResolved()
+      throws Exception {
+    // Test setup:
+    //  1. Report a discontinuity from item 0 to item 1 in the session.
+    //  2. Before (1) can be handled by the controller, remove item 1.
+    // Expectation:
+    //  - Session: State is updated to ENDED as the current item is removed.
+    //  - Controller: Discontinuity is only reported after the state is fully resolved
+    //     = The discontinuity is only reported once we also report the state change to ENDED.
+    Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 2);
+    remoteSession.getMockPlayer().setTimeline(timeline);
+    remoteSession
+        .getMockPlayer()
+        .notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    remoteSession.getMockPlayer().setCurrentMediaItemIndex(0);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    CountDownLatch positionDiscontinuityReported = new CountDownLatch(1);
+    AtomicBoolean reportedStateChangeToEndedAtSameTimeAsDiscontinuity = new AtomicBoolean();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
+              if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
+                  && player.getPlaybackState() == Player.STATE_ENDED) {
+                reportedStateChangeToEndedAtSameTimeAsDiscontinuity.set(true);
+              }
+              positionDiscontinuityReported.countDown();
+            }
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    // Step 1: Report a discontinuity from item 0 to item 1 in the session.
+    PositionInfo oldPositionInfo =
+        new PositionInfo(
+            /* windowUid= */ timeline.getWindow(/* windowIndex= */ 0, new Window()).uid,
+            /* mediaItemIndex= */ 0,
+            MediaItem.EMPTY,
+            /* periodUid= */ timeline.getPeriod(
+                    /* periodIndex= */ 0, new Period(), /* setIds= */ true)
+                .uid,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 10_000,
+            /* contentPositionMs= */ 10_000,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    PositionInfo newPositionInfo =
+        new PositionInfo(
+            /* windowUid= */ timeline.getWindow(/* windowIndex= */ 1, new Window()).uid,
+            /* mediaItemIndex= */ 1,
+            MediaItem.EMPTY,
+            /* periodUid= */ timeline.getPeriod(
+                    /* periodIndex= */ 1, new Period(), /* setIds= */ true)
+                .uid,
+            /* periodIndex= */ 1,
+            /* positionMs= */ 0,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    remoteSession.getMockPlayer().setCurrentMediaItemIndex(1);
+    remoteSession
+        .getMockPlayer()
+        .notifyPositionDiscontinuity(
+            oldPositionInfo, newPositionInfo, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    // Step 2: Before step 1 can be handled by the controller, remove item 1.
+    threadTestRule.getHandler().postAndSync(() -> controller.removeMediaItem(/* index= */ 1));
+    remoteSession.getMockPlayer().setCurrentMediaItemIndex(0);
+    remoteSession.getMockPlayer().setTimeline(MediaTestUtils.createTimeline(/* windowCount= */ 1));
+    remoteSession.getMockPlayer().notifyPlaybackStateChanged(Player.STATE_ENDED);
+    remoteSession
+        .getMockPlayer()
+        .notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+
+    assertThat(positionDiscontinuityReported.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(reportedStateChangeToEndedAtSameTimeAsDiscontinuity.get()).isTrue();
+  }
+
   private void assertMoveMediaItems(
       int initialMediaItemCount,
       int initialMediaItemIndex,
