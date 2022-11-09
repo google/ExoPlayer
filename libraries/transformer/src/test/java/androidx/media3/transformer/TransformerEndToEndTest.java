@@ -581,8 +581,6 @@ public final class TransformerEndToEndTest {
             () -> {
               try {
                 transformer.startTransformation(mediaItem, outputPath);
-              } catch (IOException e) {
-                // Do nothing.
               } catch (IllegalStateException e) {
                 illegalStateException.set(e);
               } finally {
