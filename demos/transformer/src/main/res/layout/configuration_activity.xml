@@ -217,6 +217,16 @@
           android:id="@+id/hdr_editing_checkbox"
           android:layout_gravity="end" />
       </TableRow>
+      <TableRow
+        android:layout_weight="1">
+        <TextView
+          android:layout_gravity="center_vertical"
+          android:id="@+id/force_interpret_hdr_video_as_sdr"
+          android:text="@string/force_interpret_hdr_video_as_sdr" />
+        <CheckBox
+          android:id="@+id/force_interpret_hdr_video_as_sdr_checkbox"
+          android:layout_gravity="end" />
+      </TableRow>
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
   <Button

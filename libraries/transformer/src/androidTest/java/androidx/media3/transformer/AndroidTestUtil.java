@@ -23,6 +23,8 @@ import static androidx.media3.common.util.Assertions.checkState;
 import android.content.Context;
 import android.os.Build;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
@@ -86,6 +88,19 @@ public final class AndroidTestUtil {
 
   public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
+  public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(23.517f)
+          .setColorInfo(
+              new ColorInfo(
+                  C.COLOR_SPACE_BT2020,
+                  C.COLOR_RANGE_LIMITED,
+                  C.COLOR_TRANSFER_ST2084,
+                  /* hdrStaticInfo= */ null))
+          .build();
   public static final String MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER =
       "asset:///media/mp4/hdr10-video-with-sdr-container.mp4";
 
