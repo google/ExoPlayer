@@ -160,7 +160,7 @@ import com.google.common.collect.ImmutableList;
       if (MimeTypes.isAudio(inputFormat.sampleMimeType) && shouldTranscodeAudio(inputFormat)) {
         return new AudioTranscodingSamplePipeline(
             inputFormat,
-            streamOffsetUs,
+            streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
             decoderFactory,
@@ -172,8 +172,8 @@ import com.google.common.collect.ImmutableList;
         return new VideoTranscodingSamplePipeline(
             context,
             inputFormat,
-            streamOffsetUs,
             streamStartPositionUs,
+            streamOffsetUs,
             transformationRequest,
             videoEffects,
             frameProcessorFactory,
@@ -186,8 +186,8 @@ import com.google.common.collect.ImmutableList;
       } else {
         return new PassthroughSamplePipeline(
             inputFormat,
-            streamOffsetUs,
             streamStartPositionUs,
+            streamOffsetUs,
             transformationRequest,
             muxerWrapper,
             fallbackListener);
