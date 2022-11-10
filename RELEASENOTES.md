@@ -99,6 +99,9 @@ Release notes
         `DefaultNotificationProvider` on API 26 and API 27 (the badge is
         automatically hidden on API 28+)
         ([#131](https://github.com/androidx/media/issues/131)).
+    *   Fix bug where a second binder connection from a legacy MediaSession to a
+        Media3 MediaController causes IllegalStateExceptions
+        ([#49](https://github.com/androidx/media/issues/49)).
 *   RTSP:
     *   Add H263 fragmented packet handling
         ([#119](https://github.com/androidx/media/pull/119)).
