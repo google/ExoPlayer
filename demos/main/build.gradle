@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 apply from: '../../constants.gradle'
 apply plugin: 'com.android.application'
 
@@ -90,3 +91,5 @@ dependencies {
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
+// copybara:strip_begin
+// copybara:strip_begin
