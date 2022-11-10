@@ -56,7 +56,7 @@ public final class RtpPayloadFormat {
   public static final String RTP_MEDIA_VP9 = "VP9";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
-  public static boolean isFormatSupported(MediaDescription mediaDescription) {
+  /* package */ static boolean isFormatSupported(MediaDescription mediaDescription) {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
       case RTP_MEDIA_AMR:
