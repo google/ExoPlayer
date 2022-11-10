@@ -395,7 +395,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   @Override
-  public int[] getSupportedTypes() {
+  public @C.ContentType int[] getSupportedTypes() {
     return delegateFactoryLoader.getSupportedTypes();
   }
 
