@@ -245,7 +245,6 @@ public class MockPlayer implements Player {
   public boolean playWhenReady;
   public @PlaybackSuppressionReason int playbackSuppressionReason;
   public @State int playbackState;
-  public boolean isPlaying;
   public boolean isLoading;
   public MediaMetadata mediaMetadata;
   public Commands commands;
@@ -521,6 +520,12 @@ public class MockPlayer implements Player {
     }
   }
 
+  /**
+   * Changes the values returned from {@link #getPlayWhenReady()} and {@link
+   * #getPlaybackSuppressionReason()}, and triggers {@link Player.Listener#onPlayWhenReadyChanged},
+   * {@link Player.Listener#onPlaybackSuppressionReasonChanged} or {@link
+   * Player.Listener#onIsPlayingChanged} as appropriate.
+   */
   public void notifyPlayWhenReadyChanged(
       boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
     boolean playWhenReadyChanged = (this.playWhenReady != playWhenReady);
@@ -529,8 +534,10 @@ public class MockPlayer implements Player {
       return;
     }
 
+    boolean wasPlaying = isPlaying();
     this.playWhenReady = playWhenReady;
     this.playbackSuppressionReason = reason;
+    boolean isPlaying = isPlaying();
     for (Listener listener : listeners) {
       if (playWhenReadyChanged) {
         listener.onPlayWhenReadyChanged(
@@ -539,26 +546,29 @@ public class MockPlayer implements Player {
       if (playbackSuppressionReasonChanged) {
         listener.onPlaybackSuppressionReasonChanged(reason);
       }
+      if (isPlaying != wasPlaying) {
+        listener.onIsPlayingChanged(isPlaying);
+      }
     }
   }
 
+  /**
+   * Changes the value returned from {@link #getPlaybackState()} and triggers {@link
+   * Player.Listener#onPlaybackStateChanged} and/or {@link Player.Listener#onIsPlayingChanged} as
+   * appropriate.
+   */
   public void notifyPlaybackStateChanged(@State int playbackState) {
     if (this.playbackState == playbackState) {
       return;
     }
+    boolean wasPlaying = isPlaying();
     this.playbackState = playbackState;
+    boolean isPlaying = isPlaying();
     for (Listener listener : listeners) {
       listener.onPlaybackStateChanged(playbackState);
-    }
-  }
-
-  public void notifyIsPlayingChanged(boolean isPlaying) {
-    if (this.isPlaying == isPlaying) {
-      return;
-    }
-    this.isPlaying = isPlaying;
-    for (Listener listener : listeners) {
-      listener.onIsPlayingChanged(isPlaying);
+      if (isPlaying != wasPlaying) {
+        listener.onIsPlayingChanged(isPlaying);
+      }
     }
   }
 
@@ -698,7 +708,9 @@ public class MockPlayer implements Player {
 
   @Override
   public boolean isPlaying() {
-    return isPlaying;
+    return playWhenReady
+        && playbackState == Player.STATE_READY
+        && playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   @Override

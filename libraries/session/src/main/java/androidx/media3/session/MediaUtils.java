@@ -728,20 +728,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public static int convertToPlaybackStateCompatState(
       @Nullable PlaybackException playerError,
       @Player.State int playbackState,
-      boolean playWhenReady,
-      boolean isPlaying) {
+      boolean playWhenReady) {
     if (playerError != null) {
       return PlaybackStateCompat.STATE_ERROR;
-    }
-    if (isPlaying) {
-      return PlaybackStateCompat.STATE_PLAYING;
     }
     switch (playbackState) {
       case Player.STATE_IDLE:
         return PlaybackStateCompat.STATE_NONE;
       case Player.STATE_READY:
+        return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
       case Player.STATE_ENDED:
-        return PlaybackStateCompat.STATE_PAUSED;
+        return PlaybackStateCompat.STATE_STOPPED;
       case Player.STATE_BUFFERING:
         return playWhenReady
             ? PlaybackStateCompat.STATE_BUFFERING

@@ -55,7 +55,6 @@ interface IRemoteMediaSession {
   void notifyPlayerError(String sessionId, in Bundle playerErrorBundle);
   void notifyPlayWhenReadyChanged(String sessionId, boolean playWhenReady, int reason);
   void notifyPlaybackStateChanged(String sessionId, int state);
-  void notifyIsPlayingChanged(String sessionId, boolean isPlaying);
   void notifyIsLoadingChanged(String sessionId, boolean isLoading);
   void notifyPositionDiscontinuity(String sessionId,
       in Bundle oldPositionBundle, in Bundle newPositionBundle, int reason);

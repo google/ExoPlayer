@@ -338,7 +338,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
           }
         });
     assertThat(errorLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(lastReportedPlaybackStateCompat).isNotNull();
     assertThat(lastReportedPlaybackStateCompat.getState())
         .isEqualTo(PlaybackStateCompat.STATE_ERROR);
     assertThat(
@@ -361,7 +360,11 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     // Any successful calls remove the error state,
     assertThat(lastReportedPlaybackStateCompat.getState())
         .isNotEqualTo(PlaybackStateCompat.STATE_ERROR);
-    assertThat(lastReportedPlaybackStateCompat.getExtras()).isNull();
+    assertThat(
+            lastReportedPlaybackStateCompat
+                .getExtras()
+                .getString(MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT))
+        .isNull();
   }
 
   @Test

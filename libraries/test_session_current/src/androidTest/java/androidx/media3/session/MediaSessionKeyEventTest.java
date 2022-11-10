@@ -21,6 +21,7 @@ import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -98,8 +99,14 @@ public class MediaSessionKeyEventTest {
     // Here's the requirement for an app to receive media key events via MediaSession.
     // - SDK < 26: Player should be playing for receiving key events
     // - SDK >= 26: Play a media item in the same process of the session for receiving key events.
-    handler.postAndSync(() -> player.notifyIsPlayingChanged(/* isPlaying= */ true));
-    if (Util.SDK_INT >= 26) {
+    if (Util.SDK_INT < 26) {
+      handler.postAndSync(
+          () -> {
+            player.notifyPlayWhenReadyChanged(
+                /* playWhenReady= */ true, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
+            player.notifyPlaybackStateChanged(Player.STATE_READY);
+          });
+    } else {
       CountDownLatch latch = new CountDownLatch(1);
       handler.postAndSync(
           () -> {
@@ -168,6 +175,10 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void playPauseKeyEvent_paused_play() throws Exception {
+    // We don't receive media key events when we are not playing on API < 26, so we can't test this
+    // case as it's not supported.
+    assumeTrue(Util.SDK_INT >= 26);
+
     handler.postAndSync(
         () -> {
           player.playbackState = Player.STATE_READY;
@@ -180,6 +191,10 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void playPauseKeyEvent_fromIdle_prepareAndPlay() throws Exception {
+    // We don't receive media key events when we are not playing on API < 26, so we can't test this
+    // case as it's not supported.
+    assumeTrue(Util.SDK_INT >= 26);
+
     handler.postAndSync(
         () -> {
           player.playbackState = Player.STATE_IDLE;
@@ -193,6 +208,10 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void playPauseKeyEvent_playWhenReadyAndEnded_seekAndPlay() throws Exception {
+    // We don't receive media key events when we are not playing on API < 26, so we can't test this
+    // case as it's not supported.
+    assumeTrue(Util.SDK_INT >= 26);
+
     handler.postAndSync(
         () -> {
           player.playWhenReady = true;

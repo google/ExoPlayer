@@ -32,7 +32,7 @@ import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 public final class MediaConstants {
 
   /**
-   * The legacy error code for expired authentication.
+   * {@link Bundle} key used for the error code for expired authentication.
    *
    * <p>Use this error code to indicate an expired authentication when {@linkplain
    * LibraryResult#ofError(int, LibraryParams) creating a library result} for an unsuccessful
@@ -43,7 +43,23 @@ public final class MediaConstants {
   public static final int ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT = 3;
 
   /**
-   * The extras key for the localized error resolution string.
+   * {@link Bundle} key used for the value of {@code Player.getPlaybackParameters().speed}.
+   *
+   * <p>Use this key in the extras bundle of the legacy {@link PlaybackStateCompat}.
+   */
+  @UnstableApi public static final String EXTRAS_KEY_PLAYBACK_SPEED_COMPAT = "EXO_SPEED";
+
+  /**
+   * {@link Bundle} key used for the media id of the media being played.
+   *
+   * <p>Use this key in the extras bundle of the legacy {@link PlaybackStateCompat}.
+   */
+  @UnstableApi
+  public static final String EXTRAS_KEY_MEDIA_ID_COMPAT =
+      androidx.media.utils.MediaConstants.PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID;
+
+  /**
+   * {@link Bundle} key used for a localized error resolution string.
    *
    * <p>Use this key to populate the extras bundle of the {@link LibraryParams} when {@linkplain
    * LibraryResult#ofError(int, LibraryParams) creating a library result} for an unsuccessful
@@ -53,7 +69,7 @@ public final class MediaConstants {
       androidx.media.utils.MediaConstants.PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL;
 
   /**
-   * The extras key for the error resolution intent.
+   * {@link Bundle} key used for an error resolution intent.
    *
    * <p>Use this key to populate the extras bundle of the {@link LibraryParams} when {@linkplain
    * LibraryResult#ofError(int, LibraryParams) creating a library result} for an unsuccessful

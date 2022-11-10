@@ -1818,8 +1818,9 @@ public class MediaControllerListenerTest {
 
   @Test
   public void onIsPlayingChanged_isNotified() throws Exception {
-    boolean testIsPlaying = true;
-    remoteSession.getMockPlayer().notifyIsPlayingChanged(false);
+    remoteSession
+        .getMockPlayer()
+        .setPlayWhenReady(/* playWhenReady= */ true, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicBoolean isPlayingGetterRef = new AtomicBoolean();
@@ -1844,18 +1845,17 @@ public class MediaControllerListenerTest {
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
 
-    remoteSession.getMockPlayer().notifyIsPlayingChanged(testIsPlaying);
+    remoteSession.getMockPlayer().notifyPlaybackStateChanged(Player.STATE_READY);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(isPlayingParamRef.get()).isEqualTo(testIsPlaying);
-    assertThat(isPlayingGetterRef.get()).isEqualTo(testIsPlaying);
-    assertThat(isPlayingOnEventsRef.get()).isEqualTo(testIsPlaying);
-    assertThat(getEventsAsList(eventsRef.get())).containsExactly(Player.EVENT_IS_PLAYING_CHANGED);
+    assertThat(isPlayingParamRef.get()).isTrue();
+    assertThat(isPlayingGetterRef.get()).isTrue();
+    assertThat(isPlayingOnEventsRef.get()).isTrue();
+    assertThat(getEventsAsList(eventsRef.get())).contains(Player.EVENT_IS_PLAYING_CHANGED);
   }
 
   @Test
   public void onIsPlayingChanged_updatesGetters() throws Exception {
-    boolean testIsPlaying = true;
     long testCurrentPositionMs = 11;
     long testContentPositionMs = testCurrentPositionMs; // Not playing an ad
     long testBufferedPositionMs = 100;
@@ -1863,7 +1863,9 @@ public class MediaControllerListenerTest {
     long testTotalBufferedDurationMs = 120;
     long testCurrentLiveOffsetMs = 10;
     long testContentBufferedPositionMs = 240;
-    remoteSession.getMockPlayer().notifyIsPlayingChanged(false);
+    remoteSession
+        .getMockPlayer()
+        .setPlayWhenReady(/* playWhenReady= */ true, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     threadTestRule.getHandler().postAndSync(() -> controller.setTimeDiffMs(/* timeDiff= */ 0L));
     CountDownLatch latch = new CountDownLatch(2);
@@ -1906,10 +1908,10 @@ public class MediaControllerListenerTest {
     remoteSession.getMockPlayer().setTotalBufferedDuration(testTotalBufferedDurationMs);
     remoteSession.getMockPlayer().setCurrentLiveOffset(testCurrentLiveOffsetMs);
     remoteSession.getMockPlayer().setContentBufferedPosition(testContentBufferedPositionMs);
-    remoteSession.getMockPlayer().notifyIsPlayingChanged(testIsPlaying);
+    remoteSession.getMockPlayer().notifyPlaybackStateChanged(Player.STATE_READY);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(isPlayingRef.get()).isEqualTo(testIsPlaying);
+    assertThat(isPlayingRef.get()).isEqualTo(true);
     assertThat(currentPositionMsRef.get()).isEqualTo(testCurrentPositionMs);
     assertThat(contentPositionMsRef.get()).isEqualTo(testContentPositionMs);
     assertThat(bufferedPositionMsRef.get()).isEqualTo(testBufferedPositionMs);
@@ -1917,7 +1919,7 @@ public class MediaControllerListenerTest {
     assertThat(totalBufferedDurationMsRef.get()).isEqualTo(testTotalBufferedDurationMs);
     assertThat(currentLiveOffsetMsRef.get()).isEqualTo(testCurrentLiveOffsetMs);
     assertThat(contentBufferedPositionMsRef.get()).isEqualTo(testContentBufferedPositionMs);
-    assertThat(getEventsAsList(eventsRef.get())).containsExactly(Player.EVENT_IS_PLAYING_CHANGED);
+    assertThat(getEventsAsList(eventsRef.get())).contains(Player.EVENT_IS_PLAYING_CHANGED);
   }
 
   @Test
