@@ -95,8 +95,13 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @hide
+   */
   @Override
-  protected OpusDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
+  protected final OpusDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws OpusDecoderException {
     TraceUtil.beginSection("createOpusDecoder");
     @SinkFormatSupport
@@ -121,8 +126,13 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     return decoder;
   }
 
+  /**
+   * {@inheritDoc} g
+   *
+   * @hide
+   */
   @Override
-  protected Format getOutputFormat(OpusDecoder decoder) {
+  protected final Format getOutputFormat(OpusDecoder decoder) {
     @C.PcmEncoding
     int pcmEncoding = decoder.outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     return Util.getPcmFormat(pcmEncoding, decoder.channelCount, OpusDecoder.SAMPLE_RATE);
