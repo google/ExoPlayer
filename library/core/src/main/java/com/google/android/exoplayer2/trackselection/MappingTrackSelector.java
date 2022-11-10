@@ -434,7 +434,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * Given mapped track information, returns a track selection and configuration for each renderer.
    *
    * @param mappedTrackInfo Mapped track information.
-   * @param rendererFormatSupports The {@link Capabilities} for ach mapped track, indexed by
+   * @param rendererFormatSupports The {@link Capabilities} for each mapped track, indexed by
    *     renderer, track group and track (in that order).
    * @param rendererMixedMimeTypeAdaptationSupport The {@link AdaptiveSupport} for mixed MIME type
    *     adaptation for the renderer.

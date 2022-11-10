@@ -147,7 +147,7 @@ public final class MappingTrackSelectorTest {
     protected Pair<RendererConfiguration[], ExoTrackSelection[]> selectTracks(
         MappedTrackInfo mappedTrackInfo,
         @Capabilities int[][][] rendererFormatSupports,
-        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports,
+        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupport,
         MediaPeriodId mediaPeriodId,
         Timeline timeline) {
       int rendererCount = mappedTrackInfo.getRendererCount();
