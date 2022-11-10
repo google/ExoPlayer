@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
-import androidx.media3.common.Player;
 import androidx.media3.common.Player.Commands;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
@@ -180,11 +179,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     dispatchControllerTaskOnHandler(
-        controller ->
-            controller.onPlayerInfoChanged(
-                playerInfo,
-                /* timelineChangedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
-                isTimelineExcluded));
+        controller -> controller.onPlayerInfoChanged(playerInfo, isTimelineExcluded));
   }
 
   @Override
