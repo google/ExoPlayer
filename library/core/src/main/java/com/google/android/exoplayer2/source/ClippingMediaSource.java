@@ -226,11 +226,11 @@ public final class ClippingMediaSource extends WrappingMediaSource {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(Timeline timeline) {
+  protected void onChildSourceInfoRefreshed(Timeline newTimeline) {
     if (clippingError != null) {
       return;
     }
-    refreshClippedTimeline(timeline);
+    refreshClippedTimeline(newTimeline);
   }
 
   private void refreshClippedTimeline(Timeline timeline) {
