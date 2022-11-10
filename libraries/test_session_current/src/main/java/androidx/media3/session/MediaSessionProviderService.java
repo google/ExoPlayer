@@ -36,7 +36,6 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUT
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DURATION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_IS_LOADING;
-import static androidx.media3.test.session.common.CommonConstants.KEY_IS_PLAYING;
 import static androidx.media3.test.session.common.CommonConstants.KEY_IS_PLAYING_AD;
 import static androidx.media3.test.session.common.CommonConstants.KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_MEDIA_METADATA;
@@ -374,7 +373,6 @@ public class MediaSessionProviderService extends Service {
       player.playbackSuppressionReason =
           config.getInt(KEY_PLAYBACK_SUPPRESSION_REASON, player.playbackSuppressionReason);
       player.playbackState = config.getInt(KEY_PLAYBACK_STATE, player.playbackState);
-      player.isPlaying = config.getBoolean(KEY_IS_PLAYING, player.isPlaying);
       player.isLoading = config.getBoolean(KEY_IS_LOADING, player.isLoading);
       player.repeatMode = config.getInt(KEY_REPEAT_MODE, player.repeatMode);
       player.shuffleModeEnabled =
@@ -692,16 +690,6 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = sessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.notifyPlaybackStateChanged(state);
-          });
-    }
-
-    @Override
-    public void notifyIsPlayingChanged(String sessionId, boolean isPlaying) throws RemoteException {
-      runOnHandler(
-          () -> {
-            MediaSession session = sessionMap.get(sessionId);
-            MockPlayer player = (MockPlayer) session.getPlayer();
-            player.notifyIsPlayingChanged(isPlaying);
           });
     }
 

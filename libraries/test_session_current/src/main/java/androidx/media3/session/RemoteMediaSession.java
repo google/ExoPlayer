@@ -35,7 +35,6 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUT
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DURATION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_IS_LOADING;
-import static androidx.media3.test.session.common.CommonConstants.KEY_IS_PLAYING;
 import static androidx.media3.test.session.common.CommonConstants.KEY_IS_PLAYING_AD;
 import static androidx.media3.test.session.common.CommonConstants.KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_MEDIA_METADATA;
@@ -294,10 +293,6 @@ public class RemoteMediaSession {
 
     public void notifyPlaybackStateChanged(@Player.State int state) throws RemoteException {
       binder.notifyPlaybackStateChanged(sessionId, state);
-    }
-
-    public void notifyIsPlayingChanged(boolean isPlaying) throws RemoteException {
-      binder.notifyIsPlayingChanged(sessionId, isPlaying);
     }
 
     public void notifyIsLoadingChanged(boolean isLoading) throws RemoteException {
@@ -684,12 +679,6 @@ public class RemoteMediaSession {
     @CanIgnoreReturnValue
     public MockPlayerConfigBuilder setPlaybackState(@Player.State int state) {
       bundle.putInt(KEY_PLAYBACK_STATE, state);
-      return this;
-    }
-
-    @CanIgnoreReturnValue
-    public MockPlayerConfigBuilder setIsPlaying(boolean isPlaying) {
-      bundle.putBoolean(KEY_IS_PLAYING, isPlaying);
       return this;
     }
 

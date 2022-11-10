@@ -279,7 +279,6 @@ public class MediaControllerTest {
     @Player.PlaybackSuppressionReason
     int playbackSuppressionReason = Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS;
     @Player.State int playbackState = Player.STATE_READY;
-    boolean isPlaying = true;
     boolean isLoading = true;
     boolean isShuffleModeEnabled = true;
     @RepeatMode int repeatMode = Player.REPEAT_MODE_ONE;
@@ -327,7 +326,6 @@ public class MediaControllerTest {
             .setPlayWhenReady(playWhenReady)
             .setPlaybackSuppressionReason(playbackSuppressionReason)
             .setPlaybackState(playbackState)
-            .setIsPlaying(isPlaying)
             .setIsLoading(isLoading)
             .setShuffleModeEnabled(isShuffleModeEnabled)
             .setRepeatMode(repeatMode)
@@ -360,7 +358,6 @@ public class MediaControllerTest {
     AtomicBoolean playWhenReadyRef = new AtomicBoolean();
     AtomicInteger playbackSuppressionReasonRef = new AtomicInteger();
     AtomicInteger playbackStateRef = new AtomicInteger();
-    AtomicBoolean isPlayingRef = new AtomicBoolean();
     AtomicBoolean isLoadingRef = new AtomicBoolean();
     AtomicBoolean isShuffleModeEnabledRef = new AtomicBoolean();
     AtomicInteger repeatModeRef = new AtomicInteger();
@@ -393,7 +390,6 @@ public class MediaControllerTest {
               playWhenReadyRef.set(controller.getPlayWhenReady());
               playbackSuppressionReasonRef.set(controller.getPlaybackSuppressionReason());
               playbackStateRef.set(controller.getPlaybackState());
-              isPlayingRef.set(controller.isPlaying());
               isLoadingRef.set(controller.isLoading());
               isShuffleModeEnabledRef.set(controller.getShuffleModeEnabled());
               repeatModeRef.set(controller.getRepeatMode());
@@ -423,7 +419,6 @@ public class MediaControllerTest {
     assertThat(playWhenReadyRef.get()).isEqualTo(playWhenReady);
     assertThat(playbackSuppressionReasonRef.get()).isEqualTo(playbackSuppressionReason);
     assertThat(playbackStateRef.get()).isEqualTo(playbackState);
-    assertThat(isPlayingRef.get()).isEqualTo(isPlaying);
     assertThat(isLoadingRef.get()).isEqualTo(isLoading);
     assertThat(isShuffleModeEnabledRef.get()).isEqualTo(isShuffleModeEnabled);
     assertThat(repeatModeRef.get()).isEqualTo(repeatMode);
@@ -842,7 +837,7 @@ public class MediaControllerTest {
     long testCurrentPositionMs = 100L;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setIsPlaying(false)
+            .setPlaybackState(Player.STATE_BUFFERING)
             .setCurrentPosition(testCurrentPositionMs)
             .setDuration(10_000L)
             .build();
@@ -868,7 +863,8 @@ public class MediaControllerTest {
     long testTimeDiff = 50L;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setIsPlaying(true)
+            .setPlaybackState(Player.STATE_READY)
+            .setPlayWhenReady(true)
             .setCurrentPosition(testCurrentPosition)
             .setDuration(10_000L)
             .setPlaybackParameters(testPlaybackParameters)
@@ -897,7 +893,8 @@ public class MediaControllerTest {
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setContentPosition(testContentPosition)
             .setDuration(10_000L)
-            .setIsPlaying(true)
+            .setPlaybackState(Player.STATE_READY)
+            .setPlayWhenReady(true)
             .setIsPlayingAd(true)
             .setCurrentAdGroupIndex(0)
             .setCurrentAdIndexInAdGroup(0)
@@ -925,7 +922,8 @@ public class MediaControllerTest {
             .setCurrentPosition(100L)
             .setContentPosition(100L) // Same as current position b/c not playing an ad
             .setDuration(10_000L)
-            .setIsPlaying(true)
+            .setPlayWhenReady(true)
+            .setPlaybackState(Player.STATE_READY)
             .setIsPlayingAd(false)
             .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
             .build();
@@ -956,7 +954,8 @@ public class MediaControllerTest {
             .setCurrentPosition(10L)
             .setContentPosition(50L)
             .setDuration(10_000L)
-            .setIsPlaying(true)
+            .setPlayWhenReady(true)
+            .setPlaybackState(Player.STATE_READY)
             .setIsPlayingAd(true)
             .setCurrentAdGroupIndex(0)
             .setCurrentAdIndexInAdGroup(0)
