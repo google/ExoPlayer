@@ -115,7 +115,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
 
   @Override
   protected List<Segment> getSegments(
-      DataSource dataSource, SsManifest manifest, boolean allowIncompleteList) {
+      DataSource dataSource, SsManifest manifest, boolean removing) {
     ArrayList<Segment> segments = new ArrayList<>();
     for (StreamElement streamElement : manifest.streamElements) {
       for (int i = 0; i < streamElement.formats.length; i++) {

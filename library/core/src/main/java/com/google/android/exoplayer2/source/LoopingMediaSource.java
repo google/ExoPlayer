@@ -108,11 +108,11 @@ public final class LoopingMediaSource extends WrappingMediaSource {
   }
 
   @Override
-  protected void onChildSourceInfoRefreshed(Timeline timeline) {
+  protected void onChildSourceInfoRefreshed(Timeline newTimeline) {
     Timeline loopingTimeline =
         loopCount != Integer.MAX_VALUE
-            ? new LoopingTimeline(timeline, loopCount)
-            : new InfinitelyLoopingTimeline(timeline);
+            ? new LoopingTimeline(newTimeline, loopCount)
+            : new InfinitelyLoopingTimeline(newTimeline);
     refreshSourceInfo(loopingTimeline);
   }
 

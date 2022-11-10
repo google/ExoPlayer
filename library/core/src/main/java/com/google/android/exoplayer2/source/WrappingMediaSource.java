@@ -126,8 +126,8 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
 
   @Override
   protected final void onChildSourceInfoRefreshed(
-      Void id, MediaSource mediaSource, Timeline timeline) {
-    onChildSourceInfoRefreshed(timeline);
+      Void childSourceId, MediaSource mediaSource, Timeline newTimeline) {
+    onChildSourceInfoRefreshed(newTimeline);
   }
 
   /**
@@ -137,14 +137,14 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
    * ForwardingTimeline}. The {@link Timeline} for the wrapping source needs to be published with
    * {@link #refreshSourceInfo(Timeline)}.
    *
-   * @param timeline The timeline of the child source.
+   * @param newTimeline The timeline of the child source.
    */
-  protected void onChildSourceInfoRefreshed(Timeline timeline) {
-    refreshSourceInfo(timeline);
+  protected void onChildSourceInfoRefreshed(Timeline newTimeline) {
+    refreshSourceInfo(newTimeline);
   }
 
   @Override
-  protected final int getWindowIndexForChildWindowIndex(Void id, int windowIndex) {
+  protected final int getWindowIndexForChildWindowIndex(Void childSourceId, int windowIndex) {
     return getWindowIndexForChildWindowIndex(windowIndex);
   }
 
@@ -162,7 +162,7 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
   @Nullable
   @Override
   protected final MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
-      Void id, MediaPeriodId mediaPeriodId) {
+      Void childSourceId, MediaPeriodId mediaPeriodId) {
     return getMediaPeriodIdForChildMediaPeriodId(mediaPeriodId);
   }
 
@@ -181,7 +181,7 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected final long getMediaTimeForChildMediaTime(Void id, long mediaTimeMs) {
+  protected final long getMediaTimeForChildMediaTime(Void childSourceId, long mediaTimeMs) {
     return getMediaTimeForChildMediaTime(mediaTimeMs);
   }
 
