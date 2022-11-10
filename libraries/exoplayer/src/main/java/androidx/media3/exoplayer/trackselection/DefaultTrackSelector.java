@@ -2392,7 +2392,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       selectTracks(
           MappedTrackInfo mappedTrackInfo,
           @Capabilities int[][][] rendererFormatSupports,
-          @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports,
+          @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupport,
           MediaPeriodId mediaPeriodId,
           Timeline timeline)
           throws ExoPlaybackException {
@@ -2412,7 +2412,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         selectAllTracks(
             mappedTrackInfo,
             rendererFormatSupports,
-            rendererMixedMimeTypeAdaptationSupports,
+            rendererMixedMimeTypeAdaptationSupport,
             parameters);
 
     applyTrackSelectionOverrides(mappedTrackInfo, parameters, definitions);
