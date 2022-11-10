@@ -412,7 +412,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @UnstableApi
   @Override
-  public int[] getSupportedTypes() {
+  public @C.ContentType int[] getSupportedTypes() {
     return delegateFactoryLoader.getSupportedTypes();
   }
 

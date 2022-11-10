@@ -292,7 +292,7 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     @Override
-    public int[] getSupportedTypes() {
+    public @C.ContentType int[] getSupportedTypes() {
       return new int[] {C.CONTENT_TYPE_SS};
     }
   }
