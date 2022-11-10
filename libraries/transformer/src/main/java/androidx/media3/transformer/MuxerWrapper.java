@@ -235,11 +235,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /** Returns the number of {@link #registerTrack() registered} tracks. */
-  public int getTrackCount() {
-    return trackCount;
-  }
-
   /**
    * Returns the average bitrate of data written to the track of the provided {@code trackType}, or
    * {@link C#RATE_UNSET_INT} if there is no track data.
