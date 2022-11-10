@@ -3300,6 +3300,44 @@ public class MediaControllerListenerTest {
     assertThat(getEventsAsList(eventsRef.get())).containsExactly(Player.EVENT_RENDERED_FIRST_FRAME);
   }
 
+  @Test
+  public void recursiveChangesFromListeners_reportConsistentValuesForAllListeners()
+      throws Exception {
+    // We add two listeners to the controller. The first stops the player as soon as it's ready and
+    // both record the state change events they receive.
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    List<Integer> listener1States = new ArrayList<>();
+    List<Integer> listener2States = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(4);
+    Player.Listener listener1 =
+        new Player.Listener() {
+          @Override
+          public void onPlaybackStateChanged(@Player.State int playbackState) {
+            listener1States.add(playbackState);
+            if (playbackState == Player.STATE_READY) {
+              controller.stop();
+            }
+            latch.countDown();
+          }
+        };
+    Player.Listener listener2 =
+        new Player.Listener() {
+          @Override
+          public void onPlaybackStateChanged(@Player.State int playbackState) {
+            listener2States.add(playbackState);
+            latch.countDown();
+          }
+        };
+    controller.addListener(listener1);
+    controller.addListener(listener2);
+
+    remoteSession.getMockPlayer().notifyPlaybackStateChanged(Player.STATE_READY);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(listener1States).containsExactly(Player.STATE_READY, Player.STATE_IDLE).inOrder();
+    assertThat(listener2States).containsExactly(Player.STATE_READY, Player.STATE_IDLE).inOrder();
+  }
+
   private void testControllerAfterSessionIsClosed(String id) throws Exception {
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     // This causes the session service to die.

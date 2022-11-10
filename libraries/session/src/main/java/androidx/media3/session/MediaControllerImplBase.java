@@ -2320,10 +2320,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
-  void onPlayerInfoChanged(
-      PlayerInfo newPlayerInfo,
-      @Player.TimelineChangeReason int timelineChangedReason,
-      boolean isTimelineExcluded) {
+  void onPlayerInfoChanged(PlayerInfo newPlayerInfo, boolean isTimelineExcluded) {
     if (!isConnected()) {
       return;
     }
@@ -2335,169 +2332,178 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     PlayerInfo oldPlayerInfo = playerInfo;
-    playerInfo = newPlayerInfo;
     if (isTimelineExcluded) {
-      playerInfo =
-          playerInfo.copyWithTimeline(
+      newPlayerInfo =
+          newPlayerInfo.copyWithTimeline(
               pendingPlayerInfoUpdateTimeline != null
                   ? pendingPlayerInfoUpdateTimeline
                   : oldPlayerInfo.timeline);
     }
+    // Assigning class variable now so that all getters called from listeners see the updated value.
+    // But we need to use a local final variable to ensure listeners get consistent parameters.
+    playerInfo = newPlayerInfo;
+    PlayerInfo finalPlayerInfo = newPlayerInfo;
     pendingPlayerInfoUpdateTimeline = null;
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
-    PlaybackException playerError = playerInfo.playerError;
+    PlaybackException playerError = finalPlayerInfo.playerError;
     boolean errorsMatch =
         oldPlayerError == playerError
             || (oldPlayerError != null && oldPlayerError.errorInfoEquals(playerError));
     if (!errorsMatch) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
-          listener -> listener.onPlayerErrorChanged(playerInfo.playerError));
-      if (playerInfo.playerError != null) {
+          listener -> listener.onPlayerErrorChanged(finalPlayerInfo.playerError));
+      if (finalPlayerInfo.playerError != null) {
         listeners.queueEvent(
             /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
-            listener -> listener.onPlayerError(playerInfo.playerError));
+            listener -> listener.onPlayerError(finalPlayerInfo.playerError));
       }
     }
     MediaItem oldCurrentMediaItem = oldPlayerInfo.getCurrentMediaItem();
-    MediaItem currentMediaItem = playerInfo.getCurrentMediaItem();
+    MediaItem currentMediaItem = finalPlayerInfo.getCurrentMediaItem();
     if (!Util.areEqual(oldCurrentMediaItem, currentMediaItem)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->
               listener.onMediaItemTransition(
-                  currentMediaItem, playerInfo.mediaItemTransitionReason));
+                  currentMediaItem, finalPlayerInfo.mediaItemTransitionReason));
     }
-    if (!Util.areEqual(oldPlayerInfo.currentTracks, playerInfo.currentTracks)) {
+    if (!Util.areEqual(oldPlayerInfo.currentTracks, finalPlayerInfo.currentTracks)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksChanged(playerInfo.currentTracks));
+          listener -> listener.onTracksChanged(finalPlayerInfo.currentTracks));
     }
-    if (!Util.areEqual(oldPlayerInfo.playbackParameters, playerInfo.playbackParameters)) {
+    if (!Util.areEqual(oldPlayerInfo.playbackParameters, finalPlayerInfo.playbackParameters)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
-          listener -> listener.onPlaybackParametersChanged(playerInfo.playbackParameters));
+          listener -> listener.onPlaybackParametersChanged(finalPlayerInfo.playbackParameters));
     }
-    if (oldPlayerInfo.repeatMode != playerInfo.repeatMode) {
+    if (oldPlayerInfo.repeatMode != finalPlayerInfo.repeatMode) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_REPEAT_MODE_CHANGED,
-          listener -> listener.onRepeatModeChanged(playerInfo.repeatMode));
+          listener -> listener.onRepeatModeChanged(finalPlayerInfo.repeatMode));
     }
-    if (oldPlayerInfo.shuffleModeEnabled != playerInfo.shuffleModeEnabled) {
+    if (oldPlayerInfo.shuffleModeEnabled != finalPlayerInfo.shuffleModeEnabled) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
-          listener -> listener.onShuffleModeEnabledChanged(playerInfo.shuffleModeEnabled));
+          listener -> listener.onShuffleModeEnabledChanged(finalPlayerInfo.shuffleModeEnabled));
     }
-    if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, playerInfo.timeline)) {
+    if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
-          listener -> listener.onTimelineChanged(playerInfo.timeline, timelineChangedReason));
+          listener ->
+              listener.onTimelineChanged(
+                  finalPlayerInfo.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     }
-    if (!Util.areEqual(oldPlayerInfo.playlistMetadata, playerInfo.playlistMetadata)) {
+    if (!Util.areEqual(oldPlayerInfo.playlistMetadata, finalPlayerInfo.playlistMetadata)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAYLIST_METADATA_CHANGED,
-          listener -> listener.onPlaylistMetadataChanged(playerInfo.playlistMetadata));
+          listener -> listener.onPlaylistMetadataChanged(finalPlayerInfo.playlistMetadata));
     }
-    if (oldPlayerInfo.volume != playerInfo.volume) {
+    if (oldPlayerInfo.volume != finalPlayerInfo.volume) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_VOLUME_CHANGED,
-          listener -> listener.onVolumeChanged(playerInfo.volume));
+          listener -> listener.onVolumeChanged(finalPlayerInfo.volume));
     }
-    if (!Util.areEqual(oldPlayerInfo.audioAttributes, playerInfo.audioAttributes)) {
+    if (!Util.areEqual(oldPlayerInfo.audioAttributes, finalPlayerInfo.audioAttributes)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_AUDIO_ATTRIBUTES_CHANGED,
-          listener -> listener.onAudioAttributesChanged(playerInfo.audioAttributes));
+          listener -> listener.onAudioAttributesChanged(finalPlayerInfo.audioAttributes));
     }
-    if (!oldPlayerInfo.cueGroup.cues.equals(playerInfo.cueGroup.cues)) {
+    if (!oldPlayerInfo.cueGroup.cues.equals(finalPlayerInfo.cueGroup.cues)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_CUES,
-          listener -> listener.onCues(playerInfo.cueGroup.cues));
+          listener -> listener.onCues(finalPlayerInfo.cueGroup.cues));
       listeners.queueEvent(
-          /* eventFlag= */ Player.EVENT_CUES, listener -> listener.onCues(playerInfo.cueGroup));
+          /* eventFlag= */ Player.EVENT_CUES,
+          listener -> listener.onCues(finalPlayerInfo.cueGroup));
     }
-    if (!Util.areEqual(oldPlayerInfo.deviceInfo, playerInfo.deviceInfo)) {
+    if (!Util.areEqual(oldPlayerInfo.deviceInfo, finalPlayerInfo.deviceInfo)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_DEVICE_INFO_CHANGED,
-          listener -> listener.onDeviceInfoChanged(playerInfo.deviceInfo));
+          listener -> listener.onDeviceInfoChanged(finalPlayerInfo.deviceInfo));
     }
-    if (oldPlayerInfo.deviceVolume != playerInfo.deviceVolume
-        || oldPlayerInfo.deviceMuted != playerInfo.deviceMuted) {
+    if (oldPlayerInfo.deviceVolume != finalPlayerInfo.deviceVolume
+        || oldPlayerInfo.deviceMuted != finalPlayerInfo.deviceMuted) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener ->
-              listener.onDeviceVolumeChanged(playerInfo.deviceVolume, playerInfo.deviceMuted));
+              listener.onDeviceVolumeChanged(
+                  finalPlayerInfo.deviceVolume, finalPlayerInfo.deviceMuted));
     }
-    if (oldPlayerInfo.playWhenReady != playerInfo.playWhenReady) {
+    if (oldPlayerInfo.playWhenReady != finalPlayerInfo.playWhenReady) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
-                  playerInfo.playWhenReady, playerInfo.playWhenReadyChangedReason));
+                  finalPlayerInfo.playWhenReady, finalPlayerInfo.playWhenReadyChangedReason));
     }
-    if (oldPlayerInfo.playbackSuppressionReason != playerInfo.playbackSuppressionReason) {
+    if (oldPlayerInfo.playbackSuppressionReason != finalPlayerInfo.playbackSuppressionReason) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
-              listener.onPlaybackSuppressionReasonChanged(playerInfo.playbackSuppressionReason));
+              listener.onPlaybackSuppressionReasonChanged(
+                  finalPlayerInfo.playbackSuppressionReason));
     }
-    if (oldPlayerInfo.playbackState != playerInfo.playbackState) {
+    if (oldPlayerInfo.playbackState != finalPlayerInfo.playbackState) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
-          listener -> listener.onPlaybackStateChanged(playerInfo.playbackState));
+          listener -> listener.onPlaybackStateChanged(finalPlayerInfo.playbackState));
     }
-    if (oldPlayerInfo.isPlaying != playerInfo.isPlaying) {
+    if (oldPlayerInfo.isPlaying != finalPlayerInfo.isPlaying) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
-          listener -> listener.onIsPlayingChanged(playerInfo.isPlaying));
+          listener -> listener.onIsPlayingChanged(finalPlayerInfo.isPlaying));
     }
-    if (oldPlayerInfo.isLoading != playerInfo.isLoading) {
+    if (oldPlayerInfo.isLoading != finalPlayerInfo.isLoading) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_IS_LOADING_CHANGED,
-          listener -> listener.onIsLoadingChanged(playerInfo.isLoading));
+          listener -> listener.onIsLoadingChanged(finalPlayerInfo.isLoading));
     }
-    if (!Util.areEqual(oldPlayerInfo.videoSize, playerInfo.videoSize)) {
+    if (!Util.areEqual(oldPlayerInfo.videoSize, finalPlayerInfo.videoSize)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_VIDEO_SIZE_CHANGED,
-          listener -> listener.onVideoSizeChanged(playerInfo.videoSize));
+          listener -> listener.onVideoSizeChanged(finalPlayerInfo.videoSize));
     }
-    if (!Util.areEqual(oldPlayerInfo.oldPositionInfo, playerInfo.oldPositionInfo)
-        || !Util.areEqual(oldPlayerInfo.newPositionInfo, playerInfo.newPositionInfo)) {
+    if (!Util.areEqual(oldPlayerInfo.oldPositionInfo, finalPlayerInfo.oldPositionInfo)
+        || !Util.areEqual(oldPlayerInfo.newPositionInfo, finalPlayerInfo.newPositionInfo)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
           listener ->
               listener.onPositionDiscontinuity(
-                  playerInfo.oldPositionInfo,
-                  playerInfo.newPositionInfo,
-                  playerInfo.discontinuityReason));
+                  finalPlayerInfo.oldPositionInfo,
+                  finalPlayerInfo.newPositionInfo,
+                  finalPlayerInfo.discontinuityReason));
     }
-    if (!Util.areEqual(oldPlayerInfo.mediaMetadata, playerInfo.mediaMetadata)) {
+    if (!Util.areEqual(oldPlayerInfo.mediaMetadata, finalPlayerInfo.mediaMetadata)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_MEDIA_METADATA_CHANGED,
-          listener -> listener.onMediaMetadataChanged(playerInfo.mediaMetadata));
+          listener -> listener.onMediaMetadataChanged(finalPlayerInfo.mediaMetadata));
     }
-    if (oldPlayerInfo.seekBackIncrementMs != playerInfo.seekBackIncrementMs) {
+    if (oldPlayerInfo.seekBackIncrementMs != finalPlayerInfo.seekBackIncrementMs) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
-          listener -> listener.onSeekBackIncrementChanged(playerInfo.seekBackIncrementMs));
+          listener -> listener.onSeekBackIncrementChanged(finalPlayerInfo.seekBackIncrementMs));
     }
-    if (oldPlayerInfo.seekForwardIncrementMs != playerInfo.seekForwardIncrementMs) {
+    if (oldPlayerInfo.seekForwardIncrementMs != finalPlayerInfo.seekForwardIncrementMs) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
-          listener -> listener.onSeekForwardIncrementChanged(playerInfo.seekForwardIncrementMs));
+          listener ->
+              listener.onSeekForwardIncrementChanged(finalPlayerInfo.seekForwardIncrementMs));
     }
-    if (oldPlayerInfo.maxSeekToPreviousPositionMs != newPlayerInfo.maxSeekToPreviousPositionMs) {
+    if (oldPlayerInfo.maxSeekToPreviousPositionMs != finalPlayerInfo.maxSeekToPreviousPositionMs) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
           listener ->
               listener.onMaxSeekToPreviousPositionChanged(
-                  newPlayerInfo.maxSeekToPreviousPositionMs));
+                  finalPlayerInfo.maxSeekToPreviousPositionMs));
     }
     if (!Util.areEqual(
-        oldPlayerInfo.trackSelectionParameters, newPlayerInfo.trackSelectionParameters)) {
+        oldPlayerInfo.trackSelectionParameters, finalPlayerInfo.trackSelectionParameters)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
           listener ->
-              listener.onTrackSelectionParametersChanged(newPlayerInfo.trackSelectionParameters));
+              listener.onTrackSelectionParametersChanged(finalPlayerInfo.trackSelectionParameters));
     }
     listeners.flushEvents();
   }
