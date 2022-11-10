@@ -66,8 +66,8 @@ import org.checkerframework.dataflow.qual.Pure;
   public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
-      long streamOffsetUs,
       long streamStartPositionUs,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
       ImmutableList<Effect> effects,
       FrameProcessor.Factory frameProcessorFactory,
@@ -80,8 +80,8 @@ import org.checkerframework.dataflow.qual.Pure;
       throws TransformationException {
     super(
         inputFormat,
-        streamOffsetUs,
         streamStartPositionUs,
+        streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
         muxerWrapper);
 

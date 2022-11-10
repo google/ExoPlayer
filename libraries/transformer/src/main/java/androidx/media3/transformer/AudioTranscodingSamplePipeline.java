@@ -55,8 +55,8 @@ import org.checkerframework.dataflow.qual.Pure;
 
   public AudioTranscodingSamplePipeline(
       Format inputFormat,
-      long streamOffsetUs,
       long streamStartPositionUs,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
@@ -65,8 +65,8 @@ import org.checkerframework.dataflow.qual.Pure;
       throws TransformationException {
     super(
         inputFormat,
-        streamOffsetUs,
         streamStartPositionUs,
+        streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
         muxerWrapper);
 

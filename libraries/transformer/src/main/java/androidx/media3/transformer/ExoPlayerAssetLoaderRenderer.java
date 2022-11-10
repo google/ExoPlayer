@@ -44,8 +44,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private boolean isTransformationRunning;
-  private long streamOffsetUs;
   private long streamStartPositionUs;
+  private long streamOffsetUs;
   private @MonotonicNonNull SamplePipeline samplePipeline;
 
   public ExoPlayerAssetLoaderRenderer(
@@ -110,8 +110,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
-    this.streamOffsetUs = offsetUs;
     this.streamStartPositionUs = startPositionUs;
+    this.streamOffsetUs = offsetUs;
   }
 
   @Override

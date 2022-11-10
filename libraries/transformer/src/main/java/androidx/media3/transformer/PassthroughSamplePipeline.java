@@ -30,15 +30,15 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   public PassthroughSamplePipeline(
       Format format,
-      long streamOffsetUs,
       long streamStartPositionUs,
+      long streamOffsetUs,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener) {
     super(
         format,
-        streamOffsetUs,
         streamStartPositionUs,
+        streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
         muxerWrapper);
     this.format = format;

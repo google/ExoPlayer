@@ -30,8 +30,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /* package */ abstract class BaseSamplePipeline implements SamplePipeline {
 
-  private final long streamOffsetUs;
   private final long streamStartPositionUs;
+  private final long streamOffsetUs;
   private final MuxerWrapper muxerWrapper;
   private final @C.TrackType int trackType;
   private final @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
@@ -42,12 +42,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public BaseSamplePipeline(
       Format inputFormat,
-      long streamOffsetUs,
       long streamStartPositionUs,
+      long streamOffsetUs,
       boolean flattenForSlowMotion,
       MuxerWrapper muxerWrapper) {
-    this.streamOffsetUs = streamOffsetUs;
     this.streamStartPositionUs = streamStartPositionUs;
+    this.streamOffsetUs = streamOffsetUs;
     this.muxerWrapper = muxerWrapper;
     trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
     sefVideoSlowMotionFlattener =
