@@ -311,7 +311,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              asyncErrorListener.onTransformationException(
+              asyncErrorListener.onTransformationError(
                   TransformationException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "

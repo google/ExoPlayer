@@ -35,7 +35,6 @@ import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.UnstableApi;
@@ -552,7 +551,7 @@ public final class Transformer {
   private final Looper looper;
   private final DebugViewProvider debugViewProvider;
   private final Clock clock;
-  private final ExoPlayerAssetLoader exoPlayerAssetLoader;
+  private final TransformerInternal transformerInternal;
 
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private String outputPath;
@@ -590,8 +589,8 @@ public final class Transformer {
     this.looper = looper;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
-    exoPlayerAssetLoader =
-        new ExoPlayerAssetLoader(
+    transformerInternal =
+        new TransformerInternal(
             context,
             transformationRequest,
             videoEffects,
@@ -730,7 +729,7 @@ public final class Transformer {
     this.muxerWrapper = muxerWrapper;
     FallbackListener fallbackListener =
         new FallbackListener(mediaItem, listeners, transformationRequest);
-    exoPlayerAssetLoader.start(
+    transformerInternal.start(
         mediaItem,
         muxerWrapper,
         /* listener= */ componentListener,
@@ -761,7 +760,7 @@ public final class Transformer {
    */
   public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
-    return exoPlayerAssetLoader.getProgress(progressHolder);
+    return transformerInternal.getProgress(progressHolder);
   }
 
   /**
@@ -791,7 +790,7 @@ public final class Transformer {
    */
   private void releaseResources(boolean forCancellation) throws TransformationException {
     transformationInProgress = false;
-    exoPlayerAssetLoader.release();
+    transformerInternal.release();
     if (muxerWrapper != null) {
       try {
         muxerWrapper.release(forCancellation);
@@ -836,11 +835,11 @@ public final class Transformer {
      *
      * <p>Can be called from any thread.
      */
-    void onTransformationException(TransformationException exception);
+    void onTransformationError(TransformationException exception);
   }
 
   private final class ComponentListener
-      implements ExoPlayerAssetLoader.Listener, AsyncErrorListener {
+      implements TransformerInternal.Listener, AsyncErrorListener {
 
     private final MediaItem mediaItem;
     private final Handler handler;
@@ -851,21 +850,12 @@ public final class Transformer {
     }
 
     @Override
-    public void onError(Exception e) {
-      TransformationException transformationException =
-          e instanceof PlaybackException
-              ? TransformationException.createForPlaybackException((PlaybackException) e)
-              : TransformationException.createForUnexpected(e);
-      handleTransformationException(transformationException);
-    }
-
-    @Override
-    public void onEnded() {
+    public void onTransformationCompleted() {
       handleTransformationEnded(/* exception= */ null);
     }
 
     @Override
-    public void onTransformationException(TransformationException exception) {
+    public void onTransformationError(TransformationException exception) {
       if (Looper.myLooper() == looper) {
         handleTransformationException(exception);
       } else {

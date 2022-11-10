@@ -154,7 +154,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     checkNotNull(frameProcessor)
                         .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
                   } catch (TransformationException exception) {
-                    asyncErrorListener.onTransformationException(exception);
+                    asyncErrorListener.onTransformationError(exception);
                   }
                 }
 
@@ -165,7 +165,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
-                  asyncErrorListener.onTransformationException(
+                  asyncErrorListener.onTransformationError(
                       TransformationException.createForFrameProcessingException(
                           exception, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED));
                 }
@@ -175,7 +175,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   try {
                     encoderWrapper.signalEndOfInputStream();
                   } catch (TransformationException exception) {
-                    asyncErrorListener.onTransformationException(exception);
+                    asyncErrorListener.onTransformationError(exception);
                   }
                 }
               },
