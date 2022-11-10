@@ -827,7 +827,13 @@ public final class ActionSchedule {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -838,12 +844,6 @@ public final class ActionSchedule {
       if (callback != null) {
         handler.post(callback::onActionScheduleFinished);
       }
-    }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
     }
   }
 }

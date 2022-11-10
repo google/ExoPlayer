@@ -65,6 +65,18 @@ public abstract class Action {
   }
 
   /**
+   * Called by {@link #doActionAndScheduleNextImpl(ExoPlayer, DefaultTrackSelector, Surface,
+   * HandlerWrapper, ActionNode)} to perform the action.
+   *
+   * @param player The player to which the action should be applied.
+   * @param trackSelector The track selector to which the action should be applied.
+   * @param surface The surface to use when applying actions, or {@code null} if no surface is
+   *     needed.
+   */
+  protected abstract void doActionImpl(
+      ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface);
+
+  /**
    * Executes the action and schedules the next.
    *
    * @param player The player to which the action should be applied.
@@ -75,7 +87,7 @@ public abstract class Action {
    * @param nextAction The next action to schedule immediately after this action finished, or {@code
    *     null} if there's no next action.
    */
-  public final void doActionAndScheduleNext(
+  /* package */ final void doActionAndScheduleNext(
       ExoPlayer player,
       DefaultTrackSelector trackSelector,
       @Nullable Surface surface,
@@ -99,7 +111,7 @@ public abstract class Action {
    * @param nextAction The next action to schedule immediately after this action finished, or {@code
    *     null} if there's no next action.
    */
-  protected void doActionAndScheduleNextImpl(
+  /* package */ void doActionAndScheduleNextImpl(
       ExoPlayer player,
       DefaultTrackSelector trackSelector,
       @Nullable Surface surface,
@@ -110,18 +122,6 @@ public abstract class Action {
       nextAction.schedule(player, trackSelector, surface, handler);
     }
   }
-
-  /**
-   * Called by {@link #doActionAndScheduleNextImpl(ExoPlayer, DefaultTrackSelector, Surface,
-   * HandlerWrapper, ActionNode)} to perform the action.
-   *
-   * @param player The player to which the action should be applied.
-   * @param trackSelector The track selector to which the action should be applied.
-   * @param surface The surface to use when applying actions, or {@code null} if no surface is
-   *     needed.
-   */
-  protected abstract void doActionImpl(
-      ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface);
 
   /** Calls {@link Player#seekTo(long)} or {@link Player#seekTo(int, long)}. */
   public static final class Seek extends Action {
@@ -695,7 +695,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -737,12 +743,6 @@ public abstract class Action {
       }
       player.play();
     }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
-    }
   }
 
   /** Waits for {@link Player.Listener#onTimelineChanged(Timeline, int)}. */
@@ -783,7 +783,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -811,12 +817,6 @@ public abstract class Action {
         nextAction.schedule(player, trackSelector, surface, handler);
       }
     }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
-    }
   }
 
   /**
@@ -833,7 +833,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -853,12 +859,6 @@ public abstract class Action {
               nextAction.schedule(player, trackSelector, surface, handler);
             }
           });
-    }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
     }
   }
 
@@ -880,7 +880,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -905,12 +911,6 @@ public abstract class Action {
             });
       }
     }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
-    }
   }
 
   /**
@@ -931,7 +931,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -955,12 +961,6 @@ public abstract class Action {
             });
       }
     }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
-    }
   }
 
   /**
@@ -981,7 +981,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -994,12 +1000,6 @@ public abstract class Action {
           () -> nextAction.schedule(player, trackSelector, surface, handler);
 
       playerTarget.setCallback(callback);
-    }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
     }
   }
 
@@ -1021,7 +1021,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -1045,12 +1051,6 @@ public abstract class Action {
             });
       }
     }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
-    }
   }
 
   /** Waits until the player acknowledged all pending player commands. */
@@ -1064,7 +1064,13 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(
+    protected void doActionImpl(
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+      // Not triggered.
+    }
+
+    @Override
+    /* package */ void doActionAndScheduleNextImpl(
         ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
@@ -1081,12 +1087,6 @@ public abstract class Action {
               (type, data) -> nextAction.schedule(player, trackSelector, surface, handler))
           .setLooper(Util.getCurrentOrMainLooper())
           .send();
-    }
-
-    @Override
-    protected void doActionImpl(
-        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      // Not triggered.
     }
   }
 
