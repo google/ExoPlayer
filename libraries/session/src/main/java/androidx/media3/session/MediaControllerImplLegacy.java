@@ -1211,8 +1211,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return browserCompat;
   }
 
-  // Should be used without a lock to prevent potential deadlock.
-  void onConnectedNotLocked() {
+  void onConnected() {
     if (released || connected) {
       return;
     }
@@ -1240,18 +1239,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerCompat.registerCallback(
                   controllerCompatCallback, getInstance().applicationHandler);
             });
-    // Post a runnable to prevent callbacks from being called by onConnectedNotLocked()
+    // Post a runnable to prevent callbacks from being called by onConnected()
     // before the constructor returns (b/196941334).
     getInstance()
         .applicationHandler
         .post(
             () -> {
               if (!controllerCompat.isSessionReady()) {
-                // If the session not ready here, then call onConnectedNotLocked() immediately. The
-                // session may be a framework MediaSession and we cannot know whether it can be
-                // ready
-                // later.
-                onConnectedNotLocked();
+                // If the session not ready here, then call onConnected() immediately. The session
+                // may be a framework MediaSession and we cannot know whether it can be ready later.
+                onConnected();
               }
             });
   }
@@ -1608,7 +1605,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Override
     public void onSessionReady() {
       if (!connected) {
-        onConnectedNotLocked();
+        onConnected();
       } else {
         // Handle the case when extra binder is available after connectToSession().
         // Initial values are notified already, so only notify values that are available when
@@ -1622,7 +1619,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         onCaptioningEnabledChanged(isCaptioningEnabled);
 
         pendingChangesHandler.removeMessages(MSG_HANDLE_PENDING_UPDATES);
-        handleNewLegacyParameters(/* notifyConnected= */ true, pendingLegacyPlayerInfo);
+        handleNewLegacyParameters(/* notifyConnected= */ false, pendingLegacyPlayerInfo);
       }
     }
 
