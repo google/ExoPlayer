@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -47,16 +48,17 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.DebugViewProvider;
-import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ final class ExoPlayerAssetLoader {
 
   public interface Listener {
+
+    void onTrackRegistered();
+
+    SamplePipeline onTrackAdded(Format format, long streamStartPositionUs, long streamOffsetUs)
+        throws TransformationException;
 
     void onEnded();
 
@@ -64,16 +66,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private final Context context;
-  private final TransformationRequest transformationRequest;
-  private final ImmutableList<Effect> videoEffects;
   private final boolean removeAudio;
   private final boolean removeVideo;
   private final MediaSource.Factory mediaSourceFactory;
-  private final Codec.DecoderFactory decoderFactory;
-  private final Codec.EncoderFactory encoderFactory;
-  private final FrameProcessor.Factory frameProcessorFactory;
   private final Looper looper;
-  private final DebugViewProvider debugViewProvider;
   private final Clock clock;
 
   private @MonotonicNonNull MuxerWrapper muxerWrapper;
@@ -82,28 +78,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public ExoPlayerAssetLoader(
       Context context,
-      TransformationRequest transformationRequest,
-      ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
       MediaSource.Factory mediaSourceFactory,
-      Codec.DecoderFactory decoderFactory,
-      Codec.EncoderFactory encoderFactory,
-      FrameProcessor.Factory frameProcessorFactory,
       Looper looper,
-      DebugViewProvider debugViewProvider,
       Clock clock) {
     this.context = context;
-    this.transformationRequest = transformationRequest;
-    this.videoEffects = videoEffects;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
     this.mediaSourceFactory = mediaSourceFactory;
-    this.decoderFactory = decoderFactory;
-    this.encoderFactory = encoderFactory;
-    this.frameProcessorFactory = frameProcessorFactory;
     this.looper = looper;
-    this.debugViewProvider = debugViewProvider;
     this.clock = clock;
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
@@ -112,7 +96,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaItem mediaItem,
       MuxerWrapper muxerWrapper,
       Listener listener,
-      FallbackListener fallbackListener,
       Transformer.AsyncErrorListener asyncErrorListener) {
     this.muxerWrapper = muxerWrapper;
 
@@ -134,20 +117,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ExoPlayer.Builder playerBuilder =
         new ExoPlayer.Builder(
                 context,
-                new RenderersFactoryImpl(
-                    context,
-                    muxerWrapper,
-                    removeAudio,
-                    removeVideo,
-                    transformationRequest,
-                    mediaItem.clippingConfiguration.startsAtKeyFrame,
-                    videoEffects,
-                    frameProcessorFactory,
-                    encoderFactory,
-                    decoderFactory,
-                    fallbackListener,
-                    asyncErrorListener,
-                    debugViewProvider))
+                new RenderersFactoryImpl(removeAudio, removeVideo, listener, asyncErrorListener))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -187,48 +157,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final class RenderersFactoryImpl implements RenderersFactory {
 
-    private final Context context;
-    private final MuxerWrapper muxerWrapper;
     private final TransformerMediaClock mediaClock;
     private final boolean removeAudio;
     private final boolean removeVideo;
-    private final TransformationRequest transformationRequest;
-    private final boolean clippingStartsAtKeyFrame;
-    private final ImmutableList<Effect> videoEffects;
-    private final FrameProcessor.Factory frameProcessorFactory;
-    private final Codec.EncoderFactory encoderFactory;
-    private final Codec.DecoderFactory decoderFactory;
-    private final FallbackListener fallbackListener;
+    private final ExoPlayerAssetLoader.Listener assetLoaderListener;
     private final Transformer.AsyncErrorListener asyncErrorListener;
-    private final DebugViewProvider debugViewProvider;
 
     public RenderersFactoryImpl(
-        Context context,
-        MuxerWrapper muxerWrapper,
         boolean removeAudio,
         boolean removeVideo,
-        TransformationRequest transformationRequest,
-        boolean clippingStartsAtKeyFrame,
-        ImmutableList<Effect> videoEffects,
-        FrameProcessor.Factory frameProcessorFactory,
-        Codec.EncoderFactory encoderFactory,
-        Codec.DecoderFactory decoderFactory,
-        FallbackListener fallbackListener,
-        Transformer.AsyncErrorListener asyncErrorListener,
-        DebugViewProvider debugViewProvider) {
-      this.context = context;
-      this.muxerWrapper = muxerWrapper;
+        ExoPlayerAssetLoader.Listener assetLoaderListener,
+        Transformer.AsyncErrorListener asyncErrorListener) {
       this.removeAudio = removeAudio;
       this.removeVideo = removeVideo;
-      this.transformationRequest = transformationRequest;
-      this.clippingStartsAtKeyFrame = clippingStartsAtKeyFrame;
-      this.videoEffects = videoEffects;
-      this.frameProcessorFactory = frameProcessorFactory;
-      this.encoderFactory = encoderFactory;
-      this.decoderFactory = decoderFactory;
-      this.fallbackListener = fallbackListener;
+      this.assetLoaderListener = assetLoaderListener;
       this.asyncErrorListener = asyncErrorListener;
-      this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
 
@@ -244,31 +187,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int index = 0;
       if (!removeAudio) {
         renderers[index] =
-            new TransformerAudioRenderer(
-                muxerWrapper,
-                mediaClock,
-                transformationRequest,
-                encoderFactory,
-                decoderFactory,
-                asyncErrorListener,
-                fallbackListener);
+            new ExoPlayerAssetLoaderRenderer(
+                C.TRACK_TYPE_AUDIO, mediaClock, assetLoaderListener, asyncErrorListener);
         index++;
       }
       if (!removeVideo) {
         renderers[index] =
-            new TransformerVideoRenderer(
-                context,
-                muxerWrapper,
-                mediaClock,
-                transformationRequest,
-                clippingStartsAtKeyFrame,
-                videoEffects,
-                frameProcessorFactory,
-                encoderFactory,
-                decoderFactory,
-                asyncErrorListener,
-                fallbackListener,
-                debugViewProvider);
+            new ExoPlayerAssetLoaderRenderer(
+                C.TRACK_TYPE_VIDEO, mediaClock, assetLoaderListener, asyncErrorListener);
         index++;
       }
       return renderers;

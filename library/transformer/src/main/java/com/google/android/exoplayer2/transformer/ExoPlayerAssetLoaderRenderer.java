@@ -16,46 +16,53 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.errorprone.annotations.ForOverride;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/* package */ abstract class TransformerBaseRenderer extends BaseRenderer {
+/* package */ final class ExoPlayerAssetLoaderRenderer extends BaseRenderer {
 
-  protected final MuxerWrapper muxerWrapper;
-  protected final TransformerMediaClock mediaClock;
-  protected final TransformationRequest transformationRequest;
-  protected final Transformer.AsyncErrorListener asyncErrorListener;
-  protected final FallbackListener fallbackListener;
+  private static final String TAG = "ExoPlayerAssetLoaderRenderer";
+
+  private final TransformerMediaClock mediaClock;
+  private final ExoPlayerAssetLoader.Listener assetLoaderListener;
+  private final Transformer.AsyncErrorListener asyncErrorListener;
+  private final DecoderInputBuffer decoderInputBuffer;
 
   private boolean isTransformationRunning;
-  protected long streamOffsetUs;
-  protected long streamStartPositionUs;
-  protected @MonotonicNonNull SamplePipeline samplePipeline;
+  private long streamOffsetUs;
+  private long streamStartPositionUs;
+  private @MonotonicNonNull SamplePipeline samplePipeline;
 
-  public TransformerBaseRenderer(
+  public ExoPlayerAssetLoaderRenderer(
       int trackType,
-      MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      TransformationRequest transformationRequest,
-      Transformer.AsyncErrorListener asyncErrorListener,
-      FallbackListener fallbackListener) {
+      ExoPlayerAssetLoader.Listener assetLoaderListener,
+      Transformer.AsyncErrorListener asyncErrorListener) {
     super(trackType);
-    this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
-    this.transformationRequest = transformationRequest;
+    this.assetLoaderListener = assetLoaderListener;
     this.asyncErrorListener = asyncErrorListener;
-    this.fallbackListener = fallbackListener;
+    decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   /**
@@ -65,7 +72,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return The {@link Capabilities} for this format.
    */
   @Override
-  public final @Capabilities int supportsFormat(Format format) {
+  public @Capabilities int supportsFormat(Format format) {
     return RendererCapabilities.create(
         MimeTypes.getTrackType(format.sampleMimeType) == getTrackType()
             ? C.FORMAT_HANDLED
@@ -73,22 +80,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public final MediaClock getMediaClock() {
+  public MediaClock getMediaClock() {
     return mediaClock;
   }
 
   @Override
-  public final boolean isReady() {
+  public boolean isReady() {
     return isSourceReady();
   }
 
   @Override
-  public final boolean isEnded() {
+  public boolean isEnded() {
     return samplePipeline != null && samplePipeline.isEnded();
   }
 
   @Override
-  public final void render(long positionUs, long elapsedRealtimeUs) {
+  public void render(long positionUs, long elapsedRealtimeUs) {
     try {
       if (!isTransformationRunning || isEnded() || !ensureConfigured()) {
         return;
@@ -97,43 +104,56 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       while (samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
       isTransformationRunning = false;
-      asyncErrorListener.onTransformationException(e);
+      asyncErrorListener.onTransformationError(e);
     }
   }
 
   @Override
-  protected final void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.streamOffsetUs = offsetUs;
     this.streamStartPositionUs = startPositionUs;
   }
 
   @Override
-  protected final void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
-    muxerWrapper.registerTrack();
-    fallbackListener.registerTrack();
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
+    assetLoaderListener.onTrackRegistered();
     mediaClock.updateTimeForTrackType(getTrackType(), 0L);
   }
 
   @Override
-  protected final void onStarted() {
+  protected void onStarted() {
     isTransformationRunning = true;
   }
 
   @Override
-  protected final void onStopped() {
+  protected void onStopped() {
     isTransformationRunning = false;
   }
 
   @Override
-  protected final void onReset() {
+  protected void onReset() {
     if (samplePipeline != null) {
       samplePipeline.release();
     }
   }
 
-  @ForOverride
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
-  protected abstract boolean ensureConfigured() throws TransformationException;
+  private boolean ensureConfigured() throws TransformationException {
+    if (samplePipeline != null) {
+      return true;
+    }
+
+    FormatHolder formatHolder = getFormatHolder();
+    @ReadDataResult
+    int result = readSource(formatHolder, decoderInputBuffer, /* readFlags= */ FLAG_REQUIRE_FORMAT);
+    if (result != C.RESULT_FORMAT_READ) {
+      return false;
+    }
+    Format inputFormat = checkNotNull(formatHolder.format);
+    samplePipeline =
+        assetLoaderListener.onTrackAdded(inputFormat, streamStartPositionUs, streamOffsetUs);
+    return true;
+  }
 
   /**
    * Attempts to read input data and pass the input data to the sample pipeline.
