@@ -284,7 +284,7 @@ public class FakeClock implements Clock {
     private final int arg2;
     @Nullable private final Object obj;
 
-    public HandlerMessage(
+    private HandlerMessage(
         long timeMs,
         ClockHandler handler,
         int what,
