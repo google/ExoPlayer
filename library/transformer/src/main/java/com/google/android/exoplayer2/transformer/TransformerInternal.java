@@ -85,7 +85,7 @@ import com.google.common.collect.ImmutableList;
     ComponentListener componentListener =
         new ComponentListener(
             mediaItem, muxerWrapper, listener, fallbackListener, asyncErrorListener);
-    exoPlayerAssetLoader.start(mediaItem, muxerWrapper, componentListener, asyncErrorListener);
+    exoPlayerAssetLoader.start(mediaItem, componentListener, asyncErrorListener);
   }
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
@@ -104,6 +104,8 @@ import com.google.common.collect.ImmutableList;
     private final FallbackListener fallbackListener;
     private final Transformer.AsyncErrorListener asyncErrorListener;
 
+    private volatile boolean trackRegistered;
+
     public ComponentListener(
         MediaItem mediaItem,
         MuxerWrapper muxerWrapper,
@@ -119,8 +121,16 @@ import com.google.common.collect.ImmutableList;
 
     @Override
     public void onTrackRegistered() {
+      trackRegistered = true;
       muxerWrapper.registerTrack();
       fallbackListener.registerTrack();
+    }
+
+    @Override
+    public void onAllTracksRegistered() {
+      if (!trackRegistered) {
+        onError(new IllegalStateException("The output does not contain any tracks."));
+      }
     }
 
     @Override

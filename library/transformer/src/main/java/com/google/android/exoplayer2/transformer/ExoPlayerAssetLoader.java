@@ -49,13 +49,14 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ final class ExoPlayerAssetLoader {
 
   public interface Listener {
 
     void onTrackRegistered();
+
+    void onAllTracksRegistered();
 
     SamplePipeline onTrackAdded(Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException;
@@ -72,7 +73,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Looper looper;
   private final Clock clock;
 
-  private @MonotonicNonNull MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;
   private @Transformer.ProgressState int progressState;
 
@@ -93,19 +93,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void start(
-      MediaItem mediaItem,
-      MuxerWrapper muxerWrapper,
-      Listener listener,
-      Transformer.AsyncErrorListener asyncErrorListener) {
-    this.muxerWrapper = muxerWrapper;
-
+      MediaItem mediaItem, Listener listener, Transformer.AsyncErrorListener asyncErrorListener) {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
         new DefaultTrackSelector.Parameters.Builder(context)
             .setForceHighestSupportedBitrate(true)
             .build());
     // Arbitrarily decrease buffers for playback so that samples start being sent earlier to the
-    // muxer (rebuffers are less problematic for the transformation use case).
+    // pipelines (rebuffers are less problematic for the transformation use case).
     DefaultLoadControl loadControl =
         new DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -238,9 +233,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onTracksChanged(Tracks tracks) {
-      if (checkNotNull(muxerWrapper).getTrackCount() == 0) {
-        listener.onError(new IllegalStateException("The output does not contain any tracks."));
-      }
+      listener.onAllTracksRegistered();
     }
 
     @Override
