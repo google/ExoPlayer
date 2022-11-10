@@ -152,7 +152,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     }
 
     @Override
-    public int[] getSupportedTypes() {
+    public @C.ContentType int[] getSupportedTypes() {
       return contentMediaSourceFactory.getSupportedTypes();
     }
 
