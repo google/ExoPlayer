@@ -63,6 +63,7 @@ import androidx.media3.exoplayer.audio.AudioSink.SinkFormatSupport;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import com.google.errorprone.annotations.ForOverride;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -262,6 +263,7 @@ public abstract class DecoderAudioRenderer<
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
    * @return The {@link C.FormatSupport} for this {@link Format}.
    */
+  @ForOverride
   protected abstract @C.FormatSupport int supportsFormatInternal(Format format);
 
   /**
@@ -351,6 +353,7 @@ public abstract class DecoderAudioRenderer<
 
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
   @CallSuper
+  @ForOverride
   protected void onPositionDiscontinuity() {
     // We are out of sync so allow currentPositionUs to jump backwards.
     allowPositionDiscontinuity = true;
@@ -365,6 +368,7 @@ public abstract class DecoderAudioRenderer<
    * @return The decoder.
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
+  @ForOverride
   protected abstract T createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws DecoderException;
 
@@ -374,6 +378,7 @@ public abstract class DecoderAudioRenderer<
    *
    * @param decoder The decoder.
    */
+  @ForOverride
   protected abstract Format getOutputFormat(T decoder);
 
   /**
@@ -386,6 +391,7 @@ public abstract class DecoderAudioRenderer<
    * @param newFormat The new format.
    * @return The result of the evaluation.
    */
+  @ForOverride
   protected DecoderReuseEvaluation canReuseDecoder(
       String decoderName, Format oldFormat, Format newFormat) {
     return new DecoderReuseEvaluation(
