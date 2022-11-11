@@ -140,13 +140,13 @@ public interface RendererCapabilities {
   /** A mask to apply to {@link Capabilities} to obtain {@link DecoderSupport} only. */
   int MODE_SUPPORT_MASK = 0b11 << 7;
   /**
-   * The renderer will use a decoder for fallback mimetype if possible as format's MIME type is
-   * unsupported
+   * The format's MIME type is unsupported and the renderer may use a decoder for a fallback MIME
+   * type.
    */
   int DECODER_SUPPORT_FALLBACK_MIMETYPE = 0b10 << 7;
   /** The renderer is able to use the primary decoder for the format's MIME type. */
   int DECODER_SUPPORT_PRIMARY = 0b1 << 7;
-  /** The renderer will use a fallback decoder. */
+  /** The format exceeds the primary decoder's capabilities but is supported by fallback decoder */
   int DECODER_SUPPORT_FALLBACK = 0;
 
   /**
