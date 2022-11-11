@@ -188,22 +188,15 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns a copy of the provided decoder list sorted such that decoders with format support are
-   * listed first. The returned list is modifiable for convenience.
+   * Returns a copy of the provided decoder list sorted such that decoders with functional format
+   * support are listed first. The returned list is modifiable for convenience.
    */
   @CheckResult
   public static List<MediaCodecInfo> getDecoderInfosSortedByFormatSupport(
       List<MediaCodecInfo> decoderInfos, Format format) {
     decoderInfos = new ArrayList<>(decoderInfos);
     sortByScore(
-        decoderInfos,
-        decoderInfo -> {
-          try {
-            return decoderInfo.isFormatSupported(format) ? 1 : 0;
-          } catch (DecoderQueryException e) {
-            return -1;
-          }
-        });
+        decoderInfos, decoderInfo -> decoderInfo.isFormatFunctionallySupported(format) ? 1 : 0);
     return decoderInfos;
   }
 

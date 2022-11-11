@@ -1111,6 +1111,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
+    if (!codecInfo.isFormatSupported(inputFormat)) {
+      Log.w(
+          TAG,
+          Util.formatInvariant(
+              "Format exceeds selected codec's capabilities [%s, %s]",
+              Format.toLogString(inputFormat), codecName));
+    }
+
     this.codecInfo = codecInfo;
     this.codecOperatingRate = codecOperatingRate;
     codecInputFormat = inputFormat;

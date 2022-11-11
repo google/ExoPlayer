@@ -57,6 +57,7 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -82,6 +83,32 @@ public class MediaCodecVideoRendererTest {
           .setWidth(1920)
           .setHeight(1080)
           .build();
+
+  private static final MediaCodecInfo H264_PROFILE8_LEVEL4_HW_MEDIA_CODEC_INFO =
+      MediaCodecInfo.newInstance(
+          /* name= */ "h264-codec-hw",
+          /* mimeType= */ MimeTypes.VIDEO_H264,
+          /* codecMimeType= */ MimeTypes.VIDEO_H264,
+          /* capabilities= */ createCodecCapabilities(
+              CodecProfileLevel.AVCProfileHigh, CodecProfileLevel.AVCLevel4),
+          /* hardwareAccelerated= */ true,
+          /* softwareOnly= */ false,
+          /* vendor= */ false,
+          /* forceDisableAdaptive= */ false,
+          /* forceSecure= */ false);
+
+  private static final MediaCodecInfo H264_PROFILE8_LEVEL5_SW_MEDIA_CODEC_INFO =
+      MediaCodecInfo.newInstance(
+          /* name= */ "h264-codec-sw",
+          /* mimeType= */ MimeTypes.VIDEO_H264,
+          /* codecMimeType= */ MimeTypes.VIDEO_H264,
+          /* capabilities= */ createCodecCapabilities(
+              CodecProfileLevel.AVCProfileHigh, CodecProfileLevel.AVCLevel5),
+          /* hardwareAccelerated= */ false,
+          /* softwareOnly= */ true,
+          /* vendor= */ false,
+          /* forceDisableAdaptive= */ false,
+          /* forceSecure= */ false);
 
   private Looper testMainLooper;
   private Surface surface;
@@ -708,6 +735,100 @@ public class MediaCodecVideoRendererTest {
 
     assertThat(RendererCapabilities.getDecoderSupport(capabilitiesDvheDtr))
         .isEqualTo(RendererCapabilities.DECODER_SUPPORT_PRIMARY);
+  }
+
+  @Test
+  public void getDecoderInfo_withNonPerformantHardwareDecoder_returnsHardwareDecoderFirst()
+      throws Exception {
+    // AVC Format, Profile: 8, Level: 8192
+    Format avcFormat =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setCodecs("avc1.64002a")
+            .build();
+    // Provide hardware and software AVC decoders
+    MediaCodecSelector mediaCodecSelector =
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
+          if (!mimeType.equals(MimeTypes.VIDEO_H264)) {
+            return ImmutableList.of();
+          }
+          // Hardware decoder supports above format functionally but not performantly as
+          // it supports MIME type & Profile but not Level
+          // Software decoder supports format functionally and peformantly as it supports
+          // MIME type, Profile, and Level(assuming resolution/frame rate support too)
+          return ImmutableList.of(
+              H264_PROFILE8_LEVEL4_HW_MEDIA_CODEC_INFO, H264_PROFILE8_LEVEL5_SW_MEDIA_CODEC_INFO);
+        };
+    MediaCodecVideoRenderer renderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1);
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    List<MediaCodecInfo> mediaCodecInfoList =
+        renderer.getDecoderInfos(mediaCodecSelector, avcFormat, false);
+    @Capabilities int capabilities = renderer.supportsFormat(avcFormat);
+
+    assertThat(mediaCodecInfoList).hasSize(2);
+    assertThat(mediaCodecInfoList.get(0).hardwareAccelerated).isTrue();
+    assertThat(RendererCapabilities.getFormatSupport(capabilities)).isEqualTo(C.FORMAT_HANDLED);
+    assertThat(RendererCapabilities.getDecoderSupport(capabilities))
+        .isEqualTo(RendererCapabilities.DECODER_SUPPORT_FALLBACK);
+  }
+
+  @Test
+  public void getDecoderInfo_softwareDecoderPreferred_returnsSoftwareDecoderFirst()
+      throws Exception {
+    // AVC Format, Profile: 8, Level: 8192
+    Format avcFormat =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setCodecs("avc1.64002a")
+            .build();
+    // Provide software and hardware AVC decoders
+    MediaCodecSelector mediaCodecSelector =
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
+          if (!mimeType.equals(MimeTypes.VIDEO_H264)) {
+            return ImmutableList.of();
+          }
+          // Hardware decoder supports above format functionally but not performantly as
+          // it supports MIME type & Profile but not Level
+          // Software decoder supports format functionally and peformantly as it supports
+          // MIME type, Profile, and Level(assuming resolution/frame rate support too)
+          return ImmutableList.of(
+              H264_PROFILE8_LEVEL5_SW_MEDIA_CODEC_INFO, H264_PROFILE8_LEVEL4_HW_MEDIA_CODEC_INFO);
+        };
+    MediaCodecVideoRenderer renderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1);
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    List<MediaCodecInfo> mediaCodecInfoList =
+        renderer.getDecoderInfos(mediaCodecSelector, avcFormat, false);
+    @Capabilities int capabilities = renderer.supportsFormat(avcFormat);
+
+    assertThat(mediaCodecInfoList).hasSize(2);
+    assertThat(mediaCodecInfoList.get(0).hardwareAccelerated).isFalse();
+    assertThat(RendererCapabilities.getFormatSupport(capabilities)).isEqualTo(C.FORMAT_HANDLED);
+    assertThat(RendererCapabilities.getDecoderSupport(capabilities))
+        .isEqualTo(RendererCapabilities.DECODER_SUPPORT_PRIMARY);
+  }
+
+  private static CodecCapabilities createCodecCapabilities(int profile, int level) {
+    CodecCapabilities capabilities = new CodecCapabilities();
+    capabilities.profileLevels = new CodecProfileLevel[] {new CodecProfileLevel()};
+    capabilities.profileLevels[0].profile = profile;
+    capabilities.profileLevels[0].level = level;
+    return capabilities;
   }
 
   @Test
