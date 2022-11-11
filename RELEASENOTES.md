@@ -30,6 +30,12 @@ Release notes
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
     *   Add `Player.getVideoSurfaceSize` that returns the size of the surface on
         which the video is rendered.
+    *   Tweak the renderer's decoder ordering logic to uphold the
+        `MediaCodecSelector`'s preferences, even if a decoder reports it may not
+        be able to play the media performantly. For example with default
+        selector, hardware decoder with only functional support will be
+        preferred over software decoder that fully supports the format
+        ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
 *   Build:
     *   Avoid publishing block when included in another gradle build.
 *   Downloads:
