@@ -1,4 +1,14 @@
-Release notes
+# Release notes
+
+### Unreleased changes
+
+*   Core library:
+    *   Tweak the renderer's decoder ordering logic to uphold the
+        `MediaCodecSelector`'s preferences, even if a decoder reports it may not
+        be able to play the media performantly. For example with default
+        selector, hardware decoder with only functional support will be
+        preferred over software decoder that fully supports the format
+        ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
 
 ### 1.0.0-beta03 (2022-11-22)
 
