@@ -435,7 +435,7 @@ public class ImaUtilTest {
         new AdPlaybackState(/* adsId= */ "adsId", 0)
             .withAdCount(/* adGroupIndex= */ 0, periodCount)
             .withAdDurationsUs(
-                /* adGroupIndex= */ 0, /* adDurationsUs...= */
+                /* adGroupIndex= */ 0, /* adDurationsUs= */
                 DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + periodDurationUs,
                 periodDurationUs,
                 periodDurationUs,
@@ -475,12 +475,10 @@ public class ImaUtilTest {
             .withAdCount(/* adGroupIndex= */ 1, 1)
             .withAdCount(/* adGroupIndex= */ 2, 1)
             .withAdDurationsUs(
-                /* adGroupIndex= */ 0, /* adDurationsUs...= */
+                /* adGroupIndex= */ 0, /* adDurationsUs= */
                 DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + (2 * periodDurationUs))
-            .withAdDurationsUs(
-                /* adGroupIndex= */ 1, /* adDurationsUs...= */ (2 * periodDurationUs))
-            .withAdDurationsUs(
-                /* adGroupIndex= */ 2, /* adDurationsUs...= */ (2 * periodDurationUs))
+            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs= */ (2 * periodDurationUs))
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ (2 * periodDurationUs))
             .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
             .withPlayedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
@@ -522,7 +520,7 @@ public class ImaUtilTest {
                 //  around removed.
                 DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + periodDurationUs + 2)
             .withAdCount(/* adGroupIndex= */ 0, 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs...= */ periodDurationUs)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs= */ periodDurationUs)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
     FakeTimeline timeline =
         new FakeTimeline(
@@ -545,7 +543,7 @@ public class ImaUtilTest {
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(/* adsId= */ "adsId", periodDurationUs - 1)
             .withAdCount(/* adGroupIndex= */ 0, 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs...= */ periodDurationUs)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs= */ periodDurationUs)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
     FakeTimeline timeline =
         new FakeTimeline(
@@ -569,7 +567,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 30_000_000);
+            /* adDurationsUs= */ 30_000_000);
 
     adPlaybackState =
         ImaUtil.expandAdGroupPlaceholder(
@@ -594,7 +592,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 30_000_000);
+            /* adDurationsUs= */ 30_000_000);
 
     adPlaybackState =
         ImaUtil.expandAdGroupPlaceholder(
@@ -619,7 +617,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 30_000_000);
+            /* adDurationsUs= */ 30_000_000);
 
     adPlaybackState =
         ImaUtil.expandAdGroupPlaceholder(
@@ -644,7 +642,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 30_000_000);
+            /* adDurationsUs= */ 30_000_000);
 
     adPlaybackState =
         ImaUtil.expandAdGroupPlaceholder(
@@ -667,7 +665,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 10_000_001);
+            /* adDurationsUs= */ 10_000_001);
 
     adPlaybackState =
         ImaUtil.expandAdGroupPlaceholder(
@@ -690,7 +688,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 30_000_000);
+            /* adDurationsUs= */ 30_000_000);
 
     adPlaybackState =
         ImaUtil.expandAdGroupPlaceholder(
@@ -714,7 +712,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 10_000_000,
+            /* adDurationsUs= */ 10_000_000,
             20_000_000,
             0);
 
@@ -739,7 +737,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 0,
+            /* adDurationsUs= */ 0,
             10_000_000,
             20_000_000);
 
@@ -764,7 +762,7 @@ public class ImaUtilTest {
             AdPlaybackState.NONE,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 5_000_000,
+            /* adDurationsUs= */ 5_000_000,
             10_000_000,
             20_000_000);
 

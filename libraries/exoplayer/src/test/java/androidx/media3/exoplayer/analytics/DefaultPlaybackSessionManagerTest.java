@@ -1285,7 +1285,7 @@ public final class DefaultPlaybackSessionManagerTest {
   private static EventTime createEventTime(
       Timeline timeline, int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
     return new EventTime(
-        /* realtimeMs = */ 0,
+        /* realtimeMs= */ 0,
         timeline,
         windowIndex,
         mediaPeriodId,
@@ -1303,7 +1303,7 @@ public final class DefaultPlaybackSessionManagerTest {
       @Nullable MediaPeriodId eventMediaPeriodId,
       @Nullable MediaPeriodId currentMediaPeriodId) {
     return new EventTime(
-        /* realtimeMs = */ 0,
+        /* realtimeMs= */ 0,
         timeline,
         windowIndex,
         eventMediaPeriodId,

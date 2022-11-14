@@ -399,8 +399,11 @@ public abstract class DecoderAudioRenderer<
   }
 
   private boolean drainOutputBuffer()
-      throws ExoPlaybackException, DecoderException, AudioSink.ConfigurationException,
-          AudioSink.InitializationException, AudioSink.WriteException {
+      throws ExoPlaybackException,
+          DecoderException,
+          AudioSink.ConfigurationException,
+          AudioSink.InitializationException,
+          AudioSink.WriteException {
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {

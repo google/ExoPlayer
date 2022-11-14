@@ -120,7 +120,7 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
       SingleEventSubtitle subtitle =
           new SingleEventSubtitle(
               inputBuffer.timeUs, cueDecoder.decode(checkNotNull(inputBuffer.data).array()));
-      outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs=*/ 0);
+      outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs= */ 0);
     }
     inputBuffer.clear();
     inputBufferState = INPUT_BUFFER_AVAILABLE;

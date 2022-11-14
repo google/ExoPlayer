@@ -109,7 +109,7 @@ public class FakeAdaptiveMediaPeriod
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        /* mediaEndTimeUs = */ C.TIME_UNSET);
+        /* mediaEndTimeUs= */ C.TIME_UNSET);
     this.callback = callback;
     prepared = true;
     Util.castNonNull(this.callback).onPrepared(this);
@@ -128,7 +128,7 @@ public class FakeAdaptiveMediaPeriod
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        /* mediaEndTimeUs = */ C.TIME_UNSET);
+        /* mediaEndTimeUs= */ C.TIME_UNSET);
   }
 
   @Override

@@ -44,6 +44,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.audio.AudioProcessingPipeline;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import androidx.media3.common.util.Assertions;
@@ -59,6 +60,7 @@ import androidx.media3.extractor.Ac3Util;
 import androidx.media3.extractor.Ac4Util;
 import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.MpegAudioUtil;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -67,8 +69,6 @@ import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -464,8 +464,8 @@ public final class DefaultAudioSink implements AudioSink {
   private final boolean enableFloatOutput;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final TrimmingAudioProcessor trimmingAudioProcessor;
-  private final AudioProcessor[] toIntPcmAvailableAudioProcessors;
-  private final AudioProcessor[] toFloatPcmAvailableAudioProcessors;
+  private final ImmutableList<AudioProcessor> toIntPcmAvailableAudioProcessors;
+  private final ImmutableList<AudioProcessor> toFloatPcmAvailableAudioProcessors;
   private final ConditionVariable releasingConditionVariable;
   private final AudioTrackPositionTracker audioTrackPositionTracker;
   private final ArrayDeque<MediaPositionParameters> mediaPositionParametersCheckpoints;
@@ -482,6 +482,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Nullable private Listener listener;
   @Nullable private Configuration pendingConfiguration;
   private @MonotonicNonNull Configuration configuration;
+  private @MonotonicNonNull AudioProcessingPipeline audioProcessingPipeline;
   @Nullable private AudioTrack audioTrack;
 
   private AudioAttributes audioAttributes;
@@ -502,14 +503,11 @@ public final class DefaultAudioSink implements AudioSink {
   private long startMediaTimeUs;
   private float volume;
 
-  private AudioProcessor[] activeAudioProcessors;
-  private ByteBuffer[] outputBuffers;
   @Nullable private ByteBuffer inputBuffer;
   private int inputBufferAccessUnitCount;
   @Nullable private ByteBuffer outputBuffer;
   private @MonotonicNonNull byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
-  private int drainingAudioProcessorIndex;
   private boolean handledEndOfStream;
   private boolean stoppedAudioTrack;
 
@@ -536,15 +534,10 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrackPositionTracker = new AudioTrackPositionTracker(new PositionTrackerListener());
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     trimmingAudioProcessor = new TrimmingAudioProcessor();
-    ArrayList<AudioProcessor> toIntPcmAudioProcessors = new ArrayList<>();
-    Collections.addAll(
-        toIntPcmAudioProcessors,
-        new ResamplingAudioProcessor(),
-        channelMappingAudioProcessor,
-        trimmingAudioProcessor);
-    Collections.addAll(toIntPcmAudioProcessors, audioProcessorChain.getAudioProcessors());
-    toIntPcmAvailableAudioProcessors = toIntPcmAudioProcessors.toArray(new AudioProcessor[0]);
-    toFloatPcmAvailableAudioProcessors = new AudioProcessor[] {new FloatResamplingAudioProcessor()};
+    toIntPcmAvailableAudioProcessors =
+        ImmutableList.of(
+            new ResamplingAudioProcessor(), channelMappingAudioProcessor, trimmingAudioProcessor);
+    toFloatPcmAvailableAudioProcessors = ImmutableList.of(new FloatResamplingAudioProcessor());
     volume = 1f;
     audioAttributes = AudioAttributes.DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
@@ -556,9 +549,6 @@ public final class DefaultAudioSink implements AudioSink {
             /* mediaTimeUs= */ 0,
             /* audioTrackPositionUs= */ 0);
     audioTrackPlaybackParameters = PlaybackParameters.DEFAULT;
-    drainingAudioProcessorIndex = C.INDEX_UNSET;
-    activeAudioProcessors = new AudioProcessor[0];
-    outputBuffers = new ByteBuffer[0];
     mediaPositionParametersCheckpoints = new ArrayDeque<>();
     initializationExceptionPendingExceptionHolder =
         new PendingExceptionHolder<>(AUDIO_TRACK_RETRY_DURATION_MS);
@@ -621,9 +611,8 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
+    AudioProcessingPipeline audioProcessingPipeline;
     int inputPcmFrameSize;
-    @Nullable AudioProcessor[] availableAudioProcessors;
-
     @OutputMode int outputMode;
     @C.Encoding int outputEncoding;
     int outputSampleRate;
@@ -634,10 +623,21 @@ public final class DefaultAudioSink implements AudioSink {
       Assertions.checkArgument(Util.isEncodingLinearPcm(inputFormat.pcmEncoding));
 
       inputPcmFrameSize = Util.getPcmFrameSize(inputFormat.pcmEncoding, inputFormat.channelCount);
-      availableAudioProcessors =
-          shouldUseFloatOutput(inputFormat.pcmEncoding)
-              ? toFloatPcmAvailableAudioProcessors
-              : toIntPcmAvailableAudioProcessors;
+
+      ImmutableList.Builder<AudioProcessor> pipelineProcessors = new ImmutableList.Builder<>();
+      if (shouldUseFloatOutput(inputFormat.pcmEncoding)) {
+        pipelineProcessors.addAll(toFloatPcmAvailableAudioProcessors);
+      } else {
+        pipelineProcessors.addAll(toIntPcmAvailableAudioProcessors);
+        pipelineProcessors.add(audioProcessorChain.getAudioProcessors());
+      }
+      audioProcessingPipeline = new AudioProcessingPipeline(pipelineProcessors.build());
+
+      // If the underlying processors of the new pipeline are the same as the existing pipeline,
+      // then use the existing one when the configuration is used.
+      if (audioProcessingPipeline.equals(this.audioProcessingPipeline)) {
+        audioProcessingPipeline = this.audioProcessingPipeline;
+      }
 
       trimmingAudioProcessor.setTrimFrameCount(
           inputFormat.encoderDelay, inputFormat.encoderPadding);
@@ -655,15 +655,10 @@ public final class DefaultAudioSink implements AudioSink {
       AudioProcessor.AudioFormat outputFormat =
           new AudioProcessor.AudioFormat(
               inputFormat.sampleRate, inputFormat.channelCount, inputFormat.pcmEncoding);
-      for (AudioProcessor audioProcessor : availableAudioProcessors) {
-        try {
-          AudioProcessor.AudioFormat nextFormat = audioProcessor.configure(outputFormat);
-          if (audioProcessor.isActive()) {
-            outputFormat = nextFormat;
-          }
-        } catch (UnhandledAudioFormatException e) {
-          throw new ConfigurationException(e, inputFormat);
-        }
+      try {
+        outputFormat = audioProcessingPipeline.configure(outputFormat);
+      } catch (UnhandledAudioFormatException e) {
+        throw new ConfigurationException(e, inputFormat);
       }
 
       outputMode = OUTPUT_MODE_PCM;
@@ -672,8 +667,9 @@ public final class DefaultAudioSink implements AudioSink {
       outputChannelConfig = Util.getAudioTrackChannelConfig(outputFormat.channelCount);
       outputPcmFrameSize = Util.getPcmFrameSize(outputEncoding, outputFormat.channelCount);
     } else {
+      // Audio processing is not supported in offload or passthrough mode.
+      audioProcessingPipeline = new AudioProcessingPipeline(ImmutableList.of());
       inputPcmFrameSize = C.LENGTH_UNSET;
-      availableAudioProcessors = new AudioProcessor[0];
       outputSampleRate = inputFormat.sampleRate;
       outputPcmFrameSize = C.LENGTH_UNSET;
       if (useOffloadedPlayback(inputFormat, audioAttributes)) {
@@ -726,7 +722,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputChannelConfig,
             outputEncoding,
             bufferSize,
-            availableAudioProcessors);
+            audioProcessingPipeline);
     if (isAudioTrackInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
     } else {
@@ -735,27 +731,8 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private void setupAudioProcessors() {
-    AudioProcessor[] audioProcessors = configuration.availableAudioProcessors;
-    ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
-    for (AudioProcessor audioProcessor : audioProcessors) {
-      if (audioProcessor.isActive()) {
-        newAudioProcessors.add(audioProcessor);
-      } else {
-        audioProcessor.flush();
-      }
-    }
-    int count = newAudioProcessors.size();
-    activeAudioProcessors = newAudioProcessors.toArray(new AudioProcessor[count]);
-    outputBuffers = new ByteBuffer[count];
-    flushAudioProcessors();
-  }
-
-  private void flushAudioProcessors() {
-    for (int i = 0; i < activeAudioProcessors.length; i++) {
-      AudioProcessor audioProcessor = activeAudioProcessors[i];
-      audioProcessor.flush();
-      outputBuffers[i] = audioProcessor.getOutput();
-    }
+    audioProcessingPipeline = configuration.audioProcessingPipeline;
+    audioProcessingPipeline.flush();
   }
 
   private boolean initializeAudioTrack() throws InitializationException {
@@ -1019,38 +996,55 @@ public final class DefaultAudioSink implements AudioSink {
     offloadStreamEventCallbackV29.register(audioTrack);
   }
 
+  /**
+   * Repeatedly drains and feeds the {@link AudioProcessingPipeline} until {@link
+   * #writeBuffer(ByteBuffer, long)} is not accepting any more input or there is no more input to
+   * feed into the pipeline.
+   *
+   * <p>If the {@link AudioProcessingPipeline} is not {@linkplain
+   * AudioProcessingPipeline#isOperational() operational}, input buffers are passed straight to
+   * {@link #writeBuffer(ByteBuffer, long)}.
+   */
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
-    int count = activeAudioProcessors.length;
-    int index = count;
-    while (index >= 0) {
-      ByteBuffer input =
-          index > 0
-              ? outputBuffers[index - 1]
-              : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
-      if (index == count) {
-        writeBuffer(input, avSyncPresentationTimeUs);
-      } else {
-        AudioProcessor audioProcessor = activeAudioProcessors[index];
-        if (index > drainingAudioProcessorIndex) {
-          audioProcessor.queueInput(input);
-        }
-        ByteBuffer output = audioProcessor.getOutput();
-        outputBuffers[index] = output;
-        if (output.hasRemaining()) {
-          // Handle the output as input to the next audio processor or the AudioTrack.
-          index++;
-          continue;
+    if (!audioProcessingPipeline.isOperational() && inputBuffer != null) {
+      writeBuffer(inputBuffer, avSyncPresentationTimeUs);
+      return;
+    }
+
+    while (!audioProcessingPipeline.isEnded()) {
+      ByteBuffer bufferToWrite;
+      while ((bufferToWrite = audioProcessingPipeline.getOutput()).hasRemaining()) {
+        writeBuffer(bufferToWrite, avSyncPresentationTimeUs);
+        if (bufferToWrite.hasRemaining()) {
+          // writeBuffer method is providing back pressure.
+          return;
         }
       }
-
-      if (input.hasRemaining()) {
-        // The input wasn't consumed and no output was produced, so give up for now.
+      if (inputBuffer == null || !inputBuffer.hasRemaining()) {
         return;
       }
-
-      // Get more input from upstream.
-      index--;
+      audioProcessingPipeline.queueInput(inputBuffer);
     }
+  }
+
+  /**
+   * Queues end of stream and then fully drains all buffers.
+   *
+   * @return Whether the buffers have been fully drained.
+   */
+  private boolean drainToEndOfStream() throws WriteException {
+    if (!audioProcessingPipeline.isOperational()) {
+      if (outputBuffer == null) {
+        return true;
+      }
+      writeBuffer(outputBuffer, C.TIME_UNSET);
+      return outputBuffer == null;
+    }
+
+    audioProcessingPipeline.queueEndOfStream();
+    processBuffers(C.TIME_UNSET);
+    return audioProcessingPipeline.isEnded()
+        && (outputBuffer == null || !outputBuffer.hasRemaining());
   }
 
   @SuppressWarnings("ReferenceEquality")
@@ -1175,36 +1169,6 @@ public final class DefaultAudioSink implements AudioSink {
   private static boolean isAudioTrackDeadObject(int status) {
     return (Util.SDK_INT >= 24 && status == AudioTrack.ERROR_DEAD_OBJECT)
         || status == ERROR_NATIVE_DEAD_OBJECT;
-  }
-
-  private boolean drainToEndOfStream() throws WriteException {
-    boolean audioProcessorNeedsEndOfStream = false;
-    if (drainingAudioProcessorIndex == C.INDEX_UNSET) {
-      drainingAudioProcessorIndex = 0;
-      audioProcessorNeedsEndOfStream = true;
-    }
-    while (drainingAudioProcessorIndex < activeAudioProcessors.length) {
-      AudioProcessor audioProcessor = activeAudioProcessors[drainingAudioProcessorIndex];
-      if (audioProcessorNeedsEndOfStream) {
-        audioProcessor.queueEndOfStream();
-      }
-      processBuffers(C.TIME_UNSET);
-      if (!audioProcessor.isEnded()) {
-        return false;
-      }
-      audioProcessorNeedsEndOfStream = true;
-      drainingAudioProcessorIndex++;
-    }
-
-    // Finish writing any remaining output to the track.
-    if (outputBuffer != null) {
-      writeBuffer(outputBuffer, C.TIME_UNSET);
-      if (outputBuffer != null) {
-        return false;
-      }
-    }
-    drainingAudioProcessorIndex = C.INDEX_UNSET;
-    return true;
   }
 
   @Override
@@ -1422,6 +1386,9 @@ public final class DefaultAudioSink implements AudioSink {
     for (AudioProcessor audioProcessor : toFloatPcmAvailableAudioProcessors) {
       audioProcessor.reset();
     }
+    if (audioProcessingPipeline != null) {
+      audioProcessingPipeline.reset();
+    }
     playing = false;
     offloadDisabledUntilNextConfiguration = false;
   }
@@ -1449,11 +1416,10 @@ public final class DefaultAudioSink implements AudioSink {
     outputBuffer = null;
     stoppedAudioTrack = false;
     handledEndOfStream = false;
-    drainingAudioProcessorIndex = C.INDEX_UNSET;
     avSyncHeader = null;
     bytesUntilNextAvSync = 0;
     trimmingAudioProcessor.resetTrimmedFrameCount();
-    flushAudioProcessors();
+    setupAudioProcessors();
   }
 
   @RequiresApi(23)
@@ -1991,7 +1957,7 @@ public final class DefaultAudioSink implements AudioSink {
     public final int outputChannelConfig;
     public final @C.Encoding int outputEncoding;
     public final int bufferSize;
-    public final AudioProcessor[] availableAudioProcessors;
+    public final AudioProcessingPipeline audioProcessingPipeline;
 
     public Configuration(
         Format inputFormat,
@@ -2002,7 +1968,7 @@ public final class DefaultAudioSink implements AudioSink {
         int outputChannelConfig,
         int outputEncoding,
         int bufferSize,
-        AudioProcessor[] availableAudioProcessors) {
+        AudioProcessingPipeline audioProcessingPipeline) {
       this.inputFormat = inputFormat;
       this.inputPcmFrameSize = inputPcmFrameSize;
       this.outputMode = outputMode;
@@ -2011,7 +1977,7 @@ public final class DefaultAudioSink implements AudioSink {
       this.outputChannelConfig = outputChannelConfig;
       this.outputEncoding = outputEncoding;
       this.bufferSize = bufferSize;
-      this.availableAudioProcessors = availableAudioProcessors;
+      this.audioProcessingPipeline = audioProcessingPipeline;
     }
 
     public Configuration copyWithBufferSize(int bufferSize) {
@@ -2024,7 +1990,7 @@ public final class DefaultAudioSink implements AudioSink {
           outputChannelConfig,
           outputEncoding,
           bufferSize,
-          availableAudioProcessors);
+          audioProcessingPipeline);
     }
 
     /** Returns if the configurations are sufficiently compatible to reuse the audio track. */

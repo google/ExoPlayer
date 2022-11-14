@@ -39,7 +39,7 @@ public final class ServerSideAdInsertionUtilTest {
   @Test
   public void addAdGroupToAdPlaybackState_insertsCorrectAdGroupData() {
     AdPlaybackState state =
-        new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 1, C.TIME_END_OF_SOURCE)
+        new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 1, C.TIME_END_OF_SOURCE)
             .withRemovedAdGroupCount(2);
 
     // stream: 0-- content --4300-- ad1 --4500-- content
@@ -49,16 +49,16 @@ public final class ServerSideAdInsertionUtilTest {
             state,
             /* fromPositionUs= */ 4300,
             /* contentResumeOffsetUs= */ 400,
-            /* adDurationsUs...= */ 200);
+            /* adDurationsUs= */ 200);
 
     assertThat(state)
         .isEqualTo(
-            new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 0, 4300, C.TIME_END_OF_SOURCE)
+            new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 0, 4300, C.TIME_END_OF_SOURCE)
                 .withRemovedAdGroupCount(2)
                 .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
                 .withIsServerSideInserted(/* adGroupIndex= */ 2, /* isServerSideInserted= */ true)
                 .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 400)
-                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 200));
+                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 200));
 
     // stream: 0-- content --2100-- ad1 --2400-- content --4300-- ad2 --4500-- content
     // content timeline: 0-2100 - [ad1] - 2100-4000 - [ad2] - 4400-end
@@ -67,20 +67,20 @@ public final class ServerSideAdInsertionUtilTest {
             state,
             /* fromPositionUs= */ 2100,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 300);
+            /* adDurationsUs= */ 300);
 
     assertThat(state)
         .isEqualTo(
             new AdPlaybackState(
-                    ADS_ID, /* adGroupTimesUs...= */ 0, 0, 2100, 4000, C.TIME_END_OF_SOURCE)
+                    ADS_ID, /* adGroupTimesUs= */ 0, 0, 2100, 4000, C.TIME_END_OF_SOURCE)
                 .withRemovedAdGroupCount(2)
                 .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
                 .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
                 .withIsServerSideInserted(/* adGroupIndex= */ 2, /* isServerSideInserted= */ true)
                 .withIsServerSideInserted(/* adGroupIndex= */ 3, /* isServerSideInserted= */ true)
                 .withContentResumeOffsetUs(/* adGroupIndex= */ 3, /* contentResumeOffsetUs= */ 400)
-                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 300)
-                .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 200));
+                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 300)
+                .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 200));
 
     // stream: 0-- ad1 --100-- content --2100-- ad2 --2400-- content --4300-- ad3 --4500-- content
     // content timeline: 0 - [ad1] - 50-2050 -[ad2] - 2050-3950 - [ad3] - 4350-end
@@ -89,12 +89,12 @@ public final class ServerSideAdInsertionUtilTest {
             state,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 50,
-            /* adDurationsUs...= */ 100);
+            /* adDurationsUs= */ 100);
 
     assertThat(state)
         .isEqualTo(
             new AdPlaybackState(
-                    ADS_ID, /* adGroupTimesUs...= */ 0, 0, 0, 2050, 3950, C.TIME_END_OF_SOURCE)
+                    ADS_ID, /* adGroupTimesUs= */ 0, 0, 0, 2050, 3950, C.TIME_END_OF_SOURCE)
                 .withRemovedAdGroupCount(2)
                 .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
                 .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
@@ -104,9 +104,9 @@ public final class ServerSideAdInsertionUtilTest {
                 .withIsServerSideInserted(/* adGroupIndex= */ 4, /* isServerSideInserted= */ true)
                 .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 50)
                 .withContentResumeOffsetUs(/* adGroupIndex= */ 4, /* contentResumeOffsetUs= */ 400)
-                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 100)
-                .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 300)
-                .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 200));
+                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 100)
+                .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 300)
+                .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs= */ 200));
 
     // stream: 0-- ad1 --100-- c --2100-- ad2 --2400-- c --4300-- ad3 --4500-- c --5000-- ad4 --6000
     // content timeline: 0 - [ad1] - 50-2050 -[ad2] - 2050-3950 - [ad3] - 4350-4850 - [ad4] - 4850
@@ -115,19 +115,12 @@ public final class ServerSideAdInsertionUtilTest {
             state,
             /* fromPositionUs= */ 5000,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs...= */ 1000);
+            /* adDurationsUs= */ 1000);
 
     assertThat(state)
         .isEqualTo(
             new AdPlaybackState(
-                    ADS_ID, /* adGroupTimesUs...= */
-                    0,
-                    0,
-                    0,
-                    2050,
-                    3950,
-                    4850,
-                    C.TIME_END_OF_SOURCE)
+                    ADS_ID, /* adGroupTimesUs= */ 0, 0, 0, 2050, 3950, 4850, C.TIME_END_OF_SOURCE)
                 .withRemovedAdGroupCount(2)
                 .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
                 .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
@@ -139,10 +132,10 @@ public final class ServerSideAdInsertionUtilTest {
                 .withIsServerSideInserted(/* adGroupIndex= */ 5, /* isServerSideInserted= */ true)
                 .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 50)
                 .withContentResumeOffsetUs(/* adGroupIndex= */ 4, /* contentResumeOffsetUs= */ 400)
-                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 100)
-                .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 300)
-                .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 200)
-                .withAdDurationsUs(/* adGroupIndex= */ 5, /* adDurationsUs...= */ 1000));
+                .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 100)
+                .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 300)
+                .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs= */ 200)
+                .withAdDurationsUs(/* adGroupIndex= */ 5, /* adDurationsUs= */ 1000));
   }
 
   @Test
@@ -154,7 +147,7 @@ public final class ServerSideAdInsertionUtilTest {
             state,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 50_000,
-            /* adDurationsUs...= */ 0,
+            /* adDurationsUs= */ 0,
             0,
             10_000,
             40_000,
@@ -177,7 +170,7 @@ public final class ServerSideAdInsertionUtilTest {
     // stream: 0-- ad1 --200-- content --2100-- ad2 --2300-- content --4300-- ad3 --4500-- content
     // content timeline: 0 - [ad1] - 100-2000 -[ad2] - 2000-4000 - [ad3] - 4400-end
     AdPlaybackState state =
-        new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 0, 0, 2000, 4000)
+        new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 0, 0, 2000, 4000)
             .withRemovedAdGroupCount(2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
@@ -185,9 +178,9 @@ public final class ServerSideAdInsertionUtilTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 100)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 3, /* contentResumeOffsetUs= */ 0)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 4, /* contentResumeOffsetUs= */ 400)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 150, 50)
-            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 200)
-            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 50, 50, 100);
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 150, 50)
+            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 200)
+            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs= */ 50, 50, 100);
 
     assertThat(
             getStreamPositionUsForAd(
@@ -277,7 +270,7 @@ public final class ServerSideAdInsertionUtilTest {
     // stream: 0-- ad1 --200-- content --2100-- ad2 --2300-- content --4300-- ad3 --4500-- content
     // content timeline: 0 - [ad1] - 100-2000 -[ad2] - 2000-4000 - [ad3] - 4400-end
     AdPlaybackState state =
-        new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 0, 0, 2000, 4000)
+        new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 0, 0, 2000, 4000)
             .withRemovedAdGroupCount(2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
@@ -285,9 +278,9 @@ public final class ServerSideAdInsertionUtilTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 100)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 3, /* contentResumeOffsetUs= */ 0)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 4, /* contentResumeOffsetUs= */ 400)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 150, 50)
-            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 200)
-            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 50, 50, 100);
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 150, 50)
+            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 200)
+            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs= */ 50, 50, 100);
 
     assertThat(
             getMediaPeriodPositionUsForAd(
@@ -382,7 +375,7 @@ public final class ServerSideAdInsertionUtilTest {
     // stream: 0-- ad1 --200-- content --2100-- ad2 --2300-- content --4300-- ad3 --4500-- content
     // content timeline: 0 - [ad1] - 100-2000 -[ad2] - 2000-4000 - [ad3] - 4400-end
     AdPlaybackState state =
-        new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 0, 0, 2000, 4000)
+        new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 0, 0, 2000, 4000)
             .withRemovedAdGroupCount(2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
@@ -390,9 +383,9 @@ public final class ServerSideAdInsertionUtilTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 100)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 3, /* contentResumeOffsetUs= */ 0)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 4, /* contentResumeOffsetUs= */ 400)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 150, 50)
-            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 200)
-            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 50, 50, 100);
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 150, 50)
+            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 200)
+            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs= */ 50, 50, 100);
 
     assertThat(getStreamPositionUsForContent(/* positionUs= */ 0, /* nextAdGroupIndex= */ 2, state))
         .isEqualTo(0);
@@ -478,7 +471,7 @@ public final class ServerSideAdInsertionUtilTest {
     // stream: 0-- ad1 --200-- content --2100-- ad2 --2300-- content --4300-- ad3 --4500-- content
     // content timeline: 0 - [ad1] - 100-2000 -[ad2] - 2000-4000 - [ad3] - 4400-end
     AdPlaybackState state =
-        new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 0, 0, 2000, 4000)
+        new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 0, 0, 2000, 4000)
             .withRemovedAdGroupCount(2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 3, /* adCount= */ 1)
@@ -486,9 +479,9 @@ public final class ServerSideAdInsertionUtilTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 100)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 3, /* contentResumeOffsetUs= */ 0)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 4, /* contentResumeOffsetUs= */ 400)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 150, 50)
-            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 200)
-            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 50, 50, 100);
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 150, 50)
+            .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs= */ 200)
+            .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs= */ 50, 50, 100);
 
     assertThat(
             getMediaPeriodPositionUsForContent(
@@ -595,7 +588,7 @@ public final class ServerSideAdInsertionUtilTest {
 
   @Test
   public void getAdCountInGroup_withUnsetCount_returnsZero() {
-    AdPlaybackState state = new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 2000);
+    AdPlaybackState state = new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 2000);
 
     assertThat(getAdCountInGroup(state, /* adGroupIndex= */ 0)).isEqualTo(0);
     assertThat(getAdCountInGroup(state, /* adGroupIndex= */ 1)).isEqualTo(0);
@@ -604,7 +597,7 @@ public final class ServerSideAdInsertionUtilTest {
   @Test
   public void getAdCountInGroup_withSetCount_returnsCount() {
     AdPlaybackState state =
-        new AdPlaybackState(ADS_ID, /* adGroupTimesUs...= */ 0, 2000)
+        new AdPlaybackState(ADS_ID, /* adGroupTimesUs= */ 0, 2000)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 4)
             .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 6);
 

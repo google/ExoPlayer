@@ -37,7 +37,7 @@ public class ImaServerSideAdInsertionMediaSourceTest {
             new AdPlaybackState("adsId1"),
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 10,
-            /* adDurationsUs...= */ 5_000_000,
+            /* adDurationsUs= */ 5_000_000,
             10_000_000,
             20_000_000);
     AdPlaybackState secondAdPlaybackState =
@@ -45,20 +45,20 @@ public class ImaServerSideAdInsertionMediaSourceTest {
                 new AdPlaybackState("adsId2"),
                 /* fromPositionUs= */ 0,
                 /* contentResumeOffsetUs= */ 10,
-                /* adDurationsUs...= */ 10_000_000)
+                /* adDurationsUs= */ 10_000_000)
             .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
     AdPlaybackState thirdAdPlaybackState =
         ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState(
             new AdPlaybackState("adsId3"),
             /* fromPositionUs= */ C.TIME_END_OF_SOURCE,
             /* contentResumeOffsetUs= */ 10,
-            /* adDurationsUs...= */ 10_000_000);
+            /* adDurationsUs= */ 10_000_000);
     thirdAdPlaybackState =
         ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState(
                 thirdAdPlaybackState,
                 /* fromPositionUs= */ 0,
                 /* contentResumeOffsetUs= */ 10,
-                /* adDurationsUs...= */ 10_000_000)
+                /* adDurationsUs= */ 10_000_000)
             .withRemovedAdGroupCount(1);
     State state =
         new State(

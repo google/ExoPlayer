@@ -104,7 +104,7 @@ public class ContrastPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -128,7 +128,7 @@ public class ContrastPixelTest {
             Color.rgb(
                 OPENGL_NEUTRAL_RGB_VALUE, OPENGL_NEUTRAL_RGB_VALUE, OPENGL_NEUTRAL_RGB_VALUE));
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 
@@ -187,7 +187,7 @@ public class ContrastPixelTest {
     setupOutputTexture(outputSize.first, outputSize.second);
     Bitmap expectedBitmap = readBitmap(MAXIMUM_CONTRAST_PNG_ASSET_PATH);
 
-    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs = */ 0);
+    contrastProcessor.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
         createArgb8888BitmapFromCurrentGlFramebuffer(outputSize.first, outputSize.second);
 

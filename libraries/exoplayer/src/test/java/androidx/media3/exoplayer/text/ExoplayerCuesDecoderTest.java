@@ -53,14 +53,14 @@ public class ExoplayerCuesDecoderTest {
   @Test
   public void decoder_outputsSubtitle() throws Exception {
     SubtitleInputBuffer inputBuffer = decoder.dequeueInputBuffer();
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
     decoder.queueInputBuffer(inputBuffer);
     SubtitleOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
 
-    assertThat(outputBuffer.getCues(/* timeUs=*/ 999)).isEmpty();
+    assertThat(outputBuffer.getCues(/* timeUs= */ 999)).isEmpty();
     assertThat(outputBuffer.getCues(1001)).hasSize(1);
-    assertThat(outputBuffer.getCues(/* timeUs=*/ 1000)).hasSize(1);
-    assertThat(outputBuffer.getCues(/* timeUs=*/ 1000).get(0).text.toString()).isEqualTo("text");
+    assertThat(outputBuffer.getCues(/* timeUs= */ 1000)).hasSize(1);
+    assertThat(outputBuffer.getCues(/* timeUs= */ 1000).get(0).text.toString()).isEqualTo("text");
 
     outputBuffer.release();
   }
@@ -75,7 +75,7 @@ public class ExoplayerCuesDecoderTest {
     // Returns null before input has been queued
     assertThat(decoder.dequeueOutputBuffer()).isNull();
 
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
     decoder.queueInputBuffer(inputBuffer);
 
     // Returns buffer when the input buffer is queued and output buffer is available
@@ -89,7 +89,7 @@ public class ExoplayerCuesDecoderTest {
   public void dequeueOutputBuffer_releasedOutputAndQueuedNextInput_returnsOutputBuffer()
       throws Exception {
     SubtitleInputBuffer inputBuffer = decoder.dequeueInputBuffer();
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
     decoder.queueInputBuffer(inputBuffer);
     SubtitleOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
     exhaustAllOutputBuffers(decoder);
@@ -113,7 +113,7 @@ public class ExoplayerCuesDecoderTest {
   @Test
   public void dequeueInputBuffer_withQueuedInput_returnsNull() throws Exception {
     SubtitleInputBuffer inputBuffer = decoder.dequeueInputBuffer();
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
     decoder.queueInputBuffer(inputBuffer);
 
     assertThat(decoder.dequeueInputBuffer()).isNull();
@@ -136,7 +136,7 @@ public class ExoplayerCuesDecoderTest {
   @Test
   public void releaseOutputBuffer_calledTwice_fails() throws Exception {
     SubtitleInputBuffer inputBuffer = decoder.dequeueInputBuffer();
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
     decoder.queueInputBuffer(inputBuffer);
     SubtitleOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
     outputBuffer.release();
@@ -147,14 +147,14 @@ public class ExoplayerCuesDecoderTest {
   @Test
   public void flush_doesNotInfluenceOutputBufferAvailability() throws Exception {
     SubtitleInputBuffer inputBuffer = decoder.dequeueInputBuffer();
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
     decoder.queueInputBuffer(inputBuffer);
     SubtitleOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
     assertThat(outputBuffer).isNotNull();
     exhaustAllOutputBuffers(decoder);
     decoder.flush();
     inputBuffer = decoder.dequeueInputBuffer();
-    writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+    writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
 
     assertThat(decoder.dequeueOutputBuffer()).isNull();
   }
@@ -169,7 +169,7 @@ public class ExoplayerCuesDecoderTest {
       inputBuffer = decoder.dequeueInputBuffer();
     }
     for (int i = 0; i < inputBuffers.size(); i++) {
-      writeDataToInputBuffer(inputBuffers.get(i), /* timeUs=*/ 1000, ENCODED_CUES);
+      writeDataToInputBuffer(inputBuffers.get(i), /* timeUs= */ 1000, ENCODED_CUES);
       decoder.queueInputBuffer(inputBuffers.get(i));
     }
     decoder.flush();
@@ -185,7 +185,7 @@ public class ExoplayerCuesDecoderTest {
     do {
       inputBuffer = decoder.dequeueInputBuffer();
       if (inputBuffer != null) {
-        writeDataToInputBuffer(inputBuffer, /* timeUs=*/ 1000, ENCODED_CUES);
+        writeDataToInputBuffer(inputBuffer, /* timeUs= */ 1000, ENCODED_CUES);
         decoder.queueInputBuffer(inputBuffer);
       }
     } while (decoder.dequeueOutputBuffer() != null);

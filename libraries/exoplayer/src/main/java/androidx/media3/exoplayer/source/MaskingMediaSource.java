@@ -376,7 +376,7 @@ public final class MaskingMediaSource extends WrappingMediaSource {
           /* id= */ setIds ? 0 : null,
           /* uid= */ setIds ? MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID : null,
           /* windowIndex= */ 0,
-          /* durationUs = */ C.TIME_UNSET,
+          /* durationUs= */ C.TIME_UNSET,
           /* positionInWindowUs= */ 0,
           /* adPlaybackState= */ AdPlaybackState.NONE,
           /* isPlaceholder= */ true);

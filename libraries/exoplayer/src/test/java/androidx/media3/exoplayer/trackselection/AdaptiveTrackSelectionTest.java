@@ -570,9 +570,9 @@ public final class AdaptiveTrackSelectionTest {
     TrackGroup trackGroupMultipleFixed = new TrackGroup(formatFixed1, formatFixed2);
     TrackGroup trackGroupAdaptive =
         new TrackGroup(formatAdaptive1, formatAdaptive2, formatAdaptive3, formatAdaptive4);
-    Definition definitionFixed1 = new Definition(trackGroupMultipleFixed, /* tracks...= */ 0);
-    Definition definitionFixed2 = new Definition(trackGroupMultipleFixed, /* tracks...= */ 1);
-    Definition definitionAdaptive = new Definition(trackGroupAdaptive, /* tracks...= */ 1, 2, 3);
+    Definition definitionFixed1 = new Definition(trackGroupMultipleFixed, /* tracks= */ 0);
+    Definition definitionFixed2 = new Definition(trackGroupMultipleFixed, /* tracks= */ 1);
+    Definition definitionAdaptive = new Definition(trackGroupAdaptive, /* tracks= */ 1, 2, 3);
     List<List<AdaptationCheckpoint>> checkPoints = new ArrayList<>();
     AdaptiveTrackSelection.Factory factory =
         new AdaptiveTrackSelection.Factory() {
@@ -621,9 +621,9 @@ public final class AdaptiveTrackSelectionTest {
     TrackGroup trackGroup2 =
         new TrackGroup(group2Format1, group2Format2, group2Format3, group2UnusedFormat);
     TrackGroup fixedGroup = new TrackGroup(fixedFormat);
-    Definition definition1 = new Definition(trackGroup1, /* tracks...= */ 0, 1);
-    Definition definition2 = new Definition(trackGroup2, /* tracks...= */ 0, 1, 2);
-    Definition fixedDefinition = new Definition(fixedGroup, /* tracks...= */ 0);
+    Definition definition1 = new Definition(trackGroup1, /* tracks= */ 0, 1);
+    Definition definition2 = new Definition(trackGroup2, /* tracks= */ 0, 1, 2);
+    Definition fixedDefinition = new Definition(fixedGroup, /* tracks= */ 0);
     List<List<AdaptationCheckpoint>> checkPoints = new ArrayList<>();
     AdaptiveTrackSelection.Factory factory =
         new AdaptiveTrackSelection.Factory() {

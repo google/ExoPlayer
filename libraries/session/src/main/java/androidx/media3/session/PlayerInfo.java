@@ -376,7 +376,7 @@ import java.lang.annotation.Target;
           DeviceInfo.UNKNOWN,
           /* deviceVolume= */ 0,
           /* deviceMuted= */ false,
-          /* playWhenReady = */ false,
+          /* playWhenReady= */ false,
           PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           PLAYBACK_SUPPRESSION_REASON_NONE,
           STATE_IDLE,
