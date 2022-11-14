@@ -86,6 +86,21 @@ public final class AndroidTestUtil {
           .setFrameRate(30.472f)
           .build();
 
+  public static final String MP4_ASSET_1080P_5_SECOND_HLG10 =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4";
+  public static final Format MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(30.000f)
+          .setColorInfo(
+              new ColorInfo(
+                  C.COLOR_SPACE_BT2020,
+                  C.COLOR_RANGE_LIMITED,
+                  C.COLOR_TRANSFER_HLG,
+                  /* hdrStaticInfo= */ null))
+          .build();
   public static final String MP4_ASSET_1080P_4_SECOND_HDR10 =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4";
   public static final Format MP4_ASSET_1080P_4_SECOND_HDR10_FORMAT =
