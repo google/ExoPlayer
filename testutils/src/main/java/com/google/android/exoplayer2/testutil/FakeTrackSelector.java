@@ -67,7 +67,7 @@ public class FakeTrackSelector extends DefaultTrackSelector {
       boolean hasTracks = trackGroupArray.length > 0;
       definitions[i] =
           hasTracks
-              ? new ExoTrackSelection.Definition(trackGroupArray.get(0), /* tracks...= */ 0)
+              ? new ExoTrackSelection.Definition(trackGroupArray.get(0), /* tracks= */ 0)
               : null;
     }
     return definitions;

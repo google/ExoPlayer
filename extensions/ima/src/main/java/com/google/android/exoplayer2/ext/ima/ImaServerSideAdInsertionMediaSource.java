@@ -680,7 +680,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               adPlaybackState,
               /* fromPositionUs= */ fromPositionUs,
               /* contentResumeOffsetUs= */ 0,
-              /* adDurationsUs...= */ getAdDuration(
+              /* adDurationsUs= */ getAdDuration(
                   /* startTimeSeconds= */ cuePoint.getStartTime(),
                   /* endTimeSeconds= */ cuePoint.getEndTime()));
     }

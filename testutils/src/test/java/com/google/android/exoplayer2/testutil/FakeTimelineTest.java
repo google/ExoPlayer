@@ -39,7 +39,7 @@ public class FakeTimelineTest {
         FakeTimeline.createMultiPeriodAdTimeline(
             windowId,
             numberOfPlayedAds,
-            /* isAdPeriodFlags...= */ true,
+            /* isAdPeriodFlags= */ true,
             false,
             true,
             true,
@@ -94,7 +94,7 @@ public class FakeTimelineTest {
         FakeTimeline.createMultiPeriodAdTimeline(
             /* windowId= */ new Object(),
             /* numberOfPlayedAds= */ 0,
-            /* isAdPeriodFlags...= */ false,
+            /* isAdPeriodFlags= */ false,
             true,
             true,
             false);

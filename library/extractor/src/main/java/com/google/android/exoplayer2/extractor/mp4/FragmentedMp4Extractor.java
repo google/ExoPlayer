@@ -654,7 +654,7 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     byte[] messageData = new byte[atom.bytesLeft()];
-    atom.readBytes(messageData, /*offset=*/ 0, atom.bytesLeft());
+    atom.readBytes(messageData, /* offset= */ 0, atom.bytesLeft());
     EventMessage eventMessage = new EventMessage(schemeIdUri, value, durationMs, id, messageData);
     ParsableByteArray encodedEventMessage =
         new ParsableByteArray(eventMessageEncoder.encode(eventMessage));

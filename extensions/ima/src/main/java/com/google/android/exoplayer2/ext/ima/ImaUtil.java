@@ -443,7 +443,7 @@ import java.util.Set;
   private static AdPlaybackState splitAdGroupForPeriod(
       Object adsId, AdGroup adGroup, long periodStartUs, long periodDurationUs) {
     AdPlaybackState adPlaybackState =
-        new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
+        new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs= */ 0)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
             .withAdDurationsUs(/* adGroupIndex= */ 0, periodDurationUs)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
@@ -605,7 +605,7 @@ import java.util.Set;
               adPlaybackState,
               /* fromPositionUs= */ currentContentPeriodPositionUs,
               /* contentResumeOffsetUs= */ sum(adDurationsUs),
-              /* adDurationsUs...= */ adDurationsUs);
+              /* adDurationsUs= */ adDurationsUs);
       adGroupIndex =
           adPlaybackState.getAdGroupIndexForPositionUs(
               mediaPeriodPositionUs, /* periodDurationUs= */ C.TIME_UNSET);

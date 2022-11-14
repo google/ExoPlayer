@@ -447,7 +447,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   @Nullable
   private static Constructor<? extends Extractor> getFlacExtractorConstructor()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+      throws ClassNotFoundException,
+          NoSuchMethodException,
+          InvocationTargetException,
           IllegalAccessException {
     @SuppressWarnings("nullness:argument")
     boolean isFlacNativeLibraryAvailable =
@@ -468,7 +470,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     public interface ConstructorSupplier {
       @Nullable
       Constructor<? extends Extractor> getConstructor()
-          throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
+          throws InvocationTargetException,
+              IllegalAccessException,
+              NoSuchMethodException,
               ClassNotFoundException;
     }
 
