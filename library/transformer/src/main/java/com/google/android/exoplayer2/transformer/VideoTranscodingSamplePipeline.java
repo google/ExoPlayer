@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleToFitTransformation;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -75,7 +76,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener,
-      Transformer.AsyncErrorListener asyncErrorListener,
+      Consumer<TransformationException> errorConsumer,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
     super(
@@ -154,7 +155,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     checkNotNull(frameProcessor)
                         .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
                   } catch (TransformationException exception) {
-                    asyncErrorListener.onTransformationError(exception);
+                    errorConsumer.accept(exception);
                   }
                 }
 
@@ -165,7 +166,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
-                  asyncErrorListener.onTransformationError(
+                  errorConsumer.accept(
                       TransformationException.createForFrameProcessingException(
                           exception, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED));
                 }
@@ -175,7 +176,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   try {
                     encoderWrapper.signalEndOfInputStream();
                   } catch (TransformationException exception) {
-                    asyncErrorListener.onTransformationError(exception);
+                    errorConsumer.accept(exception);
                   }
                 }
               },
