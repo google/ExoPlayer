@@ -317,7 +317,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean colorInfoIsHdr = ColorInfo.isTransferHdr(colorInfo);
 
       outputEglSurface =
-          GlUtil.getEglSurface(
+          GlUtil.createEglSurface(
               eglDisplay,
               outputSurfaceInfo.surface,
               colorInfoIsHdr
@@ -445,7 +445,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       if (eglSurface == null) {
         eglSurface =
-            GlUtil.getEglSurface(
+            GlUtil.createEglSurface(
                 eglDisplay,
                 surface,
                 useHdr
