@@ -869,6 +869,14 @@ public abstract class DownloadService extends Service {
     }
   }
 
+  /**
+   * Clear all DownloadManagerHelper to restart the new service.
+   */
+  public static void clearDownloadManagerHelpers() {
+    downloadManagerHelpers.clear();
+  }
+
+
   private final class ForegroundNotificationUpdater {
 
     private final int notificationId;
