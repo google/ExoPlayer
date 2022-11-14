@@ -303,9 +303,7 @@ import org.checkerframework.dataflow.qual.Pure;
     TransformationRequest.Builder transformationRequestBuilder = transformationRequest.buildUpon();
     if (transformationRequest.enableRequestSdrToneMapping != isToneMappedToSdr) {
       checkState(isToneMappedToSdr);
-      transformationRequestBuilder
-          .setEnableRequestSdrToneMapping(true)
-          .experimental_setEnableHdrEditing(false);
+      transformationRequestBuilder.setEnableRequestSdrToneMapping(true);
     }
     return transformationRequestBuilder
         .setVideoMimeType(supportedFormat.sampleMimeType)
