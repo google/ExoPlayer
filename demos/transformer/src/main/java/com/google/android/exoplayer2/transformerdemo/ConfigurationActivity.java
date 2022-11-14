@@ -101,6 +101,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd",
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4",
   };
   private static final String[] PRESET_FILE_URI_DESCRIPTIONS = { // same order as PRESET_FILE_URIS
     "720p H264 video and AAC audio",
@@ -116,6 +117,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "SEF slow motion with 240 fps",
     "480p DASH (non-square pixels)",
     "HDR (HDR10) H265 limited range video (encoding may fail)",
+    "HDR (HLG) H265 limited range video (encoding may fail)",
   };
   private static final String[] DEMO_EFFECTS = {
     "Dizzy crop",

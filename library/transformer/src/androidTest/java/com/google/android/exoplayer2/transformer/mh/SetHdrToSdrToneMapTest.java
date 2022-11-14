@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -87,6 +88,49 @@ public class SetHdrToSdrToneMapTest {
   }
 
   @Test
+  public void transform_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows() throws Exception {
+    String testId = "transform_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setEnableRequestSdrToneMapping(true).build())
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onFallbackApplied(
+                      MediaItem inputMediaItem,
+                      TransformationRequest originalTransformationRequest,
+                      TransformationRequest fallbackTransformationRequest) {
+                    // Tone mapping flag shouldn't change in fallback when tone mapping is
+                    // requested.
+                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping)
+                        .isEqualTo(fallbackTransformationRequest.enableRequestSdrToneMapping);
+                  }
+                })
+            .build();
+
+    try {
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+      Log.i(TAG, "Tone mapped.");
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      return;
+    } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      assertThat(exception.errorCode)
+          .isAnyOf(
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      return;
+    }
+  }
+
+  @Test
   public void transform_toneMapAndTranscode_hdr10File_toneMapsOrThrows() throws Exception {
     String testId = "transform_toneMapAndTranscode_hdr10File_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
@@ -118,6 +162,52 @@ public class SetHdrToSdrToneMapTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+      Log.i(TAG, "Tone mapped.");
+      assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      return;
+    } catch (TransformationException exception) {
+      Log.i(TAG, checkNotNull(exception.getCause()).toString());
+      assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+      assertThat(exception.errorCode)
+          .isAnyOf(
+              TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED,
+              TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+      return;
+    }
+  }
+
+  @Test
+  public void transform_toneMapAndTranscode_hlg10File_toneMapsOrThrows() throws Exception {
+    String testId = "transform_toneMapAndTranscode_hlg10File_toneMapsOrThrows";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setEnableRequestSdrToneMapping(true)
+                    .setRotationDegrees(180)
+                    .build())
+            .addListener(
+                new Transformer.Listener() {
+                  @Override
+                  public void onFallbackApplied(
+                      MediaItem inputMediaItem,
+                      TransformationRequest originalTransformationRequest,
+                      TransformationRequest fallbackTransformationRequest) {
+                    // Tone mapping flag shouldn't change in fallback when tone mapping is
+                    // requested.
+                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping)
+                        .isEqualTo(fallbackTransformationRequest.enableRequestSdrToneMapping);
+                  }
+                })
+            .build();
+
+    try {
+      TransformationTestResult transformationTestResult =
+          new TransformerAndroidTestRunner.Builder(context, transformer)
+              .build()
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       return;
