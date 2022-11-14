@@ -80,12 +80,10 @@ import com.google.common.collect.ImmutableList;
       MediaItem mediaItem,
       MuxerWrapper muxerWrapper,
       Listener listener,
-      FallbackListener fallbackListener,
-      Transformer.AsyncErrorListener asyncErrorListener) {
-    ComponentListener componentListener =
-        new ComponentListener(
-            mediaItem, muxerWrapper, listener, fallbackListener, asyncErrorListener);
-    exoPlayerAssetLoader.start(mediaItem, componentListener, asyncErrorListener);
+      FallbackListener fallbackListener) {
+    AssetLoaderListener assetLoaderListener =
+        new AssetLoaderListener(mediaItem, muxerWrapper, listener, fallbackListener);
+    exoPlayerAssetLoader.start(mediaItem, assetLoaderListener);
   }
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
@@ -96,27 +94,24 @@ import com.google.common.collect.ImmutableList;
     exoPlayerAssetLoader.release();
   }
 
-  private class ComponentListener implements ExoPlayerAssetLoader.Listener {
+  private class AssetLoaderListener implements ExoPlayerAssetLoader.Listener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
     private final TransformerInternal.Listener listener;
     private final FallbackListener fallbackListener;
-    private final Transformer.AsyncErrorListener asyncErrorListener;
 
     private volatile boolean trackRegistered;
 
-    public ComponentListener(
+    public AssetLoaderListener(
         MediaItem mediaItem,
         MuxerWrapper muxerWrapper,
         Listener listener,
-        FallbackListener fallbackListener,
-        Transformer.AsyncErrorListener asyncErrorListener) {
+        FallbackListener fallbackListener) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
       this.listener = listener;
       this.fallbackListener = fallbackListener;
-      this.asyncErrorListener = asyncErrorListener;
     }
 
     @Override
@@ -142,10 +137,15 @@ import com.google.common.collect.ImmutableList;
 
     @Override
     public void onError(Exception e) {
-      TransformationException transformationException =
-          e instanceof PlaybackException
-              ? TransformationException.createForPlaybackException((PlaybackException) e)
-              : TransformationException.createForUnexpected(e);
+      TransformationException transformationException;
+      if (e instanceof TransformationException) {
+        transformationException = (TransformationException) e;
+      } else if (e instanceof PlaybackException) {
+        transformationException =
+            TransformationException.createForPlaybackException((PlaybackException) e);
+      } else {
+        transformationException = TransformationException.createForUnexpected(e);
+      }
       listener.onTransformationError(transformationException);
     }
 
@@ -181,7 +181,7 @@ import com.google.common.collect.ImmutableList;
             encoderFactory,
             muxerWrapper,
             fallbackListener,
-            asyncErrorListener,
+            listener::onTransformationError,
             debugViewProvider);
       } else {
         return new PassthroughSamplePipeline(

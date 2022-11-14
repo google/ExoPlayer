@@ -715,22 +715,19 @@ public final class Transformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
     transformationInProgress = true;
-    ComponentListener componentListener = new ComponentListener(mediaItem, looper);
+    TransformerInternalListener transformerInternalListener =
+        new TransformerInternalListener(mediaItem, looper);
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
             outputPath,
             outputParcelFileDescriptor,
             muxerFactory,
-            /* asyncErrorListener= */ componentListener);
+            /* errorConsumer= */ transformerInternalListener::onTransformationError);
     this.muxerWrapper = muxerWrapper;
     FallbackListener fallbackListener =
         new FallbackListener(mediaItem, listeners, transformationRequest);
     transformerInternal.start(
-        mediaItem,
-        muxerWrapper,
-        /* listener= */ componentListener,
-        fallbackListener,
-        /* asyncErrorListener= */ componentListener);
+        mediaItem, muxerWrapper, transformerInternalListener, fallbackListener);
   }
 
   /**
@@ -824,23 +821,12 @@ public final class Transformer {
     return fileSize;
   }
 
-  /** Listener for exceptions that occur during a transformation. */
-  /* package */ interface AsyncErrorListener {
-    /**
-     * Called when a {@link TransformationException} occurs.
-     *
-     * <p>Can be called from any thread.
-     */
-    void onTransformationError(TransformationException exception);
-  }
-
-  private final class ComponentListener
-      implements TransformerInternal.Listener, AsyncErrorListener {
+  private final class TransformerInternalListener implements TransformerInternal.Listener {
 
     private final MediaItem mediaItem;
     private final Handler handler;
 
-    public ComponentListener(MediaItem mediaItem, Looper looper) {
+    public TransformerInternalListener(MediaItem mediaItem, Looper looper) {
       this.mediaItem = mediaItem;
       handler = new Handler(looper);
     }

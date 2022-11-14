@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -57,7 +58,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private final String outputPath;
   @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final Muxer.Factory muxerFactory;
-  private final Transformer.AsyncErrorListener asyncErrorListener;
+  private final Consumer<TransformationException> errorConsumer;
   private final SparseIntArray trackTypeToIndex;
   private final SparseIntArray trackTypeToSampleCount;
   private final SparseLongArray trackTypeToTimeUs;
@@ -77,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable String outputPath,
       @Nullable ParcelFileDescriptor outputParcelFileDescriptor,
       Muxer.Factory muxerFactory,
-      Transformer.AsyncErrorListener asyncErrorListener) {
+      Consumer<TransformationException> errorConsumer) {
     if (outputPath == null && outputParcelFileDescriptor == null) {
       throw new NullPointerException("Both output path and ParcelFileDescriptor are null");
     }
@@ -85,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.outputPath = outputPath;
     this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.muxerFactory = muxerFactory;
-    this.asyncErrorListener = asyncErrorListener;
+    this.errorConsumer = errorConsumer;
 
     trackTypeToIndex = new SparseIntArray();
     trackTypeToSampleCount = new SparseIntArray();
@@ -306,7 +307,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              asyncErrorListener.onTransformationError(
+              errorConsumer.accept(
                   TransformationException.createForMuxer(
                       new IllegalStateException(
                           "No output sample written in the last "

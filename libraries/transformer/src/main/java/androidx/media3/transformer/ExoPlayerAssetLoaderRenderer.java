@@ -40,7 +40,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final TransformerMediaClock mediaClock;
   private final ExoPlayerAssetLoader.Listener assetLoaderListener;
-  private final Transformer.AsyncErrorListener asyncErrorListener;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private boolean isTransformationRunning;
@@ -51,12 +50,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public ExoPlayerAssetLoaderRenderer(
       int trackType,
       TransformerMediaClock mediaClock,
-      ExoPlayerAssetLoader.Listener assetLoaderListener,
-      Transformer.AsyncErrorListener asyncErrorListener) {
+      ExoPlayerAssetLoader.Listener assetLoaderListener) {
     super(trackType);
     this.mediaClock = mediaClock;
     this.assetLoaderListener = assetLoaderListener;
-    this.asyncErrorListener = asyncErrorListener;
     decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
   }
 
@@ -104,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       while (samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
       isTransformationRunning = false;
-      asyncErrorListener.onTransformationError(e);
+      assetLoaderListener.onError(e);
     }
   }
 
