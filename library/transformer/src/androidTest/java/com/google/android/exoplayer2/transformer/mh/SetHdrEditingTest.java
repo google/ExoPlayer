@@ -43,10 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * {@link Transformer} instrumentation test for applying an {@linkplain
- * TransformationRequest.Builder#experimental_setEnableHdrEditing HDR frame edit}.
- */
+/** {@link Transformer} instrumentation test for applying an HDR frame edit. */
 @RunWith(AndroidJUnit4.class)
 public class SetHdrEditingTest {
   public static final String TAG = "SetHdrEditingTest";
@@ -68,11 +65,7 @@ public class SetHdrEditingTest {
     String testId = "transform_noRequestedTranscode_hdr10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
 
     try {
       TransformationTestResult transformationTestResult =
@@ -95,11 +88,7 @@ public class SetHdrEditingTest {
     String testId = "transform_noRequestedTranscode_hlg10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
 
     try {
       TransformationTestResult transformationTestResult =
@@ -130,10 +119,7 @@ public class SetHdrEditingTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .experimental_setEnableHdrEditing(true)
-                    .setRotationDegrees(180)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
             .build();
 
     TransformationTestResult transformationTestResult =
@@ -156,10 +142,7 @@ public class SetHdrEditingTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .experimental_setEnableHdrEditing(true)
-                    .setRotationDegrees(180)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
             .build();
 
     TransformationTestResult transformationTestResult =
@@ -184,10 +167,7 @@ public class SetHdrEditingTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .experimental_setEnableHdrEditing(true)
-                    .setRotationDegrees(180)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -238,10 +218,7 @@ public class SetHdrEditingTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .experimental_setEnableHdrEditing(true)
-                    .setRotationDegrees(180)
-                    .build())
+                new TransformationRequest.Builder().setRotationDegrees(180).build())
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -289,11 +266,7 @@ public class SetHdrEditingTest {
       return;
     }
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().experimental_setEnableHdrEditing(true).build())
-            .build();
+    Transformer transformer = new Transformer.Builder(context).build();
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(

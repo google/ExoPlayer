@@ -53,6 +53,7 @@ public final class TransformationRequest {
       scaleX = 1;
       scaleY = 1;
       outputHeight = C.LENGTH_UNSET;
+      enableHdrEditing = true;
     }
 
     private Builder(TransformationRequest transformationRequest) {
@@ -218,13 +219,14 @@ public final class TransformationRequest {
      * supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
      * transfer function before processing.
      *
-     * <p>The default value is {@code true}, which corresponds to tone-mapping output if possible.
+     * <p>The default value is {@code false}, which corresponds to editing and outputting HDR video
+     * if possible, and falling back to tone-mapping if not.
      *
      * <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
      * supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.
      *
-     * <p>Setting this as {@code true} will set {@linkplain #experimental_setEnableHdrEditing} and
-     * {@linkplain #forceInterpretHdrVideoAsSdr} to {@code false}.
+     * <p>Setting this as {@code true} will set {@linkplain #enableHdrEditing} and {@linkplain
+     * #forceInterpretHdrVideoAsSdr} to {@code false}.
      *
      * @param enableRequestSdrToneMapping Whether to request tone-mapping down to SDR.
      * @return This builder.
@@ -233,8 +235,8 @@ public final class TransformationRequest {
     public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
       this.enableRequestSdrToneMapping = enableRequestSdrToneMapping;
       if (enableRequestSdrToneMapping) {
-        forceInterpretHdrVideoAsSdr = false;
         enableHdrEditing = false;
+        forceInterpretHdrVideoAsSdr = false;
       }
       return this;
     }
@@ -242,8 +244,8 @@ public final class TransformationRequest {
     /**
      * Sets whether to interpret HDR video as SDR, resulting in washed out video.
      *
-     * <p>The default value is {@code false}, with {@link #setEnableRequestSdrToneMapping} being
-     * applied.
+     * <p>The default value is {@code false}, which corresponds to editing and outputting HDR video
+     * if possible, and falling back to tone-mapping if not.
      *
      * <p>Use of this flag may result in {@code
      * TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED} or {@code
@@ -257,8 +259,8 @@ public final class TransformationRequest {
      *
      * <p>The setting has no effect if the input is already in SDR.
      *
-     * <p>Setting this as {@code true} will set {@linkplain #experimental_setEnableHdrEditing} and
-     * {@linkplain #forceInterpretHdrVideoAsSdr} to {@code false}.
+     * <p>Setting this as {@code true} will set {@linkplain #enableHdrEditing} and {@linkplain
+     * #forceInterpretHdrVideoAsSdr} to {@code false}.
      *
      * @param forceInterpretHdrVideoAsSdr Whether to interpret HDR contents as SDR.
      * @return This builder.
@@ -276,32 +278,12 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets whether to allow processing high dynamic range (HDR) input video streams as HDR.
-     *
-     * <p>The default value is {@code false}, with {@link #setEnableRequestSdrToneMapping} being
-     * applied.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
-     * editing feature is under development and is intended for developing/testing HDR support.
-     *
-     * <p>Setting this as {@code true} will set {@linkplain #experimental_setEnableHdrEditing} and
-     * {@linkplain #forceInterpretHdrVideoAsSdr} to {@code false}.
-     *
-     * <p>With this flag enabled, HDR streams will correctly edit in HDR, convert via tone-mapping
-     * to SDR, or throw an error, based on the device's HDR support. SDR streams will be interpreted
-     * the same way regardless of this flag's state.
-     *
-     * @param enableHdrEditing Whether to attempt to process any input video stream as a high
-     *     dynamic range (HDR) signal.
-     * @return This builder.
+     * @deprecated This method is now a no-op. (@code experimental_setEnableHdrEditing(true)} is now
+     *     the default behavior.
      */
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
-      this.enableHdrEditing = enableHdrEditing;
-      if (enableHdrEditing) {
-        enableRequestSdrToneMapping = false;
-        forceInterpretHdrVideoAsSdr = false;
-      }
       return this;
     }
 
@@ -373,11 +355,7 @@ public final class TransformationRequest {
   /** Whether to force interpreting HDR video as SDR. */
   public final boolean forceInterpretHdrVideoAsSdr;
 
-  /**
-   * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
-   *
-   * @see Builder#experimental_setEnableHdrEditing(boolean)
-   */
+  /** Whether to attempt to process any input video stream as a high dynamic range (HDR) signal. */
   public final boolean enableHdrEditing;
 
   private TransformationRequest(

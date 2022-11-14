@@ -274,8 +274,6 @@ public final class TransformerActivity extends AppCompatActivity {
           bundle.getBoolean(ConfigurationActivity.ENABLE_REQUEST_SDR_TONE_MAPPING));
       requestBuilder.experimental_setForceInterpretHdrVideoAsSdr(
           bundle.getBoolean(ConfigurationActivity.FORCE_INTERPRET_HDR_VIDEO_AS_SDR));
-      requestBuilder.experimental_setEnableHdrEditing(
-          bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder
           .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
