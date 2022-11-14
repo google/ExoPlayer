@@ -255,7 +255,7 @@ public final class GlUtil {
   }
 
   /**
-   * Returns a new {@link EGLSurface} wrapping the specified {@code surface}.
+   * Creates a new {@link EGLSurface} wrapping the specified {@code surface}.
    *
    * <p>The {@link EGLSurface} will configure with {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888} and
    * OpenGL ES 2.0.
@@ -264,13 +264,13 @@ public final class GlUtil {
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurface(EGLDisplay eglDisplay, Object surface) throws GlException {
-    return Api17.getEglSurface(
-        eglDisplay, surface, EGL_CONFIG_ATTRIBUTES_RGBA_8888, EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
+  public static EGLSurface createEglSurface(EGLDisplay eglDisplay, Object surface)
+      throws GlException {
+    return Api17.createEglSurface(eglDisplay, surface, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
   }
 
   /**
-   * Returns a new {@link EGLSurface} wrapping the specified {@code surface}.
+   * Creates a new {@link EGLSurface} wrapping the specified {@code surface}.
    *
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
@@ -278,10 +278,9 @@ public final class GlUtil {
    *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
    */
   @RequiresApi(17)
-  public static EGLSurface getEglSurface(
+  public static EGLSurface createEglSurface(
       EGLDisplay eglDisplay, Object surface, int[] configAttributes) throws GlException {
-    return Api17.getEglSurface(
-        eglDisplay, surface, configAttributes, EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
+    return Api17.createEglSurface(eglDisplay, surface, configAttributes);
   }
 
   /**
@@ -659,18 +658,14 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    public static EGLSurface getEglSurface(
-        EGLDisplay eglDisplay,
-        Object surface,
-        int[] configAttributes,
-        int[] windowSurfaceAttributes)
-        throws GlException {
+    public static EGLSurface createEglSurface(
+        EGLDisplay eglDisplay, Object surface, int[] configAttributes) throws GlException {
       EGLSurface eglSurface =
           EGL14.eglCreateWindowSurface(
               eglDisplay,
               getEglConfig(eglDisplay, configAttributes),
               surface,
-              windowSurfaceAttributes,
+              EGL_WINDOW_SURFACE_ATTRIBUTES_NONE,
               /* offset= */ 0);
       checkEglException("Error creating surface");
       return eglSurface;
