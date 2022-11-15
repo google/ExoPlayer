@@ -530,9 +530,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     blockUntilConstructorFinished();
-    return player.getVideoSurfaceSize();
+    return player.getSurfaceSize();
   }
 
   @Override

@@ -1501,9 +1501,9 @@ public class MediaController implements Player {
 
   @UnstableApi
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     verifyApplicationThread();
-    return isConnected() ? impl.getVideoSurfaceSize() : Size.UNKNOWN;
+    return isConnected() ? impl.getSurfaceSize() : Size.UNKNOWN;
   }
 
   @Override
@@ -1976,7 +1976,7 @@ public class MediaController implements Player {
 
     VideoSize getVideoSize();
 
-    Size getVideoSurfaceSize();
+    Size getSurfaceSize();
 
     void clearVideoSurface();
 

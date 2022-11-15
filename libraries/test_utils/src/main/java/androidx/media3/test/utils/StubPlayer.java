@@ -353,7 +353,7 @@ public class StubPlayer extends BasePlayer {
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     throw new UnsupportedOperationException();
   }
 

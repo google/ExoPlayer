@@ -1231,7 +1231,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     verifyApplicationThread();
     return surfaceSize;
   }

@@ -1138,7 +1138,7 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     return surfaceSize;
   }
 

@@ -760,10 +760,10 @@ public class ForwardingPlayer implements Player {
     return player.getVideoSize();
   }
 
-  /** Calls {@link Player#getVideoSurfaceSize()} on the delegate and returns the result. */
+  /** Calls {@link Player#getSurfaceSize()} on the delegate and returns the result. */
   @Override
-  public Size getVideoSurfaceSize() {
-    return player.getVideoSurfaceSize();
+  public Size getSurfaceSize() {
+    return player.getSurfaceSize();
   }
 
   /** Calls {@link Player#clearVideoSurface()} on the delegate. */
