@@ -36,6 +36,9 @@ Release notes
         selector, hardware decoder with only functional support will be
         preferred over software decoder that fully supports the format
         ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
+    *   Fix bug where removing listeners during the player release can cause an
+        `IllegalStateException`
+        ([#10758](https://github.com/google/ExoPlayer/issues/10758)).
 *   Build:
     *   Avoid publishing block when included in another gradle build.
 *   Downloads:
