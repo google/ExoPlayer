@@ -1779,6 +1779,7 @@ public final class Util {
    * @return The channel configuration or {@link AudioFormat#CHANNEL_INVALID} if output is not
    *     possible.
    */
+  @SuppressLint("InlinedApi") // Inlined AudioFormat constants.
   public static int getAudioTrackChannelConfig(int channelCount) {
     switch (channelCount) {
       case 1:
@@ -1796,21 +1797,9 @@ public final class Util {
       case 7:
         return AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
       case 8:
-        if (SDK_INT >= 23) {
-          return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
-        } else if (SDK_INT >= 21) {
-          // Equal to AudioFormat.CHANNEL_OUT_7POINT1_SURROUND, which is hidden before Android M.
-          return AudioFormat.CHANNEL_OUT_5POINT1
-              | AudioFormat.CHANNEL_OUT_SIDE_LEFT
-              | AudioFormat.CHANNEL_OUT_SIDE_RIGHT;
-        } else {
-          // 8 ch output is not supported before Android L.
-          return AudioFormat.CHANNEL_INVALID;
-        }
+        return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
       case 12:
-        return Util.SDK_INT >= 32
-            ? AudioFormat.CHANNEL_OUT_7POINT1POINT4
-            : AudioFormat.CHANNEL_INVALID;
+        return AudioFormat.CHANNEL_OUT_7POINT1POINT4;
       default:
         return AudioFormat.CHANNEL_INVALID;
     }
