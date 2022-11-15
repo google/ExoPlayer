@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -758,7 +759,7 @@ public final class TsExtractor implements Extractor {
           streamType = TS_STREAM_TYPE_TELETEXT;
           dvbTeletextInfos = new ArrayList<>();
           while (data.getPosition() < positionOfNextDescriptor) {
-            String teletextLanguage = data.readString(3).trim();
+            String teletextLanguage = data.readString(3, Charsets.ISO_8859_1).trim();
             byte[] initializationData = new byte[2];
             data.readBytes(initializationData, 0, 2);
             byte typeAndMag = initializationData[0];
