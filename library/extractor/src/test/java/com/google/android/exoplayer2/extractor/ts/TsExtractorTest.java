@@ -147,6 +147,12 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void streamWithTeletextSubtitle() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_teletext_subtitle.ts", simulationConfig);
+  }
+
+  @Test
   public void customPesReader() throws Exception {
     CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(true, false);
     TsExtractor tsExtractor =

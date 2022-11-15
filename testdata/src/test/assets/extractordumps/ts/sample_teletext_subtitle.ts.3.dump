@@ -1,0 +1,51 @@
+seekMap:
+  isSeekable = true
+  duration = 42885555
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(21442777) = [[timeUs=21442777, position=349153]]
+  getPosition(42885555) = [[timeUs=42885555, position=698495]]
+numberOfTracks = 2
+track 256:
+  total output bytes = 969
+  sample count = 3
+  format 0:
+    id = 1/256
+    sampleMimeType = application/teletext
+    language = fr
+    initializationData:
+      data = length 2, hash 349
+  sample 0:
+    time = 42805555
+    flags = 1
+    data = length 323, hash 1EED8D75
+  sample 1:
+    time = 42805566
+    flags = 1
+    data = length 323, hash 56BE4A4
+  sample 2:
+    time = 42885555
+    flags = 1
+    data = length 323, hash 56BE4A4
+track 8448:
+  total output bytes = 969
+  sample count = 3
+  format 0:
+    id = 1/8448
+    sampleMimeType = application/teletext
+    language = fr
+    initializationData:
+      data = length 2, hash 34A
+  sample 0:
+    time = 42805555
+    flags = 1
+    data = length 323, hash 1EED8D75
+  sample 1:
+    time = 42805566
+    flags = 1
+    data = length 323, hash 56BE4A4
+  sample 2:
+    time = 42885555
+    flags = 1
+    data = length 323, hash 56BE4A4
+tracksEnded = true
