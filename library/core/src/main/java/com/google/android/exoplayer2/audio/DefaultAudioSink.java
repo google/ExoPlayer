@@ -762,16 +762,6 @@ public final class DefaultAudioSink implements AudioSink {
         outputChannelConfig = encodingAndChannelConfig.second;
       }
     }
-    int bufferSize =
-        specifiedBufferSize != 0
-            ? specifiedBufferSize
-            : audioTrackBufferSizeProvider.getBufferSizeInBytes(
-                getAudioTrackMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding),
-                outputEncoding,
-                outputMode,
-                outputPcmFrameSize,
-                outputSampleRate,
-                enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
 
     if (outputEncoding == C.ENCODING_INVALID) {
       throw new ConfigurationException(
@@ -782,6 +772,16 @@ public final class DefaultAudioSink implements AudioSink {
           "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat,
           inputFormat);
     }
+    int bufferSize =
+        specifiedBufferSize != 0
+            ? specifiedBufferSize
+            : audioTrackBufferSizeProvider.getBufferSizeInBytes(
+                getAudioTrackMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding),
+                outputEncoding,
+                outputMode,
+                outputPcmFrameSize,
+                outputSampleRate,
+                enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
 
     offloadDisabledUntilNextConfiguration = false;
     Configuration pendingConfiguration =
