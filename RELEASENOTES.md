@@ -58,6 +58,9 @@ Release notes
         output device ([#135](https://github.com/androidx/media/issues/135)).
     *   Rename `androidx.media3.exoplayer.audio.AudioProcessor` to
         `androidx.media3.common.audio.AudioProcessor`.
+    *   Map 8-channel and 12-channel audio to the 7.1 and 7.1.4 channel masks
+        respectively on all Android versions
+        ([#10701](https://github.com/google/ExoPlayer/issues/10701)).
 *   Metadata:
     *   `MetadataRenderer` can now be configured to render metadata as soon as
         they are available. Create an instance with
