@@ -48,7 +48,7 @@ public class ListenerSetTest {
 
     listenerSet.queueEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.queueEvent(EVENT_ID_2, TestListener::callback2);
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     verifyNoMoreInteractions(listener);
   }
@@ -66,6 +66,7 @@ public class ListenerSetTest {
     listenerSet.queueEvent(EVENT_ID_2, TestListener::callback2);
     listenerSet.queueEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.flushEvents();
+    ShadowLooper.idleMainLooper();
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback1();
@@ -74,6 +75,8 @@ public class ListenerSetTest {
     inOrder.verify(listener2).callback2();
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -98,6 +101,7 @@ public class ListenerSetTest {
     listenerSet.queueEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.queueEvent(EVENT_ID_2, TestListener::callback2);
     listenerSet.flushEvents();
+    ShadowLooper.idleMainLooper();
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback1();
@@ -106,6 +110,8 @@ public class ListenerSetTest {
     inOrder.verify(listener2).callback2();
     inOrder.verify(listener1).callback3();
     inOrder.verify(listener2).callback3();
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2, EVENT_ID_3));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2, EVENT_ID_3));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -130,7 +136,7 @@ public class ListenerSetTest {
     // Iteration with single flush.
     listenerSet.queueEvent(EVENT_ID_2, TestListener::callback2);
     listenerSet.flushEvents();
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     // Iteration with multiple flushes.
     listenerSet.queueEvent(EVENT_ID_1, TestListener::callback1);
@@ -138,11 +144,11 @@ public class ListenerSetTest {
     listenerSet.flushEvents();
     listenerSet.queueEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.flushEvents();
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     // Iteration with recursive call.
     listenerSet.sendEvent(EVENT_ID_3, TestListener::callback3);
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback2();
@@ -191,7 +197,7 @@ public class ListenerSetTest {
     listenerSet.add(listener3);
 
     listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2);
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     inOrder.verify(listener1).callback2();
@@ -215,7 +221,7 @@ public class ListenerSetTest {
 
     listenerSet.queueEvent(/* eventFlag= */ C.INDEX_UNSET, TestListener::callback1);
     listenerSet.flushEvents();
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     // Asserts that negative event flag (INDEX_UNSET) can be used without throwing.
   }
@@ -241,7 +247,7 @@ public class ListenerSetTest {
     // listener2 was added.
     listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2);
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback1();
@@ -266,7 +272,7 @@ public class ListenerSetTest {
     listenerSet.add(listener2);
     listenerSet.queueEvent(EVENT_ID_2, TestListener::callback2);
     listenerSet.flushEvents();
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback1();
@@ -298,7 +304,7 @@ public class ListenerSetTest {
     listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.remove(listener1);
     listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2);
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     verify(listener1).callback1();
     verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1));
@@ -319,7 +325,7 @@ public class ListenerSetTest {
     listenerSet.remove(listener1);
     listenerSet.queueEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.flushEvents();
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     verify(listener2, times(2)).callback1();
     verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1));
@@ -346,10 +352,40 @@ public class ListenerSetTest {
     // Listener2 shouldn't even get this event as it's released before the event can be invoked.
     listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2);
-    ShadowLooper.runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     verify(listener1).callback1();
     verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1));
+    verifyNoMoreInteractions(listener1, listener2);
+  }
+
+  @Test
+  public void remove_withRecursionDuringRelease_callsAllPendingEventsAndIterationFinished() {
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
+    TestListener listener2 = mock(TestListener.class);
+    // Listener1 removes Listener2 from within the callback triggered by release().
+    TestListener listener1 =
+        spy(
+            new TestListener() {
+              @Override
+              public void iterationFinished(FlagSet flags) {
+                listenerSet.remove(listener2);
+              }
+            });
+    listenerSet.add(listener1);
+    listenerSet.add(listener2);
+
+    // Listener2 should still get the event and iterationFinished callback because it was triggered
+    // before the release and the listener removal.
+    listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
+    listenerSet.release();
+    ShadowLooper.idleMainLooper();
+
+    verify(listener1).callback1();
+    verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1));
+    verify(listener2).callback1();
+    verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
