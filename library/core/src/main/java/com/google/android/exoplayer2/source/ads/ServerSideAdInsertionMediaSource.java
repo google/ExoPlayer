@@ -1016,8 +1016,9 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     @Override
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       super.getWindow(windowIndex, window, defaultPositionProjectionUs);
+      Period period = new Period();
       Object firstPeriodUid =
-          checkNotNull(getPeriod(window.firstPeriodIndex, new Period(), /* setIds= */ true).uid);
+          checkNotNull(getPeriod(window.firstPeriodIndex, period, /* setIds= */ true).uid);
       AdPlaybackState firstAdPlaybackState = checkNotNull(adPlaybackStates.get(firstPeriodUid));
       long positionInPeriodUs =
           getMediaPeriodPositionUsForContent(
@@ -1029,11 +1030,21 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
           window.durationUs = firstAdPlaybackState.contentDurationUs - positionInPeriodUs;
         }
       } else {
-        Period lastPeriod = getPeriod(/* periodIndex= */ window.lastPeriodIndex, new Period());
+        Period originalLastPeriod =
+            super.getPeriod(/* periodIndex= */ window.lastPeriodIndex, period, /* setIds= */ true);
+        long originalLastPeriodPositionInWindowUs = originalLastPeriod.positionInWindowUs;
+        AdPlaybackState lastAdPlaybackState =
+            checkNotNull(adPlaybackStates.get(originalLastPeriod.uid));
+        Period adjustedLastPeriod = getPeriod(/* periodIndex= */ window.lastPeriodIndex, period);
+        long originalWindowDurationInLastPeriodUs =
+            window.durationUs - originalLastPeriodPositionInWindowUs;
+        long adjustedWindowDurationInLastPeriodUs =
+            getMediaPeriodPositionUsForContent(
+                originalWindowDurationInLastPeriodUs,
+                /* nextAdGroupIndex= */ C.INDEX_UNSET,
+                lastAdPlaybackState);
         window.durationUs =
-            lastPeriod.durationUs == C.TIME_UNSET
-                ? C.TIME_UNSET
-                : lastPeriod.positionInWindowUs + lastPeriod.durationUs;
+            adjustedLastPeriod.positionInWindowUs + adjustedWindowDurationInLastPeriodUs;
       }
       window.positionInFirstPeriodUs = positionInPeriodUs;
       return window;
