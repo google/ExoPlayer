@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,17 +17,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** Parses {@link Cue}s from a DVB Teletext subtitle bitstream. */
+/** Parses {@link Cue}s from a DVB Teletext subtitle bitstream as defined in ETSI EN 300 706 */
 /* package */ final class DvbTeletextSubtitleParser {
 
   private static final String TAG = "DvbTeletextSubParser";
 
-  private static final int TTX_HEIGHT = 576;
-  private static final int TTX_COLS = 40;
-  private static final int TTX_ROWS = 24;
+  private static final int TELETEXT_HEIGHT = 576;
+  private static final int TELETEXT_COLUMNS = 40;
+  private static final int TELETEXT_ROWS = 24;
   private static final int CHAR_HEIGHT = 21;
 
-  private static final int[] TXT_COLORS = {
+  private static final int[] TELETEXT_COLORS = {
       0xff000000, // Alpha Black
       0xffff0000, // Alpha Red
       0xff00ff00, // Alpha Green
@@ -249,6 +250,7 @@ import java.util.List;
     SPECIAL_CHARS_IDX[0x7e] = 13;
   }
 
+  private final ParsableByteArray scratch = new ParsableByteArray();
   private final int magazineNumber;
   private final int pageNumber;
   private final TeletextPage page = new TeletextPage();
@@ -279,23 +281,20 @@ import java.util.List;
    * @return The parsed {@link Cue}s.
    */
   public List<Cue> decode(byte[] data, int size) {
-    int offset = 0;
-    int len = size;
+    scratch.reset(data, size);
 
-    int dataIdentifier = data[offset++] & 0xFF;
-    len -= 1;
+    int dataIdentifier = scratch.readUnsignedByte();
 
     if (dataIdentifier < 0x10 || dataIdentifier > 0x1F) {
       // ignore invalid data identifiers
       return Collections.emptyList();
     }
 
-    while (len > 2) {
-      int dataUnitId = data[offset++] & 0xFF;
-      int dataUnitLength = data[offset++] & 0xFF;
-      len -= 2;
+    while (scratch.bytesLeft() > 2) {
+      int dataUnitId = scratch.readUnsignedByte();
+      int dataUnitLength = scratch.readUnsignedByte();
 
-      if (dataUnitLength > len) {
+      if (dataUnitLength > scratch.bytesLeft()) {
         // ignore invalid data unit length
         break;
       }
@@ -306,7 +305,7 @@ import java.util.List;
           break;
         case 0x03:
           // EBU Teletext subtitle data
-          @Nullable TeletextLine line = processTeletextSubtitleField(data, offset, dataUnitLength);
+          @Nullable TeletextLine line = processTeletextSubtitleField(scratch, dataUnitLength);
           if (line != null) {
             if (line.erase) {
               cues.clear();
@@ -321,18 +320,15 @@ import java.util.List;
           // ignore unknown data unit id
           break;
       }
-
-      offset += dataUnitLength;
-      len -= dataUnitLength;
     }
     return new ArrayList<>(cues);
   }
 
   private Cue buildCue(TeletextLine line) {
     Cue.Builder cueBuilder = new Cue.Builder();
-    byte[] printable = new byte[TTX_COLS];
-    int color = TXT_COLORS[7];
-    float size = (float) CHAR_HEIGHT / TTX_HEIGHT;
+    byte[] printable = new byte[TELETEXT_COLUMNS];
+    int color = TELETEXT_COLORS[7];
+    float size = (float) CHAR_HEIGHT / TELETEXT_HEIGHT;
     boolean box = false;
     boolean newBox = false;
 
@@ -340,13 +336,13 @@ import java.util.List;
       int c = line.line[i] & 0xFF;
       if (c < 0x20) {
         if (c > 0 && c < 8) {
-          color = TXT_COLORS[c];
+          color = TELETEXT_COLORS[c];
         } else if (c == 0xa) {
           newBox = false;
         } else if (c == 0xb) {
           newBox = true;
         } else if (c == 0xd) {
-          size = (float) CHAR_HEIGHT / TTX_HEIGHT * 2;
+          size = (float) CHAR_HEIGHT / TELETEXT_HEIGHT * 2;
         }
         c = ' ';
       }
@@ -378,39 +374,40 @@ import java.util.List;
     return cueBuilder
         .setText(stringBuilder)
         .setTextSize(size, Cue.TEXT_SIZE_TYPE_FRACTIONAL)
-        .setLine((float) line.row / (TTX_ROWS + 1), Cue.LINE_TYPE_FRACTION)
+        .setLine((float) line.row / (TELETEXT_ROWS + 1), Cue.LINE_TYPE_FRACTION)
         .build();
   }
 
   @Nullable
-  TeletextLine processTeletextSubtitleField(byte[] data, int offset, int len) {
+  TeletextLine processTeletextSubtitleField(ParsableByteArray data, int len) {
     if (len != 0x2C) {
       // ignore invalid data unit length
       return null;
     }
 
-    int framingCode = data[offset + 1] & 0xFF;
+    data.setPosition(data.getPosition() + 1);
+    int framingCode = data.readUnsignedByte();
 
-    // see: ETS 300 706 / 6.2
+    // ETSI EN 300 706 - 6.2 - Framing code
     // The bit pattern in transmission order is: 1110 0100 (0xE4)
     if (framingCode != 0xE4) {
       // ignore invalid framing code
       return null;
     }
 
-    revertBytes(data, offset, len);
+    data.setPosition(data.getPosition() - 2);
+    revertBytes(data.getData(), data.getPosition(), len);
 
-    offset += 2;
+    data.skipBytes(2);
     len -= 2;
 
-    int magazineAndFrameAddr = hamming84Decode(data[offset] & 0xFF, data[offset + 1] & 0xFF);
+    int magazineAndFrameAddr = hamming84Decode(data.readUnsignedByte(), data.readUnsignedByte());
     int magazine = magazineAndFrameAddr & 0x7;
     if (magazine == 0) {
       magazine = 8;
     }
     int packetNumber = (magazineAndFrameAddr >> 3) & 0x1F;
 
-    offset += 2;
     len -= 2;
 
     if (magazine != magazineNumber) {
@@ -418,32 +415,33 @@ import java.util.List;
     }
 
     if (packetNumber > 25) {
-      // non displayable
+      // ETSI EN 300 706 - 7.1.4 - Packet types: non-displayable
       return null;
     }
 
-    // see: ETS 300 706 / 7.1.4 Packet types
     int rowOffset = 0;
 
     if (packetNumber == 0) {
-      int pageNumber = hamming84Decode(data[offset] & 0xFF, data[offset + 1] & 0xFF);
+      // ETSI EN 300 706 - 7.1.4 - Packet types: Page header
+      int pageNumber = hamming84Decode(data.readUnsignedByte(), data.readUnsignedByte());
       if (pageNumber == 0xFF) {
         return null;
       }
       page.pageNumber = pageNumber;
 
-      // page header
-      int s2AndC4 = hamming84Decode(data[offset + 3] & 0xFF);
+      // ETSI EN 300 706 - 9.3.1 - Page header
+      data.skipBytes(1);
+      int s2AndC4 = hamming84Decode(data.readUnsignedByte());
       page.erase = (s2AndC4 & 0x08) != 0;
-      int s4AndC5C6 = hamming84Decode(data[offset + 5] & 0xFF);
+      data.skipBytes(1);
+      int s4AndC5C6 = hamming84Decode(data.readUnsignedByte());
       page.isNewsflash = (s4AndC5C6 & 0x4) != 0;
       page.isSubtitle = (s4AndC5C6 & 0x8) != 0;
-      int c7C10 = hamming84Decode(data[offset + 6] & 0xFF);
+      int c7C10 = hamming84Decode(data.readUnsignedByte());
       page.suppressHeader = (c7C10 & 0x1) != 0;
       page.inhibitDisplay = (c7C10 & 0x8) != 0;
-      int c11C14 = hamming84Decode(data[offset + 7] & 0xFF);
+      int c11C14 = hamming84Decode(data.readUnsignedByte());
       page.charset = CHARSET_INDEXES[c11C14 >> 1];
-      offset += 8;
       len -= 8;
     }
 
@@ -457,16 +455,16 @@ import java.util.List;
     }
 
     // decode odd parity encoded
-    checkParity(data, offset, len);
+    checkParity(data.getData(), data.getPosition(), len);
 
     if (packetNumber == 0 && page.suppressHeader) {
-      for (int i = offset; i < offset + len; ++i) {
-        data[i] = 0x20;
+      for (int i = data.getPosition(); i < data.getPosition() + len; ++i) {
+        data.getData()[i] = 0x20;
       }
     }
 
-    handleSpecialChars(data, offset, len, page.charset);
-    page.updateLine(packetNumber, data, offset, rowOffset, len);
+    handleSpecialChars(data.getData(), data.getPosition(), len, page.charset);
+    page.updateLine(packetNumber, data.getData(), data.getPosition(), rowOffset, len);
     return updatePage(page, packetNumber);
   }
 
