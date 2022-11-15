@@ -198,24 +198,15 @@
           android:checked="true"/>
       </TableRow>
       <TableRow
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
         <TextView
-          android:layout_gravity="center_vertical"
-          android:id="@+id/request_sdr_tone_mapping"
-          android:text="@string/request_sdr_tone_mapping" />
-        <CheckBox
-          android:id="@+id/request_sdr_tone_mapping_checkbox"
-          android:layout_gravity="end" />
-      </TableRow>
-      <TableRow
-        android:layout_weight="1">
-        <TextView
-          android:layout_gravity="center_vertical"
-          android:id="@+id/force_interpret_hdr_video_as_sdr"
-          android:text="@string/force_interpret_hdr_video_as_sdr" />
-        <CheckBox
-          android:id="@+id/force_interpret_hdr_video_as_sdr_checkbox"
-          android:layout_gravity="end" />
+          android:id="@+id/hdr_mode"
+          android:text="@string/hdr_mode"/>
+        <Spinner
+          android:id="@+id/hdr_mode_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
       </TableRow>
     </TableLayout>
   </androidx.core.widget.NestedScrollView>

@@ -397,10 +397,10 @@ public class TransformerAndroidTestRunner {
 
     @Override
     public Codec createForVideoDecoding(
-        Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
+        Format format, Surface outputSurface, boolean requestSdrToneMapping)
         throws TransformationException {
       Codec videoDecoder =
-          decoderFactory.createForVideoDecoding(format, outputSurface, enableRequestSdrToneMapping);
+          decoderFactory.createForVideoDecoding(format, outputSurface, requestSdrToneMapping);
       videoDecoderName = videoDecoder.getName();
       return videoDecoder;
     }

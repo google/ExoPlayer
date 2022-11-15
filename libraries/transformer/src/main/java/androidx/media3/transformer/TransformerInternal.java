@@ -289,10 +289,7 @@ import java.util.List;
       if (encoderFactory.videoNeedsEncoding()) {
         return true;
       }
-      if (transformationRequest.enableRequestSdrToneMapping) {
-        return true;
-      }
-      if (transformationRequest.forceInterpretHdrVideoAsSdr) {
+      if (transformationRequest.hdrMode != TransformationRequest.HDR_MODE_KEEP_HDR) {
         return true;
       }
       if (transformationRequest.videoMimeType != null

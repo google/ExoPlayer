@@ -95,10 +95,8 @@ import androidx.media3.common.util.Util;
     if (transformationRequest.outputHeight != originalTransformationRequest.outputHeight) {
       fallbackRequestBuilder.setResolution(transformationRequest.outputHeight);
     }
-    if (transformationRequest.enableRequestSdrToneMapping
-        != originalTransformationRequest.enableRequestSdrToneMapping) {
-      fallbackRequestBuilder.setEnableRequestSdrToneMapping(
-          transformationRequest.enableRequestSdrToneMapping);
+    if (transformationRequest.hdrMode != originalTransformationRequest.hdrMode) {
+      fallbackRequestBuilder.setHdrMode(transformationRequest.hdrMode);
     }
     fallbackTransformationRequest = fallbackRequestBuilder.build();
 

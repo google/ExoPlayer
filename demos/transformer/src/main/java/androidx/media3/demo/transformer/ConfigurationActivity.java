@@ -42,8 +42,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.transformer.TransformationRequest;
 import com.google.android.material.slider.RangeSlider;
 import com.google.android.material.slider.Slider;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -67,8 +69,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String TRIM_END_MS = "trim_end_ms";
   public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_DEBUG_PREVIEW = "enable_debug_preview";
-  public static final String ENABLE_REQUEST_SDR_TONE_MAPPING = "enable_request_sdr_tone_mapping";
-  public static final String FORCE_INTERPRET_HDR_VIDEO_AS_SDR = "force_interpret_hdr_video_as_sdr";
+  public static final String HDR_MODE = "hdr_mode";
   public static final String DEMO_EFFECTS_SELECTIONS = "demo_effects_selections";
   public static final String PERIODIC_VIGNETTE_CENTER_X = "periodic_vignette_center_x";
   public static final String PERIODIC_VIGNETTE_CENTER_Y = "periodic_vignette_center_y";
@@ -131,12 +132,21 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Overlay logo & timer",
     "Zoom in start",
   };
+  private static final ImmutableMap<String, @TransformationRequest.HdrMode Integer>
+      HDR_MODE_DESCRIPTIONS =
+          new ImmutableMap.Builder<String, @TransformationRequest.HdrMode Integer>()
+              .put("Keep HDR", TransformationRequest.HDR_MODE_KEEP_HDR)
+              .put("Tone-map HDR to SDR", TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+              .put(
+                  "Force Interpret HDR as SDR",
+                  TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
+              .build();
+  private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final int COLOR_FILTERS_INDEX = 2;
   private static final int RGB_ADJUSTMENTS_INDEX = 4;
   private static final int HSL_ADJUSTMENT_INDEX = 5;
   private static final int CONTRAST_INDEX = 6;
   private static final int PERIODIC_VIGNETTE_INDEX = 7;
-  private static final String SAME_AS_INPUT_OPTION = "same as input";
   private static final float HALF_DIAGONAL = 1f / (float) Math.sqrt(2);
 
   private @MonotonicNonNull ActivityResultLauncher<Intent> localFilePickerLauncher;
@@ -154,8 +164,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull CheckBox trimCheckBox;
   private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableDebugPreviewCheckBox;
-  private @MonotonicNonNull CheckBox enableRequestSdrToneMappingCheckBox;
-  private @MonotonicNonNull CheckBox forceInterpretHdrVideoAsSdrCheckBox;
+  private @MonotonicNonNull Spinner hdrModeSpinner;
   private @MonotonicNonNull Button selectDemoEffectsButton;
   private boolean @MonotonicNonNull [] demoEffectsSelections;
   private @Nullable Uri localFileUri;
@@ -247,11 +256,13 @@ public final class ConfigurationActivity extends AppCompatActivity {
 
     enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableDebugPreviewCheckBox = findViewById(R.id.enable_debug_preview_checkbox);
-    enableRequestSdrToneMappingCheckBox = findViewById(R.id.request_sdr_tone_mapping_checkbox);
-    enableRequestSdrToneMappingCheckBox.setEnabled(isRequestSdrToneMappingSupported());
-    findViewById(R.id.request_sdr_tone_mapping).setEnabled(isRequestSdrToneMappingSupported());
-    forceInterpretHdrVideoAsSdrCheckBox =
-        findViewById(R.id.force_interpret_hdr_video_as_sdr_checkbox);
+
+    ArrayAdapter<String> hdrModeAdapter =
+        new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
+    hdrModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    hdrModeSpinner = findViewById(R.id.hdr_mode_spinner);
+    hdrModeSpinner.setAdapter(hdrModeAdapter);
+    hdrModeAdapter.addAll(HDR_MODE_DESCRIPTIONS.keySet());
 
     demoEffectsSelections = new boolean[DEMO_EFFECTS.length];
     selectDemoEffectsButton = findViewById(R.id.select_demo_effects_button);
@@ -308,8 +319,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "trimCheckBox",
     "enableFallbackCheckBox",
     "enableDebugPreviewCheckBox",
-    "enableRequestSdrToneMappingCheckBox",
-    "forceInterpretHdrVideoAsSdrCheckBox",
+    "hdrModeSpinner",
     "demoEffectsSelections"
   })
   private void startTransformation(View view) {
@@ -347,10 +357,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
     bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
     bundle.putBoolean(ENABLE_DEBUG_PREVIEW, enableDebugPreviewCheckBox.isChecked());
-    bundle.putBoolean(
-        ENABLE_REQUEST_SDR_TONE_MAPPING, enableRequestSdrToneMappingCheckBox.isChecked());
-    bundle.putBoolean(
-        FORCE_INTERPRET_HDR_VIDEO_AS_SDR, forceInterpretHdrVideoAsSdrCheckBox.isChecked());
+    String selectedhdrMode = String.valueOf(hdrModeSpinner.getSelectedItem());
+    bundle.putInt(HDR_MODE, checkNotNull(HDR_MODE_DESCRIPTIONS.get(selectedhdrMode)));
     bundle.putBooleanArray(DEMO_EFFECTS_SELECTIONS, demoEffectsSelections);
     bundle.putInt(COLOR_FILTER_SELECTION, colorFilterSelection);
     bundle.putFloat(CONTRAST_VALUE, contrastValue);
@@ -588,8 +596,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
-    "enableRequestSdrToneMappingCheckBox",
-    "forceInterpretHdrVideoAsSdrCheckBox",
+    "hdrModeSpinner",
     "selectDemoEffectsButton"
   })
   private void onRemoveAudio(View view) {
@@ -609,8 +616,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
-    "enableRequestSdrToneMappingCheckBox",
-    "forceInterpretHdrVideoAsSdrCheckBox",
+    "hdrModeSpinner",
     "selectDemoEffectsButton"
   })
   private void onRemoveVideo(View view) {
@@ -629,8 +635,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "scaleSpinner",
     "rotateSpinner",
     "enableDebugPreviewCheckBox",
-    "enableRequestSdrToneMappingCheckBox",
-    "forceInterpretHdrVideoAsSdrCheckBox",
+    "hdrModeSpinner",
     "selectDemoEffectsButton"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
@@ -640,9 +645,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
     enableDebugPreviewCheckBox.setEnabled(isVideoEnabled);
-    enableRequestSdrToneMappingCheckBox.setEnabled(
-        isRequestSdrToneMappingSupported() && isVideoEnabled);
-    forceInterpretHdrVideoAsSdrCheckBox.setEnabled(isVideoEnabled);
+    hdrModeSpinner.setEnabled(isVideoEnabled);
     selectDemoEffectsButton.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
@@ -650,12 +653,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.resolution_height_text_view).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
-    findViewById(R.id.request_sdr_tone_mapping)
-        .setEnabled(isRequestSdrToneMappingSupported() && isVideoEnabled);
-    findViewById(R.id.force_interpret_hdr_video_as_sdr).setEnabled(isVideoEnabled);
-  }
-
-  private static boolean isRequestSdrToneMappingSupported() {
-    return Util.SDK_INT >= 31;
+    findViewById(R.id.hdr_mode).setEnabled(isVideoEnabled);
   }
 }
