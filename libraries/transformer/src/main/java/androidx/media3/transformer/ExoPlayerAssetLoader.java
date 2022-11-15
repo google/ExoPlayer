@@ -21,11 +21,6 @@ import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PL
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
-import static androidx.media3.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
-import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Handler;
@@ -39,6 +34,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.Renderer;
@@ -53,6 +49,8 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 /* package */ final class ExoPlayerAssetLoader {
 
   public interface Listener {
+
+    void onDurationMs(long durationMs);
 
     void onTrackRegistered();
 
@@ -74,7 +72,6 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
   private final Clock clock;
 
   @Nullable private ExoPlayer player;
-  private @Transformer.ProgressState int progressState;
 
   public ExoPlayerAssetLoader(
       Context context,
@@ -89,7 +86,6 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     this.mediaSourceFactory = mediaSourceFactory;
     this.looper = looper;
     this.clock = clock;
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
   public void start(MediaItem mediaItem, Listener listener) {
@@ -125,22 +121,9 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
     player.setMediaItem(mediaItem);
     player.addListener(new PlayerListener(listener));
     player.prepare();
-
-    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
-  }
-
-  public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
-    if (progressState == PROGRESS_STATE_AVAILABLE) {
-      Player player = checkNotNull(this.player);
-      long durationMs = player.getDuration();
-      long positionMs = player.getCurrentPosition();
-      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
-    }
-    return progressState;
   }
 
   public void release() {
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
     if (player != null) {
       player.release();
       player = null;
@@ -191,6 +174,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
   private final class PlayerListener implements Player.Listener {
 
     private final Listener listener;
+    private boolean hasSentDuration;
 
     public PlayerListener(Listener listener) {
       this.listener = listener;
@@ -205,20 +189,14 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 
     @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
-      if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
+      if (hasSentDuration) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
-        long durationUs = window.durationUs;
-        // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
-        // to a high value at the end of the transformation if the duration is set once the media is
-        // entirely loaded.
-        progressState =
-            durationUs <= 0 || durationUs == C.TIME_UNSET
-                ? PROGRESS_STATE_UNAVAILABLE
-                : PROGRESS_STATE_AVAILABLE;
+        listener.onDurationMs(Util.usToMs(window.durationUs));
+        hasSentDuration = true;
         checkNotNull(player).play();
       }
     }
