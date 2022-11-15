@@ -39,11 +39,12 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for {@linkplain
- * TransformationRequest#forceInterpretHdrVideoAsSdr forcing HDR contents to be interpreted as SDR}.
+ * TransformationRequest#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR forcing HDR contents to be
+ * interpreted as SDR}.
  */
 @RunWith(AndroidJUnit4.class)
-public class SetForceInterpretHdrVideoAsSdrTest {
-  public static final String TAG = "SetForceInterpretHdrVideoAsSdrTest";
+public class ForceInterpretHdrVideoAsSdrTest {
+  public static final String TAG = "ForceInterpretHdrVideoAsSdrTest";
 
   @Test
   public void forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows() throws Exception {
@@ -62,7 +63,8 @@ public class SetForceInterpretHdrVideoAsSdrTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .experimental_setForceInterpretHdrVideoAsSdr(true)
+                    .setHdrMode(
+                        TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
                     .build())
             .build();
     try {
@@ -97,7 +99,8 @@ public class SetForceInterpretHdrVideoAsSdrTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .experimental_setForceInterpretHdrVideoAsSdr(true)
+                    .setHdrMode(
+                        TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
                     .build())
             .build();
     try {

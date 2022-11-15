@@ -43,10 +43,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test for applying an HDR frame edit. */
+/**
+ * {@link Transformer} instrumentation test for applying an {@linkplain
+ * TransformationRequest#HDR_MODE_KEEP_HDR HDR frame edit}.
+ */
 @RunWith(AndroidJUnit4.class)
-public class SetHdrEditingTest {
-  public static final String TAG = "SetHdrEditingTest";
+public class HdrEditingTest {
+  public static final String TAG = "HdrEditingTest";
   private static final ColorInfo HDR10_DEFAULT_COLOR_INFO =
       new ColorInfo(
           C.COLOR_SPACE_BT2020,
@@ -176,9 +179,11 @@ public class SetHdrEditingTest {
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
                     isFallbackListenerInvoked.set(true);
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping).isFalse();
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
-                        fallbackTransformationRequest.enableRequestSdrToneMapping);
+                        fallbackTransformationRequest.hdrMode
+                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR);
                   }
                 })
             .build();
@@ -227,9 +232,11 @@ public class SetHdrEditingTest {
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
                     isFallbackListenerInvoked.set(true);
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping).isFalse();
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
-                        fallbackTransformationRequest.enableRequestSdrToneMapping);
+                        fallbackTransformationRequest.hdrMode
+                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR);
                   }
                 })
             .build();

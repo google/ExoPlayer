@@ -512,7 +512,7 @@ public final class Transformer {
      * @param fallbackTransformationRequest The alternative {@link TransformationRequest}, with
      *     supported {@link TransformationRequest#audioMimeType}, {@link
      *     TransformationRequest#videoMimeType}, {@link TransformationRequest#outputHeight}, and
-     *     {@link TransformationRequest#enableRequestSdrToneMapping} values set.
+     *     {@link TransformationRequest#hdrMode} values set.
      */
     default void onFallbackApplied(
         MediaItem inputMediaItem,

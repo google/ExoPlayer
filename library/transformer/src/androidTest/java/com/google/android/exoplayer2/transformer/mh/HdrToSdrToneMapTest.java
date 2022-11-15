@@ -38,11 +38,11 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for applying an {@linkplain
- * TransformationRequest.Builder#setEnableRequestSdrToneMapping HDR to SDR tone mapping edit}.
+ * TransformationRequest#HDR_MODE_TONE_MAP_HDR_TO_SDR HDR to SDR tone mapping edit}.
  */
 @RunWith(AndroidJUnit4.class)
-public class SetHdrToSdrToneMapTest {
-  public static final String TAG = "SetHdrToSdrToneMapTest";
+public class HdrToSdrToneMapTest {
+  public static final String TAG = "HdrToSdrToneMapTest";
 
   @Test
   public void transform_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {
@@ -52,7 +52,9 @@ public class SetHdrToSdrToneMapTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder().setEnableRequestSdrToneMapping(true).build())
+                new TransformationRequest.Builder()
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+                    .build())
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -62,8 +64,8 @@ public class SetHdrToSdrToneMapTest {
                       TransformationRequest fallbackTransformationRequest) {
                     // Tone mapping flag shouldn't change in fallback when tone mapping is
                     // requested.
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping)
-                        .isEqualTo(fallbackTransformationRequest.enableRequestSdrToneMapping);
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(fallbackTransformationRequest.hdrMode);
                   }
                 })
             .build();
@@ -95,7 +97,9 @@ public class SetHdrToSdrToneMapTest {
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
-                new TransformationRequest.Builder().setEnableRequestSdrToneMapping(true).build())
+                new TransformationRequest.Builder()
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
+                    .build())
             .addListener(
                 new Transformer.Listener() {
                   @Override
@@ -105,8 +109,8 @@ public class SetHdrToSdrToneMapTest {
                       TransformationRequest fallbackTransformationRequest) {
                     // Tone mapping flag shouldn't change in fallback when tone mapping is
                     // requested.
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping)
-                        .isEqualTo(fallbackTransformationRequest.enableRequestSdrToneMapping);
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(fallbackTransformationRequest.hdrMode);
                   }
                 })
             .build();
@@ -139,7 +143,7 @@ public class SetHdrToSdrToneMapTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setEnableRequestSdrToneMapping(true)
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
                     .setRotationDegrees(180)
                     .build())
             .addListener(
@@ -151,8 +155,8 @@ public class SetHdrToSdrToneMapTest {
                       TransformationRequest fallbackTransformationRequest) {
                     // Tone mapping flag shouldn't change in fallback when tone mapping is
                     // requested.
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping)
-                        .isEqualTo(fallbackTransformationRequest.enableRequestSdrToneMapping);
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(fallbackTransformationRequest.hdrMode);
                   }
                 })
             .build();
@@ -185,7 +189,7 @@ public class SetHdrToSdrToneMapTest {
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setEnableRequestSdrToneMapping(true)
+                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR)
                     .setRotationDegrees(180)
                     .build())
             .addListener(
@@ -197,8 +201,8 @@ public class SetHdrToSdrToneMapTest {
                       TransformationRequest fallbackTransformationRequest) {
                     // Tone mapping flag shouldn't change in fallback when tone mapping is
                     // requested.
-                    assertThat(originalTransformationRequest.enableRequestSdrToneMapping)
-                        .isEqualTo(fallbackTransformationRequest.enableRequestSdrToneMapping);
+                    assertThat(originalTransformationRequest.hdrMode)
+                        .isEqualTo(fallbackTransformationRequest.hdrMode);
                   }
                 })
             .build();

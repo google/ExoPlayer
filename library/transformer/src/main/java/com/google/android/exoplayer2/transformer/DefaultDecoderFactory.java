@@ -72,7 +72,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @SuppressLint("InlinedApi")
   @Override
   public Codec createForVideoDecoding(
-      Format format, Surface outputSurface, boolean enableRequestSdrToneMapping)
+      Format format, Surface outputSurface, boolean requestSdrToneMapping)
       throws TransformationException {
     MediaFormat mediaFormat =
         MediaFormat.createVideoFormat(
@@ -87,7 +87,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // transformer to decode as many frames as possible in one render cycle.
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
-    if (SDK_INT >= 31 && enableRequestSdrToneMapping) {
+    if (SDK_INT >= 31 && requestSdrToneMapping) {
       mediaFormat.setInteger(
           MediaFormat.KEY_COLOR_TRANSFER_REQUEST, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
     }
