@@ -2477,7 +2477,7 @@ public interface Player {
    *
    * @see Listener#onSurfaceSizeChanged(int, int)
    */
-  Size getVideoSurfaceSize();
+  Size getSurfaceSize();
 
   /** Returns the current {@link CueGroup}. */
   CueGroup getCurrentCues();
