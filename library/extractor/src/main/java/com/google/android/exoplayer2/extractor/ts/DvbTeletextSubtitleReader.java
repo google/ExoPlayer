@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Parses DVB Teletext subtitle data and extracts individual frames. */
-public final class DvbTeletextReader implements ElementaryStreamReader {
+public final class DvbTeletextSubtitleReader implements ElementaryStreamReader {
 
   private static final byte SUBTITLE_PAGE = 0x02;
   private static final byte SUBTITLE_PAGE_FOR_HEARING_IMPAIRED_PEOPLE = 0x05;
@@ -30,7 +30,7 @@ public final class DvbTeletextReader implements ElementaryStreamReader {
   /**
    * @param teletextInfos Information about the DVB Teletext subtitles associated to the stream.
    */
-  public DvbTeletextReader(List<DvbTeletextInfo> teletextInfos) {
+  public DvbTeletextSubtitleReader(List<DvbTeletextInfo> teletextInfos) {
     this.teletextInfos = teletextInfos;
     int validOutputs = 0;
     for (DvbTeletextInfo info : teletextInfos) {

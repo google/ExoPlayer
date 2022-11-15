@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.List;
 
 /** Parses {@link Cue}s from a DVB Teletext subtitle bitstream. */
-/* package */ final class DvbTeletextParser {
+/* package */ final class DvbTeletextSubtitleParser {
 
-  private static final String TAG = "DvbTeletextParser";
+  private static final String TAG = "DvbTeletextSubParser";
 
   private static final int TTX_HEIGHT = 576;
   private static final int TTX_COLS = 40;
@@ -260,7 +260,7 @@ import java.util.List;
    * @param magazineNumber The id of the subtitle magazine carrying the subtitle to be parsed.
    * @param pageNumber The id of the subtitle page carrying the subtitle to be parsed.
    */
-  public DvbTeletextParser(int magazineNumber, int pageNumber) {
+  public DvbTeletextSubtitleParser(int magazineNumber, int pageNumber) {
     this.magazineNumber = magazineNumber;
     this.pageNumber = pageNumber;
   }

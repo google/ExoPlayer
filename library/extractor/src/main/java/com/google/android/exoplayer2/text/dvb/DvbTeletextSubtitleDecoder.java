@@ -7,23 +7,23 @@ import com.google.common.primitives.UnsignedBytes;
 import java.util.List;
 
 /** A {@link SimpleSubtitleDecoder} for DVB Teletext subtitles. */
-public final class DvbTeletextDecoder extends SimpleSubtitleDecoder {
+public final class DvbTeletextSubtitleDecoder extends SimpleSubtitleDecoder {
 
-  private final DvbTeletextParser parser;
+  private final DvbTeletextSubtitleParser parser;
 
   /**
    * @param initializationData The initialization data for the decoder. The initialization data must
    *     consist of a single byte array containing 2 bytes: magazine_number (1), page_number (2).
    */
-  public DvbTeletextDecoder(List<byte[]> initializationData) {
-    super("DvbTeletextDecoder");
+  public DvbTeletextSubtitleDecoder(List<byte[]> initializationData) {
+    super("DvbTeletextSubtitleDecoder");
     byte[] data = initializationData.get(0);
     int magazineNumber = UnsignedBytes.toInt(data[0]);
     if (magazineNumber == 0) {
       magazineNumber = 8;
     }
     int pageNumber = UnsignedBytes.toInt(data[1]);
-    parser = new DvbTeletextParser(magazineNumber, pageNumber);
+    parser = new DvbTeletextSubtitleParser(magazineNumber, pageNumber);
   }
 
   @Override
