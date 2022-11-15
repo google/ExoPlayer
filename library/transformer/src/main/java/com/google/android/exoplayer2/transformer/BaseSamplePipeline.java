@@ -18,12 +18,14 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -38,6 +40,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Nullable private DecoderInputBuffer inputBuffer;
   private boolean muxerWrapperTrackAdded;
+  private long currentPositionMs;
   private boolean isEnded;
 
   public BaseSamplePipeline(
@@ -65,9 +68,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void queueInputBuffer() throws TransformationException {
-    checkNotNull(inputBuffer);
+    DecoderInputBuffer inputBuffer = checkNotNull(this.inputBuffer);
+    currentPositionMs =
+        max(currentPositionMs, Util.usToMs(inputBuffer.timeUs - streamStartPositionUs));
     checkNotNull(inputBuffer.data);
-    if (!shouldDropInputBuffer()) {
+    if (!shouldDropInputBuffer(inputBuffer)) {
       queueInputBufferInternal();
     }
   }
@@ -80,6 +85,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public boolean isEnded() {
     return isEnded;
+  }
+
+  @Override
+  public long getCurrentPositionMs() {
+    return currentPositionMs;
   }
 
   @Nullable
@@ -103,8 +113,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Preprocesses an {@linkplain DecoderInputBuffer input buffer} queued to the pipeline and returns
    * whether it should be dropped.
    */
-  @RequiresNonNull({"inputBuffer", "inputBuffer.data"})
-  private boolean shouldDropInputBuffer() {
+  @RequiresNonNull("#1.data")
+  private boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
     ByteBuffer inputBytes = inputBuffer.data;
 
     if (sefVideoSlowMotionFlattener == null || inputBuffer.isEndOfStream()) {
@@ -112,7 +122,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     long presentationTimeUs = inputBuffer.timeUs - streamOffsetUs;
-    DecoderInputBuffer inputBuffer = this.inputBuffer;
     boolean shouldDropInputBuffer =
         sefVideoSlowMotionFlattener.dropOrTransformSample(inputBytes, presentationTimeUs);
     if (shouldDropInputBuffer) {

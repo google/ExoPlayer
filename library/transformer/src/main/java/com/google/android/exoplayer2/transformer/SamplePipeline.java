@@ -49,4 +49,10 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
   /** Releases all resources held by the pipeline. */
   void release();
+
+  /**
+   * Returns the current timestamp being processed in the track, in milliseconds. This is the
+   * largest timestamp queued minus the stream start time, or 0 if no input has been queued.
+   */
+  long getCurrentPositionMs();
 }

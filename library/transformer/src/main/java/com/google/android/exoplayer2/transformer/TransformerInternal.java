@@ -16,6 +16,12 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NO_TRANSFORMATION;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
+import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+import static java.lang.Math.min;
+
 import android.content.Context;
 import android.os.Looper;
 import androidx.annotation.Nullable;
@@ -32,6 +38,8 @@ import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameProcessor;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 
 /* package */ final class TransformerInternal {
 
@@ -50,6 +58,10 @@ import com.google.common.collect.ImmutableList;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final DebugViewProvider debugViewProvider;
   private final ExoPlayerAssetLoader exoPlayerAssetLoader;
+  private final List<SamplePipeline> samplePipelines;
+
+  private @Transformer.ProgressState int progressState;
+  private long durationMs;
 
   public TransformerInternal(
       Context context,
@@ -74,6 +86,8 @@ import com.google.common.collect.ImmutableList;
     exoPlayerAssetLoader =
         new ExoPlayerAssetLoader(
             context, removeAudio, removeVideo, mediaSourceFactory, looper, clock);
+    samplePipelines = new ArrayList<>(/* initialCapacity= */ 2);
+    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
   public void start(
@@ -84,14 +98,32 @@ import com.google.common.collect.ImmutableList;
     AssetLoaderListener assetLoaderListener =
         new AssetLoaderListener(mediaItem, muxerWrapper, listener, fallbackListener);
     exoPlayerAssetLoader.start(mediaItem, assetLoaderListener);
+    progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
   }
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
-    return exoPlayerAssetLoader.getProgress(progressHolder);
+    if (progressState == PROGRESS_STATE_AVAILABLE) {
+      long positionMs = getCurrentPositionMs();
+      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
+    }
+    return progressState;
   }
 
   public void release() {
+    samplePipelines.clear();
+    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
     exoPlayerAssetLoader.release();
+  }
+
+  private long getCurrentPositionMs() {
+    if (samplePipelines.isEmpty()) {
+      return 0;
+    }
+    long positionMsSum = 0;
+    for (int i = 0; i < samplePipelines.size(); i++) {
+      positionMsSum += samplePipelines.get(i).getCurrentPositionMs();
+    }
+    return positionMsSum / samplePipelines.size();
   }
 
   private class AssetLoaderListener implements ExoPlayerAssetLoader.Listener {
@@ -115,6 +147,18 @@ import com.google.common.collect.ImmutableList;
     }
 
     @Override
+    public void onDurationMs(long durationMs) {
+      // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
+      // to a high value at the end of the transformation if the duration is set once the media is
+      // entirely loaded.
+      progressState =
+          durationMs <= 0 || durationMs == C.TIME_UNSET
+              ? PROGRESS_STATE_UNAVAILABLE
+              : PROGRESS_STATE_AVAILABLE;
+      TransformerInternal.this.durationMs = durationMs;
+    }
+
+    @Override
     public void onTrackRegistered() {
       trackRegistered = true;
       muxerWrapper.registerTrack();
@@ -132,7 +176,10 @@ import com.google.common.collect.ImmutableList;
     public SamplePipeline onTrackAdded(
         Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException {
-      return getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
+      SamplePipeline samplePipeline =
+          getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
+      samplePipelines.add(samplePipeline);
+      return samplePipeline;
     }
 
     @Override
