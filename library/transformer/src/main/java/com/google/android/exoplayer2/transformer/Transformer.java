@@ -31,6 +31,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlEffectsFrameProcessor;
 import com.google.android.exoplayer2.effect.GlMatrixTransformation;
@@ -83,6 +84,7 @@ public final class Transformer {
 
     // Optional fields.
     private TransformationRequest transformationRequest;
+    private ImmutableList<AudioProcessor> audioProcessors;
     private ImmutableList<Effect> videoEffects;
     private boolean removeAudio;
     private boolean removeVideo;
@@ -104,6 +106,7 @@ public final class Transformer {
     public Builder(Context context) {
       this.context = context.getApplicationContext();
       transformationRequest = new TransformationRequest.Builder().build();
+      audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
       decoderFactory = new DefaultDecoderFactory(this.context);
       encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
@@ -119,6 +122,7 @@ public final class Transformer {
     private Builder(Transformer transformer) {
       this.context = transformer.context;
       this.transformationRequest = transformer.transformationRequest;
+      this.audioProcessors = transformer.audioProcessors;
       this.videoEffects = transformer.videoEffects;
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
@@ -146,6 +150,19 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder setTransformationRequest(TransformationRequest transformationRequest) {
       this.transformationRequest = transformationRequest;
+      return this;
+    }
+
+    /**
+     * Sets the {@link AudioProcessor} instances to apply to audio buffers.
+     *
+     * <p>The {@link AudioProcessor} instances are applied in the order of the list, and buffers
+     * will only be modified by that {@link AudioProcessor} if it {@link AudioProcessor#isActive()}
+     * based on the current configuration.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAudioProcessors(List<AudioProcessor> audioProcessors) {
+      this.audioProcessors = ImmutableList.copyOf(audioProcessors);
       return this;
     }
 
@@ -424,6 +441,7 @@ public final class Transformer {
       return new Transformer(
           context,
           transformationRequest,
+          audioProcessors,
           videoEffects,
           removeAudio,
           removeVideo,
@@ -535,6 +553,7 @@ public final class Transformer {
 
   private final Context context;
   private final TransformationRequest transformationRequest;
+  private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
   private final boolean removeAudio;
   private final boolean removeVideo;
@@ -556,6 +575,7 @@ public final class Transformer {
   private Transformer(
       Context context,
       TransformationRequest transformationRequest,
+      ImmutableList<AudioProcessor> audioProcessors,
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
@@ -571,6 +591,7 @@ public final class Transformer {
     checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed.");
     this.context = context;
     this.transformationRequest = transformationRequest;
+    this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
@@ -587,6 +608,7 @@ public final class Transformer {
         new TransformerInternal(
             context,
             transformationRequest,
+            audioProcessors,
             videoEffects,
             removeAudio,
             removeVideo,
