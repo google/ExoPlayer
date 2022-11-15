@@ -34,6 +34,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
@@ -52,6 +53,7 @@ import java.util.List;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
+  private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
   private final Codec.DecoderFactory decoderFactory;
   private final Codec.EncoderFactory encoderFactory;
@@ -66,6 +68,7 @@ import java.util.List;
   public TransformerInternal(
       Context context,
       TransformationRequest transformationRequest,
+      ImmutableList<AudioProcessor> audioProcessors,
       ImmutableList<Effect> videoEffects,
       boolean removeAudio,
       boolean removeVideo,
@@ -78,6 +81,7 @@ import java.util.List;
       Clock clock) {
     this.context = context;
     this.transformationRequest = transformationRequest;
+    this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
     this.decoderFactory = decoderFactory;
     this.encoderFactory = encoderFactory;
@@ -210,6 +214,7 @@ import java.util.List;
             streamStartPositionUs,
             streamOffsetUs,
             transformationRequest,
+            audioProcessors,
             decoderFactory,
             encoderFactory,
             muxerWrapper,
@@ -254,6 +259,9 @@ import java.util.List;
         return true;
       }
       if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {
+        return true;
+      }
+      if (!audioProcessors.isEmpty()) {
         return true;
       }
       return false;
