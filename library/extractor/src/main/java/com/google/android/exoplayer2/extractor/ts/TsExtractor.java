@@ -759,18 +759,17 @@ public final class TsExtractor implements Extractor {
           streamType = TS_STREAM_TYPE_TELETEXT;
           dvbTeletextInfos = new ArrayList<>();
           while (data.getPosition() < positionOfNextDescriptor) {
-            String teletextLanguage = data.readString(3, Charsets.ISO_8859_1).trim();
-            byte[] initializationData = new byte[2];
-            data.readBytes(initializationData, 0, 2);
-            byte typeAndMag = initializationData[0];
-            int type = typeAndMag >> 3;
-            if (type != 0x02 /* Teletext subtitle page */
-                && type != 0x05 /* Teletext subtitle page for hearing impaired people */) {
-              // other types are not subtitles, ignore them
-              continue;
-            }
+            ParsableBitArray scratch = new ParsableBitArray(new byte[5]);
+            data.readBytes(scratch, 5);
+            String teletextLanguage = scratch.readBytesAsString(3, Charsets.ISO_8859_1).trim();
+            int type = scratch.readBits(5);
+            int magazineNumber = scratch.readBits(3);
+            int pageNumber = scratch.readBits(8);
             dvbTeletextInfos.add(
-                new DvbTeletextInfo(teletextLanguage, type, initializationData));
+                new DvbTeletextInfo(
+                    teletextLanguage, (byte) type,
+                    new byte[] { (byte) magazineNumber, (byte) pageNumber })
+            );
           }
         } else if (descriptorTag == TS_PMT_DESC_DVBSUBS) {
           streamType = TS_STREAM_TYPE_DVBSUBS;

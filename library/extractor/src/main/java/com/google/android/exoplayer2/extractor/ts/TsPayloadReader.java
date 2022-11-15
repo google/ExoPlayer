@@ -123,7 +123,7 @@ public interface TsPayloadReader {
   final class DvbTeletextInfo {
 
     public final String language;
-    public final int type;
+    public final byte type;
     public final byte[] initializationData;
 
     /**
@@ -131,7 +131,7 @@ public interface TsPayloadReader {
      * @param type The Teletext type.
      * @param initializationData The magazine number and page number.
      */
-    public DvbTeletextInfo(String language, int type, byte[] initializationData) {
+    public DvbTeletextInfo(String language, byte type, byte[] initializationData) {
       this.language = language;
       this.type = type;
       this.initializationData = initializationData;

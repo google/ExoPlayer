@@ -17,6 +17,9 @@ import java.util.List;
 /** Parses DVB Teletext subtitle data and extracts individual frames. */
 public final class DvbTeletextReader implements ElementaryStreamReader {
 
+  private static final byte SUBTITLE_PAGE = 0x02;
+  private static final byte SUBTITLE_PAGE_FOR_HEARING_IMPAIRED_PEOPLE = 0x05;
+
   private final List<DvbTeletextInfo> teletextInfos;
   private final TrackOutput[] outputs;
 
@@ -29,7 +32,15 @@ public final class DvbTeletextReader implements ElementaryStreamReader {
    */
   public DvbTeletextReader(List<DvbTeletextInfo> teletextInfos) {
     this.teletextInfos = teletextInfos;
-    outputs = new TrackOutput[teletextInfos.size()];
+    int validOutputs = 0;
+    for (DvbTeletextInfo info : teletextInfos) {
+      if (info.type == SUBTITLE_PAGE || info.type == SUBTITLE_PAGE_FOR_HEARING_IMPAIRED_PEOPLE) {
+        // Only 'Teletext subtitle page' and 'Teletext subtitle page for hearing impaired people'
+        // are supported.
+        validOutputs++;
+      }
+    }
+    outputs = new TrackOutput[validOutputs];
     sampleTimeUs = C.TIME_UNSET;
   }
 
@@ -43,6 +54,7 @@ public final class DvbTeletextReader implements ElementaryStreamReader {
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     for (int i = 0; i < outputs.length; i++) {
       DvbTeletextInfo teletextInfo = teletextInfos.get(i);
+      byte type = teletextInfo.type;
       idGenerator.generateNewId();
       TrackOutput output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
       Format.Builder formatBuilder = new Format.Builder()
@@ -50,9 +62,9 @@ public final class DvbTeletextReader implements ElementaryStreamReader {
           .setSampleMimeType(MimeTypes.APPLICATION_TELETEXT)
           .setInitializationData(Collections.singletonList(teletextInfo.initializationData))
           .setLanguage(teletextInfo.language);
-      if (teletextInfo.type == 0x02) { // Teletext subtitle page
+      if (type == SUBTITLE_PAGE) {
         formatBuilder.setRoleFlags(C.ROLE_FLAG_SUBTITLE);
-      } else if (teletextInfo.type == 0x05) { // Teletext subtitle page for hearing impaired people
+      } else {
         formatBuilder.setRoleFlags(C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND);
       }
       output.format(formatBuilder.build());
