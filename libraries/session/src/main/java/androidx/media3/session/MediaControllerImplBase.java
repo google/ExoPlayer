@@ -1566,7 +1566,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     return surfaceSize;
   }
 

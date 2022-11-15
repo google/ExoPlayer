@@ -28,7 +28,7 @@ Release notes
         ([#10667](https://github.com/google/ExoPlayer/issues/10667)).
     *   Enforce minimum `compileSdkVersion` to avoid compilation errors
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
-    *   Add `Player.getVideoSurfaceSize` that returns the size of the surface on
+    *   Add `Player.getSurfaceSize` that returns the size of the surface on
         which the video is rendered.
     *   Fix bug where removing listeners during the player release can cause an
         `IllegalStateException`

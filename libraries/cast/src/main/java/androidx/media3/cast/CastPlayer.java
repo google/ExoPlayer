@@ -730,7 +730,7 @@ public final class CastPlayer extends BasePlayer {
 
   /** This method is not supported and returns {@link Size#UNKNOWN}. */
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     return Size.UNKNOWN;
   }
 

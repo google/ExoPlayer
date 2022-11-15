@@ -963,7 +963,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
-  public Size getVideoSurfaceSize() {
+  public Size getSurfaceSize() {
     Log.w(TAG, "Session doesn't support getting VideoSurfaceSize");
     return Size.UNKNOWN;
   }

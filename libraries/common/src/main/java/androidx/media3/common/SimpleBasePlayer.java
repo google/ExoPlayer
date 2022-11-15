@@ -591,7 +591,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final Size getVideoSurfaceSize() {
+  public final Size getSurfaceSize() {
     // TODO: implement.
     throw new IllegalStateException();
   }
