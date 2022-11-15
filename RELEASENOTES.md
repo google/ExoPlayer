@@ -30,6 +30,9 @@ Release notes
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
     *   Add `Player.getVideoSurfaceSize` that returns the size of the surface on
         which the video is rendered.
+    *   Fix bug where removing listeners during the player release can cause an
+        `IllegalStateException`
+        ([#10758](https://github.com/google/ExoPlayer/issues/10758)).
 *   Build:
     *   Avoid publishing block when included in another gradle build.
 *   Downloads:
