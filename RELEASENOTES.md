@@ -34,6 +34,8 @@ This release corresponds to the
     *   Fix bug where removing listeners during the player release can cause an
         `IllegalStateException`
         ([#10758](https://github.com/google/ExoPlayer/issues/10758)).
+    *   Add `ExoPlayer.Builder.setPlaybackLooper` that sets a pre-existing
+        playback thread for a new ExoPlayer instance.
 *   Build:
     *   Enforce minimum `compileSdkVersion` to avoid compilation errors
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
