@@ -80,7 +80,7 @@ public final class FlagSetTest {
   public void containsAny_withoutAdd_returnsFalseForAllValues() {
     FlagSet flags = new FlagSet.Builder().build();
 
-    assertThat(flags.containsAny(/* flags= */ -1234, 0, 2, Integer.MAX_VALUE)).isFalse();
+    assertThat(flags.containsAny(/* flags...= */ -1234, 0, 2, Integer.MAX_VALUE)).isFalse();
   }
 
   @Test
@@ -95,9 +95,9 @@ public final class FlagSetTest {
 
     assertThat(
             flags.containsAny(
-                /* flags= */ -1235, -1234, 0, 1, 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE))
+                /* flags...= */ -1235, -1234, 0, 1, 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE))
         .isTrue();
-    assertThat(flags.containsAny(/* flags= */ -1235, 1, Integer.MAX_VALUE - 1)).isFalse();
+    assertThat(flags.containsAny(/* flags...= */ -1235, 1, Integer.MAX_VALUE - 1)).isFalse();
   }
 
   @Test
