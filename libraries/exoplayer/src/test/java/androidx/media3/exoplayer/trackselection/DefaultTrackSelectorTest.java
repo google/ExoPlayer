@@ -2173,8 +2173,10 @@ public final class DefaultTrackSelectorTest {
             TIMELINE);
 
     assertThat(result.length).isEqualTo(2);
-    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), /* expectedTracks= */ 1, 0);
-    assertAdaptiveSelection(result.selections[1], trackGroups.get(1), /* expectedTracks= */ 1, 0);
+    assertAdaptiveSelection(
+        result.selections[0], trackGroups.get(0), /* expectedTracks...= */ 1, 0);
+    assertAdaptiveSelection(
+        result.selections[1], trackGroups.get(1), /* expectedTracks...= */ 1, 0);
 
     // Multiple adaptive selection disallowed.
     trackSelector.setParameters(
@@ -2187,7 +2189,8 @@ public final class DefaultTrackSelectorTest {
             TIMELINE);
 
     assertThat(result.length).isEqualTo(2);
-    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), /* expectedTracks= */ 1, 0);
+    assertAdaptiveSelection(
+        result.selections[0], trackGroups.get(0), /* expectedTracks...= */ 1, 0);
     assertFixedSelection(result.selections[1], trackGroups.get(1), /* expectedTrack= */ 1);
   }
 
@@ -2231,7 +2234,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
-    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks= */ 1, 0);
+    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
 
     // Select default (=most tracks) if no preference is specified.
     trackSelector.setParameters(defaultParameters.buildUpon().setPreferredVideoMimeType(null));
@@ -2239,7 +2242,7 @@ public final class DefaultTrackSelectorTest {
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
-    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks= */ 1, 0);
+    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
   }
 
   /**
@@ -2418,7 +2421,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
     SelectionOverride selectionOverrideToBundle =
-        new SelectionOverride(/* groupIndex= */ 1, /* tracks= */ 2, 3);
+        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
 
     SelectionOverride selectionOverrideFromBundle =
         DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(

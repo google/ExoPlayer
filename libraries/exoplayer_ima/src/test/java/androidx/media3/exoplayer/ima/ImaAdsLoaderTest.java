@@ -239,7 +239,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
-            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs= */ 0)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -312,7 +312,7 @@ public final class ImaAdsLoaderTest {
     // Verify that the preroll ad has been marked as played.
     assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
-            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs= */ 0)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
@@ -336,7 +336,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
-            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs= */ 20_500_000)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 20_500_000)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -384,7 +384,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
-            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs= */ C.TIME_END_OF_SOURCE)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -1114,7 +1114,7 @@ public final class ImaAdsLoaderTest {
     // Verify that the preroll ad has been marked as played.
     assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
-            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs= */ 0)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
@@ -1123,7 +1123,7 @@ public final class ImaAdsLoaderTest {
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
     // Verify that the second source's ad cue points have preloaded.
     assertThat(getAdPlaybackState(/* periodIndex= */ 1))
-        .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs= */ 0));
+        .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs...= */ 0));
   }
 
   @Test
@@ -1181,7 +1181,7 @@ public final class ImaAdsLoaderTest {
     // Verify that the preroll ad has been marked as played.
     assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
-            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs= */ 0)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAvailableAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
@@ -1190,7 +1190,7 @@ public final class ImaAdsLoaderTest {
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
     // Verify that the second source's ad cue points have preloaded.
     assertThat(getAdPlaybackState(/* periodIndex= */ 1))
-        .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs= */ 0));
+        .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs...= */ 0));
   }
 
   @Test

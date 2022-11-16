@@ -93,16 +93,19 @@ public final class ServerSideAdInsertionMediaSourceTest {
     // Test with one ad group before the window, and the window starting within the second ad group.
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(
-                /* adsId= */ new Object(), /* adGroupTimesUs= */ 15_000_000, 41_500_000, 42_200_000)
+                /* adsId= */ new Object(), /* adGroupTimesUs...= */
+                15_000_000,
+                41_500_000,
+                42_200_000)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
             .withIsServerSideInserted(/* adGroupIndex= */ 1, /* isServerSideInserted= */ true)
             .withIsServerSideInserted(/* adGroupIndex= */ 2, /* isServerSideInserted= */ true)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
             .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs= */ 500_000)
-            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs= */ 300_000, 100_000)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 400_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs...= */ 500_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs...= */ 300_000, 100_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ 100_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
@@ -166,16 +169,19 @@ public final class ServerSideAdInsertionMediaSourceTest {
     // Test with one ad group before the window, and the window starting within the second ad group.
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(
-                /* adsId= */ new Object(), /* adGroupTimesUs= */ 15_000_000, 41_500_000, 42_200_000)
+                /* adsId= */ new Object(), /* adGroupTimesUs...= */
+                15_000_000,
+                41_500_000,
+                42_200_000)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
             .withIsServerSideInserted(/* adGroupIndex= */ 1, /* isServerSideInserted= */ true)
             .withIsServerSideInserted(/* adGroupIndex= */ 2, /* isServerSideInserted= */ true)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
             .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs= */ 500_000)
-            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs= */ 300_000, 100_000)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 400_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs...= */ 500_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs...= */ 300_000, 100_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ 100_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
@@ -260,19 +266,19 @@ public final class ServerSideAdInsertionMediaSourceTest {
             adPlaybackState,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 200_000);
+            /* adDurationsUs...= */ 200_000);
     adPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 400_000,
             /* contentResumeOffsetUs= */ 1_000_000,
-            /* adDurationsUs= */ 300_000);
+            /* adDurationsUs...= */ 300_000);
     AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 900_000,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 100_000);
+            /* adDurationsUs...= */ 100_000);
 
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
@@ -330,7 +336,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
             new AdPlaybackState(/* adsId= */ new Object()),
             /* fromPositionUs= */ 900_000,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 100_000);
+            /* adDurationsUs...= */ 100_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
@@ -358,7 +364,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
             firstAdPlaybackState,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 500_000);
+            /* adDurationsUs...= */ 500_000);
     mediaSourceRef
         .get()
         .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
@@ -401,7 +407,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
             new AdPlaybackState(/* adsId= */ new Object()),
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 500_000);
+            /* adDurationsUs...= */ 500_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
@@ -431,7 +437,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
         firstAdPlaybackState
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3)
             .withAdDurationsUs(
-                /* adGroupIndex= */ 0, /* adDurationsUs= */ 50_000, 250_000, 200_000);
+                /* adGroupIndex= */ 0, /* adDurationsUs...= */ 50_000, 250_000, 200_000);
     mediaSourceRef
         .get()
         .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
@@ -469,19 +475,19 @@ public final class ServerSideAdInsertionMediaSourceTest {
             adPlaybackState,
             /* fromPositionUs= */ 0,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 100_000);
+            /* adDurationsUs...= */ 100_000);
     adPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 600_000,
             /* contentResumeOffsetUs= */ 1_000_000,
-            /* adDurationsUs= */ 100_000);
+            /* adDurationsUs...= */ 100_000);
     AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 900_000,
             /* contentResumeOffsetUs= */ 0,
-            /* adDurationsUs= */ 100_000);
+            /* adDurationsUs...= */ 100_000);
 
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
