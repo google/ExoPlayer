@@ -39,6 +39,8 @@ Release notes
     *   Fix bug where removing listeners during the player release can cause an
         `IllegalStateException`
         ([#10758](https://github.com/google/ExoPlayer/issues/10758)).
+    *   Add `ExoPlayer.Builder.setPlaybackLooper` that sets a pre-existing
+        playback thread for a new ExoPlayer instance.
 *   Build:
     *   Avoid publishing block when included in another gradle build.
 *   Downloads:
