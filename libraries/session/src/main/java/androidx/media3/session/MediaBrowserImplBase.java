@@ -194,7 +194,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         task.run(iSession, result.getSequenceNumber());
       } catch (RemoteException e) {
         Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-        result.set(LibraryResult.ofError(RESULT_ERROR_SESSION_DISCONNECTED));
+        sequencedFutureManager.setFutureResult(
+            result.getSequenceNumber(), LibraryResult.ofError(RESULT_ERROR_SESSION_DISCONNECTED));
       }
       return result;
     } else {
