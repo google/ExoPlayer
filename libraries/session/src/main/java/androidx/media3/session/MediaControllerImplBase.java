@@ -340,15 +340,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       SequencedFutureManager.SequencedFuture<SessionResult> result =
           sequencedFutureManager.createSequencedFuture(
               new SessionResult(SessionResult.RESULT_INFO_SKIPPED));
+      int sequenceNumber = result.getSequenceNumber();
+      if (addToPendingMaskingOperations) {
+        pendingMaskingSequencedFutureNumbers.add(sequenceNumber);
+      }
       try {
-        int sequenceNumber = result.getSequenceNumber();
         task.run(iSession, sequenceNumber);
-        if (addToPendingMaskingOperations) {
-          pendingMaskingSequencedFutureNumbers.add(sequenceNumber);
-        }
       } catch (RemoteException e) {
         Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-        result.set(new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
+        pendingMaskingSequencedFutureNumbers.remove(sequenceNumber);
+        sequencedFutureManager.setFutureResult(
+            sequenceNumber, new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
       }
       return result;
     } else {
@@ -2173,6 +2175,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // Never happens because future.setException will not be called.
       throw new IllegalStateException(e);
     } catch (TimeoutException e) {
+      if (future instanceof SequencedFutureManager.SequencedFuture) {
+        int sequenceNumber =
+            ((SequencedFutureManager.SequencedFuture<SessionResult>) future).getSequenceNumber();
+        pendingMaskingSequencedFutureNumbers.remove(sequenceNumber);
+        sequencedFutureManager.setFutureResult(
+            sequenceNumber, new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN));
+      }
       Log.w(TAG, "set/clearVideoSurface takes too long on the session side.", e);
       // TODO(b/188888693): Let developers know the failure in their code.
     }
