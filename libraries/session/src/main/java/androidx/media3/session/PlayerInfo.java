@@ -46,6 +46,8 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.UnstableApi;
+import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -57,6 +59,75 @@ import java.lang.annotation.Target;
  * MediaController}.
  */
 /* package */ class PlayerInfo implements Bundleable {
+
+  /**
+   * Holds information about what properties of the {@link PlayerInfo} have been excluded when sent
+   * to the controller.
+   */
+  public static class BundlingExclusions implements Bundleable {
+
+    /** Whether the {@linkplain PlayerInfo#timeline timeline} is excluded. */
+    public final boolean isTimelineExcluded;
+    /** Whether the {@linkplain PlayerInfo#currentTracks current tracks} are excluded. */
+    public final boolean areCurrentTracksExcluded;
+
+    /** Creates a new instance. */
+    public BundlingExclusions(boolean isTimelineExcluded, boolean areCurrentTracksExcluded) {
+      this.isTimelineExcluded = isTimelineExcluded;
+      this.areCurrentTracksExcluded = areCurrentTracksExcluded;
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({FIELD_IS_TIMELINE_EXCLUDED, FIELD_ARE_CURRENT_TRACKS_EXCLUDED})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_IS_TIMELINE_EXCLUDED = 0;
+    private static final int FIELD_ARE_CURRENT_TRACKS_EXCLUDED = 1;
+    // Next field key = 2
+
+    @UnstableApi
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putBoolean(keyForField(FIELD_IS_TIMELINE_EXCLUDED), isTimelineExcluded);
+      bundle.putBoolean(keyForField(FIELD_ARE_CURRENT_TRACKS_EXCLUDED), areCurrentTracksExcluded);
+      return bundle;
+    }
+
+    public static final Creator<BundlingExclusions> CREATOR =
+        bundle ->
+            new BundlingExclusions(
+                bundle.getBoolean(
+                    keyForField(FIELD_IS_TIMELINE_EXCLUDED), /* defaultValue= */ false),
+                bundle.getBoolean(
+                    keyForField(FIELD_ARE_CURRENT_TRACKS_EXCLUDED), /* defaultValue= */ false));
+
+    private static String keyForField(@BundlingExclusions.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof BundlingExclusions)) {
+        return false;
+      }
+      BundlingExclusions that = (BundlingExclusions) o;
+      return isTimelineExcluded == that.isTimelineExcluded
+          && areCurrentTracksExcluded == that.areCurrentTracksExcluded;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(isTimelineExcluded, areCurrentTracksExcluded);
+    }
+  }
 
   public static class Builder {
 
@@ -983,7 +1054,7 @@ import java.lang.annotation.Target;
         trackSelectionParameters);
   }
 
-  private static String keyForField(@FieldNumber int field) {
+  private static String keyForField(@PlayerInfo.FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
   }
 }
