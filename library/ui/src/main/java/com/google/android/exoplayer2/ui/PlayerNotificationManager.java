@@ -1162,8 +1162,7 @@ public class PlayerNotificationManager {
     Notification notification = builder.build();
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
-      // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
-      context.registerReceiver(notificationBroadcastReceiver, intentFilter);
+      Util.registerReceiverNotExported(context, notificationBroadcastReceiver, intentFilter);
     }
     if (notificationListener != null) {
       // Always pass true for ongoing with the first notification to tell a service to go into
