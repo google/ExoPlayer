@@ -788,7 +788,7 @@ public final class DefaultAudioSink implements AudioSink {
                 getAudioTrackMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding),
                 outputEncoding,
                 outputMode,
-                outputPcmFrameSize,
+                outputPcmFrameSize != C.LENGTH_UNSET ? outputPcmFrameSize : 1,
                 outputSampleRate,
                 enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
 
