@@ -190,6 +190,7 @@ public final class TransformerActivity extends AppCompatActivity {
       throw new IllegalStateException(e);
     }
     informationTextView.setText(R.string.transformation_started);
+    progressViewGroup.setVisibility(View.VISIBLE);
     inputCardView.setVisibility(View.GONE);
     outputPlayerView.setVisibility(View.GONE);
     Handler mainHandler = new Handler(getMainLooper());
