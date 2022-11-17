@@ -38,13 +38,15 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import com.google.common.collect.ImmutableList;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ final class TransformerInternal {
 
@@ -56,8 +58,6 @@ import java.util.List;
   }
 
   private final Context context;
-  @Nullable private final String outputPath;
-  @Nullable private final ParcelFileDescriptor outputParcelFileDescriptor;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<AudioProcessor> audioProcessors;
   private final ImmutableList<Effect> videoEffects;
@@ -66,14 +66,18 @@ import java.util.List;
   private final FrameProcessor.Factory frameProcessorFactory;
   private final Listener listener;
   private final DebugViewProvider debugViewProvider;
+  private final Clock clock;
   private final Handler handler;
   private final ExoPlayerAssetLoader exoPlayerAssetLoader;
   private final MuxerWrapper muxerWrapper;
   private final List<SamplePipeline> samplePipelines;
+  private final ConditionVariable releasingMuxerConditionVariable;
 
   private @Transformer.ProgressState int progressState;
   private long durationMs;
   private boolean released;
+  private volatile @MonotonicNonNull TransformationResult transformationResult;
+  private volatile @MonotonicNonNull TransformationException releaseMuxerException;
 
   public TransformerInternal(
       Context context,
@@ -95,8 +99,6 @@ import java.util.List;
       DebugViewProvider debugViewProvider,
       Clock clock) {
     this.context = context;
-    this.outputPath = outputPath;
-    this.outputParcelFileDescriptor = outputParcelFileDescriptor;
     this.transformationRequest = transformationRequest;
     this.audioProcessors = audioProcessors;
     this.videoEffects = videoEffects;
@@ -105,6 +107,7 @@ import java.util.List;
     this.frameProcessorFactory = frameProcessorFactory;
     this.listener = listener;
     this.debugViewProvider = debugViewProvider;
+    this.clock = clock;
     handler = Util.createHandlerForCurrentLooper();
     AssetLoaderListener assetLoaderListener = new AssetLoaderListener(mediaItem, fallbackListener);
     muxerWrapper =
@@ -123,6 +126,7 @@ import java.util.List;
             assetLoaderListener,
             clock);
     samplePipelines = new ArrayList<>(/* initialCapacity= */ 2);
+    releasingMuxerConditionVariable = new ConditionVariable();
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
   }
 
@@ -153,12 +157,33 @@ import java.util.List;
     samplePipelines.clear();
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
     released = true;
+    HandlerWrapper playbackHandler =
+        clock.createHandler(exoPlayerAssetLoader.getPlaybackLooper(), /* callback= */ null);
+    playbackHandler.post(
+        () -> {
+          transformationResult =
+              new TransformationResult.Builder()
+                  .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
+                  .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
+                  .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
+                  .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
+                  .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
+                  .build();
+          try {
+            muxerWrapper.release(forCancellation);
+          } catch (Muxer.MuxerException e) {
+            releaseMuxerException =
+                TransformationException.createForMuxer(
+                    e, TransformationException.ERROR_CODE_MUXING_FAILED);
+          } finally {
+            releasingMuxerConditionVariable.open();
+          }
+        });
+    clock.onThreadBlocked();
+    releasingMuxerConditionVariable.blockUninterruptible();
     exoPlayerAssetLoader.release();
-    try {
-      muxerWrapper.release(forCancellation);
-    } catch (Muxer.MuxerException e) {
-      throw TransformationException.createForMuxer(
-          e, TransformationException.ERROR_CODE_MUXING_FAILED);
+    if (releaseMuxerException != null) {
+      throw releaseMuxerException;
     }
   }
 
@@ -171,26 +196,6 @@ import java.util.List;
       positionMsSum += samplePipelines.get(i).getCurrentPositionMs();
     }
     return positionMsSum / samplePipelines.size();
-  }
-
-  /**
-   * Returns the current size in bytes of the current/latest output file, or {@link C#LENGTH_UNSET}
-   * if unavailable.
-   */
-  private long getCurrentOutputFileCurrentSizeBytes() {
-    long fileSize = C.LENGTH_UNSET;
-
-    if (outputPath != null) {
-      fileSize = new File(outputPath).length();
-    } else if (outputParcelFileDescriptor != null) {
-      fileSize = outputParcelFileDescriptor.getStatSize();
-    }
-
-    if (fileSize <= 0) {
-      fileSize = C.LENGTH_UNSET;
-    }
-
-    return fileSize;
   }
 
   private class AssetLoaderListener implements ExoPlayerAssetLoader.Listener {
@@ -405,17 +410,7 @@ import java.util.List;
             if (exception != null) {
               listener.onTransformationError(exception);
             } else {
-              TransformationResult result =
-                  new TransformationResult.Builder()
-                      .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
-                      .setAverageAudioBitrate(
-                          muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
-                      .setAverageVideoBitrate(
-                          muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
-                      .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
-                      .setFileSizeBytes(getCurrentOutputFileCurrentSizeBytes())
-                      .build();
-              listener.onTransformationCompleted(result);
+              listener.onTransformationCompleted(checkNotNull(transformationResult));
             }
           });
     }

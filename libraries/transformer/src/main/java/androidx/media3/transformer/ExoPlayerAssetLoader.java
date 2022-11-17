@@ -24,6 +24,7 @@ import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
@@ -110,6 +111,10 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 
   public void release() {
     player.release();
+  }
+
+  public Looper getPlaybackLooper() {
+    return player.getPlaybackLooper();
   }
 
   private static final class RenderersFactoryImpl implements RenderersFactory {

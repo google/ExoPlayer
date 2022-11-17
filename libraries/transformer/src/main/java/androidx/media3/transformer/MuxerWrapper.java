@@ -32,6 +32,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -260,9 +261,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return trackTypeToSampleCount.get(trackType, /* valueIfKeyNotFound= */ 0);
   }
 
-  /** Returns the duration of the longest track in milliseconds. */
+  /**
+   * Returns the duration of the longest track in milliseconds, or {@link C#TIME_UNSET} if there is
+   * no track.
+   */
   public long getDurationMs() {
+    if (trackTypeToTimeUs.size() == 0) {
+      return C.TIME_UNSET;
+    }
     return Util.usToMs(maxValue(trackTypeToTimeUs));
+  }
+
+  /** Returns the current size in bytes of the output, or {@link C#LENGTH_UNSET} if unavailable. */
+  public long getCurrentOutputSizeBytes() {
+    long fileSize = C.LENGTH_UNSET;
+
+    if (outputPath != null) {
+      fileSize = new File(outputPath).length();
+    } else if (outputParcelFileDescriptor != null) {
+      fileSize = outputParcelFileDescriptor.getStatSize();
+    }
+
+    if (fileSize <= 0) {
+      fileSize = C.LENGTH_UNSET;
+    }
+
+    return fileSize;
   }
 
   /**
