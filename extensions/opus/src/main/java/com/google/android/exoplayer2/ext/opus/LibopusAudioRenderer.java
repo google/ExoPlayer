@@ -93,11 +93,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @hide
-   */
+  /** {@inheritDoc} */
   @Override
   protected final OpusDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws OpusDecoderException {
@@ -124,11 +120,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     return decoder;
   }
 
-  /**
-   * {@inheritDoc} g
-   *
-   * @hide
-   */
+  /** {@inheritDoc} */
   @Override
   protected final Format getOutputFormat(OpusDecoder decoder) {
     @C.PcmEncoding
