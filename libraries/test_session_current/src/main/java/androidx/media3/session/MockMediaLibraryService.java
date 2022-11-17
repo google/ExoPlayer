@@ -51,6 +51,7 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIB
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -72,6 +73,7 @@ import androidx.media3.test.session.common.TestUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -91,6 +93,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
    */
   public static final String CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH =
       "CONNECTION_HINTS_KEY_REMOVE_SEARCH_SESSION_COMMAND";
+
+  private static final String TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
 
   public static final MediaItem ROOT_ITEM =
       new MediaItem.Builder()
@@ -114,6 +118,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
   @GuardedBy("MockMediaLibraryService.class")
   @Nullable
   private static LibraryParams expectedParams;
+
+  @Nullable private static byte[] testArtworkData;
 
   MediaLibrarySession session;
   TestHandler handler;
@@ -238,7 +244,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
               LibraryResult.ofItem(createBrowsableMediaItem(mediaId), /* params= */ null));
         case MEDIA_ID_GET_PLAYABLE_ITEM:
           return Futures.immediateFuture(
-              LibraryResult.ofItem(createPlayableMediaItem(mediaId), /* params= */ null));
+              LibraryResult.ofItem(
+                  createPlayableMediaItemWithArtworkData(mediaId), /* params= */ null));
         case MEDIA_ID_GET_ITEM_WITH_METADATA:
           return Futures.immediateFuture(
               LibraryResult.ofItem(createMediaItemWithMetadata(mediaId), /* params= */ null));
@@ -445,18 +452,30 @@ public class MockMediaLibraryService extends MediaLibraryService {
     // Create a list of MediaItem from the list of media IDs.
     List<MediaItem> result = new ArrayList<>();
     for (int i = 0; i < paginatedMediaIdList.size(); i++) {
-      result.add(createPlayableMediaItem(paginatedMediaIdList.get(i)));
+      result.add(createPlayableMediaItemWithArtworkData(paginatedMediaIdList.get(i)));
     }
     return result;
   }
 
-  private static MediaItem createBrowsableMediaItem(String mediaId) {
+  private MediaItem createBrowsableMediaItem(String mediaId) {
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
             .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
             .setIsPlayable(false)
+            .setArtworkData(getArtworkData(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
             .build();
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
+  }
+
+  private MediaItem createPlayableMediaItemWithArtworkData(String mediaId) {
+    MediaItem mediaItem = createPlayableMediaItem(mediaId);
+    MediaMetadata mediaMetadataWithArtwork =
+        mediaItem
+            .mediaMetadata
+            .buildUpon()
+            .setArtworkData(getArtworkData(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+            .build();
+    return mediaItem.buildUpon().setMediaMetadata(mediaMetadataWithArtwork).build();
   }
 
   private static MediaItem createPlayableMediaItem(String mediaId) {
@@ -471,15 +490,32 @@ public class MockMediaLibraryService extends MediaLibraryService {
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
   }
 
-  private static MediaItem createMediaItemWithMetadata(String mediaId) {
-    MediaMetadata mediaMetadata = MediaTestUtils.createMediaMetadata();
+  private MediaItem createMediaItemWithMetadata(String mediaId) {
+    MediaMetadata mediaMetadataWithArtwork =
+        MediaTestUtils.createMediaMetadata()
+            .buildUpon()
+            .setArtworkData(getArtworkData(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+            .build();
     return new MediaItem.Builder()
         .setMediaId(mediaId)
         .setRequestMetadata(
             new MediaItem.RequestMetadata.Builder()
                 .setMediaUri(CommonConstants.METADATA_MEDIA_URI)
                 .build())
-        .setMediaMetadata(mediaMetadata)
+        .setMediaMetadata(mediaMetadataWithArtwork)
         .build();
+  }
+
+  private byte[] getArtworkData() {
+    if (testArtworkData != null) {
+      return testArtworkData;
+    }
+    try {
+      testArtworkData =
+          TestUtils.getByteArrayForScaledBitmap(getApplicationContext(), TEST_IMAGE_PATH);
+    } catch (IOException e) {
+      fail(e.getMessage());
+    }
+    return testArtworkData;
   }
 }

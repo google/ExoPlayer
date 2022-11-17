@@ -32,7 +32,6 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media3.common.AudioAttributes;
@@ -72,23 +71,6 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToBrowserItem() {
-    String mediaId = "testId";
-    CharSequence trackTitle = "testTitle";
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setMediaId(mediaId)
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle(trackTitle).build())
-            .build();
-
-    MediaBrowserCompat.MediaItem browserItem = MediaUtils.convertToBrowserItem(mediaItem);
-
-    assertThat(browserItem.getDescription()).isNotNull();
-    assertThat(browserItem.getDescription().getMediaId()).isEqualTo(mediaId);
-    assertThat(TextUtils.equals(browserItem.getDescription().getTitle(), trackTitle)).isTrue();
-  }
-
-  @Test
   public void convertToMediaItem_browserItemToMediaItem() {
     String mediaId = "testId";
     String title = "testTitle";
@@ -113,18 +95,6 @@ public final class MediaUtilsTest {
     MediaItem mediaItem = MediaUtils.convertToMediaItem(queueItem);
     assertThat(mediaItem.mediaId).isEqualTo(mediaId);
     assertThat(mediaItem.mediaMetadata.title.toString()).isEqualTo(title);
-  }
-
-  @Test
-  public void convertToBrowserItemList() {
-    int size = 3;
-    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
-    List<MediaBrowserCompat.MediaItem> browserItems =
-        MediaUtils.convertToBrowserItemList(mediaItems);
-    assertThat(browserItems).hasSize(size);
-    for (int i = 0; i < size; ++i) {
-      assertThat(browserItems.get(i).getMediaId()).isEqualTo(mediaItems.get(i).mediaId);
-    }
   }
 
   @Test

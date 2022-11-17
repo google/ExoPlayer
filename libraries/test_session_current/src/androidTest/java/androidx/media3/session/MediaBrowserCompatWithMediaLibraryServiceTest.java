@@ -129,6 +129,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(itemRef.get().getMediaId()).isEqualTo(mediaId);
     assertThat(itemRef.get().isBrowsable()).isTrue();
+    assertThat(itemRef.get().getDescription().getIconBitmap()).isNotNull();
   }
 
   @Test
@@ -151,6 +152,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(itemRef.get().getMediaId()).isEqualTo(mediaId);
     assertThat(itemRef.get().isPlayable()).isTrue();
+    assertThat(itemRef.get().getDescription().getIconBitmap()).isNotNull();
   }
 
   @Test
@@ -181,6 +183,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     BundleSubject.assertThat(description.getExtras())
         .string(METADATA_EXTRA_KEY)
         .isEqualTo(METADATA_EXTRA_VALUE);
+    assertThat(description.getIconBitmap()).isNotNull();
   }
 
   @Test
@@ -245,6 +248,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
                       EXTRAS_KEY_COMPLETION_STATUS,
                       /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1))
           .isEqualTo(EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
+      assertThat(mediaItem.getDescription().getIconBitmap()).isNotNull();
     }
   }
 
@@ -311,6 +315,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
               int relativeIndex = originalIndex - fromIndex;
               assertThat(children.get(relativeIndex).getMediaId())
                   .isEqualTo(GET_CHILDREN_RESULT.get(originalIndex));
+              assertThat(children.get(relativeIndex).getDescription().getIconBitmap()).isNotNull();
             }
             latch.countDown();
           }

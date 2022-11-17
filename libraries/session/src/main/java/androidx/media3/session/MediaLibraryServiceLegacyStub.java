@@ -26,6 +26,7 @@ import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media3.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -37,6 +38,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
@@ -44,14 +46,19 @@ import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Implementation of {@link MediaBrowserServiceCompat} for interoperability between {@link
@@ -218,7 +225,11 @@ import java.util.concurrent.atomic.AtomicReference;
                 ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
                     librarySessionImpl.onGetChildrenOnHandler(
                         controller, parentId, page, pageSize, params);
-                sendLibraryResultWithMediaItemsWhenReady(result, future);
+                ListenableFuture<@NullableType List<MediaBrowserCompat.MediaItem>>
+                    browserItemsFuture =
+                        Util.transformFutureAsync(
+                            future, createMediaItemsToBrowserItemsAsyncFunction());
+                sendLibraryResultWithMediaItemsWhenReady(result, browserItemsFuture);
                 return;
               }
               // Cannot distinguish onLoadChildren() why it's called either by
@@ -236,7 +247,9 @@ import java.util.concurrent.atomic.AtomicReference;
                   /* page= */ 0,
                   /* pageSize= */ Integer.MAX_VALUE,
                   /* params= */ null);
-          sendLibraryResultWithMediaItemsWhenReady(result, future);
+          ListenableFuture<@NullableType List<MediaBrowserCompat.MediaItem>> browserItemsFuture =
+              Util.transformFutureAsync(future, createMediaItemsToBrowserItemsAsyncFunction());
+          sendLibraryResultWithMediaItemsWhenReady(result, browserItemsFuture);
         });
   }
 
@@ -264,7 +277,9 @@ import java.util.concurrent.atomic.AtomicReference;
           }
           ListenableFuture<LibraryResult<MediaItem>> future =
               librarySessionImpl.onGetItemOnHandler(controller, itemId);
-          sendLibraryResultWithMediaItemWhenReady(result, future);
+          ListenableFuture<MediaBrowserCompat.@NullableType MediaItem> browserItemFuture =
+              Util.transformFutureAsync(future, createMediaItemToBrowserItemAsyncFunction());
+          sendLibraryResultWithMediaItemWhenReady(result, browserItemFuture);
         });
   }
 
@@ -362,17 +377,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
   private static void sendLibraryResultWithMediaItemWhenReady(
       Result<MediaBrowserCompat.MediaItem> result,
-      ListenableFuture<LibraryResult<MediaItem>> future) {
+      ListenableFuture<MediaBrowserCompat.@NullableType MediaItem> future) {
     future.addListener(
         () -> {
           try {
-            LibraryResult<MediaItem> libraryResult =
-                checkNotNull(future.get(), "LibraryResult must not be null");
-            if (libraryResult.resultCode != RESULT_SUCCESS || libraryResult.value == null) {
-              result.sendResult(/* result= */ null);
-            } else {
-              result.sendResult(MediaUtils.convertToBrowserItem(libraryResult.value));
-            }
+            MediaBrowserCompat.MediaItem mediaItem = future.get();
+            result.sendResult(mediaItem);
           } catch (CancellationException | ExecutionException | InterruptedException unused) {
             result.sendError(/* extras= */ null);
           }
@@ -382,25 +392,144 @@ import java.util.concurrent.atomic.AtomicReference;
 
   private static void sendLibraryResultWithMediaItemsWhenReady(
       Result<List<MediaBrowserCompat.MediaItem>> result,
-      ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future) {
+      ListenableFuture<@NullableType List<MediaBrowserCompat.MediaItem>> future) {
     future.addListener(
         () -> {
           try {
-            LibraryResult<ImmutableList<MediaItem>> libraryResult =
-                checkNotNull(future.get(), "LibraryResult must not be null");
-            if (libraryResult.resultCode != RESULT_SUCCESS || libraryResult.value == null) {
-              result.sendResult(/* result= */ null);
-            } else {
-              result.sendResult(
-                  MediaUtils.truncateListBySize(
-                      MediaUtils.convertToBrowserItemList(libraryResult.value),
-                      TRANSACTION_SIZE_LIMIT_IN_BYTES));
-            }
+            List<MediaBrowserCompat.MediaItem> mediaItems = future.get();
+            result.sendResult(
+                (mediaItems == null)
+                    ? null
+                    : MediaUtils.truncateListBySize(mediaItems, TRANSACTION_SIZE_LIMIT_IN_BYTES));
           } catch (CancellationException | ExecutionException | InterruptedException unused) {
             result.sendError(/* extras= */ null);
           }
         },
         MoreExecutors.directExecutor());
+  }
+
+  private AsyncFunction<
+          LibraryResult<ImmutableList<MediaItem>>, @NullableType List<MediaBrowserCompat.MediaItem>>
+      createMediaItemsToBrowserItemsAsyncFunction() {
+    return result -> {
+      checkNotNull(result, "LibraryResult must not be null");
+      SettableFuture<@NullableType List<MediaBrowserCompat.MediaItem>> outputFuture =
+          SettableFuture.create();
+      if (result.resultCode != RESULT_SUCCESS || result.value == null) {
+        outputFuture.set(null);
+        return outputFuture;
+      }
+
+      ImmutableList<MediaItem> mediaItems = result.value;
+      if (mediaItems.isEmpty()) {
+        outputFuture.set(new ArrayList<>());
+        return outputFuture;
+      }
+
+      List<@NullableType ListenableFuture<Bitmap>> bitmapFutures = new ArrayList<>();
+      outputFuture.addListener(
+          () -> {
+            if (outputFuture.isCancelled()) {
+              cancelAllFutures(bitmapFutures);
+            }
+          },
+          MoreExecutors.directExecutor());
+
+      final AtomicInteger resultCount = new AtomicInteger(0);
+      Runnable handleBitmapFuturesTask =
+          () -> {
+            int completedBitmapFutureCount = resultCount.incrementAndGet();
+            if (completedBitmapFutureCount == mediaItems.size()) {
+              handleBitmapFuturesAllCompletedAndSetOutputFuture(
+                  bitmapFutures, mediaItems, outputFuture);
+            }
+          };
+
+      for (int i = 0; i < mediaItems.size(); i++) {
+        MediaItem mediaItem = mediaItems.get(i);
+        MediaMetadata metadata = mediaItem.mediaMetadata;
+        if (metadata.artworkData == null) {
+          bitmapFutures.add(null);
+          handleBitmapFuturesTask.run();
+        } else {
+          ListenableFuture<Bitmap> bitmapFuture =
+              librarySessionImpl.getBitmapLoader().decodeBitmap(metadata.artworkData);
+          bitmapFutures.add(bitmapFuture);
+          bitmapFuture.addListener(handleBitmapFuturesTask, MoreExecutors.directExecutor());
+        }
+      }
+      return outputFuture;
+    };
+  }
+
+  private void handleBitmapFuturesAllCompletedAndSetOutputFuture(
+      List<@NullableType ListenableFuture<Bitmap>> bitmapFutures,
+      List<MediaItem> mediaItems,
+      SettableFuture<@NullableType List<MediaBrowserCompat.MediaItem>> outputFuture) {
+    List<MediaBrowserCompat.MediaItem> outputMediaItems = new ArrayList<>();
+    for (int i = 0; i < bitmapFutures.size(); i++) {
+      @Nullable ListenableFuture<Bitmap> future = bitmapFutures.get(i);
+      @Nullable Bitmap bitmap = null;
+      if (future != null) {
+        try {
+          bitmap = Futures.getDone(future);
+        } catch (CancellationException | ExecutionException e) {
+          Log.d(TAG, "Failed to get bitmap");
+        }
+      }
+      outputMediaItems.add(MediaUtils.convertToBrowserItem(mediaItems.get(i), bitmap));
+    }
+    outputFuture.set(outputMediaItems);
+  }
+
+  private static <T> void cancelAllFutures(List<@NullableType ListenableFuture<T>> futures) {
+    for (int i = 0; i < futures.size(); i++) {
+      if (futures.get(i) != null) {
+        futures.get(i).cancel(/* mayInterruptIfRunning= */ false);
+      }
+    }
+  }
+
+  private AsyncFunction<LibraryResult<MediaItem>, MediaBrowserCompat.@NullableType MediaItem>
+      createMediaItemToBrowserItemAsyncFunction() {
+    return result -> {
+      checkNotNull(result, "LibraryResult must not be null");
+      SettableFuture<MediaBrowserCompat.@NullableType MediaItem> outputFuture =
+          SettableFuture.create();
+      if (result.resultCode != RESULT_SUCCESS || result.value == null) {
+        outputFuture.set(null);
+        return outputFuture;
+      }
+
+      MediaItem mediaItem = result.value;
+      MediaMetadata metadata = mediaItem.mediaMetadata;
+      if (metadata.artworkData == null) {
+        outputFuture.set(MediaUtils.convertToBrowserItem(mediaItem, /* artworkBitmap= */ null));
+        return outputFuture;
+      }
+
+      ListenableFuture<Bitmap> bitmapFuture =
+          librarySessionImpl.getBitmapLoader().decodeBitmap(metadata.artworkData);
+      outputFuture.addListener(
+          () -> {
+            if (outputFuture.isCancelled()) {
+              bitmapFuture.cancel(/* mayInterruptIfRunning= */ false);
+            }
+          },
+          MoreExecutors.directExecutor());
+      bitmapFuture.addListener(
+          () -> {
+            @Nullable Bitmap bitmap = null;
+            try {
+              bitmap = Futures.getDone(bitmapFuture);
+            } catch (CancellationException | ExecutionException e) {
+              Log.d(TAG, "failed to get bitmap");
+            }
+            outputFuture.set(MediaUtils.convertToBrowserItem(mediaItem, bitmap));
+          },
+          MoreExecutors.directExecutor());
+      return outputFuture;
+    };
   }
 
   private static <T> void ignoreFuture(Future<T> unused) {
@@ -504,7 +633,9 @@ import java.util.concurrent.atomic.AtomicReference;
               ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
                   librarySessionImpl.onGetSearchResultOnHandler(
                       request.controller, request.query, page, pageSize, libraryParams);
-              sendLibraryResultWithMediaItemsWhenReady(request.result, future);
+              ListenableFuture<@NullableType List<MediaBrowserCompat.MediaItem>> mediaItemsFuture =
+                  Util.transformFutureAsync(future, createMediaItemsToBrowserItemsAsyncFunction());
+              sendLibraryResultWithMediaItemsWhenReady(request.result, mediaItemsFuture);
             }
           });
     }
