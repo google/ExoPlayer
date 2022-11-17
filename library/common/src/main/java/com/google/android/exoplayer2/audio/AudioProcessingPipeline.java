@@ -321,6 +321,13 @@ public final class AudioProcessingPipeline {
             index > 0
                 ? outputBuffers[index - 1]
                 : inputBuffer.hasRemaining() ? inputBuffer : EMPTY_BUFFER;
+        if (input == AudioProcessor.EMPTY_BUFFER) {
+          // TODO(internal b/198772621): compare to how it was done in DefaultAudioSink to make sure
+          // this is not unnecessarily complicated.
+          // Queueing AudioProcessor.EMPTY_BUFFER to an AudioProcessor might lead to unexpected
+          // behaviour (see [Internal: b/259393434]).
+          input = EMPTY_BUFFER;
+        }
         long inputBytes = input.remaining();
         audioProcessor.queueInput(input);
         outputBuffers[index] = audioProcessor.getOutput();
