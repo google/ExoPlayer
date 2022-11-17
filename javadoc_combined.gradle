@@ -39,6 +39,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
           options {
             links "https://developer.android.com/reference", guavaReferenceUrl
             encoding = "UTF-8"
+            tags = ["hide"]
           }
           options.addBooleanOption "-no-module-directories", true
           exclude "**/BuildConfig.java"
@@ -56,6 +57,11 @@ class CombinedJavadocPlugin implements Plugin<Project> {
                     if (file ==~ /.*media-.\..\..-api.jar$/
                         && !file.path.endsWith(
                             "media-" + project.ext.androidxMediaVersion + "-api.jar")) {
+                      return false;
+                    }
+                    if (file ==~ /.*\/core-.\..\..-api.jar$/
+                            && !file.path.endsWith(
+                            "core-" + project.ext.androidxCoreVersion + "-api.jar")) {
                       return false;
                     }
                     return true;
