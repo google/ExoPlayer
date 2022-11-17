@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -110,6 +111,10 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
   public void release() {
     player.release();
+  }
+
+  public Looper getPlaybackLooper() {
+    return player.getPlaybackLooper();
   }
 
   private static final class RenderersFactoryImpl implements RenderersFactory {
