@@ -127,7 +127,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
   }
 
   /**
-   * {@inheritDoc} g
+   * {@inheritDoc}
    *
    * @hide
    */
