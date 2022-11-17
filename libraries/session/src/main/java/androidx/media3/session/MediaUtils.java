@@ -136,9 +136,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         errorMessage, /* cause= */ null, PlaybackException.ERROR_CODE_REMOTE_ERROR);
   }
 
-  /** Converts a {@link MediaItem} to a {@link MediaBrowserCompat.MediaItem}. */
-  public static MediaBrowserCompat.MediaItem convertToBrowserItem(MediaItem item) {
-    MediaDescriptionCompat description = convertToMediaDescriptionCompat(item);
+  public static MediaBrowserCompat.MediaItem convertToBrowserItem(
+      MediaItem item, @Nullable Bitmap artworkBitmap) {
+    MediaDescriptionCompat description = convertToMediaDescriptionCompat(item, artworkBitmap);
     MediaMetadata metadata = item.mediaMetadata;
     int flags = 0;
     if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
@@ -148,15 +148,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       flags |= MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
     }
     return new MediaBrowserCompat.MediaItem(description, flags);
-  }
-
-  /** Converts a list of {@link MediaItem} to a list of {@link MediaBrowserCompat.MediaItem}. */
-  public static List<MediaBrowserCompat.MediaItem> convertToBrowserItemList(List<MediaItem> items) {
-    List<MediaBrowserCompat.MediaItem> result = new ArrayList<>();
-    for (int i = 0; i < items.size(); i++) {
-      result.add(convertToBrowserItem(items.get(i)));
-    }
-    return result;
   }
 
   /** Converts a {@link MediaBrowserCompat.MediaItem} to a {@link MediaItem}. */
@@ -320,16 +311,32 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return result;
   }
 
-  /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}. */
+  /**
+   * Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}.
+   *
+   * @deprecated Use {@link #convertToMediaDescriptionCompat(MediaItem, Bitmap)} instead.
+   */
+  @Deprecated
   public static MediaDescriptionCompat convertToMediaDescriptionCompat(MediaItem item) {
+    MediaMetadata metadata = item.mediaMetadata;
+    @Nullable Bitmap artworkBitmap = null;
+    if (metadata.artworkData != null) {
+      artworkBitmap =
+          BitmapFactory.decodeByteArray(metadata.artworkData, 0, metadata.artworkData.length);
+    }
+
+    return convertToMediaDescriptionCompat(item, artworkBitmap);
+  }
+
+  /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat} */
+  public static MediaDescriptionCompat convertToMediaDescriptionCompat(
+      MediaItem item, @Nullable Bitmap artworkBitmap) {
     MediaDescriptionCompat.Builder builder =
         new MediaDescriptionCompat.Builder()
             .setMediaId(item.mediaId.equals(MediaItem.DEFAULT_MEDIA_ID) ? null : item.mediaId);
     MediaMetadata metadata = item.mediaMetadata;
-    if (metadata.artworkData != null) {
-      Bitmap artwork =
-          BitmapFactory.decodeByteArray(metadata.artworkData, 0, metadata.artworkData.length);
-      builder.setIconBitmap(artwork);
+    if (artworkBitmap != null) {
+      builder.setIconBitmap(artworkBitmap);
     }
     @Nullable Bundle extras = metadata.extras;
     if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
