@@ -587,7 +587,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       case "IL":
         return new int[] {1, 2, 2, 2, 3, 2};
       case "IN":
-        return new int[] {1, 1, 3, 2, 3, 3};
+        return new int[] {1, 1, 2, 2, 3, 2};
       case "IQ":
         return new int[] {3, 2, 2, 3, 2, 2};
       case "IR":
