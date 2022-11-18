@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.TransformerInternal.END_TRANSFORMATION_REASON_CANCELLED;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -777,7 +778,7 @@ public final class Transformer {
       return;
     }
     try {
-      transformerInternal.release(/* forCancellation= */ true);
+      transformerInternal.release(END_TRANSFORMATION_REASON_CANCELLED);
     } catch (TransformationException impossible) {
       throw new IllegalStateException(impossible);
     }
