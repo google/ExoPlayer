@@ -15,12 +15,20 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.FilterableManifest;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.source.dash.BaseUrlExclusionList;
+import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
+import com.google.android.exoplayer2.source.dash.DashUtil;
+import com.google.android.exoplayer2.thumbnail.ThumbnailDescription;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -134,6 +142,90 @@ public class DashManifest implements FilterableManifest<DashManifest> {
 
   public final long getPeriodDurationUs(int index) {
     return Util.msToUs(getPeriodDurationMs(index));
+  }
+
+  /**
+   * Returns a List of ThumbnailDescription for a given periodPosition,
+   * or null if no AdaptionSet of type C.TRACK_TYPE_IMAGE is available.
+   * @param periodPositionMs the period position to get ThumbnailDescription for, e.g. current player position.
+   * @return List of ThumbnailDescription from all Representations, or null if Thumbnails are not available in the DashManifest.
+   */
+  @Nullable
+  public List<ThumbnailDescription> getThumbnailDescriptions(long periodPositionMs) {
+    ArrayList<ThumbnailDescription> thumbnailDescriptions = new ArrayList<>();
+
+    long periodPositionUs = Util.msToUs(periodPositionMs);
+    BaseUrlExclusionList baseUrlExclusionList = new BaseUrlExclusionList();
+
+    boolean isTrackTypeImageAvailable = false;
+    for (int i = 0; i < getPeriodCount(); i++) {
+      Period period = getPeriod(i);
+      long periodStartUs = Util.msToUs(period.startMs);
+      long periodDurationUs = getPeriodDurationUs(i);
+
+      List<AdaptationSet> adaptationSets = period.adaptationSets;
+      for (int j = 0; j < adaptationSets.size(); j++) {
+        AdaptationSet adaptationSet = adaptationSets.get(j);
+        if (adaptationSet.type != C.TRACK_TYPE_IMAGE) {
+          continue;
+        }
+        isTrackTypeImageAvailable = true;
+
+        // thumbnails found
+        List<Representation> representations = adaptationSet.representations;
+        for (int k = 0; k < representations.size(); k++) {
+
+          Representation representation = representations.get(k);
+          DashSegmentIndex index = representation.getIndex();
+          if (index == null) {
+            continue;
+          }
+
+          String id = representation.format.id;
+          int bitrate = representation.format.bitrate;
+          int imageWidth = representation.format.width;
+          int imageHeight = representation.format.height;
+
+          // get size XxY, e.g. 10x20, where 10 is column count and 20 is row count
+          int rows = 1;
+          int cols = 1;
+          for (int m = 0; m < representation.essentialProperties.size(); m++) {
+            Descriptor descriptor = representation.essentialProperties.get(m);
+            if ((Ascii.equalsIgnoreCase("http://dashif.org/thumbnail_tile", descriptor.schemeIdUri) || Ascii.equalsIgnoreCase("http://dashif.org/guidelines/thumbnail_tile", descriptor.schemeIdUri)) && descriptor.value != null) {
+              String size = descriptor.value;
+              String[] sizeSplit = size.split("x");
+              if (sizeSplit.length != 2) {
+                continue;
+              }
+              cols = Integer.parseInt(sizeSplit[0]);
+              rows = Integer.parseInt(sizeSplit[1]);
+            }
+          }
+
+          long now = Util.getNowUnixTimeMs(C.TIME_UNSET);
+          String baseUrl = castNonNull(baseUrlExclusionList.selectBaseUrl(representation.baseUrls)).url;
+
+          // calculate the correct positionUs, which is FirstAvailableSegment.time + playerPosition, use that to get the correct segment
+          long firstSegmentNum = index.getFirstAvailableSegmentNum(periodDurationUs, Util.msToUs(now));
+          long firstStartTimeUs = index.getTimeUs(firstSegmentNum);
+          long positionUs = firstStartTimeUs + periodPositionUs;
+          long segmentNumber = index.getSegmentNum(positionUs, periodDurationUs);
+
+          long segmentStartTimeUs = periodStartUs + index.getTimeUs(segmentNumber);
+          long segmentDurationUs = index.getDurationUs(segmentNumber, periodDurationUs);
+
+          RangedUri rangedUri = index.getSegmentUrl(segmentNumber);
+          DataSpec dataSpec = DashUtil.buildDataSpec(representation, baseUrl, rangedUri, /* flags= */ 0);
+          Uri uri = dataSpec.uri;
+          ThumbnailDescription thumbnailDescription = new ThumbnailDescription(id, uri, bitrate, rows, cols, Util.usToMs(segmentStartTimeUs - (dynamic ? firstStartTimeUs : 0)), Util.usToMs(segmentDurationUs), imageWidth, imageHeight);
+          thumbnailDescriptions.add(thumbnailDescription);
+        }
+      }
+    }
+    if (isTrackTypeImageAvailable) {
+      return thumbnailDescriptions;
+    }
+    return null;
   }
 
   @Override

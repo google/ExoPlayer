@@ -555,7 +555,9 @@ public class DashManifestParser extends DefaultHandler
                 ? C.TRACK_TYPE_VIDEO
                 : MimeTypes.BASE_TYPE_TEXT.equals(contentType)
                     ? C.TRACK_TYPE_TEXT
-                    : C.TRACK_TYPE_UNKNOWN;
+                    : MimeTypes.BASE_TYPE_IMAGE.equals(contentType)
+                        ? C.TRACK_TYPE_IMAGE
+                        : C.TRACK_TYPE_UNKNOWN;
   }
 
   /**
