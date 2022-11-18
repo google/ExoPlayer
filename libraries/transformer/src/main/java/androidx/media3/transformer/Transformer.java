@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.transformer.TransformerInternal.END_TRANSFORMATION_REASON_CANCELLED;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -779,7 +780,7 @@ public final class Transformer {
       return;
     }
     try {
-      transformerInternal.release(/* forCancellation= */ true);
+      transformerInternal.release(END_TRANSFORMATION_REASON_CANCELLED);
     } catch (TransformationException impossible) {
       throw new IllegalStateException(impossible);
     }

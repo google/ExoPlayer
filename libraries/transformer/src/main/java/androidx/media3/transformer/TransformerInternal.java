@@ -22,10 +22,12 @@ import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NO_TRANSFOR
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
@@ -44,6 +46,10 @@ import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import com.google.common.collect.ImmutableList;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -56,6 +62,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     void onTransformationError(TransformationException exception);
   }
+
+  /**
+   * Represents a reason for ending a transformation. May be one of {@link
+   * #END_TRANSFORMATION_REASON_COMPLETED}, {@link #END_TRANSFORMATION_REASON_CANCELLED} or {@link
+   * #END_TRANSFORMATION_REASON_ERROR}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    END_TRANSFORMATION_REASON_COMPLETED,
+    END_TRANSFORMATION_REASON_CANCELLED,
+    END_TRANSFORMATION_REASON_ERROR
+  })
+  public @interface EndTransformationReason {}
+
+  /** The transformation completed successfully. */
+  public static final int END_TRANSFORMATION_REASON_COMPLETED = 0;
+  /** The transformation was cancelled. */
+  public static final int END_TRANSFORMATION_REASON_CANCELLED = 1;
+  /** An error occurred during the transformation. */
+  public static final int END_TRANSFORMATION_REASON_ERROR = 2;
 
   private final Context context;
   private final TransformationRequest transformationRequest;
@@ -145,12 +173,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Releases the resources.
    *
-   * @param forCancellation Whether the reason for releasing the resources is the transformation
-   *     cancellation.
-   * @throws TransformationException If the muxer is in the wrong state and {@code forCancellation}
-   *     is false.
+   * @param endTransformationReason The {@linkplain EndTransformationReason reason} for ending the
+   *     transformation.
+   * @throws TransformationException If the muxer is in the wrong state and {@code
+   *     endTransformationReason} is not {@link #END_TRANSFORMATION_REASON_CANCELLED}.
    */
-  public void release(boolean forCancellation) throws TransformationException {
+  public void release(@EndTransformationReason int endTransformationReason)
+      throws TransformationException {
     if (released) {
       return;
     }
@@ -161,16 +190,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         clock.createHandler(exoPlayerAssetLoader.getPlaybackLooper(), /* callback= */ null);
     playbackHandler.post(
         () -> {
-          transformationResult =
-              new TransformationResult.Builder()
-                  .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
-                  .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
-                  .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
-                  .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
-                  .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
-                  .build();
+          if (endTransformationReason == END_TRANSFORMATION_REASON_COMPLETED) {
+            transformationResult =
+                new TransformationResult.Builder()
+                    .setDurationMs(checkNotNull(muxerWrapper).getDurationMs())
+                    .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
+                    .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
+                    .setVideoFrameCount(muxerWrapper.getTrackSampleCount(C.TRACK_TYPE_VIDEO))
+                    .setFileSizeBytes(muxerWrapper.getCurrentOutputSizeBytes())
+                    .build();
+          }
           try {
-            muxerWrapper.release(forCancellation);
+            muxerWrapper.release(
+                /* forCancellation= */ endTransformationReason
+                    == END_TRANSFORMATION_REASON_CANCELLED);
           } catch (Muxer.MuxerException e) {
             releaseMuxerException =
                 TransformationException.createForMuxer(
@@ -392,7 +425,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           () -> {
             @Nullable TransformationException releaseException = null;
             try {
-              release(/* forCancellation= */ false);
+              release(
+                  transformationException == null
+                      ? END_TRANSFORMATION_REASON_COMPLETED
+                      : END_TRANSFORMATION_REASON_ERROR);
             } catch (TransformationException e) {
               releaseException = e;
             } catch (RuntimeException e) {
