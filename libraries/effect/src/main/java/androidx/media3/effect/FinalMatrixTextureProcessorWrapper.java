@@ -183,9 +183,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   @WorkerThread
-  public void release() throws FrameProcessingException {
+  public synchronized void release() throws FrameProcessingException {
     if (matrixTextureProcessor != null) {
       matrixTextureProcessor.release();
+    }
+    try {
+      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+    } catch (GlUtil.GlException e) {
+      throw new FrameProcessingException(e);
     }
   }
 
@@ -226,6 +231,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (outputSurfaceInfo != null
           && this.outputSurfaceInfo != null
           && !this.outputSurfaceInfo.surface.equals(outputSurfaceInfo.surface)) {
+        try {
+          GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+        } catch (GlUtil.GlException e) {
+          frameProcessorListener.onFrameProcessingError(FrameProcessingException.from(e));
+        }
         this.outputEglSurface = null;
       }
       outputSizeOrRotationChanged =
@@ -307,6 +317,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         matrixTextureProcessor.release();
         matrixTextureProcessor = null;
       }
+      GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
       outputEglSurface = null;
       return false;
     }

@@ -470,6 +470,16 @@ public final class GlUtil {
   }
 
   /**
+   * Destroys the {@link EGLSurface} identified by the provided {@link EGLDisplay} and {@link
+   * EGLSurface}.
+   */
+  @RequiresApi(17)
+  public static void destroyEglSurface(
+      @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
+    Api17.destroyEglSurface(eglDisplay, eglSurface);
+  }
+
+  /**
    * Allocates a FloatBuffer with the given data.
    *
    * @param data Used to initialize the new buffer.
@@ -732,6 +742,16 @@ public final class GlUtil {
       checkEglException("Error releasing thread");
       EGL14.eglTerminate(eglDisplay);
       checkEglException("Error terminating display");
+    }
+
+    @DoNotInline
+    public static void destroyEglSurface(
+        @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
+      if (eglDisplay == null || eglSurface == null) {
+        return;
+      }
+      EGL14.eglDestroySurface(eglDisplay, eglSurface);
+      checkEglException("Error destroying surface");
     }
 
     @DoNotInline
