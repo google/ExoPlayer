@@ -3,6 +3,27 @@ Release notes
 ### Unreleased changes
 
 *   Core library:
+    *   Add suppression reason for unsuitable audio route and play when ready
+        change reason for suppressed too long.
+        ([#15](https://github.com/androidx/media/issues/15)).
+    *   Tweak the renderer's decoder ordering logic to uphold the
+        `MediaCodecSelector`'s preferences, even if a decoder reports it may not
+        be able to play the media performantly. For example with default
+        selector, hardware decoder with only functional support will be
+        preferred over software decoder that fully supports the format
+        ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
+    *   Add `ExoPlayer.Builder.setPlaybackLooper` that sets a pre-existing
+        playback thread for a new ExoPlayer instance.
+*   Remove deprecated symbols:
+    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
+        instead.
+
+### 1.0.0-beta03 (2022-11-22)
+
+This release corresponds to the
+[ExoPlayer 2.18.2 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.2).
+
+*   Core library:
     *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
         the currently selected tracks
         ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
@@ -16,9 +37,6 @@ Release notes
     *   Close the Tracing "doSomeWork" block when offload is enabled.
     *   Try alternative decoder for Dolby Vision if display does not support it.
         ([#9794](https://github.com/google/ExoPlayer/issues/9794)).
-    *   Add suppression reason for unsuitable audio route and play when ready
-        change reason for suppressed too long.
-        ([#15](https://github.com/androidx/media/issues/15)).
     *   Prefer other tracks to Dolby Vision if display does not support it.
         ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
     *   Fix session tracking problem with fast seeks in `PlaybackStatsListener`
@@ -30,17 +48,9 @@ Release notes
         ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
     *   Add `Player.getSurfaceSize` that returns the size of the surface on
         which the video is rendered.
-    *   Tweak the renderer's decoder ordering logic to uphold the
-        `MediaCodecSelector`'s preferences, even if a decoder reports it may not
-        be able to play the media performantly. For example with default
-        selector, hardware decoder with only functional support will be
-        preferred over software decoder that fully supports the format
-        ([#10604](https://github.com/google/ExoPlayer/issues/10604)).
     *   Fix bug where removing listeners during the player release can cause an
         `IllegalStateException`
         ([#10758](https://github.com/google/ExoPlayer/issues/10758)).
-    *   Add `ExoPlayer.Builder.setPlaybackLooper` that sets a pre-existing
-        playback thread for a new ExoPlayer instance.
 *   Build:
     *   Avoid publishing block when included in another gradle build.
 *   Downloads:
@@ -145,8 +155,6 @@ Release notes
     *   Add muxer watchdog timer to detect when generating an output sample is
         too slow.
 *   Remove deprecated symbols:
-    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
-        instead.
     *   Remove `Transformer.Builder.setOutputMimeType(String)`. This feature has
         been removed. The MIME type will always be MP4 when the default muxer is
         used.
