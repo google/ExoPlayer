@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-set -e
+set -eu
 ASM_CONVERTER="./libopus/celt/arm/arm2gnu.pl"
 
 if [[ ! -x "${ASM_CONVERTER}" ]]; then
