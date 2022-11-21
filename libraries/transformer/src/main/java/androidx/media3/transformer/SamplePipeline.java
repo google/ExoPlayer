@@ -26,6 +26,25 @@ import androidx.media3.decoder.DecoderInputBuffer;
  */
 /* package */ interface SamplePipeline {
 
+  /** A listener for the sample pipeline events. */
+  interface Listener {
+
+    /**
+     * Called when an input buffer is {@linkplain #queueInputBuffer() queued}.
+     *
+     * @param positionUs The position of the buffer queued from the stream start position, in
+     *     microseconds.
+     */
+    void onInputBufferQueued(long positionUs);
+
+    /**
+     * Called if an exception occurs in the sample pipeline.
+     *
+     * @param exception The {@link TransformationException} describing the exception.
+     */
+    void onTransformationError(TransformationException exception);
+  }
+
   /** Returns a buffer if the pipeline is ready to accept input, and {@code null} otherwise. */
   @Nullable
   DecoderInputBuffer dequeueInputBuffer() throws TransformationException;
@@ -49,10 +68,4 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   /** Releases all resources held by the pipeline. */
   void release();
-
-  /**
-   * Returns the current timestamp being processed in the track, in milliseconds. This is the
-   * largest timestamp queued minus the stream start time, or 0 if no input has been queued.
-   */
-  long getCurrentPositionMs();
 }

@@ -34,7 +34,6 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.FrameProcessingException;
 import androidx.media3.common.FrameProcessor;
 import androidx.media3.common.SurfaceInfo;
-import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -74,8 +73,8 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
+      Listener listener,
       FallbackListener fallbackListener,
-      Consumer<TransformationException> errorConsumer,
       DebugViewProvider debugViewProvider)
       throws TransformationException {
     super(
@@ -83,7 +82,8 @@ import org.checkerframework.dataflow.qual.Pure;
         streamStartPositionUs,
         streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
+        muxerWrapper,
+        listener);
 
     if (ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
       if (transformationRequest.hdrMode
@@ -155,7 +155,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     checkNotNull(frameProcessor)
                         .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
                   } catch (TransformationException exception) {
-                    errorConsumer.accept(exception);
+                    listener.onTransformationError(exception);
                   }
                 }
 
@@ -166,7 +166,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onFrameProcessingError(FrameProcessingException exception) {
-                  errorConsumer.accept(
+                  listener.onTransformationError(
                       TransformationException.createForFrameProcessingException(
                           exception, TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED));
                 }
@@ -176,7 +176,7 @@ import org.checkerframework.dataflow.qual.Pure;
                   try {
                     encoderWrapper.signalEndOfInputStream();
                   } catch (TransformationException exception) {
-                    errorConsumer.accept(exception);
+                    listener.onTransformationError(exception);
                   }
                 }
               },

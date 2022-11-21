@@ -50,8 +50,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ final class TransformerInternal {
@@ -98,10 +96,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Handler handler;
   private final ExoPlayerAssetLoader exoPlayerAssetLoader;
   private final MuxerWrapper muxerWrapper;
-  private final List<SamplePipeline> samplePipelines;
   private final ConditionVariable releasingMuxerConditionVariable;
 
   private @Transformer.ProgressState int progressState;
+  private long progressPositionMs;
   private long durationMs;
   private boolean released;
   private volatile @MonotonicNonNull TransformationResult transformationResult;
@@ -137,13 +135,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
     handler = Util.createHandlerForCurrentLooper();
-    AssetLoaderListener assetLoaderListener = new AssetLoaderListener(mediaItem, fallbackListener);
+    ComponentListener componentListener = new ComponentListener(mediaItem, fallbackListener);
     muxerWrapper =
         new MuxerWrapper(
             outputPath,
             outputParcelFileDescriptor,
             muxerFactory,
-            /* errorConsumer= */ assetLoaderListener::onError);
+            /* errorConsumer= */ componentListener::onTransformationError);
     exoPlayerAssetLoader =
         new ExoPlayerAssetLoader(
             context,
@@ -151,9 +149,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             removeAudio,
             removeVideo,
             mediaSourceFactory,
-            assetLoaderListener,
+            componentListener,
             clock);
-    samplePipelines = new ArrayList<>(/* initialCapacity= */ 2);
     releasingMuxerConditionVariable = new ConditionVariable();
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
   }
@@ -164,8 +161,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
     if (progressState == PROGRESS_STATE_AVAILABLE) {
-      long positionMs = getCurrentPositionMs();
-      progressHolder.progress = min((int) (positionMs * 100 / durationMs), 99);
+      progressHolder.progress = min((int) (progressPositionMs * 100 / durationMs), 99);
     }
     return progressState;
   }
@@ -183,7 +179,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (released) {
       return;
     }
-    samplePipelines.clear();
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
     released = true;
     HandlerWrapper playbackHandler =
@@ -220,28 +215,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private long getCurrentPositionMs() {
-    if (samplePipelines.isEmpty()) {
-      return 0;
-    }
-    long positionMsSum = 0;
-    for (int i = 0; i < samplePipelines.size(); i++) {
-      positionMsSum += samplePipelines.get(i).getCurrentPositionMs();
-    }
-    return positionMsSum / samplePipelines.size();
-  }
+  private class ComponentListener
+      implements ExoPlayerAssetLoader.Listener, SamplePipeline.Listener {
 
-  private class AssetLoaderListener implements ExoPlayerAssetLoader.Listener {
+    private static final long MIN_DURATION_BETWEEN_PROGRESS_UPDATES_MS = 100;
 
     private final MediaItem mediaItem;
     private final FallbackListener fallbackListener;
+    private long lastProgressUpdateMs;
+    private long lastProgressPositionMs;
 
     private volatile boolean trackRegistered;
 
-    public AssetLoaderListener(MediaItem mediaItem, FallbackListener fallbackListener) {
+    public ComponentListener(MediaItem mediaItem, FallbackListener fallbackListener) {
       this.mediaItem = mediaItem;
       this.fallbackListener = fallbackListener;
     }
+
+    // ExoPlayerAssetLoader.Listener implementation.
 
     @Override
     public void onDurationMs(long durationMs) {
@@ -273,10 +264,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public SamplePipeline onTrackAdded(
         Format format, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException {
-      SamplePipeline samplePipeline =
-          getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
-      samplePipelines.add(samplePipeline);
-      return samplePipeline;
+      return getSamplePipeline(format, streamStartPositionUs, streamOffsetUs);
     }
 
     @Override
@@ -298,6 +286,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       handleTransformationEnded(/* transformationException= */ null);
     }
 
+    // SamplePipeline.Listener implementation.
+
+    @Override
+    public void onInputBufferQueued(long positionUs) {
+      long positionMs = Util.usToMs(positionUs);
+      long elapsedTimeMs = clock.elapsedRealtime();
+      if (elapsedTimeMs > lastProgressUpdateMs + MIN_DURATION_BETWEEN_PROGRESS_UPDATES_MS
+          && positionMs > lastProgressPositionMs) {
+        lastProgressUpdateMs = elapsedTimeMs;
+        // Store positionMs in a local variable to make sure the thread reads the latest value.
+        lastProgressPositionMs = positionMs;
+        handler.post(() -> progressPositionMs = positionMs);
+      }
+    }
+
+    @Override
+    public void onTransformationError(TransformationException transformationException) {
+      handleTransformationEnded(transformationException);
+    }
+
     private SamplePipeline getSamplePipeline(
         Format inputFormat, long streamStartPositionUs, long streamOffsetUs)
         throws TransformationException {
@@ -311,6 +319,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             decoderFactory,
             encoderFactory,
             muxerWrapper,
+            /* listener= */ this,
             fallbackListener);
       } else if (MimeTypes.isVideo(inputFormat.sampleMimeType)
           && shouldTranscodeVideo(inputFormat, streamStartPositionUs, streamOffsetUs)) {
@@ -325,8 +334,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             decoderFactory,
             encoderFactory,
             muxerWrapper,
+            /* listener= */ this,
             fallbackListener,
-            this::onError,
             debugViewProvider);
       } else {
         return new PassthroughSamplePipeline(
@@ -335,6 +344,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             streamOffsetUs,
             transformationRequest,
             muxerWrapper,
+            /* listener= */ this,
             fallbackListener);
       }
     }
