@@ -18,7 +18,7 @@
 # a bash script that generates the necessary config files for libvpx android ndk
 # builds.
 
-set -e
+set -eu
 
 if [ $# -ne 0 ]; then
   echo "Usage: ${0}"
