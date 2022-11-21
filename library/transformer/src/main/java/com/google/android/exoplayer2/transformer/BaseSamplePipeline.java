@@ -18,14 +18,12 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -35,12 +33,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final long streamStartPositionUs;
   private final long streamOffsetUs;
   private final MuxerWrapper muxerWrapper;
+  private final Listener listener;
   private final @C.TrackType int trackType;
   private final @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
 
   @Nullable private DecoderInputBuffer inputBuffer;
   private boolean muxerWrapperTrackAdded;
-  private long currentPositionMs;
   private boolean isEnded;
 
   public BaseSamplePipeline(
@@ -48,10 +46,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long streamStartPositionUs,
       long streamOffsetUs,
       boolean flattenForSlowMotion,
-      MuxerWrapper muxerWrapper) {
+      MuxerWrapper muxerWrapper,
+      Listener listener) {
     this.streamStartPositionUs = streamStartPositionUs;
     this.streamOffsetUs = streamOffsetUs;
     this.muxerWrapper = muxerWrapper;
+    this.listener = listener;
     trackType = MimeTypes.getTrackType(inputFormat.sampleMimeType);
     sefVideoSlowMotionFlattener =
         flattenForSlowMotion && trackType == C.TRACK_TYPE_VIDEO
@@ -69,8 +69,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void queueInputBuffer() throws TransformationException {
     DecoderInputBuffer inputBuffer = checkNotNull(this.inputBuffer);
-    currentPositionMs =
-        max(currentPositionMs, Util.usToMs(inputBuffer.timeUs - streamStartPositionUs));
+    listener.onInputBufferQueued(inputBuffer.timeUs - streamStartPositionUs);
     checkNotNull(inputBuffer.data);
     if (!shouldDropInputBuffer(inputBuffer)) {
       queueInputBufferInternal();
@@ -85,11 +84,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public boolean isEnded() {
     return isEnded;
-  }
-
-  @Override
-  public long getCurrentPositionMs() {
-    return currentPositionMs;
   }
 
   @Nullable

@@ -60,6 +60,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
+      Listener listener,
       FallbackListener fallbackListener)
       throws TransformationException {
     super(
@@ -67,7 +68,8 @@ import org.checkerframework.dataflow.qual.Pure;
         streamStartPositionUs,
         streamOffsetUs,
         transformationRequest.flattenForSlowMotion,
-        muxerWrapper);
+        muxerWrapper,
+        listener);
 
     decoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
