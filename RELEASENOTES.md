@@ -1,6 +1,9 @@
 Release notes
 
-### Unreleased changes
+### 1.0.0-beta03 (2022-11-22)
+
+This release corresponds to the
+[ExoPlayer 2.18.2 release](https://github.com/google/ExoPlayer/releases/tag/r2.18.2).
 
 *   Core library:
     *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
@@ -16,9 +19,6 @@ Release notes
     *   Close the Tracing "doSomeWork" block when offload is enabled.
     *   Try alternative decoder for Dolby Vision if display does not support it.
         ([#9794](https://github.com/google/ExoPlayer/issues/9794)).
-    *   Add suppression reason for unsuitable audio route and play when ready
-        change reason for suppressed too long.
-        ([#15](https://github.com/androidx/media/issues/15)).
     *   Prefer other tracks to Dolby Vision if display does not support it.
         ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
     *   Fix session tracking problem with fast seeks in `PlaybackStatsListener`
@@ -137,8 +137,6 @@ Release notes
     *   Add muxer watchdog timer to detect when generating an output sample is
         too slow.
 *   Remove deprecated symbols:
-    *   Remove `DefaultAudioSink` constructors, use `DefaultAudioSink.Builder`
-        instead.
     *   Remove `Transformer.Builder.setOutputMimeType(String)`. This feature has
         been removed. The MIME type will always be MP4 when the default muxer is
         used.
