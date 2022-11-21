@@ -592,7 +592,7 @@ public final class Mp3Extractor implements Extractor {
         Metadata.Entry entry = metadata.get(i);
         if (entry instanceof TextInformationFrame
             && ((TextInformationFrame) entry).id.equals("TLEN")) {
-          return Util.msToUs(Long.parseLong(((TextInformationFrame) entry).values[0]));
+          return Util.msToUs(Long.parseLong(((TextInformationFrame) entry).values.get(0)));
         }
       }
     }

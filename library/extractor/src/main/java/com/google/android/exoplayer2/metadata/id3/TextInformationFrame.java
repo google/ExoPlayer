@@ -23,33 +23,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /** Text information ID3 frame. */
 public final class TextInformationFrame extends Id3Frame {
-  private final static String MULTI_VALUE_DELIMITER = ", ";
-
   @Nullable public final String description;
 
-  /** @deprecated Use {@code values} instead. */
+  /** @deprecated Use {@code values[0]} instead. */
   @Deprecated
   public final String value;
 
   @NonNull
-  public final String[] values;
+  public final ImmutableList<String> values;
 
   public TextInformationFrame(String id, @Nullable String description, @NonNull String[] values) {
     super(id);
     this.description = description;
-    this.values = values;
-
-    if (values.length > 0) {
-      this.value = values[0];
+    
+    if( values.length > 0 ) {
+      this.values = ImmutableList.copyOf(values);
     } else {
-      this.value = null;
+      this.values = ImmutableList.of("");
     }
+    
+    this.value = this.values.get(0);
   }
 
   /** @deprecated Use {@code TextInformationFrame(String id, String description, String[] values} instead */
@@ -61,8 +60,8 @@ public final class TextInformationFrame extends Id3Frame {
   /* package */ TextInformationFrame(Parcel in) {
     super(castNonNull(in.readString()));
     description = in.readString();
-    values = in.createStringArray();
-    this.value = values[0];
+    values = ImmutableList.copyOf(in.createStringArray());
+    value = values.get(0);
   }
 
   @Override
@@ -73,23 +72,23 @@ public final class TextInformationFrame extends Id3Frame {
     switch (id) {
       case "TT2":
       case "TIT2":
-        builder.setTitle(values[0]);
+        builder.setTitle(values.get(0));
         break;
       case "TP1":
       case "TPE1":
-        builder.setArtist(String.join(MULTI_VALUE_DELIMITER, values));
+        builder.setArtist(String.join(", ", values));
         break;
       case "TP2":
       case "TPE2":
-        builder.setAlbumArtist(String.join(MULTI_VALUE_DELIMITER, values));
+        builder.setAlbumArtist(String.join(", ", values));
         break;
       case "TAL":
       case "TALB":
-        builder.setAlbumTitle(values[0]);
+        builder.setAlbumTitle(values.get(0));
         break;
       case "TRK":
       case "TRCK":
-        String[] trackNumbers = Util.split(values[0], "/");
+        String[] trackNumbers = Util.split(values.get(0), "/");
         try {
           int trackNumber = Integer.parseInt(trackNumbers[0]);
           @Nullable
@@ -103,7 +102,7 @@ public final class TextInformationFrame extends Id3Frame {
       case "TYE":
       case "TYER":
         try {
-          builder.setRecordingYear(Integer.parseInt(values[0]));
+          builder.setRecordingYear(Integer.parseInt(values.get(0)));
         } catch (NumberFormatException e) {
           // Do nothing, invalid input.
         }
@@ -111,7 +110,7 @@ public final class TextInformationFrame extends Id3Frame {
       case "TDA":
       case "TDAT":
         try {
-          String date = values[0];
+          String date = values.get(0);
           int month = Integer.parseInt(date.substring(2, 4));
           int day = Integer.parseInt(date.substring(0, 2));
           builder.setRecordingMonth(month).setRecordingDay(day);
@@ -120,7 +119,7 @@ public final class TextInformationFrame extends Id3Frame {
         }
         break;
       case "TDRC":
-        List<Integer> recordingDate = parseId3v2point4TimestampFrameForDate(values[0]);
+        List<Integer> recordingDate = parseId3v2point4TimestampFrameForDate(values.get(0));
         switch (recordingDate.size()) {
           case 3:
             builder.setRecordingDay(recordingDate.get(2));
@@ -138,7 +137,7 @@ public final class TextInformationFrame extends Id3Frame {
         }
         break;
       case "TDRL":
-        List<Integer> releaseDate = parseId3v2point4TimestampFrameForDate(values[0]);
+        List<Integer> releaseDate = parseId3v2point4TimestampFrameForDate(values.get(0));
         switch (releaseDate.size()) {
           case 3:
             builder.setReleaseDay(releaseDate.get(2));
@@ -157,15 +156,15 @@ public final class TextInformationFrame extends Id3Frame {
         break;
       case "TCM":
       case "TCOM":
-        builder.setComposer(String.join(MULTI_VALUE_DELIMITER, values));
+        builder.setComposer(String.join(", ", values));
         break;
       case "TP3":
       case "TPE3":
-        builder.setConductor(String.join(MULTI_VALUE_DELIMITER, values));
+        builder.setConductor(String.join(", ", values));
         break;
       case "TXT":
       case "TEXT":
-        builder.setWriter(String.join(MULTI_VALUE_DELIMITER, values));
+        builder.setWriter(String.join(", ", values));
         break;
       default:
         break;
@@ -183,7 +182,7 @@ public final class TextInformationFrame extends Id3Frame {
     TextInformationFrame other = (TextInformationFrame) obj;
     return Util.areEqual(id, other.id)
         && Util.areEqual(description, other.description)
-        && Arrays.equals(values, other.values);
+        && values.equals(other.values);
   }
 
   @Override
@@ -191,13 +190,13 @@ public final class TextInformationFrame extends Id3Frame {
     int result = 17;
     result = 31 * result + id.hashCode();
     result = 31 * result + (description != null ? description.hashCode() : 0);
-    result = 31 * result + Arrays.hashCode(values);
+    result = 31 * result + values.hashCode();
     return result;
   }
 
   @Override
   public String toString() {
-    return id + ": description=" + description + ": value=" + String.join(MULTI_VALUE_DELIMITER, values);
+    return id + ": description=" + description + ": value=" + String.join(", ", values);
   }
 
   // Parcelable implementation.
@@ -206,7 +205,7 @@ public final class TextInformationFrame extends Id3Frame {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(id);
     dest.writeString(description);
-    dest.writeStringArray(values);
+    dest.writeStringArray(values.toArray(new String[0]));
   }
 
   public static final Parcelable.Creator<TextInformationFrame> CREATOR =

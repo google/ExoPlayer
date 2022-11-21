@@ -52,7 +52,7 @@ public final class Id3DecoderTest {
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
-    assertThat(textInformationFrame.values[0]).isEqualTo("mdialog_VINDICO1527664_start");
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("mdialog_VINDICO1527664_start");
 
     // Test UTF-16.
     rawId3 =
@@ -67,7 +67,8 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEqualTo("Hello World");
-    assertThat(textInformationFrame.values).isEmpty();
+    assertThat(textInformationFrame.values.size()).isEqualTo(1);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("");
 
     // Test multiple values.
     rawId3 = buildSingleFrameTag(
@@ -80,9 +81,9 @@ public final class Id3DecoderTest {
     assertThat(metadata.length()).isEqualTo(1);
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.description).isEqualTo("Hello World");
-    assertThat(textInformationFrame.values.length).isEqualTo(2);
-    assertThat(textInformationFrame.values[0]).isEqualTo("Foo");
-    assertThat(textInformationFrame.values[1]).isEqualTo("Bar");
+    assertThat(textInformationFrame.values.size()).isEqualTo(2);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("Foo");
+    assertThat(textInformationFrame.values.get(1)).isEqualTo("Bar");
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TXXX", new byte[0]);
@@ -96,7 +97,8 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
-    assertThat(textInformationFrame.values).isEmpty();
+    assertThat(textInformationFrame.values.size()).isEqualTo(1);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("");
   }
 
   @Test
@@ -110,17 +112,17 @@ public final class Id3DecoderTest {
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TIT2");
     assertThat(textInformationFrame.description).isNull();
-    assertThat(textInformationFrame.values.length).isEqualTo(1);
-    assertThat(textInformationFrame.values[0]).isEqualTo("Hello World");
+    assertThat(textInformationFrame.values.size()).isEqualTo(1);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("Hello World");
 
     // Test multiple values.
     rawId3 = buildSingleFrameTag("TIT2", new byte[] {3, 70, 111, 111, 0, 66, 97, 114, 0});
     metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);
     textInformationFrame = (TextInformationFrame) metadata.get(0);
-    assertThat(textInformationFrame.values.length).isEqualTo(2);
-    assertThat(textInformationFrame.values[0]).isEqualTo("Foo");
-    assertThat(textInformationFrame.values[1]).isEqualTo("Bar");
+    assertThat(textInformationFrame.values.size()).isEqualTo(2);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("Foo");
+    assertThat(textInformationFrame.values.get(1)).isEqualTo("Bar");
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TIT2", new byte[0]);
@@ -134,7 +136,8 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TIT2");
     assertThat(textInformationFrame.description).isNull();
-    assertThat(textInformationFrame.values).isEmpty();
+    assertThat(textInformationFrame.values.size()).isEqualTo(1);
+    assertThat(textInformationFrame.values.get(0)).isEqualTo("");
   }
 
   @Test

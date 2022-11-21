@@ -62,28 +62,28 @@ public class TextInformationFrameTest {
 
     List<Metadata.Entry> entries =
         ImmutableList.of(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title),
-            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ artist),
+            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ new String[] { title }),
+            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ new String[] { artist }),
             new TextInformationFrame(
-                /* id= */ "TAL", /* description= */ null, /* value= */ albumTitle),
+                /* id= */ "TAL", /* description= */ null, /* value= */ new String[] { albumTitle }),
             new TextInformationFrame(
-                /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
+                /* id= */ "TP2", /* description= */ null, /* value= */ new String[] { albumArtist }),
             new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
+                /* id= */ "TRK", /* description= */ null, /* value= */ new String[] { trackNumberInfo}),
             new TextInformationFrame(
-                /* id= */ "TYE", /* description= */ null, /* value= */ recordingYear),
+                /* id= */ "TYE", /* description= */ null, /* value= */ new String[] { recordingYear }),
             new TextInformationFrame(
                 /* id= */ "TDA",
                 /* description= */ null,
-                /* value= */ recordingDay + recordingMonth),
+                /* value= */ new String[] { recordingDay + recordingMonth }),
             new TextInformationFrame(
-                /* id= */ "TDRL", /* description= */ null, /* value= */ releaseDate),
+                /* id= */ "TDRL", /* description= */ null, /* value= */ new String[] { releaseDate }),
             new TextInformationFrame(
-                /* id= */ "TCM", /* description= */ null, /* value= */ composer),
+                /* id= */ "TCM", /* description= */ null, /* value= */ new String[] { composer }),
             new TextInformationFrame(
-                /* id= */ "TP3", /* description= */ null, /* value= */ conductor),
+                /* id= */ "TP3", /* description= */ null, /* value= */ new String[] { conductor }),
             new TextInformationFrame(
-                /* id= */ "TXT", /* description= */ null, /* value= */ writer));
+                /* id= */ "TXT", /* description= */ null, /* value= */ new String[] { writer }));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     for (Metadata.Entry entry : entries) {
@@ -107,5 +107,21 @@ public class TextInformationFrameTest {
     assertThat(mediaMetadata.composer.toString()).isEqualTo(composer);
     assertThat(mediaMetadata.conductor.toString()).isEqualTo(conductor);
     assertThat(mediaMetadata.writer.toString()).isEqualTo(writer);
+
+    // Test empty value array
+    entries =
+        ImmutableList.of(
+            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ new String[0])
+        );
+
+    builder = MediaMetadata.EMPTY.buildUpon();
+
+    for (Metadata.Entry entry : entries) {
+      entry.populateMediaMetadata(builder);
+    }
+
+    mediaMetadata = builder.build();
+
+    assertThat(mediaMetadata.title.toString()).isEqualTo("");
   }
 }
