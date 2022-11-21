@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Text information ID3 frame. */
@@ -38,11 +39,11 @@ public final class TextInformationFrame extends Id3Frame {
   @NonNull
   public final ImmutableList<String> values;
 
-  public TextInformationFrame(String id, @Nullable String description, @NonNull String[] values) {
+  public TextInformationFrame(String id, @Nullable String description, @NonNull List<String> values) {
     super(id);
     this.description = description;
     
-    if( values.length > 0 ) {
+    if( values.size() > 0 ) {
       this.values = ImmutableList.copyOf(values);
     } else {
       this.values = ImmutableList.of("");
@@ -54,7 +55,7 @@ public final class TextInformationFrame extends Id3Frame {
   /** @deprecated Use {@code TextInformationFrame(String id, String description, String[] values} instead */
   @Deprecated
   public TextInformationFrame(String id, @Nullable String description, String value) {
-    this(id, description, new String[] {value } );
+    this(id, description, Collections.singletonList(value) );
   }
 
   /* package */ TextInformationFrame(Parcel in) {

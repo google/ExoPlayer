@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -25,10 +26,12 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
+import com.google.common.collect.ImmutableList;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -458,26 +461,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
-    // In ID3v2.4, text information frames can contain multiple values delimited by a null
-    // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
-    // for more data, at least until the index is equal to the data length.
-    ArrayList<String> values = new ArrayList<>();
-
-    int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    if (valueStartIndex >= data.length) {
-      return new TextInformationFrame("TXXX", description, new String[0]);
-    }
-
-    int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
-    while (valueStartIndex < valueEndIndex) {
-      String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
-      values.add(value);
-
-      valueStartIndex = valueEndIndex + delimiterLength(encoding);
-      valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
-    }
-
-    return new TextInformationFrame("TXXX", description, values.toArray(new String[0]));
+    List<String> values = decodeTextInformationFrameValues(
+        data, encoding, descriptionEndIndex + delimiterLength(encoding));
+    return new TextInformationFrame("TXXX", description, values);
   }
 
   @Nullable
@@ -489,31 +475,38 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     }
 
     int encoding = id3Data.readUnsignedByte();
-    String charset = getCharsetName(encoding);
 
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
+    List<String> values = decodeTextInformationFrameValues(data, encoding, 0);
+    return new TextInformationFrame(id, null, values);
+  }
+
+  @NonNull
+  private static List<String> decodeTextInformationFrameValues(
+      byte[] data, final int encoding, final int index) throws UnsupportedEncodingException {
+    ArrayList<String> values = new ArrayList<>();
+
+    if (index >= data.length) {
+      return Collections.emptyList();
+    }
+
     // In ID3v2.4, text information frames can contain multiple values delimited by a null
     // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
     // for more data, at least until the index is equal to the data length.
-    ArrayList<String> values = new ArrayList<>();
-
-    int valueStartIndex = 0;
-    if (valueStartIndex >= data.length) {
-      return new TextInformationFrame(id, null, new String[0]);
-    }
-
+    String charset = getCharsetName(encoding);
+    int valueStartIndex = index;
     int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
     while (valueStartIndex < valueEndIndex) {
-      String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+      String value = new String(data, valueStartIndex, valueEndIndex - valueStartIndex, charset);
       values.add(value);
 
       valueStartIndex = valueEndIndex + delimiterLength(encoding);
       valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
     }
 
-    return new TextInformationFrame(id, null, values.toArray(new String[0]));
+    return values;
   }
 
   @Nullable

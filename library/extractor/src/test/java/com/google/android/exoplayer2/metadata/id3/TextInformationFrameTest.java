@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,7 @@ public class TextInformationFrameTest {
 
   @Test
   public void parcelable() {
-    TextInformationFrame textInformationFrameToParcel = new TextInformationFrame("", "", "");
+    TextInformationFrame textInformationFrameToParcel = new TextInformationFrame("", "", Collections.singletonList(""));
 
     Parcel parcel = Parcel.obtain();
     textInformationFrameToParcel.writeToParcel(parcel, 0);
@@ -62,28 +63,29 @@ public class TextInformationFrameTest {
 
     List<Metadata.Entry> entries =
         ImmutableList.of(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ new String[] { title }),
-            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ new String[] { artist }),
+            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */
+                Collections.singletonList(title)),
+            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* values= */ Collections.singletonList( artist )),
             new TextInformationFrame(
-                /* id= */ "TAL", /* description= */ null, /* value= */ new String[] { albumTitle }),
+                /* id= */ "TAL", /* description= */ null, /* values= */ Collections.singletonList( albumTitle )),
             new TextInformationFrame(
-                /* id= */ "TP2", /* description= */ null, /* value= */ new String[] { albumArtist }),
+                /* id= */ "TP2", /* description= */ null, /* values= */ Collections.singletonList( albumArtist )),
             new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* value= */ new String[] { trackNumberInfo}),
+                /* id= */ "TRK", /* description= */ null, /* values= */ Collections.singletonList( trackNumberInfo)),
             new TextInformationFrame(
-                /* id= */ "TYE", /* description= */ null, /* value= */ new String[] { recordingYear }),
+                /* id= */ "TYE", /* description= */ null, /* values= */ Collections.singletonList( recordingYear )),
             new TextInformationFrame(
                 /* id= */ "TDA",
                 /* description= */ null,
-                /* value= */ new String[] { recordingDay + recordingMonth }),
+                /* value= */ Collections.singletonList( recordingDay + recordingMonth )),
             new TextInformationFrame(
-                /* id= */ "TDRL", /* description= */ null, /* value= */ new String[] { releaseDate }),
+                /* id= */ "TDRL", /* description= */ null, /* values= */ Collections.singletonList( releaseDate )),
             new TextInformationFrame(
-                /* id= */ "TCM", /* description= */ null, /* value= */ new String[] { composer }),
+                /* id= */ "TCM", /* description= */ null, /* values= */ Collections.singletonList( composer )),
             new TextInformationFrame(
-                /* id= */ "TP3", /* description= */ null, /* value= */ new String[] { conductor }),
+                /* id= */ "TP3", /* description= */ null, /* values= */ Collections.singletonList( conductor )),
             new TextInformationFrame(
-                /* id= */ "TXT", /* description= */ null, /* value= */ new String[] { writer }));
+                /* id= */ "TXT", /* description= */ null, /* values= */ Collections.singletonList( writer )));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     for (Metadata.Entry entry : entries) {
@@ -110,8 +112,8 @@ public class TextInformationFrameTest {
 
     // Test empty value array
     entries =
-        ImmutableList.of(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ new String[0])
+        Collections.singletonList(
+            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* values= */ Collections.emptyList())
         );
 
     builder = MediaMetadata.EMPTY.buildUpon();
