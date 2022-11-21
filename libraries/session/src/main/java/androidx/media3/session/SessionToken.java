@@ -130,6 +130,7 @@ public final class SessionToken implements Bundleable {
     }
   }
 
+  /** Creates a session token connected to a Media3 session. */
   /* package */ SessionToken(
       int uid,
       int type,
@@ -143,21 +144,9 @@ public final class SessionToken implements Bundleable {
             uid, type, libraryVersion, interfaceVersion, packageName, iSession, tokenExtras);
   }
 
-  /* package */ SessionToken(Context context, MediaSessionCompat.Token compatToken) {
-    checkNotNull(context, "context must not be null");
-    checkNotNull(compatToken, "compatToken must not be null");
-
-    MediaControllerCompat controller = createMediaControllerCompat(context, compatToken);
-
-    String packageName = controller.getPackageName();
-    int uid = getUid(context.getPackageManager(), packageName);
-    Bundle extras = controller.getSessionInfo();
-
-    impl = new SessionTokenImplLegacy(compatToken, packageName, uid, extras);
-  }
-
-  /* package */ SessionToken(SessionTokenImpl impl) {
-    this.impl = impl;
+  /** Creates a session token connected to a legacy media session. */
+  private SessionToken(MediaSessionCompat.Token token, String packageName, int uid, Bundle extras) {
+    this.impl = new SessionTokenImplLegacy(token, packageName, uid, extras);
   }
 
   private SessionToken(Bundle bundle) {
@@ -283,32 +272,37 @@ public final class SessionToken implements Bundleable {
     MediaControllerCompat controller =
         createMediaControllerCompat(context, (MediaSessionCompat.Token) compatToken);
     String packageName = controller.getPackageName();
-    int uid = getUid(context.getPackageManager(), packageName);
     Handler handler = new Handler(thread.getLooper());
+    Runnable createFallbackLegacyToken =
+        () -> {
+          int uid = getUid(context.getPackageManager(), packageName);
+          SessionToken resultToken =
+              new SessionToken(
+                  (MediaSessionCompat.Token) compatToken,
+                  packageName,
+                  uid,
+                  controller.getSessionInfo());
+          future.set(resultToken);
+        };
     controller.sendCommand(
         MediaConstants.SESSION_COMMAND_REQUEST_SESSION3_TOKEN,
         /* params= */ null,
         new ResultReceiver(handler) {
           @Override
           protected void onReceiveResult(int resultCode, Bundle resultData) {
+            // Remove timeout callback.
             handler.removeCallbacksAndMessages(null);
-            future.set(SessionToken.CREATOR.fromBundle(resultData));
+            try {
+              future.set(SessionToken.CREATOR.fromBundle(resultData));
+            } catch (RuntimeException e) {
+              // Fallback to a legacy token if we receive an unexpected result, e.g. a legacy
+              // session acknowledging commands by a success callback.
+              createFallbackLegacyToken.run();
+            }
           }
         });
-
-    handler.postDelayed(
-        () -> {
-          // Timed out getting session3 token. Handle this as a legacy token.
-          SessionToken resultToken =
-              new SessionToken(
-                  new SessionTokenImplLegacy(
-                      (MediaSessionCompat.Token) compatToken,
-                      packageName,
-                      uid,
-                      controller.getSessionInfo()));
-          future.set(resultToken);
-        },
-        WAIT_TIME_MS_FOR_SESSION3_TOKEN);
+    // Post creating a fallback token if the command receives no result after a timeout.
+    handler.postDelayed(createFallbackLegacyToken, WAIT_TIME_MS_FOR_SESSION3_TOKEN);
     future.addListener(() -> thread.quit(), MoreExecutors.directExecutor());
     return future;
   }
@@ -399,7 +393,8 @@ public final class SessionToken implements Bundleable {
     try {
       return manager.getApplicationInfo(packageName, 0).uid;
     } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalArgumentException("Cannot find package " + packageName, e);
+      throw new IllegalArgumentException(
+          "Cannot find package " + packageName + " or package is not visible", e);
     }
   }
 
