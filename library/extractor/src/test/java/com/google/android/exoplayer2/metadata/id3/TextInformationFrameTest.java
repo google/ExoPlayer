@@ -65,27 +65,27 @@ public class TextInformationFrameTest {
         ImmutableList.of(
             new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */
                 Collections.singletonList(title)),
-            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* values= */ Collections.singletonList( artist )),
+            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* values= */ Collections.singletonList(artist)),
             new TextInformationFrame(
-                /* id= */ "TAL", /* description= */ null, /* values= */ Collections.singletonList( albumTitle )),
+                /* id= */ "TAL", /* description= */ null, /* values= */ Collections.singletonList(albumTitle)),
             new TextInformationFrame(
-                /* id= */ "TP2", /* description= */ null, /* values= */ Collections.singletonList( albumArtist )),
+                /* id= */ "TP2", /* description= */ null, /* values= */ Collections.singletonList(albumArtist)),
             new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* values= */ Collections.singletonList( trackNumberInfo)),
+                /* id= */ "TRK", /* description= */ null, /* values= */ Collections.singletonList(trackNumberInfo)),
             new TextInformationFrame(
-                /* id= */ "TYE", /* description= */ null, /* values= */ Collections.singletonList( recordingYear )),
+                /* id= */ "TYE", /* description= */ null, /* values= */ Collections.singletonList(recordingYear)),
             new TextInformationFrame(
                 /* id= */ "TDA",
                 /* description= */ null,
                 /* value= */ Collections.singletonList( recordingDay + recordingMonth )),
             new TextInformationFrame(
-                /* id= */ "TDRL", /* description= */ null, /* values= */ Collections.singletonList( releaseDate )),
+                /* id= */ "TDRL", /* description= */ null, /* values= */ Collections.singletonList(releaseDate)),
             new TextInformationFrame(
-                /* id= */ "TCM", /* description= */ null, /* values= */ Collections.singletonList( composer )),
+                /* id= */ "TCM", /* description= */ null, /* values= */ Collections.singletonList(composer)),
             new TextInformationFrame(
-                /* id= */ "TP3", /* description= */ null, /* values= */ Collections.singletonList( conductor )),
+                /* id= */ "TP3", /* description= */ null, /* values= */ Collections.singletonList(conductor)),
             new TextInformationFrame(
-                /* id= */ "TXT", /* description= */ null, /* values= */ Collections.singletonList( writer )));
+                /* id= */ "TXT", /* description= */ null, /* values= */ Collections.singletonList(writer)));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     for (Metadata.Entry entry : entries) {
