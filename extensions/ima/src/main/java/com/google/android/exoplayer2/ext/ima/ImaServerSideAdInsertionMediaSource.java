@@ -811,7 +811,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         if (entry instanceof TextInformationFrame) {
           TextInformationFrame textFrame = (TextInformationFrame) entry;
           if ("TXXX".equals(textFrame.id)) {
-            streamPlayer.triggerUserTextReceived(textFrame.value);
+            streamPlayer.triggerUserTextReceived(textFrame.values[0]);
           }
         } else if (entry instanceof EventMessage) {
           EventMessage eventMessage = (EventMessage) entry;

@@ -52,7 +52,7 @@ public final class Id3DecoderTest {
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
-    assertThat(textInformationFrame.value).isEqualTo("mdialog_VINDICO1527664_start");
+    assertThat(textInformationFrame.values[0]).isEqualTo("mdialog_VINDICO1527664_start");
 
     // Test UTF-16.
     rawId3 =
@@ -67,7 +67,7 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEqualTo("Hello World");
-    assertThat(textInformationFrame.value).isEmpty();
+    assertThat(textInformationFrame.values).isEmpty();
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TXXX", new byte[0]);
@@ -81,7 +81,7 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
-    assertThat(textInformationFrame.value).isEmpty();
+    assertThat(textInformationFrame.values).isEmpty();
   }
 
   @Test
@@ -95,7 +95,8 @@ public final class Id3DecoderTest {
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TIT2");
     assertThat(textInformationFrame.description).isNull();
-    assertThat(textInformationFrame.value).isEqualTo("Hello World");
+    assertThat(textInformationFrame.values.length).isEqualTo(1);
+    assertThat(textInformationFrame.values[0]).isEqualTo("Hello World");
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TIT2", new byte[0]);
@@ -109,7 +110,7 @@ public final class Id3DecoderTest {
     textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertThat(textInformationFrame.id).isEqualTo("TIT2");
     assertThat(textInformationFrame.description).isNull();
-    assertThat(textInformationFrame.value).isEmpty();
+    assertThat(textInformationFrame.values).isEmpty();
   }
 
   @Test

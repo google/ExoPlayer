@@ -455,14 +455,29 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
-    int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int valueEndIndex = indexOfEos(data, valueStartIndex, encoding);
-    String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+    // In ID3v2.4, text information frames can contain multiple values delimited by a null
+    // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
+    // for more data, at least until the index is equal to the data length.
+    ArrayList<String> values = new ArrayList<>();
 
-    return new TextInformationFrame("TXXX", description, value);
+    int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
+    if (valueStartIndex >= data.length) {
+      return new TextInformationFrame("TXXX", description, new String[0]);
+    }
+
+    int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
+    while (valueStartIndex < valueEndIndex) {
+      String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+      values.add(value);
+
+      valueStartIndex = valueEndIndex + delimiterLength(encoding);
+      valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
+    }
+
+    return new TextInformationFrame("TXXX", description, values.toArray(new String[0]));
   }
 
   @Nullable
@@ -479,10 +494,26 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int valueEndIndex = indexOfEos(data, 0, encoding);
-    String value = new String(data, 0, valueEndIndex, charset);
+    // In ID3v2.4, text information frames can contain multiple values delimited by a null
+    // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
+    // for more data, at least until the index is equal to the data length.
+    ArrayList<String> values = new ArrayList<>();
 
-    return new TextInformationFrame(id, null, value);
+    int valueStartIndex = 0;
+    if (valueStartIndex >= data.length) {
+      return new TextInformationFrame(id, null, new String[0]);
+    }
+
+    int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
+    while (valueStartIndex < valueEndIndex) {
+      String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
+      values.add(value);
+
+      valueStartIndex = valueEndIndex + delimiterLength(encoding);
+      valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
+    }
+
+    return new TextInformationFrame(id, null, values.toArray(new String[0]));
   }
 
   @Nullable
@@ -499,7 +530,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     byte[] data = new byte[frameSize - 1];
     id3Data.readBytes(data, 0, frameSize - 1);
 
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
     int urlStartIndex = descriptionEndIndex + delimiterLength(encoding);
@@ -546,11 +577,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     String mimeType = new String(data, 0, mimeTypeEndIndex, "ISO-8859-1");
 
     int filenameStartIndex = mimeTypeEndIndex + 1;
-    int filenameEndIndex = indexOfEos(data, filenameStartIndex, encoding);
+    int filenameEndIndex = indexOfTerminator(data, filenameStartIndex, encoding);
     String filename = decodeStringIfValid(data, filenameStartIndex, filenameEndIndex, charset);
 
     int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
-    int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, descriptionStartIndex, encoding);
     String description =
         decodeStringIfValid(data, descriptionStartIndex, descriptionEndIndex, charset);
 
@@ -588,7 +619,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int pictureType = data[mimeTypeEndIndex + 1] & 0xFF;
 
     int descriptionStartIndex = mimeTypeEndIndex + 2;
-    int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, descriptionStartIndex, encoding);
     String description =
         new String(
             data, descriptionStartIndex, descriptionEndIndex - descriptionStartIndex, charset);
@@ -617,11 +648,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     data = new byte[frameSize - 4];
     id3Data.readBytes(data, 0, frameSize - 4);
 
-    int descriptionEndIndex = indexOfEos(data, 0, encoding);
+    int descriptionEndIndex = indexOfTerminator(data, 0, encoding);
     String description = new String(data, 0, descriptionEndIndex, charset);
 
     int textStartIndex = descriptionEndIndex + delimiterLength(encoding);
-    int textEndIndex = indexOfEos(data, textStartIndex, encoding);
+    int textEndIndex = indexOfTerminator(data, textStartIndex, encoding);
     String text = decodeStringIfValid(data, textStartIndex, textEndIndex, charset);
 
     return new CommentFrame(language, description, text);
@@ -798,7 +829,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
         : String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
   }
 
-  private static int indexOfEos(byte[] data, int fromIndex, int encoding) {
+  private static int indexOfTerminator(byte[] data, int fromIndex, int encoding) {
     int terminationPos = indexOfZeroByte(data, fromIndex);
 
     // For single byte encoding charsets, we're done.
