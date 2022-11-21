@@ -112,7 +112,8 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   }
 
   private RemoteMediaController createControllerAndWaitConnection() throws Exception {
-    SessionToken sessionToken = new SessionToken(context, session.getSessionToken());
+    SessionToken sessionToken =
+        SessionToken.createSessionToken(context, session.getSessionToken()).get();
     return controllerTestRule.createRemoteController(sessionToken);
   }
 
