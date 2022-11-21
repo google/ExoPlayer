@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
@@ -36,17 +37,19 @@ public final class TextInformationFrame extends Id3Frame {
   @Deprecated
   public final String value;
 
+  @NonNull
   public final String[] values;
 
-  public TextInformationFrame(String id, @Nullable String description, String[] values) {
+  public TextInformationFrame(String id, @Nullable String description, @NonNull String[] values) {
     super(id);
-    if (values.length == 0) {
-      throw new IllegalArgumentException("A text information frame must have at least one value.");
-    }
-
     this.description = description;
     this.values = values;
-    this.value = values[0];
+
+    if (values.length > 0) {
+      this.value = values[0];
+    } else {
+      this.value = null;
+    }
   }
 
   /** @deprecated Use {@code TextInformationFrame(String id, String description, String[] values} instead */
@@ -58,8 +61,7 @@ public final class TextInformationFrame extends Id3Frame {
   /* package */ TextInformationFrame(Parcel in) {
     super(castNonNull(in.readString()));
     description = in.readString();
-    values = new String[] {};
-    in.readStringArray(values);
+    values = in.createStringArray();
     this.value = values[0];
   }
 
@@ -181,7 +183,7 @@ public final class TextInformationFrame extends Id3Frame {
     TextInformationFrame other = (TextInformationFrame) obj;
     return Util.areEqual(id, other.id)
         && Util.areEqual(description, other.description)
-        && Util.areEqual(values, other.values);
+        && Arrays.equals(values, other.values);
   }
 
   @Override
@@ -195,7 +197,7 @@ public final class TextInformationFrame extends Id3Frame {
 
   @Override
   public String toString() {
-    return id + ": description=" + description + ": values=" + String.join(MULTI_VALUE_DELIMITER, values);
+    return id + ": description=" + description + ": value=" + String.join(MULTI_VALUE_DELIMITER, values);
   }
 
   // Parcelable implementation.

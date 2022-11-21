@@ -464,6 +464,10 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     ArrayList<String> values = new ArrayList<>();
 
     int valueStartIndex = descriptionEndIndex + delimiterLength(encoding);
+    if (valueStartIndex >= data.length) {
+      return new TextInformationFrame("TXXX", description, new String[0]);
+    }
+
     int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
     while (valueStartIndex < valueEndIndex) {
       String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
@@ -496,6 +500,10 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     ArrayList<String> values = new ArrayList<>();
 
     int valueStartIndex = 0;
+    if (valueStartIndex >= data.length) {
+      return new TextInformationFrame(id, null, new String[0]);
+    }
+
     int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
     while (valueStartIndex < valueEndIndex) {
       String value = decodeStringIfValid(data, valueStartIndex, valueEndIndex, charset);
