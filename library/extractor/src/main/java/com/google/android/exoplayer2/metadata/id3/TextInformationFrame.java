@@ -37,7 +37,7 @@ public final class TextInformationFrame extends Id3Frame {
   public final String value;
 
   @NonNull
-  public final ImmutableList<String> values;
+  public final List<String> values;
 
   public TextInformationFrame(String id, @Nullable String description, @NonNull List<String> values) {
     super(id);
