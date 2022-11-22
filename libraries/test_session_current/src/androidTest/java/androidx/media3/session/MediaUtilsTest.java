@@ -109,15 +109,21 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToQueueItemList() {
-    int size = 3;
-    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(size);
-    List<MediaSessionCompat.QueueItem> queueItems = MediaUtils.convertToQueueItemList(mediaItems);
-    assertThat(queueItems).hasSize(mediaItems.size());
-    for (int i = 0; i < size; ++i) {
-      assertThat(queueItems.get(i).getDescription().getMediaId())
-          .isEqualTo(mediaItems.get(i).mediaId);
-    }
+  public void convertToQueueItem_withArtworkData() throws Exception {
+    MediaItem mediaItem = MediaTestUtils.createMediaItemWithArtworkData("testId");
+    MediaMetadata mediaMetadata = mediaItem.mediaMetadata;
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.decodeBitmap(mediaMetadata.artworkData);
+    @Nullable Bitmap bitmap = bitmapFuture.get(10, SECONDS);
+
+    MediaSessionCompat.QueueItem queueItem =
+        MediaUtils.convertToQueueItem(
+            mediaItem,
+            /** mediaItemIndex= */
+            100,
+            bitmap);
+
+    assertThat(queueItem.getQueueId()).isEqualTo(100);
+    assertThat(queueItem.getDescription().getIconBitmap()).isNotNull();
   }
 
   @Test

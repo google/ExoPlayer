@@ -230,18 +230,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Converts a list of {@link MediaItem} to a list of {@link QueueItem}. The index of the item
+   * Converts a {@link MediaItem} to a {@link QueueItem}. The index of the item in the playlist
    * would be used as the queue ID to match the behavior of {@link MediaController}.
    */
-  public static List<QueueItem> convertToQueueItemList(List<MediaItem> items) {
-    List<QueueItem> result = new ArrayList<>();
-    for (int i = 0; i < items.size(); i++) {
-      MediaItem item = items.get(i);
-      MediaDescriptionCompat description = convertToMediaDescriptionCompat(item);
-      long id = convertToQueueItemId(i);
-      result.add(new QueueItem(description, id));
-    }
-    return result;
+  public static QueueItem convertToQueueItem(
+      MediaItem item, int mediaItemIndex, @Nullable Bitmap artworkBitmap) {
+    MediaDescriptionCompat description = convertToMediaDescriptionCompat(item, artworkBitmap);
+    long id = convertToQueueItemId(mediaItemIndex);
+    return new QueueItem(description, id);
   }
 
   /** Converts the index of a {@link MediaItem} in a playlist into id of {@link QueueItem}. */

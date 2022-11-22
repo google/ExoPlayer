@@ -418,7 +418,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void seekTo_withNewMediaItemIndex() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long initialPosition = 8_000;
     long initialBufferedPosition = 9_200;
     int initialIndex = 0;
@@ -701,7 +701,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void addMediaItems() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int testCurrentMediaItemIndex = 1;
     MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
@@ -767,7 +767,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   public void addMediaItems_beforeCurrentMediaItemIndex_shiftsCurrentMediaItemIndex()
       throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialMediaItemIndex = 2;
     MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
@@ -833,7 +833,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void removeMediaItems() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int testCurrentMediaItemIndex = 0;
     MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
@@ -898,7 +898,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   public void removeMediaItems_beforeCurrentMediaItemIndex_shiftsCurrentMediaItemIndex()
       throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialMediaItemIndex = 4;
     MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
@@ -963,7 +963,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void removeMediaItems_includeCurrentMediaItem_movesCurrentItem() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialMediaItemIndex = 2;
     MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
@@ -1025,7 +1025,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void moveMediaItems() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int testCurrentMediaItemIndex = 0;
     MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
@@ -1090,7 +1090,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   @Test
   public void moveMediaItems_withMovingCurrentMediaItem_changesCurrentItem() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
-    List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
+    List<QueueItem> queue = MediaTestUtils.convertToQueueItemsWithoutBitmap(mediaItems);
     long testPosition = 200L;
     int initialCurrentMediaItemIndex = 1;
     session.setPlaybackState(

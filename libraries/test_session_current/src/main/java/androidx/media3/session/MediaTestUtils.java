@@ -115,6 +115,28 @@ public final class MediaTestUtils {
         .build();
   }
 
+  public static MediaMetadata createMediaMetadataWithArtworkData() {
+    MediaMetadata.Builder mediaMetadataBuilder =
+        new MediaMetadata.Builder()
+            .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
+            .setIsPlayable(false)
+            .setTitle(METADATA_TITLE)
+            .setSubtitle(METADATA_SUBTITLE)
+            .setDescription(METADATA_DESCRIPTION)
+            .setArtworkUri(METADATA_ARTWORK_URI)
+            .setExtras(METADATA_EXTRAS);
+
+    try {
+      byte[] artworkData =
+          TestUtils.getByteArrayForScaledBitmap(
+              ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+      mediaMetadataBuilder.setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER);
+    } catch (IOException e) {
+      fail(e.getMessage());
+    }
+    return mediaMetadataBuilder.build();
+  }
+
   public static List<ControllerInfo> getTestControllerInfos(MediaSession session) {
     List<ControllerInfo> infos = new ArrayList<>();
     if (session != null) {
@@ -159,6 +181,18 @@ public final class MediaTestUtils {
       list.add(
           new MediaSessionCompat.QueueItem(
               new MediaDescriptionCompat.Builder().setMediaId("queueItem_" + (i + 1)).build(), i));
+    }
+    return list;
+  }
+
+  public static List<MediaSessionCompat.QueueItem> convertToQueueItemsWithoutBitmap(
+      List<MediaItem> mediaItems) {
+    List<MediaSessionCompat.QueueItem> list = new ArrayList<>();
+    for (int i = 0; i < mediaItems.size(); i++) {
+      MediaItem item = mediaItems.get(i);
+      MediaDescriptionCompat description = MediaUtils.convertToMediaDescriptionCompat(item, null);
+      long id = MediaUtils.convertToQueueItemId(i);
+      list.add(new MediaSessionCompat.QueueItem(description, id));
     }
     return list;
   }

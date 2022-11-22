@@ -1121,7 +1121,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("mediaItem_withSampleMediaMetadata")
-            .setMediaMetadata(MediaTestUtils.createMediaMetadata())
+            .setMediaMetadata(MediaTestUtils.createMediaMetadataWithArtworkData())
             .build();
     Timeline timeline = new PlaylistTimeline(ImmutableList.of(mediaItem));
 
@@ -1140,6 +1140,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
         .isTrue();
     assertThat(description.getIconUri()).isEqualTo(mediaItem.mediaMetadata.artworkUri);
     assertThat(description.getMediaUri()).isEqualTo(mediaItem.requestMetadata.mediaUri);
+    assertThat(description.getIconBitmap()).isNotNull();
     assertThat(TestUtils.equals(description.getExtras(), mediaItem.mediaMetadata.extras)).isTrue();
   }
 
