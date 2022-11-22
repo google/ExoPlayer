@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -74,7 +74,7 @@ public class HdrToSdrToneMapTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       return;
@@ -119,7 +119,7 @@ public class HdrToSdrToneMapTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       return;
@@ -165,7 +165,7 @@ public class HdrToSdrToneMapTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       return;
@@ -211,7 +211,7 @@ public class HdrToSdrToneMapTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Tone mapped.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
       return;

@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_1_SECOND_HDR10_VIDEO_SDR_CONTAINER;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_4_SECOND_HDR10;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_4_SECOND_HDR10;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.analysis.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -74,7 +74,7 @@ public class HdrEditingTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
       return;
@@ -97,7 +97,7 @@ public class HdrEditingTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Transformed.");
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_HLG);
       return;
@@ -128,7 +128,7 @@ public class HdrEditingTest {
     TransformationTestResult transformationTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+            .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
     assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_ST2084);
   }
 
@@ -151,7 +151,7 @@ public class HdrEditingTest {
     TransformationTestResult transformationTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+            .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
     assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_HLG);
   }
 
@@ -192,7 +192,7 @@ public class HdrEditingTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_4_SECOND_HDR10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_4_SECOND_HDR10)));
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
@@ -245,7 +245,7 @@ public class HdrEditingTest {
       TransformationTestResult transformationTestResult =
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
-              .run(testId, MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10)));
+              .run(testId, MediaItem.fromUri(Uri.parse(MP4_REMOTE_1080P_5_SECOND_HLG10)));
       Log.i(TAG, "Tone mapped.");
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       assertFileHasColorTransfer(transformationTestResult.filePath, C.COLOR_TRANSFER_SDR);
