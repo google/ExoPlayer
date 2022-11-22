@@ -15,6 +15,7 @@
  */
 package androidx.media3.common.audio;
 
+import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import androidx.annotation.Nullable;
@@ -23,7 +24,6 @@ import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,10 +68,6 @@ import java.util.List;
  */
 @UnstableApi
 public final class AudioProcessingPipeline {
-
-  /** An empty, direct {@link ByteBuffer}. */
-  private static final ByteBuffer EMPTY_BUFFER =
-      ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
 
   /** The {@link AudioProcessor} instances passed to {@link AudioProcessingPipeline}. */
   private final ImmutableList<AudioProcessor> audioProcessors;
@@ -323,13 +319,6 @@ public final class AudioProcessingPipeline {
             index > 0
                 ? outputBuffers[index - 1]
                 : inputBuffer.hasRemaining() ? inputBuffer : EMPTY_BUFFER;
-        if (input == AudioProcessor.EMPTY_BUFFER) {
-          // TODO(internal b/198772621): compare to how it was done in DefaultAudioSink to make sure
-          // this is not unnecessarily complicated.
-          // Queueing AudioProcessor.EMPTY_BUFFER to an AudioProcessor might lead to unexpected
-          // behaviour (see [Internal: b/259393434]).
-          input = EMPTY_BUFFER;
-        }
         long inputBytes = input.remaining();
         audioProcessor.queueInput(input);
         outputBuffers[index] = audioProcessor.getOutput();
