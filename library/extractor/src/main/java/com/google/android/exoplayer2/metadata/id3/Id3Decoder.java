@@ -489,12 +489,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     ArrayList<String> values = new ArrayList<>();
 
     if (index >= data.length) {
-      return Collections.emptyList();
+      return Collections.singletonList("");
     }
 
-    // In ID3v2.4, text information frames can contain multiple values delimited by a null
-    // terminator. Thus, we after each "end of stream" marker we actually need to keep looking
-    // for more data, at least until the index is equal to the data length.
     String charset = getCharsetName(encoding);
     int valueStartIndex = index;
     int valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
@@ -506,7 +503,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       valueEndIndex = indexOfTerminator(data, valueStartIndex, encoding);
     }
 
-    return values;
+    if (values.isEmpty()) {
+      return Collections.singletonList("");
+    } else {
+      return values;
+    }
   }
 
   @Nullable

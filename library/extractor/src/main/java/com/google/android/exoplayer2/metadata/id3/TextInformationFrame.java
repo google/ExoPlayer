@@ -36,19 +36,18 @@ public final class TextInformationFrame extends Id3Frame {
   @Deprecated
   public final String value;
 
+  /** The text values of this frame. Will always have at least one element. */
   @NonNull
   public final List<String> values;
 
   public TextInformationFrame(String id, @Nullable String description, @NonNull List<String> values) {
     super(id);
-    this.description = description;
-    
-    if( values.size() > 0 ) {
-      this.values = ImmutableList.copyOf(values);
-    } else {
-      this.values = ImmutableList.of("");
+    if (values.isEmpty()) {
+      throw new IllegalArgumentException("Text information frames must have at least one value");
     }
-    
+
+    this.description = description;
+    this.values = ImmutableList.copyOf(values);
     this.value = this.values.get(0);
   }
 

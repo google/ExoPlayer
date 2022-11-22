@@ -109,21 +109,5 @@ public class TextInformationFrameTest {
     assertThat(mediaMetadata.composer.toString()).isEqualTo(composer);
     assertThat(mediaMetadata.conductor.toString()).isEqualTo(conductor);
     assertThat(mediaMetadata.writer.toString()).isEqualTo(writer);
-
-    // Test empty value array
-    entries =
-        Collections.singletonList(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* values= */ Collections.emptyList())
-        );
-
-    builder = MediaMetadata.EMPTY.buildUpon();
-
-    for (Metadata.Entry entry : entries) {
-      entry.populateMediaMetadata(builder);
-    }
-
-    mediaMetadata = builder.build();
-
-    assertThat(mediaMetadata.title.toString()).isEqualTo("");
   }
 }
