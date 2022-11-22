@@ -108,7 +108,9 @@ import java.nio.ByteBuffer;
       }
     } else {
       ByteBuffer buffer = replaceOutputBuffer(/* size= */ inputBuffer.remaining());
-      buffer.put(inputBuffer);
+      if (inputBuffer.hasRemaining()) {
+        buffer.put(inputBuffer);
+      }
       buffer.flip();
     }
     bytesRead += inputBuffer.position() - startPosition;
