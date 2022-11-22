@@ -89,11 +89,14 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 // Getting the commands from MediaControllerCompat'
 /* package */ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
@@ -394,7 +397,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         controller -> {
           PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
           // Use queueId as an index as we've published {@link QueueItem} as so.
-          // see: {@link MediaUtils#convertToQueueItemList}.
+          // see: {@link MediaUtils#convertToQueueItem}.
           playerWrapper.seekToDefaultPosition((int) queueId);
         },
         sessionCompat.getCurrentControllerInfo());
@@ -1011,8 +1014,59 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         setQueue(sessionCompat, null);
         return;
       }
+
+      updateQueue(timeline);
+
+      // Duration might be unknown at onMediaItemTransition and become available afterward.
+      updateMetadataIfChanged();
+    }
+
+    private void updateQueue(Timeline timeline) {
       List<MediaItem> mediaItemList = MediaUtils.convertToMediaItemList(timeline);
-      List<QueueItem> queueItemList = MediaUtils.convertToQueueItemList(mediaItemList);
+      List<@NullableType ListenableFuture<Bitmap>> bitmapFutures = new ArrayList<>();
+      final AtomicInteger resultCount = new AtomicInteger(0);
+      Runnable handleBitmapFuturesTask =
+          () -> {
+            int completedBitmapFutureCount = resultCount.incrementAndGet();
+            if (completedBitmapFutureCount == mediaItemList.size()) {
+              handleBitmapFuturesAllCompletedAndSetQueue(bitmapFutures, timeline, mediaItemList);
+            }
+          };
+
+      for (int i = 0; i < mediaItemList.size(); i++) {
+        MediaItem mediaItem = mediaItemList.get(i);
+        MediaMetadata metadata = mediaItem.mediaMetadata;
+        if (metadata.artworkData == null) {
+          bitmapFutures.add(null);
+          handleBitmapFuturesTask.run();
+        } else {
+          ListenableFuture<Bitmap> bitmapFuture =
+              sessionImpl.getBitmapLoader().decodeBitmap(metadata.artworkData);
+          bitmapFutures.add(bitmapFuture);
+          bitmapFuture.addListener(
+              handleBitmapFuturesTask, sessionImpl.getApplicationHandler()::post);
+        }
+      }
+    }
+
+    private void handleBitmapFuturesAllCompletedAndSetQueue(
+        List<@NullableType ListenableFuture<Bitmap>> bitmapFutures,
+        Timeline timeline,
+        List<MediaItem> mediaItems) {
+      List<QueueItem> queueItemList = new ArrayList<>();
+      for (int i = 0; i < bitmapFutures.size(); i++) {
+        @Nullable ListenableFuture<Bitmap> future = bitmapFutures.get(i);
+        @Nullable Bitmap bitmap = null;
+        if (future != null) {
+          try {
+            bitmap = Futures.getDone(future);
+          } catch (CancellationException | ExecutionException e) {
+            Log.d(TAG, "Failed to get bitmap");
+          }
+        }
+        queueItemList.add(MediaUtils.convertToQueueItem(mediaItems.get(i), i, bitmap));
+      }
+
       if (Util.SDK_INT < 21) {
         // In order to avoid TransactionTooLargeException for below API 21, we need to
         // cut the list so that it doesn't exceed the binder transaction limit.
@@ -1029,9 +1083,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         // which means we can safely send long lists.
         sessionCompat.setQueue(queueItemList);
       }
-
-      // Duration might be unknown at onMediaItemTransition and become available afterward.
-      updateMetadataIfChanged();
     }
 
     @Override

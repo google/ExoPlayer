@@ -106,6 +106,8 @@ public class MediaControllerWithMediaSessionCompatTest {
 
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 
+  private static final String TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
+
   private final HandlerThreadTestRule threadTestRule = new HandlerThreadTestRule(TAG);
   private final MediaControllerTestRule controllerTestRule =
       new MediaControllerTestRule(threadTestRule);
@@ -373,12 +375,13 @@ public class MediaControllerWithMediaSessionCompatTest {
 
     Timeline testTimeline = MediaTestUtils.createTimeline(/* windowCount= */ 2);
     List<QueueItem> testQueue =
-        MediaUtils.convertToQueueItemList(MediaUtils.convertToMediaItemList(testTimeline));
+        MediaTestUtils.convertToQueueItemsWithoutBitmap(
+            MediaUtils.convertToMediaItemList(testTimeline));
     session.setQueue(testQueue);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     MediaTestUtils.assertMediaIdEquals(testTimeline, timelineFromParamRef.get());
-    MediaTestUtils.assertMediaIdEquals(testTimeline, timelineFromParamRef.get());
+    MediaTestUtils.assertMediaIdEquals(testTimeline, timelineFromGetterRef.get());
     assertThat(reasonRef.get()).isEqualTo(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
   }
 
@@ -386,7 +389,8 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void setQueue_withNull_notifiesEmptyTimeline() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 2);
     List<QueueItem> queue =
-        MediaUtils.convertToQueueItemList(MediaUtils.convertToMediaItemList(timeline));
+        MediaTestUtils.convertToQueueItemsWithoutBitmap(
+            MediaUtils.convertToMediaItemList(timeline));
     session.setQueue(queue);
 
     CountDownLatch latch = new CountDownLatch(1);
@@ -433,6 +437,9 @@ public class MediaControllerWithMediaSessionCompatTest {
     Uri testIconUri = Uri.parse("androidx://media3-session/icon");
     Uri testMediaUri = Uri.parse("androidx://media3-session/media");
     Bundle testExtras = TestUtils.createTestBundle();
+    byte[] testArtworkData =
+        TestUtils.getByteArrayForScaledBitmap(context.getApplicationContext(), TEST_IMAGE_PATH);
+    @Nullable Bitmap testBitmap = bitmapLoader.decodeBitmap(testArtworkData).get(10, SECONDS);
     MediaDescriptionCompat description =
         new MediaDescriptionCompat.Builder()
             .setMediaId(testMediaId)
@@ -442,6 +449,7 @@ public class MediaControllerWithMediaSessionCompatTest {
             .setIconUri(testIconUri)
             .setMediaUri(testMediaUri)
             .setExtras(testExtras)
+            .setIconBitmap(testBitmap)
             .build();
     QueueItem queueItem = new QueueItem(description, /* id= */ 0);
     session.setQueue(ImmutableList.of(queueItem));
@@ -455,6 +463,10 @@ public class MediaControllerWithMediaSessionCompatTest {
     assertThat(TextUtils.equals(metadata.subtitle, testSubtitle)).isTrue();
     assertThat(TextUtils.equals(metadata.description, testDescription)).isTrue();
     assertThat(metadata.artworkUri).isEqualTo(testIconUri);
+    if (Util.SDK_INT >= 21) {
+      // Bitmap conversion and back gives not exactly the same byte array below API 21
+      assertThat(metadata.artworkData).isEqualTo(testArtworkData);
+    }
     if (Util.SDK_INT < 21 || Util.SDK_INT >= 23) {
       // TODO(b/199055952): Test mediaUri for all API levels once the bug is fixed.
       assertThat(mediaItem.requestMetadata.mediaUri).isEqualTo(testMediaUri);
@@ -579,7 +591,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void seekToDefaultPosition_withMediaItemIndex_updatesExpectedMediaItemIndex()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setPlaybackState(/* state= */ null);
     int testMediaItemIndex = 2;
@@ -613,7 +625,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   @Test
   public void seekTo_withMediaItemIndex_updatesExpectedMediaItemIndex() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setPlaybackState(/* state= */ null);
     long testPositionMs = 23L;
@@ -652,7 +664,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   @Test
   public void getMediaItemCount_withValidQueueAndQueueId_returnsQueueSize() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
@@ -686,7 +698,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void getMediaItemCount_withInvalidQueueIdWithoutMetadata_returnsAdjustedCount()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
 
@@ -698,7 +710,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void getMediaItemCount_withInvalidQueueIdWithMetadata_returnsAdjustedCount()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
@@ -716,7 +728,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void getMediaItemCount_whenQueueIdIsChangedFromInvalidToValid_returnOriginalCount()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
@@ -751,7 +763,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void getCurrentMediaItemIndex_withInvalidQueueIdWithMetadata_returnsEndOfList()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
         MediaUtils.convertToMediaMetadataCompat(
@@ -888,7 +900,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void getMediaMetadata_withoutMediaMetadataCompatWithQueue_returnsEmptyMediaMetadata()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     int testIndex = 1;
     long testActiveQueueId = testQueue.get(testIndex).getQueueId();
     session.setQueue(testQueue);
@@ -904,7 +916,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   @Test
   public void setPlaybackState_withActiveQueueItemId_notifiesCurrentMediaItem() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(/* size= */ 2);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
 
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();

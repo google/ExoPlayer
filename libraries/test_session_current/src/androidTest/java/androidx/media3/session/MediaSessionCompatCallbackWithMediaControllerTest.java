@@ -120,7 +120,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   @Test
   public void play() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(/* size= */ 2);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
     setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
@@ -135,7 +135,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   @Test
   public void pause() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(/* size= */ 2);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
     setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
@@ -150,7 +150,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   @Test
   public void prepare() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(/* size= */ 2);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
     RemoteMediaController controller = createControllerAndWaitConnection();
@@ -165,7 +165,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   @Test
   public void stop() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(/* size= */ 2);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     session.setQueue(testQueue);
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
     RemoteMediaController controller = createControllerAndWaitConnection();
@@ -328,7 +328,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   public void addMediaItems() throws Exception {
     int size = 2;
     List<MediaItem> testList = MediaTestUtils.createMediaItems(size);
-    List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
+    List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
 
     session.setQueue(testQueue);
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
@@ -355,7 +355,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     int toIndex = 3;
     int count = toIndex - fromIndex;
 
-    session.setQueue(MediaUtils.convertToQueueItemList(testList));
+    session.setQueue(MediaTestUtils.convertToQueueItemsWithoutBitmap(testList));
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
     setPlaybackState(PlaybackStateCompat.STATE_BUFFERING);
     RemoteMediaController controller = createControllerAndWaitConnection();
