@@ -92,7 +92,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
 /**
  * Transforms ffmpeg AVERROR into a negative AUDIO_DECODER_ERROR constant value.
  */
-int transformError(const char *functionName, int errorNumber);
+int transformError(int errorNumber);
 
 /**
  * Outputs a log message describing the avcodec error number.
@@ -349,9 +349,9 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
   return outSize;
 }
 
-int transformError(int result) {
-  return result == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
-                                       : AUDIO_DECODER_ERROR_OTHER;
+int transformError(int errorNumber) {
+  return errorNumber == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
+                                            : AUDIO_DECODER_ERROR_OTHER;
 }
 
 void logError(const char *functionName, int errorNumber) {
