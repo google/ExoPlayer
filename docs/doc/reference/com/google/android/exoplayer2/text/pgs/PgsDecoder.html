@@ -190,7 +190,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(byte%5B%5D,int,boolean)">decode</a></span>&#8203;(byte[]&nbsp;data,
-      int&nbsp;size,
+      int&nbsp;length,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
 <div class="block">Decodes data into a <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
@@ -267,7 +267,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
 <li class="blockList">
 <h4>decode</h4>
 <pre class="methodSignature">protected&nbsp;<a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a>&nbsp;decode&#8203;(byte[]&nbsp;data,
-                          int&nbsp;size,
+                          int&nbsp;length,
                           boolean&nbsp;reset)
                    throws <a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../SimpleSubtitleDecoder.html#decode(byte%5B%5D,int,boolean)">SimpleSubtitleDecoder</a></code></span></div>
@@ -277,7 +277,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
 <dd><code><a href="../SimpleSubtitleDecoder.html#decode(byte%5B%5D,int,boolean)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - An array holding the data to be decoded, starting at position 0.</dd>
-<dd><code>size</code> - The size of the data to be decoded.</dd>
+<dd><code>length</code> - The number of bytes from <code>data</code> to be decoded.</dd>
 <dd><code>reset</code> - Whether the decoder must be reset before decoding.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The decoded <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</dd>

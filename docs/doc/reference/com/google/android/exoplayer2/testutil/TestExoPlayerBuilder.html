@@ -386,7 +386,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setUseLazyPreparation</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setUseLazyPreparation&#8203;(boolean&nbsp;useLazyPreparation)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setUseLazyPreparation&#8203;(boolean&nbsp;useLazyPreparation)</pre>
 <div class="block">Sets whether to use lazy preparation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -412,7 +413,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setTrackSelector</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setTrackSelector&#8203;(<a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setTrackSelector&#8203;(<a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector)</pre>
 <div class="block">Sets a <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>. The default value is a <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> in its
  initial configuration.</div>
 <dl>
@@ -439,7 +441,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadControl</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setLoadControl&#8203;(<a href="../LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setLoadControl&#8203;(<a href="../LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
 <div class="block">Sets a <a href="../LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> to be used by the player. The default value is a <a href="../DefaultLoadControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -465,7 +468,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBandwidthMeter</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setBandwidthMeter&#8203;(<a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setBandwidthMeter&#8203;(<a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
 <div class="block">Sets the <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a>. The default value is a <a href="../upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter</code></a> in its
  default configuration.</div>
 <dl>
@@ -492,7 +496,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setRenderers</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setRenderers&#8203;(<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setRenderers&#8203;(<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</pre>
 <div class="block">Sets the <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s. If not set, the player will use a <a href="FakeVideoRenderer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeVideoRenderer</code></a> and a
  <a href="FakeAudioRenderer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeAudioRenderer</code></a>. Setting the renderers is not allowed after a call to <a href="#setRenderersFactory(com.google.android.exoplayer2.RenderersFactory)"><code>setRenderersFactory(RenderersFactory)</code></a>.</div>
 <dl>
@@ -523,7 +528,8 @@ public&nbsp;<a href="../Renderer.html" title="interface in com.google.android.ex
 <ul class="blockList">
 <li class="blockList">
 <h4>setRenderersFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setRenderersFactory&#8203;(<a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setRenderersFactory&#8203;(<a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
 <div class="block">Sets the <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>. The default factory creates all renderers set by <a href="#setRenderers(com.google.android.exoplayer2.Renderer...)"><code>setRenderers(Renderer...)</code></a>. Setting the renderer factory is not allowed after a call to <a href="#setRenderers(com.google.android.exoplayer2.Renderer...)"><code>setRenderers(Renderer...)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -551,7 +557,8 @@ public&nbsp;<a href="../RenderersFactory.html" title="interface in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>setClock</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setClock&#8203;(<a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setClock&#8203;(<a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <div class="block">Sets the <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> to be used by the player. The default value is an auto-advancing <a href="FakeClock.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeClock</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -577,7 +584,8 @@ public&nbsp;<a href="../RenderersFactory.html" title="interface in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>setLooper</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> to be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -616,7 +624,8 @@ public&nbsp;<a href="../source/MediaSource.Factory.html" title="interface in com
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</pre>
 <div class="block">Sets the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> to be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -632,7 +641,8 @@ public&nbsp;<a href="../source/MediaSource.Factory.html" title="interface in com
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekBackIncrementMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setSeekBackIncrementMs&#8203;(long&nbsp;seekBackIncrementMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setSeekBackIncrementMs&#8203;(long&nbsp;seekBackIncrementMs)</pre>
 <div class="block">Sets the seek back increment to be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -658,7 +668,8 @@ public&nbsp;<a href="../source/MediaSource.Factory.html" title="interface in com
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekForwardIncrementMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setSeekForwardIncrementMs&#8203;(long&nbsp;seekForwardIncrementMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a>&nbsp;setSeekForwardIncrementMs&#8203;(long&nbsp;seekForwardIncrementMs)</pre>
 <div class="block">Sets the seek forward increment to be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

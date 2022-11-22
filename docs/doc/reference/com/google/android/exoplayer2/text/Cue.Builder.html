@@ -451,7 +451,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setText</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setText&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setText&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text)</pre>
 <div class="block">Sets the cue text.
 
  <p>Note that <code>text</code> may be decorated with styling spans.</div>
@@ -483,7 +484,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSeque
 <ul class="blockList">
 <li class="blockList">
 <h4>setBitmap</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setBitmap&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;bitmap)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setBitmap&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;bitmap)</pre>
 <div class="block">Sets the cue image.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -513,7 +515,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bi
 <ul class="blockList">
 <li class="blockList">
 <h4>setTextAlignment</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextAlignment&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextAlignment&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment)</pre>
 <div class="block">Sets the alignment of the cue text within the cue box.
 
@@ -546,7 +549,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout
 <ul class="blockList">
 <li class="blockList">
 <h4>setMultiRowAlignment</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setMultiRowAlignment&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setMultiRowAlignment&#8203;(@Nullable
                                         <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;multiRowAlignment)</pre>
 <div class="block">Sets the multi-row alignment of the cue.
 
@@ -563,7 +567,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout
 <ul class="blockList">
 <li class="blockList">
 <h4>setLine</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLine&#8203;(float&nbsp;line,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLine&#8203;(float&nbsp;line,
                            <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
                            @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType)</pre>
 <div class="block">Sets the position of the cue box within the viewport in the direction orthogonal to the
@@ -613,7 +618,8 @@ public&nbsp;@com.google.android.exoplayer2.text.Cue.LineType int&nbsp;getLineTyp
 <ul class="blockList">
 <li class="blockList">
 <h4>setLineAnchor</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLineAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLineAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
                                  @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor)</pre>
 <div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 <dl>
@@ -644,7 +650,8 @@ public&nbsp;@com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;getLineA
 <ul class="blockList">
 <li class="blockList">
 <h4>setPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPosition&#8203;(float&nbsp;position)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPosition&#8203;(float&nbsp;position)</pre>
 <div class="block">Sets the fractional position of the <a href="#setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)"><code>positionAnchor</code></a> of the cue
  box within the viewport in the direction orthogonal to <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 <dl>
@@ -675,7 +682,8 @@ public&nbsp;float&nbsp;getPosition()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPositionAnchor</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPositionAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPositionAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
                                      @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor)</pre>
 <div class="block">Sets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
 <dl>
@@ -706,7 +714,8 @@ public&nbsp;@com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;getPosit
 <ul class="blockList">
 <li class="blockList">
 <h4>setTextSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextSize&#8203;(float&nbsp;textSize,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextSize&#8203;(float&nbsp;textSize,
                                <a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
                                @com.google.android.exoplayer2.text.Cue.TextSizeType int&nbsp;textSizeType)</pre>
 <div class="block">Sets the default text size and type for this cue's text.</div>
@@ -754,7 +763,8 @@ public&nbsp;float&nbsp;getTextSize()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setSize&#8203;(float&nbsp;size)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setSize&#8203;(float&nbsp;size)</pre>
 <div class="block">Sets the size of the cue box in the writing direction specified as a fraction of the viewport
  size in that direction.</div>
 <dl>
@@ -785,7 +795,8 @@ public&nbsp;float&nbsp;getSize()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setBitmapHeight</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setBitmapHeight&#8203;(float&nbsp;bitmapHeight)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setBitmapHeight&#8203;(float&nbsp;bitmapHeight)</pre>
 <div class="block">Sets the bitmap height as a fraction of the viewport size.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -814,7 +825,8 @@ public&nbsp;float&nbsp;getBitmapHeight()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setWindowColor</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setWindowColor&#8203;(@ColorInt
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setWindowColor&#8203;(@ColorInt
                                   int&nbsp;windowColor)</pre>
 <div class="block">Sets the fill color of the window.
 
@@ -832,7 +844,8 @@ public&nbsp;float&nbsp;getBitmapHeight()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearWindowColor</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;clearWindowColor()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;clearWindowColor()</pre>
 <div class="block">Sets <a href="Cue.html#windowColorSet"><code>Cue.windowColorSet</code></a> to false.</div>
 </li>
 </ul>
@@ -872,7 +885,8 @@ public&nbsp;int&nbsp;getWindowColor()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVerticalType</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setVerticalType&#8203;(<a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setVerticalType&#8203;(<a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
                                    @com.google.android.exoplayer2.text.Cue.VerticalType int&nbsp;verticalType)</pre>
 <div class="block">Sets the vertical formatting for this Cue.</div>
 <dl>
@@ -887,7 +901,8 @@ public&nbsp;int&nbsp;getWindowColor()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setShearDegrees</h4>
-<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setShearDegrees&#8203;(float&nbsp;shearDegrees)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setShearDegrees&#8203;(float&nbsp;shearDegrees)</pre>
 <div class="block">Sets the shear angle for this Cue.</div>
 </li>
 </ul>

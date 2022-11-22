@@ -331,7 +331,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <ul class="blockList">
 <li class="blockList">
 <h4>setSimulateUnknownLength</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;setSimulateUnknownLength&#8203;(boolean&nbsp;simulateUnknownLength)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;setSimulateUnknownLength&#8203;(boolean&nbsp;simulateUnknownLength)</pre>
 <div class="block">When set, <a href="FakeDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>FakeDataSource.open(DataSpec)</code></a> will behave as though the source is unable to
  determine the length of the underlying data. Hence the return value will always be equal to
  the <a href="../upstream/DataSpec.html#length"><code>DataSpec.length</code></a> of the argument, including the case where the length is equal to
@@ -344,7 +345,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <ul class="blockList">
 <li class="blockList">
 <h4>appendReadData</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadData&#8203;(byte[]&nbsp;data)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadData&#8203;(byte[]&nbsp;data)</pre>
 <div class="block">Appends to the underlying data.</div>
 </li>
 </ul>
@@ -354,7 +356,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <ul class="blockList">
 <li class="blockList">
 <h4>appendReadData</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadData&#8203;(int&nbsp;length)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadData&#8203;(int&nbsp;length)</pre>
 <div class="block">Appends a data segment of the specified length. No actual data is available and the <a href="FakeDataSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeDataSource</code></a> will perform no copy operations when this data is read.</div>
 </li>
 </ul>
@@ -364,7 +367,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <ul class="blockList">
 <li class="blockList">
 <h4>appendReadError</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadError&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;exception)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadError&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;exception)</pre>
 <div class="block">Appends an error in the underlying data.</div>
 </li>
 </ul>
@@ -374,7 +378,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <ul class="blockList">
 <li class="blockList">
 <h4>appendReadAction</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadAction&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;action)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeDataSet.FakeData.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSet.FakeData</a>&nbsp;appendReadAction&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;action)</pre>
 <div class="block">Appends an action.</div>
 </li>
 </ul>

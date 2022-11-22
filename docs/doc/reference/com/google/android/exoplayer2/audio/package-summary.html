@@ -117,28 +117,40 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></th>
+<td class="colLast">
+<div class="block">Provides a chain of audio processors, which are used for any user-defined processing and applying
+ playback parameters (if supported).</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a></th>
 <td class="colLast">
 <div class="block">Listener of audio <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></th>
 <td class="colLast">
 <div class="block">A sink that consumes audio data.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a></th>
 <td class="colLast">
 <div class="block">Listener for audio sink events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessorChain</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DefaultAudioSink.AudioTrackBufferSizeProvider.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioTrackBufferSizeProvider</a></th>
 <td class="colLast">
-<div class="block">Provides a chain of audio processors, which are used for any user-defined processing and
- applying playback parameters (if supported).</div>
+<div class="block">Provides the buffer size to use when creating an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">

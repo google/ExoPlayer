@@ -4,6 +4,7 @@ com.google.android.exoplayer2.audio
 com.google.android.exoplayer2.database
 com.google.android.exoplayer2.decoder
 com.google.android.exoplayer2.drm
+com.google.android.exoplayer2.effect
 com.google.android.exoplayer2.ext.av1
 com.google.android.exoplayer2.ext.cast
 com.google.android.exoplayer2.ext.cronet

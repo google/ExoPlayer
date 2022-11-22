@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6,"i21":6,"i22":6,"i23":6,"i24":6,"i25":6,"i26":6,"i27":6,"i28":6,"i29":6,"i30":6,"i31":6,"i32":38,"i33":6,"i34":6,"i35":6,"i36":6,"i37":6,"i38":6,"i39":6,"i40":6,"i41":38,"i42":6,"i43":6,"i44":6,"i45":6,"i46":6,"i47":6,"i48":6,"i49":38,"i50":6,"i51":6,"i52":6,"i53":6,"i54":6,"i55":6,"i56":6,"i57":6,"i58":38,"i59":6,"i60":38,"i61":38,"i62":6,"i63":38,"i64":6,"i65":6,"i66":6,"i67":6,"i68":6,"i69":38,"i70":38,"i71":38,"i72":6,"i73":6,"i74":6,"i75":6,"i76":6,"i77":6,"i78":38,"i79":6,"i80":6,"i81":6,"i82":38,"i83":6,"i84":6,"i85":6,"i86":6,"i87":6,"i88":6,"i89":6,"i90":6,"i91":6,"i92":6,"i93":6,"i94":6,"i95":38,"i96":6,"i97":6,"i98":38,"i99":6,"i100":6,"i101":6,"i102":6,"i103":6,"i104":6,"i105":6,"i106":6,"i107":6,"i108":6,"i109":6,"i110":6,"i111":6,"i112":6,"i113":6,"i114":6,"i115":6,"i116":6,"i117":6,"i118":6,"i119":6,"i120":38};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6,"i21":6,"i22":6,"i23":6,"i24":6,"i25":6,"i26":6,"i27":6,"i28":6,"i29":6,"i30":6,"i31":6,"i32":38,"i33":6,"i34":6,"i35":6,"i36":6,"i37":6,"i38":6,"i39":6,"i40":6,"i41":38,"i42":6,"i43":6,"i44":6,"i45":6,"i46":6,"i47":6,"i48":6,"i49":38,"i50":6,"i51":6,"i52":6,"i53":6,"i54":6,"i55":6,"i56":6,"i57":6,"i58":6,"i59":38,"i60":6,"i61":38,"i62":38,"i63":6,"i64":38,"i65":6,"i66":6,"i67":6,"i68":6,"i69":6,"i70":38,"i71":38,"i72":38,"i73":6,"i74":6,"i75":6,"i76":6,"i77":6,"i78":6,"i79":38,"i80":6,"i81":6,"i82":6,"i83":38,"i84":6,"i85":6,"i86":6,"i87":6,"i88":6,"i89":6,"i90":6,"i91":6,"i92":6,"i93":6,"i94":6,"i95":6,"i96":38,"i97":6,"i98":6,"i99":38,"i100":6,"i101":6,"i102":6,"i103":6,"i104":6,"i105":6,"i106":6,"i107":6,"i108":6,"i109":6,"i110":6,"i111":6,"i112":6,"i113":6,"i114":6,"i115":6,"i116":6,"i117":6,"i118":6,"i119":6,"i120":6,"i121":38};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -126,7 +126,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a></code>, <code><a href="ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></code>, <code><a href="ForwardingPlayer.html" title="class in com.google.android.exoplayer2">ForwardingPlayer</a></code>, <code><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code>, <code><a href="testutil/StubExoPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubExoPlayer</a></code>, <code><a href="testutil/StubPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubPlayer</a></code></dd>
+<dd><code><a href="BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a></code>, <code><a href="ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></code>, <code><a href="ForwardingPlayer.html" title="class in com.google.android.exoplayer2">ForwardingPlayer</a></code>, <code><a href="LegacyMediaPlayerWrapper.html" title="class in com.google.android.exoplayer2">LegacyMediaPlayerWrapper</a></code>, <code><a href="SimpleBasePlayer.html" title="class in com.google.android.exoplayer2">SimpleBasePlayer</a></code>, <code><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code>, <code><a href="testutil/StubExoPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubExoPlayer</a></code>, <code><a href="testutil/StubPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubPlayer</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">Player</span></pre>
@@ -1360,34 +1360,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i54" class="altColor">
+<td class="colFirst"><code><a href="util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSurfaceSize()">getSurfaceSize</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the size of the surface on which the video is rendered.</div>
+</td>
+</tr>
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalBufferedDuration()">getTotalBufferedDuration</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns an estimate of the total buffered duration from the current position, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code><a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackSelectionParameters()">getTrackSelectionParameters</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the parameters constraining the track selection.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code><a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoSize()">getVideoSize</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the size of the video.</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVolume()">getVolume</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasNext()">hasNext</a></span>()</code></th>
 <td class="colLast">
@@ -1396,7 +1403,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasNextMediaItem()">hasNextMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -1404,7 +1411,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasNextWindow()">hasNextWindow</a></span>()</code></th>
 <td class="colLast">
@@ -1413,7 +1420,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPrevious()">hasPrevious</a></span>()</code></th>
 <td class="colLast">
@@ -1422,7 +1429,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPreviousMediaItem()">hasPreviousMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -1430,7 +1437,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPreviousWindow()">hasPreviousWindow</a></span>()</code></th>
 <td class="colLast">
@@ -1439,21 +1446,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#increaseDeviceVolume()">increaseDeviceVolume</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Increases the volume of the device.</div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCommandAvailable(@com.google.android.exoplayer2.Player.Commandint)">isCommandAvailable</a></span>&#8203;(@com.google.android.exoplayer2.Player.Command int&nbsp;command)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the provided <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> is available.</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentMediaItemDynamic()">isCurrentMediaItemDynamic</a></span>()</code></th>
 <td class="colLast">
@@ -1461,7 +1468,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  is updated), or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentMediaItemLive()">isCurrentMediaItemLive</a></span>()</code></th>
 <td class="colLast">
@@ -1469,14 +1476,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  is empty.</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentMediaItemSeekable()">isCurrentMediaItemSeekable</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> is seekable, or <code>false</code> if the <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is empty.</div>
 </td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentWindowDynamic()">isCurrentWindowDynamic</a></span>()</code></th>
 <td class="colLast">
@@ -1485,7 +1492,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentWindowLive()">isCurrentWindowLive</a></span>()</code></th>
 <td class="colLast">
@@ -1494,7 +1501,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentWindowSeekable()">isCurrentWindowSeekable</a></span>()</code></th>
 <td class="colLast">
@@ -1503,35 +1510,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isDeviceMuted()">isDeviceMuted</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets whether the device is muted or not.</div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoading()">isLoading</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Whether the player is currently loading the source.</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlaying()">isPlaying</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the player is playing, i.e.</div>
 </td>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlayingAd()">isPlayingAd</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the player is currently playing an ad.</div>
 </td>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveMediaItem(int,int)">moveMediaItem</a></span>&#8203;(int&nbsp;currentIndex,
              int&nbsp;newIndex)</code></th>
@@ -1539,7 +1546,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Moves the media item at the current index to the new index.</div>
 </td>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i78" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveMediaItems(int,int,int)">moveMediaItems</a></span>&#8203;(int&nbsp;fromIndex,
               int&nbsp;toIndex,
@@ -1548,7 +1555,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Moves the media item range to the new index.</div>
 </td>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i79" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#next()">next</a></span>()</code></th>
 <td class="colLast">
@@ -1557,28 +1564,28 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i80" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pause()">pause</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Pauses playback.</div>
 </td>
 </tr>
-<tr id="i80" class="altColor">
+<tr id="i81" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#play()">play</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Resumes playback as soon as <a href="#getPlaybackState()"><code>getPlaybackState()</code></a> == <a href="#STATE_READY"><code>STATE_READY</code></a>.</div>
 </td>
 </tr>
-<tr id="i81" class="rowColor">
+<tr id="i82" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepare()">prepare</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Prepares the player.</div>
 </td>
 </tr>
-<tr id="i82" class="altColor">
+<tr id="i83" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#previous()">previous</a></span>()</code></th>
 <td class="colLast">
@@ -1587,28 +1594,28 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i83" class="rowColor">
+<tr id="i84" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the player.</div>
 </td>
 </tr>
-<tr id="i84" class="altColor">
+<tr id="i85" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.Player.Listener)">removeListener</a></span>&#8203;(<a href="Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Unregister a listener registered through <a href="#addListener(com.google.android.exoplayer2.Player.Listener)"><code>addListener(Listener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i85" class="rowColor">
+<tr id="i86" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeMediaItem(int)">removeMediaItem</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Removes the media item at the given index of the playlist.</div>
 </td>
 </tr>
-<tr id="i86" class="altColor">
+<tr id="i87" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeMediaItems(int,int)">removeMediaItems</a></span>&#8203;(int&nbsp;fromIndex,
                 int&nbsp;toIndex)</code></th>
@@ -1616,14 +1623,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Removes a range of media items from the playlist.</div>
 </td>
 </tr>
-<tr id="i87" class="rowColor">
+<tr id="i88" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekBack()">seekBack</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks back in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> by <a href="#getSeekBackIncrement()"><code>getSeekBackIncrement()</code></a> milliseconds.</div>
 </td>
 </tr>
-<tr id="i88" class="altColor">
+<tr id="i89" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekForward()">seekForward</a></span>()</code></th>
 <td class="colLast">
@@ -1631,7 +1638,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  milliseconds.</div>
 </td>
 </tr>
-<tr id="i89" class="rowColor">
+<tr id="i90" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(int,long)">seekTo</a></span>&#8203;(int&nbsp;mediaItemIndex,
       long&nbsp;positionMs)</code></th>
@@ -1639,35 +1646,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Seeks to a position specified in milliseconds in the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i90" class="altColor">
+<tr id="i91" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(long)">seekTo</a></span>&#8203;(long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Seeks to a position specified in milliseconds in the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i91" class="rowColor">
+<tr id="i92" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToDefaultPosition()">seekToDefaultPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to the default position associated with the current <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i92" class="altColor">
+<tr id="i93" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToDefaultPosition(int)">seekToDefaultPosition</a></span>&#8203;(int&nbsp;mediaItemIndex)</code></th>
 <td class="colLast">
 <div class="block">Seeks to the default position associated with the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i93" class="rowColor">
+<tr id="i94" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNext()">seekToNext</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to a later position in the current or next <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> (if available).</div>
 </td>
 </tr>
-<tr id="i94" class="altColor">
+<tr id="i95" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNextMediaItem()">seekToNextMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -1675,7 +1682,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i95" class="rowColor">
+<tr id="i96" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToNextWindow()">seekToNextWindow</a></span>()</code></th>
 <td class="colLast">
@@ -1684,14 +1691,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i96" class="altColor">
+<tr id="i97" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPrevious()">seekToPrevious</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Seeks to an earlier position in the current or previous <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> (if available).</div>
 </td>
 </tr>
-<tr id="i97" class="rowColor">
+<tr id="i98" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPreviousMediaItem()">seekToPreviousMediaItem</a></span>()</code></th>
 <td class="colLast">
@@ -1699,7 +1706,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i98" class="altColor">
+<tr id="i99" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPreviousWindow()">seekToPreviousWindow</a></span>()</code></th>
 <td class="colLast">
@@ -1708,21 +1715,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i99" class="rowColor">
+<tr id="i100" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceMuted(boolean)">setDeviceMuted</a></span>&#8203;(boolean&nbsp;muted)</code></th>
 <td class="colLast">
 <div class="block">Sets the mute state of the device.</div>
 </td>
 </tr>
-<tr id="i100" class="altColor">
+<tr id="i101" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceVolume(int)">setDeviceVolume</a></span>&#8203;(int&nbsp;volume)</code></th>
 <td class="colLast">
 <div class="block">Sets the volume of the device.</div>
 </td>
 </tr>
-<tr id="i101" class="rowColor">
+<tr id="i102" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
 <td class="colLast">
@@ -1730,7 +1737,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  default position.</div>
 </td>
 </tr>
-<tr id="i102" class="altColor">
+<tr id="i103" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem,boolean)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             boolean&nbsp;resetPosition)</code></th>
@@ -1738,7 +1745,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i103" class="rowColor">
+<tr id="i104" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItem(com.google.android.exoplayer2.MediaItem,long)">setMediaItem</a></span>&#8203;(<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             long&nbsp;startPositionMs)</code></th>
@@ -1746,7 +1753,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i104" class="altColor">
+<tr id="i105" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItems(java.util.List)">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code></th>
 <td class="colLast">
@@ -1754,7 +1761,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  the default position.</div>
 </td>
 </tr>
-<tr id="i105" class="rowColor">
+<tr id="i106" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItems(java.util.List,boolean)">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
              boolean&nbsp;resetPosition)</code></th>
@@ -1762,7 +1769,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</div>
 </td>
 </tr>
-<tr id="i106" class="altColor">
+<tr id="i107" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaItems(java.util.List,int,long)">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
              int&nbsp;startIndex,
@@ -1771,63 +1778,63 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Clears the playlist and adds the specified <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</div>
 </td>
 </tr>
-<tr id="i107" class="rowColor">
+<tr id="i108" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a></span>&#8203;(<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
-<tr id="i108" class="altColor">
+<tr id="i109" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackSpeed(float)">setPlaybackSpeed</a></span>&#8203;(float&nbsp;speed)</code></th>
 <td class="colLast">
 <div class="block">Changes the rate at which playback occurs.</div>
 </td>
 </tr>
-<tr id="i109" class="rowColor">
+<tr id="i110" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaylistMetadata(com.google.android.exoplayer2.MediaMetadata)">setPlaylistMetadata</a></span>&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</code></th>
 <td class="colLast">
 <div class="block">Sets the playlist <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
 </td>
 </tr>
-<tr id="i110" class="altColor">
+<tr id="i111" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayWhenReady(boolean)">setPlayWhenReady</a></span>&#8203;(boolean&nbsp;playWhenReady)</code></th>
 <td class="colLast">
 <div class="block">Sets whether playback should proceed when <a href="#getPlaybackState()"><code>getPlaybackState()</code></a> == <a href="#STATE_READY"><code>STATE_READY</code></a>.</div>
 </td>
 </tr>
-<tr id="i111" class="rowColor">
+<tr id="i112" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a></span>&#8203;(@com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> to be used for playback.</div>
 </td>
 </tr>
-<tr id="i112" class="altColor">
+<tr id="i113" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Sets whether shuffling of media items is enabled.</div>
 </td>
 </tr>
-<tr id="i113" class="rowColor">
+<tr id="i114" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setTrackSelectionParameters</a></span>&#8203;(<a href="trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</code></th>
 <td class="colLast">
 <div class="block">Sets the parameters constraining the track selection.</div>
 </td>
 </tr>
-<tr id="i114" class="altColor">
+<tr id="i115" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurface(android.view.Surface)">setVideoSurface</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i115" class="rowColor">
+<tr id="i116" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</code></th>
 <td class="colLast">
@@ -1835,21 +1842,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  rendered.</div>
 </td>
 </tr>
-<tr id="i116" class="altColor">
+<tr id="i117" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceView</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i117" class="rowColor">
+<tr id="i118" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i118" class="altColor">
+<tr id="i119" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVolume(float)">setVolume</a></span>&#8203;(float&nbsp;volume)</code></th>
 <td class="colLast">
@@ -1857,14 +1864,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  unchanged), inclusive.</div>
 </td>
 </tr>
-<tr id="i119" class="rowColor">
+<tr id="i120" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Stops playback without resetting the playlist.</div>
 </td>
 </tr>
-<tr id="i120" class="altColor">
+<tr id="i121" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop(boolean)">stop</a></span>&#8203;(boolean&nbsp;reset)</code></th>
 <td class="colLast">
@@ -4930,6 +4937,20 @@ float&nbsp;getVolume()</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Player.Listener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)"><code>Player.Listener.onVideoSizeChanged(VideoSize)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getSurfaceSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSurfaceSize</h4>
+<pre class="methodSignature"><a href="util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a>&nbsp;getSurfaceSize()</pre>
+<div class="block">Gets the size of the surface on which the video is rendered.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Player.Listener.html#onSurfaceSizeChanged(int,int)"><code>Player.Listener.onSurfaceSizeChanged(int, int)</code></a></dd>
 </dl>
 </li>
 </ul>

@@ -370,7 +370,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setDefaultRequestProperties</h4>
-<pre class="methodSignature">public final&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setDefaultRequestProperties&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;defaultRequestProperties)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public final&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setDefaultRequestProperties&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;defaultRequestProperties)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.Factory.html#setDefaultRequestProperties(java.util.Map)">HttpDataSource.Factory</a></code></span></div>
 <div class="block">Sets the default request headers for <a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances created by the factory.
 
@@ -394,7 +395,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setUserAgent</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setUserAgent&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setUserAgent&#8203;(@Nullable
                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
 <div class="block">Sets the user agent that will be used.
 
@@ -414,7 +416,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setRequestPriority</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setRequestPriority&#8203;(int&nbsp;requestPriority)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setRequestPriority&#8203;(int&nbsp;requestPriority)</pre>
 <div class="block">Sets the priority of requests made by <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> instances created by this
  factory.
 
@@ -434,7 +437,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setConnectionTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setConnectionTimeoutMs&#8203;(int&nbsp;connectTimeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setConnectionTimeoutMs&#8203;(int&nbsp;connectTimeoutMs)</pre>
 <div class="block">Sets the connect timeout, in milliseconds.
 
  <p>The default is <a href="CronetDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>CronetDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a>.</div>
@@ -452,7 +456,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setResetTimeoutOnRedirects</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setResetTimeoutOnRedirects&#8203;(boolean&nbsp;resetTimeoutOnRedirects)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setResetTimeoutOnRedirects&#8203;(boolean&nbsp;resetTimeoutOnRedirects)</pre>
 <div class="block">Sets whether the connect timeout is reset when a redirect occurs.
 
  <p>The default is <code>false</code>.</div>
@@ -470,7 +475,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setHandleSetCookieRequests</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setHandleSetCookieRequests&#8203;(boolean&nbsp;handleSetCookieRequests)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setHandleSetCookieRequests&#8203;(boolean&nbsp;handleSetCookieRequests)</pre>
 <div class="block">Sets whether "Set-Cookie" requests on redirect should be forwarded to the redirect url in the
  "Cookie" header.
 
@@ -490,7 +496,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setReadTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setReadTimeoutMs&#8203;(int&nbsp;readTimeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setReadTimeoutMs&#8203;(int&nbsp;readTimeoutMs)</pre>
 <div class="block">Sets the read timeout, in milliseconds.
 
  <p>The default is <a href="CronetDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>CronetDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a>.</div>
@@ -508,7 +515,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentTypePredicate</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setContentTypePredicate&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setContentTypePredicate&#8203;(@Nullable
                                                         <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <div class="block">Sets a content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
  <a href="../../upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a>.
@@ -529,7 +537,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setKeepPostFor302Redirects</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setKeepPostFor302Redirects&#8203;(boolean&nbsp;keepPostFor302Redirects)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setKeepPostFor302Redirects&#8203;(boolean&nbsp;keepPostFor302Redirects)</pre>
 <div class="block">Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
  POST request.</div>
 </li>
@@ -540,7 +549,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setTransferListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setTransferListener&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setTransferListener&#8203;(@Nullable
                                                     <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
 <div class="block">Sets the <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that will be used.
 
@@ -561,7 +571,8 @@ public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in co
 <ul class="blockList">
 <li class="blockList">
 <h4>setFallbackFactory</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setFallbackFactory&#8203;(@Nullable
                                                    <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;fallbackFactory)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>

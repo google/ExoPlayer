@@ -578,7 +578,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>set</h4>
-<pre class="methodSignature">protected&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;set&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+protected&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;set&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</pre>
 <div class="block">Overrides the value of the builder with the value of <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
 </li>
 </ul>
@@ -588,7 +589,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxVideoSizeSd</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoSizeSd()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoSizeSd()</pre>
 <div class="block">Equivalent to <a href="#setMaxVideoSize(int,int)"><code>setMaxVideoSize(1279, 719)</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -602,7 +604,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearVideoSizeConstraints</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearVideoSizeConstraints()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearVideoSizeConstraints()</pre>
 <div class="block">Equivalent to <a href="#setMaxVideoSize(int,int)"><code>setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -616,7 +619,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxVideoSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoSize&#8203;(int&nbsp;maxVideoWidth,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoSize&#8203;(int&nbsp;maxVideoWidth,
                                                         int&nbsp;maxVideoHeight)</pre>
 <div class="block">Sets the maximum allowed video width and height.</div>
 <dl>
@@ -634,7 +638,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxVideoFrameRate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoFrameRate&#8203;(int&nbsp;maxVideoFrameRate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoFrameRate&#8203;(int&nbsp;maxVideoFrameRate)</pre>
 <div class="block">Sets the maximum allowed video frame rate.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -650,7 +655,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxVideoBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoBitrate&#8203;(int&nbsp;maxVideoBitrate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoBitrate&#8203;(int&nbsp;maxVideoBitrate)</pre>
 <div class="block">Sets the maximum allowed video bitrate.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -666,7 +672,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMinVideoSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoSize&#8203;(int&nbsp;minVideoWidth,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoSize&#8203;(int&nbsp;minVideoWidth,
                                                         int&nbsp;minVideoHeight)</pre>
 <div class="block">Sets the minimum allowed video width and height.</div>
 <dl>
@@ -684,7 +691,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMinVideoFrameRate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoFrameRate&#8203;(int&nbsp;minVideoFrameRate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoFrameRate&#8203;(int&nbsp;minVideoFrameRate)</pre>
 <div class="block">Sets the minimum allowed video frame rate.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -700,7 +708,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMinVideoBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoBitrate&#8203;(int&nbsp;minVideoBitrate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoBitrate&#8203;(int&nbsp;minVideoBitrate)</pre>
 <div class="block">Sets the minimum allowed video bitrate.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -716,7 +725,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setViewportSizeToPhysicalDisplaySize</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setViewportSizeToPhysicalDisplaySize&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setViewportSizeToPhysicalDisplaySize&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                                                              boolean&nbsp;viewportOrientationMayChange)</pre>
 <div class="block">Equivalent to calling <a href="#setViewportSize(int,int,boolean)"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size
  obtained from <a href="../util/Util.html#getCurrentDisplayModeSize(android.content.Context)"><code>Util.getCurrentDisplayModeSize(Context)</code></a>.</div>
@@ -736,7 +746,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearViewportSizeConstraints</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearViewportSizeConstraints()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearViewportSizeConstraints()</pre>
 <div class="block">Equivalent to <a href="#setViewportSize(int,int,boolean)"><code>setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE,
  true)</code></a>.</div>
 <dl>
@@ -751,7 +762,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setViewportSize</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setViewportSize&#8203;(int&nbsp;viewportWidth,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setViewportSize&#8203;(int&nbsp;viewportWidth,
                                                         int&nbsp;viewportHeight,
                                                         boolean&nbsp;viewportOrientationMayChange)</pre>
 <div class="block">Sets the viewport size to constrain adaptive video selections so that only tracks suitable
@@ -791,7 +803,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredVideoMimeTypes</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</pre>
 <div class="block">Sets the preferred sample MIME types for video tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -808,7 +821,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredVideoRoleFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
                                                                    @com.google.android.exoplayer2.C.RoleFlags int&nbsp;preferredVideoRoleFlags)</pre>
 <div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for video tracks.</div>
 <dl>
@@ -843,7 +857,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredAudioLanguages</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioLanguages&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;preferredAudioLanguages)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioLanguages&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;preferredAudioLanguages)</pre>
 <div class="block">Sets the preferred languages for audio and forced text tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -861,7 +876,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredAudioRoleFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
                                                                    @com.google.android.exoplayer2.C.RoleFlags int&nbsp;preferredAudioRoleFlags)</pre>
 <div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for audio tracks.</div>
 <dl>
@@ -878,7 +894,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxAudioChannelCount</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxAudioChannelCount&#8203;(int&nbsp;maxAudioChannelCount)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxAudioChannelCount&#8203;(int&nbsp;maxAudioChannelCount)</pre>
 <div class="block">Sets the maximum allowed audio channel count.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -894,7 +911,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxAudioBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxAudioBitrate&#8203;(int&nbsp;maxAudioBitrate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxAudioBitrate&#8203;(int&nbsp;maxAudioBitrate)</pre>
 <div class="block">Sets the maximum allowed audio bitrate.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -928,7 +946,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredAudioMimeTypes</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</pre>
 <div class="block">Sets the preferred sample MIME types for audio tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -945,7 +964,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
 <div class="block">Sets the preferred language and role flags for text tracks based on the accessibility
  settings of <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a>.
 
@@ -982,7 +1002,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredTextLanguages</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextLanguages&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;preferredTextLanguages)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextLanguages&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;preferredTextLanguages)</pre>
 <div class="block">Sets the preferred languages for text tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1000,7 +1021,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPreferredTextRoleFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredTextRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
                                                                   @com.google.android.exoplayer2.C.RoleFlags int&nbsp;preferredTextRoleFlags)</pre>
 <div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for text tracks.</div>
 <dl>
@@ -1017,7 +1039,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setIgnoredTextSelectionFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setIgnoredTextSelectionFlags&#8203;(<a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setIgnoredTextSelectionFlags&#8203;(<a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
                                                                      @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;ignoredTextSelectionFlags)</pre>
 <div class="block">Sets a bitmask of selection flags that are ignored for text track selections.</div>
 <dl>
@@ -1035,7 +1058,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setSelectUndeterminedTextLanguage</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setSelectUndeterminedTextLanguage&#8203;(boolean&nbsp;selectUndeterminedTextLanguage)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setSelectUndeterminedTextLanguage&#8203;(boolean&nbsp;selectUndeterminedTextLanguage)</pre>
 <div class="block">Sets whether a text track with undetermined language should be selected if no track with
  <a href="#setPreferredTextLanguages(java.lang.String...)"><code>a preferred language</code></a> is available, or if the
  preferred language is unset.</div>
@@ -1054,7 +1078,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setForceLowestBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setForceLowestBitrate&#8203;(boolean&nbsp;forceLowestBitrate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setForceLowestBitrate&#8203;(boolean&nbsp;forceLowestBitrate)</pre>
 <div class="block">Sets whether to force selection of the single lowest bitrate audio and video tracks that
  comply with all other constraints.</div>
 <dl>
@@ -1072,7 +1097,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setForceHighestSupportedBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setForceHighestSupportedBitrate&#8203;(boolean&nbsp;forceHighestSupportedBitrate)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setForceHighestSupportedBitrate&#8203;(boolean&nbsp;forceHighestSupportedBitrate)</pre>
 <div class="block">Sets whether to force selection of the highest bitrate audio and video tracks that comply
  with all other constraints.</div>
 <dl>
@@ -1090,7 +1116,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>addOverride</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;addOverride&#8203;(<a href="TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&nbsp;override)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;addOverride&#8203;(<a href="TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&nbsp;override)</pre>
 <div class="block">Adds an override, replacing any override for the same <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 </li>
 </ul>
@@ -1100,7 +1127,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setOverrideForType</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setOverrideForType&#8203;(<a href="TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&nbsp;override)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setOverrideForType&#8203;(<a href="TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&nbsp;override)</pre>
 <div class="block">Sets an override, replacing all existing overrides with the same track type.</div>
 </li>
 </ul>
@@ -1110,7 +1138,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearOverride</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearOverride&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;mediaTrackGroup)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearOverride&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;mediaTrackGroup)</pre>
 <div class="block">Removes the override for the provided media <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, if there is one.</div>
 </li>
 </ul>
@@ -1120,7 +1149,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearOverridesOfType</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearOverridesOfType&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearOverridesOfType&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
 <div class="block">Removes all overrides of the provided track type.</div>
 </li>
 </ul>
@@ -1130,7 +1160,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearOverrides</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearOverrides()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearOverrides()</pre>
 <div class="block">Removes all overrides.</div>
 </li>
 </ul>
@@ -1140,7 +1171,8 @@ public&nbsp;Builder()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setDisabledTrackTypes</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setDisabledTrackTypes&#8203;(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2">@TrackType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;disabledTrackTypes)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="#setTrackTypeDisabled(@com.google.android.exoplayer2.C.TrackTypeint,boolean)"><code>setTrackTypeDisabled(int, boolean)</code></a>.</div>
@@ -1161,7 +1193,8 @@ public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.
 <ul class="blockList">
 <li class="blockList">
 <h4>setTrackTypeDisabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setTrackTypeDisabled&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setTrackTypeDisabled&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                                                              boolean&nbsp;disabled)</pre>
 <div class="block">Sets whether a track type is disabled. If disabled, no tracks of the specified type will be
  selected for playback.</div>

@@ -294,7 +294,7 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>int[]</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ContentType int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedTypes()">getSupportedTypes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="../C.ContentType.html" title="annotation in com.google.android.exoplayer2"><code>content types</code></a> supported by media sources created by this
@@ -506,7 +506,8 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalUseProgressiveMediaSourceForSubtitles</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;experimentalUseProgressiveMediaSourceForSubtitles&#8203;(boolean&nbsp;useProgressiveMediaSourceForSubtitles)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;experimentalUseProgressiveMediaSourceForSubtitles&#8203;(boolean&nbsp;useProgressiveMediaSourceForSubtitles)</pre>
 <div class="block">Sets whether a <a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ProgressiveMediaSource</code></a> or <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a> is constructed
  to handle <a href="../MediaItem.LocalConfiguration.html#subtitleConfigurations"><code>MediaItem.LocalConfiguration.subtitleConfigurations</code></a>. Defaults to false (i.e.
  <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>.
@@ -527,7 +528,8 @@ implements <a href="MediaSourceFactory.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdsLoaderProvider</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setAdsLoaderProvider&#8203;(@Nullable
                                                       <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a>&nbsp;adsLoaderProvider)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -552,7 +554,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdViewProvider</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setAdViewProvider&#8203;(@Nullable
                                                    <a href="../ui/AdViewProvider.html" title="interface in com.google.android.exoplayer2.ui">AdViewProvider</a>&nbsp;adViewProvider)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -576,7 +579,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLocalAdInsertionComponents</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLocalAdInsertionComponents&#8203;(<a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a>&nbsp;adsLoaderProvider,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLocalAdInsertionComponents&#8203;(<a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a>&nbsp;adsLoaderProvider,
                                                                <a href="../ui/AdViewProvider.html" title="interface in com.google.android.exoplayer2.ui">AdViewProvider</a>&nbsp;adViewProvider)</pre>
 <div class="block">Sets the components required for local ad insertion for media items that have <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads configurations</code></a>
 
@@ -597,7 +601,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>clearLocalAdInsertionComponents</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;clearLocalAdInsertionComponents()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;clearLocalAdInsertionComponents()</pre>
 <div class="block">Clear any values set via <a href="#setLocalAdInsertionComponents(com.google.android.exoplayer2.source.ads.AdsLoader.Provider,com.google.android.exoplayer2.ui.AdViewProvider)"><code>setLocalAdInsertionComponents(AdsLoader.Provider,
  AdViewProvider)</code></a>.
 
@@ -615,7 +620,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setDataSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDataSourceFactory&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDataSourceFactory&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
 <div class="block">Sets the <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> used to create <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances for requesting
  media data.</div>
 <dl>
@@ -632,7 +638,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setServerSideAdInsertionMediaSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setServerSideAdInsertionMediaSourceFactory&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setServerSideAdInsertionMediaSourceFactory&#8203;(@Nullable
                                                                             <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;serverSideAdInsertionMediaSourceFactory)</pre>
 <div class="block">Sets the <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> used to handle <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instances containing a
  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> identified as resolving to content with server side ad insertion (SSAI).
@@ -653,7 +660,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveTargetOffsetMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveTargetOffsetMs&#8203;(long&nbsp;liveTargetOffsetMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveTargetOffsetMs&#8203;(long&nbsp;liveTargetOffsetMs)</pre>
 <div class="block">Sets the target live offset for live streams, in milliseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -670,7 +678,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMinOffsetMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMinOffsetMs&#8203;(long&nbsp;liveMinOffsetMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMinOffsetMs&#8203;(long&nbsp;liveMinOffsetMs)</pre>
 <div class="block">Sets the minimum offset from the live edge for live streams, in milliseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -686,7 +695,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMaxOffsetMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMaxOffsetMs&#8203;(long&nbsp;liveMaxOffsetMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMaxOffsetMs&#8203;(long&nbsp;liveMaxOffsetMs)</pre>
 <div class="block">Sets the maximum offset from the live edge for live streams, in milliseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -702,7 +712,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMinSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMinSpeed&#8203;(float&nbsp;minSpeed)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMinSpeed&#8203;(float&nbsp;minSpeed)</pre>
 <div class="block">Sets the minimum playback speed for live streams.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -718,7 +729,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMaxSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMaxSpeed&#8203;(float&nbsp;maxSpeed)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLiveMaxSpeed&#8203;(float&nbsp;maxSpeed)</pre>
 <div class="block">Sets the maximum playback speed for live streams.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -734,7 +746,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionManagerProvider</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setDrmSessionManagerProvider&#8203;(<a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets the <a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManagerProvider</code></a> used to obtain a <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for a
  <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
@@ -752,7 +765,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">MediaSource.Factory</a></code></span></div>
 <div class="block">Sets an optional <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 <dl>
@@ -769,7 +783,8 @@ public&nbsp;<a href="DefaultMediaSourceFactory.html" title="class in com.google.
 <ul class="blockList">
 <li class="blockList">
 <h4>getSupportedTypes</h4>
-<pre class="methodSignature">public&nbsp;int[]&nbsp;getSupportedTypes()</pre>
+<pre class="methodSignature"><a href="../C.ContentType.html" title="annotation in com.google.android.exoplayer2">@ContentType</a>
+public&nbsp;@com.google.android.exoplayer2.C.ContentType int[]&nbsp;getSupportedTypes()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.Factory.html#getSupportedTypes()">MediaSource.Factory</a></code></span></div>
 <div class="block">Returns the <a href="../C.ContentType.html" title="annotation in com.google.android.exoplayer2"><code>content types</code></a> supported by media sources created by this
  factory.</div>

@@ -240,8 +240,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether this processor will return no more output from <a href="#getOutput()"><code>getOutput()</code></a> until it
- has been <a href="#flush()"><code>flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="#getOutput()"><code>getOutput()</code></a> until
+ <a href="#flush()"><code>flush()</code></a> has been called and more input has been queued.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -308,7 +308,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre class="methodSignature"><a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
                               throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
 <div class="block">Configures the processor to process input audio with the specified format. After calling this
  method, call <a href="#isActive()"><code>isActive()</code></a> to determine whether the audio processor is active. Returns
@@ -393,8 +394,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">boolean&nbsp;isEnded()</pre>
-<div class="block">Returns whether this processor will return no more output from <a href="#getOutput()"><code>getOutput()</code></a> until it
- has been <a href="#flush()"><code>flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="#getOutput()"><code>getOutput()</code></a> until
+ <a href="#flush()"><code>flush()</code></a> has been called and more input has been queued.</div>
 </li>
 </ul>
 <a id="flush()">

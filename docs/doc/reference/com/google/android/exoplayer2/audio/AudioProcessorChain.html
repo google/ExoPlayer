@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>GlEffect (ExoPlayer library)</title>
+<title>AudioProcessorChain (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,13 +19,13 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="GlEffect (ExoPlayer library)";
+            parent.document.title="AudioProcessorChain (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var data = {"i0":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -113,8 +113,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
-<h2 title="Interface GlEffect" class="title">Interface GlEffect</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<h2 title="Interface AudioProcessorChain" class="title">Interface AudioProcessorChain</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -122,18 +122,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.transformer">GlMatrixTransformation</a></code>, <code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.transformer">MatrixTransformation</a></code></dd>
+<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer">Presentation</a></code>, <code><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation</a></code></dd>
+<dd><code><a href="DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">GlEffect</span></pre>
-<div class="block">Interface for a video frame effect with a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> implementation.
-
- <p>Implementations contain information specifying the effect and can be <a href="#toGlTextureProcessor()">converted</a> to a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> which applies the
- effect.</div>
+<pre>public interface <span class="typeNameLabel">AudioProcessorChain</span></pre>
+<div class="block">Provides a chain of audio processors, which are used for any user-defined processing and applying
+ playback parameters (if supported). Because applying playback parameters can skip and
+ stretch/compress audio, the sink will query the chain for information on how to transform its
+ output position to map it onto a media position, via <a href="#getMediaDuration(long)"><code>getMediaDuration(long)</code></a> and <a href="#getSkippedOutputFrameCount()"><code>getSkippedOutputFrameCount()</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -155,10 +155,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer">SingleFrameGlTextureProcessor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlTextureProcessor()">toGlTextureProcessor</a></span>()</code></th>
+<td class="colFirst"><code><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">applyPlaybackParameters</a></span>&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
+ the new playback parameters, which may differ from those passed in.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#applySkipSilenceEnabled(boolean)">applySkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colLast">
+<div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
+ value.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioProcessors()">getAudioProcessors</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the fixed chain of audio processors that will process audio.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaDuration(long)">getMediaDuration</a></span>&#8203;(long&nbsp;playoutDuration)</code></th>
+<td class="colLast">
+<div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
+ adjustment due to audio processing into account.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkippedOutputFrameCount()">getSkippedOutputFrameCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of output audio frames skipped since the audio processors were last flushed.</div>
 </td>
 </tr>
 </table>
@@ -178,14 +209,82 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="toGlTextureProcessor()">
+<a id="getAudioProcessors()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAudioProcessors</h4>
+<pre class="methodSignature"><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;getAudioProcessors()</pre>
+<div class="block">Returns the fixed chain of audio processors that will process audio. This method is called once
+ during initialization, but audio processors may change state to become active/inactive during
+ playback.</div>
+</li>
+</ul>
+<a id="applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>applyPlaybackParameters</h4>
+<pre class="methodSignature"><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;applyPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
+ the new playback parameters, which may differ from those passed in. Only called when processors
+ have no input pending.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackParameters</code> - The playback parameters to try to apply.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The playback parameters that were actually applied.</dd>
+</dl>
+</li>
+</ul>
+<a id="applySkipSilenceEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>applySkipSilenceEnabled</h4>
+<pre class="methodSignature">boolean&nbsp;applySkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
+ value. Only called when processors have no input pending.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether silences should be skipped in the audio stream.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new value.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMediaDuration(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMediaDuration</h4>
+<pre class="methodSignature">long&nbsp;getMediaDuration&#8203;(long&nbsp;playoutDuration)</pre>
+<div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
+ adjustment due to audio processing into account.
+
+ <p>The scaling performed by this method will use the actual playback speed achieved by the
+ audio processor chain, on average, since it was last flushed. This may differ very slightly
+ from the target playback speed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playoutDuration</code> - The playout duration to scale.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding media duration, in the same units as <code>duration</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getSkippedOutputFrameCount()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>toGlTextureProcessor</h4>
-<pre class="methodSignature"><a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer">SingleFrameGlTextureProcessor</a>&nbsp;toGlTextureProcessor()</pre>
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<h4>getSkippedOutputFrameCount</h4>
+<pre class="methodSignature">long&nbsp;getSkippedOutputFrameCount()</pre>
+<div class="block">Returns the number of output audio frames skipped since the audio processors were last flushed.</div>
 </li>
 </ul>
 </li>
