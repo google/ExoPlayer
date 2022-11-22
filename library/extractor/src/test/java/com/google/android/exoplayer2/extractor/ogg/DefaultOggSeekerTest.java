@@ -41,7 +41,8 @@ public final class DefaultOggSeekerTest {
   public void setupWithUnsetEndPositionFails() {
     try {
       new DefaultOggSeeker(
-          /* streamReader= */ new TestStreamReader(),
+          /* streamReader= */ new TestStreamReader(-1),
+          -1L,
           /* payloadStartPosition= */ 0,
           /* payloadEndPosition= */ C.LENGTH_UNSET,
           /* firstPayloadPageSize= */ 1,
@@ -64,16 +65,17 @@ public final class DefaultOggSeekerTest {
     int lastPayloadPageGranuleCount = 20806;
 
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
-    TestStreamReader streamReader = new TestStreamReader();
+    TestStreamReader streamReader = new TestStreamReader(-1L);
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
             streamReader,
+            -1L,
             /* payloadStartPosition= */ 0,
             /* payloadEndPosition= */ data.length,
             firstPayloadPageSize,
             /* firstPayloadPageGranulePosition= */ firstPayloadPageGranuleCount,
             /* firstPayloadPageIsLastPage= */ false);
-    OggPageHeader pageHeader = new OggPageHeader();
+    OggPageHeader pageHeader = new OggPageHeader(-1);
 
     while (true) {
       long nextSeekPosition = oggSeeker.read(input);
@@ -156,7 +158,8 @@ public final class DefaultOggSeekerTest {
       throws IOException {
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            /* streamReader= */ new FlacReader(),
+            /* streamReader= */ new FlacReader(-1L),
+            -1L,
             /* payloadStartPosition= */ 0,
             /* payloadEndPosition= */ input.getLength(),
             /* firstPayloadPageSize= */ 1,
@@ -208,6 +211,11 @@ public final class DefaultOggSeekerTest {
   }
 
   private static class TestStreamReader extends StreamReader {
+
+    public TestStreamReader(long streamSerialNumber) {
+      super(streamSerialNumber);
+    }
+
     @Override
     protected long preparePayload(ParsableByteArray packet) {
       return 0;

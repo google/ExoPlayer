@@ -90,7 +90,7 @@ public class OggExtractor implements Extractor {
 
   @EnsuresNonNullIf(expression = "streamReader", result = true)
   private boolean sniffInternal(ExtractorInput input) throws IOException {
-    OggPageHeader header = new OggPageHeader();
+    OggPageHeader header = new OggPageHeader(-1L);
 
     while (header.populate(input, true) && (header.type & 0x02) == 0x02) {
       int length = min(header.bodySize, MAX_VERIFICATION_BYTES);
@@ -98,13 +98,13 @@ public class OggExtractor implements Extractor {
       input.peekFully(scratch.getData(), 0, length);
 
       if (FlacReader.verifyBitstreamType(resetPosition(scratch))) {
-        streamReader = new FlacReader();
+        streamReader = new FlacReader(header.streamSerialNumber);
         return true;
       } else if (VorbisReader.verifyBitstreamType(resetPosition(scratch))) {
-        streamReader = new VorbisReader();
+        streamReader = new VorbisReader(header.streamSerialNumber);
         return true;
       } else if (OpusReader.verifyBitstreamType(resetPosition(scratch))) {
-        streamReader = new OpusReader();
+        streamReader = new OpusReader(header.streamSerialNumber);
         return true;
       }
       try {

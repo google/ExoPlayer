@@ -29,7 +29,11 @@ import java.util.Arrays;
 /** OGG packet class. */
 /* package */ final class OggPacket {
 
-  private final OggPageHeader pageHeader = new OggPageHeader();
+  private final OggPageHeader pageHeader;
+  public OggPacket(long streamSerialNumber) {
+    pageHeader = new OggPageHeader(streamSerialNumber);
+  }
+
   private final ParsableByteArray packetArray =
       new ParsableByteArray(new byte[OggPageHeader.MAX_PAGE_PAYLOAD], 0);
 

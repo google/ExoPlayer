@@ -36,7 +36,7 @@ public final class OggPacketTest {
   private static final String TEST_FILE = "media/ogg/bear.opus";
 
   private final Random random = new Random(/* seed= */ 0);
-  private final OggPacket oggPacket = new OggPacket();
+  private final OggPacket oggPacket = new OggPacket(-1L);
 
   @Test
   public void readPacketsWithEmptyPage() throws Exception {

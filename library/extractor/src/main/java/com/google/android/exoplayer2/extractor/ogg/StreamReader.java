@@ -62,8 +62,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean seekMapSet;
   private boolean formatSet;
 
-  public StreamReader() {
-    oggPacket = new OggPacket();
+  private long streamSerialNumber;
+
+  public StreamReader(long streamSerialNumber) {
+    this.streamSerialNumber = streamSerialNumber;
+    oggPacket = new OggPacket(streamSerialNumber);
     setupData = new SetupData();
   }
 
@@ -182,6 +185,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       oggSeeker =
           new DefaultOggSeeker(
               /* streamReader= */ this,
+              streamSerialNumber,
               payloadStartPosition,
               input.getLength(),
               firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,

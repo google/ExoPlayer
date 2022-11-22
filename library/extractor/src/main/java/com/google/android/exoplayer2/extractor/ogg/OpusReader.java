@@ -38,6 +38,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     'O', 'p', 'u', 's', 'T', 'a', 'g', 's'
   };
 
+  public OpusReader(long streamSerialNumber) {
+    super(streamSerialNumber);
+  }
+
   private boolean firstCommentHeaderSeen;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
