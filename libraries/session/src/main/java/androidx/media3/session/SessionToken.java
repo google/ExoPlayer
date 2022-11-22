@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media3.common.Bundleable;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableSet;
@@ -179,7 +180,11 @@ public final class SessionToken implements Bundleable {
     return impl.toString();
   }
 
-  /** Returns the uid of the session */
+  /**
+   * Returns the UID of the session process, or {@link C#INDEX_UNSET} if the UID can't be determined
+   * due to missing <a href="https://developer.android.com/training/package-visibility">package
+   * visibility</a>.
+   */
   public int getUid() {
     return impl.getUid();
   }
@@ -393,8 +398,7 @@ public final class SessionToken implements Bundleable {
     try {
       return manager.getApplicationInfo(packageName, 0).uid;
     } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalArgumentException(
-          "Cannot find package " + packageName + " or package is not visible", e);
+      return C.INDEX_UNSET;
     }
   }
 
