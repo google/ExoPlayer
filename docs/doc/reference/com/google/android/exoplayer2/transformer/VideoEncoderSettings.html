@@ -156,10 +156,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">VideoEncoderSettings.BitrateMode</a></span></code></th>
 <td class="colLast">
-<div class="block">The allowed values for <code>bitrateMode</code>, one of
-
- 
-   Constant quality: <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.EncoderCapabilities.html#BITRATE_MODE_CQ" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ</code></a>.</div>
+<div class="block">The allowed values for <code>bitrateMode</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -198,28 +195,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.transformer.VideoEncoderSettings.BitrateMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitrateMode">bitrateMode</a></span></code></th>
 <td class="colLast">
-<div class="block">One of <a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">the allowed modes</a>.</div>
+<div class="block">One of <a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">VideoEncoderSettings.BitrateMode</a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorProfile">colorProfile</a></span></code></th>
-<td class="colLast">
-<div class="block">The encoding color profile.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>static <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT">DEFAULT</a></span></code></th>
 <td class="colLast">
 <div class="block">A default <a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_COLOR_PROFILE">DEFAULT_COLOR_PROFILE</a></span></code></th>
-<td class="colLast">
-<div class="block">The default encoding color profile.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -230,41 +213,48 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableHighQualityTargeting">enableHighQualityTargeting</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the encoder should automatically set the bitrate to target a high quality encoding.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#iFrameIntervalSeconds">iFrameIntervalSeconds</a></span></code></th>
 <td class="colLast">
 <div class="block">The encoding I-Frame interval in seconds.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#level">level</a></span></code></th>
 <td class="colLast">
 <div class="block">The encoding level.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NO_VALUE">NO_VALUE</a></span></code></th>
 <td class="colLast">
 <div class="block">A value for various fields to indicate that the field's value is unknown or not applicable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#operatingRate">operatingRate</a></span></code></th>
 <td class="colLast">
 <div class="block">The encoder <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>operating rate</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#priority">priority</a></span></code></th>
 <td class="colLast">
 <div class="block">The encoder <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_PRIORITY" title="class or interface in android.media" class="externalLink" target="_top"><code>priority</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#profile">profile</a></span></code></th>
 <td class="colLast">
@@ -344,20 +334,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="DEFAULT_COLOR_PROFILE">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_COLOR_PROFILE</h4>
-<pre>public static final&nbsp;int DEFAULT_COLOR_PROFILE</pre>
-<div class="block">The default encoding color profile.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.VideoEncoderSettings.DEFAULT_COLOR_PROFILE">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a id="DEFAULT_I_FRAME_INTERVAL_SECONDS">
 <!--   -->
 </a>
@@ -399,7 +375,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>bitrateMode</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.transformer.VideoEncoderSettings.BitrateMode int bitrateMode</pre>
-<div class="block">One of <a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">the allowed modes</a>.</div>
+<div class="block">One of <a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">VideoEncoderSettings.BitrateMode</a>.</div>
 </li>
 </ul>
 <a id="profile">
@@ -420,16 +396,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>level</h4>
 <pre>public final&nbsp;int level</pre>
 <div class="block">The encoding level.</div>
-</li>
-</ul>
-<a id="colorProfile">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>colorProfile</h4>
-<pre>public final&nbsp;int colorProfile</pre>
-<div class="block">The encoding color profile.</div>
 </li>
 </ul>
 <a id="iFrameIntervalSeconds">
@@ -455,11 +421,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="priority">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>priority</h4>
 <pre>public final&nbsp;int priority</pre>
 <div class="block">The encoder <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_PRIORITY" title="class or interface in android.media" class="externalLink" target="_top"><code>priority</code></a>.</div>
+</li>
+</ul>
+<a id="enableHighQualityTargeting">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>enableHighQualityTargeting</h4>
+<pre>public final&nbsp;boolean enableHighQualityTargeting</pre>
+<div class="block">Whether the encoder should automatically set the bitrate to target a high quality encoding.</div>
 </li>
 </ul>
 </li>

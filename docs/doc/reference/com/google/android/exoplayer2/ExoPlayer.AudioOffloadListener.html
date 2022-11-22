@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18};
+var data = {"i0":18,"i1":18,"i2":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -151,12 +151,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onExperimentalOffloadedPlayback(boolean)">onExperimentalOffloadedPlayback</a></span>&#8203;(boolean&nbsp;offloadedPlayback)</code></th>
+<td class="colLast">
+<div class="block">Called when the value of <a href="https://developer.android.com/reference/android/media/AudioTrack.html#isOffloadedPlayback()" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.isOffloadedPlayback()</code></a> changes.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onExperimentalOffloadSchedulingEnabledChanged(boolean)">onExperimentalOffloadSchedulingEnabledChanged</a></span>&#8203;(boolean&nbsp;offloadSchedulingEnabled)</code></th>
 <td class="colLast">
 <div class="block">Called when the player has started or stopped offload scheduling using <a href="ExoPlayer.html#experimentalSetOffloadSchedulingEnabled(boolean)"><code>ExoPlayer.experimentalSetOffloadSchedulingEnabled(boolean)</code></a>.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onExperimentalSleepingForOffloadChanged(boolean)">onExperimentalSleepingForOffloadChanged</a></span>&#8203;(boolean&nbsp;sleepingForOffload)</code></th>
 <td class="colLast">
@@ -195,11 +202,26 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="onExperimentalSleepingForOffloadChanged(boolean)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onExperimentalSleepingForOffloadChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onExperimentalSleepingForOffloadChanged&#8203;(boolean&nbsp;sleepingForOffload)</pre>
 <div class="block">Called when the player has started or finished sleeping for offload.
+
+ <p>This method is experimental, and will be renamed or removed in a future release.</div>
+</li>
+</ul>
+<a id="onExperimentalOffloadedPlayback(boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onExperimentalOffloadedPlayback</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onExperimentalOffloadedPlayback&#8203;(boolean&nbsp;offloadedPlayback)</pre>
+<div class="block">Called when the value of <a href="https://developer.android.com/reference/android/media/AudioTrack.html#isOffloadedPlayback()" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.isOffloadedPlayback()</code></a> changes.
+
+ <p>This should not be generally required to be acted upon. But when offload is critical for
+ efficiency, or audio features (gapless, playback speed), this will let the app know.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 </li>

@@ -188,9 +188,16 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY_TIME_ZERO">EMPTY_TIME_ZERO</a></span></code></th>
 <td class="colLast">
-<div class="block">Empty <a href="CueGroup.html" title="class in com.google.android.exoplayer2.text"><code>CueGroup</code></a>.</div>
+<div class="block">An empty group with no <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a> and presentation time of zero.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#presentationTimeUs">presentationTimeUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The presentation time of the <a href="#cues"><code>cues</code></a>, in microseconds.</div>
 </td>
 </tr>
 </table>
@@ -211,7 +218,8 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.List)">CueGroup</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.List,long)">CueGroup</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues,
+        long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
 <div class="block">Creates a CueGroup.</div>
 </td>
@@ -265,14 +273,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a id="EMPTY">
+<a id="EMPTY_TIME_ZERO">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>EMPTY</h4>
-<pre>public static final&nbsp;<a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a> EMPTY</pre>
-<div class="block">Empty <a href="CueGroup.html" title="class in com.google.android.exoplayer2.text"><code>CueGroup</code></a>.</div>
+<h4>EMPTY_TIME_ZERO</h4>
+<pre>public static final&nbsp;<a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a> EMPTY_TIME_ZERO</pre>
+<div class="block">An empty group with no <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a> and presentation time of zero.</div>
 </li>
 </ul>
 <a id="cues">
@@ -288,6 +296,18 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  the <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cue</code></a> nearer the end of the list should be shown on top.
 
  <p>This list may be empty if the group represents a state with no cues.</div>
+</li>
+</ul>
+<a id="presentationTimeUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>presentationTimeUs</h4>
+<pre>public final&nbsp;long presentationTimeUs</pre>
+<div class="block">The presentation time of the <a href="#cues"><code>cues</code></a>, in microseconds.
+
+ <p>This time is an offset from the start of the current <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>.</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -309,13 +329,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.util.List)">
+<a id="&lt;init&gt;(java.util.List,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>CueGroup</h4>
-<pre>public&nbsp;CueGroup&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues)</pre>
+<pre>public&nbsp;CueGroup&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues,
+                long&nbsp;presentationTimeUs)</pre>
 <div class="block">Creates a CueGroup.</div>
 </li>
 </ul>

@@ -271,7 +271,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPath</h4>
-<pre class="methodSignature">public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;setPath&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;path)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;setPath&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;path)</pre>
 <div class="block">Sets the path this data should be served at. This is required.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -285,7 +286,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setData</h4>
-<pre class="methodSignature">public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;setData&#8203;(byte[]&nbsp;data)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;setData&#8203;(byte[]&nbsp;data)</pre>
 <div class="block">Sets the data served by this resource. This is required.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -299,7 +301,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>supportsRangeRequests</h4>
-<pre class="methodSignature">public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;supportsRangeRequests&#8203;(boolean&nbsp;supportsRangeRequests)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;supportsRangeRequests&#8203;(boolean&nbsp;supportsRangeRequests)</pre>
 <div class="block">Sets if RFC 7233 range requests should be supported for this resource. Defaults to false.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -313,7 +316,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>resolvesToUnknownLength</h4>
-<pre class="methodSignature">public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;resolvesToUnknownLength&#8203;(boolean&nbsp;resolvesToUnknownLength)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;resolvesToUnknownLength&#8203;(boolean&nbsp;resolvesToUnknownLength)</pre>
 <div class="block">Sets if the server shouldn't include the resource length in header responses.
 
  <p>If true, responses to unbound requests won't include a Content-Length header and
@@ -330,7 +334,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setGzipSupport</h4>
-<pre class="methodSignature">public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;setGzipSupport&#8203;(@com.google.android.exoplayer2.testutil.WebServerDispatcher.Resource.GzipSupport int&nbsp;gzipSupport)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a>&nbsp;setGzipSupport&#8203;(@com.google.android.exoplayer2.testutil.WebServerDispatcher.Resource.GzipSupport int&nbsp;gzipSupport)</pre>
 <div class="block">Sets the level of gzip support for this resource. Defaults to <a href="WebServerDispatcher.Resource.html#GZIP_SUPPORT_DISABLED"><code>WebServerDispatcher.Resource.GZIP_SUPPORT_DISABLED</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

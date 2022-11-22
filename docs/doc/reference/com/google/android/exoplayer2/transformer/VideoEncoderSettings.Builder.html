@@ -202,9 +202,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setColorProfile(int)">setColorProfile</a></span>&#8203;(int&nbsp;colorProfile)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnableHighQualityTargeting(boolean)">setEnableHighQualityTargeting</a></span>&#8203;(boolean&nbsp;enableHighQualityTargeting)</code></th>
 <td class="colLast">
-<div class="block">Sets <a href="VideoEncoderSettings.html#colorProfile"><code>VideoEncoderSettings.colorProfile</code></a>.</div>
+<div class="block">Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -280,8 +280,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBitrate</h4>
-<pre class="methodSignature">public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setBitrate&#8203;(int&nbsp;bitrate)</pre>
-<div class="block">Sets <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a>. The default value is <a href="VideoEncoderSettings.html#NO_VALUE"><code>VideoEncoderSettings.NO_VALUE</code></a>.</div>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setBitrate&#8203;(int&nbsp;bitrate)</pre>
+<div class="block">Sets <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a>. The default value is <a href="VideoEncoderSettings.html#NO_VALUE"><code>VideoEncoderSettings.NO_VALUE</code></a>.
+
+ <p>Can not be set if enabling <a href="#setEnableHighQualityTargeting(boolean)"><code>setEnableHighQualityTargeting(boolean)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bitrate</code> - The <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a>.</dd>
@@ -296,11 +299,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBitrateMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setBitrateMode&#8203;(@com.google.android.exoplayer2.transformer.VideoEncoderSettings.BitrateMode int&nbsp;bitrateMode)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setBitrateMode&#8203;(@com.google.android.exoplayer2.transformer.VideoEncoderSettings.BitrateMode int&nbsp;bitrateMode)</pre>
 <div class="block">Sets <a href="VideoEncoderSettings.html#bitrateMode"><code>VideoEncoderSettings.bitrateMode</code></a>. The default value is <code>
  MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR</code>.
 
- <p>Only <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.EncoderCapabilities.html#BITRATE_MODE_VBR" title="class or interface in android.media" class="externalLink"><code>MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR</code></a> and <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.EncoderCapabilities.html?is-external=true#BITRATE_MODE_CBR" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR</code></a> are allowed.</div>
+ <p>Value must be in <a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer"><code>VideoEncoderSettings.BitrateMode</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bitrateMode</code> - The <a href="VideoEncoderSettings.html#bitrateMode"><code>VideoEncoderSettings.bitrateMode</code></a>.</dd>
@@ -315,7 +319,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setEncodingProfileLevel</h4>
-<pre class="methodSignature">public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setEncodingProfileLevel&#8203;(int&nbsp;encodingProfile,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setEncodingProfileLevel&#8203;(int&nbsp;encodingProfile,
                                                             int&nbsp;encodingLevel)</pre>
 <div class="block">Sets <a href="VideoEncoderSettings.html#profile"><code>VideoEncoderSettings.profile</code></a> and <a href="VideoEncoderSettings.html#level"><code>VideoEncoderSettings.level</code></a>. The default
  values are both <a href="VideoEncoderSettings.html#NO_VALUE"><code>VideoEncoderSettings.NO_VALUE</code></a>.
@@ -334,31 +339,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="setColorProfile(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setColorProfile</h4>
-<pre class="methodSignature">public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setColorProfile&#8203;(int&nbsp;colorProfile)</pre>
-<div class="block">Sets <a href="VideoEncoderSettings.html#colorProfile"><code>VideoEncoderSettings.colorProfile</code></a>. The default value is <a href="VideoEncoderSettings.html#DEFAULT_COLOR_PROFILE"><code>VideoEncoderSettings.DEFAULT_COLOR_PROFILE</code></a>.
-
- <p>The value must be one of the <code>COLOR_*</code> constants defined in <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>colorProfile</code> - The <a href="VideoEncoderSettings.html#colorProfile"><code>VideoEncoderSettings.colorProfile</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
 <a id="setiFrameIntervalSeconds(float)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setiFrameIntervalSeconds</h4>
-<pre class="methodSignature">public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setiFrameIntervalSeconds&#8203;(float&nbsp;iFrameIntervalSeconds)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setiFrameIntervalSeconds&#8203;(float&nbsp;iFrameIntervalSeconds)</pre>
 <div class="block">Sets <a href="VideoEncoderSettings.html#iFrameIntervalSeconds"><code>VideoEncoderSettings.iFrameIntervalSeconds</code></a>. The default value is <a href="VideoEncoderSettings.html#DEFAULT_I_FRAME_INTERVAL_SECONDS"><code>VideoEncoderSettings.DEFAULT_I_FRAME_INTERVAL_SECONDS</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -374,9 +362,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setEncoderPerformanceParameters</h4>
-<pre class="methodSignature">public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setEncoderPerformanceParameters&#8203;(int&nbsp;operatingRate,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setEncoderPerformanceParameters&#8203;(int&nbsp;operatingRate,
                                                                     int&nbsp;priority)</pre>
-<div class="block">Sets encoding operating rate and priority. The default values are <a href="VideoEncoderSettings.html#NO_VALUE"><code>VideoEncoderSettings.NO_VALUE</code></a>.</div>
+<div class="block">Sets encoding operating rate and priority. The default values are <a href="VideoEncoderSettings.html#NO_VALUE"><code>VideoEncoderSettings.NO_VALUE</code></a>, which is
+ treated as configuring the encoder for maximum throughput.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>operatingRate</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>operating rate</code></a>.</dd>
@@ -384,6 +374,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
+</li>
+</ul>
+<a id="setEnableHighQualityTargeting(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEnableHighQualityTargeting</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setEnableHighQualityTargeting&#8203;(boolean&nbsp;enableHighQualityTargeting)</pre>
+<div class="block">Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.
+
+ <p>Default value is <code>false</code>.
+
+ <p>Requires <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.EncoderCapabilities.html#BITRATE_MODE_VBR" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR</code></a>.
+
+ <p>Can not be enabled alongside setting a custom bitrate with <a href="#setBitrate(int)"><code>setBitrate(int)</code></a>.</div>
 </li>
 </ul>
 <a id="build()">

@@ -286,7 +286,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAllocator</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setAllocator&#8203;(<a href="upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setAllocator&#8203;(<a href="upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</pre>
 <div class="block">Sets the <a href="upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultAllocator</code></a> used by the loader.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -304,7 +305,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBufferDurationsMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setBufferDurationsMs&#8203;(int&nbsp;minBufferMs,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setBufferDurationsMs&#8203;(int&nbsp;minBufferMs,
                                                        int&nbsp;maxBufferMs,
                                                        int&nbsp;bufferForPlaybackMs,
                                                        int&nbsp;bufferForPlaybackAfterRebufferMs)</pre>
@@ -333,7 +335,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setTargetBufferBytes</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setTargetBufferBytes&#8203;(int&nbsp;targetBufferBytes)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setTargetBufferBytes&#8203;(int&nbsp;targetBufferBytes)</pre>
 <div class="block">Sets the target buffer size in bytes. If set to <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, the target buffer
  size will be calculated based on the selected tracks.</div>
 <dl>
@@ -352,7 +355,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPrioritizeTimeOverSizeThresholds</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setPrioritizeTimeOverSizeThresholds&#8203;(boolean&nbsp;prioritizeTimeOverSizeThresholds)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setPrioritizeTimeOverSizeThresholds&#8203;(boolean&nbsp;prioritizeTimeOverSizeThresholds)</pre>
 <div class="block">Sets whether the load control prioritizes buffer time constraints over buffer size
  constraints.</div>
 <dl>
@@ -372,7 +376,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setBackBuffer</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setBackBuffer&#8203;(int&nbsp;backBufferDurationMs,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setBackBuffer&#8203;(int&nbsp;backBufferDurationMs,
                                                 boolean&nbsp;retainBackBufferFromKeyframe)</pre>
 <div class="block">Sets the back buffer duration, and whether the back buffer is retained from the previous
  keyframe.</div>

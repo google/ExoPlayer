@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>ScaleToFitTransformation.Builder (ExoPlayer library)</title>
+<title>DefaultMuxer (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,13 +19,13 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="ScaleToFitTransformation.Builder (ExoPlayer library)";
+            parent.document.title="DefaultMuxer (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -86,15 +86,15 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -114,14 +114,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
-<h2 title="Class ScaleToFitTransformation.Builder" class="title">Class ScaleToFitTransformation.Builder</h2>
+<h2 title="Class DefaultMuxer" class="title">Class DefaultMuxer</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.transformer.ScaleToFitTransformation.Builder</li>
+<li>com.google.android.exoplayer2.transformer.DefaultMuxer</li>
 </ul>
 </li>
 </ul>
@@ -129,39 +129,49 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>Enclosing class:</dt>
-<dd><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation</a></dd>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 </dl>
 <hr>
-<pre>public static final class <span class="typeNameLabel">ScaleToFitTransformation.Builder</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A builder for <a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer"><code>ScaleToFitTransformation</code></a> instances.</div>
+<pre>public final class <span class="typeNameLabel">DefaultMuxer</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></pre>
+<div class="block">A default <a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer</code></a> implementation.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<!-- ======== NESTED CLASS SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
-<h3>Constructor Summary</h3>
+<h3>Nested Class Summary</h3>
 <table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Constructor</th>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultMuxer.Factory.html" title="class in com.google.android.exoplayer2.transformer">DefaultMuxer.Factory</a></span></code></th>
 <td class="colLast">
-<div class="block">Creates a builder with default values.</div>
+<div class="block">A <a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer.Factory</code></a> for <a href="DefaultMuxer.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultMuxer</code></a>.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.transformer.Muxer">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.transformer.<a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></h3>
+<code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -180,23 +190,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTrack(com.google.android.exoplayer2.Format)">addTrack</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Adds a track with the specified format, and returns its index (to be passed in subsequent calls
+ to <a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)"><code>Muxer.writeSampleData(int, ByteBuffer, boolean, long)</code></a>).</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="ScaleToFitTransformation.Builder.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRotationDegrees(float)">setRotationDegrees</a></span>&#8203;(float&nbsp;rotationDegrees)</code></th>
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxDelayBetweenSamplesMs()">getMaxDelayBetweenSamplesMs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Sets the counterclockwise rotation degrees.</div>
+<div class="block">Returns the maximum delay allowed between output samples, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there is no maximum.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="ScaleToFitTransformation.Builder.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScale(float,float)">setScale</a></span>&#8203;(float&nbsp;scaleX,
-        float&nbsp;scaleY)</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(boolean)">release</a></span>&#8203;(boolean&nbsp;forCancellation)</code></th>
 <td class="colLast">
-<div class="block">Sets the x and y axis scaling factors to apply to each frame's width and height.</div>
+<div class="block">Finishes writing the output and releases any resources associated with muxing.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeSampleData(int,java.nio.ByteBuffer,boolean,long)">writeSampleData</a></span>&#8203;(int&nbsp;trackIndex,
+               <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data,
+               boolean&nbsp;isKeyFrame,
+               long&nbsp;presentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block">Writes the specified sample.</div>
 </td>
 </tr>
 </table>
@@ -216,26 +238,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>Builder</h4>
-<pre>public&nbsp;Builder()</pre>
-<div class="block">Creates a builder with default values.</div>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -243,51 +245,96 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setScale(float,float)">
+<a id="addTrack(com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setScale</h4>
-<pre class="methodSignature">public&nbsp;<a href="ScaleToFitTransformation.Builder.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation.Builder</a>&nbsp;setScale&#8203;(float&nbsp;scaleX,
-                                                 float&nbsp;scaleY)</pre>
-<div class="block">Sets the x and y axis scaling factors to apply to each frame's width and height.
-
- <p>The values default to 1, which corresponds to not scaling along both axes.</div>
+<h4>addTrack</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;addTrack&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
+             throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)">Muxer</a></code></span></div>
+<div class="block">Adds a track with the specified format, and returns its index (to be passed in subsequent calls
+ to <a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)"><code>Muxer.writeSampleData(int, ByteBuffer, boolean, long)</code></a>).</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)">addTrack</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scaleX</code> - The multiplier by which the frame will scale horizontally, along the x-axis.</dd>
-<dd><code>scaleY</code> - The multiplier by which the frame will scale vertically, along the y-axis.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the track.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If the muxer encounters a problem while adding the track.</dd>
 </dl>
 </li>
 </ul>
-<a id="setRotationDegrees(float)">
+<a id="writeSampleData(int,java.nio.ByteBuffer,boolean,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setRotationDegrees</h4>
-<pre class="methodSignature">public&nbsp;<a href="ScaleToFitTransformation.Builder.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation.Builder</a>&nbsp;setRotationDegrees&#8203;(float&nbsp;rotationDegrees)</pre>
-<div class="block">Sets the counterclockwise rotation degrees.
-
- <p>The default value, 0, corresponds to not applying any rotation.</div>
+<h4>writeSampleData</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;writeSampleData&#8203;(int&nbsp;trackIndex,
+                            <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data,
+                            boolean&nbsp;isKeyFrame,
+                            long&nbsp;presentationTimeUs)
+                     throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)">Muxer</a></code></span></div>
+<div class="block">Writes the specified sample.</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)">writeSampleData</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rotationDegrees</code> - The counterclockwise rotation, in degrees.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
+<dd><code>trackIndex</code> - The index of the track, previously returned by <a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)"><code>Muxer.addTrack(Format)</code></a>.</dd>
+<dd><code>data</code> - A buffer containing the sample data to write to the container.</dd>
+<dd><code>isKeyFrame</code> - Whether the sample is a key frame.</dd>
+<dd><code>presentationTimeUs</code> - The presentation time of the sample in microseconds.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If the muxer fails to write the sample.</dd>
 </dl>
 </li>
 </ul>
-<a id="build()">
+<a id="release(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(boolean&nbsp;forCancellation)
+             throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#release(boolean)">Muxer</a></code></span></div>
+<div class="block">Finishes writing the output and releases any resources associated with muxing.
+
+ <p>The muxer cannot be used anymore once this method has been called.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Muxer.html#release(boolean)">release</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>forCancellation</code> - Whether the reason for releasing the resources is the transformation
+     cancellation.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If the muxer fails to finish writing the output and <code>
+     forCancellation</code> is false.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMaxDelayBetweenSamplesMs()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>build</h4>
-<pre class="methodSignature">public&nbsp;<a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation</a>&nbsp;build()</pre>
+<h4>getMaxDelayBetweenSamplesMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMaxDelayBetweenSamplesMs()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#getMaxDelayBetweenSamplesMs()">Muxer</a></code></span></div>
+<div class="block">Returns the maximum delay allowed between output samples, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there is no maximum.
+
+ <p>This is the maximum delay between samples of any track. They can be of the same or of
+ different track types.
+
+ <p>This value is used to abort the transformation when the maximum delay is reached. Note that
+ there is no guarantee that the transformation will be aborted exactly at that time.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Muxer.html#getMaxDelayBetweenSamplesMs()">getMaxDelayBetweenSamplesMs</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -341,15 +388,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

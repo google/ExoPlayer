@@ -341,7 +341,8 @@ implements <a href="../DataSource.Factory.html" title="interface in com.google.a
 <ul class="blockList">
 <li class="blockList">
 <h4>setCache</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCache&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCache&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache)</pre>
 <div class="block">Sets the cache that will be used.
 
  <p>Must be called before the factory is used.</div>
@@ -371,7 +372,8 @@ public&nbsp;<a href="Cache.html" title="interface in com.google.android.exoplaye
 <ul class="blockList">
 <li class="blockList">
 <h4>setCacheReadDataSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCacheReadDataSourceFactory&#8203;(<a href="../DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCacheReadDataSourceFactory&#8203;(<a href="../DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;cacheReadDataSourceFactory)</pre>
 <div class="block">Sets the <a href="../DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSources</code></a> for reading from the
  cache.
 
@@ -390,7 +392,8 @@ public&nbsp;<a href="Cache.html" title="interface in com.google.android.exoplaye
 <ul class="blockList">
 <li class="blockList">
 <h4>setCacheWriteDataSinkFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCacheWriteDataSinkFactory&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCacheWriteDataSinkFactory&#8203;(@Nullable
                                                             <a href="../DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a>&nbsp;cacheWriteDataSinkFactory)</pre>
 <div class="block">Sets the <a href="../DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink.Factory</code></a> for generating <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSinks</code></a> for writing data
  to the cache. Passing <code>null</code> causes the cache to be read-only.
@@ -410,7 +413,8 @@ public&nbsp;<a href="Cache.html" title="interface in com.google.android.exoplaye
 <ul class="blockList">
 <li class="blockList">
 <h4>setCacheKeyFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCacheKeyFactory&#8203;(<a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setCacheKeyFactory&#8203;(<a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
 <div class="block">Sets the <a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a>.
 
  <p>The default is <a href="CacheKeyFactory.html#DEFAULT"><code>CacheKeyFactory.DEFAULT</code></a>.</div>
@@ -438,7 +442,8 @@ public&nbsp;<a href="Cache.html" title="interface in com.google.android.exoplaye
 <ul class="blockList">
 <li class="blockList">
 <h4>setUpstreamDataSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setUpstreamDataSourceFactory&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setUpstreamDataSourceFactory&#8203;(@Nullable
                                                             <a href="../DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamDataSourceFactory)</pre>
 <div class="block">Sets the <a href="../DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for upstream <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSources</code></a>, which are
  used to read data in the case of a cache miss.
@@ -460,7 +465,8 @@ public&nbsp;<a href="Cache.html" title="interface in com.google.android.exoplaye
 <ul class="blockList">
 <li class="blockList">
 <h4>setUpstreamPriorityTaskManager</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setUpstreamPriorityTaskManager&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setUpstreamPriorityTaskManager&#8203;(@Nullable
                                                               <a href="../../util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;upstreamPriorityTaskManager)</pre>
 <div class="block">Sets an optional <a href="../../util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use when requesting data from upstream.
 
@@ -501,7 +507,8 @@ public&nbsp;<a href="../../util/PriorityTaskManager.html" title="class in com.go
 <ul class="blockList">
 <li class="blockList">
 <h4>setUpstreamPriority</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setUpstreamPriority&#8203;(int&nbsp;upstreamPriority)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setUpstreamPriority&#8203;(int&nbsp;upstreamPriority)</pre>
 <div class="block">Sets the priority to use when requesting data from upstream. The priority is only used if a
  <a href="../../util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> is set by calling <a href="#setUpstreamPriorityTaskManager(com.google.android.exoplayer2.util.PriorityTaskManager)"><code>setUpstreamPriorityTaskManager(com.google.android.exoplayer2.util.PriorityTaskManager)</code></a>.
 
@@ -520,7 +527,8 @@ public&nbsp;<a href="../../util/PriorityTaskManager.html" title="class in com.go
 <ul class="blockList">
 <li class="blockList">
 <h4>setFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setFlags&#8203;(@com.google.android.exoplayer2.upstream.cache.CacheDataSource.Flags int&nbsp;flags)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setFlags&#8203;(@com.google.android.exoplayer2.upstream.cache.CacheDataSource.Flags int&nbsp;flags)</pre>
 <div class="block">Sets the <a href="CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource.Flags</code></a>.
 
  <p>The default is <code>0</code>.</div>
@@ -538,7 +546,8 @@ public&nbsp;<a href="../../util/PriorityTaskManager.html" title="class in com.go
 <ul class="blockList">
 <li class="blockList">
 <h4>setEventListener</h4>
-<pre class="methodSignature">public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setEventListener&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;setEventListener&#8203;(@Nullable
                                                 <a href="CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener)</pre>
 <div class="block">Sets the {link EventListener} to which events are delivered.
 

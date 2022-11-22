@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>SingleFrameGlTextureProcessor (ExoPlayer library)</title>
+<title>FrameProcessor.Listener (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,7 +19,7 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="SingleFrameGlTextureProcessor (ExoPlayer library)";
+            parent.document.title="FrameProcessor.Listener (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -113,26 +113,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
-<h2 title="Interface SingleFrameGlTextureProcessor" class="title">Interface SingleFrameGlTextureProcessor</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
+<h2 title="Interface FrameProcessor.Listener" class="title">Interface FrameProcessor.Listener</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util">FrameProcessor</a></dd>
+</dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">SingleFrameGlTextureProcessor</span></pre>
-<div class="block">Manages a GLSL shader program for processing a frame. Implementations generally copy input pixels
- into an output frame, with changes to pixels specific to the implementation.
+<pre>public static interface <span class="typeNameLabel">FrameProcessor.Listener</span></pre>
+<div class="block">Listener for asynchronous frame processing events.
 
- <p>Methods must be called in the following order:
-
- <ol>
-   <li>The constructor, for implementation-specific arguments.
-   <li><a href="#initialize(android.content.Context,int,int,int)"><code>initialize(Context, int, int, int)</code></a>, to set up graphics initialization.
-   <li><a href="#drawFrame(long)"><code>drawFrame(long)</code></a>, to process one frame.
-   <li><a href="#release()"><code>release()</code></a>, upon conclusion of processing.
- </ol></div>
+ <p>All listener methods must be called from the same thread.</div>
 </li>
 </ul>
 </div>
@@ -155,34 +151,31 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#drawFrame(long)">drawFrame</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFrameProcessingEnded()">onFrameProcessingEnded</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Draws one frame.</div>
+<div class="block">Called after the <a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> has produced its final output frame.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top">Size</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputSize()">getOutputSize</a></span>()</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFrameProcessingError(com.google.android.exoplayer2.util.FrameProcessingException)">onFrameProcessingError</a></span>&#8203;(<a href="FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a>&nbsp;exception)</code></th>
 <td class="colLast">
-<div class="block">Returns the output <a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink"><code>Size</code></a> of frames processed through <a href="#drawFrame(long)" target="_top"><code>drawFrame(long)</code></a>.</div>
+<div class="block">Called when an exception occurs during asynchronous frame processing.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialize(android.content.Context,int,int,int)">initialize</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-          int&nbsp;inputTexId,
-          int&nbsp;inputWidth,
-          int&nbsp;inputHeight)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOutputFrameAvailable(long)">onOutputFrameAvailable</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Performs all initialization that requires OpenGL, such as, loading and compiling a GLSL shader
- program.</div>
+<div class="block">Called when an output frame with the given <code>presentationTimeUs</code> becomes available.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOutputSizeChanged(int,int)">onOutputSizeChanged</a></span>&#8203;(int&nbsp;width,
+                   int&nbsp;height)</code></th>
 <td class="colLast">
-<div class="block">Releases all resources.</div>
+<div class="block">Called when the output size changes.</div>
 </td>
 </tr>
 </table>
@@ -202,75 +195,56 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="initialize(android.content.Context,int,int,int)">
+<a id="onOutputSizeChanged(int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>initialize</h4>
-<pre class="methodSignature">void&nbsp;initialize&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                int&nbsp;inputTexId,
-                int&nbsp;inputWidth,
-                int&nbsp;inputHeight)
-         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Performs all initialization that requires OpenGL, such as, loading and compiling a GLSL shader
- program.
+<h4>onOutputSizeChanged</h4>
+<pre class="methodSignature">void&nbsp;onOutputSizeChanged&#8203;(int&nbsp;width,
+                         int&nbsp;height)</pre>
+<div class="block">Called when the output size changes.
 
- <p>This method may only be called if there is a current OpenGL context.</div>
+ <p>The output size is the frame size in pixels after applying all <a href="Effect.html" title="interface in com.google.android.exoplayer2.util">effects</a>.
+
+ <p>The output size may differ from the size specified using <a href="FrameProcessor.html#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)"><code>FrameProcessor.setOutputSurfaceInfo(SurfaceInfo)</code></a>.</div>
+</li>
+</ul>
+<a id="onOutputFrameAvailable(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onOutputFrameAvailable</h4>
+<pre class="methodSignature">void&nbsp;onOutputFrameAvailable&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="block">Called when an output frame with the given <code>presentationTimeUs</code> becomes available.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
-<dd><code>inputTexId</code> - Identifier of a 2D OpenGL texture.</dd>
-<dd><code>inputWidth</code> - The input width, in pixels.</dd>
-<dd><code>inputHeight</code> - The input height, in pixels.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs while reading resources.</dd>
+<dd><code>presentationTimeUs</code> - The presentation time of the frame, in microseconds.</dd>
 </dl>
 </li>
 </ul>
-<a id="getOutputSize()">
+<a id="onFrameProcessingError(com.google.android.exoplayer2.util.FrameProcessingException)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getOutputSize</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink" target="_top">Size</a>&nbsp;getOutputSize()</pre>
-<div class="block">Returns the output <a href="https://developer.android.com/reference/android/util/Size.html" title="class or interface in android.util" class="externalLink"><code>Size</code></a> of frames processed through <a href="#drawFrame(long)" target="_top"><code>drawFrame(long)</code></a>.
+<h4>onFrameProcessingError</h4>
+<pre class="methodSignature">void&nbsp;onFrameProcessingError&#8203;(<a href="FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a>&nbsp;exception)</pre>
+<div class="block">Called when an exception occurs during asynchronous frame processing.
 
- <p>This method may only be called after the texture processor has been <a href="#initialize(android.content.Context,int,int,int)"><code>initialized</code></a>.</div>
+ <p>If an error occurred, consuming and producing further frames will not work as expected and
+ the <a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> should be released.</div>
 </li>
 </ul>
-<a id="drawFrame(long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>drawFrame</h4>
-<pre class="methodSignature">void&nbsp;drawFrame&#8203;(long&nbsp;presentationTimeUs)
-        throws <a href="FrameProcessingException.html" title="class in com.google.android.exoplayer2.transformer">FrameProcessingException</a></pre>
-<div class="block">Draws one frame.
-
- <p>This method may only be called after the texture processor has been <a href="#initialize(android.content.Context,int,int,int)"><code>initialized</code></a>. The caller is responsible for focussing the
- correct render target before calling this method.
-
- <p>A minimal implementation should tell OpenGL to use its shader program, bind the shader
- program's vertex attributes and uniforms, and issue a drawing command.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>presentationTimeUs</code> - The presentation timestamp of the current frame, in microseconds.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="FrameProcessingException.html" title="class in com.google.android.exoplayer2.transformer">FrameProcessingException</a></code> - If an error occurs while processing or drawing the frame.</dd>
-</dl>
-</li>
-</ul>
-<a id="release()">
+<a id="onFrameProcessingEnded()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>release</h4>
-<pre class="methodSignature">void&nbsp;release()</pre>
-<div class="block">Releases all resources.</div>
+<h4>onFrameProcessingEnded</h4>
+<pre class="methodSignature">void&nbsp;onFrameProcessingEnded()</pre>
+<div class="block">Called after the <a href="FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> has produced its final output frame.</div>
 </li>
 </ul>
 </li>

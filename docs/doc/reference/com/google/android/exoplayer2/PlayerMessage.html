@@ -452,7 +452,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setType</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setType&#8203;(int&nbsp;messageType)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setType&#8203;(int&nbsp;messageType)</pre>
 <div class="block">Sets the message type forwarded to <a href="PlayerMessage.Target.html#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -480,7 +481,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPayload</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPayload&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPayload&#8203;(@Nullable
                                 <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)</pre>
 <div class="block">Sets the message payload forwarded to <a href="PlayerMessage.Target.html#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 <dl>
@@ -510,7 +512,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>setHandler</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setHandler&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="#setLooper(android.os.Looper)"><code>setLooper(Looper)</code></a> instead.</div>
@@ -523,7 +526,8 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>setLooper</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> the message is delivered on.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -564,7 +568,8 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>setPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(long&nbsp;positionMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(long&nbsp;positionMs)</pre>
 <div class="block">Sets a position in the current media item at which the message will be delivered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -584,7 +589,8 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>setPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(int&nbsp;mediaItemIndex,
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(int&nbsp;mediaItemIndex,
                                  long&nbsp;positionMs)</pre>
 <div class="block">Sets a position in a media item at which the message will be delivered.</div>
 <dl>
@@ -618,7 +624,8 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>setDeleteAfterDelivery</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setDeleteAfterDelivery&#8203;(boolean&nbsp;deleteAfterDelivery)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setDeleteAfterDelivery&#8203;(boolean&nbsp;deleteAfterDelivery)</pre>
 <div class="block">Sets whether the message will be deleted after delivery. If false, the message will be resent
  if playback reaches the specified position again. Only allowed to be false if a position is set
  with <a href="#setPosition(long)"><code>setPosition(long)</code></a>.</div>
@@ -648,7 +655,8 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>send</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;send()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;send()</pre>
 <div class="block">Sends the message. If the target throws an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> then it is propagated
  out of the player as an error using <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(PlaybackException)</code></a>.</div>
 <dl>
@@ -665,7 +673,8 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>cancel</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;cancel()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;cancel()</pre>
 <div class="block">Cancels the message delivery.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

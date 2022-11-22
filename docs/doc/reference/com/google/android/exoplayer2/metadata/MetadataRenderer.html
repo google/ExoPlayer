@@ -141,7 +141,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">MetadataRenderer</span>
 extends <a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>
 implements <a href="https://developer.android.com/reference/android/os/Handler.Callback.html" title="class or interface in android.os" class="externalLink" target="_top">Handler.Callback</a></pre>
-<div class="block">A renderer for metadata.</div>
+<div class="block">A renderer for metadata.
+
+ <p>The renderer can be configured to render metadata as soon as they are available using <a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,com.google.android.exoplayer2.metadata.MetadataDecoderFactory,boolean)"><code>MetadataRenderer(MetadataOutput, Looper, MetadataDecoderFactory, boolean)</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -184,14 +186,14 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
+<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
-<code><a href="../RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS">ADAPTIVE_NOT_SEAMLESS</a>, <a href="../RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED">ADAPTIVE_NOT_SUPPORTED</a>, <a href="../RendererCapabilities.html#ADAPTIVE_SEAMLESS">ADAPTIVE_SEAMLESS</a>, <a href="../RendererCapabilities.html#ADAPTIVE_SUPPORT_MASK">ADAPTIVE_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#DECODER_SUPPORT_FALLBACK">DECODER_SUPPORT_FALLBACK</a>, <a href="../RendererCapabilities.html#DECODER_SUPPORT_PRIMARY">DECODER_SUPPORT_PRIMARY</a>, <a href="../RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES">FORMAT_EXCEEDS_CAPABILITIES</a>, <a href="../RendererCapabilities.html#FORMAT_HANDLED">FORMAT_HANDLED</a>, <a href="../RendererCapabilities.html#FORMAT_SUPPORT_MASK">FORMAT_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM">FORMAT_UNSUPPORTED_DRM</a>, <a href="../RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE">FORMAT_UNSUPPORTED_SUBTYPE</a>, <a href="../RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE">FORMAT_UNSUPPORTED_TYPE</a>, <a href="../RendererCapabilities.html#HARDWARE_ACCELERATION_NOT_SUPPORTED">HARDWARE_ACCELERATION_NOT_SUPPORTED</a>, <a href="../RendererCapabilities.html#HARDWARE_ACCELERATION_SUPPORT_MASK">HARDWARE_ACCELERATION_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#HARDWARE_ACCELERATION_SUPPORTED">HARDWARE_ACCELERATION_SUPPORTED</a>, <a href="../RendererCapabilities.html#MODE_SUPPORT_MASK">MODE_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#TUNNELING_NOT_SUPPORTED">TUNNELING_NOT_SUPPORTED</a>, <a href="../RendererCapabilities.html#TUNNELING_SUPPORT_MASK">TUNNELING_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#TUNNELING_SUPPORTED">TUNNELING_SUPPORTED</a></code></li>
+<code><a href="../RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS">ADAPTIVE_NOT_SEAMLESS</a>, <a href="../RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED">ADAPTIVE_NOT_SUPPORTED</a>, <a href="../RendererCapabilities.html#ADAPTIVE_SEAMLESS">ADAPTIVE_SEAMLESS</a>, <a href="../RendererCapabilities.html#ADAPTIVE_SUPPORT_MASK">ADAPTIVE_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#DECODER_SUPPORT_FALLBACK">DECODER_SUPPORT_FALLBACK</a>, <a href="../RendererCapabilities.html#DECODER_SUPPORT_FALLBACK_MIMETYPE">DECODER_SUPPORT_FALLBACK_MIMETYPE</a>, <a href="../RendererCapabilities.html#DECODER_SUPPORT_PRIMARY">DECODER_SUPPORT_PRIMARY</a>, <a href="../RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES">FORMAT_EXCEEDS_CAPABILITIES</a>, <a href="../RendererCapabilities.html#FORMAT_HANDLED">FORMAT_HANDLED</a>, <a href="../RendererCapabilities.html#FORMAT_SUPPORT_MASK">FORMAT_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM">FORMAT_UNSUPPORTED_DRM</a>, <a href="../RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE">FORMAT_UNSUPPORTED_SUBTYPE</a>, <a href="../RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE">FORMAT_UNSUPPORTED_TYPE</a>, <a href="../RendererCapabilities.html#HARDWARE_ACCELERATION_NOT_SUPPORTED">HARDWARE_ACCELERATION_NOT_SUPPORTED</a>, <a href="../RendererCapabilities.html#HARDWARE_ACCELERATION_SUPPORT_MASK">HARDWARE_ACCELERATION_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#HARDWARE_ACCELERATION_SUPPORTED">HARDWARE_ACCELERATION_SUPPORTED</a>, <a href="../RendererCapabilities.html#MODE_SUPPORT_MASK">MODE_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#TUNNELING_NOT_SUPPORTED">TUNNELING_NOT_SUPPORTED</a>, <a href="../RendererCapabilities.html#TUNNELING_SUPPORT_MASK">TUNNELING_SUPPORT_MASK</a>, <a href="../RendererCapabilities.html#TUNNELING_SUPPORTED">TUNNELING_SUPPORTED</a></code></li>
 </ul>
 </li>
 </ul>
@@ -212,13 +214,26 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper)">MetadataRenderer</a></span>&#8203;(<a href="MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Creates an instance that uses <a href="MetadataDecoderFactory.html#DEFAULT"><code>MetadataDecoderFactory.DEFAULT</code></a> to create <a href="MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataDecoder</code></a> instances.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,com.google.android.exoplayer2.metadata.MetadataDecoderFactory)">MetadataRenderer</a></span>&#8203;(<a href="MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
                 <a href="MetadataDecoderFactory.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoderFactory</a>&nbsp;decoderFactory)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,com.google.android.exoplayer2.metadata.MetadataDecoderFactory,boolean)">MetadataRenderer</a></span>&#8203;(<a href="MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
+                <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
+                <a href="MetadataDecoderFactory.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoderFactory</a>&nbsp;decoderFactory,
+                boolean&nbsp;outputMetadataEarly)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -350,6 +365,7 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <pre>public&nbsp;MetadataRenderer&#8203;(<a href="MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
                         @Nullable
                         <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper)</pre>
+<div class="block">Creates an instance that uses <a href="MetadataDecoderFactory.html#DEFAULT"><code>MetadataDecoderFactory.DEFAULT</code></a> to create <a href="MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataDecoder</code></a> instances.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>output</code> - The output.</dd>
@@ -363,13 +379,14 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <a id="&lt;init&gt;(com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,com.google.android.exoplayer2.metadata.MetadataDecoderFactory)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>MetadataRenderer</h4>
 <pre>public&nbsp;MetadataRenderer&#8203;(<a href="MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
                         @Nullable
                         <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
                         <a href="MetadataDecoderFactory.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoderFactory</a>&nbsp;decoderFactory)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>output</code> - The output.</dd>
@@ -378,6 +395,32 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
      looper associated with the application's main thread, which can be obtained using <a href="https://developer.android.com/reference/android/content/ContextWrapper.html#getMainLooper()" title="class or interface in android.content" class="externalLink" target="_top"><code>ContextWrapper.getMainLooper()</code></a>. Null may be passed if the output should be called
      directly on the player's internal rendering thread.</dd>
 <dd><code>decoderFactory</code> - A factory from which to obtain <a href="MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataDecoder</code></a> instances.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,com.google.android.exoplayer2.metadata.MetadataDecoderFactory,boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MetadataRenderer</h4>
+<pre>public&nbsp;MetadataRenderer&#8203;(<a href="MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
+                        @Nullable
+                        <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
+                        <a href="MetadataDecoderFactory.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoderFactory</a>&nbsp;decoderFactory,
+                        boolean&nbsp;outputMetadataEarly)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>output</code> - The output.</dd>
+<dd><code>outputLooper</code> - The looper associated with the thread on which the output should be called.
+     If the output makes use of standard Android UI components, then this should normally be the
+     looper associated with the application's main thread, which can be obtained using <a href="https://developer.android.com/reference/android/content/ContextWrapper.html#getMainLooper()" title="class or interface in android.content" class="externalLink" target="_top"><code>ContextWrapper.getMainLooper()</code></a>. Null may be passed if the output should be called
+     directly on the player's internal rendering thread.</dd>
+<dd><code>decoderFactory</code> - A factory from which to obtain <a href="MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataDecoder</code></a> instances.</dd>
+<dd><code>outputMetadataEarly</code> - Whether the renderer outputs metadata early. When <code>true</code>,
+     <a href="#render(long,long)"><code>render(long, long)</code></a> will output metadata as soon as they are available to the renderer,
+     otherwise <a href="#render(long,long)"><code>render(long, long)</code></a> will output metadata in sync with the rendering position.</dd>
 </dl>
 </li>
 </ul>

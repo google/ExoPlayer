@@ -122,39 +122,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="EncoderBitrateProvider.html" title="interface in com.google.android.exoplayer2.transformer">EncoderBitrateProvider</a></th>
+<td class="colLast">
+<div class="block">Provides bitrates for encoders to use as a target.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a></th>
 <td class="colLast">
 <div class="block">Selector of <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> encoder instances.</div>
 </td>
 </tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.transformer">GlEffect</a></th>
-<td class="colLast">
-<div class="block">Interface for a video frame effect with a <a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer"><code>SingleFrameGlTextureProcessor</code></a> implementation.</div>
-</td>
-</tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.transformer">GlMatrixTransformation</a></th>
+<th class="colFirst" scope="row"><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></th>
 <td class="colLast">
-<div class="block">Specifies a 4x4 transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>Matrix</code></a> to apply in the vertex shader for each frame.</div>
+<div class="block">Abstracts media muxing operations.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.transformer">MatrixTransformation</a></th>
+<th class="colFirst" scope="row"><a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer">Muxer.Factory</a></th>
 <td class="colLast">
-<div class="block">Specifies a 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply in the vertex shader for each frame.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="SingleFrameGlTextureProcessor.html" title="interface in com.google.android.exoplayer2.transformer">SingleFrameGlTextureProcessor</a></th>
-<td class="colLast">
-<div class="block">Manages a GLSL shader program for processing a frame.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="Transformer.DebugViewProvider.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.DebugViewProvider</a></th>
-<td class="colLast">
-<div class="block">Provider for views to show diagnostic information during transformation, for debugging.</div>
+<div class="block">Factory for muxers.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -187,41 +175,39 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer">DefaultEncoderFactory.Builder</a></th>
+<td class="colLast">
+<div class="block">A builder for <a href="DefaultEncoderFactory.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DefaultMuxer.html" title="class in com.google.android.exoplayer2.transformer">DefaultMuxer</a></th>
+<td class="colLast">
+<div class="block">A default <a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultMuxer.Factory.html" title="class in com.google.android.exoplayer2.transformer">DefaultMuxer.Factory</a></th>
+<td class="colLast">
+<div class="block">A <a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer.Factory</code></a> for <a href="DefaultMuxer.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultMuxer</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DeviceMappedEncoderBitrateProvider.html" title="class in com.google.android.exoplayer2.transformer">DeviceMappedEncoderBitrateProvider</a></th>
+<td class="colLast">
+<div class="block">Provides encoder bitrates that should target 0.95 SSIM or higher, accounting for device used.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="EncoderUtil.html" title="class in com.google.android.exoplayer2.transformer">EncoderUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> encoders.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer">Presentation</a></th>
-<td class="colLast">
-<div class="block">Controls how a frame is presented with options to set the output resolution, crop the input, and
- choose how to map the input pixels onto the output frame geometry (for example, by stretching the
- input frame to match the specified output frame, or fitting the input frame using letterboxing).</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="Presentation.Builder.html" title="class in com.google.android.exoplayer2.transformer">Presentation.Builder</a></th>
-<td class="colLast">
-<div class="block">A builder for <a href="Presentation.html" title="class in com.google.android.exoplayer2.transformer"><code>Presentation</code></a> instances.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a></th>
 <td class="colLast">
 <div class="block">Holds a progress percentage.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation</a></th>
-<td class="colLast">
-<div class="block">Specifies a simple rotation and/or scale to apply in the vertex shader.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ScaleToFitTransformation.Builder.html" title="class in com.google.android.exoplayer2.transformer">ScaleToFitTransformation.Builder</a></th>
-<td class="colLast">
-<div class="block">A builder for <a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.transformer"><code>ScaleToFitTransformation</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -284,9 +270,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="FrameProcessingException.html" title="class in com.google.android.exoplayer2.transformer">FrameProcessingException</a></th>
+<th class="colFirst" scope="row"><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></th>
 <td class="colLast">
-<div class="block">Thrown when an exception occurs while applying effects to video frames.</div>
+<div class="block">Thrown when a muxing failure occurs.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -307,30 +293,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="Presentation.Layout.html" title="annotation in com.google.android.exoplayer2.transformer">Presentation.Layout</a></th>
-<td class="colLast">
-<div class="block">Strategies controlling the layout of input pixels in the output frame.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="TransformationException.ErrorCode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationException.ErrorCode</a></th>
 <td class="colLast">
 <div class="block">Codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer">Transformer.ProgressState</a></th>
 <td class="colLast">
 <div class="block">Progress state.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">VideoEncoderSettings.BitrateMode</a></th>
 <td class="colLast">
-<div class="block">The allowed values for <code>bitrateMode</code>, one of
-
- 
-   Constant quality: <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.EncoderCapabilities.html#BITRATE_MODE_CQ" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ</code></a>.</div>
+<div class="block">The allowed values for <code>bitrateMode</code>.</div>
 </td>
 </tr>
 </tbody>

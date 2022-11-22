@@ -569,7 +569,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setExtensionRendererMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode&#8203;(@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode&#8203;(@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode)</pre>
 <div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
  used. Note that extensions must be included in the application build for them to be considered
  available.
@@ -589,7 +590,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>forceEnableMediaCodecAsynchronousQueueing</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;forceEnableMediaCodecAsynchronousQueueing()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;forceEnableMediaCodecAsynchronousQueueing()</pre>
 <div class="block">Enables <a href="mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer</code></a> instances to
  operate their <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> in asynchronous mode and perform asynchronous queueing.
 
@@ -607,7 +609,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>forceDisableMediaCodecAsynchronousQueueing</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;forceDisableMediaCodecAsynchronousQueueing()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;forceDisableMediaCodecAsynchronousQueueing()</pre>
 <div class="block">Disables <a href="mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer</code></a> instances from
  operating their <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> in asynchronous mode and perform asynchronous queueing.
  <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instances will be operated synchronous mode.</div>
@@ -623,7 +626,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled&#8203;(boolean&nbsp;enabled)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled&#8203;(boolean&nbsp;enabled)</pre>
 <div class="block">Enable synchronizing codec interactions with asynchronous buffer queueing.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
@@ -642,7 +646,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableDecoderFallback</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableDecoderFallback&#8203;(boolean&nbsp;enableDecoderFallback)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableDecoderFallback&#8203;(boolean&nbsp;enableDecoderFallback)</pre>
 <div class="block">Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
  This may result in using a decoder that is less efficient or slower than the primary decoder.</div>
 <dl>
@@ -660,7 +665,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaCodecSelector</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setMediaCodecSelector&#8203;(<a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setMediaCodecSelector&#8203;(<a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
 <div class="block">Sets a <a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> based renderers.
 
  <p>The default value is <a href="mediacodec/MediaCodecSelector.html#DEFAULT"><code>MediaCodecSelector.DEFAULT</code></a>.</div>
@@ -678,7 +684,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioFloatOutput</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioFloatOutput&#8203;(boolean&nbsp;enableFloatOutput)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioFloatOutput&#8203;(boolean&nbsp;enableFloatOutput)</pre>
 <div class="block">Sets whether floating point audio should be output when possible.
 
  <p>Enabling floating point output disables audio processing, but may allow for higher quality
@@ -699,7 +706,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioOffload</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioOffload&#8203;(boolean&nbsp;enableOffload)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioOffload&#8203;(boolean&nbsp;enableOffload)</pre>
 <div class="block">Sets whether audio should be played using the offload path.
 
  <p>Audio offload disables ExoPlayer audio processing, but significantly reduces the energy
@@ -725,7 +733,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioTrackPlaybackParams</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioTrackPlaybackParams&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioTrackPlaybackParams&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
 <div class="block">Sets whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams(android.media.PlaybackParams)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, which is supported from API level
  23, rather than using application-level audio speed adjustment. This setting has no effect on
  builds before API level 23 (application-level speed adjustment will be used in all cases).
@@ -751,7 +760,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <ul class="blockList">
 <li class="blockList">
 <h4>setAllowedVideoJoiningTimeMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setAllowedVideoJoiningTimeMs&#8203;(long&nbsp;allowedVideoJoiningTimeMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setAllowedVideoJoiningTimeMs&#8203;(long&nbsp;allowedVideoJoiningTimeMs)</pre>
 <div class="block">Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
  playback.
 

@@ -139,23 +139,26 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <div class="block">A <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> that supports multiple URI schemes. The supported schemes are:
 
  <ul>
-   <li>file: For fetching data from a local file (e.g. file:///path/to/media/media.mp4, or just
-       /path/to/media/media.mp4 because the implementation assumes that a URI without a scheme is
-       a local file URI).
-   <li>asset: For fetching data from an asset in the application's apk (e.g. asset:///media.mp4).
-   <li>rawresource: For fetching data from a raw resource in the application's apk (e.g.
-       rawresource:///resourceId, where rawResourceId is the integer identifier of the raw
-       resource).
-   <li>android.resource: For fetching data in the application's apk (e.g.
-       android.resource:///resourceId or android.resource://resourceType/resourceName). See <a href="RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>RawResourceDataSource</code></a> for more information about the URI form.
-   <li>content: For fetching data from a content URI (e.g. content://authority/path/123).
-   <li>rtmp: For fetching data over RTMP. Only supported if the project using ExoPlayer has an
-       explicit dependency on ExoPlayer's RTMP extension.
-   <li>data: For parsing data inlined in the URI as defined in RFC 2397.
-   <li>udp: For fetching data over UDP (e.g. udp://something.com/media).
-   <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4),
-       if constructed using <a href="#%3Cinit%3E(android.content.Context,java.lang.String,boolean)"><code>DefaultDataSource(Context, String, boolean)</code></a>, or any other
-       schemes supported by a base data source if constructed using <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.upstream.DataSource)"><code>DefaultDataSource(Context, DataSource)</code></a>.
+   <li><code>file</code>: For fetching data from a local file (e.g. <code>
+       file:///path/to/media/media.mp4</code>, or just <code>/path/to/media/media.mp4</code> because the
+       implementation assumes that a URI without a scheme is a local file URI).
+   <li><code>asset</code>: For fetching data from an asset in the application's APK (e.g. <code>
+       asset:///media.mp4</code>).
+   <li><code>rawresource</code>: For fetching data from a raw resource in the application's APK (e.g.
+       <code>rawresource:///resourceId</code>, where <code>rawResourceId</code> is the integer identifier of
+       the raw resource).
+   <li><code>android.resource</code>: For fetching data in the application's APK (e.g. <code>
+       android.resource:///resourceId</code> or <code>android.resource://resourceType/resourceName</code>).
+       See <a href="RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>RawResourceDataSource</code></a> for more information about the URI form.
+   <li><code>content</code>: For fetching data from a content URI (e.g. <code>
+       content://authority/path/123</code>).
+   <li><code>rtmp</code>: For fetching data over RTMP. Only supported if the project using ExoPlayer
+       has an explicit dependency on ExoPlayer's RTMP extension.
+   <li><code>data</code>: For parsing data inlined in the URI as defined in RFC 2397.
+   <li><code>udp</code>: For fetching data over UDP (e.g. <code>udp://something.com/media</code>).
+   <li><code>http(s)</code>: For fetching data over HTTP and HTTPS (e.g. <code>
+       https://www.something.com/media.mp4</code>), if constructed using <a href="#%3Cinit%3E(android.content.Context,java.lang.String,boolean)"><code>DefaultDataSource(Context, String, boolean)</code></a>, or any other schemes supported by a base
+       data source if constructed using <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.upstream.DataSource)"><code>DefaultDataSource(Context, DataSource)</code></a>.
  </ul></div>
 </li>
 </ul>

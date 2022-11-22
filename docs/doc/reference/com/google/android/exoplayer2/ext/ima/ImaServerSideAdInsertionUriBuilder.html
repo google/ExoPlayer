@@ -382,7 +382,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdsId</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAdsId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adsId)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAdsId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adsId)</pre>
 <div class="block">An opaque identifier for associated ad playback state, or <code>null</code> if the <a href="#setAssetKey(java.lang.String)"><code>asset key</code></a> (for live) or <a href="#setVideoId(java.lang.String)"><code>video id</code></a> (for VOD)
  should be used as the ads identifier.</div>
 <dl>
@@ -399,7 +400,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAssetKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAssetKey&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAssetKey&#8203;(@Nullable
                                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;assetKey)</pre>
 <div class="block">The stream request asset key used for live streams.</div>
 <dl>
@@ -416,7 +418,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAuthToken</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAuthToken&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAuthToken&#8203;(@Nullable
                                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;authToken)</pre>
 <div class="block">Sets the stream request authorization token. Used in place of <a href="#setApiKey(java.lang.String)"><code>the API
  key</code></a> for stricter content authorization. The publisher can control individual content streams
@@ -435,7 +438,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentSourceId</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setContentSourceId&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setContentSourceId&#8203;(@Nullable
                                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;contentSourceId)</pre>
 <div class="block">The stream request content source ID used for on-demand streams.</div>
 <dl>
@@ -452,7 +456,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoId</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setVideoId&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setVideoId&#8203;(@Nullable
                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoId)</pre>
 <div class="block">The stream request video ID used for on-demand streams.</div>
 <dl>
@@ -469,7 +474,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFormat</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setFormat&#8203;(<a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2">@ContentType</a>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setFormat&#8203;(<a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2">@ContentType</a>
                                                     @com.google.android.exoplayer2.C.ContentType int&nbsp;format)</pre>
 <div class="block">Sets the format of the stream request.</div>
 <dl>
@@ -486,7 +492,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setApiKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setApiKey&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setApiKey&#8203;(@Nullable
                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;apiKey)</pre>
 <div class="block">The stream request API key. This is used for content authentication. The API key is provided to
  the publisher to unlock their content. It's a security measure used to verify the applications
@@ -505,7 +512,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setStreamActivityMonitorId</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setStreamActivityMonitorId&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setStreamActivityMonitorId&#8203;(@Nullable
                                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;streamActivityMonitorId)</pre>
 <div class="block">Sets the ID to be used to debug the stream with the stream activity monitor. This is used to
  provide a convenient way to allow publishers to find a stream log in the stream activity
@@ -524,7 +532,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdTagParameters</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAdTagParameters&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;adTagParameters)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setAdTagParameters&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;adTagParameters)</pre>
 <div class="block">Sets the overridable ad tag parameters on the stream request. <a href="//support.google.com/dfp_premium/answer/7320899">Supply targeting parameters to your
  stream</a> provides more information.
 
@@ -544,7 +553,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setManifestSuffix</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setManifestSuffix&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setManifestSuffix&#8203;(@Nullable
                                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;manifestSuffix)</pre>
 <div class="block">Sets the optional stream manifest's suffix, which will be appended to the stream manifest's
  URL. The provided string must be URL-encoded and must not include a leading question mark.</div>
@@ -562,7 +572,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentUrl</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setContentUrl&#8203;(@Nullable
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setContentUrl&#8203;(@Nullable
                                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;contentUrl)</pre>
 <div class="block">Specifies the deep link to the content's screen. If provided, this parameter is passed to the
  OM SDK. See <a href="//developer.android.com/training/app-links/deep-linking">Android
@@ -581,7 +592,8 @@ public&nbsp;@com.google.android.exoplayer2.C.ContentType int format</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadVideoTimeoutMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setLoadVideoTimeoutMs&#8203;(int&nbsp;loadVideoTimeoutMs)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="ImaServerSideAdInsertionUriBuilder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaServerSideAdInsertionUriBuilder</a>&nbsp;setLoadVideoTimeoutMs&#8203;(int&nbsp;loadVideoTimeoutMs)</pre>
 <div class="block">Sets the duration after which resolving the video URI should time out, in milliseconds.
 
  <p>The default is <a href="#DEFAULT_LOAD_VIDEO_TIMEOUT_MS"><code>DEFAULT_LOAD_VIDEO_TIMEOUT_MS</code></a> milliseconds.</div>

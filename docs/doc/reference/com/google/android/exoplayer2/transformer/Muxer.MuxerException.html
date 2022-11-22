@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>FrameProcessingException (ExoPlayer library)</title>
+<title>Muxer.MuxerException (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,7 +19,7 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="FrameProcessingException (ExoPlayer library)";
+            parent.document.title="Muxer.MuxerException (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -81,13 +81,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li>Method</li>
 </ul>
@@ -108,7 +108,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
-<h2 title="Class FrameProcessingException" class="title">Class FrameProcessingException</h2>
+<h2 title="Class Muxer.MuxerException" class="title">Class Muxer.MuxerException</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -121,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Exception</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.transformer.FrameProcessingException</li>
+<li>com.google.android.exoplayer2.transformer.Muxer.MuxerException</li>
 </ul>
 </li>
 </ul>
@@ -136,13 +136,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt>All Implemented Interfaces:</dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></dd>
+</dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">FrameProcessingException</span>
+<pre>public static final class <span class="typeNameLabel">Muxer.MuxerException</span>
 extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
-<div class="block">Thrown when an exception occurs while applying effects to video frames.</div>
+<div class="block">Thrown when a muxing failure occurs.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../serialized-form.html#com.google.android.exoplayer2.transformer.FrameProcessingException">Serialized Form</a></dd>
+<dd><a href="../../../../../serialized-form.html#com.google.android.exoplayer2.transformer.Muxer.MuxerException">Serialized Form</a></dd>
 </dl>
 </li>
 </ul>
@@ -150,31 +154,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#presentationTimeUs">presentationTimeUs</a></span></code></th>
-<td class="colLast">
-<div class="block">The microsecond timestamp of the frame being processed while the exception occurred or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -189,42 +168,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">FrameProcessingException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
-<td class="colLast">
-<div class="block">Creates an instance.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,long)">FrameProcessingException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                        long&nbsp;presentationTimeUs)</code></th>
-<td class="colLast">
-<div class="block">Creates an instance.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable)">FrameProcessingException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                        <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</code></th>
-<td class="colLast">
-<div class="block">Creates an instance.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,long)">FrameProcessingException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                        <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                        long&nbsp;presentationTimeUs)</code></th>
-<td class="colLast">
-<div class="block">Creates an instance.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable)">FrameProcessingException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</code></th>
-<td class="colLast">
-<div class="block">Creates an instance.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable,long)">FrameProcessingException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                        long&nbsp;presentationTimeUs)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable)">MuxerException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+              <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance.</div>
 </td>
@@ -263,26 +208,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a id="presentationTimeUs">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>presentationTimeUs</h4>
-<pre>public final&nbsp;long presentationTimeUs</pre>
-<div class="block">The microsecond timestamp of the frame being processed while the exception occurred or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -290,97 +215,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FrameProcessingException</h4>
-<pre>public&nbsp;FrameProcessingException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
-<div class="block">Creates an instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>message</code> - The detail message for this exception.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.lang.String,long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FrameProcessingException</h4>
-<pre>public&nbsp;FrameProcessingException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                                long&nbsp;presentationTimeUs)</pre>
-<div class="block">Creates an instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>message</code> - The detail message for this exception.</dd>
-<dd><code>presentationTimeUs</code> - The timestamp of the frame for which the exception occurred.</dd>
-</dl>
-</li>
-</ul>
 <a id="&lt;init&gt;(java.lang.String,java.lang.Throwable)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FrameProcessingException</h4>
-<pre>public&nbsp;FrameProcessingException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                                <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</pre>
-<div class="block">Creates an instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>message</code> - The detail message for this exception.</dd>
-<dd><code>cause</code> - The cause of this exception.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FrameProcessingException</h4>
-<pre>public&nbsp;FrameProcessingException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                                <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                                long&nbsp;presentationTimeUs)</pre>
-<div class="block">Creates an instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>message</code> - The detail message for this exception.</dd>
-<dd><code>cause</code> - The cause of this exception.</dd>
-<dd><code>presentationTimeUs</code> - The timestamp of the frame for which the exception occurred.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.lang.Throwable)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FrameProcessingException</h4>
-<pre>public&nbsp;FrameProcessingException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</pre>
-<div class="block">Creates an instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cause</code> - The cause of this exception.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.lang.Throwable,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>FrameProcessingException</h4>
-<pre>public&nbsp;FrameProcessingException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                                long&nbsp;presentationTimeUs)</pre>
+<h4>MuxerException</h4>
+<pre>public&nbsp;MuxerException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                      <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</pre>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cause</code> - The cause of this exception.</dd>
-<dd><code>presentationTimeUs</code> - The timestamp of the frame for which the exception occurred.</dd>
+<dd><code>message</code> - See <a href="https://developer.android.com/reference/java/lang/Throwable.html#getMessage()" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable.getMessage()</code></a>.</dd>
+<dd><code>cause</code> - See <a href="https://developer.android.com/reference/java/lang/Throwable.html#getCause()" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable.getCause()</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -436,13 +283,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li>Method</li>
 </ul>

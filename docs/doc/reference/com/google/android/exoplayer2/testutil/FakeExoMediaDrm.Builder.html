@@ -268,7 +268,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnforceValidKeyResponses</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setEnforceValidKeyResponses&#8203;(boolean&nbsp;enforceValidKeyResponses)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setEnforceValidKeyResponses&#8203;(boolean&nbsp;enforceValidKeyResponses)</pre>
 <div class="block">Sets whether key responses passed to <a href="FakeExoMediaDrm.html#provideKeyResponse(byte%5B%5D,byte%5B%5D)"><code>FakeExoMediaDrm.provideKeyResponse(byte[], byte[])</code></a> should be
  checked for validity (i.e. that they came from a <a href="FakeExoMediaDrm.LicenseServer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm.LicenseServer</code></a>).
 
@@ -281,7 +282,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setProvisionsRequired</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setProvisionsRequired&#8203;(int&nbsp;provisionsRequired)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setProvisionsRequired&#8203;(int&nbsp;provisionsRequired)</pre>
 <div class="block">Sets how many successful provisioning round trips are needed for the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a>
  to be provisioned.
 
@@ -297,7 +299,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>throwNotProvisionedExceptionFromGetKeyRequest</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;throwNotProvisionedExceptionFromGetKeyRequest()</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;throwNotProvisionedExceptionFromGetKeyRequest()</pre>
 <div class="block">Configures the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a> to throw any <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top"><code>NotProvisionedException</code></a> from
  <a href="FakeExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>FakeExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a> instead of the default behaviour of
  throwing from <a href="FakeExoMediaDrm.html#openSession()"><code>FakeExoMediaDrm.openSession()</code></a>.</div>
@@ -309,7 +312,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxConcurrentSessions</h4>
-<pre class="methodSignature">public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setMaxConcurrentSessions&#8203;(int&nbsp;maxConcurrentSessions)</pre>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setMaxConcurrentSessions&#8203;(int&nbsp;maxConcurrentSessions)</pre>
 <div class="block">Sets the maximum number of concurrent sessions the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a> will support.
 
  <p>If this is exceeded then subsequent calls to <a href="FakeExoMediaDrm.html#openSession()"><code>FakeExoMediaDrm.openSession()</code></a> will

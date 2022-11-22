@@ -486,10 +486,11 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 </tr>
 <tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg" target="_top">EventMessage</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,java.io.ByteArrayOutputStream)">parseEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,long,java.io.ByteArrayOutputStream)">parseEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
           long&nbsp;timescale,
+          long&nbsp;presentationTimeOffset,
           <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)</code></th>
 <td class="colLast">
 <div class="block">Parses a single Event node in the manifest.</div>
@@ -1242,7 +1243,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                        <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>[]&nbsp;events)</pre>
 </li>
 </ul>
-<a id="parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,java.io.ByteArrayOutputStream)">
+<a id="parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,long,java.io.ByteArrayOutputStream)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1252,6 +1253,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
                                                    long&nbsp;timescale,
+                                                   long&nbsp;presentationTimeOffset,
                                                    <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
                                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
                                                    <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
@@ -1262,6 +1264,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <dd><code>schemeIdUri</code> - The schemeIdUri of the parent EventStream.</dd>
 <dd><code>value</code> - The schemeIdUri of the parent EventStream.</dd>
 <dd><code>timescale</code> - The timescale of the parent EventStream.</dd>
+<dd><code>presentationTimeOffset</code> - The unscaled presentation time offset of the parent EventStream.</dd>
 <dd><code>scratchOutputStream</code> - A <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>ByteArrayOutputStream</code></a> that is used when parsing event
      objects.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

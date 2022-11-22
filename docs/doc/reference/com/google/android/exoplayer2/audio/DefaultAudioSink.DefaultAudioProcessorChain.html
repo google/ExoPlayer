@@ -130,7 +130,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dd><code><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></code>, <code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -230,8 +230,7 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkippedOutputFrameCount()">getSkippedOutputFrameCount</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the number of output audio frames skipped since the audio processors were last
- flushed.</div>
+<div class="block">Returns the number of output audio frames skipped since the audio processors were last flushed.</div>
 </td>
 </tr>
 </table>
@@ -299,13 +298,13 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
 <li class="blockList">
 <h4>getAudioProcessors</h4>
 <pre class="methodSignature">public&nbsp;<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;getAudioProcessors()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html#getAudioProcessors()">DefaultAudioSink.AudioProcessorChain</a></code></span></div>
-<div class="block">Returns the fixed chain of audio processors that will process audio. This method is called
- once during initialization, but audio processors may change state to become active/inactive
- during playback.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessorChain.html#getAudioProcessors()">AudioProcessorChain</a></code></span></div>
+<div class="block">Returns the fixed chain of audio processors that will process audio. This method is called once
+ during initialization, but audio processors may change state to become active/inactive during
+ playback.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html#getAudioProcessors()">getAudioProcessors</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dd><code><a href="AudioProcessorChain.html#getAudioProcessors()">getAudioProcessors</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -316,13 +315,13 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
 <li class="blockList">
 <h4>applyPlaybackParameters</h4>
 <pre class="methodSignature">public&nbsp;<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;applyPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html#applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">DefaultAudioSink.AudioProcessorChain</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessorChain.html#applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">AudioProcessorChain</a></code></span></div>
 <div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
- the new playback parameters, which may differ from those passed in. Only called when
- processors have no input pending.</div>
+ the new playback parameters, which may differ from those passed in. Only called when processors
+ have no input pending.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html#applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">applyPlaybackParameters</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dd><code><a href="AudioProcessorChain.html#applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">applyPlaybackParameters</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackParameters</code> - The playback parameters to try to apply.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -337,12 +336,12 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
 <li class="blockList">
 <h4>applySkipSilenceEnabled</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;applySkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html#applySkipSilenceEnabled(boolean)">DefaultAudioSink.AudioProcessorChain</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessorChain.html#applySkipSilenceEnabled(boolean)">AudioProcessorChain</a></code></span></div>
 <div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
  value. Only called when processors have no input pending.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html#applySkipSilenceEnabled(boolean)">applySkipSilenceEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dd><code><a href="AudioProcessorChain.html#applySkipSilenceEnabled(boolean)">applySkipSilenceEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>skipSilenceEnabled</code> - Whether silences should be skipped in the audio stream.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -357,7 +356,7 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
 <li class="blockList">
 <h4>getMediaDuration</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getMediaDuration&#8203;(long&nbsp;playoutDuration)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html#getMediaDuration(long)">DefaultAudioSink.AudioProcessorChain</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessorChain.html#getMediaDuration(long)">AudioProcessorChain</a></code></span></div>
 <div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
  adjustment due to audio processing into account.
 
@@ -366,7 +365,7 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
  from the target playback speed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html#getMediaDuration(long)">getMediaDuration</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dd><code><a href="AudioProcessorChain.html#getMediaDuration(long)">getMediaDuration</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playoutDuration</code> - The playout duration to scale.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -381,12 +380,11 @@ implements <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface 
 <li class="blockList">
 <h4>getSkippedOutputFrameCount</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getSkippedOutputFrameCount()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html#getSkippedOutputFrameCount()">DefaultAudioSink.AudioProcessorChain</a></code></span></div>
-<div class="block">Returns the number of output audio frames skipped since the audio processors were last
- flushed.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessorChain.html#getSkippedOutputFrameCount()">AudioProcessorChain</a></code></span></div>
+<div class="block">Returns the number of output audio frames skipped since the audio processors were last flushed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DefaultAudioSink.AudioProcessorChain.html#getSkippedOutputFrameCount()">getSkippedOutputFrameCount</a></code>&nbsp;in interface&nbsp;<code><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dd><code><a href="AudioProcessorChain.html#getSkippedOutputFrameCount()">getSkippedOutputFrameCount</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessorChain</a></code></dd>
 </dl>
 </li>
 </ul>
