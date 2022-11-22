@@ -27,45 +27,47 @@ This release corresponds to the
     *   Add `ExoPlayer.isTunnelingEnabled` to check if tunneling is enabled for
         the currently selected tracks
         ([#2518](https://github.com/google/ExoPlayer/issues/2518)).
-    *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
-        OutOfMemory errors when releasing multiple players at the same time
-        ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
-    *   Limit parallel download removals to 1 to avoid excessive thread creation
-        ([#10458](https://github.com/google/ExoPlayer/issues/10458)).
+    *   Add `WrappingMediaSource` to simplify wrapping a single `MediaSource`
+        ([#7279](https://github.com/google/ExoPlayer/issues/7279)).
     *   Discard back buffer before playback gets stuck due to insufficient
         available memory.
     *   Close the Tracing "doSomeWork" block when offload is enabled.
-    *   Try alternative decoder for Dolby Vision if display does not support it.
-        ([#9794](https://github.com/google/ExoPlayer/issues/9794)).
-    *   Prefer other tracks to Dolby Vision if display does not support it.
-        ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
     *   Fix session tracking problem with fast seeks in `PlaybackStatsListener`
         ([#180](https://github.com/androidx/media/issues/180)).
     *   Send missing `onMediaItemTransition` callback when calling `seekToNext`
         or `seekToPrevious` in a single-item playlist
         ([#10667](https://github.com/google/ExoPlayer/issues/10667)).
-    *   Enforce minimum `compileSdkVersion` to avoid compilation errors
-        ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
     *   Add `Player.getSurfaceSize` that returns the size of the surface on
         which the video is rendered.
     *   Fix bug where removing listeners during the player release can cause an
         `IllegalStateException`
         ([#10758](https://github.com/google/ExoPlayer/issues/10758)).
 *   Build:
+    *   Enforce minimum `compileSdkVersion` to avoid compilation errors
+        ([#10684](https://github.com/google/ExoPlayer/issues/10684)).
     *   Avoid publishing block when included in another gradle build.
+*   Track selection:
+    *   Prefer other tracks to Dolby Vision if display does not support it.
+        ([#8944](https://github.com/google/ExoPlayer/issues/8944)).
 *   Downloads:
     *   Fix potential infinite loop in `ProgressiveDownloader` caused by
         simultaneous download and playback with the same `PriorityTaskManager`
         ([#10570](https://github.com/google/ExoPlayer/pull/10570)).
     *   Make download notification appear immediately
-        ([#183](https://github.com/androidx/media/pull/183))
+        ([#183](https://github.com/androidx/media/pull/183)).
+    *   Limit parallel download removals to 1 to avoid excessive thread creation
+        ([#10458](https://github.com/google/ExoPlayer/issues/10458)).
+*   Video:
+    *   Try alternative decoder for Dolby Vision if display does not support it.
+        ([#9794](https://github.com/google/ExoPlayer/issues/9794)).
 *   Audio:
+    *   Use `SingleThreadExecutor` for releasing `AudioTrack` instances to avoid
+        OutOfMemory errors when releasing multiple players at the same time
+        ([#10057](https://github.com/google/ExoPlayer/issues/10057)).
     *   Adds `AudioOffloadListener.onExperimentalOffloadedPlayback` for the
         AudioTrack offload state.
         ([#134](https://github.com/androidx/media/issues/134)).
     *   Make `AudioTrackBufferSizeProvider` a public interface.
-    *   Add `WrappingMediaSource` to simplify wrapping a single `MediaSource`
-        ([#7279](https://github.com/google/ExoPlayer/issues/7279)).
     *   Add `ExoPlayer.setPreferredAudioDevice` to set the preferred audio
         output device ([#135](https://github.com/androidx/media/issues/135)).
     *   Rename `androidx.media3.exoplayer.audio.AudioProcessor` to
@@ -103,7 +105,7 @@ This release corresponds to the
         the notification ID, the notification channel ID and the notification
         channel name used by the provider. Also, add method
         `DefaultMediaNotificationProvider.setSmallIcon(int)` to set the
-        notifications small icon
+        notifications small icon.
         ([#104](https://github.com/androidx/media/issues/104)).
     *   Ensure commands sent before `MediaController.release()` are not dropped
         ([#99](https://github.com/androidx/media/issues/99)).
@@ -111,11 +113,9 @@ This release corresponds to the
         ([#108](https://github.com/androidx/media/issues/108)).
     *   Fix assertion that prevents `MediaController` to seek over an ad in a
         period ([#122](https://github.com/androidx/media/issues/122)).
-    *   Fix bug where the `MediaSessionService` was kept started in the
-        foreground and a notification with a pause button was still shown when
-        the player completed playback. Now, once playback is completed, the
-        service is stopped from the foreground and a notification with a play
-        button is shown to restart playback of the last media item
+    *   When playback ends, the `MediaSessionService` is stopped from the
+        foreground and a notification is shown to restart playback of the last
+        played media item
         ([#112](https://github.com/androidx/media/issues/112)).
     *   Don't start a foreground service with a pending intent for pause
         ([#167](https://github.com/androidx/media/issues/167)).
