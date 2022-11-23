@@ -15,6 +15,10 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+import static androidx.media3.common.Player.COMMAND_GET_TEXT;
+import static androidx.media3.common.Player.COMMAND_GET_TIMELINE;
+import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
@@ -274,7 +278,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     playerInfo = newPlayerWrapper.createPlayerInfoForBundling();
-    onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
+    onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+        /* excludeTimeline= */ false, /* excludeTracks= */ false);
   }
 
   public void release() {
@@ -374,7 +379,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           controller,
           (callback, seq) ->
               callback.onAvailableCommandsChangedFromSession(seq, sessionCommands, playerCommands));
-      onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
+      onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ false, /* excludeTracks= */ false);
     } else {
       sessionLegacyStub
           .getConnectedControllersManager()
@@ -387,7 +393,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         (controller, seq) -> controller.sendCustomCommand(seq, command, args));
   }
 
-  private void dispatchOnPlayerInfoChanged(PlayerInfo playerInfo, boolean excludeTimeline) {
+  private void dispatchOnPlayerInfoChanged(
+      PlayerInfo playerInfo, boolean excludeTimeline, boolean excludeTracks) {
 
     List<ControllerInfo> controllers =
         sessionStub.getConnectedControllersManager().getConnectedControllers();
@@ -395,8 +402,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       ControllerInfo controller = controllers.get(i);
       try {
         int seq;
-        SequencedFutureManager manager =
-            sessionStub.getConnectedControllersManager().getSequencedFutureManager(controller);
+        ConnectedControllersManager<IBinder> controllersManager =
+            sessionStub.getConnectedControllersManager();
+        SequencedFutureManager manager = controllersManager.getSequencedFutureManager(controller);
         if (manager != null) {
           seq = manager.obtainNextSequenceNumber();
         } else {
@@ -410,19 +418,18 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             .onPlayerInfoChanged(
                 seq,
                 playerInfo,
-                /* excludeMediaItems= */ !sessionStub
-                    .getConnectedControllersManager()
-                    .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TIMELINE),
-                /* excludeMediaItemsMetadata= */ !sessionStub
-                    .getConnectedControllersManager()
-                    .isPlayerCommandAvailable(controller, Player.COMMAND_GET_MEDIA_ITEMS_METADATA),
-                /* excludeCues= */ !sessionStub
-                    .getConnectedControllersManager()
-                    .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TEXT),
-                excludeTimeline,
-                /* excludeTracks= */ !sessionStub
-                    .getConnectedControllersManager()
-                    .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TRACKS));
+                /* excludeMediaItems= */ !controllersManager.isPlayerCommandAvailable(
+                    controller, COMMAND_GET_TIMELINE),
+                /* excludeMediaItemsMetadata= */ !controllersManager.isPlayerCommandAvailable(
+                    controller, COMMAND_GET_MEDIA_ITEMS_METADATA),
+                /* excludeCues= */ !controllersManager.isPlayerCommandAvailable(
+                    controller, COMMAND_GET_TEXT),
+                excludeTimeline
+                    || !controllersManager.isPlayerCommandAvailable(
+                        controller, COMMAND_GET_TIMELINE),
+                excludeTracks
+                    || !controllersManager.isPlayerCommandAvailable(controller, COMMAND_GET_TRACKS),
+                controller.getInterfaceVersion());
       } catch (DeadObjectException e) {
         onDeadObjectException(controller);
       } catch (RemoteException e) {
@@ -745,7 +752,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithPlayerError(error);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onPlayerError(seq, error));
     }
@@ -765,7 +773,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       // Note: OK to omit mediaItem here, because PlayerInfo changed message will copy playerInfo
       //       with sessionPositionInfo, which includes current window index.
       session.playerInfo = session.playerInfo.copyWithMediaItemTransitionReason(reason);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onMediaItemTransition(seq, mediaItem, reason));
     }
@@ -785,7 +794,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       session.playerInfo =
           session.playerInfo.copyWithPlayWhenReady(
               playWhenReady, reason, session.playerInfo.playbackSuppressionReason);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onPlayWhenReadyChanged(seq, playWhenReady, reason));
     }
@@ -806,7 +816,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
               session.playerInfo.playWhenReady,
               session.playerInfo.playWhenReadyChangedReason,
               reason);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onPlaybackSuppressionReasonChanged(seq, reason));
     }
@@ -824,7 +835,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       session.playerInfo =
           session.playerInfo.copyWithPlaybackState(playbackState, player.getPlayerError());
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> {
             callback.onPlaybackStateChanged(seq, playbackState, player.getPlayerError());
@@ -843,7 +855,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithIsPlaying(isPlaying);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onIsPlayingChanged(seq, isPlaying));
     }
@@ -860,7 +873,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithIsLoading(isLoading);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onIsLoadingChanged(seq, isLoading));
     }
@@ -880,7 +894,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
       session.playerInfo =
           session.playerInfo.copyWithPositionInfos(oldPosition, newPosition, reason);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) ->
               callback.onPositionDiscontinuity(seq, oldPosition, newPosition, reason));
@@ -898,7 +913,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithPlaybackParameters(playbackParameters);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onPlaybackParametersChanged(seq, playbackParameters));
     }
@@ -915,7 +931,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithSeekBackIncrement(seekBackIncrementMs);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onSeekBackIncrementChanged(seq, seekBackIncrementMs));
     }
@@ -932,7 +949,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithSeekForwardIncrement(seekForwardIncrementMs);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onSeekForwardIncrementChanged(seq, seekForwardIncrementMs));
     }
@@ -951,7 +969,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       session.playerInfo =
           session.playerInfo.copyWithTimelineAndSessionPositionInfo(
               timeline, player.createSessionPositionInfoForBundling());
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ false, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onTimelineChanged(seq, timeline, reason));
     }
@@ -964,7 +983,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       session.verifyApplicationThread();
       session.playerInfo = session.playerInfo.copyWithPlaylistMetadata(playlistMetadata);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onPlaylistMetadataChanged(seq, playlistMetadata));
     }
@@ -981,7 +1001,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithRepeatMode(repeatMode);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onRepeatModeChanged(seq, repeatMode));
     }
@@ -998,7 +1019,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithShuffleModeEnabled(shuffleModeEnabled);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onShuffleModeEnabledChanged(seq, shuffleModeEnabled));
     }
@@ -1015,7 +1037,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithAudioAttributes(attributes);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (controller, seq) -> controller.onAudioAttributesChanged(seq, attributes));
     }
@@ -1028,7 +1051,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       session.verifyApplicationThread();
       session.playerInfo = session.playerInfo.copyWithVideoSize(size);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onVideoSizeChanged(seq, size));
     }
@@ -1041,7 +1065,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       session.verifyApplicationThread();
       session.playerInfo = session.playerInfo.copyWithVolume(volume);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onVolumeChanged(seq, volume));
     }
@@ -1058,7 +1083,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = new PlayerInfo.Builder(session.playerInfo).setCues(cueGroup).build();
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
     }
 
     @Override
@@ -1073,7 +1099,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithDeviceInfo(deviceInfo);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onDeviceInfoChanged(seq, deviceInfo));
     }
@@ -1090,7 +1117,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithDeviceVolume(volume, muted);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onDeviceVolumeChanged(seq, volume, muted));
     }
@@ -1106,7 +1134,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       if (player == null) {
         return;
       }
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
+      boolean excludeTracks = !availableCommands.contains(COMMAND_GET_TRACKS);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ false, excludeTracks);
       session.dispatchRemoteControllerTaskWithoutReturn(
           (callback, seq) -> callback.onAvailableCommandsChangedFromPlayer(seq, availableCommands));
 
@@ -1128,7 +1158,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithCurrentTracks(tracks);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ false);
       session.dispatchRemoteControllerTaskWithoutReturn(
           (callback, seq) -> callback.onTracksChanged(seq, tracks));
     }
@@ -1145,7 +1176,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithTrackSelectionParameters(parameters);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskWithoutReturn(
           (callback, seq) -> callback.onTrackSelectionParametersChanged(seq, parameters));
     }
@@ -1162,7 +1194,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       session.playerInfo = session.playerInfo.copyWithMediaMetadata(mediaMetadata);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onMediaMetadataChanged(seq, mediaMetadata));
     }
@@ -1190,7 +1223,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       session.playerInfo =
           session.playerInfo.copyWithMaxSeekToPreviousPositionMs(maxSeekToPreviousPositionMs);
-      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(
+          /* excludeTimeline= */ true, /* excludeTracks= */ true);
     }
 
     @Nullable
@@ -1224,10 +1258,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     private static final int MSG_PLAYER_INFO_CHANGED = 1;
 
     private boolean excludeTimeline;
+    private boolean excludeTracks;
 
     public PlayerInfoChangedHandler(Looper looper) {
       super(looper);
       excludeTimeline = true;
+      excludeTracks = true;
     }
 
     @Override
@@ -1237,15 +1273,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             playerInfo.copyWithTimelineAndSessionPositionInfo(
                 getPlayerWrapper().getCurrentTimeline(),
                 getPlayerWrapper().createSessionPositionInfoForBundling());
-        dispatchOnPlayerInfoChanged(playerInfo, excludeTimeline);
+        dispatchOnPlayerInfoChanged(playerInfo, excludeTimeline, excludeTracks);
         excludeTimeline = true;
+        excludeTracks = true;
       } else {
         throw new IllegalStateException("Invalid message what=" + msg.what);
       }
     }
 
-    public void sendPlayerInfoChangedMessage(boolean excludeTimeline) {
+    public void sendPlayerInfoChangedMessage(boolean excludeTimeline, boolean excludeTracks) {
       this.excludeTimeline = this.excludeTimeline && excludeTimeline;
+      this.excludeTracks = this.excludeTracks && excludeTracks;
       if (!onPlayerInfoChangedHandler.hasMessages(MSG_PLAYER_INFO_CHANGED)) {
         onPlayerInfoChangedHandler.sendEmptyMessage(MSG_PLAYER_INFO_CHANGED);
       }

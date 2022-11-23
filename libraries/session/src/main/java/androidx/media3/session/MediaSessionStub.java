@@ -70,6 +70,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
@@ -1596,17 +1597,32 @@ import java.util.concurrent.ExecutionException;
         boolean excludeMediaItemsMetadata,
         boolean excludeCues,
         boolean excludeTimeline,
-        boolean excludeTracks)
+        boolean excludeTracks,
+        int controllerInterfaceVersion)
         throws RemoteException {
-      iController.onPlayerInfoChanged(
-          sequenceNumber,
-          playerInfo.toBundle(
-              excludeMediaItems,
-              excludeMediaItemsMetadata,
-              excludeCues,
-              excludeTimeline,
-              excludeTracks),
-          /* isTimelineExcluded= */ excludeTimeline);
+      Assertions.checkState(controllerInterfaceVersion != 0);
+      if (controllerInterfaceVersion >= 2) {
+        iController.onPlayerInfoChangedWithExclusions(
+            sequenceNumber,
+            playerInfo.toBundle(
+                excludeMediaItems,
+                excludeMediaItemsMetadata,
+                excludeCues,
+                excludeTimeline,
+                excludeTracks),
+            new PlayerInfo.BundlingExclusions(excludeTimeline, excludeTracks).toBundle());
+      } else {
+        //noinspection deprecation
+        iController.onPlayerInfoChanged(
+            sequenceNumber,
+            playerInfo.toBundle(
+                excludeMediaItems,
+                excludeMediaItemsMetadata,
+                excludeCues,
+                excludeTimeline,
+                /* excludeTracks= */ true),
+            excludeTimeline);
+      }
     }
 
     @Override

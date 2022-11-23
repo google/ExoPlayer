@@ -66,6 +66,10 @@ import java.lang.annotation.Target;
    */
   public static class BundlingExclusions implements Bundleable {
 
+    /** Bundling exclusions with no exclusions. */
+    public static final BundlingExclusions NONE =
+        new BundlingExclusions(
+            /* isTimelineExcluded= */ false, /* areCurrentTracksExcluded= */ false);
     /** Whether the {@linkplain PlayerInfo#timeline timeline} is excluded. */
     public final boolean isTimelineExcluded;
     /** Whether the {@linkplain PlayerInfo#currentTracks current tracks} are excluded. */

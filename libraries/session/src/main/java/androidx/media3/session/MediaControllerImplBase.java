@@ -23,6 +23,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.MediaUtils.intersect;
+import static androidx.media3.session.MediaUtils.mergePlayerInfo;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -42,6 +43,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
+import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -79,6 +81,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaController.MediaControllerImpl;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -129,7 +132,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Nullable private IMediaSession iSession;
   private long lastReturnedCurrentPositionMs;
   private long lastSetPlayWhenReadyCalledTimeMs;
-  @Nullable private Timeline pendingPlayerInfoUpdateTimeline;
+  @Nullable private PlayerInfo pendingPlayerInfo;
+  @Nullable private BundlingExclusions pendingBundlingExclusions;
 
   public MediaControllerImplBase(
       Context context,
@@ -2329,30 +2333,41 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
-  void onPlayerInfoChanged(PlayerInfo newPlayerInfo, boolean isTimelineExcluded) {
+  void onPlayerInfoChanged(PlayerInfo newPlayerInfo, BundlingExclusions bundlingExclusions) {
     if (!isConnected()) {
       return;
     }
+    if (pendingPlayerInfo != null && pendingBundlingExclusions != null) {
+      Pair<PlayerInfo, BundlingExclusions> mergedPlayerInfoUpdate =
+          mergePlayerInfo(
+              pendingPlayerInfo,
+              pendingBundlingExclusions,
+              newPlayerInfo,
+              bundlingExclusions,
+              intersectedPlayerCommands);
+      newPlayerInfo = mergedPlayerInfoUpdate.first;
+      bundlingExclusions = mergedPlayerInfoUpdate.second;
+    }
+    pendingPlayerInfo = null;
+    pendingBundlingExclusions = null;
     if (!pendingMaskingSequencedFutureNumbers.isEmpty()) {
       // We are still waiting for all pending masking operations to be handled.
-      if (!isTimelineExcluded) {
-        pendingPlayerInfoUpdateTimeline = newPlayerInfo.timeline;
-      }
+      pendingPlayerInfo = newPlayerInfo;
+      pendingBundlingExclusions = bundlingExclusions;
       return;
     }
     PlayerInfo oldPlayerInfo = playerInfo;
-    if (isTimelineExcluded) {
-      newPlayerInfo =
-          newPlayerInfo.copyWithTimeline(
-              pendingPlayerInfoUpdateTimeline != null
-                  ? pendingPlayerInfoUpdateTimeline
-                  : oldPlayerInfo.timeline);
-    }
     // Assigning class variable now so that all getters called from listeners see the updated value.
     // But we need to use a local final variable to ensure listeners get consistent parameters.
-    playerInfo = newPlayerInfo;
-    PlayerInfo finalPlayerInfo = newPlayerInfo;
-    pendingPlayerInfoUpdateTimeline = null;
+    playerInfo =
+        mergePlayerInfo(
+                oldPlayerInfo,
+                /* oldBundlingExclusions= */ BundlingExclusions.NONE,
+                newPlayerInfo,
+                /* newBundlingExclusions= */ bundlingExclusions,
+                intersectedPlayerCommands)
+            .first;
+    PlayerInfo finalPlayerInfo = playerInfo;
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
     PlaybackException playerError = finalPlayerInfo.playerError;
     boolean errorsMatch =
@@ -2397,7 +2412,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(finalPlayerInfo.shuffleModeEnabled));
     }
-    if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
+    if (!Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
       listeners.queueEvent(
           /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener ->

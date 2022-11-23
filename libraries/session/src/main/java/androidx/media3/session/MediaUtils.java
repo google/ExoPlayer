@@ -62,6 +62,7 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
 import android.text.TextUtils;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
@@ -87,6 +88,7 @@ import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1286,6 +1288,46 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
     return intersectCommandsBuilder.build();
+  }
+
+  /**
+   * Merges the excluded fields into the {@code newPlayerInfo} by taking the values of the {@code
+   * previousPlayerInfo} and taking into account the passed available commands.
+   *
+   * @param oldPlayerInfo The old {@link PlayerInfo}.
+   * @param oldBundlingExclusions The bundling exlusions in the old {@link PlayerInfo}.
+   * @param newPlayerInfo The new {@link PlayerInfo}.
+   * @param newBundlingExclusions The bundling exlusions in the new {@link PlayerInfo}.
+   * @param availablePlayerCommands The available commands to take into account when merging.
+   * @return A pair with the resulting {@link PlayerInfo} and {@link BundlingExclusions}.
+   */
+  public static Pair<PlayerInfo, BundlingExclusions> mergePlayerInfo(
+      PlayerInfo oldPlayerInfo,
+      BundlingExclusions oldBundlingExclusions,
+      PlayerInfo newPlayerInfo,
+      BundlingExclusions newBundlingExclusions,
+      Commands availablePlayerCommands) {
+    PlayerInfo mergedPlayerInfo = newPlayerInfo;
+    BundlingExclusions mergedBundlingExclusions = newBundlingExclusions;
+    if (newBundlingExclusions.isTimelineExcluded
+        && availablePlayerCommands.contains(Player.COMMAND_GET_TIMELINE)
+        && !oldBundlingExclusions.isTimelineExcluded) {
+      // Use the previous timeline if it is excluded in the most recent update.
+      mergedPlayerInfo = mergedPlayerInfo.copyWithTimeline(oldPlayerInfo.timeline);
+      mergedBundlingExclusions =
+          new BundlingExclusions(
+              /* isTimelineExcluded= */ false, mergedBundlingExclusions.areCurrentTracksExcluded);
+    }
+    if (newBundlingExclusions.areCurrentTracksExcluded
+        && availablePlayerCommands.contains(Player.COMMAND_GET_TRACKS)
+        && !oldBundlingExclusions.areCurrentTracksExcluded) {
+      // Use the previous tracks if it is excluded in the most recent update.
+      mergedPlayerInfo = mergedPlayerInfo.copyWithCurrentTracks(oldPlayerInfo.currentTracks);
+      mergedBundlingExclusions =
+          new BundlingExclusions(
+              mergedBundlingExclusions.isTimelineExcluded, /* areCurrentTracksExcluded= */ false);
+    }
+    return new Pair<>(mergedPlayerInfo, mergedBundlingExclusions);
   }
 
   private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {

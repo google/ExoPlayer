@@ -26,6 +26,7 @@ import androidx.media3.common.Player.Commands;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -35,7 +36,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private static final String TAG = "MediaControllerStub";
 
   /** The version of the IMediaController interface. */
-  public static final int VERSION_INT = 1;
+  public static final int VERSION_INT = 2;
 
   private final WeakReference<MediaControllerImplBase> controller;
 
@@ -169,8 +170,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         controller -> controller.notifyPeriodicSessionPositionInfoChanged(sessionPositionInfo));
   }
 
+  /**
+   * @deprecated Use {@link #onPlayerInfoChangedWithExclusions} from {@link #VERSION_INT} 2.
+   */
   @Override
+  @Deprecated
   public void onPlayerInfoChanged(int seq, Bundle playerInfoBundle, boolean isTimelineExcluded) {
+    onPlayerInfoChangedWithExclusions(
+        seq,
+        playerInfoBundle,
+        new BundlingExclusions(isTimelineExcluded, /* areCurrentTracksExcluded= */ true)
+            .toBundle());
+  }
+
+  /** Added in {@link #VERSION_INT} 2. */
+  @Override
+  public void onPlayerInfoChangedWithExclusions(
+      int seq, Bundle playerInfoBundle, Bundle playerInfoExclusions) {
     PlayerInfo playerInfo;
     try {
       playerInfo = PlayerInfo.CREATOR.fromBundle(playerInfoBundle);
@@ -178,8 +194,15 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       Log.w(TAG, "Ignoring malformed Bundle for PlayerInfo", e);
       return;
     }
+    BundlingExclusions bundlingExclusions;
+    try {
+      bundlingExclusions = BundlingExclusions.CREATOR.fromBundle(playerInfoExclusions);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for BundlingExclusions", e);
+      return;
+    }
     dispatchControllerTaskOnHandler(
-        controller -> controller.onPlayerInfoChanged(playerInfo, isTimelineExcluded));
+        controller -> controller.onPlayerInfoChanged(playerInfo, bundlingExclusions));
   }
 
   @Override
