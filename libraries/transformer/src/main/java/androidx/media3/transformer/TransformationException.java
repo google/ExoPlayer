@@ -41,12 +41,11 @@ import java.lang.annotation.Target;
 public final class TransformationException extends Exception {
 
   /**
-   * Codes that identify causes of {@link Transformer} errors.
+   * Error codes that identify causes of {@link Transformer} errors.
    *
    * <p>This list of errors may be extended in future versions. The underlying values may also
    * change, so it is best to avoid relying on them directly without using the constants.
    */
-  // TODO(b/209469847): Update the javadoc once the underlying values are fixed.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
