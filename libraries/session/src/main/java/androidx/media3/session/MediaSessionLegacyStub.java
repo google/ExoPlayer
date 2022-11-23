@@ -118,7 +118,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
-  private final Handler mainHandler;
 
   private volatile long connectionTimeoutMs;
   @Nullable private FutureCallback<Bitmap> pendingBitmapLoadCallback;
@@ -162,7 +161,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Initialized
     MediaSessionLegacyStub thisRef = this;
     sessionCompat.setCallback(thisRef, handler);
-    mainHandler = new Handler(Looper.getMainLooper());
   }
 
   /** Starts to receive commands. */
@@ -1205,7 +1203,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 }
               };
           Futures.addCallback(
-              bitmapFuture, pendingBitmapLoadCallback, /* executor= */ mainHandler::post);
+              bitmapFuture,
+              pendingBitmapLoadCallback,
+              /* executor= */ sessionImpl.getApplicationHandler()::post);
         }
       }
       setMetadata(
