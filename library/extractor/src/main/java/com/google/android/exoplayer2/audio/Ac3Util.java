@@ -156,9 +156,6 @@ public final class Ac3Util {
     if ((nextByte & 0x04) != 0) { // lfeon
       channelCount++;
     }
-    // bit_rate_code - 5 bits. 2 bits from previous byte and 3 bits from next.
-    int halfFrmsizecod = ((nextByte & 0x03) << 3) | ((data.readUnsignedByte() & 0xE0) >> 5);
-    int constantBitrate = BITRATE_BY_HALF_FRMSIZECOD[halfFrmsizecod];
     return new Format.Builder()
         .setId(trackId)
         .setSampleMimeType(MimeTypes.AUDIO_AC3)
@@ -166,8 +163,6 @@ public final class Ac3Util {
         .setSampleRate(sampleRate)
         .setDrmInitData(drmInitData)
         .setLanguage(language)
-        .setAverageBitrate(constantBitrate)
-        .setPeakBitrate(constantBitrate)
         .build();
   }
 
@@ -183,9 +178,7 @@ public final class Ac3Util {
    */
   public static Format parseEAc3AnnexFFormat(
       ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
-    // 13 bits for data_rate, 3 bits for num_ind_sub which are ignored.
-    int peakBitrate =
-        ((data.readUnsignedByte() & 0xFF) << 5) | ((data.readUnsignedByte() & 0xF8) >> 3);
+    data.skipBytes(2); // data_rate, num_ind_sub
 
     // Read the first independent substream.
     int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
@@ -221,7 +214,6 @@ public final class Ac3Util {
         .setSampleRate(sampleRate)
         .setDrmInitData(drmInitData)
         .setLanguage(language)
-        .setPeakBitrate(peakBitrate)
         .build();
   }
 
