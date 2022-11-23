@@ -18,10 +18,13 @@ package androidx.media3.session;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
+import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA_BROWSER_SERVICE_COMPAT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_CONNECT_REJECTED;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_CHILDREN;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_LIBRARY_ROOT;
@@ -161,6 +164,48 @@ public class MediaBrowserListenerWithMediaBrowserServiceCompatTest {
 
     Bundle extras = resultForLibraryRoot.params.extras;
     assertThat(extras.getInt(ROOT_EXTRAS_KEY, ROOT_EXTRAS_VALUE + 1)).isEqualTo(ROOT_EXTRAS_VALUE);
+  }
+
+  @Test
+  public void getLibraryRoot_browsableRootChildrenOnly_receivesRootWithBrowsableChildrenOnly()
+      throws Exception {
+    remoteService.setProxyForTest(TEST_GET_LIBRARY_ROOT);
+    MediaBrowser browser = createBrowser(/* listener= */ null);
+
+    LibraryResult<MediaItem> resultForLibraryRoot =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  Bundle extras = new Bundle();
+                  extras.putBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, true);
+                  return browser.getLibraryRoot(
+                      new LibraryParams.Builder().setExtras(extras).build());
+                })
+            .get(TIMEOUT_MS, MILLISECONDS);
+
+    assertThat(resultForLibraryRoot.value.mediaId)
+        .isEqualTo(ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY);
+  }
+
+  @Test
+  public void getLibraryRoot_browsableRootChildrenOnlyFalse_receivesDefaultRoot() throws Exception {
+    remoteService.setProxyForTest(TEST_GET_LIBRARY_ROOT);
+    MediaBrowser browser = createBrowser(/* listener= */ null);
+
+    LibraryResult<MediaItem> resultForLibraryRoot =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  Bundle extras = new Bundle();
+                  extras.putBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, false);
+                  return browser.getLibraryRoot(
+                      new LibraryParams.Builder().setExtras(extras).build());
+                })
+            .get(TIMEOUT_MS, MILLISECONDS);
+
+    assertThat(resultForLibraryRoot.value.mediaId).isEqualTo(ROOT_ID);
   }
 
   @Test

@@ -20,6 +20,7 @@ import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATU
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
+import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static androidx.media3.session.MediaTestUtils.assertLibraryParamsEquals;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION;
@@ -39,6 +40,7 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_I
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_EMPTY_RESULT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_LONG_LIST;
@@ -231,6 +233,22 @@ public class MockMediaLibraryService extends MediaLibraryService {
                         .setIsPlayable(false)
                         .build())
                 .build();
+      }
+      if (params != null) {
+        boolean browsableRootChildrenOnly =
+            params.extras.getBoolean(
+                EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, /* defaultValue= */ false);
+        if (browsableRootChildrenOnly) {
+          rootItem =
+              new MediaItem.Builder()
+                  .setMediaId(ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY)
+                  .setMediaMetadata(
+                      new MediaMetadata.Builder()
+                          .setFolderType(MediaMetadata.FOLDER_TYPE_MIXED)
+                          .setIsPlayable(false)
+                          .build())
+                  .build();
+        }
       }
       return Futures.immediateFuture(LibraryResult.ofItem(rootItem, ROOT_PARAMS));
     }

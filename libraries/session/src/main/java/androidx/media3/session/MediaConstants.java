@@ -389,11 +389,30 @@ public final class MediaConstants {
    *
    * @see MediaLibrarySession.Callback#onGetLibraryRoot(MediaLibrarySession,
    *     MediaSession.ControllerInfo, LibraryParams)
+   * @see MediaBrowser#getLibraryRoot(LibraryParams)
    * @see LibraryParams#extras
    */
   @UnstableApi
   public static final String EXTRAS_KEY_ROOT_CHILDREN_LIMIT =
       androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_LIMIT;
+
+  /**
+   * {@link Bundle} key used in {@link LibraryParams#extras} passed to {@link
+   * MediaLibrarySession.Callback#onGetLibraryRoot(MediaLibrarySession, MediaSession.ControllerInfo,
+   * LibraryParams)} to indicate whether only browsable media items are supported as children of the
+   * root node by the {@link MediaBrowser}. If true, root children that are not browsable may be
+   * omitted or made less discoverable.
+   *
+   * <p>TYPE: boolean.
+   *
+   * @see MediaLibrarySession.Callback#onGetLibraryRoot(MediaLibrarySession,
+   *     MediaSession.ControllerInfo, LibraryParams)
+   * @see MediaBrowser#getLibraryRoot(LibraryParams)
+   * @see LibraryParams#extras
+   */
+  @UnstableApi
+  public static final String EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY =
+      "androidx.media3.session.LibraryParams.Extras.KEY_ROOT_CHILDREN_BROWSABLE_ONLY";
 
   /**
    * {@link Bundle} key used in {@link LibraryParams#extras} passed by the {@link MediaBrowser} as

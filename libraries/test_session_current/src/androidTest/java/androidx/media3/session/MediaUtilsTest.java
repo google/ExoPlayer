@@ -15,8 +15,12 @@
  */
 package androidx.media3.session;
 
+import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE;
+import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
+import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
+import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -34,6 +38,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.utils.MediaConstants;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.HeartRating;
@@ -271,16 +276,54 @@ public final class MediaUtilsTest {
     assertThat(MediaUtils.convertToLibraryParams(context, null)).isNull();
     Bundle rootHints = new Bundle();
     rootHints.putString("key", "value");
+    rootHints.putInt(
+        MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, FLAG_BROWSABLE);
     rootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_OFFLINE, true);
     rootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_RECENT, true);
     rootHints.putBoolean(MediaBrowserService.BrowserRoot.EXTRA_SUGGESTED, true);
 
     MediaLibraryService.LibraryParams params =
         MediaUtils.convertToLibraryParams(context, rootHints);
+
+    assertThat(params.extras.getString("key")).isEqualTo("value");
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isTrue();
+    assertThat(params.extras.containsKey(BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS))
+        .isFalse();
     assertThat(params.isOffline).isTrue();
     assertThat(params.isRecent).isTrue();
     assertThat(params.isSuggested).isTrue();
-    assertThat(params.extras.getString("key")).isEqualTo("value");
+  }
+
+  @Test
+  public void convertToLibraryParams_rootHintsBrowsableNoFlagSet_browsableOnlyFalse() {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, 0);
+
+    MediaLibraryService.LibraryParams params =
+        MediaUtils.convertToLibraryParams(context, rootHints);
+
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isFalse();
+  }
+
+  @Test
+  public void convertToLibraryParams_rootHintsPlayableFlagSet_browsableOnlyFalse() {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(
+        MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+        FLAG_PLAYABLE | FLAG_BROWSABLE);
+
+    MediaLibraryService.LibraryParams params =
+        MediaUtils.convertToLibraryParams(context, rootHints);
+
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isFalse();
+  }
+
+  @Test
+  public void convertToLibraryParams_rootHintsBrowsableAbsentKey_browsableOnlyFalse() {
+    MediaLibraryService.LibraryParams params =
+        MediaUtils.convertToLibraryParams(context, /* legacyBundle= */ Bundle.EMPTY);
+
+    assertThat(params.extras.getBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isFalse();
   }
 
   @Test
@@ -288,6 +331,7 @@ public final class MediaUtilsTest {
     assertThat(MediaUtils.convertToRootHints(null)).isNull();
     Bundle extras = new Bundle();
     extras.putString("key", "value");
+    extras.putBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, true);
     MediaLibraryService.LibraryParams param =
         new MediaLibraryService.LibraryParams.Builder()
             .setOffline(true)
@@ -295,11 +339,44 @@ public final class MediaUtilsTest {
             .setSuggested(true)
             .setExtras(extras)
             .build();
+
     Bundle rootHints = MediaUtils.convertToRootHints(param);
+
+    assertThat(
+            rootHints.getInt(
+                BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, /* defaultValue= */ 0))
+        .isEqualTo(FLAG_BROWSABLE);
+    assertThat(rootHints.getString("key")).isEqualTo("value");
+    assertThat(rootHints.get(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isNull();
     assertThat(rootHints.getBoolean(MediaBrowserService.BrowserRoot.EXTRA_OFFLINE)).isTrue();
     assertThat(rootHints.getBoolean(MediaBrowserService.BrowserRoot.EXTRA_RECENT)).isTrue();
     assertThat(rootHints.getBoolean(MediaBrowserService.BrowserRoot.EXTRA_SUGGESTED)).isTrue();
-    assertThat(rootHints.getString("key")).isEqualTo("value");
+  }
+
+  @Test
+  public void convertToRootHints_browsableOnlyFalse_correctLegacyBrowsableFlags() {
+    Bundle extras = new Bundle();
+    extras.putBoolean(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, false);
+    MediaLibraryService.LibraryParams param =
+        new MediaLibraryService.LibraryParams.Builder().setExtras(extras).build();
+
+    Bundle rootHints = MediaUtils.convertToRootHints(param);
+
+    assertThat(
+            rootHints.getInt(
+                BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, /* defaultValue= */ -1))
+        .isEqualTo(FLAG_BROWSABLE | FLAG_PLAYABLE);
+    assertThat(rootHints.get(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)).isNull();
+  }
+
+  @Test
+  public void convertToRootHints_browsableAbsentKey_noLegacyKeyAdded() {
+    MediaLibraryService.LibraryParams param =
+        new MediaLibraryService.LibraryParams.Builder().build();
+
+    Bundle rootHints = MediaUtils.convertToRootHints(param);
+
+    assertThat(rootHints.get(BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS)).isNull();
   }
 
   @Test

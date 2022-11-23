@@ -16,6 +16,7 @@
 package androidx.media3.session;
 
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
+import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static androidx.media3.common.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
@@ -38,6 +39,7 @@ import static androidx.media3.common.Player.COMMAND_STOP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.constrainValue;
+import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -996,6 +998,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     try {
       legacyBundle.setClassLoader(context.getClassLoader());
+      int supportedChildrenFlags =
+          legacyBundle.getInt(
+              BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS, /* defaultValue= */ -1);
+      if (supportedChildrenFlags >= 0) {
+        legacyBundle.remove(BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS);
+        legacyBundle.putBoolean(
+            EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY,
+            supportedChildrenFlags == MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
+      }
       return new LibraryParams.Builder()
           .setExtras(legacyBundle)
           .setRecent(legacyBundle.getBoolean(BrowserRoot.EXTRA_RECENT))
@@ -1015,6 +1026,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return null;
     }
     Bundle rootHints = new Bundle(params.extras);
+    if (params.extras.containsKey(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY)) {
+      boolean browsableChildrenSupported =
+          params.extras.getBoolean(
+              EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY, /* defaultValue= */ false);
+      rootHints.remove(EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY);
+      rootHints.putInt(
+          BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+          browsableChildrenSupported
+              ? MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+              : MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+                  | MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+    }
     rootHints.putBoolean(BrowserRoot.EXTRA_RECENT, params.isRecent);
     rootHints.putBoolean(BrowserRoot.EXTRA_OFFLINE, params.isOffline);
     rootHints.putBoolean(BrowserRoot.EXTRA_SUGGESTED, params.isSuggested);
