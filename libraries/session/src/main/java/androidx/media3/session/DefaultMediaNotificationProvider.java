@@ -244,8 +244,6 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   private final String channelId;
   @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
-  // Cache the last bitmap load request to avoid reloading the bitmap again, particularly useful
-  // when showing a notification for the same item (e.g. when switching from playing to paused).
   private final Handler mainHandler;
 
   private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
