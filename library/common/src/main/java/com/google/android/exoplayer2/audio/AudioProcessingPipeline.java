@@ -210,8 +210,11 @@ public final class AudioProcessingPipeline {
     if (!isOperational()) {
       return EMPTY_BUFFER;
     }
-    processData(EMPTY_BUFFER);
-    return outputBuffers[getFinalOutputBufferIndex()];
+    ByteBuffer outputBuffer = outputBuffers[getFinalOutputBufferIndex()];
+    if (!outputBuffer.hasRemaining()) {
+      processData(EMPTY_BUFFER);
+    }
+    return outputBuffer;
   }
 
   /**
