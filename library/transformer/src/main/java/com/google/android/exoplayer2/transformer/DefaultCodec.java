@@ -158,7 +158,8 @@ public final class DefaultCodec implements Codec {
       // stuck if too many frames are rendered without being processed, so limit the number of
       // pending frames to avoid getting stuck. This value is experimentally determined. See also
       // b/213455700, b/230097284, b/229978305, and b/245491744.
-      // TODO(b/230097284): Add a maximum API check after we know which APIs will never use OMX.
+      //
+      // OMX video codecs should no longer exist from android.os.Build.DEVICE_INITIAL_SDK_INT 31+.
       return 5;
     }
     // Otherwise don't limit the number of frames that can be pending at a time, to maximize
