@@ -807,11 +807,10 @@ public class MediaSession {
 
   /**
    * Returns the {@link MediaSessionCompat.Token} of the {@link MediaSessionCompat} created
-   * internally by this session. You may cast the {@link Object} to {@link
-   * MediaSessionCompat.Token}.
+   * internally by this session.
    */
   @UnstableApi
-  public Object getSessionCompatToken() {
+  public MediaSessionCompat.Token getSessionCompatToken() {
     return impl.getSessionCompat().getSessionToken();
   }
 
