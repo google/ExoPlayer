@@ -29,6 +29,7 @@
       android:label="@string/app_name"
       android:theme="@style/Theme.AppCompat"
       android:taskAffinity=""
+      android:requestLegacyExternalStorage="true"
       tools:targetApi="29">
     <activity android:name=".ConfigurationActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"

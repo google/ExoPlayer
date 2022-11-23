@@ -118,10 +118,10 @@ public final class SessionToken implements Bundleable {
       type = TYPE_BROWSER_SERVICE_LEGACY;
     } else {
       throw new IllegalArgumentException(
-          serviceComponent
-              + " doesn't implement none of"
-              + " MediaSessionService, MediaLibraryService, MediaBrowserService nor"
-              + " MediaBrowserServiceCompat. Use service's full name");
+          "Failed to resolve SessionToken for "
+              + serviceComponent
+              + ". Manifest doesn't declare one of either MediaSessionService, MediaLibraryService,"
+              + " MediaBrowserService or MediaBrowserServiceCompat. Use service's full name.");
     }
     if (type != TYPE_BROWSER_SERVICE_LEGACY) {
       impl = new SessionTokenImplBase(serviceComponent, uid, type);
@@ -133,11 +133,14 @@ public final class SessionToken implements Bundleable {
   /* package */ SessionToken(
       int uid,
       int type,
-      int version,
+      int libraryVersion,
+      int interfaceVersion,
       String packageName,
       IMediaSession iSession,
       Bundle tokenExtras) {
-    impl = new SessionTokenImplBase(uid, type, version, packageName, iSession, tokenExtras);
+    impl =
+        new SessionTokenImplBase(
+            uid, type, libraryVersion, interfaceVersion, packageName, iSession, tokenExtras);
   }
 
   /* package */ SessionToken(Context context, MediaSessionCompat.Token compatToken) {
@@ -230,7 +233,16 @@ public final class SessionToken implements Bundleable {
    * {@code 1000000} if the session is a legacy session.
    */
   public int getSessionVersion() {
-    return impl.getSessionVersion();
+    return impl.getLibraryVersion();
+  }
+
+  /**
+   * Returns the interface version of the session if the {@link #getType() type} is {@link
+   * #TYPE_SESSION}. Otherwise, it returns {@code 0}.
+   */
+  @UnstableApi
+  public int getInterfaceVersion() {
+    return impl.getInterfaceVersion();
   }
 
   /**
@@ -387,7 +399,7 @@ public final class SessionToken implements Bundleable {
     try {
       return manager.getApplicationInfo(packageName, 0).uid;
     } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalArgumentException("Cannot find package " + packageName);
+      throw new IllegalArgumentException("Cannot find package " + packageName, e);
     }
   }
 
@@ -412,7 +424,9 @@ public final class SessionToken implements Bundleable {
     @TokenType
     int getType();
 
-    int getSessionVersion();
+    int getLibraryVersion();
+
+    int getInterfaceVersion();
 
     Bundle getExtras();
 

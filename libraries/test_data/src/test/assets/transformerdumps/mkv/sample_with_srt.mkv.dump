@@ -1,4 +1,3 @@
-containerMimeType = video/mp4
 format 0:
   sampleMimeType = audio/mp4a-latm
   channelCount = 1

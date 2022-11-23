@@ -23,27 +23,29 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_STOP;
+import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.castNonNull;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.DoNotInline;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
-import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -51,10 +53,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * The default {@link MediaNotification.Provider}.
@@ -89,11 +93,127 @@ import java.util.concurrent.ExecutionException;
  *   <li><b>{@code media3_notification_seek_to_previous}</b> - The previous icon.
  *   <li><b>{@code media3_notification_seek_to_next}</b> - The next icon.
  *   <li><b>{@code media3_notification_small_icon}</b> - The {@link
- *       NotificationCompat.Builder#setSmallIcon(int) small icon}.
+ *       NotificationCompat.Builder#setSmallIcon(int) small icon}. A different icon can be set with
+ *       {@link #setSmallIcon(int)}.
+ * </ul>
+ *
+ * <h2>String resources</h2>
+ *
+ * String resources used can be overridden by resources with the same names defined the application.
+ * These are:
+ *
+ * <ul>
+ *   <li><b>{@code media3_controls_play_description}</b> - The description of the play icon.
+ *   <li><b>{@code media3_controls_pause_description}</b> - The description of the pause icon.
+ *   <li><b>{@code media3_controls_seek_to_previous_description}</b> - The description of the
+ *       previous icon.
+ *   <li><b>{@code media3_controls_seek_to_next_description}</b> - The description of the next icon.
+ *   <li><b>{@code default_notification_channel_name}</b> The name of the {@link
+ *       NotificationChannel} on which created notifications are posted. A different string resource
+ *       can be set when constructing the provider with {@link
+ *       DefaultMediaNotificationProvider.Builder#setChannelName(int)}.
  * </ul>
  */
 @UnstableApi
 public class DefaultMediaNotificationProvider implements MediaNotification.Provider {
+
+  /** A builder for {@link DefaultMediaNotificationProvider} instances. */
+  public static final class Builder {
+    private final Context context;
+    private NotificationIdProvider notificationIdProvider;
+    private String channelId;
+    @StringRes private int channelNameResourceId;
+    private boolean built;
+
+    /**
+     * Creates a builder.
+     *
+     * @param context Any {@link Context}.
+     */
+    public Builder(Context context) {
+      this.context = context;
+      notificationIdProvider = session -> DEFAULT_NOTIFICATION_ID;
+      channelId = DEFAULT_CHANNEL_ID;
+      channelNameResourceId = DEFAULT_CHANNEL_NAME_RESOURCE_ID;
+    }
+
+    /**
+     * Sets the {@link MediaNotification#notificationId} used for the created notifications. By
+     * default, this is set to {@link #DEFAULT_NOTIFICATION_ID}.
+     *
+     * <p>Overwrites anything set in {@link #setNotificationIdProvider(NotificationIdProvider)}.
+     *
+     * @param notificationId The notification ID.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setNotificationId(int notificationId) {
+      this.notificationIdProvider = session -> notificationId;
+      return this;
+    }
+
+    /**
+     * Sets the provider for the {@link MediaNotification#notificationId} used for the created
+     * notifications. By default, this is set to a provider that always returns {@link
+     * #DEFAULT_NOTIFICATION_ID}.
+     *
+     * <p>Overwrites anything set in {@link #setNotificationId(int)}.
+     *
+     * @param notificationIdProvider The notification ID provider.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setNotificationIdProvider(NotificationIdProvider notificationIdProvider) {
+      this.notificationIdProvider = notificationIdProvider;
+      return this;
+    }
+
+    /**
+     * Sets the ID of the {@link NotificationChannel} on which created notifications are posted on.
+     * By default, this is set to {@link #DEFAULT_CHANNEL_ID}.
+     *
+     * @param channelId The channel ID.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setChannelId(String channelId) {
+      this.channelId = channelId;
+      return this;
+    }
+
+    /**
+     * Sets the name of the {@link NotificationChannel} on which created notifications are posted
+     * on. By default, this is set to {@link #DEFAULT_CHANNEL_NAME_RESOURCE_ID}.
+     *
+     * @param channelNameResourceId The string resource ID with the channel name.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setChannelName(@StringRes int channelNameResourceId) {
+      this.channelNameResourceId = channelNameResourceId;
+      return this;
+    }
+
+    /**
+     * Builds the {@link DefaultMediaNotificationProvider}. The method can be called at most once.
+     */
+    public DefaultMediaNotificationProvider build() {
+      checkState(!built);
+      DefaultMediaNotificationProvider provider = new DefaultMediaNotificationProvider(this);
+      built = true;
+      return provider;
+    }
+  }
+
+  /**
+   * Provides notification IDs for posting media notifications for given media sessions.
+   *
+   * @see Builder#setNotificationIdProvider(NotificationIdProvider)
+   */
+  public interface NotificationIdProvider {
+    /** Returns the notification ID for the media notification of the given session. */
+    int getNotificationId(MediaSession mediaSession);
+  }
 
   /**
    * An extras key that can be used to define the index of a {@link CommandButton} in {@linkplain
@@ -102,37 +222,48 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   public static final String COMMAND_KEY_COMPACT_VIEW_INDEX =
       "androidx.media3.session.command.COMPACT_VIEW_INDEX";
 
+  /** The default ID used for the {@link MediaNotification#notificationId}. */
+  public static final int DEFAULT_NOTIFICATION_ID = 1001;
+  /**
+   * The default ID used for the {@link NotificationChannel} on which created notifications are
+   * posted on.
+   */
+  public static final String DEFAULT_CHANNEL_ID = "default_channel_id";
+  /**
+   * The default name used for the {@link NotificationChannel} on which created notifications are
+   * posted on.
+   */
+  @StringRes
+  public static final int DEFAULT_CHANNEL_NAME_RESOURCE_ID =
+      R.string.default_notification_channel_name;
+
   private static final String TAG = "NotificationProvider";
-  private static final int NOTIFICATION_ID = 1001;
-  private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
-  private static final String NOTIFICATION_CHANNEL_NAME = "Now playing";
 
   private final Context context;
+  private final NotificationIdProvider notificationIdProvider;
+  private final String channelId;
+  @StringRes private final int channelNameResourceId;
   private final NotificationManager notificationManager;
-  private final BitmapLoader bitmapLoader;
-  // Cache the last loaded bitmap to avoid reloading the bitmap again, particularly useful when
-  // showing a notification for the same item (e.g. when switching from playing to paused).
-  private final LoadedBitmapInfo lastLoadedBitmapInfo;
+  // Cache the last bitmap load request to avoid reloading the bitmap again, particularly useful
+  // when showing a notification for the same item (e.g. when switching from playing to paused).
   private final Handler mainHandler;
 
-  private OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
+  private @MonotonicNonNull OnBitmapLoadedFutureCallback pendingOnBitmapLoadedFutureCallback;
+  @DrawableRes private int smallIconResourceId;
 
-  /** Creates an instance that uses a {@link SimpleBitmapLoader} for loading artwork images. */
-  public DefaultMediaNotificationProvider(Context context) {
-    this(context, new SimpleBitmapLoader());
-  }
-
-  /** Creates an instance that uses the {@code bitmapLoader} for loading artwork images. */
-  public DefaultMediaNotificationProvider(Context context, BitmapLoader bitmapLoader) {
-    this.context = context.getApplicationContext();
-    this.bitmapLoader = bitmapLoader;
-    lastLoadedBitmapInfo = new LoadedBitmapInfo();
-    mainHandler = new Handler(Looper.getMainLooper());
+  private DefaultMediaNotificationProvider(Builder builder) {
+    this.context = builder.context;
+    this.notificationIdProvider = builder.notificationIdProvider;
+    this.channelId = builder.channelId;
+    this.channelNameResourceId = builder.channelNameResourceId;
     notificationManager =
         checkStateNotNull(
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
-    pendingOnBitmapLoadedFutureCallback = new OnBitmapLoadedFutureCallback(bitmap -> {});
+    mainHandler = new Handler(Looper.getMainLooper());
+    smallIconResourceId = R.drawable.media3_notification_small_icon;
   }
+
+  // MediaNotification.Provider implementation
 
   @Override
   public final MediaNotification createNotification(
@@ -143,23 +274,34 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     ensureNotificationChannel();
 
     Player player = mediaSession.getPlayer();
-    NotificationCompat.Builder builder =
-        new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
+    int notificationId = notificationIdProvider.getNotificationId(mediaSession);
 
     MediaStyle mediaStyle = new MediaStyle();
     int[] compactViewIndices =
         addNotificationActions(
             mediaSession,
-            getMediaButtons(player.getAvailableCommands(), customLayout, player.getPlayWhenReady()),
+            getMediaButtons(
+                player.getAvailableCommands(),
+                customLayout,
+                /* showPauseButton= */ player.getPlayWhenReady()
+                    && player.getPlaybackState() != STATE_ENDED),
             builder,
             actionFactory);
     mediaStyle.setShowActionsInCompactView(compactViewIndices);
 
     // Set metadata info in the notification.
     MediaMetadata metadata = player.getMediaMetadata();
-    builder.setContentTitle(metadata.title).setContentText(metadata.artist);
-    @Nullable ListenableFuture<Bitmap> bitmapFuture = loadArtworkBitmap(metadata);
+    builder
+        .setContentTitle(getNotificationContentTitle(metadata))
+        .setContentText(getNotificationContentText(metadata));
+    @Nullable
+    ListenableFuture<Bitmap> bitmapFuture =
+        mediaSession.getBitmapLoader().loadBitmapFromMetadata(metadata);
     if (bitmapFuture != null) {
+      if (pendingOnBitmapLoadedFutureCallback != null) {
+        pendingOnBitmapLoadedFutureCallback.discardIfPending();
+      }
       if (bitmapFuture.isDone()) {
         try {
           builder.setLargeIcon(Futures.getDone(bitmapFuture));
@@ -167,14 +309,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
           Log.w(TAG, "Failed to load bitmap", e);
         }
       } else {
+        pendingOnBitmapLoadedFutureCallback =
+            new OnBitmapLoadedFutureCallback(
+                notificationId, builder, onNotificationChangedCallback);
         Futures.addCallback(
             bitmapFuture,
-            new OnBitmapLoadedFutureCallback(
-                bitmap -> {
-                  builder.setLargeIcon(bitmap);
-                  onNotificationChangedCallback.onNotificationChanged(
-                      new MediaNotification(NOTIFICATION_ID, builder.build()));
-                }),
+            pendingOnBitmapLoadedFutureCallback,
             // This callback must be executed on the next looper iteration, after this method has
             // returned a media notification.
             mainHandler::post);
@@ -200,18 +340,30 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
             .setDeleteIntent(
                 actionFactory.createMediaActionPendingIntent(mediaSession, COMMAND_STOP))
             .setOnlyAlertOnce(true)
-            .setSmallIcon(R.drawable.media3_notification_small_icon)
+            .setSmallIcon(smallIconResourceId)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(false)
             .build();
-    return new MediaNotification(NOTIFICATION_ID, notification);
+    return new MediaNotification(notificationId, notification);
   }
 
   @Override
   public final boolean handleCustomCommand(MediaSession session, String action, Bundle extras) {
     // Make the custom action being delegated to the session as a custom session command.
     return false;
+  }
+
+  // Other methods
+
+  /**
+   * Sets the small icon of the notification which is also shown in the system status bar.
+   *
+   * @see NotificationCompat.Builder#setSmallIcon(int)
+   * @param smallIconResourceId The resource id of the small icon.
+   */
+  public final void setSmallIcon(@DrawableRes int smallIconResourceId) {
+    this.smallIconResourceId = smallIconResourceId;
   }
 
   /**
@@ -223,7 +375,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * <p>Override this method to customize the buttons on the notification. Commands of the buttons
    * returned by this method must be contained in {@link MediaController#getAvailableCommands()}.
    *
-   * <p>By default the notification shows {@link Player#COMMAND_PLAY_PAUSE} in {@linkplain
+   * <p>By default, the notification shows {@link Player#COMMAND_PLAY_PAUSE} in {@linkplain
    * Notification.MediaStyle#setShowActionsInCompactView(int...) compact view}. This can be
    * customized by defining the index of the command in compact view of up to 3 commands in their
    * extras with key {@link DefaultMediaNotificationProvider#COMMAND_KEY_COMPACT_VIEW_INDEX}.
@@ -239,11 +391,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * @param playerCommands The available player commands.
    * @param customLayout The {@linkplain MediaSession#setCustomLayout(List) custom layout of
    *     commands}.
-   * @param playWhenReady The current {@code playWhenReady} state.
+   * @param showPauseButton Whether the notification should show a pause button (e.g., because the
+   *     player is currently playing content), otherwise show a play button to start playback.
    * @return The ordered list of command buttons to be placed on the notification.
    */
   protected List<CommandButton> getMediaButtons(
-      Player.Commands playerCommands, List<CommandButton> customLayout, boolean playWhenReady) {
+      Player.Commands playerCommands, List<CommandButton> customLayout, boolean showPauseButton) {
     // Skip to previous action.
     List<CommandButton> commandButtons = new ArrayList<>();
     if (playerCommands.containsAny(COMMAND_SEEK_TO_PREVIOUS, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
@@ -265,12 +418,12 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
           new CommandButton.Builder()
               .setPlayerCommand(COMMAND_PLAY_PAUSE)
               .setIconResId(
-                  playWhenReady
+                  showPauseButton
                       ? R.drawable.media3_notification_pause
                       : R.drawable.media3_notification_play)
               .setExtras(commandButtonExtras)
               .setDisplayName(
-                  playWhenReady
+                  showPauseButton
                       ? context.getString(R.string.media3_controls_pause_description)
                       : context.getString(R.string.media3_controls_play_description))
               .build());
@@ -308,7 +461,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
    * and define which actions are shown in compact view by returning the indices of the buttons to
    * be shown in compact view.
    *
-   * <p>By default {@link Player#COMMAND_PLAY_PAUSE} is shown in compact view, unless some of the
+   * <p>By default, {@link Player#COMMAND_PLAY_PAUSE} is shown in compact view, unless some of the
    * buttons are marked with {@link DefaultMediaNotificationProvider#COMMAND_KEY_COMPACT_VIEW_INDEX}
    * to declare the index in compact view of the given command button in the button extras.
    *
@@ -366,50 +519,48 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     return compactViewIndices;
   }
 
-  private void ensureNotificationChannel() {
-    if (Util.SDK_INT < 26
-        || notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {
-      return;
-    }
-    NotificationChannel channel =
-        new NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW);
-    notificationManager.createNotificationChannel(channel);
+  /**
+   * Returns the content title to be used to build the notification.
+   *
+   * <p>This method is called each time a new notification is built.
+   *
+   * <p>Override this method to customize which field of {@link MediaMetadata} is used for content
+   * title of the notification.
+   *
+   * <p>By default, the notification shows {@link MediaMetadata#title} as content title.
+   *
+   * @param metadata The media metadata from which content title is fetched.
+   * @return Notification content title.
+   */
+  @Nullable
+  protected CharSequence getNotificationContentTitle(MediaMetadata metadata) {
+    return metadata.title;
   }
 
   /**
-   * Requests from the bitmapLoader to load artwork or returns null if the metadata don't include
-   * artwork.
+   * Returns the content text to be used to build the notification.
+   *
+   * <p>This method is called each time a new notification is built.
+   *
+   * <p>Override this method to customize which field of {@link MediaMetadata} is used for content
+   * text of the notification.
+   *
+   * <p>By default, the notification shows {@link MediaMetadata#artist} as content text.
+   *
+   * @param metadata The media metadata from which content text is fetched.
+   * @return Notification content text.
    */
   @Nullable
-  private ListenableFuture<Bitmap> loadArtworkBitmap(MediaMetadata metadata) {
-    if (lastLoadedBitmapInfo.matches(metadata.artworkData)
-        || lastLoadedBitmapInfo.matches(metadata.artworkUri)) {
-      return Futures.immediateFuture(lastLoadedBitmapInfo.getBitmap());
-    }
+  protected CharSequence getNotificationContentText(MediaMetadata metadata) {
+    return metadata.artist;
+  }
 
-    ListenableFuture<Bitmap> future;
-    Consumer<Bitmap> onBitmapLoaded;
-    if (metadata.artworkData != null) {
-      future = bitmapLoader.decodeBitmap(metadata.artworkData);
-      onBitmapLoaded =
-          bitmap -> lastLoadedBitmapInfo.setBitmapInfo(castNonNull(metadata.artworkData), bitmap);
-    } else if (metadata.artworkUri != null) {
-      future = bitmapLoader.loadBitmap(metadata.artworkUri);
-      onBitmapLoaded =
-          bitmap -> lastLoadedBitmapInfo.setBitmapInfo(castNonNull(metadata.artworkUri), bitmap);
-    } else {
-      return null;
+  private void ensureNotificationChannel() {
+    if (Util.SDK_INT < 26 || notificationManager.getNotificationChannel(channelId) != null) {
+      return;
     }
-
-    pendingOnBitmapLoadedFutureCallback.discardIfPending();
-    pendingOnBitmapLoadedFutureCallback = new OnBitmapLoadedFutureCallback(onBitmapLoaded);
-    Futures.addCallback(
-        future,
-        pendingOnBitmapLoadedFutureCallback,
-        // It's ok to run this immediately to update the last loaded bitmap.
-        runnable -> Util.postOrRun(mainHandler, runnable));
-    return future;
+    Api26.createNotificationChannel(
+        notificationManager, channelId, context.getString(channelNameResourceId));
   }
 
   private static long getPlaybackStartTimeEpochMs(Player player) {
@@ -426,13 +577,19 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   }
 
   private static class OnBitmapLoadedFutureCallback implements FutureCallback<Bitmap> {
-
-    private final Consumer<Bitmap> consumer;
+    private final int notificationId;
+    private final NotificationCompat.Builder builder;
+    private final Callback onNotificationChangedCallback;
 
     private boolean discarded;
 
-    private OnBitmapLoadedFutureCallback(Consumer<Bitmap> consumer) {
-      this.consumer = consumer;
+    public OnBitmapLoadedFutureCallback(
+        int notificationId,
+        NotificationCompat.Builder builder,
+        Callback onNotificationChangedCallback) {
+      this.notificationId = notificationId;
+      this.builder = builder;
+      this.onNotificationChangedCallback = onNotificationChangedCallback;
     }
 
     public void discardIfPending() {
@@ -442,7 +599,9 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     @Override
     public void onSuccess(Bitmap result) {
       if (!discarded) {
-        consumer.accept(result);
+        builder.setLargeIcon(result);
+        onNotificationChangedCallback.onNotificationChanged(
+            new MediaNotification(notificationId, builder.build()));
       }
     }
 
@@ -454,37 +613,20 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     }
   }
 
-  /**
-   * Caches the last loaded bitmap. The key to identify a bitmap is either a byte array, if the
-   * bitmap is loaded from compressed data, or a URI, if the bitmap was loaded from a URI.
-   */
-  private static class LoadedBitmapInfo {
-    @Nullable private byte[] data;
-    @Nullable private Uri uri;
-    @Nullable private Bitmap bitmap;
-
-    public boolean matches(@Nullable byte[] data) {
-      return this.data != null && data != null && Arrays.equals(this.data, data);
-    }
-
-    public boolean matches(@Nullable Uri uri) {
-      return this.uri != null && this.uri.equals(uri);
-    }
-
-    public Bitmap getBitmap() {
-      return checkStateNotNull(bitmap);
-    }
-
-    public void setBitmapInfo(byte[] data, Bitmap bitmap) {
-      this.data = data;
-      this.bitmap = bitmap;
-      this.uri = null;
-    }
-
-    public void setBitmapInfo(Uri uri, Bitmap bitmap) {
-      this.uri = uri;
-      this.bitmap = bitmap;
-      this.data = null;
+  @RequiresApi(26)
+  private static class Api26 {
+    @DoNotInline
+    public static void createNotificationChannel(
+        NotificationManager notificationManager, String channelId, String channelName) {
+      NotificationChannel channel =
+          new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+      if (Util.SDK_INT <= 27) {
+        // API 28+ will automatically hide the app icon 'badge' for notifications using
+        // Notification.MediaStyle, but we have to manually hide it for APIs 26 (when badges were
+        // added) and 27.
+        channel.setShowBadge(false);
+      }
+      notificationManager.createNotificationChannel(channel);
     }
   }
 }

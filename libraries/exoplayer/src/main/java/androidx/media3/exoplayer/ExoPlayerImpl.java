@@ -26,6 +26,7 @@ import static androidx.media3.exoplayer.Renderer.MSG_SET_AUDIO_SESSION_ID;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_AUX_EFFECT_INFO;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY;
+import static androidx.media3.exoplayer.Renderer.MSG_SET_PREFERRED_AUDIO_DEVICE;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_SCALING_MODE;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
 import static androidx.media3.exoplayer.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
@@ -38,6 +39,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.media.MediaFormat;
@@ -80,6 +82,7 @@ import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.PlayerMessage.Target;
 import androidx.media3.exoplayer.Renderer.MessageType;
@@ -105,6 +108,7 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener;
 import androidx.media3.exoplayer.video.spherical.CameraMotionListener;
 import androidx.media3.exoplayer.video.spherical.SphericalGLSurfaceView;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -189,8 +193,7 @@ import java.util.concurrent.TimeoutException;
   @Nullable private TextureView textureView;
   private @C.VideoScalingMode int videoScalingMode;
   private @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy;
-  private int surfaceWidth;
-  private int surfaceHeight;
+  private Size surfaceSize;
   @Nullable private DecoderCounters videoDecoderCounters;
   @Nullable private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
@@ -355,7 +358,7 @@ import java.util.concurrent.TimeoutException;
       } else {
         audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
-      currentCueGroup = CueGroup.EMPTY;
+      currentCueGroup = CueGroup.EMPTY_TIME_ZERO;
       throwsWhenUsingWrongThread = true;
 
       addListener(analyticsCollector);
@@ -379,6 +382,7 @@ import java.util.concurrent.TimeoutException;
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
+      surfaceSize = Size.UNKNOWN;
 
       trackSelector.setAudioAttributes(audioAttributes);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
@@ -397,6 +401,7 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -405,6 +410,7 @@ import java.util.concurrent.TimeoutException;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -413,6 +419,7 @@ import java.util.concurrent.TimeoutException;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -421,6 +428,7 @@ import java.util.concurrent.TimeoutException;
     return this;
   }
 
+  @CanIgnoreReturnValue
   @SuppressWarnings("deprecation") // Returning deprecated class.
   @Override
   @Deprecated
@@ -535,7 +543,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   @Override
@@ -656,7 +665,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   @Override
@@ -674,7 +684,8 @@ import java.util.concurrent.TimeoutException;
         positionDiscontinuity,
         DISCONTINUITY_REASON_REMOVE,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   @Override
@@ -704,7 +715,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   @Override
@@ -728,7 +740,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   @Override
@@ -808,46 +821,16 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  protected void repeatCurrentMediaItem() {
+    verifyApplicationThread();
+    seekToInternal(
+        getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET, /* repeatMediaItem= */ true);
+  }
+
+  @Override
   public void seekTo(int mediaItemIndex, long positionMs) {
     verifyApplicationThread();
-    analyticsCollector.notifySeekStarted();
-    Timeline timeline = playbackInfo.timeline;
-    if (mediaItemIndex < 0
-        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
-    }
-    pendingOperationAcks++;
-    if (isPlayingAd()) {
-      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
-      // general because the midroll ad preceding the seek destination must be played before the
-      // content position can be played, if a different ad is playing at the moment.
-      Log.w(TAG, "seekTo ignored because an ad is playing");
-      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
-          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
-      playbackInfoUpdate.incrementPendingOperationAcks(1);
-      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
-      return;
-    }
-    @Player.State
-    int newPlaybackState =
-        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
-    int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
-    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
-    newPlaybackInfo =
-        maskTimelineAndPosition(
-            newPlaybackInfo,
-            timeline,
-            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
-    internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
-    updatePlaybackInfo(
-        newPlaybackInfo,
-        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ true,
-        /* positionDiscontinuity= */ true,
-        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
-        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
-        oldMaskingMediaItemIndex);
+    seekToInternal(mediaItemIndex, positionMs, /* repeatMediaItem= */ false);
   }
 
   @Override
@@ -888,7 +871,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   @Override
@@ -942,7 +926,7 @@ import java.util.concurrent.TimeoutException;
     verifyApplicationThread();
     audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
     stopInternal(reset, /* error= */ null);
-    currentCueGroup = CueGroup.EMPTY;
+    currentCueGroup = new CueGroup(ImmutableList.of(), playbackInfo.positionUs);
   }
 
   @Override
@@ -996,7 +980,7 @@ import java.util.concurrent.TimeoutException;
       checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
-    currentCueGroup = CueGroup.EMPTY;
+    currentCueGroup = CueGroup.EMPTY_TIME_ZERO;
     playerReleased = true;
   }
 
@@ -1247,6 +1231,12 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  public Size getSurfaceSize() {
+    verifyApplicationThread();
+    return surfaceSize;
+  }
+
+  @Override
   public void clearVideoSurface() {
     verifyApplicationThread();
     removeSurfaceCallbacks();
@@ -1437,6 +1427,13 @@ import java.util.concurrent.TimeoutException;
     setAuxEffectInfo(new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, /* sendLevel= */ 0f));
   }
 
+  @RequiresApi(23)
+  @Override
+  public void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    verifyApplicationThread();
+    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_PREFERRED_AUDIO_DEVICE, audioDeviceInfo);
+  }
+
   @Override
   public void setVolume(float volume) {
     verifyApplicationThread();
@@ -1484,14 +1481,13 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
-    analyticsCollector.addListener(listener);
+    analyticsCollector.addListener(checkNotNull(listener));
   }
 
   @Override
   public void removeAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    analyticsCollector.removeListener(listener);
+    analyticsCollector.removeListener(checkNotNull(listener));
   }
 
   @Override
@@ -1602,8 +1598,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addListener(Listener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    checkNotNull(listener);
-    listeners.add(listener);
+    listeners.add(checkNotNull(listener));
   }
 
   @Override
@@ -1682,6 +1677,17 @@ import java.util.concurrent.TimeoutException;
     streamVolumeManager.setMuted(muted);
   }
 
+  @Override
+  public boolean isTunnelingEnabled() {
+    verifyApplicationThread();
+    for (RendererConfiguration config : playbackInfo.trackSelectorResult.rendererConfigurations) {
+      if (config.tunneling) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
@@ -1721,7 +1727,8 @@ import java.util.concurrent.TimeoutException;
         positionDiscontinuity,
         DISCONTINUITY_REASON_REMOVE,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(playbackInfo),
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   private int getCurrentWindowIndexInternal() {
@@ -1803,7 +1810,8 @@ import java.util.concurrent.TimeoutException;
           positionDiscontinuity,
           pendingDiscontinuityReason,
           discontinuityWindowStartPositionUs,
-          /* ignored */ C.INDEX_UNSET);
+          /* ignored */ C.INDEX_UNSET,
+          /* repeatCurrentMediaItem= */ false);
     }
   }
 
@@ -1817,7 +1825,8 @@ import java.util.concurrent.TimeoutException;
       boolean positionDiscontinuity,
       @DiscontinuityReason int positionDiscontinuityReason,
       long discontinuityWindowStartPositionUs,
-      int oldMaskingMediaItemIndex) {
+      int oldMaskingMediaItemIndex,
+      boolean repeatCurrentMediaItem) {
 
     // Assign playback info immediately such that all getters return the right values, but keep
     // snapshot of previous and new state so that listener invocations are triggered correctly.
@@ -1825,13 +1834,15 @@ import java.util.concurrent.TimeoutException;
     PlaybackInfo newPlaybackInfo = playbackInfo;
     this.playbackInfo = playbackInfo;
 
+    boolean timelineChanged = !previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline);
     Pair<Boolean, Integer> mediaItemTransitionInfo =
         evaluateMediaItemTransitionReason(
             newPlaybackInfo,
             previousPlaybackInfo,
             positionDiscontinuity,
             positionDiscontinuityReason,
-            !previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline));
+            timelineChanged,
+            repeatCurrentMediaItem);
     boolean mediaItemTransitioned = mediaItemTransitionInfo.first;
     int mediaItemTransitionReason = mediaItemTransitionInfo.second;
     MediaMetadata newMediaMetadata = mediaMetadata;
@@ -1868,7 +1879,7 @@ import java.util.concurrent.TimeoutException;
       updatePriorityTaskManagerForIsLoadingChange(newPlaybackInfo.isLoading);
     }
 
-    if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
+    if (timelineChanged) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
@@ -2071,7 +2082,8 @@ import java.util.concurrent.TimeoutException;
       PlaybackInfo oldPlaybackInfo,
       boolean positionDiscontinuity,
       @DiscontinuityReason int positionDiscontinuityReason,
-      boolean timelineChanged) {
+      boolean timelineChanged,
+      boolean repeatCurrentMediaItem) {
 
     Timeline oldTimeline = oldPlaybackInfo.timeline;
     Timeline newTimeline = playbackInfo.timeline;
@@ -2102,11 +2114,20 @@ import java.util.concurrent.TimeoutException;
         throw new IllegalStateException();
       }
       return new Pair<>(/* isTransitioning */ true, transitionReason);
-    } else if (positionDiscontinuity
-        && positionDiscontinuityReason == DISCONTINUITY_REASON_AUTO_TRANSITION
-        && oldPlaybackInfo.periodId.windowSequenceNumber
-            < playbackInfo.periodId.windowSequenceNumber) {
-      return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+    } else {
+      // Only mark changes within the current item as a transition if we are repeating automatically
+      // or via a seek to next/previous.
+      if (positionDiscontinuity
+          && positionDiscontinuityReason == DISCONTINUITY_REASON_AUTO_TRANSITION
+          && oldPlaybackInfo.periodId.windowSequenceNumber
+              < playbackInfo.periodId.windowSequenceNumber) {
+        return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+      }
+      if (positionDiscontinuity
+          && positionDiscontinuityReason == DISCONTINUITY_REASON_SEEK
+          && repeatCurrentMediaItem) {
+        return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_SEEK);
+      }
     }
     return new Pair<>(/* isTransitioning */ false, /* mediaItemTransitionReason */ C.INDEX_UNSET);
   }
@@ -2177,7 +2198,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ positionDiscontinuity,
         DISCONTINUITY_REASON_REMOVE,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   private List<MediaSourceList.MediaSourceHolder> addMediaSourceHolders(
@@ -2530,9 +2552,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   private void maybeNotifySurfaceSizeChanged(int width, int height) {
-    if (width != surfaceWidth || height != surfaceHeight) {
-      surfaceWidth = width;
-      surfaceHeight = height;
+    if (width != surfaceSize.getWidth() || height != surfaceSize.getHeight()) {
+      surfaceSize = new Size(width, height);
       listeners.sendEvent(
           EVENT_SURFACE_SIZE_CHANGED, listener -> listener.onSurfaceSizeChanged(width, height));
     }
@@ -2569,7 +2590,8 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
+        /* ignored */ C.INDEX_UNSET,
+        /* repeatCurrentMediaItem= */ false);
   }
 
   private void updateWakeAndWifiLock() {
@@ -2665,6 +2687,48 @@ import java.util.concurrent.TimeoutException;
         isPriorityTaskManagerRegistered = false;
       }
     }
+  }
+
+  private void seekToInternal(int mediaItemIndex, long positionMs, boolean repeatMediaItem) {
+    analyticsCollector.notifySeekStarted();
+    Timeline timeline = playbackInfo.timeline;
+    if (mediaItemIndex < 0
+        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
+      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
+    }
+    pendingOperationAcks++;
+    if (isPlayingAd()) {
+      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
+      // general because the midroll ad preceding the seek destination must be played before the
+      // content position can be played, if a different ad is playing at the moment.
+      Log.w(TAG, "seekTo ignored because an ad is playing");
+      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
+          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
+      playbackInfoUpdate.incrementPendingOperationAcks(1);
+      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
+      return;
+    }
+    @Player.State
+    int newPlaybackState =
+        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : STATE_BUFFERING;
+    int oldMaskingMediaItemIndex = getCurrentMediaItemIndex();
+    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
+    newPlaybackInfo =
+        maskTimelineAndPosition(
+            newPlaybackInfo,
+            timeline,
+            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
+    internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
+    updatePlaybackInfo(
+        newPlaybackInfo,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ true,
+        /* positionDiscontinuity= */ true,
+        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
+        /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
+        oldMaskingMediaItemIndex,
+        repeatMediaItem);
   }
 
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {

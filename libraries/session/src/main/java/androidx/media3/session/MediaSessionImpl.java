@@ -61,6 +61,7 @@ import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
@@ -115,8 +116,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final PendingIntent mediaButtonIntent;
   @Nullable private final BroadcastReceiver broadcastReceiver;
   private final Handler applicationHandler;
+  private final BitmapLoader bitmapLoader;
 
   @Nullable private PlayerListener playerListener;
+  @Nullable private MediaSession.Listener mediaSessionListener;
 
   private PlayerInfo playerInfo;
   private PlayerWrapper playerWrapper;
@@ -138,7 +141,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       Player player,
       @Nullable PendingIntent sessionActivity,
       MediaSession.Callback callback,
-      Bundle tokenExtras) {
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
     this.context = context;
     this.instance = instance;
 
@@ -151,6 +155,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     applicationHandler = new Handler(player.getApplicationLooper());
     this.callback = callback;
+    this.bitmapLoader = bitmapLoader;
 
     playerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
@@ -176,6 +181,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             Process.myUid(),
             SessionToken.TYPE_SESSION,
             MediaLibraryInfo.VERSION_INT,
+            MediaSessionStub.VERSION_INT,
             context.getPackageName(),
             sessionStub,
             tokenExtras);
@@ -210,6 +216,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       broadcastReceiver = new MediaButtonReceiver();
       IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
       filter.addDataScheme(castNonNull(sessionUri.getScheme()));
+      // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
       context.registerReceiver(broadcastReceiver, filter);
     } else {
       // Has MediaSessionService to revive playback after it's dead.
@@ -354,6 +361,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
+  public BitmapLoader getBitmapLoader() {
+    return bitmapLoader;
+  }
+
   public void setAvailableCommands(
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
@@ -400,18 +411,21 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             .onPlayerInfoChanged(
                 seq,
                 playerInfo,
-                !sessionStub
+                /* excludeMediaItems= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TIMELINE),
-                !sessionStub
+                /* excludeMediaItemsMetadata= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_MEDIA_ITEMS_METADATA),
-                !sessionStub
+                /* excludeCues= */ !sessionStub
                     .getConnectedControllersManager()
                     .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TEXT),
-                excludeTimeline);
+                excludeTimeline,
+                /* excludeTracks= */ !sessionStub
+                    .getConnectedControllersManager()
+                    .isPlayerCommandAvailable(controller, Player.COMMAND_GET_TRACKS));
       } catch (DeadObjectException e) {
-        onDeadObjectException(controller, e);
+        onDeadObjectException(controller);
       } catch (RemoteException e) {
         // Currently it's TransactionTooLargeException or DeadSystemException.
         // We'd better to leave log for those cases because
@@ -471,12 +485,19 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   public void connectFromService(
       IMediaController caller,
       int controllerVersion,
+      int controllerInterfaceVersion,
       String packageName,
       int pid,
       int uid,
       Bundle connectionHints) {
     sessionStub.connect(
-        caller, controllerVersion, packageName, pid, uid, checkStateNotNull(connectionHints));
+        caller,
+        controllerVersion,
+        controllerInterfaceVersion,
+        packageName,
+        pid,
+        uid,
+        checkStateNotNull(connectionHints));
   }
 
   public MediaSessionCompat getSessionCompat() {
@@ -553,6 +574,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
+  /* package */ void setMediaSessionListener(@Nullable MediaSession.Listener listener) {
+    this.mediaSessionListener = listener;
+  }
+
+  /* package */ void onNotificationRefreshRequired() {
+    if (this.mediaSessionListener != null) {
+      this.mediaSessionListener.onNotificationRefreshRequired(instance);
+    }
+  }
+
   private void dispatchRemoteControllerTaskToLegacyStub(RemoteControllerTask task) {
     try {
       task.run(sessionLegacyStub.getControllerLegacyCbForBroadcast(), /* seq= */ 0);
@@ -596,7 +627,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         task.run(cb, seq);
       }
     } catch (DeadObjectException e) {
-      onDeadObjectException(controller, e);
+      onDeadObjectException(controller);
     } catch (RemoteException e) {
       // Currently it's TransactionTooLargeException or DeadSystemException.
       // We'd better to leave log for those cases because
@@ -633,7 +664,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       }
       return future;
     } catch (DeadObjectException e) {
-      onDeadObjectException(controller, e);
+      onDeadObjectException(controller);
       return Futures.immediateFuture(new SessionResult(RESULT_ERROR_SESSION_DISCONNECTED));
     } catch (RemoteException e) {
       // Currently it's TransactionTooLargeException or DeadSystemException.
@@ -647,7 +678,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   /** Removes controller. Call this when DeadObjectException is happened with binder call. */
-  private void onDeadObjectException(ControllerInfo controller, DeadObjectException e) {
+  private void onDeadObjectException(ControllerInfo controller) {
     // Note: Only removing from MediaSessionStub and ignoring (legacy) stubs would be fine for
     //       now. Because calls to the legacy stubs doesn't throw DeadObjectException.
     sessionStub.getConnectedControllersManager().removeController(controller);
@@ -1084,6 +1115,23 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       // COMMAND_ADJUST_DEVICE_VOLUME or COMMAND_SET_DEVICE_VOLUME value has changed.
       session.dispatchRemoteControllerTaskToLegacyStub(
           (callback, seq) -> callback.onDeviceInfoChanged(seq, session.playerInfo.deviceInfo));
+    }
+
+    @Override
+    public void onTracksChanged(Tracks tracks) {
+      @Nullable MediaSessionImpl session = getSession();
+      if (session == null) {
+        return;
+      }
+      session.verifyApplicationThread();
+      @Nullable PlayerWrapper player = this.player.get();
+      if (player == null) {
+        return;
+      }
+      session.playerInfo = session.playerInfo.copyWithCurrentTracks(tracks);
+      session.onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ true);
+      session.dispatchRemoteControllerTaskWithoutReturn(
+          (callback, seq) -> callback.onTracksChanged(seq, tracks));
     }
 
     @Override

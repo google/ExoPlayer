@@ -24,6 +24,8 @@ public class MediaBrowserServiceCompatConstants {
   public static final String TEST_CONNECT_REJECTED = "testConnect_rejected";
   public static final String TEST_ON_CHILDREN_CHANGED_SUBSCRIBE_AND_UNSUBSCRIBE =
       "testOnChildrenChanged_subscribeAndUnsubscribe";
+  public static final String TEST_GET_LIBRARY_ROOT = "getLibraryRoot_correctExtraKeyAndValue";
+  public static final String TEST_GET_CHILDREN = "getChildren_correctMetadataExtras";
 
   private MediaBrowserServiceCompatConstants() {}
 }

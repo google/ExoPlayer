@@ -21,6 +21,7 @@ import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR_
 import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ;
 import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
 
+import android.media.CamcorderProfile;
 import android.media.MediaCodecInfo;
 import android.util.Pair;
 import android.util.Range;
@@ -45,13 +46,43 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class EncoderCapabilityAnalysisTest {
 
-  // TODO(b/228167357): Remove after bumping compileApiVersion to 33.
-  /** Re-definition of {@code MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing} in API33. */
-  private static final String FEATURE_HdrEditing = "hdr-editing";
-  /**
-   * Re-definition of {@code MediaCodecInfo.CodecCapabilities.FEATURE_EncodingStatistics} in API33.
-   */
-  private static final String FEATURE_EncodingStatistics = "encoding-statistics";
+  private static final String CAMCORDER_FORMAT_STRING = "%dx%d@%dfps:%dkbps";
+  private static final String CAMCORDER_TIMELAPSE_FORMAT_STRING = "timelapse_%dx%d@%dfps:%dkbps";
+  private static final String CAMCORDER_HIGH_SPEED_FORMAT_STRING = "highspeed_%dx%d@%dfps:%dkbps";
+
+  private static final ImmutableList<Integer> DEFINED_CAMCORDER_PROFILES =
+      ImmutableList.of(
+          CamcorderProfile.QUALITY_QCIF,
+          CamcorderProfile.QUALITY_CIF,
+          CamcorderProfile.QUALITY_480P,
+          CamcorderProfile.QUALITY_720P,
+          CamcorderProfile.QUALITY_1080P,
+          CamcorderProfile.QUALITY_QVGA,
+          CamcorderProfile.QUALITY_2160P,
+          CamcorderProfile.QUALITY_VGA,
+          CamcorderProfile.QUALITY_4KDCI,
+          CamcorderProfile.QUALITY_QHD,
+          CamcorderProfile.QUALITY_2K,
+          CamcorderProfile.QUALITY_8KUHD,
+          CamcorderProfile.QUALITY_TIME_LAPSE_QCIF,
+          CamcorderProfile.QUALITY_TIME_LAPSE_CIF,
+          CamcorderProfile.QUALITY_TIME_LAPSE_480P,
+          CamcorderProfile.QUALITY_TIME_LAPSE_720P,
+          CamcorderProfile.QUALITY_TIME_LAPSE_1080P,
+          CamcorderProfile.QUALITY_TIME_LAPSE_QVGA,
+          CamcorderProfile.QUALITY_TIME_LAPSE_2160P,
+          CamcorderProfile.QUALITY_TIME_LAPSE_VGA,
+          CamcorderProfile.QUALITY_TIME_LAPSE_4KDCI,
+          CamcorderProfile.QUALITY_TIME_LAPSE_QHD,
+          CamcorderProfile.QUALITY_TIME_LAPSE_2K,
+          CamcorderProfile.QUALITY_TIME_LAPSE_8KUHD,
+          CamcorderProfile.QUALITY_HIGH_SPEED_480P,
+          CamcorderProfile.QUALITY_HIGH_SPEED_720P,
+          CamcorderProfile.QUALITY_HIGH_SPEED_1080P,
+          CamcorderProfile.QUALITY_HIGH_SPEED_2160P,
+          CamcorderProfile.QUALITY_HIGH_SPEED_CIF,
+          CamcorderProfile.QUALITY_HIGH_SPEED_VGA,
+          CamcorderProfile.QUALITY_HIGH_SPEED_4KDCI);
 
   @Test
   public void logEncoderCapabilities() throws Exception {
@@ -123,13 +154,16 @@ public class EncoderCapabilityAnalysisTest {
         capabilities.put(
             "supports_hdr_editing",
             Util.SDK_INT >= 33
-                && EncoderUtil.isFeatureSupported(encoderInfo, mimeType, FEATURE_HdrEditing));
+                && EncoderUtil.isFeatureSupported(
+                    encoderInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing));
 
         capabilities.put(
             "supports_encoding_statistics",
             Util.SDK_INT >= 33
                 && EncoderUtil.isFeatureSupported(
-                    encoderInfo, mimeType, FEATURE_EncodingStatistics));
+                    encoderInfo,
+                    mimeType,
+                    MediaCodecInfo.CodecCapabilities.FEATURE_EncodingStatistics));
 
         encoderCapabilitiesForMimeType.add(capabilities);
       }
@@ -138,6 +172,7 @@ public class EncoderCapabilityAnalysisTest {
 
     JSONObject resultJson = new JSONObject();
     resultJson.put("encoder_capabilities", JSONObject.wrap(mimeTypeToEncoderInfo));
+    resultJson.put("camcorder_profiles_supported", getSupportedCamcorderProfileConfigurations());
     AndroidTestUtil.writeTestSummaryToFile(
         ApplicationProvider.getApplicationContext(),
         /* testId= */ "encoderCapabilityAnalysisTest",
@@ -193,5 +228,27 @@ public class EncoderCapabilityAnalysisTest {
 
   private static String sizeToString(@Nullable Size size) {
     return size == null ? "0x0" : Util.formatInvariant("%dx%d", size.getWidth(), size.getHeight());
+  }
+
+  private static ImmutableList<String> getSupportedCamcorderProfileConfigurations() {
+    ImmutableList.Builder<String> supportedConfigurations = new ImmutableList.Builder<>();
+    for (int profileIndex : DEFINED_CAMCORDER_PROFILES) {
+      if (CamcorderProfile.hasProfile(profileIndex)) {
+        CamcorderProfile profile = CamcorderProfile.get(profileIndex);
+        supportedConfigurations.add(
+            Util.formatInvariant(
+                profileIndex > CamcorderProfile.QUALITY_HIGH_SPEED_LOW
+                    ? CAMCORDER_HIGH_SPEED_FORMAT_STRING
+                    : profileIndex > CamcorderProfile.QUALITY_TIME_LAPSE_LOW
+                        ? CAMCORDER_TIMELAPSE_FORMAT_STRING
+                        : CAMCORDER_FORMAT_STRING,
+                profile.videoFrameWidth,
+                profile.videoFrameHeight,
+                profile.videoFrameRate,
+                // Converts bps to kbps.
+                profile.videoBitRate / 1000));
+      }
+    }
+    return supportedConfigurations.build();
   }
 }

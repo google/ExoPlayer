@@ -18,6 +18,8 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.postOrRun;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_ID_COMPAT;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT;
 
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -768,7 +770,7 @@ import java.util.List;
     @Nullable PlaybackException playerError = getPlayerError();
     int state =
         MediaUtils.convertToPlaybackStateCompatState(
-            playerError, getPlaybackState(), getPlayWhenReady(), isPlaying());
+            playerError, getPlaybackState(), getPlayWhenReady());
     long allActions =
         PlaybackStateCompat.ACTION_STOP
             | PlaybackStateCompat.ACTION_PAUSE
@@ -798,16 +800,22 @@ import java.util.List;
       allActions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
     }
     long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
+    float playbackSpeed = getPlaybackParameters().speed;
+    float sessionPlaybackSpeed = isPlaying() ? playbackSpeed : 0f;
+    Bundle extras = new Bundle();
+    extras.putFloat(EXTRAS_KEY_PLAYBACK_SPEED_COMPAT, playbackSpeed);
+    @Nullable MediaItem currentMediaItem = getCurrentMediaItem();
+    if (currentMediaItem != null && !MediaItem.DEFAULT_MEDIA_ID.equals(currentMediaItem.mediaId)) {
+      extras.putString(EXTRAS_KEY_MEDIA_ID_COMPAT, currentMediaItem.mediaId);
+    }
     PlaybackStateCompat.Builder builder =
         new PlaybackStateCompat.Builder()
             .setState(
-                state,
-                getCurrentPosition(),
-                getPlaybackParameters().speed,
-                SystemClock.elapsedRealtime())
+                state, getCurrentPosition(), sessionPlaybackSpeed, SystemClock.elapsedRealtime())
             .setActions(allActions)
             .setActiveQueueItemId(queueItemId)
-            .setBufferedPosition(getBufferedPosition());
+            .setBufferedPosition(getBufferedPosition())
+            .setExtras(extras);
 
     for (int i = 0; i < customLayout.size(); i++) {
       CommandButton commandButton = customLayout.get(i);
@@ -951,6 +959,7 @@ import java.util.List;
         getSeekBackIncrement(),
         getSeekForwardIncrement(),
         getMaxSeekToPreviousPosition(),
+        getCurrentTracks(),
         getTrackSelectionParameters());
   }
 

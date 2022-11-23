@@ -17,12 +17,17 @@ package androidx.media3.session;
 
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION_ASSERT_PARAMS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.LONG_LIST_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
@@ -45,7 +50,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
@@ -100,6 +104,45 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
   }
 
   @Test
+  public void getLibraryRoot_correctExtraKeyAndValue() throws Exception {
+    MediaBrowser browser = createBrowser();
+
+    LibraryResult<MediaItem> resultForLibraryRoot =
+        threadTestRule
+            .getHandler()
+            .postAndSync(() -> browser.getLibraryRoot(new LibraryParams.Builder().build()))
+            .get(TIMEOUT_MS, MILLISECONDS);
+
+    Bundle extras = resultForLibraryRoot.params.extras;
+
+    assertThat(extras.getInt(ROOT_EXTRAS_KEY, /* defaultValue= */ ROOT_EXTRAS_VALUE + 1))
+        .isEqualTo(ROOT_EXTRAS_VALUE);
+  }
+
+  @Test
+  public void getChildren_correctMetadataExtras() throws Exception {
+    LibraryParams params = MediaTestUtils.createLibraryParams();
+    MediaBrowser browser = createBrowser();
+
+    LibraryResult<ImmutableList<MediaItem>> libraryResult =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> browser.getChildren(PARENT_ID, /* page= */ 4, /* pageSize= */ 10, params))
+            .get(TIMEOUT_MS, MILLISECONDS);
+
+    assertThat(libraryResult.resultCode).isEqualTo(RESULT_SUCCESS);
+    assertThat(libraryResult.value).isNotEmpty();
+    for (MediaItem mediaItem : libraryResult.value) {
+      int status =
+          mediaItem.mediaMetadata.extras.getInt(
+              EXTRAS_KEY_COMPLETION_STATUS,
+              /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1);
+      assertThat(status).isEqualTo(EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
+    }
+  }
+
+  @Test
   public void getItem_browsable() throws Exception {
     String mediaId = MediaBrowserConstants.MEDIA_ID_GET_BROWSABLE_ITEM;
 
@@ -145,38 +188,15 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
   }
 
   @Test
-  public void getItem_nullResult() throws Exception {
-    String mediaId = MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
-
-    // Exception will be thrown in the service side, and the process will be crashed.
-    // In that case one of following will happen
-    //   Case 1) Process is crashed. Pending ListenableFuture will get error
-    //   Case 2) Due to the frequent crashes with other tests, process may not crash immediately
-    //           because the Android shows dialog 'xxx keeps stopping' and defer sending
-    //           SIG_KILL until the user's explicit action.
-    try {
-      MediaBrowser browser = createBrowser();
-      LibraryResult<MediaItem> result =
-          threadTestRule
-              .getHandler()
-              .postAndSync(() -> browser.getItem(mediaId))
-              .get(TIMEOUT_MS, MILLISECONDS);
-      // Case 1.
-      assertThat(result.resultCode).isNotEqualTo(RESULT_SUCCESS);
-    } catch (TimeoutException e) {
-      // Case 2.
-    }
-  }
-
-  @Test
-  public void getChildren() throws Exception {
-    String parentId = MediaBrowserConstants.PARENT_ID;
+  public void getChildren_correctLibraryResultWithExtras() throws Exception {
+    String parentId = PARENT_ID;
     int page = 4;
     int pageSize = 10;
     LibraryParams params = MediaTestUtils.createLibraryParams();
 
     MediaBrowser browser = createBrowser();
     setExpectedLibraryParam(browser, params);
+
     LibraryResult<ImmutableList<MediaItem>> result =
         threadTestRule
             .getHandler()
@@ -184,7 +204,6 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
             .get(TIMEOUT_MS, MILLISECONDS);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
     MediaTestUtils.assertLibraryParamsEquals(params, result.params);
-
     MediaTestUtils.assertPaginatedListHasIds(
         result.value, MediaBrowserConstants.GET_CHILDREN_RESULT, page, pageSize);
   }

@@ -15,6 +15,10 @@
  */
 package androidx.media3.session;
 
+import static androidx.media.utils.MediaConstants.BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
+import static androidx.media3.session.MockMediaLibraryService.CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_ARTWORK_URI;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_DESCRIPTION;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_EXTRA_KEY;
@@ -38,6 +42,8 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_I
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_NO_CHILDREN;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_EMPTY_RESULT;
@@ -67,6 +73,7 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.ext.truth.os.BundleSubject;
 import androidx.test.filters.LargeTest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -88,14 +95,14 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   public void getRoot() throws Exception {
     // The MockMediaLibraryService gives MediaBrowserConstants.ROOT_ID as root ID, and
     // MediaBrowserConstants.ROOT_EXTRAS as extras.
-    handler.postAndSync(
-        () -> {
-          browserCompat =
-              new MediaBrowserCompat(
-                  context, getServiceComponent(), connectionCallback, /* rootHint= */ null);
-        });
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+
     assertThat(browserCompat.getRoot()).isEqualTo(ROOT_ID);
+    assertThat(
+            browserCompat
+                .getExtras()
+                .getInt(ROOT_EXTRAS_KEY, /* defaultValue= */ ROOT_EXTRAS_VALUE + 1))
+        .isEqualTo(ROOT_EXTRAS_VALUE);
 
     // Note: Cannot use equals() here because browser compat's extra contains server version,
     // extra binder, and extra messenger.
@@ -103,10 +110,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getItem_browsable() throws InterruptedException {
+  public void getItem_browsable() throws Exception {
     String mediaId = MEDIA_ID_GET_BROWSABLE_ITEM;
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
     browserCompat.getItem(
@@ -125,10 +132,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getItem_playable() throws InterruptedException {
+  public void getItem_playable() throws Exception {
     String mediaId = MEDIA_ID_GET_PLAYABLE_ITEM;
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
     browserCompat.getItem(
@@ -147,10 +154,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getItem_metadata() throws InterruptedException {
+  public void getItem_metadata() throws Exception {
     String mediaId = MEDIA_ID_GET_ITEM_WITH_METADATA;
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
     browserCompat.getItem(
@@ -177,10 +184,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getItem_nullResult() throws InterruptedException {
+  public void getItem_nullResult() throws Exception {
     String mediaId = "random_media_id";
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.getItem(
         mediaId,
@@ -200,24 +207,20 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getChildren() throws InterruptedException {
+  public void getChildren() throws Exception {
     String testParentId = PARENT_ID;
-
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    List<MediaItem> receivedChildren = new ArrayList<>();
+    final String[] receivedParentId = new String[1];
+
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            assertThat(parentId).isEqualTo(testParentId);
-            assertThat(children).isNotNull();
-            assertThat(children.size()).isEqualTo(GET_CHILDREN_RESULT.size());
-
-            // Compare the given results with originals.
-            for (int i = 0; i < children.size(); i++) {
-              assertThat(children.get(i).getMediaId()).isEqualTo(GET_CHILDREN_RESULT.get(i));
-            }
+            receivedParentId[0] = parentId;
+            receivedChildren.addAll(children);
             latch.countDown();
           }
 
@@ -226,14 +229,30 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
             assertWithMessage("").fail();
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(receivedParentId[0]).isEqualTo(testParentId);
+    assertThat(receivedChildren).hasSize(GET_CHILDREN_RESULT.size());
+    // Compare the given results with originals.
+    for (int i = 0; i < receivedChildren.size(); i++) {
+      MediaItem mediaItem = receivedChildren.get(i);
+      assertThat(mediaItem.getMediaId()).isEqualTo(GET_CHILDREN_RESULT.get(i));
+      assertThat(
+              mediaItem
+                  .getDescription()
+                  .getExtras()
+                  .getInt(
+                      EXTRAS_KEY_COMPLETION_STATUS,
+                      /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1))
+          .isEqualTo(EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
+    }
   }
 
   @Test
-  public void getChildren_withLongList() throws InterruptedException {
+  public void getChildren_withLongList() throws Exception {
     String testParentId = PARENT_ID_LONG_LIST;
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.subscribe(
         testParentId,
@@ -261,14 +280,14 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getChildren_withPagination() throws InterruptedException {
+  public void getChildren_withPagination() throws Exception {
     String testParentId = PARENT_ID;
     int page = 4;
     int pageSize = 10;
     Bundle extras = new Bundle();
     extras.putString(testParentId, testParentId);
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     Bundle option = new Bundle();
     option.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
@@ -305,9 +324,9 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getChildren_authErrorResult() throws InterruptedException {
+  public void getChildren_authErrorResult() throws Exception {
     String testParentId = PARENT_ID_AUTH_EXPIRED_ERROR;
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch errorLatch = new CountDownLatch(1);
     browserCompat.subscribe(
         testParentId,
@@ -319,7 +338,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
           }
         });
     assertThat(errorLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(lastReportedPlaybackStateCompat).isNotNull();
     assertThat(lastReportedPlaybackStateCompat.getState())
         .isEqualTo(PlaybackStateCompat.STATE_ERROR);
     assertThat(
@@ -342,14 +360,18 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     // Any successful calls remove the error state,
     assertThat(lastReportedPlaybackStateCompat.getState())
         .isNotEqualTo(PlaybackStateCompat.STATE_ERROR);
-    assertThat(lastReportedPlaybackStateCompat.getExtras()).isNull();
+    assertThat(
+            lastReportedPlaybackStateCompat
+                .getExtras()
+                .getString(MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT))
+        .isNull();
   }
 
   @Test
-  public void getChildren_emptyResult() throws InterruptedException {
+  public void getChildren_emptyResult() throws Exception {
     String testParentId = PARENT_ID_NO_CHILDREN;
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.subscribe(
         testParentId,
@@ -365,10 +387,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void getChildren_nullResult() throws InterruptedException {
+  public void getChildren_nullResult() throws Exception {
     String testParentId = PARENT_ID_ERROR;
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.subscribe(
         testParentId,
@@ -388,7 +410,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void search() throws InterruptedException {
+  public void search() throws Exception {
     String testQuery = SEARCH_QUERY;
     int page = 4;
     int pageSize = 10;
@@ -397,7 +419,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.search(
         testQuery,
@@ -427,7 +449,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void search_withLongList() throws InterruptedException {
+  public void search_withLongList() throws Exception {
     String testQuery = SEARCH_QUERY_LONG_LIST;
     int page = 0;
     int pageSize = Integer.MAX_VALUE;
@@ -436,7 +458,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.search(
         testQuery,
@@ -460,12 +482,12 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void search_emptyResult() throws InterruptedException {
+  public void search_emptyResult() throws Exception {
     String testQuery = SEARCH_QUERY_EMPTY_RESULT;
     Bundle testExtras = new Bundle();
     testExtras.putString(testQuery, testQuery);
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.search(
         testQuery,
@@ -484,12 +506,12 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
-  public void search_error() throws InterruptedException {
+  public void search_error() throws Exception {
     String testQuery = SEARCH_QUERY_ERROR;
     Bundle testExtras = new Bundle();
     testExtras.putString(testQuery, testQuery);
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.search(
         testQuery,
@@ -512,11 +534,11 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
 
   // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
   @Test
-  public void customAction() throws InterruptedException {
+  public void customAction() throws Exception {
     Bundle testArgs = new Bundle();
     testArgs.putString("args_key", "args_value");
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.sendCustomAction(
         CUSTOM_ACTION,
@@ -535,11 +557,11 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
 
   // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
   @Test
-  public void customAction_rejected() throws InterruptedException {
+  public void customAction_rejected() throws Exception {
     // This action will not be allowed by the library session.
     String testAction = "random_custom_action";
 
-    connectAndWait();
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     browserCompat.sendCustomAction(
         testAction,
@@ -553,5 +575,39 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     assertWithMessage("BrowserCompat shouldn't receive custom command")
         .that(latch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS))
         .isFalse();
+  }
+
+  @Test
+  public void rootBrowserHints_usedAsConnectionHints() throws Exception {
+    Bundle connectionHints = new Bundle();
+    connectionHints.putString(CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT, "myLibraryRoot");
+    connectAndWait(connectionHints);
+
+    String root = browserCompat.getRoot();
+
+    assertThat(root).isEqualTo("myLibraryRoot");
+  }
+
+  @Test
+  public void rootBrowserHints_searchSupported_reportsSearchSupported() throws Exception {
+    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+
+    boolean isSearchSupported =
+        browserCompat.getExtras().getBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED);
+
+    assertThat(isSearchSupported).isTrue();
+  }
+
+  @Test
+  public void rootBrowserHints_searchNotSupported_reportsSearchNotSupported() throws Exception {
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(
+        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH, true);
+    connectAndWait(connectionHints);
+
+    boolean isSearchSupported =
+        browserCompat.getExtras().getBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED);
+
+    assertThat(isSearchSupported).isFalse();
   }
 }

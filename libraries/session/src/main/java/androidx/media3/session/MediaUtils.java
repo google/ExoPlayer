@@ -320,7 +320,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return result;
   }
 
-  /* Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}. */
+  /** Converts a {@link MediaItem} to a {@link MediaDescriptionCompat}. */
   public static MediaDescriptionCompat convertToMediaDescriptionCompat(MediaItem item) {
     MediaDescriptionCompat.Builder builder =
         new MediaDescriptionCompat.Builder()
@@ -525,7 +525,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Converts a {@link MediaItem} to a {@link MediaMetadataCompat}. */
   public static MediaMetadataCompat convertToMediaMetadataCompat(
-      MediaItem mediaItem, long durationMs) {
+      MediaItem mediaItem, long durationMs, @Nullable Bitmap artworkBitmap) {
     MediaMetadataCompat.Builder builder =
         new MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaItem.mediaId);
@@ -574,11 +574,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, metadata.artworkUri.toString());
     }
 
-    if (metadata.artworkData != null) {
-      Bitmap artwork =
-          BitmapFactory.decodeByteArray(metadata.artworkData, 0, metadata.artworkData.length);
-      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, artwork);
-      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artwork);
+    if (artworkBitmap != null) {
+      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, artworkBitmap);
+      builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artworkBitmap);
     }
 
     if (metadata.folderType != null && metadata.folderType != MediaMetadata.FOLDER_TYPE_NONE) {
@@ -730,20 +728,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public static int convertToPlaybackStateCompatState(
       @Nullable PlaybackException playerError,
       @Player.State int playbackState,
-      boolean playWhenReady,
-      boolean isPlaying) {
+      boolean playWhenReady) {
     if (playerError != null) {
       return PlaybackStateCompat.STATE_ERROR;
-    }
-    if (isPlaying) {
-      return PlaybackStateCompat.STATE_PLAYING;
     }
     switch (playbackState) {
       case Player.STATE_IDLE:
         return PlaybackStateCompat.STATE_NONE;
       case Player.STATE_READY:
+        return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
       case Player.STATE_ENDED:
-        return PlaybackStateCompat.STATE_PAUSED;
+        return PlaybackStateCompat.STATE_STOPPED;
       case Player.STATE_BUFFERING:
         return playWhenReady
             ? PlaybackStateCompat.STATE_BUFFERING

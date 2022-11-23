@@ -90,7 +90,6 @@ public class CommonConstants {
   public static final String KEY_PLAY_WHEN_READY = "playWhenReady";
   public static final String KEY_PLAYBACK_SUPPRESSION_REASON = "playbackSuppressionReason";
   public static final String KEY_PLAYBACK_STATE = "playbackState";
-  public static final String KEY_IS_PLAYING = "isPlaying";
   public static final String KEY_IS_LOADING = "isLoading";
   public static final String KEY_REPEAT_MODE = "repeatMode";
   public static final String KEY_SHUFFLE_MODE_ENABLED = "shuffleModeEnabled";
@@ -103,6 +102,7 @@ public class CommonConstants {
   public static final String KEY_MEDIA_METADATA = "mediaMetadata";
   public static final String KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS = "maxSeekToPreviousPositionMs";
   public static final String KEY_TRACK_SELECTION_PARAMETERS = "trackSelectionParameters";
+  public static final String KEY_CURRENT_TRACKS = "currentTracks";
 
   // SessionCompat arguments
   public static final String KEY_SESSION_COMPAT_TOKEN = "sessionCompatToken";

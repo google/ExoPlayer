@@ -533,6 +533,7 @@ public final class DownloadManager {
         Thread.currentThread().interrupt();
       }
       applicationHandler.removeCallbacksAndMessages(/* token= */ null);
+      requirementsWatcher.stop();
       // Reset state.
       downloads = Collections.emptyList();
       pendingMessages = 0;
@@ -709,6 +710,7 @@ public final class DownloadManager {
     private int maxParallelDownloads;
     private int minRetryCount;
     private int activeDownloadTaskCount;
+    private boolean hasActiveRemoveTask;
 
     public InternalHandler(
         HandlerThread thread,
@@ -1060,6 +1062,10 @@ public final class DownloadManager {
         return;
       }
 
+      if (hasActiveRemoveTask) {
+        return;
+      }
+
       // We can start a remove task.
       Downloader downloader = downloaderFactory.createDownloader(download.request);
       activeTask =
@@ -1071,6 +1077,7 @@ public final class DownloadManager {
               minRetryCount,
               /* internalHandler= */ this);
       activeTasks.put(download.request.id, activeTask);
+      hasActiveRemoveTask = true;
       activeTask.start();
     }
 
@@ -1100,7 +1107,9 @@ public final class DownloadManager {
       activeTasks.remove(downloadId);
 
       boolean isRemove = task.isRemove;
-      if (!isRemove && --activeDownloadTaskCount == 0) {
+      if (isRemove) {
+        hasActiveRemoveTask = false;
+      } else if (--activeDownloadTaskCount == 0) {
         removeMessages(MSG_UPDATE_PROGRESS);
       }
 

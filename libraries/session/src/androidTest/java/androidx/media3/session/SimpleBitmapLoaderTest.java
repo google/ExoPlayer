@@ -21,19 +21,25 @@ import static org.junit.Assert.assertThrows;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okio.Buffer;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 /**
@@ -46,6 +52,8 @@ import org.junit.runner.RunWith;
 public class SimpleBitmapLoaderTest {
 
   private static final String TEST_IMAGE_PATH = "media/jpeg/non-motion-photo-shortened.jpg";
+
+  @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Test
   public void loadData() throws Exception {
@@ -70,11 +78,13 @@ public class SimpleBitmapLoaderTest {
     ListenableFuture<Bitmap> future = bitmapLoader.decodeBitmap(new byte[0]);
 
     assertException(
-        future::get, IllegalArgumentException.class, /* messagePart= */ "Could not decode bitmap");
+        future::get,
+        IllegalArgumentException.class,
+        /* messagePart= */ "Could not decode image data");
   }
 
   @Test
-  public void loadUri_loadsImage() throws Exception {
+  public void load_httpUri_loadsImage() throws Exception {
     SimpleBitmapLoader bitmapLoader =
         new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
     MockWebServer mockWebServer = new MockWebServer();
@@ -93,7 +103,7 @@ public class SimpleBitmapLoaderTest {
   }
 
   @Test
-  public void loadUri_serverError_throwsException() {
+  public void load_httpUriAndServerError_throwsException() {
     SimpleBitmapLoader bitmapLoader =
         new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
     MockWebServer mockWebServer = new MockWebServer();
@@ -106,7 +116,36 @@ public class SimpleBitmapLoaderTest {
   }
 
   @Test
-  public void loadUri_nonHttpUri_throwsException() {
+  public void load_fileUri_loadsImage() throws Exception {
+    byte[] imageData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    File file = tempFolder.newFile();
+    Files.write(Paths.get(file.getAbsolutePath()), imageData);
+    Uri uri = Uri.fromFile(file);
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    Bitmap bitmap = bitmapLoader.loadBitmap(uri).get();
+
+    assertThat(
+            bitmap.sameAs(
+                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
+        .isTrue();
+  }
+
+  @Test
+  public void fileUriWithFileNotExisting() throws Exception {
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    assertException(
+        () -> bitmapLoader.loadBitmap(Uri.parse("file:///not_valid/path/image.bmp")).get(),
+        IllegalArgumentException.class,
+        /* messagePart= */ "Could not read image from file");
+  }
+
+  @Test
+  public void load_unhandledUriScheme_throwsException() {
     SimpleBitmapLoader bitmapLoader =
         new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
 
@@ -114,10 +153,6 @@ public class SimpleBitmapLoaderTest {
         () -> bitmapLoader.loadBitmap(Uri.parse("/local/path")).get(),
         MalformedURLException.class,
         /* messagePart= */ "no protocol");
-    assertException(
-        () -> bitmapLoader.loadBitmap(Uri.parse("file://local/path")).get(),
-        UnsupportedOperationException.class,
-        /* messagePart= */ "Unsupported scheme");
     assertException(
         () -> bitmapLoader.loadBitmap(Uri.parse("asset://asset/path")).get(),
         MalformedURLException.class,
@@ -130,6 +165,64 @@ public class SimpleBitmapLoaderTest {
         () -> bitmapLoader.loadBitmap(Uri.parse("data://data")).get(),
         MalformedURLException.class,
         /* messagePart= */ "unknown protocol");
+  }
+
+  @Test
+  public void loadBitmapFromMetadata_decodeFromArtworkData() throws Exception {
+    byte[] imageData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    MockWebServer mockWebServer = new MockWebServer();
+    Uri uri = Uri.parse(mockWebServer.url("test_path").toString());
+    // Set both artworkData and artworkUri
+    MediaMetadata metadata =
+        new MediaMetadata.Builder()
+            .setArtworkData(imageData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+            .setArtworkUri(uri)
+            .build();
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    Bitmap bitmap = bitmapLoader.loadBitmapFromMetadata(metadata).get();
+
+    assertThat(
+            bitmap.sameAs(
+                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
+        .isTrue();
+    assertThat(mockWebServer.getRequestCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void loadBitmapFromMetadata_loadFromArtworkUri() throws Exception {
+    byte[] imageData =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    MockWebServer mockWebServer = new MockWebServer();
+    Buffer responseBody = new Buffer().write(imageData);
+    mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(responseBody));
+    Uri uri = Uri.parse(mockWebServer.url("test_path").toString());
+    // Just set artworkUri
+    MediaMetadata metadata = new MediaMetadata.Builder().setArtworkUri(uri).build();
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    Bitmap bitmap = bitmapLoader.loadBitmapFromMetadata(metadata).get();
+
+    assertThat(
+            bitmap.sameAs(
+                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
+        .isTrue();
+    assertThat(mockWebServer.getRequestCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void loadBitmapFromMetadata_returnNull() throws Exception {
+    // Neither artworkData nor artworkUri is set
+    MediaMetadata metadata = new MediaMetadata.Builder().build();
+    SimpleBitmapLoader bitmapLoader =
+        new SimpleBitmapLoader(MoreExecutors.newDirectExecutorService());
+
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.loadBitmapFromMetadata(metadata);
+
+    assertThat(bitmapFuture).isNull();
   }
 
   private static void assertException(

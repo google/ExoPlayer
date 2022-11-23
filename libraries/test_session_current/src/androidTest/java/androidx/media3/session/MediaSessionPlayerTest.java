@@ -19,19 +19,21 @@ import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PA
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Handler;
+import android.os.HandlerThread;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import org.junit.After;
@@ -58,6 +60,7 @@ public class MediaSessionPlayerTest {
   private MediaSession session;
   private MockPlayer player;
   private RemoteMediaController controller;
+  private HandlerThread asyncHandlerThread;
 
   @Before
   public void setUp() throws Exception {
@@ -66,6 +69,9 @@ public class MediaSessionPlayerTest {
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .setMediaItems(/* itemCount= */ 5)
             .build();
+    asyncHandlerThread = new HandlerThread("AsyncHandlerThread");
+    asyncHandlerThread.start();
+    Handler asyncHandler = new Handler(asyncHandlerThread.getLooper());
     session =
         new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
             .setCallback(
@@ -84,7 +90,9 @@ public class MediaSessionPlayerTest {
                       MediaSession mediaSession,
                       MediaSession.ControllerInfo controller,
                       List<MediaItem> mediaItems) {
-                    return Futures.immediateFuture(mediaItems);
+                    // Send empty message and return mediaItems once done to simulate asynchronous
+                    // media item resolution.
+                    return Util.postOrRunWithCompletion(asyncHandler, () -> {}, mediaItems);
                   }
                 })
             .build();
@@ -97,6 +105,7 @@ public class MediaSessionPlayerTest {
   public void tearDown() throws Exception {
     controller.release();
     session.release();
+    asyncHandlerThread.quit();
   }
 
   @Test
@@ -542,6 +551,26 @@ public class MediaSessionPlayerTest {
 
     player.awaitMethodCalled(MockPlayer.METHOD_SET_TRACK_SELECTION_PARAMETERS, TIMEOUT_MS);
     assertThat(player.trackSelectionParameters).isEqualTo(trackSelectionParameters);
+  }
+
+  @Test
+  public void mixedAsyncAndSyncCommands_calledInCorrectOrder() throws Exception {
+    List<MediaItem> initialItems = MediaTestUtils.createMediaItems(/* size= */ 2);
+    List<MediaItem> addedItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+
+    controller.setMediaItemsPreparePlayAddItemsSeek(initialItems, addedItems, /* seekIndex= */ 3);
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    boolean setMediaItemsCalledBeforePrepare =
+        player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
+    boolean addMediaItemsCalledBeforeSeek =
+        player.hasMethodBeenCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS);
+
+    assertThat(setMediaItemsCalledBeforePrepare).isTrue();
+    assertThat(addMediaItemsCalledBeforeSeek).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PLAY)).isTrue();
+    assertThat(player.mediaItems).hasSize(5);
+    assertThat(player.seekMediaItemIndex).isEqualTo(3);
   }
 
   private void changePlaybackTypeToRemote() throws Exception {

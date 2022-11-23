@@ -20,11 +20,11 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
-import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.AudioSink.SinkFormatSupport;
@@ -95,8 +95,13 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @hide
+   */
   @Override
-  protected OpusDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
+  protected final OpusDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws OpusDecoderException {
     TraceUtil.beginSection("createOpusDecoder");
     @SinkFormatSupport
@@ -121,8 +126,13 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     return decoder;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @hide
+   */
   @Override
-  protected Format getOutputFormat(OpusDecoder decoder) {
+  protected final Format getOutputFormat(OpusDecoder decoder) {
     @C.PcmEncoding
     int pcmEncoding = decoder.outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     return Util.getPcmFormat(pcmEncoding, decoder.channelCount, OpusDecoder.SAMPLE_RATE);

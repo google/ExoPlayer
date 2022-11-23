@@ -21,6 +21,7 @@ import static androidx.media3.common.C.FORMAT_UNSUPPORTED_SUBTYPE;
 import static androidx.media3.common.C.FORMAT_UNSUPPORTED_TYPE;
 import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
 import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK;
+import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK_MIMETYPE;
 import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_PRIMARY;
 import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATION_NOT_SUPPORTED;
 import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
@@ -2242,6 +2243,68 @@ public final class DefaultTrackSelectorTest {
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
     assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
+  }
+
+  /**
+   * Tests that track selector will select video track with support of its primary decoder over a
+   * track that will use a decoder for it's format fallback sampleMimetype.
+   */
+  @Test
+  public void selectTracks_withDecoderSupportFallbackMimetype_selectsTrackWithPrimaryDecoder()
+      throws Exception {
+    Format formatDV =
+        new Format.Builder().setId("0").setSampleMimeType(MimeTypes.VIDEO_DOLBY_VISION).build();
+    Format formatHevc =
+        new Format.Builder().setId("1").setSampleMimeType(MimeTypes.VIDEO_H265).build();
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(formatDV), new TrackGroup(formatHevc));
+    @Capabilities
+    int capabilitiesDecoderSupportPrimary =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    int capabilitiesDecoderSupportFallbackType =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK_MIMETYPE);
+
+    // Select track supported by primary decoder by default.
+    ImmutableMap<String, Integer> rendererCapabilitiesMapDifferingDecoderSupport =
+        ImmutableMap.of(
+            "0", capabilitiesDecoderSupportFallbackType, "1", capabilitiesDecoderSupportPrimary);
+    RendererCapabilities rendererCapabilitiesDifferingDecoderSupport =
+        new FakeMappedRendererCapabilities(
+            C.TRACK_TYPE_VIDEO, rendererCapabilitiesMapDifferingDecoderSupport);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilitiesDifferingDecoderSupport},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertFixedSelection(result.selections[0], trackGroups, formatHevc);
+
+    // Select Dolby Vision track over HEVC when renderer supports both equally
+    ImmutableMap<String, Integer> rendererCapabilitiesMapAllPrimaryDecoderSupport =
+        ImmutableMap.of(
+            "0", capabilitiesDecoderSupportPrimary, "1", capabilitiesDecoderSupportPrimary);
+    RendererCapabilities rendererCapabilitiesAllPrimaryDecoderSupport =
+        new FakeMappedRendererCapabilities(
+            C.TRACK_TYPE_VIDEO, rendererCapabilitiesMapAllPrimaryDecoderSupport);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilitiesAllPrimaryDecoderSupport},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertFixedSelection(result.selections[0], trackGroups, formatDV);
   }
 
   /**

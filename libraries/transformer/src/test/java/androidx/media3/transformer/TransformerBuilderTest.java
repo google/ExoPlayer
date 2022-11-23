@@ -30,20 +30,6 @@ import org.junit.runner.RunWith;
 public class TransformerBuilderTest {
 
   @Test
-  public void setOutputMimeType_unsupportedMimeType_throws() {
-    Context context = ApplicationProvider.getApplicationContext();
-
-    assertThrows(
-        IllegalStateException.class,
-        () -> new Transformer.Builder(context).setOutputMimeType(MimeTypes.VIDEO_UNKNOWN).build());
-  }
-
-  @Test
-  public void build_withoutContext_throws() {
-    assertThrows(NullPointerException.class, () -> new Transformer.Builder().build());
-  }
-
-  @Test
   public void build_removeAudioAndVideo_throws() {
     Context context = ApplicationProvider.getApplicationContext();
 

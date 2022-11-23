@@ -19,7 +19,6 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.net.Uri;
@@ -89,7 +88,7 @@ public class FallbackListenerTest {
     fallbackListener.registerTrack();
     fallbackListener.onTransformationRequestFinalized(audioFallbackRequest);
 
-    verify(mockListener, times(1))
+    verify(mockListener)
         .onFallbackApplied(PLACEHOLDER_MEDIA_ITEM, originalRequest, audioFallbackRequest);
   }
 
@@ -117,7 +116,7 @@ public class FallbackListenerTest {
     fallbackListener.onTransformationRequestFinalized(audioFallbackRequest);
     fallbackListener.onTransformationRequestFinalized(videoFallbackRequest);
 
-    verify(mockListener, times(1))
+    verify(mockListener)
         .onFallbackApplied(PLACEHOLDER_MEDIA_ITEM, originalRequest, mergedFallbackRequest);
   }
 

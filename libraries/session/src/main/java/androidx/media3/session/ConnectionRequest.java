@@ -35,7 +35,9 @@ import java.lang.annotation.Target;
  */
 /* package */ class ConnectionRequest implements Bundleable {
 
-  public final int version;
+  public final int libraryVersion;
+
+  public final int controllerInterfaceVersion;
 
   public final String packageName;
 
@@ -44,11 +46,22 @@ import java.lang.annotation.Target;
   public final Bundle connectionHints;
 
   public ConnectionRequest(String packageName, int pid, Bundle connectionHints) {
-    this(MediaLibraryInfo.VERSION_INT, packageName, pid, new Bundle(connectionHints));
+    this(
+        MediaLibraryInfo.VERSION_INT,
+        MediaControllerStub.VERSION_INT,
+        packageName,
+        pid,
+        new Bundle(connectionHints));
   }
 
-  private ConnectionRequest(int version, String packageName, int pid, Bundle connectionHints) {
-    this.version = version;
+  private ConnectionRequest(
+      int libraryVersion,
+      int controllerInterfaceVersion,
+      String packageName,
+      int pid,
+      Bundle connectionHints) {
+    this.libraryVersion = libraryVersion;
+    this.controllerInterfaceVersion = controllerInterfaceVersion;
     this.packageName = packageName;
     this.pid = pid;
     this.connectionHints = connectionHints;
@@ -59,34 +72,50 @@ import java.lang.annotation.Target;
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({FIELD_VERSION, FIELD_PACKAGE_NAME, FIELD_PID, FIELD_CONNECTION_HINTS})
+  @IntDef({
+    FIELD_LIBRARY_VERSION,
+    FIELD_PACKAGE_NAME,
+    FIELD_PID,
+    FIELD_CONNECTION_HINTS,
+    FIELD_CONTROLLER_INTERFACE_VERSION
+  })
   private @interface FieldNumber {}
 
-  private static final int FIELD_VERSION = 0;
+  private static final int FIELD_LIBRARY_VERSION = 0;
   private static final int FIELD_PACKAGE_NAME = 1;
   private static final int FIELD_PID = 2;
   private static final int FIELD_CONNECTION_HINTS = 3;
+  private static final int FIELD_CONTROLLER_INTERFACE_VERSION = 4;
+  // Next id: 5
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(keyForField(FIELD_VERSION), version);
+    bundle.putInt(keyForField(FIELD_LIBRARY_VERSION), libraryVersion);
     bundle.putString(keyForField(FIELD_PACKAGE_NAME), packageName);
     bundle.putInt(keyForField(FIELD_PID), pid);
     bundle.putBundle(keyForField(FIELD_CONNECTION_HINTS), connectionHints);
+    bundle.putInt(keyForField(FIELD_CONTROLLER_INTERFACE_VERSION), controllerInterfaceVersion);
     return bundle;
   }
 
   /** Object that can restore {@link ConnectionRequest} from a {@link Bundle}. */
   public static final Creator<ConnectionRequest> CREATOR =
       bundle -> {
-        int version = bundle.getInt(keyForField(FIELD_VERSION), /* defaultValue= */ 0);
+        int libraryVersion =
+            bundle.getInt(keyForField(FIELD_LIBRARY_VERSION), /* defaultValue= */ 0);
+        int controllerInterfaceVersion =
+            bundle.getInt(keyForField(FIELD_CONTROLLER_INTERFACE_VERSION), /* defaultValue= */ 0);
         String packageName = checkNotNull(bundle.getString(keyForField(FIELD_PACKAGE_NAME)));
         int pid = bundle.getInt(keyForField(FIELD_PID), /* defaultValue= */ 0);
         checkArgument(pid != 0);
         @Nullable Bundle connectionHints = bundle.getBundle(keyForField(FIELD_CONNECTION_HINTS));
         return new ConnectionRequest(
-            version, packageName, pid, connectionHints == null ? Bundle.EMPTY : connectionHints);
+            libraryVersion,
+            controllerInterfaceVersion,
+            packageName,
+            pid,
+            connectionHints == null ? Bundle.EMPTY : connectionHints);
       };
 
   private static String keyForField(@FieldNumber int field) {

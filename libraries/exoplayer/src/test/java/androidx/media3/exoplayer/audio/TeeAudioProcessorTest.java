@@ -18,7 +18,7 @@ package androidx.media3.exoplayer.audio;
 import static org.mockito.Mockito.verify;
 
 import androidx.media3.common.C;
-import androidx.media3.exoplayer.audio.AudioProcessor.AudioFormat;
+import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.exoplayer.audio.TeeAudioProcessor.AudioBufferSink;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Before;

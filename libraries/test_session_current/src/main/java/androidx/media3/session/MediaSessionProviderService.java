@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.Player.COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_SESSION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media3.test.session.common.CommonConstants.KEY_BUFFERED_PERCENTAGE;
@@ -29,12 +30,12 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LI
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_POSITION;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_TRACKS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_INFO;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUTED;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DURATION;
 import static androidx.media3.test.session.common.CommonConstants.KEY_IS_LOADING;
-import static androidx.media3.test.session.common.CommonConstants.KEY_IS_PLAYING;
 import static androidx.media3.test.session.common.CommonConstants.KEY_IS_PLAYING_AD;
 import static androidx.media3.test.session.common.CommonConstants.KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
 import static androidx.media3.test.session.common.CommonConstants.KEY_MEDIA_METADATA;
@@ -54,7 +55,9 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_TRACK_SELE
 import static androidx.media3.test.session.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media3.test.session.common.CommonConstants.KEY_VOLUME;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_AVAILABLE_SESSION_COMMANDS;
+import static androidx.media3.test.session.common.MediaSessionConstants.KEY_COMMAND_GET_TASKS_UNAVAILABLE;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_CONTROLLER;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_COMMAND_GET_TRACKS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_CONTROLLER_LISTENER_SESSION_REJECTS;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
@@ -70,6 +73,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -78,7 +82,9 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Log;
@@ -155,11 +161,10 @@ public class MediaSessionProviderService extends Service {
 
     @Override
     public void create(String sessionId, Bundle tokenExtras) throws RemoteException {
+      MockPlayer mockPlayer =
+          new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
       MediaSession.Builder builder =
-          new MediaSession.Builder(
-                  MediaSessionProviderService.this,
-                  new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build())
-              .setId(sessionId);
+          new MediaSession.Builder(MediaSessionProviderService.this, mockPlayer).setId(sessionId);
 
       if (tokenExtras != null) {
         builder.setExtras(tokenExtras);
@@ -221,6 +226,34 @@ public class MediaSessionProviderService extends Service {
                       MediaSession session, ControllerInfo controller) {
                     return MediaSession.ConnectionResult.accept(
                         availableSessionCommands, Player.Commands.EMPTY);
+                  }
+                });
+            break;
+          }
+        case TEST_COMMAND_GET_TRACKS:
+          {
+            ImmutableList<Tracks.Group> trackGroups =
+                ImmutableList.of(
+                    new Tracks.Group(
+                        new TrackGroup(new Format.Builder().setChannelCount(2).build()),
+                        /* adaptiveSupported= */ false,
+                        /* trackSupport= */ new int[1],
+                        /* trackSelected= */ new boolean[1]));
+            mockPlayer.currentTracks = new Tracks(trackGroups);
+            builder.setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, ControllerInfo controller) {
+                    Player.Commands.Builder commandBuilder =
+                        new Player.Commands.Builder().addAllCommands();
+                    if (controller
+                        .getConnectionHints()
+                        .getBoolean(KEY_COMMAND_GET_TASKS_UNAVAILABLE, /* defaultValue= */ false)) {
+                      commandBuilder.remove(COMMAND_GET_TRACKS);
+                    }
+                    return MediaSession.ConnectionResult.accept(
+                        SessionCommands.EMPTY, commandBuilder.build());
                   }
                 });
             break;
@@ -327,7 +360,9 @@ public class MediaSessionProviderService extends Service {
       }
       Bundle cueGroupBundle = config.getBundle(KEY_CURRENT_CUE_GROUP);
       player.cueGroup =
-          cueGroupBundle == null ? CueGroup.EMPTY : CueGroup.CREATOR.fromBundle(cueGroupBundle);
+          cueGroupBundle == null
+              ? CueGroup.EMPTY_TIME_ZERO
+              : CueGroup.CREATOR.fromBundle(cueGroupBundle);
       @Nullable Bundle deviceInfoBundle = config.getBundle(KEY_DEVICE_INFO);
       if (deviceInfoBundle != null) {
         player.deviceInfo = DeviceInfo.CREATOR.fromBundle(deviceInfoBundle);
@@ -338,7 +373,6 @@ public class MediaSessionProviderService extends Service {
       player.playbackSuppressionReason =
           config.getInt(KEY_PLAYBACK_SUPPRESSION_REASON, player.playbackSuppressionReason);
       player.playbackState = config.getInt(KEY_PLAYBACK_STATE, player.playbackState);
-      player.isPlaying = config.getBoolean(KEY_IS_PLAYING, player.isPlaying);
       player.isLoading = config.getBoolean(KEY_IS_LOADING, player.isLoading);
       player.repeatMode = config.getInt(KEY_REPEAT_MODE, player.repeatMode);
       player.shuffleModeEnabled =
@@ -353,6 +387,10 @@ public class MediaSessionProviderService extends Service {
       }
       player.maxSeekToPreviousPositionMs =
           config.getLong(KEY_MAX_SEEK_TO_PREVIOUS_POSITION_MS, player.maxSeekToPreviousPositionMs);
+      @Nullable Bundle currentTracksBundle = config.getBundle(KEY_CURRENT_TRACKS);
+      if (currentTracksBundle != null) {
+        player.currentTracks = Tracks.CREATOR.fromBundle(currentTracksBundle);
+      }
       @Nullable
       Bundle trackSelectionParametersBundle = config.getBundle(KEY_TRACK_SELECTION_PARAMETERS);
       if (trackSelectionParametersBundle != null) {
@@ -656,16 +694,6 @@ public class MediaSessionProviderService extends Service {
     }
 
     @Override
-    public void notifyIsPlayingChanged(String sessionId, boolean isPlaying) throws RemoteException {
-      runOnHandler(
-          () -> {
-            MediaSession session = sessionMap.get(sessionId);
-            MockPlayer player = (MockPlayer) session.getPlayer();
-            player.notifyIsPlayingChanged(isPlaying);
-          });
-    }
-
-    @Override
     public void notifyIsLoadingChanged(String sessionId, boolean isLoading) throws RemoteException {
       runOnHandler(
           () -> {
@@ -745,6 +773,13 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = sessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.timeline = Timeline.CREATOR.fromBundle(timelineBundle);
+            List<MediaItem> mediaItems = new ArrayList<>();
+            for (int i = 0; i < player.timeline.getWindowCount(); i++) {
+              mediaItems.add(
+                  player.timeline.getWindow(/* windowIndex= */ i, new Timeline.Window()).mediaItem);
+            }
+            player.mediaItems.clear();
+            player.mediaItems.addAll(mediaItems);
           });
     }
 
@@ -760,6 +795,8 @@ public class MediaSessionProviderService extends Service {
               mediaItems.add(
                   MediaTestUtils.createMediaItem(TestUtils.getMediaIdInFakeTimeline(windowIndex)));
             }
+            player.mediaItems.clear();
+            player.mediaItems.addAll(mediaItems);
             player.timeline = new PlaylistTimeline(mediaItems);
           });
     }
@@ -814,6 +851,17 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = sessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.trackSelectionParameters = TrackSelectionParameters.fromBundle(parameters);
+          });
+    }
+
+    @Override
+    public void setVolume(String sessionId, float volume) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.setVolume(volume);
+            player.notifyVolumeChanged();
           });
     }
 
@@ -931,6 +979,28 @@ public class MediaSessionProviderService extends Service {
     }
 
     @Override
+    public void decreaseDeviceVolume(String sessionId) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.decreaseDeviceVolume();
+            player.notifyDeviceVolumeChanged();
+          });
+    }
+
+    @Override
+    public void increaseDeviceVolume(String sessionId) throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.increaseDeviceVolume();
+            player.notifyDeviceVolumeChanged();
+          });
+    }
+
+    @Override
     public void notifyCuesChanged(String sessionId, Bundle cueGroupBundle) throws RemoteException {
       CueGroup cueGroup = CueGroup.CREATOR.fromBundle(cueGroupBundle);
       runOnHandler(
@@ -1000,6 +1070,18 @@ public class MediaSessionProviderService extends Service {
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.trackSelectionParameters = parameters;
             player.notifyTrackSelectionParametersChanged();
+          });
+    }
+
+    @Override
+    public void notifyTracksChanged(String sessionId, Bundle tracksBundle) throws RemoteException {
+      Tracks tracks = Tracks.CREATOR.fromBundle(tracksBundle);
+      runOnHandler(
+          () -> {
+            MediaSession session = sessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.currentTracks = tracks;
+            player.notifyTracksChanged();
           });
     }
   }

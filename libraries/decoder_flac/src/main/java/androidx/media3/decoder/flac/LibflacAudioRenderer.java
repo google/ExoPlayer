@@ -20,11 +20,11 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
-import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.DecoderAudioRenderer;
@@ -108,6 +108,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @hide
+   */
   @Override
   protected FlacDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws FlacDecoderException {
@@ -118,6 +123,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
     return decoder;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @hide
+   */
   @Override
   protected Format getOutputFormat(FlacDecoder decoder) {
     return getOutputFormat(decoder.getStreamMetadata());

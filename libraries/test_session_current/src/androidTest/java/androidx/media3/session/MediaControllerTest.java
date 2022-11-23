@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.HeartRating;
 import androidx.media3.common.IllegalSeekPositionException;
 import androidx.media3.common.MediaItem;
@@ -47,7 +48,9 @@ import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
@@ -276,13 +279,28 @@ public class MediaControllerTest {
     @Player.PlaybackSuppressionReason
     int playbackSuppressionReason = Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS;
     @Player.State int playbackState = Player.STATE_READY;
-    boolean isPlaying = true;
     boolean isLoading = true;
     boolean isShuffleModeEnabled = true;
     @RepeatMode int repeatMode = Player.REPEAT_MODE_ONE;
     long seekBackIncrementMs = 1_000;
     long seekForwardIncrementMs = 2_000;
     long maxSeekToPreviousPositionMs = 300;
+    ImmutableList<Tracks.Group> trackGroups =
+        new ImmutableList.Builder<Tracks.Group>()
+            .add(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setChannelCount(2).build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1]))
+            .add(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setHeight(1024).build()),
+                    /* adaptiveSupported= */ false,
+                    /* trackSupport= */ new int[1],
+                    /* trackSelected= */ new boolean[1]))
+            .build();
+    Tracks currentTracks = new Tracks(trackGroups);
     TrackSelectionParameters trackSelectionParameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.buildUpon().setMaxVideoSizeSd().build();
     Timeline timeline = MediaTestUtils.createTimeline(5);
@@ -308,7 +326,6 @@ public class MediaControllerTest {
             .setPlayWhenReady(playWhenReady)
             .setPlaybackSuppressionReason(playbackSuppressionReason)
             .setPlaybackState(playbackState)
-            .setIsPlaying(isPlaying)
             .setIsLoading(isLoading)
             .setShuffleModeEnabled(isShuffleModeEnabled)
             .setRepeatMode(repeatMode)
@@ -316,6 +333,7 @@ public class MediaControllerTest {
             .setSeekForwardIncrement(seekForwardIncrementMs)
             .setMaxSeekToPreviousPositionMs(maxSeekToPreviousPositionMs)
             .setTrackSelectionParameters(trackSelectionParameters)
+            .setCurrentTracks(currentTracks)
             .setTimeline(timeline)
             .setCurrentMediaItemIndex(currentMediaItemIndex)
             .build();
@@ -340,13 +358,13 @@ public class MediaControllerTest {
     AtomicBoolean playWhenReadyRef = new AtomicBoolean();
     AtomicInteger playbackSuppressionReasonRef = new AtomicInteger();
     AtomicInteger playbackStateRef = new AtomicInteger();
-    AtomicBoolean isPlayingRef = new AtomicBoolean();
     AtomicBoolean isLoadingRef = new AtomicBoolean();
     AtomicBoolean isShuffleModeEnabledRef = new AtomicBoolean();
     AtomicInteger repeatModeRef = new AtomicInteger();
     AtomicLong seekBackIncrementRef = new AtomicLong();
     AtomicLong seekForwardIncrementRef = new AtomicLong();
     AtomicLong maxSeekToPreviousPositionMsRef = new AtomicLong();
+    AtomicReference<Tracks> currentTracksRef = new AtomicReference<>();
     AtomicReference<TrackSelectionParameters> trackSelectionParametersRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineRef = new AtomicReference<>();
     AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
@@ -372,13 +390,13 @@ public class MediaControllerTest {
               playWhenReadyRef.set(controller.getPlayWhenReady());
               playbackSuppressionReasonRef.set(controller.getPlaybackSuppressionReason());
               playbackStateRef.set(controller.getPlaybackState());
-              isPlayingRef.set(controller.isPlaying());
               isLoadingRef.set(controller.isLoading());
               isShuffleModeEnabledRef.set(controller.getShuffleModeEnabled());
               repeatModeRef.set(controller.getRepeatMode());
               seekBackIncrementRef.set(controller.getSeekBackIncrement());
               seekForwardIncrementRef.set(controller.getSeekForwardIncrement());
               maxSeekToPreviousPositionMsRef.set(controller.getMaxSeekToPreviousPosition());
+              currentTracksRef.set(controller.getCurrentTracks());
               trackSelectionParametersRef.set(controller.getTrackSelectionParameters());
               timelineRef.set(controller.getCurrentTimeline());
               currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
@@ -401,7 +419,6 @@ public class MediaControllerTest {
     assertThat(playWhenReadyRef.get()).isEqualTo(playWhenReady);
     assertThat(playbackSuppressionReasonRef.get()).isEqualTo(playbackSuppressionReason);
     assertThat(playbackStateRef.get()).isEqualTo(playbackState);
-    assertThat(isPlayingRef.get()).isEqualTo(isPlaying);
     assertThat(isLoadingRef.get()).isEqualTo(isLoading);
     assertThat(isShuffleModeEnabledRef.get()).isEqualTo(isShuffleModeEnabled);
     assertThat(repeatModeRef.get()).isEqualTo(repeatMode);
@@ -409,6 +426,7 @@ public class MediaControllerTest {
     assertThat(seekForwardIncrementRef.get()).isEqualTo(seekForwardIncrementMs);
     assertThat(maxSeekToPreviousPositionMsRef.get()).isEqualTo(maxSeekToPreviousPositionMs);
     assertThat(trackSelectionParametersRef.get()).isEqualTo(trackSelectionParameters);
+    assertThat(currentTracksRef.get()).isEqualTo(currentTracks);
     assertTimelineMediaItemsEquals(timelineRef.get(), timeline);
     assertThat(currentMediaItemIndexRef.get()).isEqualTo(currentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(currentMediaItem);
@@ -819,7 +837,7 @@ public class MediaControllerTest {
     long testCurrentPositionMs = 100L;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setIsPlaying(false)
+            .setPlaybackState(Player.STATE_BUFFERING)
             .setCurrentPosition(testCurrentPositionMs)
             .setDuration(10_000L)
             .build();
@@ -845,7 +863,8 @@ public class MediaControllerTest {
     long testTimeDiff = 50L;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setIsPlaying(true)
+            .setPlaybackState(Player.STATE_READY)
+            .setPlayWhenReady(true)
             .setCurrentPosition(testCurrentPosition)
             .setDuration(10_000L)
             .setPlaybackParameters(testPlaybackParameters)
@@ -874,8 +893,11 @@ public class MediaControllerTest {
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setContentPosition(testContentPosition)
             .setDuration(10_000L)
-            .setIsPlaying(true)
+            .setPlaybackState(Player.STATE_READY)
+            .setPlayWhenReady(true)
             .setIsPlayingAd(true)
+            .setCurrentAdGroupIndex(0)
+            .setCurrentAdIndexInAdGroup(0)
             .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
             .build();
     remoteSession.setPlayer(playerConfig);
@@ -891,6 +913,72 @@ public class MediaControllerTest {
                 });
 
     assertThat(contentPositionMs).isEqualTo(testContentPosition);
+  }
+
+  @Test
+  public void getContentPosition_whenPlayingMainContent_returnsCurrentPosition() throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentPosition(100L)
+            .setContentPosition(100L) // Same as current position b/c not playing an ad
+            .setDuration(10_000L)
+            .setPlayWhenReady(true)
+            .setPlaybackState(Player.STATE_READY)
+            .setIsPlayingAd(false)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    long currentPositionMs =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setTimeDiffMs(50L);
+                  return controller.getCurrentPosition();
+                });
+    long contentPositionMs =
+        threadTestRule.getHandler().postAndSync(controller::getContentPosition);
+
+    // expectedPositionMs = initCurrentPositionMs + deltaTime*playbackSpeed
+    // 200L = 100L + 50L*2.0f
+    assertThat(contentPositionMs).isEqualTo(200L);
+    assertThat(currentPositionMs).isEqualTo(200L);
+  }
+
+  @Test
+  public void getContentPosition_whenPlayingAd_returnsContentPosition() throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setCurrentPosition(10L)
+            .setContentPosition(50L)
+            .setDuration(10_000L)
+            .setPlayWhenReady(true)
+            .setPlaybackState(Player.STATE_READY)
+            .setIsPlayingAd(true)
+            .setCurrentAdGroupIndex(0)
+            .setCurrentAdIndexInAdGroup(0)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f))
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+
+    long currentPositionMs =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  controller.setTimeDiffMs(50L);
+                  return controller.getCurrentPosition();
+                });
+    long contentPositionMs =
+        threadTestRule.getHandler().postAndSync(controller::getContentPosition);
+
+    // expectedCurrentPositionMs = initCurrentPositionMs + deltaTime*playbackSpeed
+    // 110L = 10L + 50L*2.0f
+    assertThat(currentPositionMs).isEqualTo(110L);
+    assertThat(contentPositionMs).isEqualTo(50L);
   }
 
   @Test

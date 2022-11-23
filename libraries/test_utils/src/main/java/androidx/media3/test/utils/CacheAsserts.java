@@ -30,6 +30,7 @@ import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.test.utils.FakeDataSet.FakeData;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -52,6 +53,7 @@ public final class CacheAsserts {
       }
     }
 
+    @CanIgnoreReturnValue
     public RequestSet subset(String... uriStrings) {
       dataSpecs = new DataSpec[uriStrings.length];
       for (int i = 0; i < dataSpecs.length; i++) {
@@ -60,6 +62,7 @@ public final class CacheAsserts {
       return this;
     }
 
+    @CanIgnoreReturnValue
     public RequestSet subset(Uri... uris) {
       dataSpecs = new DataSpec[uris.length];
       for (int i = 0; i < dataSpecs.length; i++) {
@@ -68,6 +71,7 @@ public final class CacheAsserts {
       return this;
     }
 
+    @CanIgnoreReturnValue
     public RequestSet subset(DataSpec... dataSpecs) {
       this.dataSpecs = dataSpecs;
       return this;
@@ -85,6 +89,7 @@ public final class CacheAsserts {
       return dataSpecs[i];
     }
 
+    @CanIgnoreReturnValue
     public RequestSet useBoundedDataSpecFor(String uriString) {
       FakeData data = Assertions.checkStateNotNull(fakeDataSet.getData(uriString));
       for (int i = 0; i < dataSpecs.length; i++) {

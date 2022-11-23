@@ -78,6 +78,9 @@ project(modulePrefix + 'lib-extractor').projectDir = new File(rootDir, 'librarie
 include modulePrefix + 'lib-cast'
 project(modulePrefix + 'lib-cast').projectDir = new File(rootDir, 'libraries/cast')
 
+include modulePrefix + 'lib-effect'
+project(modulePrefix + 'lib-effect').projectDir = new File(rootDir, 'libraries/effect')
+
 include modulePrefix + 'lib-transformer'
 project(modulePrefix + 'lib-transformer').projectDir = new File(rootDir, 'libraries/transformer')
 

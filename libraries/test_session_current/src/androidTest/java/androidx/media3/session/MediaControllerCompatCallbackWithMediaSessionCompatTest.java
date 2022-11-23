@@ -37,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -84,6 +85,7 @@ public class MediaControllerCompatCallbackWithMediaSessionCompatTest {
 
   /** Custom actions in the legacy session used for instance by Android Auto and Wear OS. */
   @Test
+  @Ignore("Flaky, see b/235057692")
   public void setPlaybackState_withCustomActions_onPlaybackStateCompatChangedCalled()
       throws Exception {
     MediaSessionCompat.Token sessionToken = session.getSessionToken();
@@ -140,11 +142,9 @@ public class MediaControllerCompatCallbackWithMediaSessionCompatTest {
   }
 
   /**
-   * Setting the session extras is used for instance by <a
-   * href="http://android-doc.github.io/reference/android/support/wearable/media/MediaControlConstants.html">
-   * Wear OS</a> and System UI (starting with T) to receive extras for UI customization. An app
-   * needs a way to set the session extras that are stored in the legacy session and broadcast to
-   * the connected controllers.
+   * Setting the session extras is used for instance by Wear OS and System UI (starting with T) to
+   * receive extras for UI customization. An app needs a way to set the session extras that are
+   * stored in the legacy session and broadcast to the connected controllers.
    */
   @Test
   public void setExtras_onExtrasChangedCalled() throws Exception {

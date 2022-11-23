@@ -1,4 +1,3 @@
-containerMimeType = video/mp4
 format 0:
   averageBitrate = 192181
   peakBitrate = 192181

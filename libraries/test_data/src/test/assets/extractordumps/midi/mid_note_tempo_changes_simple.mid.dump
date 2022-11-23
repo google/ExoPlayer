@@ -1,0 +1,89 @@
+seekMap:
+  isSeekable = true
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=14]]
+  getPosition(1) = [[timeUs=1, position=14]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 43
+  sample count = 19
+  format 0:
+    sampleMimeType = audio/x-exoplayer-midi
+    codecs = audio/midi
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 3, hash 70FB
+  sample 1:
+    time = 0
+    flags = 1
+    data = length 3, hash FFFEDCE7
+  sample 2:
+    time = 0
+    flags = 1
+    data = length 7, hash C95FA238
+  sample 3:
+    time = 0
+    flags = 1
+    data = length 6, hash 37A83E76
+  sample 4:
+    time = 100000
+    flags = 1
+    data = length 0, hash 1
+  sample 5:
+    time = 200000
+    flags = 1
+    data = length 0, hash 1
+  sample 6:
+    time = 300000
+    flags = 1
+    data = length 0, hash 1
+  sample 7:
+    time = 400000
+    flags = 1
+    data = length 0, hash 1
+  sample 8:
+    time = 500000
+    flags = 1
+    data = length 6, hash 37A84514
+  sample 9:
+    time = 600000
+    flags = 1
+    data = length 0, hash 1
+  sample 10:
+    time = 700000
+    flags = 1
+    data = length 0, hash 1
+  sample 11:
+    time = 800000
+    flags = 1
+    data = length 0, hash 1
+  sample 12:
+    time = 833333
+    flags = 1
+    data = length 6, hash 37A83493
+  sample 13:
+    time = 933333
+    flags = 1
+    data = length 0, hash 1
+  sample 14:
+    time = 1033333
+    flags = 1
+    data = length 0, hash 1
+  sample 15:
+    time = 1083333
+    flags = 1
+    data = length 6, hash 37A83CA6
+  sample 16:
+    time = 1183333
+    flags = 1
+    data = length 0, hash 1
+  sample 17:
+    time = 1283333
+    flags = 1
+    data = length 3, hash FFFEA058
+  sample 18:
+    time = 1283333
+    flags = 1
+    data = length 3, hash FFFF4CA9
+tracksEnded = true

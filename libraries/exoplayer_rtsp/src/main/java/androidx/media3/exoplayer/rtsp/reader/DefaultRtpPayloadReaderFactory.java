@@ -35,7 +35,11 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
       case MimeTypes.AUDIO_AC3:
         return new RtpAc3Reader(payloadFormat);
       case MimeTypes.AUDIO_AAC:
-        return new RtpAacReader(payloadFormat);
+        if (payloadFormat.mediaEncoding.equals(RtpPayloadFormat.RTP_MEDIA_MPEG4_LATM_AUDIO)) {
+          return new RtpMp4aReader(payloadFormat);
+        } else {
+          return new RtpAacReader(payloadFormat);
+        }
       case MimeTypes.AUDIO_AMR_NB:
       case MimeTypes.AUDIO_AMR_WB:
         return new RtpAmrReader(payloadFormat);

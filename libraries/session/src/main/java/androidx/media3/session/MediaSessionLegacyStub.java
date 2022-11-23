@@ -44,6 +44,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -114,8 +115,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
+  private final Handler mainHandler;
 
   private volatile long connectionTimeoutMs;
+  @Nullable private FutureCallback<Bitmap> pendingBitmapLoadCallback;
 
   public MediaSessionLegacyStub(
       MediaSessionImpl session,
@@ -156,6 +159,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     @Initialized
     MediaSessionLegacyStub thisRef = this;
     sessionCompat.setCallback(thisRef, handler);
+    mainHandler = new Handler(Looper.getMainLooper());
   }
 
   /** Starts to receive commands. */
@@ -241,17 +245,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private void handleMediaPlayPauseOnHandler(RemoteUserInfo remoteUserInfo) {
     mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
-    if (sessionImpl.getPlayerWrapper().getPlayWhenReady()) {
-      dispatchSessionTaskWithPlayerCommand(
-          COMMAND_PLAY_PAUSE,
-          (controller) -> sessionImpl.getPlayerWrapper().pause(),
-          remoteUserInfo);
-    } else {
-      dispatchSessionTaskWithPlayerCommand(
-          COMMAND_PLAY_PAUSE,
-          (controller) -> {
-            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
-            @Player.State int playbackState = playerWrapper.getPlaybackState();
+    dispatchSessionTaskWithPlayerCommand(
+        COMMAND_PLAY_PAUSE,
+        (controller) -> {
+          PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
+          @Player.State int playbackState = playerWrapper.getPlaybackState();
+          if (!playerWrapper.getPlayWhenReady()
+              || playbackState == STATE_ENDED
+              || playbackState == STATE_IDLE) {
             if (playbackState == STATE_IDLE) {
               playerWrapper.prepare();
             } else if (playbackState == STATE_ENDED) {
@@ -259,9 +260,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
                   playerWrapper.getCurrentMediaItemIndex(), /* positionMs= */ C.TIME_UNSET);
             }
             playerWrapper.play();
-          },
-          remoteUserInfo);
-    }
+          } else {
+            playerWrapper.pause();
+          }
+        },
+        remoteUserInfo);
   }
 
   @Override
@@ -650,6 +653,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           new ControllerInfo(
               remoteUserInfo,
               ControllerInfo.LEGACY_CONTROLLER_VERSION,
+              ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
               sessionManager.isTrustedForMediaControl(remoteUserInfo),
               controllerCb,
               /* connectionHints= */ Bundle.EMPTY);
@@ -1112,10 +1116,50 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
       if (currentMediaItem == null) {
         setMetadata(sessionCompat, /* metadataCompat= */ null);
-      } else {
-        sessionCompat.setMetadata(
-            MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs));
+        return;
       }
+
+      @Nullable Bitmap artworkBitmap = null;
+      ListenableFuture<Bitmap> bitmapFuture =
+          sessionImpl.getBitmapLoader().loadBitmapFromMetadata(currentMediaItem.mediaMetadata);
+      if (bitmapFuture != null) {
+        pendingBitmapLoadCallback = null;
+        if (bitmapFuture.isDone()) {
+          try {
+            artworkBitmap = Futures.getDone(bitmapFuture);
+          } catch (ExecutionException e) {
+            Log.w(TAG, "Failed to load bitmap", e);
+          }
+        } else {
+          pendingBitmapLoadCallback =
+              new FutureCallback<Bitmap>() {
+                @Override
+                public void onSuccess(Bitmap result) {
+                  if (this != pendingBitmapLoadCallback) {
+                    return;
+                  }
+                  setMetadata(
+                      sessionCompat,
+                      MediaUtils.convertToMediaMetadataCompat(
+                          currentMediaItem, durationMs, result));
+                  sessionImpl.onNotificationRefreshRequired();
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                  if (this != pendingBitmapLoadCallback) {
+                    return;
+                  }
+                  Log.d(TAG, "Failed to load bitmap", t);
+                }
+              };
+          Futures.addCallback(
+              bitmapFuture, pendingBitmapLoadCallback, /* executor= */ mainHandler::post);
+        }
+      }
+      setMetadata(
+          sessionCompat,
+          MediaUtils.convertToMediaMetadataCompat(currentMediaItem, durationMs, artworkBitmap));
     }
   }
 

@@ -15,58 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
-import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
-import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
-import static androidx.media3.common.Player.COMMAND_PREPARE;
-import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
-import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
-import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
-import static androidx.media3.common.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
-import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
-import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
-import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
-import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
-import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
-import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
-import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
-import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
-import static androidx.media3.common.Player.COMMAND_SET_REPEAT_MODE;
-import static androidx.media3.common.Player.COMMAND_SET_SHUFFLE_MODE;
-import static androidx.media3.common.Player.COMMAND_SET_SPEED_AND_PITCH;
-import static androidx.media3.common.Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS;
-import static androidx.media3.common.Player.COMMAND_SET_VIDEO_SURFACE;
-import static androidx.media3.common.Player.COMMAND_SET_VOLUME;
-import static androidx.media3.common.Player.COMMAND_STOP;
-import static androidx.media3.common.Player.DISCONTINUITY_REASON_INTERNAL;
-import static androidx.media3.common.Player.DISCONTINUITY_REASON_REMOVE;
-import static androidx.media3.common.Player.DISCONTINUITY_REASON_SEEK;
-import static androidx.media3.common.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
-import static androidx.media3.common.Player.EVENT_IS_LOADING_CHANGED;
-import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
-import static androidx.media3.common.Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
-import static androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION;
-import static androidx.media3.common.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
-import static androidx.media3.common.Player.EVENT_PLAYBACK_STATE_CHANGED;
-import static androidx.media3.common.Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED;
-import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
-import static androidx.media3.common.Player.EVENT_PLAY_WHEN_READY_CHANGED;
-import static androidx.media3.common.Player.EVENT_POSITION_DISCONTINUITY;
-import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
-import static androidx.media3.common.Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
-import static androidx.media3.common.Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
-import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
-import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
-import static androidx.media3.common.Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED;
-import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
-import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT;
-import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_SEEK;
-import static androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE;
-import static androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
-import static androidx.media3.common.Player.STATE_BUFFERING;
-import static androidx.media3.common.Player.STATE_ENDED;
-import static androidx.media3.common.Player.STATE_IDLE;
-import static androidx.media3.common.Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkIndex;
 import static androidx.media3.common.util.Assertions.checkNotNull;
@@ -75,13 +23,6 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static androidx.media3.session.MediaUtils.intersect;
-import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
-import static androidx.media3.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
-import static androidx.media3.session.SessionResult.RESULT_ERROR_PERMISSION_DENIED;
-import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
-import static androidx.media3.session.SessionResult.RESULT_ERROR_UNKNOWN;
-import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
-import static androidx.media3.session.SessionToken.TYPE_SESSION;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -106,6 +47,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.BundleListRetriever;
@@ -118,29 +60,25 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.Commands;
-import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.Events;
 import androidx.media3.common.Player.Listener;
-import androidx.media3.common.Player.MediaItemTransitionReason;
-import androidx.media3.common.Player.PlayWhenReadyChangeReason;
 import androidx.media3.common.Player.PositionInfo;
-import androidx.media3.common.Player.RepeatMode;
-import androidx.media3.common.Player.TimelineChangeReason;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Period;
 import androidx.media3.common.Timeline.RemotableTimeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaController.MediaControllerImpl;
-import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -152,6 +90,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 @SuppressWarnings("FutureReturnValueIgnored") // TODO(b/138091975): Not to ignore if feasible
@@ -159,7 +98,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   public static final String TAG = "MCImplBase";
 
-  protected final MediaController instance;
+  private static final long RELEASE_TIMEOUT_MS = 30_000;
+
+  private final MediaController instance;
   protected final SequencedFutureManager sequencedFutureManager;
   protected final MediaControllerStub controllerStub;
 
@@ -170,6 +111,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private final SurfaceCallback surfaceCallback;
   private final ListenerSet<Listener> listeners;
   private final FlushCommandQueueHandler flushCommandQueueHandler;
+  private final ArraySet<Integer> pendingMaskingSequencedFutureNumbers;
 
   @Nullable private SessionToken connectedToken;
   @Nullable private SessionServiceConnection serviceConnection;
@@ -183,25 +125,30 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Nullable private Surface videoSurface;
   @Nullable private SurfaceHolder videoSurfaceHolder;
   @Nullable private TextureView videoTextureView;
-  private int surfaceWidth;
-  private int surfaceHeight;
+  private Size surfaceSize;
   @Nullable private IMediaSession iSession;
-  private long lastReturnedContentPositionMs;
+  private long lastReturnedCurrentPositionMs;
   private long lastSetPlayWhenReadyCalledTimeMs;
+  @Nullable private Timeline pendingPlayerInfoUpdateTimeline;
 
   public MediaControllerImplBase(
-      Context context, MediaController instance, SessionToken token, Bundle connectionHints) {
+      Context context,
+      @UnderInitialization MediaController instance,
+      SessionToken token,
+      Bundle connectionHints,
+      Looper applicationLooper) {
     // Initialize default values.
     playerInfo = PlayerInfo.DEFAULT;
+    surfaceSize = Size.UNKNOWN;
     sessionCommands = SessionCommands.EMPTY;
     playerCommandsFromSession = Commands.EMPTY;
     playerCommandsFromPlayer = Commands.EMPTY;
     intersectedPlayerCommands = Commands.EMPTY;
     listeners =
         new ListenerSet<>(
-            instance.getApplicationLooper(),
+            applicationLooper,
             Clock.DEFAULT,
-            (listener, flags) -> listener.onEvents(instance, new Events(flags)));
+            (listener, flags) -> listener.onEvents(getInstance(), new Events(flags)));
 
     // Initialize members
     this.instance = instance;
@@ -210,27 +157,33 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     this.context = context;
     sequencedFutureManager = new SequencedFutureManager();
     controllerStub = new MediaControllerStub(this);
+    pendingMaskingSequencedFutureNumbers = new ArraySet<>();
     this.token = token;
     this.connectionHints = connectionHints;
     deathRecipient =
         () ->
-            MediaControllerImplBase.this.instance.runOnApplicationLooper(
-                MediaControllerImplBase.this.instance::release);
+            MediaControllerImplBase.this
+                .getInstance()
+                .runOnApplicationLooper(MediaControllerImplBase.this.getInstance()::release);
     surfaceCallback = new SurfaceCallback();
 
     serviceConnection =
-        (this.token.getType() == TYPE_SESSION)
+        (this.token.getType() == SessionToken.TYPE_SESSION)
             ? null
             : new SessionServiceConnection(connectionHints);
-    flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
-    lastReturnedContentPositionMs = C.TIME_UNSET;
+    flushCommandQueueHandler = new FlushCommandQueueHandler(applicationLooper);
+    lastReturnedCurrentPositionMs = C.TIME_UNSET;
     lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
+  /* package*/ MediaController getInstance() {
+    return instance;
+  }
+
   @Override
-  public void connect() {
+  public void connect(@UnderInitialization MediaControllerImplBase this) {
     boolean connectionRequested;
-    if (this.token.getType() == TYPE_SESSION) {
+    if (this.token.getType() == SessionToken.TYPE_SESSION) {
       // Session
       serviceConnection = null;
       connectionRequested = requestConnectToSession(connectionHints);
@@ -239,7 +192,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       connectionRequested = requestConnectToService();
     }
     if (!connectionRequested) {
-      this.instance.runOnApplicationLooper(MediaControllerImplBase.this.instance::release);
+      getInstance().runOnApplicationLooper(getInstance()::release);
     }
   }
 
@@ -255,12 +208,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void stop() {
-    if (!isPlayerCommandAvailable(COMMAND_STOP)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_STOP)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_STOP,
+        Player.COMMAND_STOP,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -287,11 +240,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                     .positionInfo
                     .positionMs));
 
-    if (playerInfo.playbackState != STATE_IDLE) {
+    if (playerInfo.playbackState != Player.STATE_IDLE) {
       playerInfo =
-          playerInfo.copyWithPlaybackState(STATE_IDLE, /* playerError= */ playerInfo.playerError);
+          playerInfo.copyWithPlaybackState(
+              Player.STATE_IDLE, /* playerError= */ playerInfo.playerError);
       listeners.queueEvent(
-          EVENT_PLAYBACK_STATE_CHANGED, listener -> listener.onPlaybackStateChanged(STATE_IDLE));
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
+          listener -> listener.onPlaybackStateChanged(Player.STATE_IDLE));
       listeners.flushEvents();
     }
   }
@@ -303,14 +258,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     released = true;
-    if (serviceConnection != null) {
-      context.unbindService(serviceConnection);
-      serviceConnection = null;
-    }
     connectedToken = null;
-    flushCommandQueueHandler.removeCallbacksAndMessages(/* token= */ null);
+    flushCommandQueueHandler.release();
     this.iSession = null;
-    controllerStub.destroy();
     if (iSession != null) {
       int seq = sequencedFutureManager.obtainNextSequenceNumber();
       try {
@@ -320,8 +270,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         // No-op.
       }
     }
-    sequencedFutureManager.release();
     listeners.release();
+    sequencedFutureManager.lazyRelease(
+        RELEASE_TIMEOUT_MS,
+        () -> {
+          if (serviceConnection != null) {
+            context.unbindService(serviceConnection);
+            serviceConnection = null;
+          }
+          controllerStub.destroy();
+        });
   }
 
   @Override
@@ -346,14 +304,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithPlayerCommand(
       @Player.Command int command, RemoteSessionTask task) {
-    if (command != COMMAND_SET_VIDEO_SURFACE) {
+    if (command != Player.COMMAND_SET_VIDEO_SURFACE) {
       flushCommandQueueHandler.sendFlushCommandQueueMessage();
     }
-    return dispatchRemoteSessionTask(iSession, task);
+    return dispatchRemoteSessionTask(iSession, task, /* addToPendingMaskingOperations= */ true);
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithSessionCommand(
-      @CommandCode int commandCode, RemoteSessionTask task) {
+      @SessionCommand.CommandCode int commandCode, RemoteSessionTask task) {
     return dispatchRemoteSessionTaskWithSessionCommandInternal(
         commandCode, /* sessionCommand= */ null, task);
   }
@@ -361,46 +319,57 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithSessionCommand(
       SessionCommand sessionCommand, RemoteSessionTask task) {
     return dispatchRemoteSessionTaskWithSessionCommandInternal(
-        COMMAND_CODE_CUSTOM, sessionCommand, task);
+        SessionCommand.COMMAND_CODE_CUSTOM, sessionCommand, task);
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTaskWithSessionCommandInternal(
-      @CommandCode int commandCode, SessionCommand sessionCommand, RemoteSessionTask task) {
+      @SessionCommand.CommandCode int commandCode,
+      SessionCommand sessionCommand,
+      RemoteSessionTask task) {
     return dispatchRemoteSessionTask(
         sessionCommand != null
             ? getSessionInterfaceWithSessionCommandIfAble(sessionCommand)
             : getSessionInterfaceWithSessionCommandIfAble(commandCode),
-        task);
+        task,
+        /* addToPendingMaskingOperations= */ false);
   }
 
   private ListenableFuture<SessionResult> dispatchRemoteSessionTask(
-      IMediaSession iSession, RemoteSessionTask task) {
+      IMediaSession iSession, RemoteSessionTask task, boolean addToPendingMaskingOperations) {
     if (iSession != null) {
       SequencedFutureManager.SequencedFuture<SessionResult> result =
-          sequencedFutureManager.createSequencedFuture(new SessionResult(RESULT_INFO_SKIPPED));
+          sequencedFutureManager.createSequencedFuture(
+              new SessionResult(SessionResult.RESULT_INFO_SKIPPED));
+      int sequenceNumber = result.getSequenceNumber();
+      if (addToPendingMaskingOperations) {
+        pendingMaskingSequencedFutureNumbers.add(sequenceNumber);
+      }
       try {
-        task.run(iSession, result.getSequenceNumber());
+        task.run(iSession, sequenceNumber);
       } catch (RemoteException e) {
         Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-        result.set(new SessionResult(RESULT_ERROR_SESSION_DISCONNECTED));
+        pendingMaskingSequencedFutureNumbers.remove(sequenceNumber);
+        sequencedFutureManager.setFutureResult(
+            sequenceNumber, new SessionResult(SessionResult.RESULT_ERROR_SESSION_DISCONNECTED));
       }
       return result;
     } else {
       // Don't create Future with SequencedFutureManager.
       // Otherwise session would receive discontinued sequence number, and it would make
       // future work item 'keeping call sequence when session execute commands' impossible.
-      return Futures.immediateFuture(new SessionResult(RESULT_ERROR_PERMISSION_DENIED));
+      return Futures.immediateFuture(
+          new SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED));
     }
   }
 
   @Override
   public void play() {
-    if (!isPlayerCommandAvailable(COMMAND_PLAY_PAUSE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_PLAY_PAUSE,
+        Player.COMMAND_PLAY_PAUSE,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -410,18 +379,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     setPlayWhenReady(
         /* playWhenReady= */ true,
-        PLAYBACK_SUPPRESSION_REASON_NONE,
-        PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
+        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   @Override
   public void pause() {
-    if (!isPlayerCommandAvailable(COMMAND_PLAY_PAUSE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_PLAY_PAUSE,
+        Player.COMMAND_PLAY_PAUSE,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -431,18 +400,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     setPlayWhenReady(
         /* playWhenReady= */ false,
-        PLAYBACK_SUPPRESSION_REASON_NONE,
-        PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
+        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   @Override
   public void prepare() {
-    if (!isPlayerCommandAvailable(COMMAND_PREPARE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_PREPARE)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_PREPARE,
+        Player.COMMAND_PREPARE,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -458,23 +427,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
       updatePlayerInfo(
           playerInfo,
-          /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-          /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+          /* ignored */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+          /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ false,
-          /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+          /* ignored */ Player.DISCONTINUITY_REASON_INTERNAL,
           /* mediaItemTransition= */ false,
-          /* ignored */ MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+          /* ignored */ Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT);
     }
   }
 
   @Override
   public void seekToDefaultPosition() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_DEFAULT_POSITION)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_DEFAULT_POSITION,
+        Player.COMMAND_SEEK_TO_DEFAULT_POSITION,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -487,12 +456,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekToDefaultPosition(int mediaItemIndex) {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_MEDIA_ITEM,
+        Player.COMMAND_SEEK_TO_MEDIA_ITEM,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -505,12 +474,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekTo(long positionMs) {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+        Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -523,12 +492,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekTo(int mediaItemIndex, long positionMs) {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_MEDIA_ITEM,
+        Player.COMMAND_SEEK_TO_MEDIA_ITEM,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -546,12 +515,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekBack() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_BACK)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_BACK)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_BACK, (iSession, seq) -> iSession.seekBack(controllerStub, seq));
+        Player.COMMAND_SEEK_BACK, (iSession, seq) -> iSession.seekBack(controllerStub, seq));
 
     seekToInternalByOffset(-getSeekBackIncrement());
   }
@@ -563,12 +532,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekForward() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_FORWARD)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_FORWARD)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_FORWARD, (iSession, seq) -> iSession.seekForward(controllerStub, seq));
+        Player.COMMAND_SEEK_FORWARD, (iSession, seq) -> iSession.seekForward(controllerStub, seq));
 
     seekToInternalByOffset(getSeekForwardIncrement());
   }
@@ -580,18 +549,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
-    if (!isPlayerCommandAvailable(COMMAND_PLAY_PAUSE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_PLAY_PAUSE,
+        Player.COMMAND_PLAY_PAUSE,
         (iSession, seq) -> iSession.setPlayWhenReady(controllerStub, seq, playWhenReady));
 
     setPlayWhenReady(
         playWhenReady,
-        PLAYBACK_SUPPRESSION_REASON_NONE,
-        PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
+        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   @Override
@@ -634,19 +603,32 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getCurrentPosition() {
+    boolean receivedUpdatedPositionInfo =
+        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
     if (!playerInfo.isPlaying) {
-      return playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      if (receivedUpdatedPositionInfo || lastReturnedCurrentPositionMs == C.TIME_UNSET) {
+        lastReturnedCurrentPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      }
+      return lastReturnedCurrentPositionMs;
     }
+
+    if (!receivedUpdatedPositionInfo && lastReturnedCurrentPositionMs != C.TIME_UNSET) {
+      // Need an updated current position in order to make a new position estimation
+      return lastReturnedCurrentPositionMs;
+    }
+
     long elapsedTimeMs =
-        (instance.getTimeDiffMs() != C.TIME_UNSET)
-            ? instance.getTimeDiffMs()
+        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
+            ? getInstance().getTimeDiffMs()
             : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.positionMs
             + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    return playerInfo.sessionPositionInfo.durationMs == C.TIME_UNSET
-        ? estimatedPositionMs
-        : Math.min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
+    if (playerInfo.sessionPositionInfo.durationMs != C.TIME_UNSET) {
+      estimatedPositionMs = min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
+    }
+    lastReturnedCurrentPositionMs = estimatedPositionMs;
+    return lastReturnedCurrentPositionMs;
   }
 
   @Override
@@ -676,34 +658,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getContentPosition() {
-    boolean receivedUpdatedPositionInfo =
-        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
-    if (!playerInfo.isPlaying || playerInfo.sessionPositionInfo.isPlayingAd) {
-      if (receivedUpdatedPositionInfo || lastReturnedContentPositionMs == C.TIME_UNSET) {
-        lastReturnedContentPositionMs =
-            playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
-      }
-      return lastReturnedContentPositionMs;
+    if (!playerInfo.sessionPositionInfo.isPlayingAd) {
+      return getCurrentPosition();
     }
-
-    if (!receivedUpdatedPositionInfo && lastReturnedContentPositionMs != C.TIME_UNSET) {
-      // We need an updated content position to make a new position estimation.
-      return lastReturnedContentPositionMs;
-    }
-
-    long elapsedTimeMs =
-        (instance.getTimeDiffMs() != C.TIME_UNSET)
-            ? instance.getTimeDiffMs()
-            : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
-    long estimatedPositionMs =
-        playerInfo.sessionPositionInfo.positionInfo.contentPositionMs
-            + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    if (playerInfo.sessionPositionInfo.contentDurationMs != C.TIME_UNSET) {
-      estimatedPositionMs =
-          Math.min(estimatedPositionMs, playerInfo.sessionPositionInfo.contentDurationMs);
-    }
-    lastReturnedContentPositionMs = estimatedPositionMs;
-    return lastReturnedContentPositionMs;
+    return playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
   }
 
   @Override
@@ -728,12 +686,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_SPEED_AND_PITCH)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_SPEED_AND_PITCH,
+        Player.COMMAND_SET_SPEED_AND_PITCH,
         (iSession, seq) ->
             iSession.setPlaybackParameters(controllerStub, seq, playbackParameters.toBundle()));
 
@@ -741,7 +699,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithPlaybackParameters(playbackParameters);
 
       listeners.queueEvent(
-          EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(playbackParameters));
       listeners.flushEvents();
     }
@@ -754,12 +712,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setPlaybackSpeed(float speed) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_SPEED_AND_PITCH)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_SPEED_AND_PITCH,
+        Player.COMMAND_SET_SPEED_AND_PITCH,
         (iSession, seq) -> iSession.setPlaybackSpeed(controllerStub, seq, speed));
 
     if (playerInfo.playbackParameters.speed != speed) {
@@ -767,7 +725,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithPlaybackParameters(newPlaybackParameters);
 
       listeners.queueEvent(
-          EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(newPlaybackParameters));
       listeners.flushEvents();
     }
@@ -781,7 +739,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Override
   public ListenableFuture<SessionResult> setRating(String mediaId, Rating rating) {
     return dispatchRemoteSessionTaskWithSessionCommand(
-        COMMAND_CODE_SESSION_SET_RATING,
+        SessionCommand.COMMAND_CODE_SESSION_SET_RATING,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -793,7 +751,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Override
   public ListenableFuture<SessionResult> setRating(Rating rating) {
     return dispatchRemoteSessionTaskWithSessionCommand(
-        COMMAND_CODE_SESSION_SET_RATING,
+        SessionCommand.COMMAND_CODE_SESSION_SET_RATING,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -816,12 +774,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_MEDIA_ITEM,
+        Player.COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) -> iSession.setMediaItem(controllerStub, seq, mediaItem.toBundle()));
 
     setMediaItemsInternal(
@@ -833,12 +791,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_MEDIA_ITEM,
+        Player.COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithStartPosition(
                 controllerStub, seq, mediaItem.toBundle(), startPositionMs));
@@ -852,12 +810,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_MEDIA_ITEM,
+        Player.COMMAND_SET_MEDIA_ITEM,
         (iSession, seq) ->
             iSession.setMediaItemWithResetPosition(
                 controllerStub, seq, mediaItem.toBundle(), resetPosition));
@@ -871,12 +829,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.setMediaItems(
                 controllerStub,
@@ -892,12 +850,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.setMediaItemsWithResetPosition(
                 controllerStub,
@@ -914,12 +872,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.setMediaItemsWithStartIndex(
                 controllerStub,
@@ -934,21 +892,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_MEDIA_ITEMS_METADATA)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        Player.COMMAND_SET_MEDIA_ITEMS_METADATA,
         (iSession, seq) ->
             iSession.setPlaylistMetadata(controllerStub, seq, playlistMetadata.toBundle()));
 
     if (!playerInfo.playlistMetadata.equals(playlistMetadata)) {
       playerInfo = playerInfo.copyWithPlaylistMetadata(playlistMetadata);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_PLAYLIST_METADATA_CHANGED,
           listener -> listener.onPlaylistMetadataChanged(playlistMetadata));
       listeners.flushEvents();
     }
@@ -961,12 +917,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void addMediaItem(MediaItem mediaItem) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.addMediaItem(controllerStub, seq, mediaItem.toBundle()));
 
     addMediaItemsInternal(
@@ -975,12 +931,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void addMediaItem(int index, MediaItem mediaItem) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.addMediaItemWithIndex(controllerStub, seq, index, mediaItem.toBundle()));
 
@@ -989,12 +945,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.addMediaItems(
                 controllerStub,
@@ -1006,12 +962,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.addMediaItemsWithIndex(
                 controllerStub,
@@ -1062,25 +1018,25 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             newTimeline,
             newMediaItemIndex,
             newPeriodIndex,
-            DISCONTINUITY_REASON_INTERNAL);
+            Player.DISCONTINUITY_REASON_INTERNAL);
     updatePlayerInfo(
         newPlayerInfo,
-        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* timelineChangeReason= */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* positionDiscontinuity= */ false,
-        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ Player.DISCONTINUITY_REASON_INTERNAL,
         /* mediaItemTransition= */ oldTimeline.isEmpty(),
-        MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
   }
 
   @Override
   public void removeMediaItem(int index) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.removeMediaItem(controllerStub, seq, index));
 
     removeMediaItemsInternal(/* fromIndex= */ index, /* toIndex= */ index + 1);
@@ -1088,12 +1044,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.removeMediaItems(controllerStub, seq, fromIndex, toIndex));
 
     removeMediaItemsInternal(fromIndex, toIndex);
@@ -1101,12 +1057,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void clearMediaItems() {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.clearMediaItems(controllerStub, seq));
 
     removeMediaItemsInternal(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
@@ -1182,7 +1138,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                   newTimeline,
                   newPositionInfo,
                   SessionPositionInfo.DEFAULT,
-                  DISCONTINUITY_REASON_REMOVE);
+                  Player.DISCONTINUITY_REASON_REMOVE);
         } else {
           Window newWindow = newTimeline.getWindow(newMediaItemIndex, new Window());
           long defaultPositionMs = newWindow.getDefaultPositionMs();
@@ -1215,7 +1171,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                       /* currentLiveOffsetMs= */ C.TIME_UNSET,
                       /* contentDurationMs= */ durationMs,
                       /* contentBufferedPositionMs= */ defaultPositionMs),
-                  DISCONTINUITY_REASON_REMOVE);
+                  Player.DISCONTINUITY_REASON_REMOVE);
         }
       } else {
         newPlayerInfo =
@@ -1224,36 +1180,37 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                 newTimeline,
                 newMediaItemIndex,
                 newPeriodIndex,
-                DISCONTINUITY_REASON_REMOVE);
+                Player.DISCONTINUITY_REASON_REMOVE);
       }
 
-      // Player transitions to STATE_ENDED if the current index is part of the removed tail.
+      // Player transitions to Player.STATE_ENDED if the current index is part of the removed tail.
       final boolean transitionsToEnded =
-          newPlayerInfo.playbackState != STATE_IDLE
-              && newPlayerInfo.playbackState != STATE_ENDED
+          newPlayerInfo.playbackState != Player.STATE_IDLE
+              && newPlayerInfo.playbackState != Player.STATE_ENDED
               && fromIndex < clippedToIndex
               && clippedToIndex == oldTimeline.getWindowCount()
               && getCurrentMediaItemIndex() >= fromIndex;
       if (transitionsToEnded) {
-        newPlayerInfo = newPlayerInfo.copyWithPlaybackState(STATE_ENDED, /* playerError= */ null);
+        newPlayerInfo =
+            newPlayerInfo.copyWithPlaybackState(Player.STATE_ENDED, /* playerError= */ null);
       }
 
       updatePlayerInfo(
           newPlayerInfo,
-          /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-          /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+          /* timelineChangeReason= */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+          /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ currentItemRemoved,
-          DISCONTINUITY_REASON_REMOVE,
-          /* mediaItemTransition*/ playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex
+          Player.DISCONTINUITY_REASON_REMOVE,
+          /* mediaItemTransition= */ playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex
                   >= fromIndex
               && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < clippedToIndex,
-          MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+          Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
     }
   }
 
   @Override
   public void moveMediaItem(int currentIndex, int newIndex) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
@@ -1261,7 +1218,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         currentIndex >= 0 && currentIndex < playerInfo.timeline.getWindowCount() && newIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) -> iSession.moveMediaItem(controllerStub, seq, currentIndex, newIndex));
 
     int clippedNewIndex = min(newIndex, playerInfo.timeline.getWindowCount() - 1);
@@ -1272,7 +1229,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    if (!isPlayerCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
       return;
     }
 
@@ -1283,7 +1240,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             && newIndex >= 0);
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
+        Player.COMMAND_CHANGE_MEDIA_ITEMS,
         (iSession, seq) ->
             iSession.moveMediaItems(controllerStub, seq, fromIndex, toIndex, newIndex));
 
@@ -1339,12 +1296,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekToPreviousMediaItem() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+        Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
         (iSession, seq) -> iSession.seekToPreviousMediaItem(controllerStub, seq));
 
     if (getPreviousMediaItemIndex() != C.INDEX_UNSET) {
@@ -1354,12 +1311,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekToNextMediaItem() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+        Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         (iSession, seq) -> iSession.seekToNextMediaItem(controllerStub, seq));
 
     if (getNextMediaItemIndex() != C.INDEX_UNSET) {
@@ -1369,12 +1326,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekToPrevious() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_PREVIOUS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_PREVIOUS, (iSession, seq) -> iSession.seekToPrevious(controllerStub, seq));
+        Player.COMMAND_SEEK_TO_PREVIOUS,
+        (iSession, seq) -> iSession.seekToPrevious(controllerStub, seq));
 
     Timeline timeline = getCurrentTimeline();
     if (timeline.isEmpty() || isPlayingAd()) {
@@ -1400,12 +1358,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void seekToNext() {
-    if (!isPlayerCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SEEK_TO_NEXT)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SEEK_TO_NEXT, (iSession, seq) -> iSession.seekToNext(controllerStub, seq));
+        Player.COMMAND_SEEK_TO_NEXT, (iSession, seq) -> iSession.seekToNext(controllerStub, seq));
 
     Timeline timeline = getCurrentTimeline();
     if (timeline.isEmpty() || isPlayingAd()) {
@@ -1427,13 +1385,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void setRepeatMode(@RepeatMode int repeatMode) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_REPEAT_MODE)) {
+  public void setRepeatMode(@Player.RepeatMode int repeatMode) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_REPEAT_MODE)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_REPEAT_MODE,
+        Player.COMMAND_SET_REPEAT_MODE,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -1445,7 +1403,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithRepeatMode(repeatMode);
 
       listeners.queueEvent(
-          EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
+          /* eventFlag= */ Player.EVENT_REPEAT_MODE_CHANGED,
+          listener -> listener.onRepeatModeChanged(repeatMode));
       listeners.flushEvents();
     }
   }
@@ -1457,12 +1416,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_SHUFFLE_MODE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_SHUFFLE_MODE)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_SHUFFLE_MODE,
+        Player.COMMAND_SET_SHUFFLE_MODE,
         new RemoteSessionTask() {
           @Override
           public void run(IMediaSession iSession, int seq) throws RemoteException {
@@ -1474,7 +1433,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithShuffleModeEnabled(shuffleModeEnabled);
 
       listeners.queueEvent(
-          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
       listeners.flushEvents();
     }
@@ -1492,19 +1451,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setVolume(float volume) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VOLUME)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_VOLUME, (iSession, seq) -> iSession.setVolume(controllerStub, seq, volume));
+        Player.COMMAND_SET_VOLUME,
+        (iSession, seq) -> iSession.setVolume(controllerStub, seq, volume));
 
     if (playerInfo.volume != volume) {
       playerInfo = playerInfo.copyWithVolume(volume);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onVolumeChanged(volume));
+          /* eventFlag= */ Player.EVENT_VOLUME_CHANGED,
+          listener -> listener.onVolumeChanged(volume));
       listeners.flushEvents();
     }
   }
@@ -1526,20 +1485,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setDeviceVolume(int volume) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_DEVICE_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_DEVICE_VOLUME)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_DEVICE_VOLUME,
+        Player.COMMAND_SET_DEVICE_VOLUME,
         (iSession, seq) -> iSession.setDeviceVolume(controllerStub, seq, volume));
 
     if (playerInfo.deviceVolume != volume) {
       playerInfo = playerInfo.copyWithDeviceVolume(volume, playerInfo.deviceMuted);
 
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(volume, playerInfo.deviceMuted));
       listeners.flushEvents();
     }
@@ -1547,21 +1505,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void increaseDeviceVolume() {
-    if (!isPlayerCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_ADJUST_DEVICE_VOLUME,
+        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         (iSession, seq) -> iSession.increaseDeviceVolume(controllerStub, seq));
 
     int newDeviceVolume = playerInfo.deviceVolume + 1;
     if (newDeviceVolume <= getDeviceInfo().maxVolume) {
       playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(newDeviceVolume, playerInfo.deviceMuted));
       listeners.flushEvents();
     }
@@ -1569,21 +1525,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void decreaseDeviceVolume() {
-    if (!isPlayerCommandAvailable(COMMAND_ADJUST_DEVICE_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_ADJUST_DEVICE_VOLUME)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_ADJUST_DEVICE_VOLUME,
+        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         (iSession, seq) -> iSession.decreaseDeviceVolume(controllerStub, seq));
 
     int newDeviceVolume = playerInfo.deviceVolume - 1;
     if (newDeviceVolume >= getDeviceInfo().minVolume) {
       playerInfo = playerInfo.copyWithDeviceVolume(newDeviceVolume, playerInfo.deviceMuted);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(newDeviceVolume, playerInfo.deviceMuted));
       listeners.flushEvents();
     }
@@ -1591,20 +1545,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setDeviceMuted(boolean muted) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_DEVICE_VOLUME)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_DEVICE_VOLUME)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_DEVICE_VOLUME,
+        Player.COMMAND_SET_DEVICE_VOLUME,
         (iSession, seq) -> iSession.setDeviceMuted(controllerStub, seq, muted));
 
     if (playerInfo.deviceMuted != muted) {
       playerInfo = playerInfo.copyWithDeviceVolume(playerInfo.deviceVolume, muted);
-
-      // TODO(b/187152483): Set proper event code when available.
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
           listener -> listener.onDeviceVolumeChanged(playerInfo.deviceVolume, muted));
       listeners.flushEvents();
     }
@@ -1616,8 +1568,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public Size getSurfaceSize() {
+    return surfaceSize;
+  }
+
+  @Override
   public void clearVideoSurface() {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1628,7 +1585,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void clearVideoSurface(@Nullable Surface surface) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1640,7 +1597,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setVideoSurface(@Nullable Surface surface) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1653,7 +1610,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1684,7 +1641,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1696,7 +1653,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1706,7 +1663,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1716,7 +1673,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void setVideoTextureView(@Nullable TextureView textureView) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1746,7 +1703,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_VIDEO_SURFACE)) {
       return;
     }
 
@@ -1767,18 +1724,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public Tracks getCurrentTracks() {
+    return playerInfo.currentTracks;
+  }
+
+  @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     return playerInfo.trackSelectionParameters;
   }
 
   @Override
   public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
-    if (!isPlayerCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
       return;
     }
 
     dispatchRemoteSessionTaskWithPlayerCommand(
-        COMMAND_SET_TRACK_SELECTION_PARAMETERS,
+        Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS,
         (iSession, seq) ->
             iSession.setTrackSelectionParameters(controllerStub, seq, parameters.toBundle()));
 
@@ -1786,7 +1748,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerInfo = playerInfo.copyWithTrackSelectionParameters(parameters);
 
       listeners.queueEvent(
-          EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
           listener -> listener.onTrackSelectionParametersChanged(parameters));
       listeners.flushEvents();
     }
@@ -1906,16 +1868,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             newTimeline,
             newPositionInfo,
             newSessionPositionInfo,
-            DISCONTINUITY_REASON_REMOVE);
+            Player.DISCONTINUITY_REASON_REMOVE);
 
     // Mask the playback state.
     int maskingPlaybackState = newPlayerInfo.playbackState;
-    if (startIndex != C.INDEX_UNSET && newPlayerInfo.playbackState != STATE_IDLE) {
+    if (startIndex != C.INDEX_UNSET && newPlayerInfo.playbackState != Player.STATE_IDLE) {
       if (newTimeline.isEmpty() || correctedStartIndex) {
         // Setting an empty timeline or invalid seek transitions to ended.
-        maskingPlaybackState = STATE_ENDED;
+        maskingPlaybackState = Player.STATE_ENDED;
       } else {
-        maskingPlaybackState = STATE_BUFFERING;
+        maskingPlaybackState = Player.STATE_BUFFERING;
       }
     }
     newPlayerInfo =
@@ -1923,13 +1885,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     updatePlayerInfo(
         newPlayerInfo,
-        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* timelineChangeReason= */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* positionDiscontinuity= */ !playerInfo.timeline.isEmpty(),
-        DISCONTINUITY_REASON_REMOVE,
+        Player.DISCONTINUITY_REASON_REMOVE,
         /* mediaItemTransition= */ !playerInfo.timeline.isEmpty()
             || !newPlayerInfo.timeline.isEmpty(),
-        MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
   }
 
   private void moveMediaItemsInternal(int fromIndex, int toIndex, int newIndex) {
@@ -1977,16 +1939,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               newTimeline,
               newWindowIndex,
               newPeriodIndex,
-              DISCONTINUITY_REASON_INTERNAL);
+              Player.DISCONTINUITY_REASON_INTERNAL);
 
       updatePlayerInfo(
           newPlayerInfo,
-          /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-          /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+          /* timelineChangeReason= */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+          /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
           /* positionDiscontinuity= */ false,
-          /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+          /* ignored */ Player.DISCONTINUITY_REASON_INTERNAL,
           /* mediaItemTransition= */ false,
-          /* ignored */ MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+          /* ignored */ Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT);
     }
   }
 
@@ -2045,7 +2007,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                   playerInfo.sessionPositionInfo.currentLiveOffsetMs,
                   playerInfo.sessionPositionInfo.contentDurationMs,
                   /* contentBufferedPositionMs= */ positionMs == C.TIME_UNSET ? 0 : positionMs),
-              DISCONTINUITY_REASON_SEEK);
+              Player.DISCONTINUITY_REASON_SEEK);
     } else {
       newPlayerInfo = maskPositionInfo(newPlayerInfo, timeline, periodInfo);
     }
@@ -2062,12 +2024,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     updatePlayerInfo(
         newPlayerInfo,
-        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* ignored */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         positionDiscontinuity,
-        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
+        /* positionDiscontinuityReason= */ Player.DISCONTINUITY_REASON_SEEK,
         mediaItemTransition,
-        MEDIA_ITEM_TRANSITION_REASON_SEEK);
+        Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
   }
 
   private void setPlayWhenReady(
@@ -2086,22 +2048,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             playWhenReady, playWhenReadyChangeReason, playbackSuppressionReason);
     updatePlayerInfo(
         playerInfo,
-        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         playWhenReadyChangeReason,
         /* positionDiscontinuity= */ false,
-        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ Player.DISCONTINUITY_REASON_INTERNAL,
         /* mediaItemTransition= */ false,
-        /* ignored */ MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+        /* ignored */ Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT);
   }
 
   private void updatePlayerInfo(
       PlayerInfo newPlayerInfo,
-      @TimelineChangeReason int timelineChangeReason,
-      @PlayWhenReadyChangeReason int playWhenReadyChangeReason,
+      @Player.TimelineChangeReason int timelineChangeReason,
+      @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason,
       boolean positionDiscontinuity,
-      @DiscontinuityReason int positionDiscontinuityReason,
+      @Player.DiscontinuityReason int positionDiscontinuityReason,
       boolean mediaItemTransition,
-      @MediaItemTransitionReason int mediaItemTransitionReason) {
+      @Player.MediaItemTransitionReason int mediaItemTransitionReason) {
     // Assign player info immediately such that all getters return the right values, but keep
     // snapshot of previous and new states so that listener invocations are triggered correctly.
     PlayerInfo oldPlayerInfo = this.playerInfo;
@@ -2109,14 +2071,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     if (mediaItemTransition) {
       listeners.queueEvent(
-          EVENT_MEDIA_ITEM_TRANSITION,
+          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->
               listener.onMediaItemTransition(
                   newPlayerInfo.getCurrentMediaItem(), mediaItemTransitionReason));
     }
     if (positionDiscontinuity) {
       listeners.queueEvent(
-          EVENT_POSITION_DISCONTINUITY,
+          /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
           listener ->
               listener.onPositionDiscontinuity(
                   newPlayerInfo.oldPositionInfo,
@@ -2125,30 +2087,30 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     if (!oldPlayerInfo.timeline.equals(newPlayerInfo.timeline)) {
       listeners.queueEvent(
-          Player.EVENT_TIMELINE_CHANGED,
+          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newPlayerInfo.timeline, timelineChangeReason));
     }
     if (oldPlayerInfo.playbackState != newPlayerInfo.playbackState) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_STATE_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(newPlayerInfo.playbackState));
     }
     if (oldPlayerInfo.playWhenReady != newPlayerInfo.playWhenReady) {
       listeners.queueEvent(
-          EVENT_PLAY_WHEN_READY_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
                   newPlayerInfo.playWhenReady, playWhenReadyChangeReason));
     }
     if (oldPlayerInfo.playbackSuppressionReason != newPlayerInfo.playbackSuppressionReason) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
               listener.onPlaybackSuppressionReasonChanged(newPlayerInfo.playbackSuppressionReason));
     }
     if (oldPlayerInfo.isPlaying != newPlayerInfo.isPlaying) {
       listeners.queueEvent(
-          EVENT_IS_PLAYING_CHANGED,
+          /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
           listener -> listener.onIsPlayingChanged(newPlayerInfo.isPlaying));
     }
     listeners.flushEvents();
@@ -2204,7 +2166,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private void dispatchRemoteSetVideoSurfaceTaskAndWaitForFuture(@Nullable Surface surface) {
     Future<SessionResult> future =
         dispatchRemoteSessionTaskWithPlayerCommand(
-            COMMAND_SET_VIDEO_SURFACE,
+            Player.COMMAND_SET_VIDEO_SURFACE,
             (iSession, seq) -> iSession.setVideoSurface(controllerStub, seq, surface));
 
     try {
@@ -2213,6 +2175,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // Never happens because future.setException will not be called.
       throw new IllegalStateException(e);
     } catch (TimeoutException e) {
+      if (future instanceof SequencedFutureManager.SequencedFuture) {
+        int sequenceNumber =
+            ((SequencedFutureManager.SequencedFuture<SessionResult>) future).getSequenceNumber();
+        pendingMaskingSequencedFutureNumbers.remove(sequenceNumber);
+        sequencedFutureManager.setFutureResult(
+            sequenceNumber, new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN));
+      }
       Log.w(TAG, "set/clearVideoSurface takes too long on the session side.", e);
       // TODO(b/188888693): Let developers know the failure in their code.
     }
@@ -2233,20 +2202,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void maybeNotifySurfaceSizeChanged(int width, int height) {
-    if (surfaceWidth != width || surfaceHeight != height) {
-      surfaceWidth = width;
-      surfaceHeight = height;
-
-      // TODO(b/187152483): Set proper event code when available.
+    if (surfaceSize.getWidth() != width || surfaceSize.getHeight() != height) {
+      surfaceSize = new Size(width, height);
       listeners.sendEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onSurfaceSizeChanged(width, height));
+          /* eventFlag= */ Player.EVENT_SURFACE_SIZE_CHANGED,
+          listener -> listener.onSurfaceSizeChanged(width, height));
     }
   }
 
   /** Returns session interface if the controller can send the predefined command. */
   @Nullable
-  IMediaSession getSessionInterfaceWithSessionCommandIfAble(@CommandCode int commandCode) {
-    checkArgument(commandCode != COMMAND_CODE_CUSTOM);
+  IMediaSession getSessionInterfaceWithSessionCommandIfAble(
+      @SessionCommand.CommandCode int commandCode) {
+    checkArgument(commandCode != SessionCommand.COMMAND_CODE_CUSTOM);
     if (!sessionCommands.contains(commandCode)) {
       Log.w(TAG, "Controller isn't allowed to call command, commandCode=" + commandCode);
       return null;
@@ -2257,7 +2225,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /** Returns session interface if the controller can send the custom command. */
   @Nullable
   IMediaSession getSessionInterfaceWithSessionCommandIfAble(SessionCommand command) {
-    checkArgument(command.commandCode == COMMAND_CODE_CUSTOM);
+    checkArgument(command.commandCode == SessionCommand.COMMAND_CODE_CUSTOM);
     if (!sessionCommands.contains(command)) {
       Log.w(TAG, "Controller isn't allowed to call custom session command:" + command.customAction);
       return null;
@@ -2273,7 +2241,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   <T extends @NonNull Object> void setFutureResult(int seq, T futureResult) {
+    // Don't set the future result on the application looper so that the result can be obtained by a
+    // blocking future.get() on the application looper. But post a message to remove the pending
+    // masking operation on the application looper to ensure it's executed in order with other
+    // updates sent to the application looper.
     sequencedFutureManager.setFutureResult(seq, futureResult);
+    getInstance().runOnApplicationLooper(() -> pendingMaskingSequencedFutureNumbers.remove(seq));
   }
 
   void onConnected(ConnectionState result) {
@@ -2282,7 +2255,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           TAG,
           "Cannot be notified about the connection result many times."
               + " Probably a bug or malicious app.");
-      instance.release();
+      getInstance().release();
       return;
     }
     iSession = result.sessionBinder;
@@ -2297,18 +2270,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // so can be used without worrying about deadlock.
       result.sessionBinder.asBinder().linkToDeath(deathRecipient, 0);
     } catch (RemoteException e) {
-      instance.release();
+      getInstance().release();
       return;
     }
     connectedToken =
         new SessionToken(
             token.getUid(),
-            TYPE_SESSION,
-            result.version,
+            SessionToken.TYPE_SESSION,
+            result.libraryVersion,
+            result.sessionInterfaceVersion,
             token.getPackageName(),
             result.sessionBinder,
             result.tokenExtras);
-    instance.notifyAccepted();
+    getInstance().notifyAccepted();
   }
 
   private void sendControllerResult(int seq, SessionResult result) {
@@ -2330,9 +2304,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           try {
             result = checkNotNull(future.get(), "SessionResult must not be null");
           } catch (CancellationException unused) {
-            result = new SessionResult(RESULT_INFO_SKIPPED);
+            result = new SessionResult(SessionResult.RESULT_INFO_SKIPPED);
           } catch (ExecutionException | InterruptedException unused) {
-            result = new SessionResult(RESULT_ERROR_UNKNOWN);
+            result = new SessionResult(SessionResult.RESULT_ERROR_UNKNOWN);
           }
           sendControllerResult(seq, result);
         },
@@ -2343,179 +2317,202 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isConnected()) {
       return;
     }
-    instance.notifyControllerListener(
-        listener -> {
-          ListenableFuture<SessionResult> future =
-              checkNotNull(
-                  listener.onCustomCommand(instance, command, args),
-                  "ControllerCallback#onCustomCommand() must not return null");
-          sendControllerResultWhenReady(seq, future);
-        });
+    getInstance()
+        .notifyControllerListener(
+            listener -> {
+              ListenableFuture<SessionResult> future =
+                  checkNotNull(
+                      listener.onCustomCommand(getInstance(), command, args),
+                      "ControllerCallback#onCustomCommand() must not return null");
+              sendControllerResultWhenReady(seq, future);
+            });
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
-  void onPlayerInfoChanged(
-      PlayerInfo newPlayerInfo,
-      @TimelineChangeReason int timelineChangedReason,
-      boolean isTimelineExcluded) {
+  void onPlayerInfoChanged(PlayerInfo newPlayerInfo, boolean isTimelineExcluded) {
     if (!isConnected()) {
       return;
     }
-    PlayerInfo oldPlayerInfo = playerInfo;
-    playerInfo = newPlayerInfo;
-    if (isTimelineExcluded) {
-      playerInfo = playerInfo.copyWithTimeline(oldPlayerInfo.timeline);
+    if (!pendingMaskingSequencedFutureNumbers.isEmpty()) {
+      // We are still waiting for all pending masking operations to be handled.
+      if (!isTimelineExcluded) {
+        pendingPlayerInfoUpdateTimeline = newPlayerInfo.timeline;
+      }
+      return;
     }
+    PlayerInfo oldPlayerInfo = playerInfo;
+    if (isTimelineExcluded) {
+      newPlayerInfo =
+          newPlayerInfo.copyWithTimeline(
+              pendingPlayerInfoUpdateTimeline != null
+                  ? pendingPlayerInfoUpdateTimeline
+                  : oldPlayerInfo.timeline);
+    }
+    // Assigning class variable now so that all getters called from listeners see the updated value.
+    // But we need to use a local final variable to ensure listeners get consistent parameters.
+    playerInfo = newPlayerInfo;
+    PlayerInfo finalPlayerInfo = newPlayerInfo;
+    pendingPlayerInfoUpdateTimeline = null;
     PlaybackException oldPlayerError = oldPlayerInfo.playerError;
-    PlaybackException playerError = playerInfo.playerError;
+    PlaybackException playerError = finalPlayerInfo.playerError;
     boolean errorsMatch =
         oldPlayerError == playerError
             || (oldPlayerError != null && oldPlayerError.errorInfoEquals(playerError));
     if (!errorsMatch) {
       listeners.queueEvent(
-          EVENT_PLAYER_ERROR, listener -> listener.onPlayerErrorChanged(playerInfo.playerError));
-      if (playerInfo.playerError != null) {
+          /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
+          listener -> listener.onPlayerErrorChanged(finalPlayerInfo.playerError));
+      if (finalPlayerInfo.playerError != null) {
         listeners.queueEvent(
-            EVENT_PLAYER_ERROR, listener -> listener.onPlayerError(playerInfo.playerError));
+            /* eventFlag= */ Player.EVENT_PLAYER_ERROR,
+            listener -> listener.onPlayerError(finalPlayerInfo.playerError));
       }
     }
     MediaItem oldCurrentMediaItem = oldPlayerInfo.getCurrentMediaItem();
-    MediaItem currentMediaItem = playerInfo.getCurrentMediaItem();
+    MediaItem currentMediaItem = finalPlayerInfo.getCurrentMediaItem();
     if (!Util.areEqual(oldCurrentMediaItem, currentMediaItem)) {
       listeners.queueEvent(
-          EVENT_MEDIA_ITEM_TRANSITION,
+          /* eventFlag= */ Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->
               listener.onMediaItemTransition(
-                  currentMediaItem, playerInfo.mediaItemTransitionReason));
+                  currentMediaItem, finalPlayerInfo.mediaItemTransitionReason));
     }
-    if (!Util.areEqual(oldPlayerInfo.playbackParameters, playerInfo.playbackParameters)) {
+    if (!Util.areEqual(oldPlayerInfo.currentTracks, finalPlayerInfo.currentTracks)) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_PARAMETERS_CHANGED,
-          listener -> listener.onPlaybackParametersChanged(playerInfo.playbackParameters));
+          /* eventFlag= */ Player.EVENT_TRACKS_CHANGED,
+          listener -> listener.onTracksChanged(finalPlayerInfo.currentTracks));
     }
-    if (oldPlayerInfo.repeatMode != playerInfo.repeatMode) {
+    if (!Util.areEqual(oldPlayerInfo.playbackParameters, finalPlayerInfo.playbackParameters)) {
       listeners.queueEvent(
-          EVENT_REPEAT_MODE_CHANGED,
-          listener -> listener.onRepeatModeChanged(playerInfo.repeatMode));
+          /* eventFlag= */ Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          listener -> listener.onPlaybackParametersChanged(finalPlayerInfo.playbackParameters));
     }
-    if (oldPlayerInfo.shuffleModeEnabled != playerInfo.shuffleModeEnabled) {
+    if (oldPlayerInfo.repeatMode != finalPlayerInfo.repeatMode) {
       listeners.queueEvent(
-          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
-          listener -> listener.onShuffleModeEnabledChanged(playerInfo.shuffleModeEnabled));
+          /* eventFlag= */ Player.EVENT_REPEAT_MODE_CHANGED,
+          listener -> listener.onRepeatModeChanged(finalPlayerInfo.repeatMode));
     }
-    if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, playerInfo.timeline)) {
+    if (oldPlayerInfo.shuffleModeEnabled != finalPlayerInfo.shuffleModeEnabled) {
       listeners.queueEvent(
-          EVENT_TIMELINE_CHANGED,
-          listener -> listener.onTimelineChanged(playerInfo.timeline, timelineChangedReason));
+          /* eventFlag= */ Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          listener -> listener.onShuffleModeEnabledChanged(finalPlayerInfo.shuffleModeEnabled));
     }
-    if (!Util.areEqual(oldPlayerInfo.playlistMetadata, playerInfo.playlistMetadata)) {
-      // TODO(b/187152483): Set proper event code when available.
+    if (!isTimelineExcluded && !Util.areEqual(oldPlayerInfo.timeline, finalPlayerInfo.timeline)) {
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onPlaylistMetadataChanged(playerInfo.playlistMetadata));
-    }
-    if (oldPlayerInfo.volume != playerInfo.volume) {
-      // TODO(b/187152483): Set proper event code when available.
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onVolumeChanged(playerInfo.volume));
-    }
-    if (!Util.areEqual(oldPlayerInfo.audioAttributes, playerInfo.audioAttributes)) {
-      // TODO(b/187152483): Set proper event code when available.
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onAudioAttributesChanged(playerInfo.audioAttributes));
-    }
-    if (!oldPlayerInfo.cueGroup.cues.equals(playerInfo.cueGroup.cues)) {
-      // TODO(b/187152483): Set proper event code when available.
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup.cues));
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onCues(playerInfo.cueGroup));
-    }
-    if (!Util.areEqual(oldPlayerInfo.deviceInfo, playerInfo.deviceInfo)) {
-      // TODO(b/187152483): Set proper event code when available.
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onDeviceInfoChanged(playerInfo.deviceInfo));
-    }
-    if (oldPlayerInfo.deviceVolume != playerInfo.deviceVolume
-        || oldPlayerInfo.deviceMuted != playerInfo.deviceMuted) {
-      // TODO(b/187152483): Set proper event code when available.
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
+          /* eventFlag= */ Player.EVENT_TIMELINE_CHANGED,
           listener ->
-              listener.onDeviceVolumeChanged(playerInfo.deviceVolume, playerInfo.deviceMuted));
+              listener.onTimelineChanged(
+                  finalPlayerInfo.timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     }
-    if (oldPlayerInfo.playWhenReady != playerInfo.playWhenReady) {
+    if (!Util.areEqual(oldPlayerInfo.playlistMetadata, finalPlayerInfo.playlistMetadata)) {
       listeners.queueEvent(
-          EVENT_PLAY_WHEN_READY_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYLIST_METADATA_CHANGED,
+          listener -> listener.onPlaylistMetadataChanged(finalPlayerInfo.playlistMetadata));
+    }
+    if (oldPlayerInfo.volume != finalPlayerInfo.volume) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_VOLUME_CHANGED,
+          listener -> listener.onVolumeChanged(finalPlayerInfo.volume));
+    }
+    if (!Util.areEqual(oldPlayerInfo.audioAttributes, finalPlayerInfo.audioAttributes)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_AUDIO_ATTRIBUTES_CHANGED,
+          listener -> listener.onAudioAttributesChanged(finalPlayerInfo.audioAttributes));
+    }
+    if (!oldPlayerInfo.cueGroup.cues.equals(finalPlayerInfo.cueGroup.cues)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_CUES,
+          listener -> listener.onCues(finalPlayerInfo.cueGroup.cues));
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_CUES,
+          listener -> listener.onCues(finalPlayerInfo.cueGroup));
+    }
+    if (!Util.areEqual(oldPlayerInfo.deviceInfo, finalPlayerInfo.deviceInfo)) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_DEVICE_INFO_CHANGED,
+          listener -> listener.onDeviceInfoChanged(finalPlayerInfo.deviceInfo));
+    }
+    if (oldPlayerInfo.deviceVolume != finalPlayerInfo.deviceVolume
+        || oldPlayerInfo.deviceMuted != finalPlayerInfo.deviceMuted) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_DEVICE_VOLUME_CHANGED,
+          listener ->
+              listener.onDeviceVolumeChanged(
+                  finalPlayerInfo.deviceVolume, finalPlayerInfo.deviceMuted));
+    }
+    if (oldPlayerInfo.playWhenReady != finalPlayerInfo.playWhenReady) {
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
-                  playerInfo.playWhenReady, playerInfo.playWhenReadyChangedReason));
+                  finalPlayerInfo.playWhenReady, finalPlayerInfo.playWhenReadyChangedReason));
     }
-    if (oldPlayerInfo.playbackSuppressionReason != playerInfo.playbackSuppressionReason) {
+    if (oldPlayerInfo.playbackSuppressionReason != finalPlayerInfo.playbackSuppressionReason) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+          /* eventFlag= */ Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
-              listener.onPlaybackSuppressionReasonChanged(playerInfo.playbackSuppressionReason));
+              listener.onPlaybackSuppressionReasonChanged(
+                  finalPlayerInfo.playbackSuppressionReason));
     }
-    if (oldPlayerInfo.playbackState != playerInfo.playbackState) {
+    if (oldPlayerInfo.playbackState != finalPlayerInfo.playbackState) {
       listeners.queueEvent(
-          EVENT_PLAYBACK_STATE_CHANGED,
-          listener -> listener.onPlaybackStateChanged(playerInfo.playbackState));
+          /* eventFlag= */ Player.EVENT_PLAYBACK_STATE_CHANGED,
+          listener -> listener.onPlaybackStateChanged(finalPlayerInfo.playbackState));
     }
-    if (oldPlayerInfo.isPlaying != playerInfo.isPlaying) {
+    if (oldPlayerInfo.isPlaying != finalPlayerInfo.isPlaying) {
       listeners.queueEvent(
-          EVENT_IS_PLAYING_CHANGED, listener -> listener.onIsPlayingChanged(playerInfo.isPlaying));
+          /* eventFlag= */ Player.EVENT_IS_PLAYING_CHANGED,
+          listener -> listener.onIsPlayingChanged(finalPlayerInfo.isPlaying));
     }
-    if (oldPlayerInfo.isLoading != playerInfo.isLoading) {
+    if (oldPlayerInfo.isLoading != finalPlayerInfo.isLoading) {
       listeners.queueEvent(
-          EVENT_IS_LOADING_CHANGED, listener -> listener.onIsLoadingChanged(playerInfo.isLoading));
+          /* eventFlag= */ Player.EVENT_IS_LOADING_CHANGED,
+          listener -> listener.onIsLoadingChanged(finalPlayerInfo.isLoading));
     }
-    if (!Util.areEqual(oldPlayerInfo.videoSize, playerInfo.videoSize)) {
-      // TODO(b/187152483): Set proper event code when available.
+    if (!Util.areEqual(oldPlayerInfo.videoSize, finalPlayerInfo.videoSize)) {
       listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onVideoSizeChanged(playerInfo.videoSize));
+          /* eventFlag= */ Player.EVENT_VIDEO_SIZE_CHANGED,
+          listener -> listener.onVideoSizeChanged(finalPlayerInfo.videoSize));
     }
-    if (!Util.areEqual(oldPlayerInfo.oldPositionInfo, playerInfo.oldPositionInfo)
-        || !Util.areEqual(oldPlayerInfo.newPositionInfo, playerInfo.newPositionInfo)) {
+    if (!Util.areEqual(oldPlayerInfo.oldPositionInfo, finalPlayerInfo.oldPositionInfo)
+        || !Util.areEqual(oldPlayerInfo.newPositionInfo, finalPlayerInfo.newPositionInfo)) {
       listeners.queueEvent(
-          EVENT_POSITION_DISCONTINUITY,
+          /* eventFlag= */ Player.EVENT_POSITION_DISCONTINUITY,
           listener ->
               listener.onPositionDiscontinuity(
-                  playerInfo.oldPositionInfo,
-                  playerInfo.newPositionInfo,
-                  playerInfo.discontinuityReason));
+                  finalPlayerInfo.oldPositionInfo,
+                  finalPlayerInfo.newPositionInfo,
+                  finalPlayerInfo.discontinuityReason));
     }
-    if (!Util.areEqual(oldPlayerInfo.mediaMetadata, playerInfo.mediaMetadata)) {
+    if (!Util.areEqual(oldPlayerInfo.mediaMetadata, finalPlayerInfo.mediaMetadata)) {
       listeners.queueEvent(
-          Player.EVENT_MEDIA_METADATA_CHANGED,
-          listener -> listener.onMediaMetadataChanged(playerInfo.mediaMetadata));
+          /* eventFlag= */ Player.EVENT_MEDIA_METADATA_CHANGED,
+          listener -> listener.onMediaMetadataChanged(finalPlayerInfo.mediaMetadata));
     }
-    if (oldPlayerInfo.seekBackIncrementMs != playerInfo.seekBackIncrementMs) {
+    if (oldPlayerInfo.seekBackIncrementMs != finalPlayerInfo.seekBackIncrementMs) {
       listeners.queueEvent(
-          EVENT_SEEK_BACK_INCREMENT_CHANGED,
-          listener -> listener.onSeekBackIncrementChanged(playerInfo.seekBackIncrementMs));
+          /* eventFlag= */ Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
+          listener -> listener.onSeekBackIncrementChanged(finalPlayerInfo.seekBackIncrementMs));
     }
-    if (oldPlayerInfo.seekForwardIncrementMs != playerInfo.seekForwardIncrementMs) {
+    if (oldPlayerInfo.seekForwardIncrementMs != finalPlayerInfo.seekForwardIncrementMs) {
       listeners.queueEvent(
-          EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
-          listener -> listener.onSeekForwardIncrementChanged(playerInfo.seekForwardIncrementMs));
+          /* eventFlag= */ Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+          listener ->
+              listener.onSeekForwardIncrementChanged(finalPlayerInfo.seekForwardIncrementMs));
     }
-    if (oldPlayerInfo.maxSeekToPreviousPositionMs != newPlayerInfo.maxSeekToPreviousPositionMs) {
+    if (oldPlayerInfo.maxSeekToPreviousPositionMs != finalPlayerInfo.maxSeekToPreviousPositionMs) {
       listeners.queueEvent(
-          EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
+          /* eventFlag= */ Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
           listener ->
               listener.onMaxSeekToPreviousPositionChanged(
-                  newPlayerInfo.maxSeekToPreviousPositionMs));
+                  finalPlayerInfo.maxSeekToPreviousPositionMs));
     }
     if (!Util.areEqual(
-        oldPlayerInfo.trackSelectionParameters, newPlayerInfo.trackSelectionParameters)) {
+        oldPlayerInfo.trackSelectionParameters, finalPlayerInfo.trackSelectionParameters)) {
       listeners.queueEvent(
-          EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+          /* eventFlag= */ Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
           listener ->
-              listener.onTrackSelectionParametersChanged(newPlayerInfo.trackSelectionParameters));
+              listener.onTrackSelectionParametersChanged(finalPlayerInfo.trackSelectionParameters));
     }
     listeners.flushEvents();
   }
@@ -2543,12 +2540,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     if (intersectedPlayerCommandsChanged) {
       listeners.sendEvent(
-          EVENT_AVAILABLE_COMMANDS_CHANGED,
+          /* eventFlag= */ Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
           listener -> listener.onAvailableCommandsChanged(intersectedPlayerCommands));
     }
     if (sessionCommandsChanged) {
-      instance.notifyControllerListener(
-          listener -> listener.onAvailableSessionCommandsChanged(instance, sessionCommands));
+      getInstance()
+          .notifyControllerListener(
+              listener ->
+                  listener.onAvailableSessionCommandsChanged(getInstance(), sessionCommands));
     }
   }
 
@@ -2566,7 +2565,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     if (intersectedPlayerCommandsChanged) {
       listeners.sendEvent(
-          EVENT_AVAILABLE_COMMANDS_CHANGED,
+          /* eventFlag= */ Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
           listener -> listener.onAvailableCommandsChanged(intersectedPlayerCommands));
     }
   }
@@ -2585,35 +2584,39 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         validatedCustomLayout.add(button);
       }
     }
-    instance.notifyControllerListener(
-        listener -> {
-          ListenableFuture<SessionResult> future =
-              checkNotNull(
-                  listener.onSetCustomLayout(instance, validatedCustomLayout),
-                  "MediaController.Listener#onSetCustomLayout() must not return null");
-          sendControllerResultWhenReady(seq, future);
-        });
+    getInstance()
+        .notifyControllerListener(
+            listener -> {
+              ListenableFuture<SessionResult> future =
+                  checkNotNull(
+                      listener.onSetCustomLayout(getInstance(), validatedCustomLayout),
+                      "MediaController.Listener#onSetCustomLayout() must not return null");
+              sendControllerResultWhenReady(seq, future);
+            });
   }
 
   public void onExtrasChanged(Bundle extras) {
     if (!isConnected()) {
       return;
     }
-    instance.notifyControllerListener(listener -> listener.onExtrasChanged(instance, extras));
+    getInstance()
+        .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
   }
 
   public void onRenderedFirstFrame() {
-    listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onRenderedFirstFrame);
+    listeners.sendEvent(
+        /* eventFlag= */ Player.EVENT_RENDERED_FIRST_FRAME, Listener::onRenderedFirstFrame);
   }
 
   private void updateSessionPositionInfoIfNeeded(SessionPositionInfo sessionPositionInfo) {
-    if (playerInfo.sessionPositionInfo.eventTimeMs < sessionPositionInfo.eventTimeMs) {
+    if (pendingMaskingSequencedFutureNumbers.isEmpty()
+        && playerInfo.sessionPositionInfo.eventTimeMs < sessionPositionInfo.eventTimeMs) {
       playerInfo = playerInfo.copyWithSessionPositionInfo(sessionPositionInfo);
     }
   }
 
-  @RepeatMode
-  private static int convertRepeatModeForNavigation(@RepeatMode int repeatMode) {
+  @Player.RepeatMode
+  private static int convertRepeatModeForNavigation(@Player.RepeatMode int repeatMode) {
     return repeatMode == Player.REPEAT_MODE_ONE ? Player.REPEAT_MODE_OFF : repeatMode;
   }
 
@@ -2642,7 +2645,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return playerInfo;
     }
 
-    checkState(!isAd(newPeriod, newPositionUs));
+    checkState(playerInfo.sessionPositionInfo.positionInfo.adGroupIndex == C.INDEX_UNSET);
 
     PositionInfo oldPositionInfo =
         new PositionInfo(
@@ -2653,8 +2656,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             oldPeriodIndex,
             /* positionMs= */ usToMs(oldPeriod.positionInWindowUs + oldPositionUs),
             /* contentPositionMs= */ usToMs(oldPeriod.positionInWindowUs + oldPositionUs),
-            playerInfo.sessionPositionInfo.positionInfo.adGroupIndex,
-            playerInfo.sessionPositionInfo.positionInfo.adIndexInAdGroup);
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
 
     timeline.getPeriod(newPeriodIndex, newPeriod);
     Window newWindow = new Window();
@@ -2668,11 +2671,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             newPeriodIndex,
             /* positionMs= */ usToMs(newPeriod.positionInWindowUs + newPositionUs),
             /* contentPositionMs= */ usToMs(newPeriod.positionInWindowUs + newPositionUs),
-            playerInfo.sessionPositionInfo.positionInfo.adGroupIndex,
-            playerInfo.sessionPositionInfo.positionInfo.adIndexInAdGroup);
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
     playerInfo =
         playerInfo.copyWithPositionInfos(
-            oldPositionInfo, newPositionInfo, DISCONTINUITY_REASON_SEEK);
+            oldPositionInfo, newPositionInfo, Player.DISCONTINUITY_REASON_SEEK);
 
     if (playingPeriodChanged || newPositionUs < oldPositionUs) {
       // The playing period changes or a backwards seek within the playing period occurs.
@@ -2734,10 +2737,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       windowPositionMs = timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
     return getPeriodInfo(timeline, window, period, windowIndex, Util.msToUs(windowPositionMs));
-  }
-
-  private boolean isAd(Period period, long periodPosition) {
-    return period.getAdGroupIndexForPositionUs(periodPosition) != C.INDEX_UNSET;
   }
 
   @Nullable
@@ -2890,7 +2889,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private static int resolveSubsequentMediaItemIndex(
-      @RepeatMode int repeatMode,
+      @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
       int oldMediaItemIndex,
       Timeline oldTimeline,
@@ -2950,7 +2949,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         Log.w(TAG, "Service " + name + " has died prematurely");
       } finally {
         if (!connectionRequested) {
-          instance.runOnApplicationLooper(instance::release);
+          getInstance().runOnApplicationLooper(getInstance()::release);
         }
       }
     }
@@ -2961,7 +2960,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // rebind, but we'd better to release() here. Otherwise ControllerCallback#onConnected()
       // would be called multiple times, and the controller would be connected to the
       // different session everytime.
-      instance.runOnApplicationLooper(instance::release);
+      getInstance().runOnApplicationLooper(getInstance()::release);
     }
 
     @Override
@@ -2969,7 +2968,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       // Permanent lose of the binding because of the service package update or removed.
       // This SessionServiceRecord will be removed accordingly, but forget session binder here
       // for sure.
-      instance.runOnApplicationLooper(instance::release);
+      getInstance().runOnApplicationLooper(getInstance()::release);
     }
   }
 
@@ -3044,30 +3043,43 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
   }
 
-  private class FlushCommandQueueHandler extends Handler {
+  private class FlushCommandQueueHandler {
 
     private static final int MSG_FLUSH_COMMAND_QUEUE = 1;
 
-    public FlushCommandQueueHandler(Looper looper) {
-      super(looper);
-    }
+    private final Handler handler;
 
-    @Override
-    public void handleMessage(Message msg) {
-      if (msg.what == MSG_FLUSH_COMMAND_QUEUE) {
-        try {
-          iSession.flushCommandQueue(controllerStub);
-        } catch (RemoteException e) {
-          Log.w(TAG, "Error in sending flushCommandQueue");
-        }
-      }
+    public FlushCommandQueueHandler(Looper looper) {
+      handler = new Handler(looper, /* callback= */ this::handleMessage);
     }
 
     public void sendFlushCommandQueueMessage() {
-      if (iSession != null && !hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+      if (iSession != null && !handler.hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
         // Send message to notify the end of the transaction. It will be handled when the current
         // looper iteration is over.
-        sendEmptyMessage(MSG_FLUSH_COMMAND_QUEUE);
+        handler.sendEmptyMessage(MSG_FLUSH_COMMAND_QUEUE);
+      }
+    }
+
+    public void release() {
+      if (handler.hasMessages(MSG_FLUSH_COMMAND_QUEUE)) {
+        flushCommandQueue();
+      }
+      handler.removeCallbacksAndMessages(/* token= */ null);
+    }
+
+    private boolean handleMessage(Message msg) {
+      if (msg.what == MSG_FLUSH_COMMAND_QUEUE) {
+        flushCommandQueue();
+      }
+      return true;
+    }
+
+    private void flushCommandQueue() {
+      try {
+        iSession.flushCommandQueue(controllerStub);
+      } catch (RemoteException e) {
+        Log.w(TAG, "Error in sending flushCommandQueue");
       }
     }
   }

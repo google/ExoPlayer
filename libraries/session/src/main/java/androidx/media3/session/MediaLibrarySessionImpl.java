@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media3.session.MediaConstants.ERROR_CODE_AUTHENTICATION_EXPIRED_COMPAT;
@@ -63,8 +64,9 @@ import java.util.concurrent.Future;
       Player player,
       @Nullable PendingIntent sessionActivity,
       MediaLibrarySession.Callback callback,
-      Bundle tokenExtras) {
-    super(instance, context, id, player, sessionActivity, callback, tokenExtras);
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
+    super(instance, context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
     this.instance = instance;
     this.callback = callback;
     subscriptions = new ArrayMap<>();
@@ -129,7 +131,7 @@ import java.util.concurrent.Future;
             maybeUpdateLegacyErrorState(result);
           }
         },
-        MoreExecutors.directExecutor());
+        (Runnable r) -> postOrRun(getApplicationHandler(), r));
     return future;
   }
 
@@ -149,7 +151,7 @@ import java.util.concurrent.Future;
             verifyResultItems(result, pageSize);
           }
         },
-        MoreExecutors.directExecutor());
+        (Runnable r) -> postOrRun(getApplicationHandler(), r));
     return future;
   }
 
@@ -164,7 +166,7 @@ import java.util.concurrent.Future;
             maybeUpdateLegacyErrorState(result);
           }
         },
-        MoreExecutors.directExecutor());
+        (Runnable r) -> postOrRun(getApplicationHandler(), r));
     return future;
   }
 
@@ -226,7 +228,7 @@ import java.util.concurrent.Future;
             maybeUpdateLegacyErrorState(result);
           }
         },
-        MoreExecutors.directExecutor());
+        (Runnable r) -> postOrRun(getApplicationHandler(), r));
     return future;
   }
 
@@ -246,7 +248,7 @@ import java.util.concurrent.Future;
             verifyResultItems(result, pageSize);
           }
         },
-        MoreExecutors.directExecutor());
+        (Runnable r) -> postOrRun(getApplicationHandler(), r));
     return future;
   }
 

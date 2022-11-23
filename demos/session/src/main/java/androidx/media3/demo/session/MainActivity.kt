@@ -34,7 +34,6 @@ import androidx.media3.session.MediaBrowser
 import androidx.media3.session.SessionToken
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.MoreExecutors
 
 class MainActivity : AppCompatActivity() {
   private lateinit var browserFuture: ListenableFuture<MediaBrowser>
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity() {
           SessionToken(this, ComponentName(this, PlaybackService::class.java))
         )
         .buildAsync()
-    browserFuture.addListener({ pushRoot() }, MoreExecutors.directExecutor())
+    browserFuture.addListener({ pushRoot() }, ContextCompat.getMainExecutor(this))
   }
 
   private fun releaseBrowser() {
@@ -132,7 +131,7 @@ class MainActivity : AppCompatActivity() {
         subItemMediaList.addAll(children)
         mediaListAdapter.notifyDataSetChanged()
       },
-      MoreExecutors.directExecutor()
+      ContextCompat.getMainExecutor(this)
     )
   }
 

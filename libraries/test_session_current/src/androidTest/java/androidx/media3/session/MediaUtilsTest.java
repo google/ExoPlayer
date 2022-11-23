@@ -18,8 +18,10 @@ package androidx.media3.session;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.service.media.MediaBrowserService;
@@ -31,6 +33,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -46,6 +49,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,10 +63,12 @@ import org.junit.runner.RunWith;
 public final class MediaUtilsTest {
 
   private Context context;
+  private BitmapLoader bitmapLoader;
 
   @Before
   public void setUp() {
     context = ApplicationProvider.getApplicationContext();
+    bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
   }
 
   @Test
@@ -199,14 +205,24 @@ public final class MediaUtilsTest {
   }
 
   @Test
-  public void convertToMediaMetadata_roundTrip_returnsEqualMediaItem() {
-    MediaItem testMediaItem = MediaTestUtils.createMediaItem("testZZZ");
+  public void convertToMediaMetadata_roundTrip_returnsEqualMediaItem() throws Exception {
+    MediaItem testMediaItem = MediaTestUtils.createMediaItemWithArtworkData("testZZZ");
     MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
+    @Nullable Bitmap testArtworkBitmap = null;
+    @Nullable
+    ListenableFuture<Bitmap> bitmapFuture = bitmapLoader.loadBitmapFromMetadata(testMediaMetadata);
+    if (bitmapFuture != null) {
+      testArtworkBitmap = bitmapFuture.get(10, SECONDS);
+    }
     MediaMetadataCompat testMediaMetadataCompat =
-        MediaUtils.convertToMediaMetadataCompat(testMediaItem, /* durationMs= */ 100L);
+        MediaUtils.convertToMediaMetadataCompat(
+            testMediaItem, /* durationMs= */ 100L, testArtworkBitmap);
+
     MediaMetadata mediaMetadata =
         MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, RatingCompat.RATING_NONE);
+
     assertThat(mediaMetadata).isEqualTo(testMediaMetadata);
+    assertThat(mediaMetadata.artworkData).isNotNull();
   }
 
   @Test

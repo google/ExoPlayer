@@ -23,6 +23,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.offline.Download;
 import androidx.media3.exoplayer.offline.DownloadProgress;
 import androidx.media3.exoplayer.offline.DownloadRequest;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -111,6 +112,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#uri
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setUri(String uri) {
     this.uri = Uri.parse(uri);
     return this;
@@ -119,6 +121,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#uri
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setUri(Uri uri) {
     this.uri = uri;
     return this;
@@ -127,6 +130,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#mimeType
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setMimeType(String mimeType) {
     this.mimeType = mimeType;
     return this;
@@ -135,6 +139,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#keySetId
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setKeySetId(byte[] keySetId) {
     this.keySetId = keySetId;
     return this;
@@ -143,6 +148,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#customCacheKey
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setCacheKey(@Nullable String cacheKey) {
     this.cacheKey = cacheKey;
     return this;
@@ -151,6 +157,7 @@ public final class DownloadBuilder {
   /**
    * @see Download#state
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setState(@Download.State int state) {
     this.state = state;
     return this;
@@ -159,6 +166,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadProgress#percentDownloaded
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setPercentDownloaded(float percentDownloaded) {
     progress.percentDownloaded = percentDownloaded;
     return this;
@@ -167,6 +175,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadProgress#bytesDownloaded
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setBytesDownloaded(long bytesDownloaded) {
     progress.bytesDownloaded = bytesDownloaded;
     return this;
@@ -175,6 +184,7 @@ public final class DownloadBuilder {
   /**
    * @see Download#contentLength
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setContentLength(long contentLength) {
     this.contentLength = contentLength;
     return this;
@@ -183,6 +193,7 @@ public final class DownloadBuilder {
   /**
    * @see Download#failureReason
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setFailureReason(int failureReason) {
     this.failureReason = failureReason;
     return this;
@@ -191,6 +202,7 @@ public final class DownloadBuilder {
   /**
    * @see Download#stopReason
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setStopReason(int stopReason) {
     this.stopReason = stopReason;
     return this;
@@ -199,6 +211,7 @@ public final class DownloadBuilder {
   /**
    * @see Download#startTimeMs
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setStartTimeMs(long startTimeMs) {
     this.startTimeMs = startTimeMs;
     return this;
@@ -207,6 +220,7 @@ public final class DownloadBuilder {
   /**
    * @see Download#updateTimeMs
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setUpdateTimeMs(long updateTimeMs) {
     this.updateTimeMs = updateTimeMs;
     return this;
@@ -215,6 +229,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#streamKeys
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setStreamKeys(StreamKey... streamKeys) {
     this.streamKeys = Arrays.asList(streamKeys);
     return this;
@@ -223,6 +238,7 @@ public final class DownloadBuilder {
   /**
    * @see DownloadRequest#data
    */
+  @CanIgnoreReturnValue
   public DownloadBuilder setCustomMetadata(byte[] customMetadata) {
     this.customMetadata = customMetadata;
     return this;

@@ -16,8 +16,10 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.session.MediaTestUtils.assertLibraryParamsEquals;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION;
@@ -27,7 +29,6 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.GET_CHIL
 import static androidx.media3.test.session.common.MediaBrowserConstants.LONG_LIST_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_BROWSABLE_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_ITEM_WITH_METADATA;
-import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_PLAYABLE_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
@@ -64,7 +65,6 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.TestHandler;
@@ -81,6 +81,16 @@ import java.util.concurrent.Executors;
 public class MockMediaLibraryService extends MediaLibraryService {
   /** ID of the session that this service will create. */
   public static final String ID = "TestLibrary";
+  /** Key used in connection hints to instruct the mock service to use a given library root. */
+  public static final String CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT =
+      "CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT";
+  /**
+   * Key used in connection hints to instruct the mock service to remove {@link
+   * SessionCommand#COMMAND_CODE_LIBRARY_SEARCH} from the available commands in {@link
+   * MediaSession.Callback#onConnect(MediaSession, ControllerInfo)}.
+   */
+  public static final String CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH =
+      "CONNECTION_HINTS_KEY_REMOVE_SEARCH_SESSION_COMMAND";
 
   public static final MediaItem ROOT_ITEM =
       new MediaItem.Builder()
@@ -183,6 +193,12 @@ public class MockMediaLibraryService extends MediaLibraryService {
       SessionCommands.Builder builder = connectionResult.availableSessionCommands.buildUpon();
       builder.add(new SessionCommand(CUSTOM_ACTION, /* extras= */ Bundle.EMPTY));
       builder.add(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, /* extras= */ Bundle.EMPTY));
+      if (controller
+          .getConnectionHints()
+          .getBoolean(
+              CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH, /* defaultValue= */ false)) {
+        builder.remove(SessionCommand.COMMAND_CODE_LIBRARY_SEARCH);
+      }
       return MediaSession.ConnectionResult.accept(
           /* availableSessionCommands= */ builder.build(),
           connectionResult.availablePlayerCommands);
@@ -192,7 +208,25 @@ public class MockMediaLibraryService extends MediaLibraryService {
     public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(
         MediaLibrarySession session, ControllerInfo browser, @Nullable LibraryParams params) {
       assertLibraryParams(params);
-      return Futures.immediateFuture(LibraryResult.ofItem(ROOT_ITEM, ROOT_PARAMS));
+      MediaItem rootItem = ROOT_ITEM;
+      // Use connection hints to select the library root to test whether the legacy browser root
+      // hints are propagated as connection hints.
+      String customLibraryRoot =
+          browser
+              .getConnectionHints()
+              .getString(CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT, /* defaultValue= */ null);
+      if (customLibraryRoot != null) {
+        rootItem =
+            new MediaItem.Builder()
+                .setMediaId(customLibraryRoot)
+                .setMediaMetadata(
+                    new MediaMetadata.Builder()
+                        .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)
+                        .setIsPlayable(false)
+                        .build())
+                .build();
+      }
+      return Futures.immediateFuture(LibraryResult.ofItem(rootItem, ROOT_PARAMS));
     }
 
     @Override
@@ -208,11 +242,6 @@ public class MockMediaLibraryService extends MediaLibraryService {
         case MEDIA_ID_GET_ITEM_WITH_METADATA:
           return Futures.immediateFuture(
               LibraryResult.ofItem(createMediaItemWithMetadata(mediaId), /* params= */ null));
-        case MEDIA_ID_GET_NULL_ITEM:
-          // Passing item=null here is expected to throw NPE, this is testing a misbehaving app
-          // that ignores the nullness annotations.
-          return Futures.immediateFuture(
-              LibraryResult.ofItem(/* item= */ null, /* params= */ null));
         default: // fall out
       }
       return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
@@ -431,10 +460,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
   }
 
   private static MediaItem createPlayableMediaItem(String mediaId) {
+    Bundle extras = new Bundle();
+    extras.putInt(EXTRAS_KEY_COMPLETION_STATUS, EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
             .setFolderType(MediaMetadata.FOLDER_TYPE_NONE)
             .setIsPlayable(true)
+            .setExtras(extras)
             .build();
     return new MediaItem.Builder().setMediaId(mediaId).setMediaMetadata(mediaMetadata).build();
   }

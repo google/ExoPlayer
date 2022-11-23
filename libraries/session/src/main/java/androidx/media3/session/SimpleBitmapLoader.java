@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
@@ -38,18 +39,20 @@ import java.util.concurrent.Executors;
 
 /**
  * A simple bitmap loader that delegates all tasks to an executor and supports fetching images from
- * HTTP/HTTPS endpoints.
+ * URIs with {@code file}, {@code http} and {@code https} schemes.
  *
  * <p>Loading tasks are delegated to an {@link ExecutorService} (or {@link
  * ListeningExecutorService}) defined during construction. If no executor service is defined, all
  * tasks are delegated to a single-thread executor service that is shared between instances of this
  * class.
  *
- * <p>The supported URI scheme is only HTTP/HTTPS and this class reads a resource only when the
- * endpoint responds with an {@code HTTP 200} after sending the HTTP request.
+ * <p>For HTTP(S) transfers, this class reads a resource only when the endpoint responds with an
+ * {@code HTTP 200} after sending the HTTP request.
  */
 @UnstableApi
 public final class SimpleBitmapLoader implements BitmapLoader {
+
+  private static final String FILE_URI_EXCEPTION_MESSAGE = "Could not read image from file";
 
   private static final Supplier<ListeningExecutorService> DEFAULT_EXECUTOR_SERVICE =
       Suppliers.memoize(
@@ -82,13 +85,22 @@ public final class SimpleBitmapLoader implements BitmapLoader {
 
   private static Bitmap decode(byte[] data) {
     @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length);
-    if (bitmap == null) {
-      throw new IllegalArgumentException("Could not decode bitmap");
-    }
+    checkArgument(bitmap != null, "Could not decode image data");
     return bitmap;
   }
 
   private static Bitmap load(Uri uri) throws IOException {
+    if ("file".equals(uri.getScheme())) {
+      @Nullable String path = uri.getPath();
+      if (path == null) {
+        throw new IllegalArgumentException(FILE_URI_EXCEPTION_MESSAGE);
+      }
+      @Nullable Bitmap bitmap = BitmapFactory.decodeFile(path);
+      if (bitmap == null) {
+        throw new IllegalArgumentException(FILE_URI_EXCEPTION_MESSAGE);
+      }
+      return bitmap;
+    }
     URLConnection connection = new URL(uri.toString()).openConnection();
     if (!(connection instanceof HttpURLConnection)) {
       throw new UnsupportedOperationException("Unsupported scheme: " + uri.getScheme());

@@ -23,11 +23,14 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.AudioDeviceInfo;
 import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.C;
@@ -35,6 +38,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.TraceUtil;
@@ -59,6 +63,7 @@ import androidx.media3.exoplayer.audio.AudioSink.SinkFormatSupport;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import com.google.errorprone.annotations.ForOverride;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -119,6 +124,11 @@ public abstract class DecoderAudioRenderer<
    * end of stream signal to indicate that it has output any remaining buffers before we release it.
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
+  /**
+   * Generally there is zero or one pending output stream offset. We track more offsets to allow for
+   * pending output streams that have fewer frames than the codec latency.
+   */
+  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
 
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
@@ -148,6 +158,9 @@ public abstract class DecoderAudioRenderer<
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
+  private long outputStreamOffsetUs;
+  private final long[] pendingOutputStreamOffsetsUs;
+  private int pendingOutputStreamOffsetCount;
 
   public DecoderAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -207,6 +220,8 @@ public abstract class DecoderAudioRenderer<
     flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
+    setOutputStreamOffsetUs(C.TIME_UNSET);
+    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
   }
 
   /**
@@ -248,6 +263,7 @@ public abstract class DecoderAudioRenderer<
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
    * @return The {@link C.FormatSupport} for this {@link Format}.
    */
+  @ForOverride
   protected abstract @C.FormatSupport int supportsFormatInternal(Format format);
 
   /**
@@ -337,6 +353,7 @@ public abstract class DecoderAudioRenderer<
 
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
   @CallSuper
+  @ForOverride
   protected void onPositionDiscontinuity() {
     // We are out of sync so allow currentPositionUs to jump backwards.
     allowPositionDiscontinuity = true;
@@ -351,6 +368,7 @@ public abstract class DecoderAudioRenderer<
    * @return The decoder.
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
+  @ForOverride
   protected abstract T createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws DecoderException;
 
@@ -360,6 +378,7 @@ public abstract class DecoderAudioRenderer<
    *
    * @param decoder The decoder.
    */
+  @ForOverride
   protected abstract Format getOutputFormat(T decoder);
 
   /**
@@ -372,6 +391,7 @@ public abstract class DecoderAudioRenderer<
    * @param newFormat The new format.
    * @return The result of the evaluation.
    */
+  @ForOverride
   protected DecoderReuseEvaluation canReuseDecoder(
       String decoderName, Format oldFormat, Format newFormat) {
     return new DecoderReuseEvaluation(
@@ -391,7 +411,7 @@ public abstract class DecoderAudioRenderer<
         audioSink.handleDiscontinuity();
       }
       if (outputBuffer.isFirstSample()) {
-        audioSink.handleDiscontinuity();
+        processFirstSampleOfStream();
       }
     }
 
@@ -435,6 +455,27 @@ public abstract class DecoderAudioRenderer<
     }
 
     return false;
+  }
+
+  private void processFirstSampleOfStream() {
+    audioSink.handleDiscontinuity();
+    if (pendingOutputStreamOffsetCount != 0) {
+      setOutputStreamOffsetUs(pendingOutputStreamOffsetsUs[0]);
+      pendingOutputStreamOffsetCount--;
+      System.arraycopy(
+          pendingOutputStreamOffsetsUs,
+          /* srcPos= */ 1,
+          pendingOutputStreamOffsetsUs,
+          /* destPos= */ 0,
+          pendingOutputStreamOffsetCount);
+    }
+  }
+
+  private void setOutputStreamOffsetUs(long outputStreamOffsetUs) {
+    this.outputStreamOffsetUs = outputStreamOffsetUs;
+    if (outputStreamOffsetUs != C.TIME_UNSET) {
+      audioSink.setOutputStreamOffsetUs(outputStreamOffsetUs);
+    }
   }
 
   private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
@@ -586,6 +627,7 @@ public abstract class DecoderAudioRenderer<
   protected void onDisabled() {
     inputFormat = null;
     audioTrackNeedsConfigure = true;
+    setOutputStreamOffsetUs(C.TIME_UNSET);
     try {
       setSourceDrmSession(null);
       releaseDecoder();
@@ -600,6 +642,19 @@ public abstract class DecoderAudioRenderer<
       throws ExoPlaybackException {
     super.onStreamChanged(formats, startPositionUs, offsetUs);
     firstStreamSampleRead = false;
+    if (outputStreamOffsetUs == C.TIME_UNSET) {
+      setOutputStreamOffsetUs(offsetUs);
+    } else {
+      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
+        Log.w(
+            TAG,
+            "Too many stream changes, so dropping offset: "
+                + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
+      } else {
+        pendingOutputStreamOffsetCount++;
+      }
+      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
+    }
   }
 
   @Override
@@ -622,6 +677,11 @@ public abstract class DecoderAudioRenderer<
         break;
       case MSG_SET_AUDIO_SESSION_ID:
         audioSink.setAudioSessionId((Integer) message);
+        break;
+      case MSG_SET_PREFERRED_AUDIO_DEVICE:
+        if (Util.SDK_INT >= 23) {
+          Api23.setAudioSinkPreferredDevice(audioSink, message);
+        }
         break;
       case MSG_SET_CAMERA_MOTION_LISTENER:
       case MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
@@ -793,6 +853,18 @@ public abstract class DecoderAudioRenderer<
     public void onAudioSinkError(Exception audioSinkError) {
       Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    @DoNotInline
+    public static void setAudioSinkPreferredDevice(
+        AudioSink audioSink, @Nullable Object messagePayload) {
+      @Nullable AudioDeviceInfo audioDeviceInfo = (AudioDeviceInfo) messagePayload;
+      audioSink.setPreferredDevice(audioDeviceInfo);
     }
   }
 }

@@ -22,17 +22,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
-import androidx.media3.common.Player;
 import androidx.media3.common.Player.Commands;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /* package */ class MediaControllerStub extends IMediaController.Stub {
 
   private static final String TAG = "MediaControllerStub";
+
+  /** The version of the IMediaController interface. */
+  public static final int VERSION_INT = 1;
 
   private final WeakReference<MediaControllerImplBase> controller;
 
@@ -41,7 +44,7 @@ import java.util.List;
   }
 
   @Override
-  public void onSessionResult(int seq, Bundle sessionResultBundle) {
+  public void onSessionResult(int sequenceNum, Bundle sessionResultBundle) {
     SessionResult result;
     try {
       result = SessionResult.CREATOR.fromBundle(sessionResultBundle);
@@ -52,11 +55,11 @@ import java.util.List;
     // Don't post setting future result so the result can be obtained on the application looper.
     // For an example, {@code MediaController.setRating(rating).get()} wouldn't return if the
     // result is posted.
-    dispatchControllerTask(controller -> controller.setFutureResult(seq, result));
+    setControllerFutureResult(sequenceNum, result);
   }
 
   @Override
-  public void onLibraryResult(int seq, Bundle libraryResultBundle) {
+  public void onLibraryResult(int sequenceNum, Bundle libraryResultBundle) {
     LibraryResult<?> result;
     try {
       result = LibraryResult.UNKNOWN_TYPE_CREATOR.fromBundle(libraryResultBundle);
@@ -67,8 +70,7 @@ import java.util.List;
     // Don't post setting future result so the result can be obtained on the application looper.
     // For an example, {@code MediaBrowser.getLibraryRoot(params).get()} wouldn't return if the
     // result is posted.
-    dispatchControllerTask(
-        (ControllerTask<MediaBrowserImplBase>) browser -> browser.setFutureResult(seq, result));
+    setControllerFutureResult(sequenceNum, result);
   }
 
   @Override
@@ -87,7 +89,8 @@ import java.util.List;
   @Override
   public void onDisconnected(int seq) {
     dispatchControllerTaskOnHandler(
-        controller -> controller.instance.runOnApplicationLooper(controller.instance::release));
+        controller ->
+            controller.getInstance().runOnApplicationLooper(controller.getInstance()::release));
   }
 
   @Override
@@ -176,11 +179,7 @@ import java.util.List;
       return;
     }
     dispatchControllerTaskOnHandler(
-        controller ->
-            controller.onPlayerInfoChanged(
-                playerInfo,
-                /* timelineChangedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
-                isTimelineExcluded));
+        controller -> controller.onPlayerInfoChanged(playerInfo, isTimelineExcluded));
   }
 
   @Override
@@ -245,16 +244,15 @@ import java.util.List;
     controller.clear();
   }
 
-  private <T extends MediaControllerImplBase> void dispatchControllerTask(ControllerTask<T> task) {
+  private <T extends @NonNull Object> void setControllerFutureResult(
+      int sequenceNum, T futureResult) {
     long token = Binder.clearCallingIdentity();
     try {
       @Nullable MediaControllerImplBase controller = this.controller.get();
-      if (controller == null || controller.isReleased()) {
+      if (controller == null) {
         return;
       }
-      @SuppressWarnings("unchecked")
-      T castedController = (T) controller;
-      task.run(castedController);
+      controller.setFutureResult(sequenceNum, futureResult);
     } finally {
       Binder.restoreCallingIdentity(token);
     }
@@ -268,7 +266,7 @@ import java.util.List;
       if (controller == null) {
         return;
       }
-      Handler handler = controller.instance.applicationHandler;
+      Handler handler = controller.getInstance().applicationHandler;
       postOrRun(
           handler,
           () -> {

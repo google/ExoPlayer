@@ -47,6 +47,7 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -121,6 +122,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      * @param keyRequestParameters A map with parameters.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setKeyRequestParameters(@Nullable Map<String, String> keyRequestParameters) {
       this.keyRequestParameters.clear();
       if (keyRequestParameters != null) {
@@ -136,6 +138,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      * @param exoMediaDrmProvider The {@link ExoMediaDrm.Provider}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setUuidAndExoMediaDrmProvider(
         UUID uuid, ExoMediaDrm.Provider exoMediaDrmProvider) {
       this.uuid = checkNotNull(uuid);
@@ -153,6 +156,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      *     sessions.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMultiSession(boolean multiSession) {
       this.multiSession = multiSession;
       return this;
@@ -172,6 +176,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      * @throws IllegalArgumentException If {@code useDrmSessionsForClearContentTrackTypes} contains
      *     track types other than {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_VIDEO}.
      */
+    @CanIgnoreReturnValue
     public Builder setUseDrmSessionsForClearContent(
         @C.TrackType int... useDrmSessionsForClearContentTrackTypes) {
       for (@C.TrackType int trackType : useDrmSessionsForClearContentTrackTypes) {
@@ -190,6 +195,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      *     played when keys for the encrypted part of the content have yet to be loaded.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setPlayClearSamplesWithoutKeys(boolean playClearSamplesWithoutKeys) {
       this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
       return this;
@@ -201,6 +207,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy = checkNotNull(loadErrorHandlingPolicy);
       return this;
@@ -221,6 +228,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      *     in milliseconds. Must be &gt; 0 or {@link C#TIME_UNSET} to disable keep-alive.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setSessionKeepaliveMs(long sessionKeepaliveMs) {
       checkArgument(sessionKeepaliveMs > 0 || sessionKeepaliveMs == C.TIME_UNSET);
       this.sessionKeepaliveMs = sessionKeepaliveMs;

@@ -37,19 +37,17 @@ import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.concurrent.Executor;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Browses media content offered by a {@link MediaLibraryService} in addition to the {@link
  * MediaController} functions.
  */
 public final class MediaBrowser extends MediaController {
-
-  private static final String WRONG_THREAD_ERROR_MESSAGE =
-      "MediaBrowser method is called from a wrong thread."
-          + " See javadoc of MediaController for details.";
-
-  private final MediaBrowserImpl impl;
 
   /** A builder for {@link MediaBrowser}. */
   public static final class Builder {
@@ -90,6 +88,7 @@ public final class MediaBrowser extends MediaController {
      * @param connectionHints A bundle containing the connection hints.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setConnectionHints(Bundle connectionHints) {
       this.connectionHints = new Bundle(checkNotNull(connectionHints));
       return this;
@@ -101,6 +100,7 @@ public final class MediaBrowser extends MediaController {
      * @param listener The listener.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setListener(Listener listener) {
       this.listener = checkNotNull(listener);
       return this;
@@ -115,6 +115,7 @@ public final class MediaBrowser extends MediaController {
      * @param looper The looper.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setApplicationLooper(Looper looper) {
       applicationLooper = checkNotNull(looper);
       return this;
@@ -201,6 +202,12 @@ public final class MediaBrowser extends MediaController {
         @Nullable LibraryParams params) {}
   }
 
+  private static final String WRONG_THREAD_ERROR_MESSAGE =
+      "MediaBrowser method is called from a wrong thread."
+          + " See javadoc of MediaController for details.";
+
+  @NotOnlyInitialized private @MonotonicNonNull MediaBrowserImpl impl;
+
   /** Creates an instance from the {@link SessionToken}. */
   /* package */ MediaBrowser(
       Context context,
@@ -210,17 +217,24 @@ public final class MediaBrowser extends MediaController {
       Looper applicationLooper,
       ConnectionCallback connectionCallback) {
     super(context, token, connectionHints, listener, applicationLooper, connectionCallback);
-    this.impl = (MediaBrowserImpl) super.impl;
   }
 
   @Override
-  /* package */ MediaBrowserImpl createImpl(
-      Context context, MediaController thisRef, SessionToken token, Bundle connectionHints) {
+  /* package */ @UnderInitialization
+  MediaBrowserImpl createImpl(
+      @UnderInitialization MediaBrowser this,
+      Context context,
+      SessionToken token,
+      Bundle connectionHints,
+      Looper applicationLooper) {
+    MediaBrowserImpl impl;
     if (token.isLegacySession()) {
-      return new MediaBrowserImplLegacy(context, (MediaBrowser) thisRef, token);
+      impl = new MediaBrowserImplLegacy(context, this, token, applicationLooper);
     } else {
-      return new MediaBrowserImplBase(context, thisRef, token, connectionHints);
+      impl = new MediaBrowserImplBase(context, this, token, connectionHints, applicationLooper);
     }
+    this.impl = impl;
+    return impl;
   }
 
   /**
@@ -234,7 +248,7 @@ public final class MediaBrowser extends MediaController {
   public ListenableFuture<LibraryResult<MediaItem>> getLibraryRoot(@Nullable LibraryParams params) {
     verifyApplicationThread();
     if (isConnected()) {
-      return impl.getLibraryRoot(params);
+      return checkNotNull(impl).getLibraryRoot(params);
     }
     return createDisconnectedFuture();
   }
@@ -254,7 +268,7 @@ public final class MediaBrowser extends MediaController {
     verifyApplicationThread();
     checkNotEmpty(parentId, "parentId must not be empty");
     if (isConnected()) {
-      return impl.subscribe(parentId, params);
+      return checkNotNull(impl).subscribe(parentId, params);
     }
     return createDisconnectedFuture();
   }
@@ -273,7 +287,7 @@ public final class MediaBrowser extends MediaController {
     verifyApplicationThread();
     checkNotEmpty(parentId, "parentId must not be empty");
     if (isConnected()) {
-      return impl.unsubscribe(parentId);
+      return checkNotNull(impl).unsubscribe(parentId);
     }
     return createDisconnectedFuture();
   }
@@ -299,7 +313,7 @@ public final class MediaBrowser extends MediaController {
     checkArgument(page >= 0, "page must not be negative");
     checkArgument(pageSize >= 1, "pageSize must not be less than 1");
     if (isConnected()) {
-      return impl.getChildren(parentId, page, pageSize, params);
+      return checkNotNull(impl).getChildren(parentId, page, pageSize, params);
     }
     return createDisconnectedFuture();
   }
@@ -316,7 +330,7 @@ public final class MediaBrowser extends MediaController {
     verifyApplicationThread();
     checkNotEmpty(mediaId, "mediaId must not be empty");
     if (isConnected()) {
-      return impl.getItem(mediaId);
+      return checkNotNull(impl).getItem(mediaId);
     }
     return createDisconnectedFuture();
   }
@@ -338,7 +352,7 @@ public final class MediaBrowser extends MediaController {
     verifyApplicationThread();
     checkNotEmpty(query, "query must not be empty");
     if (isConnected()) {
-      return impl.search(query, params);
+      return checkNotNull(impl).search(query, params);
     }
     return createDisconnectedFuture();
   }
@@ -365,7 +379,7 @@ public final class MediaBrowser extends MediaController {
     checkArgument(page >= 0, "page must not be negative");
     checkArgument(pageSize >= 1, "pageSize must not be less than 1");
     if (isConnected()) {
-      return impl.getSearchResult(query, page, pageSize, params);
+      return checkNotNull(impl).getSearchResult(query, page, pageSize, params);
     }
     return createDisconnectedFuture();
   }

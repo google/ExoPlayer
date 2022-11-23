@@ -62,7 +62,7 @@ public final class AdsMediaSourceTest {
           /* isDynamic= */ false,
           /* useLiveConfiguration= */ false,
           /* manifest= */ null,
-          MediaItem.fromUri(Uri.EMPTY));
+          MediaItem.fromUri(Uri.parse("https://google.com/empty")));
   private static final Object PREROLL_AD_PERIOD_UID =
       PREROLL_AD_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
@@ -74,7 +74,7 @@ public final class AdsMediaSourceTest {
           /* isDynamic= */ false,
           /* useLiveConfiguration= */ false,
           /* manifest= */ null,
-          MediaItem.fromUri(Uri.EMPTY));
+          MediaItem.fromUri(Uri.parse("https://google.com/empty")));
   private static final Object CONTENT_PERIOD_UID =
       CONTENT_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
@@ -82,7 +82,8 @@ public final class AdsMediaSourceTest {
       new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
           .withContentDurationUs(CONTENT_DURATION_US)
           .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-          .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY)
+          .withAvailableAdUri(
+              /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.parse("https://google.com/ad"))
           .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
           .withAdResumePositionUs(/* adResumePositionUs= */ 0);
 

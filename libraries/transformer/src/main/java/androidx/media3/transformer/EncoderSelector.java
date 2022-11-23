@@ -20,7 +20,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 /** Selector of {@link MediaCodec} encoder instances. */
 @UnstableApi
@@ -37,8 +37,8 @@ public interface EncoderSelector {
    * order.
    *
    * @param mimeType The {@linkplain MimeTypes MIME type} for which an encoder is required.
-   * @return An unmodifiable list of {@linkplain MediaCodecInfo encoders} that support the {@code
+   * @return An immutable list of {@linkplain MediaCodecInfo encoders} that support the {@code
    *     mimeType}. The list may be empty.
    */
-  List<MediaCodecInfo> selectEncoderInfos(String mimeType);
+  ImmutableList<MediaCodecInfo> selectEncoderInfos(String mimeType);
 }

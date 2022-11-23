@@ -22,6 +22,7 @@ import static androidx.media3.session.LibraryResult.RESULT_ERROR_UNKNOWN;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
@@ -38,6 +39,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 /** Implementation of MediaBrowser with the {@link MediaBrowserCompat} for legacy support. */
 /* package */ class MediaBrowserImplLegacy extends MediaControllerImplLegacy
@@ -49,12 +51,20 @@ import java.util.List;
 
   private final HashMap<String, List<SubscribeCallback>> subscribeCallbacks = new HashMap<>();
 
-  MediaBrowserImplLegacy(Context context, MediaBrowser instance, SessionToken token) {
-    super(context, instance, token);
+  private final MediaBrowser instance;
+
+  MediaBrowserImplLegacy(
+      Context context,
+      @UnderInitialization MediaBrowser instance,
+      SessionToken token,
+      Looper applicationLooper) {
+    super(context, instance, token, applicationLooper);
+    this.instance = instance;
   }
 
-  MediaBrowser getMediaBrowser() {
-    return (MediaBrowser) instance;
+  @Override
+  /* package*/ MediaBrowser getInstance() {
+    return instance;
   }
 
   @Override
@@ -78,7 +88,8 @@ import java.util.List;
 
   @Override
   public ListenableFuture<LibraryResult<MediaItem>> getLibraryRoot(@Nullable LibraryParams params) {
-    if (!instance.isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT)) {
+    if (!getInstance()
+        .isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     SettableFuture<LibraryResult<MediaItem>> result = SettableFuture.create();
@@ -103,7 +114,7 @@ import java.util.List;
   @Override
   public ListenableFuture<LibraryResult<Void>> subscribe(
       String parentId, @Nullable LibraryParams params) {
-    if (!instance.isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE)) {
+    if (!getInstance().isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     MediaBrowserCompat browserCompat = getBrowserCompat();
@@ -124,7 +135,7 @@ import java.util.List;
 
   @Override
   public ListenableFuture<LibraryResult<Void>> unsubscribe(String parentId) {
-    if (!instance.isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE)) {
+    if (!getInstance().isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     MediaBrowserCompat browserCompat = getBrowserCompat();
@@ -148,7 +159,8 @@ import java.util.List;
   @Override
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> getChildren(
       String parentId, int page, int pageSize, @Nullable LibraryParams params) {
-    if (!instance.isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN)) {
+    if (!getInstance()
+        .isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     MediaBrowserCompat browserCompat = getBrowserCompat();
@@ -164,7 +176,7 @@ import java.util.List;
 
   @Override
   public ListenableFuture<LibraryResult<MediaItem>> getItem(String mediaId) {
-    if (!instance.isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM)) {
+    if (!getInstance().isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     MediaBrowserCompat browserCompat = getBrowserCompat();
@@ -196,7 +208,7 @@ import java.util.List;
   @Override
   public ListenableFuture<LibraryResult<Void>> search(
       String query, @Nullable LibraryParams params) {
-    if (!instance.isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_SEARCH)) {
+    if (!getInstance().isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_SEARCH)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     MediaBrowserCompat browserCompat = getBrowserCompat();
@@ -210,7 +222,7 @@ import java.util.List;
           @Override
           public void onSearchResult(
               String query, Bundle extras, List<MediaBrowserCompat.MediaItem> items) {
-            getMediaBrowser()
+            getInstance()
                 .notifyBrowserListener(
                     listener -> {
                       // Set extra null here, because 'extra' have different meanings between old
@@ -218,20 +230,20 @@ import java.util.List;
                       // - Old API: Extra/Option specified with search().
                       // - New API: Extra from MediaLibraryService to MediaBrowser
                       // TODO(b/193193565): Cache search result for later getSearchResult() calls.
-                      listener.onSearchResultChanged(getMediaBrowser(), query, items.size(), null);
+                      listener.onSearchResultChanged(getInstance(), query, items.size(), null);
                     });
           }
 
           @Override
           public void onError(String query, Bundle extras) {
-            getMediaBrowser()
+            getInstance()
                 .notifyBrowserListener(
                     listener -> {
                       // Set extra null here, because 'extra' have different meanings between old
                       // API and new API as follows.
                       // - Old API: Extra/Option specified with search().
                       // - New API: Extra from MediaLibraryService to MediaBrowser
-                      listener.onSearchResultChanged(getMediaBrowser(), query, 0, null);
+                      listener.onSearchResultChanged(getInstance(), query, 0, null);
                     });
           }
         });
@@ -242,8 +254,8 @@ import java.util.List;
   @Override
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> getSearchResult(
       String query, int page, int pageSize, @Nullable LibraryParams params) {
-    if (!instance.isSessionCommandAvailable(
-        SessionCommand.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT)) {
+    if (!getInstance()
+        .isSessionCommandAvailable(SessionCommand.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT)) {
       return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_PERMISSION_DENIED));
     }
     MediaBrowserCompat browserCompat = getBrowserCompat();
@@ -401,11 +413,11 @@ import java.util.List;
       LibraryParams params =
           MediaUtils.convertToLibraryParams(
               context, browserCompat.getNotifyChildrenChangedOptions());
-      getMediaBrowser()
+      getInstance()
           .notifyBrowserListener(
               listener -> {
                 // TODO(b/193193565): Cache children result for later getChildren() calls.
-                listener.onChildrenChanged(getMediaBrowser(), parentId, itemCount, params);
+                listener.onChildrenChanged(getInstance(), parentId, itemCount, params);
               });
       future.set(LibraryResult.ofVoid());
     }

@@ -34,6 +34,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
@@ -348,6 +349,11 @@ public class StubPlayer extends BasePlayer {
 
   @Override
   public VideoSize getVideoSize() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Size getSurfaceSize() {
     throw new UnsupportedOperationException();
   }
 

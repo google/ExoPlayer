@@ -30,6 +30,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
@@ -92,6 +94,38 @@ public class MediaSessionCallbackTest {
   @After
   public void tearDown() {
     executorService.shutdownNow();
+  }
+
+  @Test
+  public void onConnect_correctControllerVersions() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    final AtomicInteger controllerVersion = new AtomicInteger();
+    final AtomicInteger controllerInterfaceVersion = new AtomicInteger();
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            controllerVersion.set(controller.getControllerVersion());
+            controllerInterfaceVersion.set(controller.getInterfaceVersion());
+            latch.countDown();
+            return MediaSession.ConnectionResult.accept(
+                new SessionCommands.Builder().addAllSessionCommands().build(),
+                new Player.Commands.Builder().addAllCommands().build());
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setCallback(callback)
+                .setId("testOnConnect_correctControllerVersions")
+                .build());
+
+    controllerTestRule.createRemoteController(session.getToken());
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controllerVersion.get()).isEqualTo(MediaLibraryInfo.VERSION_INT);
+    assertThat(controllerInterfaceVersion.get()).isEqualTo(MediaControllerStub.VERSION_INT);
   }
 
   @Test

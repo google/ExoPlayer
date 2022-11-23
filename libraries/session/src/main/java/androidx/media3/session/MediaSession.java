@@ -51,6 +51,7 @@ import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -60,6 +61,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A session that allows a media app to expose its transport controls and playback information in a
@@ -307,6 +309,28 @@ public class MediaSession {
     }
 
     /**
+     * Sets a {@link BitmapLoader} for the {@link MediaSession} to decode bitmaps from compressed
+     * binary data or load bitmaps from {@link Uri}. If not set, a {@link CacheBitmapLoader} with a
+     * {@link SimpleBitmapLoader} inside will be used.
+     *
+     * <p>The provided instance will likely be called repeatedly with the same request, so it would
+     * be best if any provided instance does some caching. Simple caching can be added to any {@link
+     * BitmapLoader} implementation by wrapping it in {@link CacheBitmapLoader} before passing it to
+     * this method.
+     *
+     * <p>If no instance is set, a {@link CacheBitmapLoader} with a {@link SimpleBitmapLoader}
+     * inside will be used.
+     *
+     * @param bitmapLoader The bitmap loader {@link BitmapLoader}.
+     * @return The builder to allow chaining.
+     */
+    @UnstableApi
+    @Override
+    public Builder setBitmapLoader(BitmapLoader bitmapLoader) {
+      return super.setBitmapLoader(bitmapLoader);
+    }
+
+    /**
      * Builds a {@link MediaSession}.
      *
      * @return A new session.
@@ -315,7 +339,11 @@ public class MediaSession {
      */
     @Override
     public MediaSession build() {
-      return new MediaSession(context, id, player, sessionActivity, callback, extras);
+      if (bitmapLoader == null) {
+        bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+      }
+      return new MediaSession(
+          context, id, player, sessionActivity, callback, extras, checkNotNull(bitmapLoader));
     }
   }
 
@@ -324,9 +352,12 @@ public class MediaSession {
 
     /** The {@linkplain #getControllerVersion() controller version} of legacy controllers. */
     public static final int LEGACY_CONTROLLER_VERSION = 0;
+    /** The {@linkplain #getInterfaceVersion()} interface version} of legacy controllers. */
+    @UnstableApi public static final int LEGACY_CONTROLLER_INTERFACE_VERSION = 0;
 
     private final RemoteUserInfo remoteUserInfo;
-    private final int controllerVersion;
+    private final int libraryVersion;
+    private final int interfaceVersion;
     private final boolean isTrusted;
     @Nullable private final ControllerCb controllerCb;
     private final Bundle connectionHints;
@@ -343,12 +374,14 @@ public class MediaSession {
      */
     /* package */ ControllerInfo(
         RemoteUserInfo remoteUserInfo,
-        int controllerVersion,
+        int libraryVersion,
+        int interfaceVersion,
         boolean trusted,
         @Nullable ControllerCb cb,
         Bundle connectionHints) {
       this.remoteUserInfo = remoteUserInfo;
-      this.controllerVersion = controllerVersion;
+      this.libraryVersion = libraryVersion;
+      this.interfaceVersion = interfaceVersion;
       isTrusted = trusted;
       controllerCb = cb;
       this.connectionHints = connectionHints;
@@ -365,7 +398,13 @@ public class MediaSession {
      * than {@code 1000000} if the controller is a legacy controller.
      */
     public int getControllerVersion() {
-      return controllerVersion;
+      return libraryVersion;
+    }
+
+    /** Returns the interface version of the controller, or 0 if it's a legacy controller. */
+    @UnstableApi
+    public int getInterfaceVersion() {
+      return interfaceVersion;
     }
 
     /**
@@ -458,6 +497,7 @@ public class MediaSession {
       return new ControllerInfo(
           legacyRemoteUserInfo,
           ControllerInfo.LEGACY_CONTROLLER_VERSION,
+          ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
           /* trusted= */ false,
           /* cb= */ null,
           /* connectionHints= */ Bundle.EMPTY);
@@ -474,14 +514,15 @@ public class MediaSession {
       Player player,
       @Nullable PendingIntent sessionActivity,
       Callback callback,
-      Bundle tokenExtras) {
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
     synchronized (STATIC_LOCK) {
       if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
         throw new IllegalStateException("Session ID must be unique. ID=" + id);
       }
       SESSION_ID_TO_SESSION_MAP.put(id, this);
     }
-    impl = createImpl(context, id, player, sessionActivity, callback, tokenExtras);
+    impl = createImpl(context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
   }
 
   /* package */ MediaSessionImpl createImpl(
@@ -490,8 +531,10 @@ public class MediaSession {
       Player player,
       @Nullable PendingIntent sessionActivity,
       Callback callback,
-      Bundle tokenExtras) {
-    return new MediaSessionImpl(this, context, id, player, sessionActivity, callback, tokenExtras);
+      Bundle tokenExtras,
+      BitmapLoader bitmapLoader) {
+    return new MediaSessionImpl(
+        this, context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
   }
 
   /* package */ MediaSessionImpl getImpl() {
@@ -728,6 +771,12 @@ public class MediaSession {
     impl.setSessionExtras(controller, sessionExtras);
   }
 
+  /** Returns the {@link BitmapLoader}. */
+  @UnstableApi
+  public BitmapLoader getBitmapLoader() {
+    return impl.getBitmapLoader();
+  }
+
   /**
    * Sends a custom command to a specific controller.
    *
@@ -779,11 +828,19 @@ public class MediaSession {
   /* package */ void handleControllerConnectionFromService(
       IMediaController controller,
       int controllerVersion,
+      int controllerInterfaceVersion,
       String packageName,
       int pid,
       int uid,
       Bundle connectionHints) {
-    impl.connectFromService(controller, controllerVersion, packageName, pid, uid, connectionHints);
+    impl.connectFromService(
+        controller,
+        controllerVersion,
+        controllerInterfaceVersion,
+        packageName,
+        pid,
+        uid,
+        connectionHints);
   }
 
   /* package */ IBinder getLegacyBrowserServiceBinder() {
@@ -800,6 +857,11 @@ public class MediaSession {
   @VisibleForTesting
   /* package */ void setSessionPositionUpdateDelayMs(long updateDelayMs) {
     impl.setSessionPositionUpdateDelayMsOnHandler(updateDelayMs);
+  }
+
+  /** Sets the {@linkplain Listener listener}. */
+  /* package */ void setListener(@Nullable Listener listener) {
+    impl.setMediaSessionListener(listener);
   }
 
   private Uri getUri() {
@@ -974,6 +1036,11 @@ public class MediaSession {
      * playlist via one of the {@code Player.addMediaItem(s)} or {@code Player.setMediaItem(s)}
      * methods.
      *
+     * <p>This callback is also called when an app is using a legacy {@link
+     * MediaControllerCompat.TransportControls} to prepare or play media (for instance when browsing
+     * the catalogue and then selecting an item for preparation from Android Auto that is using the
+     * legacy Media1 library).
+     *
      * <p>Note that the requested {@linkplain MediaItem media items} don't have a {@link
      * MediaItem.LocalConfiguration} (for example, a URI) and need to be updated to make them
      * playable by the underlying {@link Player}. Typically, this implementation should be able to
@@ -1069,7 +1136,8 @@ public class MediaSession {
         boolean excludeMediaItems,
         boolean excludeMediaItemsMetadata,
         boolean excludeCues,
-        boolean excludeTimeline)
+        boolean excludeTimeline,
+        boolean excludeTracks)
         throws RemoteException {}
 
     default void onPeriodicSessionPositionInfoChanged(
@@ -1123,6 +1191,8 @@ public class MediaSession {
 
     default void onIsLoadingChanged(int seq, boolean isLoading) throws RemoteException {}
 
+    default void onTracksChanged(int seq, Tracks tracks) throws RemoteException {}
+
     default void onTrackSelectionParametersChanged(int seq, TrackSelectionParameters parameters)
         throws RemoteException {}
 
@@ -1175,6 +1245,17 @@ public class MediaSession {
     default void onRenderedFirstFrame(int seq) throws RemoteException {}
   }
 
+  /** Listener for media session events */
+  /* package */ interface Listener {
+
+    /**
+     * Called when the notification requires to be refreshed.
+     *
+     * @param session The media session for which the notification requires to be refreshed.
+     */
+    void onNotificationRefreshRequired(MediaSession session);
+  }
+
   /**
    * A base class for {@link MediaSession.Builder} and {@link
    * MediaLibraryService.MediaLibrarySession.Builder}. Any changes to this class should be also
@@ -1189,6 +1270,7 @@ public class MediaSession {
     /* package */ C callback;
     /* package */ @Nullable PendingIntent sessionActivity;
     /* package */ Bundle extras;
+    /* package */ @MonotonicNonNull BitmapLoader bitmapLoader;
 
     public BuilderBase(Context context, Player player, C callback) {
       this.context = checkNotNull(context);
@@ -1220,6 +1302,12 @@ public class MediaSession {
     @SuppressWarnings("unchecked")
     public U setExtras(Bundle extras) {
       this.extras = new Bundle(checkNotNull(extras));
+      return (U) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public U setBitmapLoader(BitmapLoader bitmapLoader) {
+      this.bitmapLoader = bitmapLoader;
       return (U) this;
     }
 

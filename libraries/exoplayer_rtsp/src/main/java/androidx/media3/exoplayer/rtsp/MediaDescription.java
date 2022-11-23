@@ -30,6 +30,7 @@ import androidx.media3.common.ParserException;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -149,6 +150,7 @@ import java.util.HashMap;
      * @param mediaTitle The assigned media title.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setMediaTitle(String mediaTitle) {
       this.mediaTitle = mediaTitle;
       return this;
@@ -160,6 +162,7 @@ import java.util.HashMap;
      * @param connection The connection parameter.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setConnection(String connection) {
       this.connection = connection;
       return this;
@@ -171,6 +174,7 @@ import java.util.HashMap;
      * @param bitrate The estimated bitrate measured in bits per second.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setBitrate(int bitrate) {
       this.bitrate = bitrate;
       return this;
@@ -182,6 +186,7 @@ import java.util.HashMap;
      * @param key The encryption parameter.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder setKey(String key) {
       this.key = key;
       return this;
@@ -196,6 +201,7 @@ import java.util.HashMap;
      * @param attributeValue The value of the attribute, or "" if the attribute bears no value.
      * @return This builder.
      */
+    @CanIgnoreReturnValue
     public Builder addAttribute(String attributeName, String attributeValue) {
       attributes.put(attributeName, attributeValue);
       return this;

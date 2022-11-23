@@ -30,6 +30,7 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.session.MediaBrowser
@@ -38,7 +39,6 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.MoreExecutors
 
 class PlayableFolderActivity : AppCompatActivity() {
   private lateinit var browserFuture: ListenableFuture<MediaBrowser>
@@ -69,10 +69,13 @@ class PlayableFolderActivity : AppCompatActivity() {
     mediaList.setOnItemClickListener { _, _, position, _ ->
       run {
         val browser = this.browser ?: return@run
-        browser.setMediaItems(subItemMediaList)
+        browser.setMediaItems(
+          subItemMediaList,
+          /* startIndex= */ position,
+          /* startPositionMs= */ C.TIME_UNSET
+        )
         browser.shuffleModeEnabled = false
         browser.prepare()
-        browser.seekToDefaultPosition(/* windowIndex= */ position)
         browser.play()
         val intent = Intent(this, PlayerActivity::class.java)
         startActivity(intent)
@@ -132,7 +135,7 @@ class PlayableFolderActivity : AppCompatActivity() {
           SessionToken(this, ComponentName(this, PlaybackService::class.java))
         )
         .buildAsync()
-    browserFuture.addListener({ displayFolder() }, MoreExecutors.directExecutor())
+    browserFuture.addListener({ displayFolder() }, ContextCompat.getMainExecutor(this))
   }
 
   private fun releaseBrowser() {

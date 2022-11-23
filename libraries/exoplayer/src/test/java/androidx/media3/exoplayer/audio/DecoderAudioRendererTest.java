@@ -146,7 +146,8 @@ public class DecoderAudioRendererTest {
   }
 
   @Test
-  public void firstSampleOfStreamSignalsDiscontinuityToAudioSink() throws Exception {
+  public void firstSampleOfStreamSignalsDiscontinuityAndSetOutputStreamOffsetToAudioSink()
+      throws Exception {
     when(mockAudioSink.handleBuffer(any(), anyLong(), anyInt())).thenReturn(true);
     when(mockAudioSink.isEnded()).thenReturn(true);
     InOrder inOrderAudioSink = inOrder(mockAudioSink);
@@ -177,12 +178,15 @@ public class DecoderAudioRendererTest {
       audioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
     }
 
+    inOrderAudioSink.verify(mockAudioSink, times(1)).setOutputStreamOffsetUs(0);
     inOrderAudioSink.verify(mockAudioSink, times(1)).handleDiscontinuity();
     inOrderAudioSink.verify(mockAudioSink, times(2)).handleBuffer(any(), anyLong(), anyInt());
   }
 
   @Test
-  public void firstSampleOfReplacementStreamSignalsDiscontinuityToAudioSink() throws Exception {
+  public void
+      firstSampleOfReplacementStreamSignalsDiscontinuityAndSetOutputStreamOffsetToAudioSink()
+          throws Exception {
     when(mockAudioSink.handleBuffer(any(), anyLong(), anyInt())).thenReturn(true);
     when(mockAudioSink.isEnded()).thenReturn(true);
     InOrder inOrderAudioSink = inOrder(mockAudioSink);
@@ -233,9 +237,11 @@ public class DecoderAudioRendererTest {
       audioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
     }
 
+    inOrderAudioSink.verify(mockAudioSink, times(1)).setOutputStreamOffsetUs(0);
     inOrderAudioSink.verify(mockAudioSink, times(1)).handleDiscontinuity();
     inOrderAudioSink.verify(mockAudioSink, times(2)).handleBuffer(any(), anyLong(), anyInt());
     inOrderAudioSink.verify(mockAudioSink, times(1)).handleDiscontinuity();
+    inOrderAudioSink.verify(mockAudioSink, times(1)).setOutputStreamOffsetUs(1_000_000);
     inOrderAudioSink.verify(mockAudioSink, times(2)).handleBuffer(any(), anyLong(), anyInt());
   }
 

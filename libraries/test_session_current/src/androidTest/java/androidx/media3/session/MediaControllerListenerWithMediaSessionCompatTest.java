@@ -15,21 +15,27 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
-import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
-import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
+import static androidx.media3.test.session.common.TestUtils.getEventsAsList;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.media.VolumeProviderCompat;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.FlagSet;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Util;
+import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestUtils;
@@ -42,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
@@ -75,7 +82,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
-    session = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, context);
+    session = new RemoteMediaSessionCompat(CommonConstants.DEFAULT_TEST_NAME, context);
   }
 
   @After
@@ -87,7 +94,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
   public void onEvents_whenOnRepeatModeChanges_isCalledAfterOtherListenerMethods()
       throws Exception {
     Player.Events testEvents =
-        new Player.Events(new FlagSet.Builder().add(EVENT_REPEAT_MODE_CHANGED).build());
+        new Player.Events(new FlagSet.Builder().add(Player.EVENT_REPEAT_MODE_CHANGED).build());
     CopyOnWriteArrayList<Integer> listenerEventCodes = new CopyOnWriteArrayList<>();
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -97,7 +104,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
         new Player.Listener() {
           @Override
           public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-            listenerEventCodes.add(EVENT_REPEAT_MODE_CHANGED);
+            listenerEventCodes.add(Player.EVENT_REPEAT_MODE_CHANGED);
             latch.countDown();
           }
 
@@ -112,7 +119,8 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_GROUP);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
 
-    assertThat(listenerEventCodes).containsExactly(EVENT_REPEAT_MODE_CHANGED, EVENT_ON_EVENTS);
+    assertThat(listenerEventCodes)
+        .containsExactly(Player.EVENT_REPEAT_MODE_CHANGED, EVENT_ON_EVENTS);
     assertThat(eventsRef.get()).isEqualTo(testEvents);
   }
 
@@ -154,7 +162,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
               receivedIconResIds.add(button.iconResId);
             }
             countDownLatch.countDown();
-            return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+            return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
           }
         });
 
@@ -190,5 +198,162 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
 
     assertThat(countDownLatch.await(1_000, MILLISECONDS)).isTrue();
     assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+  }
+
+  @Test
+  public void onPlaylistMetadataChanged() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<MediaMetadata> playlistMetadataParamRef = new AtomicReference<>();
+    AtomicReference<MediaMetadata> playlistMetadataGetterRef = new AtomicReference<>();
+    AtomicReference<MediaMetadata> playlistMetadataOnEventsRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEvents = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {
+            playlistMetadataParamRef.set(mediaMetadata);
+            playlistMetadataGetterRef.set(controller.getPlaylistMetadata());
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEvents.set(events);
+            playlistMetadataOnEventsRef.set(player.getPlaylistMetadata());
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    session.setQueueTitle("queue-title");
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(playlistMetadataParamRef.get().title).isEqualTo("queue-title");
+    assertThat(playlistMetadataGetterRef.get()).isEqualTo(playlistMetadataParamRef.get());
+    assertThat(playlistMetadataOnEventsRef.get()).isEqualTo(playlistMetadataParamRef.get());
+    assertThat(getEventsAsList(onEvents.get()))
+        .containsExactly(Player.EVENT_PLAYLIST_METADATA_CHANGED);
+  }
+
+  @Test
+  public void onAudioAttributesChanged() throws Exception {
+    // We need to trigger MediaControllerCompat.Callback.onAudioInfoChanged in order to raise the
+    // onAudioAttributesChanged() callback. In API 21 and 22, onAudioInfoChanged is not called when
+    // playback is changed to local.
+    assumeTrue(Util.SDK_INT != 21 && Util.SDK_INT != 22);
+
+    session.setPlaybackToRemote(
+        /* volumeControl= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
+        /* maxVolume= */ 100,
+        /* currentVolume= */ 50);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<AudioAttributes> audioAttributesParamRef = new AtomicReference<>();
+    AtomicReference<AudioAttributes> audioAttributesGetterRef = new AtomicReference<>();
+    AtomicReference<AudioAttributes> audioAttributesOnEventsRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEvents = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
+            audioAttributesParamRef.set(audioAttributes);
+            audioAttributesGetterRef.set(controller.getAudioAttributes());
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEvents.set(events);
+            audioAttributesOnEventsRef.set(player.getAudioAttributes());
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    session.setPlaybackToLocal(AudioManager.STREAM_ALARM);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(audioAttributesGetterRef.get().contentType).isEqualTo(AudioManager.STREAM_ALARM);
+    assertThat(audioAttributesGetterRef.get()).isEqualTo(audioAttributesParamRef.get());
+    assertThat(audioAttributesOnEventsRef.get()).isEqualTo(audioAttributesParamRef.get());
+    assertThat(getEventsAsList(onEvents.get())).contains(Player.EVENT_AUDIO_ATTRIBUTES_CHANGED);
+  }
+
+  @Test
+  public void onDeviceInfoChanged() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<DeviceInfo> deviceInfoParamRef = new AtomicReference<>();
+    AtomicReference<DeviceInfo> deviceInfoGetterRef = new AtomicReference<>();
+    AtomicReference<DeviceInfo> deviceInfoOnEventsRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEvents = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onDeviceInfoChanged(DeviceInfo deviceInfo) {
+            deviceInfoParamRef.set(deviceInfo);
+            deviceInfoGetterRef.set(controller.getDeviceInfo());
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            deviceInfoOnEventsRef.set(player.getDeviceInfo());
+            onEvents.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    session.setPlaybackToRemote(
+        /* volumeControl= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
+        /* maxVolume= */ 100,
+        /* currentVolume= */ 50);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(deviceInfoParamRef.get().playbackType).isEqualTo(DeviceInfo.PLAYBACK_TYPE_REMOTE);
+    assertThat(deviceInfoParamRef.get().maxVolume).isEqualTo(100);
+    assertThat(deviceInfoGetterRef.get()).isEqualTo(deviceInfoParamRef.get());
+    assertThat(deviceInfoOnEventsRef.get()).isEqualTo(deviceInfoGetterRef.get());
+    assertThat(getEventsAsList(onEvents.get())).contains(Player.EVENT_DEVICE_VOLUME_CHANGED);
+  }
+
+  @Test
+  public void onDeviceVolumeChanged() throws Exception {
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicInteger deviceVolumeParam = new AtomicInteger();
+    AtomicInteger deviceVolumeGetter = new AtomicInteger();
+    AtomicInteger deviceVolumeOnEvents = new AtomicInteger();
+    AtomicReference<Player.Events> onEvents = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onDeviceVolumeChanged(int volume, boolean muted) {
+            deviceVolumeParam.set(volume);
+            deviceVolumeGetter.set(controller.getDeviceVolume());
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            deviceVolumeOnEvents.set(player.getDeviceVolume());
+            onEvents.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    session.setPlaybackToRemote(
+        /* volumeControl= */ VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
+        /* maxVolume= */ 100,
+        /* currentVolume= */ 50);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(deviceVolumeParam.get()).isEqualTo(50);
+    assertThat(deviceVolumeGetter.get()).isEqualTo(50);
+    assertThat(deviceVolumeOnEvents.get()).isEqualTo(50);
+    assertThat(getEventsAsList(onEvents.get())).contains(Player.EVENT_DEVICE_VOLUME_CHANGED);
   }
 }

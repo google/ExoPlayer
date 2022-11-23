@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -23,6 +24,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
@@ -42,6 +44,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
@@ -55,6 +58,7 @@ import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
 import androidx.media3.exoplayer.video.spherical.CameraMotionListener;
 import androidx.media3.extractor.ExtractorsFactory;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 
 /**
@@ -146,6 +150,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @deprecated Use {@link ExoPlayer.Builder#experimentalSetForegroundModeTimeoutMs(long)}
      *     instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
       wrappedBuilder.experimentalSetForegroundModeTimeoutMs(timeoutMs);
@@ -155,6 +160,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setTrackSelector(TrackSelector)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setTrackSelector(TrackSelector trackSelector) {
       wrappedBuilder.setTrackSelector(trackSelector);
@@ -164,6 +170,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setMediaSourceFactory(MediaSource.Factory)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       wrappedBuilder.setMediaSourceFactory(mediaSourceFactory);
@@ -173,6 +180,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setLoadControl(LoadControl)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setLoadControl(LoadControl loadControl) {
       wrappedBuilder.setLoadControl(loadControl);
@@ -182,6 +190,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setBandwidthMeter(BandwidthMeter)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       wrappedBuilder.setBandwidthMeter(bandwidthMeter);
@@ -191,6 +200,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setLooper(Looper)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setLooper(Looper looper) {
       wrappedBuilder.setLooper(looper);
@@ -200,6 +210,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setAnalyticsCollector(AnalyticsCollector)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       wrappedBuilder.setAnalyticsCollector(analyticsCollector);
@@ -210,6 +221,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @deprecated Use {@link ExoPlayer.Builder#setPriorityTaskManager(PriorityTaskManager)}
      *     instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
       wrappedBuilder.setPriorityTaskManager(priorityTaskManager);
@@ -220,6 +232,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @deprecated Use {@link ExoPlayer.Builder#setAudioAttributes(AudioAttributes, boolean)}
      *     instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
       wrappedBuilder.setAudioAttributes(audioAttributes, handleAudioFocus);
@@ -229,6 +242,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setWakeMode(int)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
       wrappedBuilder.setWakeMode(wakeMode);
@@ -238,6 +252,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setHandleAudioBecomingNoisy(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
       wrappedBuilder.setHandleAudioBecomingNoisy(handleAudioBecomingNoisy);
@@ -247,6 +262,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setSkipSilenceEnabled(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
       wrappedBuilder.setSkipSilenceEnabled(skipSilenceEnabled);
@@ -256,6 +272,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setVideoScalingMode(int)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       wrappedBuilder.setVideoScalingMode(videoScalingMode);
@@ -265,6 +282,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setVideoChangeFrameRateStrategy(int)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
@@ -275,6 +293,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setUseLazyPreparation(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       wrappedBuilder.setUseLazyPreparation(useLazyPreparation);
@@ -284,6 +303,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setSeekParameters(SeekParameters)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setSeekParameters(SeekParameters seekParameters) {
       wrappedBuilder.setSeekParameters(seekParameters);
@@ -293,6 +313,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
       wrappedBuilder.setSeekBackIncrementMs(seekBackIncrementMs);
@@ -302,6 +323,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setSeekForwardIncrementMs(long)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
       wrappedBuilder.setSeekForwardIncrementMs(seekForwardIncrementMs);
@@ -311,6 +333,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setReleaseTimeoutMs(long)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
       wrappedBuilder.setReleaseTimeoutMs(releaseTimeoutMs);
@@ -320,6 +343,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setDetachSurfaceTimeoutMs(long)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
       wrappedBuilder.setDetachSurfaceTimeoutMs(detachSurfaceTimeoutMs);
@@ -329,6 +353,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setPauseAtEndOfMediaItems(boolean)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
       wrappedBuilder.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
@@ -339,6 +364,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @deprecated Use {@link
      *     ExoPlayer.Builder#setLivePlaybackSpeedControl(LivePlaybackSpeedControl)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
       wrappedBuilder.setLivePlaybackSpeedControl(livePlaybackSpeedControl);
@@ -348,6 +374,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * @deprecated Use {@link ExoPlayer.Builder#setClock(Clock)} instead.
      */
+    @CanIgnoreReturnValue
     @Deprecated
     @VisibleForTesting
     public Builder setClock(Clock clock) {
@@ -503,6 +530,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public Size getSurfaceSize() {
+    blockUntilConstructorFinished();
+    return player.getSurfaceSize();
+  }
+
+  @Override
   public void clearVideoSurface() {
     blockUntilConstructorFinished();
     player.clearVideoSurface();
@@ -602,6 +635,13 @@ public class SimpleExoPlayer extends BasePlayer
   public void clearAuxEffectInfo() {
     blockUntilConstructorFinished();
     player.clearAuxEffectInfo();
+  }
+
+  @RequiresApi(23)
+  @Override
+  public void setPreferredAudioDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    blockUntilConstructorFinished();
+    player.setPreferredAudioDevice(audioDeviceInfo);
   }
 
   @Override
@@ -1256,6 +1296,12 @@ public class SimpleExoPlayer extends BasePlayer
   public void setDeviceMuted(boolean muted) {
     blockUntilConstructorFinished();
     player.setDeviceMuted(muted);
+  }
+
+  @Override
+  public boolean isTunnelingEnabled() {
+    blockUntilConstructorFinished();
+    return player.isTunnelingEnabled();
   }
 
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {

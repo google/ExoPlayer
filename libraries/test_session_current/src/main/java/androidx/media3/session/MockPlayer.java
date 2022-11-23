@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.graphics.Rect;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -40,10 +41,12 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -229,6 +232,7 @@ public class MockPlayer implements Player {
   public @RepeatMode int repeatMode;
   public boolean shuffleModeEnabled;
   public VideoSize videoSize;
+  public Size surfaceSize;
   @Nullable public Surface surface;
   @Nullable public SurfaceHolder surfaceHolder;
   @Nullable public SurfaceView surfaceView;
@@ -241,7 +245,6 @@ public class MockPlayer implements Player {
   public boolean playWhenReady;
   public @PlaybackSuppressionReason int playbackSuppressionReason;
   public @State int playbackState;
-  public boolean isPlaying;
   public boolean isLoading;
   public MediaMetadata mediaMetadata;
   public Commands commands;
@@ -249,6 +252,7 @@ public class MockPlayer implements Player {
   public long seekForwardIncrementMs;
   public long maxSeekToPreviousPositionMs;
   public TrackSelectionParameters trackSelectionParameters;
+  public Tracks currentTracks;
 
   private MockPlayer(Builder builder) {
     changePlayerStateWithTransportControl = builder.changePlayerStateWithTransportControl;
@@ -275,8 +279,9 @@ public class MockPlayer implements Player {
     currentMediaItemIndex = 0;
     repeatMode = Player.REPEAT_MODE_OFF;
     videoSize = VideoSize.UNKNOWN;
+    surfaceSize = Size.UNKNOWN;
     volume = 1.0f;
-    cueGroup = CueGroup.EMPTY;
+    cueGroup = CueGroup.EMPTY_TIME_ZERO;
     deviceInfo = DeviceInfo.UNKNOWN;
     seekPositionMs = C.TIME_UNSET;
     seekMediaItemIndex = C.INDEX_UNSET;
@@ -297,6 +302,7 @@ public class MockPlayer implements Player {
 
     commands = new Player.Commands.Builder().addAllCommands().build();
 
+    currentTracks = Tracks.EMPTY;
     trackSelectionParameters = TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT;
   }
 
@@ -514,6 +520,12 @@ public class MockPlayer implements Player {
     }
   }
 
+  /**
+   * Changes the values returned from {@link #getPlayWhenReady()} and {@link
+   * #getPlaybackSuppressionReason()}, and triggers {@link Player.Listener#onPlayWhenReadyChanged},
+   * {@link Player.Listener#onPlaybackSuppressionReasonChanged} or {@link
+   * Player.Listener#onIsPlayingChanged} as appropriate.
+   */
   public void notifyPlayWhenReadyChanged(
       boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
     boolean playWhenReadyChanged = (this.playWhenReady != playWhenReady);
@@ -522,8 +534,10 @@ public class MockPlayer implements Player {
       return;
     }
 
+    boolean wasPlaying = isPlaying();
     this.playWhenReady = playWhenReady;
     this.playbackSuppressionReason = reason;
+    boolean isPlaying = isPlaying();
     for (Listener listener : listeners) {
       if (playWhenReadyChanged) {
         listener.onPlayWhenReadyChanged(
@@ -532,26 +546,29 @@ public class MockPlayer implements Player {
       if (playbackSuppressionReasonChanged) {
         listener.onPlaybackSuppressionReasonChanged(reason);
       }
+      if (isPlaying != wasPlaying) {
+        listener.onIsPlayingChanged(isPlaying);
+      }
     }
   }
 
+  /**
+   * Changes the value returned from {@link #getPlaybackState()} and triggers {@link
+   * Player.Listener#onPlaybackStateChanged} and/or {@link Player.Listener#onIsPlayingChanged} as
+   * appropriate.
+   */
   public void notifyPlaybackStateChanged(@State int playbackState) {
     if (this.playbackState == playbackState) {
       return;
     }
+    boolean wasPlaying = isPlaying();
     this.playbackState = playbackState;
+    boolean isPlaying = isPlaying();
     for (Listener listener : listeners) {
       listener.onPlaybackStateChanged(playbackState);
-    }
-  }
-
-  public void notifyIsPlayingChanged(boolean isPlaying) {
-    if (this.isPlaying == isPlaying) {
-      return;
-    }
-    this.isPlaying = isPlaying;
-    for (Listener listener : listeners) {
-      listener.onIsPlayingChanged(isPlaying);
+      if (isPlaying != wasPlaying) {
+        listener.onIsPlayingChanged(isPlaying);
+      }
     }
   }
 
@@ -652,11 +669,13 @@ public class MockPlayer implements Player {
 
   @Override
   public void increaseDeviceVolume() {
+    deviceVolume += 1;
     checkNotNull(conditionVariables.get(METHOD_INCREASE_DEVICE_VOLUME)).open();
   }
 
   @Override
   public void decreaseDeviceVolume() {
+    deviceVolume -= 1;
     checkNotNull(conditionVariables.get(METHOD_DECREASE_DEVICE_VOLUME)).open();
   }
 
@@ -689,7 +708,9 @@ public class MockPlayer implements Player {
 
   @Override
   public boolean isPlaying() {
-    return isPlaying;
+    return playWhenReady
+        && playbackState == Player.STATE_READY
+        && playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   @Override
@@ -1116,6 +1137,11 @@ public class MockPlayer implements Player {
     return videoSize;
   }
 
+  @Override
+  public Size getSurfaceSize() {
+    return surfaceSize;
+  }
+
   public void notifyVideoSizeChanged(VideoSize videoSize) {
     for (Listener listener : listeners) {
       listener.onVideoSizeChanged(videoSize);
@@ -1131,48 +1157,87 @@ public class MockPlayer implements Player {
   public void clearVideoSurface(@Nullable Surface surface) {
     if (surface != null && surface == this.surface) {
       this.surface = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
   @Override
   public void setVideoSurface(@Nullable Surface surface) {
     this.surface = surface;
+    int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
+    maybeUpdateSurfaceSize(/* width= */ newSurfaceSize, /* height= */ newSurfaceSize);
   }
 
   @Override
   public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
     this.surfaceHolder = surfaceHolder;
+    if (surfaceHolder == null || surfaceHolder.getSurfaceFrame() == null) {
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
+    } else {
+      Rect rect = surfaceHolder.getSurfaceFrame();
+      maybeUpdateSurfaceSize(rect.width(), rect.height());
+    }
   }
 
   @Override
   public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
     if (surfaceHolder != null && surfaceHolder == this.surfaceHolder) {
       this.surfaceHolder = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
   @Override
   public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     this.surfaceView = surfaceView;
+    if (surfaceView == null
+        || surfaceView.getHolder() == null
+        || surfaceView.getHolder().getSurfaceFrame() == null) {
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
+    } else {
+      Rect rect = surfaceView.getHolder().getSurfaceFrame();
+      maybeUpdateSurfaceSize(rect.width(), rect.height());
+    }
   }
 
   @Override
   public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     if (surfaceView != null && surfaceView == this.surfaceView) {
       this.surfaceView = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
   }
 
   @Override
   public void setVideoTextureView(@Nullable TextureView textureView) {
     this.textureView = textureView;
+    if (textureView != null) {
+      maybeUpdateSurfaceSize(textureView.getWidth(), textureView.getHeight());
+    }
   }
 
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {
     if (textureView != null && textureView == this.textureView) {
       this.textureView = null;
+      maybeUpdateSurfaceSize(/* width= */ 0, /* height= */ 0);
     }
+  }
+
+  @Override
+  public Tracks getCurrentTracks() {
+    return currentTracks;
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return trackSelectionParameters;
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    trackSelectionParameters = parameters;
+    checkNotNull(conditionVariables.get(METHOD_SET_TRACK_SELECTION_PARAMETERS)).open();
   }
 
   public boolean surfaceExists() {
@@ -1182,6 +1247,12 @@ public class MockPlayer implements Player {
   public void notifyDeviceVolumeChanged() {
     for (Listener listener : listeners) {
       listener.onDeviceVolumeChanged(deviceVolume, deviceMuted);
+    }
+  }
+
+  public void notifyVolumeChanged() {
+    for (Listener listener : listeners) {
+      listener.onVolumeChanged(volume);
     }
   }
 
@@ -1223,20 +1294,10 @@ public class MockPlayer implements Player {
     }
   }
 
-  @Override
-  public Tracks getCurrentTracks() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TrackSelectionParameters getTrackSelectionParameters() {
-    return trackSelectionParameters;
-  }
-
-  @Override
-  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
-    trackSelectionParameters = parameters;
-    checkNotNull(conditionVariables.get(METHOD_SET_TRACK_SELECTION_PARAMETERS)).open();
+  public void notifyTracksChanged() {
+    for (Listener listener : listeners) {
+      listener.onTracksChanged(currentTracks);
+    }
   }
 
   @Override
@@ -1258,6 +1319,12 @@ public class MockPlayer implements Player {
     if (!checkNotNull(conditionVariables.get(method)).block(timeOutMs)) {
       throw new TimeoutException(
           Util.formatInvariant("Method %d not called after %d ms", method, timeOutMs));
+    }
+  }
+
+  private void maybeUpdateSurfaceSize(int width, int height) {
+    if (width != surfaceSize.getWidth() || height != surfaceSize.getHeight()) {
+      surfaceSize = new Size(width, height);
     }
   }
 
@@ -1319,17 +1386,20 @@ public class MockPlayer implements Player {
       applicationLooper = Util.getCurrentOrMainLooper();
     }
 
+    @CanIgnoreReturnValue
     public Builder setChangePlayerStateWithTransportControl(
         boolean changePlayerStateWithTransportControl) {
       this.changePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setApplicationLooper(Looper applicationLooper) {
       this.applicationLooper = applicationLooper;
       return this;
     }
 
+    @CanIgnoreReturnValue
     public Builder setMediaItems(int itemCount) {
       this.itemCount = itemCount;
       return this;

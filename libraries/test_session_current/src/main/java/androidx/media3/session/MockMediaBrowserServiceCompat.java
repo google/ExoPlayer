@@ -15,21 +15,33 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_NOT_PLAYED;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_CONNECT_REJECTED;
+import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_CHILDREN;
+import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_LIBRARY_ROOT;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_ON_CHILDREN_CHANGED_SUBSCRIBE_AND_UNSUBSCRIBE;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Callback;
 import androidx.annotation.GuardedBy;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaBrowserServiceCompat;
+import androidx.media3.test.session.common.MediaBrowserServiceCompatConstants;
+import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +49,12 @@ import java.util.List;
 /** Mock implementation of the media browser service. */
 @UnstableApi
 public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
+
+  /**
+   * Immutable list of media items sent to controllers for {@link
+   * MediaBrowserServiceCompatConstants#TEST_GET_CHILDREN}.
+   */
+  public static final ImmutableList<MediaItem> MEDIA_ITEMS = createMediaItems();
 
   private static final String TAG = "MockMBSCompat";
   private static final Object lock = new Object();
@@ -226,6 +244,12 @@ public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
         case TEST_ON_CHILDREN_CHANGED_SUBSCRIBE_AND_UNSUBSCRIBE:
           setProxyForTestOnChildrenChanged_subscribeAndUnsubscribe();
           break;
+        case TEST_GET_LIBRARY_ROOT:
+          setProxyForTestGetLibraryRoot_correctExtraKeyAndValue();
+          break;
+        case TEST_GET_CHILDREN:
+          setProxyForTestGetChildren_correctMetadataExtras();
+          break;
         default:
           throw new IllegalArgumentException("Unknown testName: " + testName);
       }
@@ -257,5 +281,54 @@ public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             }
           });
     }
+
+    private void setProxyForTestGetChildren_correctMetadataExtras() {
+      setMediaBrowserServiceProxy(
+          new MockMediaBrowserServiceCompat.Proxy() {
+            @Override
+            public void onLoadChildren(String parentId, Result<List<MediaItem>> result) {
+              onLoadChildren(parentId, result, new Bundle());
+            }
+
+            @Override
+            public void onLoadChildren(
+                String parentId, Result<List<MediaItem>> result, Bundle bundle) {
+              result.sendResult(MEDIA_ITEMS);
+            }
+          });
+    }
+
+    private void setProxyForTestGetLibraryRoot_correctExtraKeyAndValue() {
+      setMediaBrowserServiceProxy(
+          new MockMediaBrowserServiceCompat.Proxy() {
+            @Override
+            public BrowserRoot onGetRoot(
+                String clientPackageName, int clientUid, Bundle rootHints) {
+              return new BrowserRoot(ROOT_ID, ROOT_EXTRAS);
+            }
+          });
+    }
+  }
+
+  private static ImmutableList<MediaItem> createMediaItems() {
+    int[] completionStates =
+        new int[] {
+          EXTRAS_VALUE_COMPLETION_STATUS_NOT_PLAYED,
+          EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED,
+          EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED
+        };
+    ImmutableList.Builder<MediaItem> builder = new ImmutableList.Builder<>();
+    for (int i = 0; i < 3; i++) {
+      Bundle extras = new Bundle();
+      extras.putInt(EXTRAS_KEY_COMPLETION_STATUS, completionStates[i]);
+      builder.add(
+          new MediaBrowserCompat.MediaItem(
+              new MediaDescriptionCompat.Builder()
+                  .setMediaId("media-id-" + i)
+                  .setExtras(extras)
+                  .build(),
+              /* flags= */ 0));
+    }
+    return builder.build();
   }
 }

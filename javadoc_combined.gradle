@@ -21,7 +21,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
 
   // Dackka snapshots are listed at https://androidx.dev/dackka/builds.
   static final String DACKKA_JAR_URL =
-      "https://androidx.dev/dackka/builds/8003564/artifacts/dackka-0.0.14.jar"
+      "https://androidx.dev/dackka/builds/9221390/artifacts/dackka-1.0.4-all.jar"
 
   @Override
   void apply(Project project) {
@@ -56,6 +56,11 @@ class CombinedJavadocPlugin implements Plugin<Project> {
                     if (file ==~ /.*media-.\..\..-api.jar$/
                         && !file.path.endsWith(
                             "media-" + project.ext.androidxMediaVersion + "-api.jar")) {
+                      return false;
+                    }
+                    if (file ==~ /.*\/core-.\..\..-api.jar$/
+                            && !file.path.endsWith(
+                            "core-" + project.ext.androidxCoreVersion + "-api.jar")) {
                       return false;
                     }
                     return true;
@@ -115,11 +120,16 @@ class CombinedJavadocPlugin implements Plugin<Project> {
             def sourcesString = project.files(sources.flatten())
                 .filter({ f -> project.file(f).exists() }).join(";")
             def dependenciesString = project.files(dependencies).asPath.replace(':', ';')
+            def sourceSet = [
+                "-src", sourcesString,
+                "-classpath", dependenciesString,
+                "-documentedVisibilities", "PUBLIC;PROTECTED"
+              ].join(" ")
             args("-moduleName", "",
                 "-outputDir", "$dackkaOutputDir",
                 "-globalLinks", "$globalLinksString",
                 "-loggingLevel", "WARN",
-                "-sourceSet", "-src $sourcesString -classpath $dependenciesString",
+                "-sourceSet", "$sourceSet",
                 "-offlineMode")
             environment("DEVSITE_TENANT", "androidx/media3")
           }

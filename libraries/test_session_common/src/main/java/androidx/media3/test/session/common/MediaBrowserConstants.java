@@ -26,11 +26,12 @@ public class MediaBrowserConstants {
 
   public static final String ROOT_ID = "rootId";
   public static final Bundle ROOT_EXTRAS = new Bundle();
+  public static final String ROOT_EXTRAS_KEY = "root_extras_key";
+  public static final int ROOT_EXTRAS_VALUE = 4321;
 
   public static final String MEDIA_ID_GET_BROWSABLE_ITEM = "media_id_get_browsable_item";
   public static final String MEDIA_ID_GET_PLAYABLE_ITEM = "media_id_get_playable_item";
   public static final String MEDIA_ID_GET_ITEM_WITH_METADATA = "media_id_get_item_with_metadata";
-  public static final String MEDIA_ID_GET_NULL_ITEM = "media_id_get_null_item";
 
   public static final String PARENT_ID = "parent_id";
   public static final String PARENT_ID_LONG_LIST = "parent_id_long_list";
@@ -72,7 +73,7 @@ public class MediaBrowserConstants {
   public static final String CUSTOM_ACTION_ASSERT_PARAMS = "assertParams";
 
   static {
-    ROOT_EXTRAS.putString(ROOT_ID, ROOT_ID);
+    ROOT_EXTRAS.putInt(ROOT_EXTRAS_KEY, ROOT_EXTRAS_VALUE);
 
     CUSTOM_ACTION_EXTRAS.putString(CUSTOM_ACTION, CUSTOM_ACTION);
 

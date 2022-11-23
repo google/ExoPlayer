@@ -23,6 +23,7 @@ import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.CueGroup;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
@@ -757,6 +758,12 @@ public class ForwardingPlayer implements Player {
   @Override
   public VideoSize getVideoSize() {
     return player.getVideoSize();
+  }
+
+  /** Calls {@link Player#getSurfaceSize()} on the delegate and returns the result. */
+  @Override
+  public Size getSurfaceSize() {
+    return player.getSurfaceSize();
   }
 
   /** Calls {@link Player#clearVideoSurface()} on the delegate. */

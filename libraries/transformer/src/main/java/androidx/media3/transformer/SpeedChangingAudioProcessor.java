@@ -19,10 +19,11 @@ package androidx.media3.transformer;
 import static java.lang.Math.min;
 
 import androidx.media3.common.C;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.Util;
-import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.media3.exoplayer.audio.BaseAudioProcessor;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 
 /**
@@ -52,6 +53,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  @CanIgnoreReturnValue
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     return sonicAudioProcessor.configure(inputAudioFormat);
@@ -105,7 +107,7 @@ import java.nio.ByteBuffer;
         endOfStreamQueuedToSonic = true;
       }
     } else {
-      ByteBuffer buffer = replaceOutputBuffer(/* count= */ inputBuffer.remaining());
+      ByteBuffer buffer = replaceOutputBuffer(/* size= */ inputBuffer.remaining());
       buffer.put(inputBuffer);
       buffer.flip();
     }

@@ -225,4 +225,27 @@ public class MediaSessionAndControllerTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(playWhenReadyRef.get()).isEqualTo(testPlayWhenReady);
   }
+
+  @Test
+  public void commandBeforeControllerRelease_handledBySession() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder().setApplicationLooper(Looper.getMainLooper()).build();
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setId(TAG).build());
+    MediaController controller = controllerTestRule.createController(session.getToken());
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.prepare();
+              controller.play();
+              controller.release();
+            });
+
+    // Assert these methods are called without timing out.
+    player.awaitMethodCalled(MockPlayer.METHOD_PREPARE, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+  }
 }

@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
+import static androidx.media.utils.MediaConstants.BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
@@ -108,7 +109,15 @@ import java.util.concurrent.atomic.AtomicReference;
       Log.e(TAG, "Couldn't get a result from onGetLibraryRoot", e);
     }
     if (result != null && result.resultCode == RESULT_SUCCESS && result.value != null) {
-      return new BrowserRoot(result.value.mediaId, MediaUtils.convertToRootHints(result.params));
+      @Nullable
+      Bundle extras =
+          result.params != null ? MediaUtils.convertToRootHints(result.params) : new Bundle();
+      boolean isSearchSessionCommandAvailable =
+          getConnectedControllersManager()
+              .isSessionCommandAvailable(controller, SessionCommand.COMMAND_CODE_LIBRARY_SEARCH);
+      checkNotNull(extras)
+          .putBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED, isSearchSessionCommandAvailable);
+      return new BrowserRoot(result.value.mediaId, extras);
     }
     // No library root, but keep browser compat connected to allow getting session.
     return MediaUtils.defaultBrowserRoot;
@@ -317,13 +326,14 @@ import java.util.concurrent.atomic.AtomicReference;
   }
 
   @Override
-  public ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo) {
+  public ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo, Bundle rootHints) {
     return new ControllerInfo(
         remoteUserInfo,
         ControllerInfo.LEGACY_CONTROLLER_VERSION,
+        ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
         getMediaSessionManager().isTrustedForMediaControl(remoteUserInfo),
         new BrowserLegacyCb(remoteUserInfo),
-        /* connectionHints= */ Bundle.EMPTY);
+        /* connectionHints= */ rootHints);
   }
 
   public ControllerCb getBrowserLegacyCbForBroadcast() {

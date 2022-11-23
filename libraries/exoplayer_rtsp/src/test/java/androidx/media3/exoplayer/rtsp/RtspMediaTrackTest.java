@@ -76,7 +76,8 @@ public class RtspMediaTrackTest {
             /* fmtpParameters= */ ImmutableMap.of(
                 "packetization-mode", "1",
                 "profile-level-id", "64001F",
-                "sprop-parameter-sets", "Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA"));
+                "sprop-parameter-sets", "Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA"),
+            RtpPayloadFormat.RTP_MEDIA_H264);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -101,7 +102,8 @@ public class RtspMediaTrackTest {
                 .build(),
             /* rtpPayloadType= */ 0,
             /* clockRate= */ 8_000,
-            /* fmtpParameters= */ ImmutableMap.of());
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_PCMU);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -134,7 +136,8 @@ public class RtspMediaTrackTest {
                 .build(),
             /* rtpPayloadType= */ pcmaPayloadType,
             /* clockRate= */ pcmaClockRate,
-            /* fmtpParameters= */ ImmutableMap.of());
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_PCMA);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -168,7 +171,8 @@ public class RtspMediaTrackTest {
                 .build(),
             /* rtpPayloadType= */ l16StereoPayloadType,
             /* clockRate= */ l16StereoClockRate,
-            /* fmtpParameters= */ ImmutableMap.of());
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_PCM_L16);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -202,7 +206,8 @@ public class RtspMediaTrackTest {
                 .build(),
             /* rtpPayloadType= */ l16MonoPayloadType,
             /* clockRate= */ l16MonoClockRate,
-            /* fmtpParameters= */ ImmutableMap.of());
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_PCM_L16);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -244,7 +249,8 @@ public class RtspMediaTrackTest {
             /* fmtpParameters= */ ImmutableMap.of(
                 "packetization-mode", "1",
                 "profile-level-id", "64001F",
-                "sprop-parameter-sets", "Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA"));
+                "sprop-parameter-sets", "Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA"),
+            RtpPayloadFormat.RTP_MEDIA_H264);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -288,7 +294,8 @@ public class RtspMediaTrackTest {
                 .put("indexlength", "3")
                 .put("indexdeltalength", "3")
                 .put("config", "1208")
-                .buildOrThrow());
+                .buildOrThrow(),
+            RtpPayloadFormat.RTP_MEDIA_MPEG4_GENERIC);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -315,7 +322,8 @@ public class RtspMediaTrackTest {
                 .build(),
             /* rtpPayloadType= */ 97,
             /* clockRate= */ 48000,
-            /* fmtpParameters= */ ImmutableMap.of());
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_AC3);
 
     assertThat(format).isEqualTo(expectedFormat);
   }
@@ -342,7 +350,8 @@ public class RtspMediaTrackTest {
                 .build(),
             /* rtpPayloadType= */ 97,
             /* clockRate= */ 48000,
-            /* fmtpParameters= */ ImmutableMap.of());
+            /* fmtpParameters= */ ImmutableMap.of(),
+            RtpPayloadFormat.RTP_MEDIA_AC3);
 
     assertThat(format).isEqualTo(expectedFormat);
   }

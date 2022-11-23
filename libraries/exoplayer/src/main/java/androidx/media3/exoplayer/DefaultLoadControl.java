@@ -29,6 +29,7 @@ import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** The default {@link LoadControl} implementation. */
 @UnstableApi
@@ -133,6 +134,7 @@ public class DefaultLoadControl implements LoadControl {
      * @return This builder, for convenience.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setAllocator(DefaultAllocator allocator) {
       checkState(!buildCalled);
       this.allocator = allocator;
@@ -154,6 +156,7 @@ public class DefaultLoadControl implements LoadControl {
      * @return This builder, for convenience.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setBufferDurationsMs(
         int minBufferMs,
         int maxBufferMs,
@@ -185,6 +188,7 @@ public class DefaultLoadControl implements LoadControl {
      * @return This builder, for convenience.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setTargetBufferBytes(int targetBufferBytes) {
       checkState(!buildCalled);
       this.targetBufferBytes = targetBufferBytes;
@@ -200,6 +204,7 @@ public class DefaultLoadControl implements LoadControl {
      * @return This builder, for convenience.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setPrioritizeTimeOverSizeThresholds(boolean prioritizeTimeOverSizeThresholds) {
       checkState(!buildCalled);
       this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
@@ -216,6 +221,7 @@ public class DefaultLoadControl implements LoadControl {
      * @return This builder, for convenience.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
+    @CanIgnoreReturnValue
     public Builder setBackBuffer(int backBufferDurationMs, boolean retainBackBufferFromKeyframe) {
       checkState(!buildCalled);
       assertGreaterOrEqual(backBufferDurationMs, 0, "backBufferDurationMs", "0");

@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
@@ -83,6 +84,7 @@ import java.lang.annotation.Target;
       long currentLiveOffsetMs,
       long contentDurationMs,
       long contentBufferedPositionMs) {
+    checkArgument(isPlayingAd == (positionInfo.adGroupIndex != C.INDEX_UNSET));
     this.positionInfo = positionInfo;
     this.isPlayingAd = isPlayingAd;
     this.eventTimeMs = eventTimeMs;

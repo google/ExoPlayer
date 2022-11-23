@@ -16,8 +16,15 @@
 package androidx.media3.session;
 
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
+import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA_BROWSER_SERVICE_COMPAT;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_CONNECT_REJECTED;
+import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_CHILDREN;
+import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_LIBRARY_ROOT;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_ON_CHILDREN_CHANGED_SUBSCRIBE_AND_UNSUBSCRIBE;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
@@ -25,13 +32,16 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
+import androidx.media3.common.MediaItem;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
@@ -136,5 +146,57 @@ public class MediaBrowserListenerWithMediaBrowserServiceCompatTest {
     // This shouldn't trigger browser's onChildrenChanged().
     // Wait for some time. Exception will be thrown in the listener if error happens.
     Thread.sleep(TIMEOUT_MS);
+  }
+
+  @Test
+  public void getLibraryRoot_correctExtraKeyAndValue() throws Exception {
+    remoteService.setProxyForTest(TEST_GET_LIBRARY_ROOT);
+    MediaBrowser browser = createBrowser(/* listener= */ null);
+
+    LibraryResult<MediaItem> resultForLibraryRoot =
+        threadTestRule
+            .getHandler()
+            .postAndSync(() -> browser.getLibraryRoot(new LibraryParams.Builder().build()))
+            .get(TIMEOUT_MS, MILLISECONDS);
+
+    Bundle extras = resultForLibraryRoot.params.extras;
+    assertThat(extras.getInt(ROOT_EXTRAS_KEY, ROOT_EXTRAS_VALUE + 1)).isEqualTo(ROOT_EXTRAS_VALUE);
+  }
+
+  @Test
+  public void getChildren_correctMetadataExtras() throws Exception {
+    LibraryParams params = MediaTestUtils.createLibraryParams();
+    remoteService.setProxyForTest(TEST_GET_CHILDREN);
+    MediaBrowser browser = createBrowser(/* listener= */ null);
+
+    LibraryResult<ImmutableList<MediaItem>> libraryResult =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> browser.getChildren(PARENT_ID, /* page= */ 4, /* pageSize= */ 10, params))
+            .get(TIMEOUT_MS, MILLISECONDS);
+
+    assertThat(libraryResult.resultCode).isEqualTo(RESULT_SUCCESS);
+    assertThat(libraryResult.value).hasSize(MockMediaBrowserServiceCompat.MEDIA_ITEMS.size());
+    for (int i = 0; i < libraryResult.value.size(); i++) {
+      int status =
+          libraryResult
+              .value
+              .get(i)
+              .mediaMetadata
+              .extras
+              .getInt(
+                  EXTRAS_KEY_COMPLETION_STATUS,
+                  /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1);
+      int expectedStatus =
+          MockMediaBrowserServiceCompat.MEDIA_ITEMS
+              .get(i)
+              .getDescription()
+              .getExtras()
+              .getInt(
+                  EXTRAS_KEY_COMPLETION_STATUS,
+                  /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1);
+      assertThat(status).isEqualTo(expectedStatus);
+    }
   }
 }

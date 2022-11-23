@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationBuilderWithBuilderAccessor;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
@@ -124,6 +125,7 @@ public class MediaStyleNotificationHelper {
      *
      * @param actions the indices of the actions to show in the compact notification view
      */
+    @CanIgnoreReturnValue
     public MediaStyle setShowActionsInCompactView(int... actions) {
       actionsToShowInCompact = actions;
       return this;
@@ -153,6 +155,7 @@ public class MediaStyleNotificationHelper {
      *
      * @param show whether to show a cancel button
      */
+    @CanIgnoreReturnValue
     public MediaStyle setShowCancelButton(boolean show) {
       if (Build.VERSION.SDK_INT < 21) {
         showCancelButton = show;
@@ -166,6 +169,7 @@ public class MediaStyleNotificationHelper {
      *
      * @param pendingIntent the intent to be sent when the cancel button is pressed
      */
+    @CanIgnoreReturnValue
     public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {
       cancelButtonIntent = pendingIntent;
       return this;

@@ -105,7 +105,9 @@ import androidx.media3.common.util.Util;
     intent.setData(mediaSession.getImpl().getUri());
     intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-    if (Util.SDK_INT >= 26 && command == COMMAND_PLAY_PAUSE) {
+    if (Util.SDK_INT >= 26
+        && command == COMMAND_PLAY_PAUSE
+        && !mediaSession.getPlayer().getPlayWhenReady()) {
       return Api26.createForegroundServicePendingIntent(service, keyCode, intent);
     } else {
       return PendingIntent.getService(

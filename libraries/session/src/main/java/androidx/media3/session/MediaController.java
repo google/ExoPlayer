@@ -54,16 +54,19 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.initialization.qual.NotOnlyInitialized;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 /**
  * A controller that interacts with a {@link MediaSession}, a {@link MediaSessionService} hosting a
@@ -87,7 +90,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
  * session token type is {@link SessionToken#TYPE_SESSION}), the controller will connect to the
- * specific session.F
+ * specific session.
  *
  * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSessionService}
  * (i.e. session token type is {@link SessionToken#TYPE_SESSION_SERVICE} or {@link
@@ -95,8 +98,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  * {@link MediaSession} in it. {@link MediaSessionService} will provide a session to connect.
  *
  * <p>When you're done, use {@link #releaseFuture(Future)} or {@link #release()} to clean up
- * resources. This also helps session service to be destroyed when there's no controller associated
- * with it.
+ * resources. This also helps the session service to be destroyed when there's no controller
+ * associated with it. Releasing the controller will still deliver all pending commands sent to the
+ * session and only unbind from the session service once these commands have been handled, or after
+ * a timeout of {@link #RELEASE_UNBIND_TIMEOUT_MS}.
  *
  * <h2 id="ThreadingModel">Threading Model</h2>
  *
@@ -158,6 +163,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
  */
 public class MediaController implements Player {
 
+  /**
+   * The timeout for handling pending commands after calling {@link #release()}. If the timeout is
+   * reached, the controller is unbound from the session service even if commands are still pending.
+   */
+  @UnstableApi public static final long RELEASE_UNBIND_TIMEOUT_MS = 30_000;
+
   private static final String TAG = "MediaController";
 
   private static final String WRONG_THREAD_ERROR_MESSAGE =
@@ -217,6 +228,7 @@ public class MediaController implements Player {
      * @param connectionHints A bundle containing the connection hints.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setConnectionHints(Bundle connectionHints) {
       this.connectionHints = new Bundle(checkNotNull(connectionHints));
       return this;
@@ -228,6 +240,7 @@ public class MediaController implements Player {
      * @param listener The listener.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setListener(Listener listener) {
       this.listener = checkNotNull(listener);
       return this;
@@ -242,6 +255,7 @@ public class MediaController implements Player {
      * @param looper The looper.
      * @return The builder to allow chaining.
      */
+    @CanIgnoreReturnValue
     public Builder setApplicationLooper(Looper looper) {
       applicationLooper = checkNotNull(looper);
       return this;
@@ -371,7 +385,7 @@ public class MediaController implements Player {
 
   private boolean released;
 
-  /* package */ final MediaControllerImpl impl;
+  @NotOnlyInitialized private final MediaControllerImpl impl;
 
   /* package */ final Listener listener;
 
@@ -403,19 +417,21 @@ public class MediaController implements Player {
     applicationHandler = new Handler(applicationLooper);
     this.connectionCallback = connectionCallback;
 
-    @SuppressWarnings("nullness:assignment")
-    @Initialized
-    MediaController thisRef = this;
-    impl = thisRef.createImpl(context, thisRef, token, connectionHints);
+    impl = createImpl(context, token, connectionHints, applicationLooper);
     impl.connect();
   }
 
-  /* package */ MediaControllerImpl createImpl(
-      Context context, MediaController thisRef, SessionToken token, Bundle connectionHints) {
+  /* package */ @UnderInitialization
+  MediaControllerImpl createImpl(
+      @UnderInitialization MediaController this,
+      Context context,
+      SessionToken token,
+      Bundle connectionHints,
+      Looper applicationLooper) {
     if (token.isLegacySession()) {
-      return new MediaControllerImplLegacy(context, thisRef, token);
+      return new MediaControllerImplLegacy(context, this, token, applicationLooper);
     } else {
-      return new MediaControllerImplBase(context, thisRef, token, connectionHints);
+      return new MediaControllerImplBase(context, this, token, connectionHints, applicationLooper);
     }
   }
 
@@ -1483,6 +1499,13 @@ public class MediaController implements Player {
     return isConnected() ? impl.getVideoSize() : VideoSize.UNKNOWN;
   }
 
+  @UnstableApi
+  @Override
+  public Size getSurfaceSize() {
+    verifyApplicationThread();
+    return isConnected() ? impl.getSurfaceSize() : Size.UNKNOWN;
+  }
+
   @Override
   public void clearVideoSurface() {
     verifyApplicationThread();
@@ -1576,7 +1599,7 @@ public class MediaController implements Player {
   @Override
   public CueGroup getCurrentCues() {
     verifyApplicationThread();
-    return isConnected() ? impl.getCurrentCues() : CueGroup.EMPTY;
+    return isConnected() ? impl.getCurrentCues() : CueGroup.EMPTY_TIME_ZERO;
   }
 
   @Override
@@ -1673,7 +1696,8 @@ public class MediaController implements Player {
 
   @Override
   public Tracks getCurrentTracks() {
-    return Tracks.EMPTY; // TODO(b/178486745)
+    verifyApplicationThread();
+    return isConnected() ? impl.getCurrentTracks() : Tracks.EMPTY;
   }
 
   @Override
@@ -1800,7 +1824,7 @@ public class MediaController implements Player {
 
   interface MediaControllerImpl {
 
-    void connect();
+    void connect(@UnderInitialization MediaControllerImpl this);
 
     void addListener(Player.Listener listener);
 
@@ -1952,6 +1976,8 @@ public class MediaController implements Player {
 
     VideoSize getVideoSize();
 
+    Size getSurfaceSize();
+
     void clearVideoSurface();
 
     void clearVideoSurface(@Nullable Surface surface);
@@ -2005,6 +2031,8 @@ public class MediaController implements Player {
     MediaMetadata getMediaMetadata();
 
     Commands getAvailableCommands();
+
+    Tracks getCurrentTracks();
 
     TrackSelectionParameters getTrackSelectionParameters();
 

@@ -34,6 +34,7 @@ import androidx.media3.common.util.BundleUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -261,6 +262,7 @@ public abstract class Timeline implements Bundleable {
     }
 
     /** Sets the data held by this window. */
+    @CanIgnoreReturnValue
     @UnstableApi
     @SuppressWarnings("deprecation")
     public Window set(
@@ -626,6 +628,7 @@ public abstract class Timeline implements Bundleable {
      *     period is not within the window.
      * @return This period, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Period set(
         @Nullable Object id,
@@ -662,6 +665,7 @@ public abstract class Timeline implements Bundleable {
      *     information has yet to be loaded.
      * @return This period, for convenience.
      */
+    @CanIgnoreReturnValue
     @UnstableApi
     public Period set(
         @Nullable Object id,

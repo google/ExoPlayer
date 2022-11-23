@@ -70,8 +70,8 @@ public final class RtspClientTest {
         ImmutableList.of(
             RtspTestUtils.readRtpPacketStreamDump("media/rtsp/h264-dump.json"),
             RtspTestUtils.readRtpPacketStreamDump("media/rtsp/aac-dump.json"),
-            // MP4A-LATM is not supported at the moment.
-            RtspTestUtils.readRtpPacketStreamDump("media/rtsp/mp4a-latm-dump.json"));
+            // MPEG2TS is not supported at the moment.
+            RtspTestUtils.readRtpPacketStreamDump("media/rtsp/mpeg2ts-dump.json"));
   }
 
   @After

@@ -47,6 +47,7 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -81,6 +82,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 @UnstableApi
 public final class CastPlayer extends BasePlayer {
+
+  /** The {@link DeviceInfo} returned by {@link #getDeviceInfo() this player}. */
+  public static final DeviceInfo DEVICE_INFO =
+      new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 0, /* maxVolume= */ 0);
 
   static {
     MediaLibraryInfo.registerModule("media3.cast");
@@ -723,16 +728,22 @@ public final class CastPlayer extends BasePlayer {
     return VideoSize.UNKNOWN;
   }
 
+  /** This method is not supported and returns {@link Size#UNKNOWN}. */
+  @Override
+  public Size getSurfaceSize() {
+    return Size.UNKNOWN;
+  }
+
   /** This method is not supported and returns an empty {@link CueGroup}. */
   @Override
   public CueGroup getCurrentCues() {
-    return CueGroup.EMPTY;
+    return CueGroup.EMPTY_TIME_ZERO;
   }
 
-  /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */
+  /** This method always returns {@link CastPlayer#DEVICE_INFO}. */
   @Override
   public DeviceInfo getDeviceInfo() {
-    return DeviceInfo.UNKNOWN;
+    return DEVICE_INFO;
   }
 
   /** This method is not supported and always returns {@code 0}. */

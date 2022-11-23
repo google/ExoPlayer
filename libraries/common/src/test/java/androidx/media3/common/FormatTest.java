@@ -20,6 +20,7 @@ import static androidx.media3.common.MimeTypes.VIDEO_MP4;
 import static androidx.media3.common.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Bundle;
 import androidx.media3.test.utils.FakeMetadataEntry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
@@ -46,6 +47,16 @@ public final class FormatTest {
     assertThat(formatFromBundle).isEqualTo(formatToBundle);
   }
 
+  @Test
+  public void roundTripViaBundle_excludeMetadata_hasMetadataExcluded() {
+    Format format = createTestFormat();
+
+    Bundle bundleWithMetadataExcluded = format.toBundle(/* excludeMetadata= */ true);
+
+    Format formatWithMetadataExcluded = Format.CREATOR.fromBundle(bundleWithMetadataExcluded);
+    assertThat(formatWithMetadataExcluded).isEqualTo(format.buildUpon().setMetadata(null).build());
+  }
+
   private static Format createTestFormat() {
     byte[] initData1 = new byte[] {1, 2, 3};
     byte[] initData2 = new byte[] {4, 5, 6};
@@ -60,7 +71,6 @@ public final class FormatTest {
     DrmInitData drmInitData = new DrmInitData(drmData1, drmData2);
 
     byte[] projectionData = new byte[] {1, 2, 3};
-
     Metadata metadata = new Metadata(new FakeMetadataEntry("id1"), new FakeMetadataEntry("id2"));
 
     ColorInfo colorInfo =

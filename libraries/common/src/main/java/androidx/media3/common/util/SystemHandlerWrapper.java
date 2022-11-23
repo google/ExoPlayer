@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,6 +137,7 @@ import java.util.List;
     @Nullable private android.os.Message message;
     @Nullable private SystemHandlerWrapper handler;
 
+    @CanIgnoreReturnValue
     public SystemMessage setMessage(android.os.Message message, SystemHandlerWrapper handler) {
       this.message = message;
       this.handler = handler;
