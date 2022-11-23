@@ -20,6 +20,9 @@ import static android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABL
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS;
+import static androidx.media3.common.MimeTypes.AUDIO_AAC;
+import static androidx.media3.common.MimeTypes.VIDEO_H264;
+import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -36,11 +39,13 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.utils.MediaConstants;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.HeartRating;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -49,10 +54,15 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
 import androidx.media3.common.ThumbRating;
+import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
+import androidx.media3.common.Tracks;
+import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -622,5 +632,135 @@ public final class MediaUtilsTest {
         MediaUtils.convertToTotalBufferedDurationMs(
             state, /* metadataCompat= */ null, /* timeDiffMs= */ C.INDEX_UNSET);
     assertThat(totalBufferedDurationMs).isEqualTo(testTotalBufferedDurationMs);
+  }
+
+  @Test
+  public void mergePlayerInfo_timelineAndTracksExcluded_correctMerge() {
+    Timeline timeline =
+        new Timeline.RemotableTimeline(
+            ImmutableList.of(new Timeline.Window()),
+            ImmutableList.of(new Timeline.Period()),
+            /* shuffledWindowIndices= */ new int[] {0});
+    Tracks tracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
+                    new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H265).build()),
+                    /* adaptiveSupported= */ true,
+                    new int[] {C.FORMAT_HANDLED, C.FORMAT_UNSUPPORTED_TYPE},
+                    /* trackSelected= */ new boolean[] {false, true})));
+    PlayerInfo oldPlayerInfo =
+        PlayerInfo.DEFAULT.copyWithCurrentTracks(tracks).copyWithTimeline(timeline);
+    PlayerInfo newPlayerInfo = PlayerInfo.DEFAULT;
+    Player.Commands availableCommands =
+        Player.Commands.EMPTY
+            .buildUpon()
+            .add(Player.COMMAND_GET_TIMELINE)
+            .add(Player.COMMAND_GET_TRACKS)
+            .build();
+
+    Pair<PlayerInfo, BundlingExclusions> mergeResult =
+        MediaUtils.mergePlayerInfo(
+            oldPlayerInfo,
+            BundlingExclusions.NONE,
+            newPlayerInfo,
+            new BundlingExclusions(/* isTimelineExcluded= */ true, /* areTracksExcluded= */ true),
+            availableCommands);
+
+    assertThat(mergeResult.first.timeline).isSameInstanceAs(oldPlayerInfo.timeline);
+    assertThat(mergeResult.first.currentTracks).isSameInstanceAs(oldPlayerInfo.currentTracks);
+    assertThat(mergeResult.second.isTimelineExcluded).isFalse();
+    assertThat(mergeResult.second.areCurrentTracksExcluded).isFalse();
+  }
+
+  @Test
+  public void mergePlayerInfo_getTimelineCommandNotAvailable_emptyTimeline() {
+    Timeline timeline =
+        new Timeline.RemotableTimeline(
+            ImmutableList.of(new Timeline.Window()),
+            ImmutableList.of(new Timeline.Period()),
+            /* shuffledWindowIndices= */ new int[] {0});
+    Tracks tracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
+                    new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H265).build()),
+                    /* adaptiveSupported= */ true,
+                    new int[] {C.FORMAT_HANDLED, C.FORMAT_UNSUPPORTED_TYPE},
+                    /* trackSelected= */ new boolean[] {false, true})));
+    PlayerInfo oldPlayerInfo =
+        PlayerInfo.DEFAULT.copyWithCurrentTracks(tracks).copyWithTimeline(timeline);
+    PlayerInfo newPlayerInfo = PlayerInfo.DEFAULT;
+    Player.Commands availableCommands =
+        Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_GET_TRACKS).build();
+
+    Pair<PlayerInfo, BundlingExclusions> mergeResult =
+        MediaUtils.mergePlayerInfo(
+            oldPlayerInfo,
+            BundlingExclusions.NONE,
+            newPlayerInfo,
+            new BundlingExclusions(/* isTimelineExcluded= */ true, /* areTracksExcluded= */ true),
+            availableCommands);
+
+    assertThat(mergeResult.first.timeline).isSameInstanceAs(Timeline.EMPTY);
+    assertThat(mergeResult.first.currentTracks).isSameInstanceAs(oldPlayerInfo.currentTracks);
+    assertThat(mergeResult.second.isTimelineExcluded).isTrue();
+    assertThat(mergeResult.second.areCurrentTracksExcluded).isFalse();
+  }
+
+  @Test
+  public void mergePlayerInfo_getTracksCommandNotAvailable_emptyTracks() {
+    Timeline timeline =
+        new Timeline.RemotableTimeline(
+            ImmutableList.of(new Timeline.Window()),
+            ImmutableList.of(new Timeline.Period()),
+            /* shuffledWindowIndices= */ new int[] {0});
+    Tracks tracks =
+        new Tracks(
+            ImmutableList.of(
+                new Tracks.Group(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
+                    new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+                    /* trackSelected= */ new boolean[] {true}),
+                new Tracks.Group(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H265).build()),
+                    /* adaptiveSupported= */ true,
+                    new int[] {C.FORMAT_HANDLED, C.FORMAT_UNSUPPORTED_TYPE},
+                    /* trackSelected= */ new boolean[] {false, true})));
+    PlayerInfo oldPlayerInfo =
+        PlayerInfo.DEFAULT.copyWithCurrentTracks(tracks).copyWithTimeline(timeline);
+    PlayerInfo newPlayerInfo = PlayerInfo.DEFAULT;
+    Player.Commands availableCommands =
+        Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_GET_TIMELINE).build();
+
+    Pair<PlayerInfo, BundlingExclusions> mergeResult =
+        MediaUtils.mergePlayerInfo(
+            oldPlayerInfo,
+            BundlingExclusions.NONE,
+            newPlayerInfo,
+            new BundlingExclusions(/* isTimelineExcluded= */ true, /* areTracksExcluded= */ true),
+            availableCommands);
+
+    assertThat(mergeResult.first.timeline).isSameInstanceAs(oldPlayerInfo.timeline);
+    assertThat(mergeResult.first.currentTracks).isSameInstanceAs(Tracks.EMPTY);
+    assertThat(mergeResult.second.isTimelineExcluded).isFalse();
+    assertThat(mergeResult.second.areCurrentTracksExcluded).isTrue();
   }
 }

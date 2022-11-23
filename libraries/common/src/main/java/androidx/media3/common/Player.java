@@ -677,7 +677,8 @@ public interface Player {
      * to the current {@link #getRepeatMode() repeat mode}.
      *
      * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
-     * consequence of a playlist change.
+     * consequence of a playlist change or {@linkplain #onAvailableCommandsChanged(Commands) a
+     * change in available commands}.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
