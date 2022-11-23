@@ -82,13 +82,12 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
     return MOCK_MEDIA3_SESSION_SERVICE;
   }
 
-  void connectAndWait(Bundle connectionHints) throws Exception {
+  void connectAndWait(Bundle rootHints) throws Exception {
     handler.postAndSync(
         () -> {
           // Make browser's internal handler to be initialized with test thread.
           browserCompat =
-              new MediaBrowserCompat(
-                  context, getServiceComponent(), connectionCallback, connectionHints);
+              new MediaBrowserCompat(context, getServiceComponent(), connectionCallback, rootHints);
         });
     browserCompat.connect();
     assertThat(connectionCallback.connectedLatch.await(SERVICE_CONNECTION_TIMEOUT_MS, MILLISECONDS))

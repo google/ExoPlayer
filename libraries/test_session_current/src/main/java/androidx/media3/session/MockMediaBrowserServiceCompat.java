@@ -22,6 +22,7 @@ import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STA
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_CONNECT_REJECTED;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_CHILDREN;
 import static androidx.media3.test.session.common.MediaBrowserServiceCompatConstants.TEST_GET_LIBRARY_ROOT;
@@ -37,6 +38,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Callback;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.test.session.common.IRemoteMediaBrowserServiceCompat;
@@ -303,7 +305,18 @@ public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
           new MockMediaBrowserServiceCompat.Proxy() {
             @Override
             public BrowserRoot onGetRoot(
-                String clientPackageName, int clientUid, Bundle rootHints) {
+                String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
+              if (rootHints != null) {
+                // On API levels lower than 21 root hints are null.
+                int supportedRootChildrenFlags =
+                    rootHints.getInt(
+                        androidx.media.utils.MediaConstants
+                            .BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS,
+                        /* defaultValue= */ 0);
+                if ((supportedRootChildrenFlags == MediaItem.FLAG_BROWSABLE)) {
+                  return new BrowserRoot(ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY, ROOT_EXTRAS);
+                }
+              }
               return new BrowserRoot(ROOT_ID, ROOT_EXTRAS);
             }
           });
