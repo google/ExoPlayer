@@ -20,6 +20,7 @@ import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_SE
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.media3.common.MediaLibraryInfo;
+import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestUtils;
@@ -68,6 +70,7 @@ public class SessionTokenTest {
             context,
             new ComponentName(
                 context.getPackageName(), MockMediaSessionService.class.getCanonicalName()));
+
     assertThat(token.getPackageName()).isEqualTo(context.getPackageName());
     assertThat(token.getUid()).isEqualTo(Process.myUid());
     assertThat(token.getType()).isEqualTo(SessionToken.TYPE_SESSION_SERVICE);
@@ -80,6 +83,7 @@ public class SessionTokenTest {
     ComponentName testComponentName =
         new ComponentName(
             context.getPackageName(), MockMediaLibraryService.class.getCanonicalName());
+
     SessionToken token = new SessionToken(context, testComponentName);
 
     assertThat(token.getPackageName()).isEqualTo(context.getPackageName());
@@ -111,14 +115,35 @@ public class SessionTokenTest {
   }
 
   @Test
+  public void createSessionToken_withPlatformTokenFromMedia1Session_returnsTokenForLegacySession()
+      throws Exception {
+    assumeTrue(Util.SDK_INT >= 21);
+
+    MediaSessionCompat sessionCompat =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSessionCompat(context, "createSessionToken_withLegacyToken"));
+
+    SessionToken token =
+        SessionToken.createSessionToken(
+                context,
+                (android.media.session.MediaSession.Token)
+                    sessionCompat.getSessionToken().getToken())
+            .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+    assertThat(token.isLegacySession()).isTrue();
+  }
+
+  @Test
   public void createSessionToken_withCompatTokenFromMedia1Session_returnsTokenForLegacySession()
       throws Exception {
     MediaSessionCompat sessionCompat =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSessionCompat(context, "createSessionToken_withLegacyToken"));
+
     SessionToken token =
         SessionToken.createSessionToken(context, sessionCompat.getSessionToken())
             .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
     assertThat(token.isLegacySession()).isTrue();
   }
 
@@ -150,6 +175,7 @@ public class SessionTokenTest {
     ComponentName mockBrowserServiceCompatName =
         new ComponentName(
             SUPPORT_APP_PACKAGE_NAME, MockMediaBrowserServiceCompat.class.getCanonicalName());
+
     Set<SessionToken> serviceTokens =
         SessionToken.getAllServiceTokens(ApplicationProvider.getApplicationContext());
     for (SessionToken token : serviceTokens) {
@@ -162,6 +188,7 @@ public class SessionTokenTest {
         hasMockLibraryService2 = true;
       }
     }
+
     assertThat(hasMockBrowserServiceCompat).isTrue();
     assertThat(hasMockSessionService2).isTrue();
     assertThat(hasMockLibraryService2).isTrue();

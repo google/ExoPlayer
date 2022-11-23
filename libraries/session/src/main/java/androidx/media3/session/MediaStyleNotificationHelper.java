@@ -501,8 +501,7 @@ public class MediaStyleNotificationHelper {
       if (actionsToShowInCompact != null) {
         setShowActionsInCompactView(style, actionsToShowInCompact);
       }
-      MediaSessionCompat.Token legacyToken =
-          (MediaSessionCompat.Token) session.getSessionCompatToken();
+      MediaSessionCompat.Token legacyToken = session.getSessionCompatToken();
       style.setMediaSession((android.media.session.MediaSession.Token) legacyToken.getToken());
       return style;
     }

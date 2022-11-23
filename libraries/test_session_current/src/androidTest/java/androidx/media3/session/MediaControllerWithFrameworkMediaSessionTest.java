@@ -26,7 +26,6 @@ import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.HandlerThread;
-import android.support.v4.media.session.MediaSessionCompat;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.State;
 import androidx.media3.common.util.Util;
@@ -94,8 +93,7 @@ public class MediaControllerWithFrameworkMediaSessionTest {
   @Test
   public void createController() throws Exception {
     SessionToken token =
-        SessionToken.createSessionToken(
-                context, MediaSessionCompat.Token.fromToken(fwkSession.getSessionToken()))
+        SessionToken.createSessionToken(context, fwkSession.getSessionToken())
             .get(TIMEOUT_MS, MILLISECONDS);
     MediaController controller =
         new MediaController.Builder(context, token)
@@ -111,8 +109,7 @@ public class MediaControllerWithFrameworkMediaSessionTest {
     AtomicInteger playbackStateRef = new AtomicInteger();
     AtomicBoolean playWhenReadyRef = new AtomicBoolean();
     SessionToken token =
-        SessionToken.createSessionToken(
-                context, MediaSessionCompat.Token.fromToken(fwkSession.getSessionToken()))
+        SessionToken.createSessionToken(context, fwkSession.getSessionToken())
             .get(TIMEOUT_MS, MILLISECONDS);
     MediaController controller =
         new MediaController.Builder(context, token)
