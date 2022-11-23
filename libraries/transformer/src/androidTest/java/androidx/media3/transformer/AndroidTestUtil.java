@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
+import android.media.MediaFormat;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -42,6 +43,13 @@ import org.json.JSONObject;
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
   private static final String TAG = "AndroidTestUtil";
+
+  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
+  public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+  /**
+   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
+   */
+  public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
   // Format values are sourced from `mediainfo` command.
 

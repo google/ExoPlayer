@@ -17,10 +17,11 @@
 package androidx.media3.transformer.mh.analysis;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_NON_REALTIME;
+import static androidx.media3.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_REALTIME;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
-import android.media.MediaFormat;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
@@ -43,13 +44,6 @@ import org.junit.runners.Parameterized.Parameters;
 /** Instrumentation tests for analyzing encoder performance settings. */
 @RunWith(Parameterized.class)
 public class EncoderPerformanceAnalysisTest {
-
-  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
-  private static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
-  /**
-   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
-   */
-  private static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
 
   private static final ImmutableList<String> INPUT_FILES =
       ImmutableList.of(
